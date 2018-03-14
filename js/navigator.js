@@ -23,7 +23,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}
 		case 'online-orders':{
-
+			renderOnlineOrders();
 			break;
 		}
 		case 'settled-bills':{
