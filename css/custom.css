@@ -2200,6 +2200,80 @@ ol ol {
 }
 
 
+/*loading */
+
+  #mainLoading {
+    position: relative;/*
+    max-width: 18em;
+    min-width: 18em; */
+    height: 4em !important;
+    background: #8e44ad;
+    padding: 1em 0 0 1em;
+    text-align: left;
+    border-radius: 4px;
+    cursor: default;
+    -moz-transform-origin: 50% 50%;
+    -webkit-transform-origin: 50% 50%;
+    -ms-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -moz-transform: rotateX(0deg);
+    -webkit-transform: rotateX(0deg);
+    -ms-transform: rotateX(0deg);
+    transform: rotateX(0deg);
+    -moz-transition: opacity 1s ease, -moz-transform 1s ease;
+    -webkit-transition: opacity 1s ease, -webkit-transform 1s ease;
+    -ms-transition: opacity 1s ease, -ms-transform 1s ease;
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+.skin-blue #mainLoading, .skin-blue-light #mainLoading{
+  background: #f39c12;
+}
+
+.skin-purple #mainLoading, .skin-purple-light #mainLoading{
+  background: #f39c12;
+}
+
+.skin-red #mainLoading, .skin-red-light #mainLoading{
+  background: #27ae60;
+}
+
+.skin-yellow #mainLoading, .skin-yellow-light #mainLoading{
+  background: #2980b9;
+}
+
+
+
+
+  #mainLoading #loadingIcon {
+    position: relative;
+    display: block;
+
+    position: fixed; left: 10px; top: 0; 
+    z-index: 100001; width: 100%; height: 100%; 
+    overflow: visible; 
+    background: rgba(255, 0, 0, 0) url('../images/common/loading_oval.svg') no-repeat left center; 
+  }
+
+  #mainLoading .loadingText{
+    font-size: 18px;
+    color: #FFF;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+  #mainLoading .loadingCounter{
+    font-size: 18px;
+    font-weight: bold;
+    font-family: 'Roboto';
+    color: #FFF;
+
+    width: 30px;
+    display: inline-block;
+    text-align: center;
+  }
+
+
 /*Login*/
 /* Main */
 
@@ -2275,12 +2349,13 @@ ol ol {
   background: rgba(255, 0, 0, 0) url('https://zaitoon.online/assets/images/common/ripple.svg') no-repeat center center; 
 }
 
+
 /*inactivity screen*/
 #inactivity{
    position: fixed; left: 0; top: 0; 
   z-index: 100001; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("https://zaitoon.online/login/images/pattern.jpg");
+    background-image: url("../data/photos/brand/pattern.jpg");
     background-repeat: repeat;
 }
 

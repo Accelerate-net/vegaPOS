@@ -1,14 +1,63 @@
 function generateBillFromKOT(kotID, optionalPageRef){
-console.log('Generate Bill >> '+optionalPageRef)
-	if(!optionalPageRef){
-		optionalPageRef = '';
-	}
 
 /*
 	optionalPageRef -- from which page the function is called.
 	Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
 */
 
+	if(!optionalPageRef){
+		optionalPageRef = '';
+	}
+
+
+	//If there is any change in customer data w.r.t OriginalKOT, do make the changes now;
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+	if(jQuery.isEmptyObject(customerInfo)){
+		showToast('Customer Details missing', '#e74c3c');
+		return '';
+	}	
+
+
+	/*Read mentioned KOT - kotID*/
+   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
+      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
+    if (err){
+        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+    } else {
+          var kotfile = JSON.parse(data);
+
+          if(kotfile.customerName != customerInfo.name || kotfile.customerMobile != customerInfo.mobile){
+          	kotfile.customerName = customerInfo.name;
+          	kotfile.customerMobile = customerInfo.mobile;
+
+		       var newjson = JSON.stringify(kotfile);
+		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
+		         if(err){
+		            showToast('System Error: Unable to make changes in the Order. Please contact Accelerate Support.', '#e74c3c');
+		           }
+		           else{
+		           		generateBillSuccessCallback('CHANGE_CUSTOMERINFO', optionalPageRef, kotfile);
+		           		generateBillFromKOTAfterProcess(kotID, optionalPageRef);
+		           }
+		       });  
+          }
+          else{
+          	generateBillFromKOTAfterProcess(kotID, optionalPageRef);
+          }
+	}});
+   } else {
+      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+   }  
+
+}
+
+
+function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
+
+/*
+	optionalPageRef -- from which page the function is called.
+	Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
+*/
 
 	/*Read mentioned KOT - kotID*/
    if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
@@ -111,7 +160,7 @@ console.log('Generate Bill >> '+optionalPageRef)
 
 
           var discountButtonPart = '';
-          if(kotfile.discount.amount && kotfile.discount.type != 'COUPON' && kotfile.discount.type != 'NOCOSTBILL' && kotfile.discount.type != 'VOUCHER'){ /*Discount is Applied Already*/
+          if(kotfile.discount.amount && kotfile.discount.type != 'COUPON' && kotfile.discount.type != 'NOCOSTBILL' && kotfile.discount.type != 'VOUCHER' && kotfile.discount.type != 'REWARDS'){ /*Discount is Applied Already*/
           	discountButtonPart ='                        <div class="">'+
 								'                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeBillDiscountOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove Discount</button>'+
 								'                        </div>';
@@ -197,6 +246,22 @@ console.log('Generate Bill >> '+optionalPageRef)
 								'                          <div id="applyNoCostBillButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyNoCostBillButton" onclick="openMarkNoCostBill(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">No Cost Bill</button></div>'+
 								'                        </div>';
           }
+
+
+
+          var rewardsButtonPart = '';
+          if(kotfile.discount.amount && kotfile.discount.type == 'REWARDS'){ /*Rewards is Applied Already*/         	
+          	rewardsButtonPart = '        <div class="">'+
+								'                          <button class="btn btn-danger tableOptionsButton breakWord" id="applyRewardPointsButton" onclick="removeRewardsOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove Reward Points</button>'+
+								'                        </div>';
+          }   
+          else{       	
+          	rewardsButtonPart =	'        <div class="">'+
+								'                          <button class="btn btn-default tableOptionsButton breakWord" id="applyRewardPointsButton" onclick="redeemPointsIfAny(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Redeem Points</button>'+
+								'                        </div>';
+          }
+
+
 
 
           var customExtrasButtonPart = '';
@@ -288,12 +353,9 @@ console.log('Generate Bill >> '+optionalPageRef)
 								'                        </table>                        '+
 								'                    </div>'+
 								'                    <div class="col-sm-4">'+
-								'                        <h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">Options</h1>'+discountButtonPart+couponButtonPart+customExtrasButtonPart+
+								'                        <h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">Options</h1>'+discountButtonPart+couponButtonPart+customExtrasButtonPart+rewardsButtonPart+noCostButtonPart+
 								'                        <div class="">'+
-								'                          <button class="btn btn-default tableOptionsButton breakWord" onclick="redeemPointsIfAny()">Redeem Points</button>'+
-								'                        </div>'+noCostButtonPart+
-								'                        <div class="">'+
-								'                          <button class="btn btn-default tableOptionsButton breakWord" onclick="mergeDifferentBills(\''+kotfile.table+'\')">Merge Bills</button>'+
+								'                          <button class="btn btn-default tableOptionsButton breakWord" onclick="renderPage(\'seating-status\'); hideBillPreviewModal();">Merge Bills</button>'+
 								'                        </div>'+
 								'                    </div>'+
 								'                </div>';
@@ -305,8 +367,10 @@ console.log('Generate Bill >> '+optionalPageRef)
 	}});
    } else {
       showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  
+   }   
 }
+
+
 
 /* APPLY COUPON */
 
@@ -993,6 +1057,142 @@ function removeNoCostBillOnKOT(kotID, optionalPageRef){
 }
 
 
+/* REDEEM POINTS */
+
+function redeemPointsIfAny(kotID, optionalPageRef){
+
+	/*Read mentioned KOT - kotID*/
+   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
+      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
+    if (err){
+        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+    } else {
+
+          var kotfile = JSON.parse(data);
+          
+          var userMobile = kotfile.customerMobile;
+          var grandSum = 0;
+
+          var n = 0;
+          while(kotfile.cart[n]){
+          	grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
+          	n++;
+          }
+
+          /*Redeem Points*/
+
+			var admin_data = {
+				"token": window.localStorage.loggedInAdmin,
+				"mobile": userMobile,
+				"totalBillAmount": grandSum
+			}
+
+      showLoading(10000, 'Redeeming Points');
+
+			$.ajax({
+				type: 'POST',
+				url: 'https://www.zaitoon.online/services/posredeempoints.php',
+				data: JSON.stringify(admin_data),
+				contentType: "application/json",
+				dataType: 'json',
+        timeout: 10000,
+				success: function(data) {
+          hideLoading();
+					if(data.status){
+
+						/*Apply Redeemed Discount*/
+						if(data.isValid){
+							totalDiscount = data.discount;
+
+							totalDiscount = Math.round(totalDiscount * 100) / 100;
+
+							kotfile.discount.amount = totalDiscount;
+							kotfile.discount.type = 'REWARDS';
+							kotfile.discount.unit = 'FIXED';
+							kotfile.discount.value = totalDiscount;
+							kotfile.discount.reference = data.referenceID;
+						       
+						       var newjson = JSON.stringify(kotfile);
+						       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
+						         if(err){
+						            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
+						           }
+						           else{
+						           	showToast(data.pointsRedeemed+ ' points redeemed Succesfully! Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
+						          
+						           	generateBillFromKOT(kotID, optionalPageRef);
+						           	generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+						           	
+
+						           }
+						       }); 			
+
+
+						}
+						else{
+							showToast('Oops! '+data.validityError, '#e67e22');
+						}
+					}
+					else
+					{
+						if(data.errorCode == 404){
+							window.localStorage.loggedInAdmin = "";
+							showToast(data.error, '#e74c3c');
+						}
+						else{
+							showToast(data.error, '#e74c3c');
+						}
+					}
+
+
+				},
+      error: function(data){
+        hideLoading();
+        showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+      }
+			});	  
+
+
+	}});
+   } else {
+      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+   }  	
+
+}
+
+
+function removeRewardsOnKOT(kotID, optionalPageRef){
+	/*Read mentioned KOT - kotID*/
+   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
+      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
+    if (err){
+        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+    } else {
+          var kotfile = JSON.parse(data);
+
+			if(kotfile.discount.amount){
+				kotfile.discount = {};
+			}
+		       
+		       var newjson = JSON.stringify(kotfile);
+		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
+		         if(err){
+		            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
+		           }
+		           else{
+			           	showToast('Reward Points Discount removed', '#27ae60');
+			           	generateBillFromKOT(kotID, optionalPageRef);
+			           	generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+		        	}
+		       }); 			
+
+	}});
+   } else {
+      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+   }  	
+}
+
+
 function hideBillPreviewModal(){
 	document.getElementById("billPreviewModal").style.display = 'none';
 }
@@ -1030,6 +1230,12 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 				alreadyEditingKOT.customExtras = modifiedKOTFile.customExtras;
 				window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT);  
 				renderCustomerInfo();
+			}
+			else if(action == 'CHANGE_CUSTOMERINFO'){
+				alreadyEditingKOT.customerName = modifiedKOTFile.customerName;
+				alreadyEditingKOT.customerMobile = modifiedKOTFile.customerMobile;
+
+				window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT); 
 			}
 
 			break;

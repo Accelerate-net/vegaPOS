@@ -7,12 +7,19 @@ function renderKOT() {
             return;
         }
 
+
+
         filenames.forEach(function(filename) {
             fs.readFile(dirname + '/' + filename, 'utf-8', function(err, data) {
                 if (err) {
                     showToast('System Error: Unable to load a few Live Orders. Please contact Accelerate Support.', '#e74c3c');
                     return;
                 } else {
+
+                    if(filename.toLowerCase().indexOf(".json") < 0){ //Neglect any files other than JSON
+                        return '';
+                    }
+
 
                     var kot = JSON.parse(data);
 
@@ -42,7 +49,7 @@ function renderKOT() {
 
             });
         });
-        
+
 
     });
 }

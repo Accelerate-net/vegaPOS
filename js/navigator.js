@@ -76,6 +76,10 @@ function fetchInitFunctions(pageReference){
 
 function renderPage(pageReference, title){
 
+	if(!title || title == ''){
+		title = 'POS';
+	}
+
 	const links = document.querySelectorAll('link[for="'+pageReference+'"]')
 
 	if(links.length == 1){
