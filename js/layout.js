@@ -108,35 +108,11 @@ function activateSidebar(){
 }
 
 
-/* Open KOT Modal */
-function viewKOTModal(){
-}
-
-
-/*Toast*/
-function showToast(message, color){
-        var x = document.getElementById("infobar")
-        if(color){
-        	x.style.background = color;
-        }
-		x.innerHTML = message;
-		x.className = "show";
-		setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000); 
-
-    if(color == '#e74c3c'){ //Error
-      playNotificationSound('ERROR')
-    }
-
-}
-
 /* Virtual Keyboard */
 $(function () {
     "use strict";
     jqKeyboard.init();
 });
-
-
-
 
 
 /* Server Connectivity */
@@ -448,7 +424,7 @@ function checkTime(i) {
   return i;
 }
 
-function getCurrentTime() {
+function getCurrentTimeForDisplay() {
   var today = new Date();
   var h = today.getHours();
   var m = today.getMinutes();
@@ -459,11 +435,11 @@ function getCurrentTime() {
   s = checkTime(s);
   document.getElementById('globalTimeDisplay').innerHTML = h + ":" + m + ":" + s;
   var t = setTimeout(function() {
-    getCurrentTime()
+    getCurrentTimeForDisplay()
   }, 500);
 }
 
-getCurrentTime();
+getCurrentTimeForDisplay();
 
 
 /*Track Inactivity*/
@@ -603,19 +579,6 @@ function lockScreen(){
 }
 
 
-function getTwoLetterImageCode(text){
-  text = text.replace(/[^a-zA-Z ]/g, "");
-  var words = text.split(' ');
-
-  if(words.length > 1){
-    return words[0].substring(0,1)+words[1].substring(0,1);
-  }
-  else{
-    return (text.substring(0, 2)).toUpperCase();
-  }
-}
-
-
 function switchProfile(name, code){
 
    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -676,11 +639,11 @@ function selectStewardWindow(){
                 if(n == 0){
                   isRendered = true;
                   renderContent = '<tag onclick="selectStewardWindowClose()" class="stewardWindowClose">X</tag> <div class="row" style="margin: 0">';
-                  renderContent += '<div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getTwoLetterImageCode(users[n].name)+'</div> </div> </div>';
+                  renderContent += '<div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
                 }
                 else if(n == 1){
                   isRendered = true;
-                  renderContent += '<div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getTwoLetterImageCode(users[n].name)+'</div> </div> </div>';
+                  renderContent += '<div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
                   renderContent += '</div>';
                 }
                 else if(n > 1 && n%2 == 0){
@@ -688,7 +651,7 @@ function selectStewardWindow(){
                 }
 
                 if(!isRendered){
-                  renderContent += '<div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getTwoLetterImageCode(users[n].name)+'</div> </div> </div>';
+                  renderContent += '<div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
                 }
 
                 if(n > 1 && n%2 == 1){
@@ -730,7 +693,7 @@ function renderCurrentUserDisplay(){
   }
 
   if(loggedInStaffInfo.name != '' && loggedInStaffInfo.code != ''){
-    document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getTwoLetterImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: bold">'+loggedInStaffInfo.name+'</span>';
+    document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: bold">'+loggedInStaffInfo.name+'</span>';
   }
   else{
     document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/default_user.png" class="user-image" alt="Avatar" /> <span>Profile Not Selected</span>';

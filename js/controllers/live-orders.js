@@ -15,21 +15,29 @@ function renderKOT() {
                 } else {
 
                     var kot = JSON.parse(data);
-                    var i = 0;
-                    var fullKOT = "";
-                    var begKOT = "";
-                    var itemsInCart = "";
-                    var items = "";
 
-                    begKOT = '<li> <a href="#" onclick="pushToEditKOT(\''+encodeURI(JSON.stringify(kot))+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
-                    while (i < kot.cart.length) {
-                        itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ '</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
-                        i++;
+                    if(kot.orderDetails.modeType == 'DINE'){
+                        var i = 0;
+                        var fullKOT = "";
+                        var begKOT = "";
+                        var itemsInCart = "";
+                        var items = "";
+
+                        begKOT = '<li> <a href="#" onclick="pushToEditKOT(\''+encodeURI(JSON.stringify(kot))+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
+                        while (i < kot.cart.length) {
+                            itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ '</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
+                            i++;
+                        }
+
+                        items = begKOT + itemsInCart + '</table> </div>'+(i > 6?'<more class="more">More Items</more>':'')+
+                                                '<tag class="bottomTag">'+
+                                                '<p class="tagSteward">' +(kot.stewardName != ''? kot.stewardName   : 'Unknown Staff')+ '</p>'+
+                                                '<p class="tagUpdate">'+(kot.timeKOT == ''? 'First KOT Printed '+getFormattedTime(kot.timePunch)+' ago': 'KOT Edited '+getFormattedTime(kot.timeKOT)+' ago' )+'</p>'+
+                                                '</tag> </a>';
+
+                        fullKOT = fullKOT + items + '</li>';
+                        finalRender(fullKOT)
                     }
-
-                    items = begKOT + itemsInCart + '</table> </div>'+(i > 6?'<more class="more">More Items</more>':'')+'<tag class="bottomTag"> <p class="tagSteward">' + kot.customerName + '</p> <p class="tagUpdate">First KOT Printed 10 mins ago</p> </tag> </a>';
-                    fullKOT = fullKOT + items + '</li>';
-                    finalRender(fullKOT)
                 }
 
             });
@@ -42,7 +50,6 @@ function renderKOT() {
 function finalRender(fullKOT) {
     document.getElementById("fullKOT").innerHTML = document.getElementById("fullKOT").innerHTML + fullKOT;
 }
-
 
 
 /*Add to edit KOT*/
