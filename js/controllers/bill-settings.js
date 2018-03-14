@@ -376,7 +376,7 @@ function addDiscountType() {
   }
 
 
-  if((paramObj.name).toUpperCase() == 'COUPON' || (paramObj.name).toUpperCase() == 'VOUCHER' || (paramObj.name).toUpperCase() == 'NOCOSTBILL'){
+  if((paramObj.name).toUpperCase() == 'COUPON' || (paramObj.name).toUpperCase() == 'VOUCHER' || (paramObj.name).toUpperCase() == 'NOCOSTBILL' || (paramObj.name).toUpperCase() == 'REWARDS'){
     showToast('Warning: Reserved Keyword. Please set different a name', '#e67e22');
     return '';
   }

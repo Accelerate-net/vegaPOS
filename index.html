@@ -36,7 +36,7 @@
 <body class="skin-green sidebar-mini pos sidebar-collapse" id="mainAppBody">
 
     <!-- LOADER -->
-    <!--<div id="preloader"></div> -->
+    <!-- <div id="preloader"></div> -->
 
 
     <!-- SCREEN INACTIVITY : SCREEN SAVER -->
@@ -80,7 +80,10 @@
             <span class="logo-lg">Jafry's Kitchen</span>
             </a>
             <nav class="navbar navbar-static-top" role="navigation">
-                <page class="commonPageName" id="renderPageTitle"></page>
+                <page class="commonPageName">
+                    <tag id="renderPageTitle"></tag>
+                </page>
+
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
                         <li class="noHover"><a href="#" class="noHover"><i class="fa fa-clock-o"></i> <tag id="globalTimeDisplay"></tag></a></li>
@@ -193,6 +196,25 @@
                 </div>
              </div>
           </div>
+
+
+        <!-- LOGIN MODAL -->
+        <div id="generalLoadingModal" class="modal" style="z-index: 2600 !important;">
+             <div class="modal-dialog" style="width: 100%">
+                <!-- Modal content-->
+                <div class="modal-content" style="border-radius: 4px; position: absolute; right: 10px; top: 10px; min-width: 18em !important; background: none">
+                   <section id="mainLoading">
+                      <header>
+                         <span id="loadingIcon"></span>
+                         <span class="loadingCounter" id="generalLoaderCount"></span>
+                         <span class="blink_me loadingText" id="generalLoaderText">Loading...</span>
+                      </header>
+                   </section>
+                </div>
+             </div>
+          </div>
+
+
 
 
     <!-- BILLING RELATED MODALS -->

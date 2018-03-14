@@ -1273,10 +1273,10 @@ function renderCustomerInfo(){
 					else{
 
 						if(tempModeType == 'PARCEL'){ //ask for address
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag class="btn btn-danger disabled" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" >Not Set</tag>';
+							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag>';
 							
 							if(customerInfo.mappedAddress){
-								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag class="btn btn-default" onclick="pickAddressForNewOrder(\''+customerInfo.mappedAddress+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
 							}
 						}
 						else if(tempModeType == 'DINE'){ //ask for table

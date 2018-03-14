@@ -84,3 +84,49 @@ function showToast(message, color){
 
 }
 
+
+/* Loading */
+var loadingLapsedInterval;
+function showLoading(time, text){
+
+  document.getElementById("generalLoadingModal").style.display = 'block';
+
+  if(!text && text == ''){
+    document.getElementById("generalLoaderText").innerHTML = 'Loading...';
+  }
+  else{
+    document.getElementById("generalLoaderText").innerHTML = text;
+  }
+  
+
+  var startCount = 10;
+  if(time && time != ''){
+    startCount = parseInt(time)/1000;
+  }
+
+  document.getElementById("generalLoaderCount").innerHTML = startCount;
+
+  loadingLapsedInterval = window.setInterval(function() {
+    console.log('Triggering..')
+    if(startCount == 1){
+      clearInterval(loadingLapsedInterval);
+      document.getElementById("generalLoadingModal").style.display = 'none';
+    }
+    startCount--;
+    document.getElementById("generalLoaderCount").innerHTML = startCount;
+  }, 1000); 
+
+}
+
+function hideLoading(){
+  clearInterval(loadingLapsedInterval);
+  document.getElementById("generalLoadingModal").style.display = 'none';
+  document.getElementById("generalLoaderCount").innerHTML = '';
+  document.getElementById("generalLoaderText").innerHTML = 'Loading...';
+}
+
+/* USAGE:
+showLoading(3000, 'Custom Text');
+*/
+
+
