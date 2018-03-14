@@ -687,19 +687,6 @@ function hideClearCartModal(){
 }
 
 
-function getLapsedTimeFormmated(time){
-	var tempTime = moment(time, 'hhmm').fromNow(true);
-	tempTime = tempTime.replace("seconds", "s");
-	tempTime = tempTime.replace("a few s", "seconds");
-	tempTime = tempTime.replace("a minute", "1m");
-	tempTime = tempTime.replace(" minutes", "m");
-	tempTime = tempTime.replace("an hour", "1h");
-	tempTime = tempTime.replace(" hours", "h");
-	return tempTime;
-}
-
-
-
 /*customer info*/
 function renderCustomerInfo(){
 
@@ -708,7 +695,7 @@ function renderCustomerInfo(){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 		isEditingKOT = true;
 		var kotCopy = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : {};
-		document.getElementById("ongoingOrderTitle").innerHTML = 'Running Order <tag style="float: right; font-weight: 300;">Table <b>#'+kotCopy.table+'</b></tag>';
+		document.getElementById("ongoingOrderTitle").innerHTML = '<tag class="blink_me">Running Order</tag> <tag style="float: right; font-weight: 300;">Table <b>#'+kotCopy.table+'</b></tag>';
 	}
 	else{
 
@@ -741,7 +728,7 @@ function renderCustomerInfo(){
 				}
 
 				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+displayAddress+
-									'<tag class="holdTimeAgo">'+getLapsedTimeFormmated(holding_orders[n].timestamp)+' ago</tag></p>'+
+									'<tag class="holdTimeAgo">'+getFormattedTime(holding_orders[n].timestamp)+' ago</tag></p>'+
 									'<p class="holdItemsBrief">'+itemList+'</p>'+
 								  '</a>';
 				n++;
@@ -1107,19 +1094,6 @@ function renderCategoryTab(defaultTab){
 	    }	
 }
 
-
-function getImageCode(text){
-	text = text.replace(/[^a-zA-Z ]/g, "");
-	var words = text.split(' ');
-
-	if(words.length > 1){
-		return words[0].substring(0,1)+words[1].substring(0,1);
-	}
-	else{
-		return (text.substring(0, 2)).toUpperCase();
-	}
-}
-
 function renderMenu(subtype){
 
 		if(fs.existsSync('./data/static/mastermenu.json')) {
@@ -1415,44 +1389,6 @@ function generateNewKOT(){
 	    }	
 }
 
-function getCurrentTime(type){
-          
-          var today = new Date();
-          var time;
-          var dd = today.getDate();
-          var mm = today.getMonth()+1; //January is 0!
-          var yyyy = today.getFullYear();
-          var hour = today.getHours();
-          var mins = today.getMinutes();
-
-          if(dd<10) {
-              dd = '0'+dd;
-          } 
-
-          if(mm<10) {
-              mm = '0'+mm;
-          } 
-
-          if(hour<10) {
-              hour = '0'+hour;
-          } 
-
-          if(mins<10) {
-              mins = '0'+mins;
-          }
-
-          today = dd + '-' + mm + '-' + yyyy;
-          time = hour + '' + mins;
-
-
-    if(type == 'TIME'){
-    	return time;
-    }
-
-    if(type == 'DATE')
-    	return today;
-	 
-}
 
 function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras){
 	/*Process Figures*/

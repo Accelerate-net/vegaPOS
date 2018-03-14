@@ -95,7 +95,7 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('seating-status', 'New Order');
+renderPage('live-orders', 'New Order');
 
 
 const ipc = require('electron').ipcRenderer;
