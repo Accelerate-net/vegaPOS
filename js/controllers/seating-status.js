@@ -44,7 +44,7 @@ function openOccuppiedSeatOptions(tableInfo){
 	if(tableData.status == 1){ /* Not Billed */
 		document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="editOrderKOT(\''+tableData.KOT+'\')">Edit Order #'+tableData.KOT+'</button> '+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\')">Generate Bill</button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\'); hideOccuppiedSeatOptions();">Generate Bill</button> '+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="mergeDifferentBills(\''+tableData.table+'\')">Merge Orders</button> '+
                   '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelOrderKOT(\''+tableData.KOT+'\')">Cancel Order</button> '+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
@@ -633,7 +633,7 @@ function renderCurrentPlan(mode, currentTableID){
 		              }
 
 		              if(totalTablesToMerge < 2){
-		              	showToast('Warning: Atleast two live orders need to perform Merge Operation', '#e67e22');
+		              	showToast('Warning: Atleast two live orders needed to perform Merge Operation', '#e67e22');
 		              	cancelBillMerge();
 		              	return '';
 		              }

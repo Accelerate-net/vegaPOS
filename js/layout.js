@@ -424,7 +424,7 @@ function checkTime(i) {
   return i;
 }
 
-function getCurrentTime() {
+function getCurrentTimeForDisplay() {
   var today = new Date();
   var h = today.getHours();
   var m = today.getMinutes();
@@ -435,11 +435,11 @@ function getCurrentTime() {
   s = checkTime(s);
   document.getElementById('globalTimeDisplay').innerHTML = h + ":" + m + ":" + s;
   var t = setTimeout(function() {
-    getCurrentTime()
+    getCurrentTimeForDisplay()
   }, 500);
 }
 
-getCurrentTime();
+getCurrentTimeForDisplay();
 
 
 /*Track Inactivity*/

@@ -75,6 +75,7 @@ function fetchInitFunctions(pageReference){
 
 
 function renderPage(pageReference, title){
+
 	const links = document.querySelectorAll('link[for="'+pageReference+'"]')
 
 	if(links.length == 1){
@@ -95,7 +96,7 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('live-orders', 'New Order');
+renderPage('new-order', 'New Order');
 
 
 const ipc = require('electron').ipcRenderer;

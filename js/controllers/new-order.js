@@ -1,5 +1,4 @@
 /*Add Item to Cart */
-
 function saveToCart(productToAdd){
 
 		var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
@@ -175,6 +174,7 @@ function changeqty(item, isCustom, variant){
     renderCart()
 }
 
+
 function renderCart(){
 
 	//Render Cart Items based on local storage
@@ -256,38 +256,171 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	var tot = 0;
 	var grandPayableSum = 0;
 
+	var hasUnsavedChanges = false;
+
 	var variantName = '';
-	while(i < cart_products.length){
-		variantName = '';
-		totqty = totqty + cart_products[i].qty
-		tot = tot + (cart_products[i].price*cart_products[i].qty)
-		var itemrem = cart_products[i].code;
+	var notifyIcon = '';
 
-		if(cart_products[i].isCustom){
-			variantName = ' ('+cart_products[i].variant+')';
+
+	//Editing Mode (Check for unsaved changes w.r.t Original Cart)
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+		while(i < cart_products.length){
+			variantName = '';
+			notifyIcon = '';
+
+			var tempItemCheck = checkForItemChanges(cart_products[i].code, cart_products[i].variant, cart_products[i].qty);
+
+			switch(tempItemCheck){
+				case 'QUANTITY_INCREASE':{
+					notifyIcon = '<i class="fa fa-caret-up" style="color: #2ecc71; padding-left: 3px; font-size: 12px"></i>';
+					hasUnsavedChanges = true;
+					break;
+				}
+				case 'QUANTITY_DECREASE':{
+					notifyIcon = '<i class="fa fa-caret-down" style="color: #c0392b; padding-left: 3px; font-size: 12px"></i>';
+					break;
+				}
+				case 'NEW_ITEM':{
+					notifyIcon = '<i class="fa fa-star" style="color: #ffa500; padding-left: 3px; font-size: 10px"></i>';
+					hasUnsavedChanges = true;
+					break;
+				}
+				default:{
+					notifyIcon = '';
+					break;
+				}
+			}
+
+			totqty = totqty + cart_products[i].qty
+			tot = tot + (cart_products[i].price*cart_products[i].qty)
+			var itemrem = cart_products[i].code;
+
+			if(cart_products[i].isCustom){
+				variantName = ' ('+cart_products[i].variant+')';
+			}
+
+			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+				'<td style="vertical-align: middle">'+
+					'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+cart_products[i].variant+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')">'+notifyIcon+
+				'</td>'+
+				'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
+			i++
 		}
+	}
+	else{ //New Order
+		while(i < cart_products.length){
+			variantName = '';
+			totqty = totqty + cart_products[i].qty
+			tot = tot + (cart_products[i].price*cart_products[i].qty)
+			var itemrem = cart_products[i].code;
 
-		temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-right"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+cart_products[i].variant+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
-		i++
+			if(cart_products[i].isCustom){
+				variantName = ' ('+cart_products[i].variant+')';
+			}
+
+			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+cart_products[i].variant+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
+			i++
+		}
+	}
+
+	if(checkIfItemDeleted() == 'DELETED'){
+		hasUnsavedChanges = true;
+		temp = '<tr class="success"><td colspan="5" style="color: #e74c3c; text-align: center"><i class="fa fa-exclamation-circle"></i> Removed some items</td></tr>' + temp;
 	}
 	
 	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Subtotal</th>  </tr>';
 	document.getElementById("cartDetails").innerHTML = temp;
 	
 
+
+
+
 	/*Calculate Taxes and Other Charges*/ 
+	//---------------------------------//
+
+	/* IMPORTANT NOTE:
+		>> 	In editing mode, the Extras, Discounts, Other Charges has to be re-calculated w.r.t the original kot parameters.
+			NOT w.r.t the modeType (VERY IMPORTANT).
+		>>	Calculations w.r.t the modeType is done only while punching new order for display purposes.
+		>>	Once KOT is punched, everything is w.r.t the data inside the KOT JSON!
+	*/
 
           var otherChargesSum = 0;        
           var otherCharges = '';
           var otherChargerRenderCount = 1;
-          var k = 0;
 
-          otherCharges = '<tr class="info">';
-          /*discount applied after kot generation only*/
+          var otherCustomChargesValue = 0;
+          var discountValue = 0;
+
+          otherCharges = '<tr class="info">'; //Beginning	
+
+    //Editing Mode (Discount and Other Charges might not be ZERO)
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+		
+		selectedModeExtras = calculableOriginalKOT.extras;
 
           if(selectedModeExtras.length > 0){
 
-          	for(k = 0; k < selectedModeExtras.length; k++){
+          	for(var k = 0; k < selectedModeExtras.length; k++){
+          		if(k%2 == 0){
+          			otherCharges = otherCharges + '</tr><tr class="info">';
+          		}
+
+          		var tempExtraTotal = 0;
+          		if(selectedModeExtras[k].value != 0){
+          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
+          			}
+          			else if(selectedModeExtras[k].unit == 'FIXED'){
+          				tempExtraTotal = selectedModeExtras[k].value;
+          			}
+          		}
+
+          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+          		otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+selectedModeExtras[k].name+' ('+(selectedModeExtras[k].unit == 'PERCENTAGE'? selectedModeExtras[k].value + '%': '<i class="fa fa-inr"></i>'+selectedModeExtras[k].value)+')</td><td width="15%" class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+tempExtraTotal+'</td>';
+          	
+          		otherChargesSum = otherChargesSum + tempExtraTotal;
+          		
+          	}
+          }
+
+		otherChargerRenderCount = otherChargerRenderCount + k;
+		
+
+		//Calculate Discount and Custom Extra
+
+		discountValue = calculableOriginalKOT.discount.amount ? calculableOriginalKOT.discount.amount : 0;
+
+		if(calculableOriginalKOT.customExtras.value && calculableOriginalKOT.customExtras.value != 0){
+	
+			if(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'){
+				otherCustomChargesValue = calculableOriginalKOT.customExtras.value * tot/100;
+			}
+			else{
+				otherCustomChargesValue = calculableOriginalKOT.customExtras.value;
+			}
+		}
+		otherCustomChargesValue = Math.round(otherCustomChargesValue * 100) / 100;
+
+		 
+          if(otherChargerRenderCount%2 == 0){
+          	otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : 'Rs.'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td></tr>'+
+          				'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td>'+
+          				'<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
+          }
+          else{
+          	otherCharges = otherCharges + '</tr> <tr class="info"><td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : 'Rs.'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td>'+
+          					'<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td></tr>';
+          }
+    }
+    else{ //Not editing, new order being punched - Discount, other charges can not be applied at this stage -> both equals to 0
+          
+          if(selectedModeExtras.length > 0){
+
+          	for(var k = 0; k < selectedModeExtras.length; k++){
           		if(k%2 == 0){
           			otherCharges = otherCharges + '</tr><tr class="info">';
           		}
@@ -314,6 +447,8 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
           otherChargerRenderCount = otherChargerRenderCount + k;
 
+
+
           if(otherChargerRenderCount%2 == 0){
           	otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">Other Charges</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td></tr>'+
           				'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>'+
@@ -323,9 +458,9 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
           	otherCharges = otherCharges + '</tr> <tr class="info"><td width="35%" class="cartSummaryRow">Other Charges</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>'+
           					'<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td></tr>';
           }
+    }
 
-
-          grandPayableSum = tot + otherChargesSum;
+          grandPayableSum = tot + otherChargesSum + otherCustomChargesValue - discountValue;
 
           grandPayableSum = Math.round(grandPayableSum * 100) / 100
 
@@ -357,6 +492,9 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 //Editing Mode
 if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+	var editingKOTContent = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+
  	//EDIT - Actions     
  	if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'TOKEN'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
@@ -368,22 +506,40 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
                      '</div>';
  	}   
  	else if(selectedBillingModeInfo.type == 'DINE'){
- 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
-                        '<div class="col-xs-4" style="padding: 0;">'+
-                           '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelKOT()">Cancel</button>'+
-                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
-                           '</div>'+
-                        '</div>'+
-                        '<div class="col-xs-4" style="padding: 0 4px;">'+
-                           '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()">Print KOT</button>'+
-                           '</div>'+
-                        '</div>'+
-                        '<div class="col-xs-4" style="padding: 0;">'+
-                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="generateInvoice()" style="height:71px;">Print Bill</button>'+
-                        '</div>'+                            
-                     '</div>';
+
+ 		if(hasUnsavedChanges){
+			document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
+	                        '<div class="col-xs-4" style="padding: 0;">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelKOT()">Cancel</button>'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
+	                           '</div>'+
+	                        '</div>'+
+	                        '<div class="col-xs-4" style="padding: 0 4px;">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
+	                           '</div>'+
+	                        '</div>'+
+	                        '<div class="col-xs-4" style="padding: 0">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()">Print Changed KOT</button>'+
+	                           '</div>'+
+	                        '</div>'+                           
+	                     '</div>';
+ 		}
+ 		else{
+	 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
+	                        '<div class="col-xs-4" style="padding: 0;">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelKOT()">Cancel</button>'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
+	                           '</div>'+
+	                        '</div>'+
+	                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
+	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGnerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;">Print Bill</button>'+
+	                        '</div>'+                            
+	                     '</div>';
+ 		}
  	}  		
 }
 else{
@@ -431,6 +587,281 @@ else{
 }
 
     
+}
+
+function undoChangesInKOT(){
+	//Reset zaitoon_cart same as the originalKOT Cart
+
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+		var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+
+		window.localStorage.zaitoon_cart = JSON.stringify(originalData.cart);
+		showToast('Undone the changes!', '#27ae60');
+
+		renderCustomerInfo();
+	}
+	else{
+		showToast('Oops! Failed to undo the changes.', '#e74c3c');
+		return '';
+	}
+}
+
+
+function compareChangesAndGnerateBillFromKOT(kotID, optionalPageRef){
+	/*
+		Proceed to bill generation only if,
+			1. There are no un-printed items in active Cart
+			2. Meaning, zaitoon_cart equals cart in originalKOT
+	*/
+
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+
+		var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+		
+		var changedCustomerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+		if(jQuery.isEmptyObject(changedCustomerInfo)){
+			showToast('Customer Details missing', '#e74c3c');
+			return '';
+		}
+
+		var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		if(changed_cart_products.length == 0){
+			showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
+			return '';
+		}
+
+
+		//Compare changes in the Cart
+		var original_cart_products = originalData.cart;
+
+		//Search for changes in the existing items
+		var n = 0;
+		while(original_cart_products[n]){
+			
+			//Find each item in original cart in the changed cart
+			var itemFound = false;
+			for(var i = 0; i < changed_cart_products.length; i++){
+				//same item found, check for its quantity and report changes
+				if(!original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code)){
+					
+					itemFound = true;
+
+					//Change in Quantity
+					if(changed_cart_products[i].qty > original_cart_products[n].qty){ //qty increased
+						showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
+						return '';
+					}
+					else if(changed_cart_products[i].qty < original_cart_products[n].qty){ //qty decreased
+						showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
+						return '';
+					}
+					else{ //same qty
+						
+					}
+
+					break;
+					
+				}
+				else if(original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code) && (original_cart_products[n].variant == changed_cart_products[i].variant)){
+					
+					itemFound = true;
+
+					//Change in Quantity
+					if(changed_cart_products[i].qty > original_cart_products[n].qty){ //qty increased
+						showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
+						return '';
+					}
+					else if(changed_cart_products[i].qty < original_cart_products[n].qty){ //qty decreased
+						showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
+						return '';
+					}
+					else{ //same qty
+						
+					}
+
+					break;
+
+				}
+
+				//Last iteration to find the item
+				if(i == changed_cart_products.length-1){
+					if(!itemFound){ //Item Deleted
+						showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
+						return '';
+					}
+				}
+			} 
+
+			n++;
+		}
+
+
+		//Search for new additions to the Cart
+		var j = 0;
+		while(changed_cart_products[j]){
+
+			for(var m = 0; m < original_cart_products.length; m++){
+				//check if item is found, not found implies New Item!
+				if(!changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code)){
+					//Item Found
+					break;
+				}
+				else if(changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code) && (changed_cart_products[j].variant == original_cart_products[m].variant)){
+					//Item Found
+					break;
+				}
+
+				//Last iteration to find the item
+				if(m == original_cart_products.length-1){ //New item
+					showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
+					return '';
+				}
+			} 
+
+			j++;
+		}
+
+	}
+	else{
+
+		return '';
+	}
+
+	generateBillFromKOT(kotID, optionalPageRef);
+}
+
+
+
+
+function checkForItemChanges(code, variant, quantity){
+
+/*
+	Check if a particular item in zaitoon_cart has any change w.r.t originalCart 
+	(useful while editing an order)
+*/
+	var isCustom = true;
+	if(!variant || variant == ''){
+		isCustom = false;
+	}
+
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+		var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+		
+		var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		if(changed_cart_products.length == 0){
+			return 'ERROR';
+		}
+
+
+		//Compare changes in the Cart
+		var original_cart_products = originalData.cart;
+		if(original_cart_products.length == 0){
+			return 'ERROR';
+		}
+
+
+			//Search for the item in orignal Cart
+			for(var m = 0; m < original_cart_products.length; m++){
+				//check if item is found, not found implies New Item!
+				if(!isCustom && (code == original_cart_products[m].code)){
+					//Item Found
+					if(quantity > original_cart_products[m].qty){ //qty increased
+						return 'QUANTITY_INCREASE';
+					}
+					else if(quantity < original_cart_products[m].qty){ //qty decreased
+						return 'QUANTITY_DECREASE';
+					}
+					
+					break;
+				}
+				else if(isCustom && (code == original_cart_products[m].code) && (variant == original_cart_products[m].variant)){
+					//Item Found
+					if(quantity > original_cart_products[m].qty){ //qty increased
+						return 'QUANTITY_INCREASE';
+					}
+					else if(quantity < original_cart_products[m].qty){ //qty decreased
+						return 'QUANTITY_DECREASE';
+					}
+					break;
+				}
+
+				//Last iteration to find the item
+				if(m == original_cart_products.length-1){ //New item
+					return 'NEW_ITEM';
+				}
+			} 
+	}
+	else{
+		return 'ERROR';
+	}
+
+	return 'NO_CHANGE';
+}
+
+
+function checkIfItemDeleted(){
+
+/*
+	Check if any item in zaitoon_cart has been deleted w.r.t originalCart 
+	(useful while editing an order)
+*/
+
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+
+		var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+
+		var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		if(changed_cart_products.length == 0){
+			return 'ERROR';
+		}
+
+
+		//Compare changes in the Cart
+		var original_cart_products = originalData.cart;
+		if(original_cart_products.length == 0){
+			return 'ERROR';
+		}
+
+		//Search for changes in the existing items
+		var n = 0;
+		while(original_cart_products[n]){
+			
+			//Find each item in original cart in the changed cart
+			var itemFound = false;
+			for(var i = 0; i < changed_cart_products.length; i++){
+				//same item found, check for its quantity and report changes
+				if(!original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code)){
+					
+					itemFound = true;
+					break;
+				}
+				else if(original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code) && (original_cart_products[n].variant == changed_cart_products[i].variant)){
+					
+					itemFound = true;
+					break;
+				}
+
+				//Last iteration to find the item
+				if(i == changed_cart_products.length-1){
+					if(!itemFound){ //Item Deleted
+						return 'DELETED';
+					}
+				}
+			} 
+
+			n++;
+		}
+
+		return 'NONE';
+
+	}
+	else{
+		return 'ERROR';
+	}
+
 }
 
 /* Default Actions 
@@ -841,7 +1272,6 @@ function renderCustomerInfo(){
 					}
 					else{
 
-						console.log(customerInfo)
 						if(tempModeType == 'PARCEL'){ //ask for address
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag class="btn btn-danger disabled" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" >Not Set</tag>';
 							
