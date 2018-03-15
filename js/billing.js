@@ -461,13 +461,17 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
 				"totalBillAmount": grandSum
 			}
 
+      showLoading(10000, 'Applying Coupon');
+
 			$.ajax({
 				type: 'POST',
 				url: 'https://www.zaitoon.online/services/posredeemcoupon.php',
 				data: JSON.stringify(admin_data),
 				contentType: "application/json",
 				dataType: 'json',
+        timeout: 10000,
 				success: function(data) {
+          hideLoading();
 					if(data.status){
 
 						/*Apply Discount*/
@@ -513,9 +517,11 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
 							showToast(data.error, '#e74c3c');
 						}
 					}
-
-
-				}
+      },
+      error: function(data){
+        hideLoading();
+        showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+      }
 			});	  
 
 

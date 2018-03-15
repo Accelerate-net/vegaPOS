@@ -69,14 +69,19 @@ function getImageCode(text){
 
 
 /*Toast*/
+var toastShowingInterval;
 function showToast(message, color){
-        var x = document.getElementById("infobar")
-        if(color){
-        	x.style.background = color;
-        }
+
+    clearInterval(toastShowingInterval);
+
+    var x = document.getElementById("infobar")
+    if(color){
+      x.style.background = color;
+    }
+
 		x.innerHTML = message;
 		x.className = "show";
-		setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000); 
+		toastShowingInterval = setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000); 
 
     if(color == '#e74c3c'){ //Error
       playNotificationSound('ERROR')
@@ -84,6 +89,34 @@ function showToast(message, color){
 
 }
 
+
+/*Undo Toast*/
+var undoShowingInterval;
+function showUndo(message, undoFunction){
+
+    clearInterval(undoShowingInterval);
+
+    var x = document.getElementById("undoBar")
+
+    document.getElementById("undoBarText").innerHTML = message;
+    document.getElementById("undoBarButton").innerHTML = '<button id="undoBarButtonAction" onclick="'+undoFunction+'" class="btn btn-default clearUndoButton">UNDO</button>';
+
+    x.className = "show";
+    undoShowingInterval = setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000); 
+
+
+    $("#undoBarButtonAction").click(function(){
+      clearInterval(undoShowingInterval);
+      x.className = x.className.replace("show", "");
+    });
+
+}
+
+
+
+/* USAGE:
+  showUndo('Message', 'alert(\'OK\')')
+*/
 
 /* Loading */
 var loadingLapsedInterval;
@@ -107,7 +140,6 @@ function showLoading(time, text){
   document.getElementById("generalLoaderCount").innerHTML = startCount;
 
   loadingLapsedInterval = window.setInterval(function() {
-    console.log('Triggering..')
     if(startCount == 1){
       clearInterval(loadingLapsedInterval);
       document.getElementById("generalLoadingModal").style.display = 'none';

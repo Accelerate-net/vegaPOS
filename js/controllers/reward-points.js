@@ -36,6 +36,8 @@ function doLogin(){
 		"password": password
 	}
 
+	showLoading(10000, 'Logging on to the Server');
+
 	$.ajax({
 		type: 'POST',
 		url: 'https://www.zaitoon.online/services/posserverlogin.php',
@@ -44,6 +46,7 @@ function doLogin(){
 		dataType: 'json',
 	    timeout: 10000,
 	    success: function(data) {
+	    	hideLoading();
 	      if(data.status){
 
 	        var userInfo = {};
@@ -69,6 +72,7 @@ function doLogin(){
 
 	    },
 	    error: function(data){
+	    	hideLoading();
 	      showToast('Server not responding. Check your connection.', '#e74c3c');
 	    }
 
@@ -125,13 +129,17 @@ function searchRequest(){
 		"key": user
 	}
 
+	showLoading(10000, 'Searching...');
+
 	$.ajax({
 		type: 'POST',
 		url: 'https://www.zaitoon.online/services/possearchrewards.php',
 		data: JSON.stringify(data),
 		contentType: "application/json",
 		dataType: 'json',
+		timeout: 10000,
 		success: function(data) {
+			hideLoading();
 			if(data.status){
 				if(data.type == 'REDEEM'){
 					openCouponRedeemModal(data.couponData);
@@ -150,6 +158,10 @@ function searchRequest(){
 				forceLogout(data.error);
 			}
 
+		},
+		error: function(data){
+			hideLoading();
+			showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
 		}
 	});	
 }
@@ -168,6 +180,7 @@ function loadMoreOrders(user, nextID){
 		data: JSON.stringify(data),
 		contentType: "application/json",
 		dataType: 'json',
+		timeout: 10000,
 		success: function(data) {
 			if(data.status){
 				console.log(data)
@@ -179,6 +192,9 @@ function loadMoreOrders(user, nextID){
 				forceLogout(data.error);
 			}
 
+		},
+		error: function(data){
+			showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
 		}
 	});		
 }
