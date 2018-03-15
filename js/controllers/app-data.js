@@ -32,6 +32,7 @@ function hideNewCookingIngredient(){
 
 function openNewDineSession(){
 	document.getElementById("newDineSessionArea").style.display = "block";
+  $("#add_new_dineSession_name").focus();
 	document.getElementById("openNewSessionButton").style.display = "none";
 }
 

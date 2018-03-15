@@ -199,6 +199,7 @@ function editItemPrice(encodedItem, inCateogry){
 	}
 
 	document.getElementById("editItemArea").innerHTML = editContent;
+	$("#item_main_name").focus();
 	document.getElementById("editItemCodeSecret").innerHTML = '<input type="hidden" id="item_main_code_secret" value="'+item.code+'"/>';
 
 	//If it has choices already, show CLEAR Choice buttons 
@@ -395,6 +396,7 @@ function hideNewBill(){
 function openNewMenuCategory(){
 	document.getElementById("newMenuCategoryModal").style.display = "block";
 	document.getElementById("openNewMenuCategoryButton").style.display = "none";
+	$("#add_new_category_name").focus();
 }
 
 function hideNewMenuCategory(){
@@ -409,6 +411,7 @@ function openNewMenuItem(category){
 	/* removes previous cache */
 	document.getElementById("newItemChoicesArea").innerHTML = ""; 
 	document.getElementById("new_item_choice_count").value = 0;
+	document.getElementById("new_item_price").disabled = false;
 	document.getElementById("removeChoiceButton").style.display = 'none';
 
 	if(category){
@@ -417,9 +420,11 @@ function openNewMenuItem(category){
                   								'<button type="button" onclick="readNewItem(\''+category+'\')" class="btn btn-success">Add</button>';
 	}
 		
-	document.getElementById("new_item_name").value = '';
+	document.getElementById("new_item_name").value = '';  
+
 	document.getElementById("new_item_price").value = '';
 	document.getElementById("newMenuItemModal").style.display = "block";
+	$("#new_item_name").focus();
 }
 
 function hideNewMenuItem(){	
@@ -469,6 +474,8 @@ function addChoice(){
 
 	newChoice.appendTo("#newItemChoicesArea");
 
+	$("#choice_name_"+count).focus();
+
 }
 
 
@@ -478,6 +485,7 @@ function removeChoice(id){
 	document.getElementById("new_item_choice_count").value = 0;
 	document.getElementById("removeChoiceButton").style.display = 'none';
 	document.getElementById("new_item_price").disabled = false;
+	$("#new_item_name").focus();
 }
 
 
@@ -1074,6 +1082,9 @@ function openEditCategoryName(current){
 	                     '</div>';
 
 	document.getElementById("categoryEditNameConfirmation").style.display = 'block';
+
+	$("#edit_category_new_name").focus();
+	
 }
 
 function hideEditCategoryName(){

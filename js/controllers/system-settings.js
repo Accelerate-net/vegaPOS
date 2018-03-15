@@ -289,9 +289,11 @@ function changeSecurityPasscodeProtection(){
   //Disable --> Enable (Ask to set a code)
   if(optName){
     document.getElementById("setNewPassCodeModal").style.display = 'block';
+    $("#screenlock_passcode_new").focus();
   }
   else{ //Enable --> Disable (Ask to confirm the code)
-    document.getElementById("confirmCurrentPassCodeModal").style.display = 'block';
+    document.getElementById("confirmCurrentPassCodeModal").style.display = 'block'; 
+    $("#screenlock_passcode_old_confirm").focus();
   }
 }
 
@@ -379,6 +381,7 @@ function securityPasscodeProtectionConfirmCodeHIDE(){
 /*Change Passcode to New*/
 function changePasscodeToNew(){
   document.getElementById("setChangePassCodeModal").style.display = 'block';
+  $("#screenlock_passcode_original").focus();
 }
 
 function setChangedPasscodeToNew(){
@@ -448,6 +451,7 @@ function recoveryPasscodeLogin(){
                                 '</section>';
 
     document.getElementById("loginModalResetPasscode").style.display = 'block';
+    $("#loginReset_server_username").focus();
 }
 
 function cancelLoginResetWindow(){

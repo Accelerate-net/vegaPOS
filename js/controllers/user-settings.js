@@ -17,6 +17,7 @@ function hideDeleteUserConsent(){
 
 function openNewUser(){
 	document.getElementById("newUserArea").style.display = "block";
+	$("#user_profile_new_user_name").focus();
 	document.getElementById("openNewUserButton").style.display = "none";
 }
 
