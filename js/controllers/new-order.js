@@ -1,3 +1,4 @@
+
 /*Add Item to Cart */
 function saveToCart(productToAdd){
 
@@ -1318,15 +1319,15 @@ function renderCustomerInfo(){
 			                           '</div>'+
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-6" style="padding: 0; padding-right: 2px">'+
+			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
+			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                    '</div>'+
+			                                 '</div>   '+      			                           
+			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<input type="text" onchange="changeCustomerInfo(\'name\')" value="'+customerInfo.name+'" id="customer_form_data_name" class="form-control kb-text" placeholder="Guest Name" />'+
 			                                    '</div>'+
-			                                 '</div>'+
-			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
-			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" class="form-control kb-text" placeholder="Guest Mobile" />'+
-			                                    '</div>'+
-			                                 '</div>   '+                     
+			                                 '</div>'+               
 			                           '</div>';
 					}
 					else{ //New Order
@@ -1346,15 +1347,15 @@ function renderCustomerInfo(){
 			                           '</div>'+
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-6" style="padding: 0; padding-right: 2px">'+
+			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
+			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                    '</div>'+
+			                                 '</div>   '+    			                           
+			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<input type="text" onchange="changeCustomerInfo(\'name\')" value="'+customerInfo.name+'" id="customer_form_data_name" class="form-control kb-text" placeholder="Guest Name" />'+
 			                                    '</div>'+
-			                                 '</div>'+
-			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
-			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" class="form-control kb-text" placeholder="Guest Mobile" />'+
-			                                    '</div>'+
-			                                 '</div>   '+                     
+			                                 '</div>'+                 
 			                           '</div>';
 			        }	
 
@@ -1380,6 +1381,49 @@ function renderCustomerInfo(){
 	    	renderCart();
 	    }	
 
+}
+
+function suggestCustomerInfoFromMobile(inputElement){
+
+	var mobileNumber = inputElement.value;
+
+	if(mobileNumber.length == 10){
+
+	  var requestData = {
+	    "selector"  :{ 
+	                  "mobile": mobileNumber 
+	                },
+	    "fields"    : ["name", "mobile", "savedAddresses"]
+	  }
+
+	  $.ajax({
+	    type: 'POST',
+	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+	    data: JSON.stringify(requestData),
+	    contentType: "application/json",
+	    dataType: 'json',
+	    timeout: 10000,
+	    success: function(data) {
+	      hideLoading();
+	      if(data.docs.length != 0){
+	      	if(data.docs[0].name != ''){
+	      		document.getElementById("customer_form_data_name").value = data.docs[0].name;
+	      		changeCustomerInfo('name');
+	      	}
+
+	      	//Set Address if mode == 'PARCEL'
+	      	if(data.docs[0].savedAddresses){
+	      		var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData) : [];
+
+	      		if(customerInfo.modeType == 'PARCEL'){
+	      			saveNewDeliveryAddressAuto(data.docs[0].savedAddresses[0]);
+	      		}
+	      	}
+
+	      }
+	    }
+	  });  
+	}
 }
 
 function changeCustomerInfo(type){
@@ -2250,6 +2294,19 @@ function saveNewDeliveryAddress(){
 	}
 	else{
 		showToast('Warning: Delivery Address is empty', '#e67e22');                                 
+	}
+}
+
+function saveNewDeliveryAddressAuto(address){
+	address = address.replace(/\n/g, ', ');
+	address = address.replace(/, ,/g, ','); /*TWEAK*/
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+	
+	if(address != ''){
+		customerInfo.mappedAddress = address;
+		window.localStorage.customerData = JSON.stringify(customerInfo);
+		pickAddressForNewOrderHide();
+		renderCustomerInfo();
 	}
 }
 

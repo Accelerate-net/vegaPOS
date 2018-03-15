@@ -1,3 +1,11 @@
+/*
+  SERVER DETAILS
+*/
+
+var COMMON_LOCAL_SERVER_IP = 'http://127.0.0.1:5984/';
+
+
+
 
 //To format the time in '' ago format
 function getFormattedTime(time){
