@@ -1,6 +1,7 @@
 
 function openNewBill(){
 	document.getElementById("newBillArea").style.display = "block";
+  $("#add_new_param_name").focus();
 	document.getElementById("openNewBillButton").style.display = "none";
 }
 
@@ -53,6 +54,7 @@ function openNewMode(){
         }
 
           document.getElementById("newModeArea").style.display = "block";
+          $("#add_new_mode_name").focus();
           document.getElementById("openNewModeButton").style.display = "none";
     }
     });
@@ -68,6 +70,7 @@ function hideNewMode(){
 
 function openNewPaymentMode(){
 	document.getElementById("newPaymentModeArea").style.display = "block";
+  $("#add_new_payment_name").focus();
 	document.getElementById("openNewPaymentModeButton").style.display = "none";
 }
 
@@ -81,6 +84,7 @@ function hideNewPaymentMode(){
 
 function openNewDiscountType(){
   document.getElementById("newDiscountTypeArea").style.display = "block";
+  $("#add_new_discount_name").focus();
   document.getElementById("openNewDiscountButton").style.display = "none";
 }
 

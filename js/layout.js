@@ -260,6 +260,7 @@ function checkLogin(){
                                 '</section>';
 
     document.getElementById("loginModalHome").style.display = 'block';
+    $("#loginHome_server_username").focus();
   }
   else{ //logged in
 
@@ -300,6 +301,7 @@ function recoveryLogin(){
                                 '</section>';
 
     document.getElementById("loginModalHome").style.display = 'block';
+    $("#loginHome_server_username").focus();
 }
 
 function performRecoveryLogin(){

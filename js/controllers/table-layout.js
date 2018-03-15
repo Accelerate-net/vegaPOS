@@ -19,6 +19,7 @@ function openNewTableModal(){
     document.getElementById("add_new_table_type").innerHTML = optionsList;
 
     document.getElementById("newTableModal").style.display = "block";
+    $("#add_new_table_name").focus();
     document.getElementById("openNewTableButton").style.display = "none";
   }
   else{
@@ -34,6 +35,7 @@ function hideNewTableModal(){
 
 function openNewTableSectionModal(){
   document.getElementById("newTableSectionModal").style.display = "block";
+  $("#add_new_tableSection_name").focus();
   document.getElementById("openNewTableSectionButton").style.display = "none";
 }
 

@@ -99,6 +99,8 @@ function forceLogout(customeError){
 /*To render errors - check if logged in*/
 function renderDefaults(){
 
+	$("#rewardsSearchInput").focus();
+
 	if(window.localStorage.loggedInAdmin){
 		document.getElementById("errorRenderArea").innerHTML = '<p style="color: gray; font-size: 16px; font-weight: 300; text-align: center;">Enter the Coupon/Voucher Code or the Customer\'s Registered Mobile Number</p>'
 	}
