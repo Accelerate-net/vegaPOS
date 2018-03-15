@@ -13,6 +13,7 @@
 
                         <div class="billSettingsOption" onclick="openOtherSettings('dineSessions')"> Dine Sessions <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openOtherSettings('savedComments')"> Saved Comments <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openOtherSettings('ingredientsList')"> Cooking Ingredients <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="clearfix"></div>
                     </div>
                 </div>
@@ -30,6 +31,24 @@
                         </div>
 
                         <div style="padding-top: 15px" id="savedCommentsInfo">
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+
+
+                <!-- Ingredients -->
+                <div class="box box-primary" style="display: none" id="ingredientsList">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Cooking Ingredients</h3>
+                           <button class="btn btn-success btn-sm" id="openNewCookingIngredientButton" onclick="openNewCookingIngredient()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div style="padding-top: 15px" id="cookingIngredientsInfo">
                         </div>
                         <div class="clearfix"></div>
                     </div>
@@ -83,9 +102,40 @@
                           
 
                                  <div class="form-group">
-                                    <input style="float: right" onclick="addNewComment()" value="Save Comment" class="btn btn-primary" />
+                                    <input type="button" style="float: right" onclick="addNewComment()" value="Save Comment" class="btn btn-primary" />
 
                                     <button type="button" class="btn btn-default" onclick="hideNewSavedComment()" >Cancel</button>
+
+
+                                 </div>
+                              </form>
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Cooking Ingredients : Actions -->
+                <div style="display: none" id="newCookingIngredientArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add Cooking Ingredient</h3>
+                           </div>
+                           <div class="col-lg-12">
+                              <form>
+                                 <div class="form-group">
+
+                                    <input type="text" value="" class="form-control tip" id="add_new_CookingIngredient_name" style="border: none; border-bottom: 1px solid" placeholder="Ingredient Name" required="required" />
+                                 </div>                                 
+
+                          
+
+                                 <div class="form-group">
+                                    <input type="button" style="float: right" onclick="addNewCookingIngredient()" value="Save Ingredient" class="btn btn-primary" />
+
+                                    <button type="button" class="btn btn-default" onclick="hideNewCookingIngredient()" >Cancel</button>
 
 
                                  </div>
@@ -125,7 +175,7 @@
                                  
 
                                  <div class="form-group">
-                                    <input style="float: right" onclick="addDineSession()" value="Add Session" class="btn btn-primary" />
+                                    <input type="button" style="float: right" onclick="addDineSession()" value="Add Session" class="btn btn-primary" />
 
                                     <button type="button" class="btn btn-default" onclick="hideNewDineSession()" >Cancel</button>
 

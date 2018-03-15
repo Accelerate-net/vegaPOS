@@ -1,6 +1,8 @@
 
 function openNewSavedComment(){
+  document.getElementById("add_new_savedComment").value = '';
 	document.getElementById("newSavedCommentArea").style.display = "block";
+  $("#add_new_savedComment").focus();
 	document.getElementById("openNewSavedCommentButton").style.display = "none";
 }
 
@@ -9,6 +11,23 @@ function hideNewSavedComment(){
 	document.getElementById("newSavedCommentArea").style.display = "none";
 	document.getElementById("openNewSavedCommentButton").style.display = "block";
 }
+
+
+
+function openNewCookingIngredient(){
+  document.getElementById("add_new_CookingIngredient_name").value = '';
+  document.getElementById("newCookingIngredientArea").style.display = "block";
+  $("#add_new_CookingIngredient_name").focus();
+  document.getElementById("openNewCookingIngredientButton").style.display = "none";
+}
+
+function hideNewCookingIngredient(){
+  
+  document.getElementById("newCookingIngredientArea").style.display = "none";
+  document.getElementById("openNewCookingIngredientButton").style.display = "block";
+}
+
+
 
 
 function openNewDineSession(){
@@ -28,8 +47,9 @@ function openOtherSettings(id){
 	$( "#detailsDisplayOtherSettings" ).children().css( "display", "none" );
 	$( "#detailsNewOtherSettings" ).children().css( "display", "none" );
 	document.getElementById("openNewSessionButton").style.display = "block";
-	document.getElementById("openNewSavedCommentButton").style.display = "block";
-
+	document.getElementById("openNewSavedCommentButton").style.display = "block"; 
+  document.getElementById("openNewCookingIngredientButton").style.display = "block";
+  
 	document.getElementById(id).style.display = "block";
 
 	switch(id){
@@ -41,22 +61,10 @@ function openOtherSettings(id){
 			fetchAllSavedComments();
 			break;
 		}	
-    case "personalOptions":{
-      renderPersonalisations();
+    case "ingredientsList":{
+      fetchAllCookingIngredients();
       break;
-    } 
-    case "keyboardShortcuts":{
- 
-      break;
-    } 
-    case "systemSettings":{
- 
-      break;
-    }  
-    case "resetOptions":{
- 
-      break;
-    }            
+    }           
 	}
 }
 
@@ -249,6 +257,187 @@ function deleteDineSession(name) {
 
 
 
+
+
+/*read cooking ingredients*/
+function fetchAllCookingIngredients(){
+
+    if(fs.existsSync('./data/static/cookingingredients.json')) {
+        fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
+      if (err){
+          showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      } else {
+
+          if(data == ''){ data = '[]'; }
+
+              var modes = JSON.parse(data);
+              modes.sort(); //alphabetical sorting 
+              var modesTag = '';
+
+        for (var i=0; i<modes.length; i++){
+          modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton" onclick="deleteCookingIngredient(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
+        }
+
+        if(!modesTag)
+          document.getElementById("cookingIngredientsInfo").innerHTML = '<p style="color: #bdc3c7">No ingredient added yet.</p>';
+        else
+          document.getElementById("cookingIngredientsInfo").innerHTML = modesTag;
+    }
+    });
+      } else {
+        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      } 
+}
+
+
+
+
+/* add new ingredient */
+function addNewCookingIngredient(optionalParameter) {  
+
+  var commentName = '';
+  if(!optionalParameter || optionalParameter == ''){
+    commentName = document.getElementById("add_new_CookingIngredient_name").value;
+  }
+  else{
+    commentName = optionalParameter;
+  }
+  
+
+  if(commentName == ''){
+    showToast('Warning: Please set a name', '#e67e22');
+    return '';
+  }
+
+     //Check if file exists
+      if(fs.existsSync('./data/static/cookingingredients.json')) {
+         fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
+       if (err){
+           showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+       } else {
+         if(data==""){
+            var obj = []
+            obj.push(commentName); //add some data
+            var json = JSON.stringify(obj);
+            fs.writeFile('./data/static/cookingingredients.json', json, 'utf8', (err) => {
+                if(err){
+                  showToast('System Error: Unable to save Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+              }
+              else{
+
+                fetchAllCookingIngredients(); //refresh the list
+                
+                //not adding via  Undo function
+                if(!optionalParameter || optionalParameter == ''){
+                  openNewCookingIngredient();
+                }
+
+              }
+            });
+         }
+         else{
+             var flag=0;
+             if(data == ''){ data = '[]'; }
+             var obj = [];
+             obj = JSON.parse(data);
+             for (var i=0; i<obj.length; i++) {
+               if (obj[i] == commentName){
+                  flag=1;
+                  break;
+               }
+             }
+             if(flag==1){
+               showToast('Warning: Comment already exists. Please add a different comment.', '#e67e22');
+             }
+             else{
+                obj.push(commentName);
+                var json = JSON.stringify(obj);
+                fs.writeFile('./data/static/cookingingredients.json', json, 'utf8', (err) => {
+                     if(err){
+                        showToast('System Error: Unable to save Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+                    }
+                else{
+                      fetchAllCookingIngredients(); //refresh the list
+                      
+
+                      //not adding via  Undo function
+                      if(!optionalParameter || optionalParameter == ''){
+                        openNewCookingIngredient();
+                      }
+                    
+                  }
+                  });  
+
+             }
+                 
+         }
+          
+   }});
+      } else {
+         obj.push(commentName);
+         fs.writeFile('./data/static/cookingingredients.json', obj, 'utf8', (err) => {
+            if(err){
+               showToast('System Error: Unable to save Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+           }
+           else{
+                fetchAllCookingIngredients(); //refresh the list
+                
+                //not adding via  Undo function
+                if(!optionalParameter || optionalParameter == ''){
+                  openNewCookingIngredient();
+                }         
+           }
+         });
+      }
+  
+}
+
+/* delete ingredient */
+function deleteCookingIngredient(name) {  
+
+   //Check if file exists
+   if(fs.existsSync('./data/static/cookingingredients.json')) {
+       fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
+       if (err){
+           showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+       } else {
+        if(data == ''){ data = '[]'; }
+       var obj = JSON.parse(data); //now it an object
+       for (var i=0; i<obj.length; i++) {  
+         if (obj[i] == name){
+            obj.splice(i,1);
+            break;
+         }
+       }
+       var newjson = JSON.stringify(obj);
+       fs.writeFile('./data/static/cookingingredients.json', newjson, 'utf8', (err) => {
+         if(err){
+            showToast('System Error: Unable to make changes in Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+         }
+         else{
+          /* on successful delete */
+          fetchAllCookingIngredients();
+
+          showUndo('Deleted', 'addNewCookingIngredient(\''+name+'\')');
+
+         }
+          
+       }); 
+      }});
+   } else {
+      showToast('System Error: Unable to modify Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+   }
+
+   cancelOtherDeleteConfirmation()
+
+}
+
+
+
+
+
+
+
 /* read saved comments */
 function fetchAllSavedComments(){
 
@@ -265,7 +454,7 @@ function fetchAllSavedComments(){
 	          	var modesTag = '';
 
 				for (var i=0; i<modes.length; i++){
-					modesTag = modesTag + '<button type="button" style="margin-right: 5px" class="btn btn-outline" onclick="deleteSavedCommentConfirm(\''+modes[i]+'\')">'+modes[i]+'</button>';
+					modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton" onclick="deleteSavedComment(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
         }
 
 				if(!modesTag)
@@ -283,9 +472,16 @@ function fetchAllSavedComments(){
 
 
 /* add new comment */
-function addNewComment() {  
+function addNewComment(optionalParameter) {  
 
-	var commentName = document.getElementById("add_new_savedComment").value;
+  var commentName = '';
+  if(!optionalParameter || optionalParameter == ''){
+    commentName = document.getElementById("add_new_savedComment").value;
+  }
+  else{
+    commentName = optionalParameter;
+  }
+	
 
 	if(commentName == ''){
 		showToast('Warning: Please set a name', '#e67e22');
@@ -309,7 +505,11 @@ function addNewComment() {
               else{
 
                 fetchAllSavedComments(); //refresh the list
-                hideNewSavedComment();
+                
+                //not adding via  Undo function
+                if(!optionalParameter || optionalParameter == ''){
+                  openNewSavedComment();
+                }
 
               }
             });
@@ -337,7 +537,12 @@ function addNewComment() {
                     }
 		            else{
 			                fetchAllSavedComments(); //refresh the list
-			                hideNewSavedComment();
+			                
+
+                      //not adding via  Undo function
+                      if(!optionalParameter || optionalParameter == ''){
+                        openNewSavedComment();
+                      }
 		              	
 		              }
                   });  
@@ -355,15 +560,15 @@ function addNewComment() {
            }
            else{
                 fetchAllSavedComments(); //refresh the list
-                hideNewSavedComment();         	
+                
+                //not adding via  Undo function
+                if(!optionalParameter || optionalParameter == ''){
+                  openNewSavedComment();
+                }       	
            }
          });
       }
   
-}
-
-function deleteSavedCommentConfirm(name){
-	openOtherDeleteConfirmation(name, 'deleteSavedComment');
 }
 
 /* delete a comment */
@@ -385,11 +590,17 @@ function deleteSavedComment(name) {
        }
        var newjson = JSON.stringify(obj);
        fs.writeFile('./data/static/savedcomments.json', newjson, 'utf8', (err) => {
-         if(err)
+         if(err){
             showToast('System Error: Unable to make changes in Saved Comments data. Please contact Accelerate Support.', '#e74c3c');
-        
-        	/* on successful delete */
-   			  fetchAllSavedComments();
+         }
+         else{
+          /* on successful delete */
+          fetchAllSavedComments();
+
+          showUndo('Deleted', 'addNewComment(\''+name+'\')');
+
+         }
+        	
        }); 
       }});
    } else {

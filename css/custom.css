@@ -923,25 +923,72 @@ color: #f4f4f4; padding-left: 5px; font-size: 60%; font-weight: 400
   color: #3498db;
 }  
 
+.clearUndoButton{
+  background: none !important;
+  float: right;
+  border: none;
+  color: rgba(255,82,82, 0.8);
+  font-weight: bold;
+  padding: 0 12px; 
+}
 
-
+.clearUndoButton:hover, .clearUndoButton:active, .clearUndoButton:focus{
+  color: rgba(255,82,82, 1);
+  outline: none;
+  background: none !important;
+} 
 
 /* TOAST */
-/* The snackbar - position it at the bottom and in the middle of the screen */
-#snackbar {
+/* position it at the bottom and in the middle of the screen */
+#undoBar {
     visibility: hidden; /* Hidden by default. Visible on click */
     min-width: 250px; /* Set a default minimum width */
-    margin-left: -125px; /* Divide value of min-width by 2 */
-    background-color: #333; /* Black background color */
+    /*margin-left: -125px; /* Divide value of min-width by 2 */
+    background-color: #34495e; /* Black background color */
     color: #fff; /* White text color */
-    text-align: center; /* Centered text */
+    text-align: left; /* Centered text */
     border-radius: 2px; /* Rounded borders */
     padding: 16px; /* Padding */
     position: fixed; /* Sit on top of the screen */
     z-index: 10000; /* Add a z-index if needed */
-    left: 50%; /* Center the snackbar */
-    bottom: 30px; /* 30px from the bottom */
+    top: 65px; /* Center the snackbar */
+    right: 15px; /* 30px from the bottom */
 }
+
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+#undoBar.show {
+    visibility: visible; /* Show the snackbar */
+
+/* Add animation: Take 0.5 seconds to fade in and out the snackbar. 
+However, delay the fade out process for 2.5 seconds */
+    -webkit-animation: fadeinUndo 0.5s, fadeoutUndo 0.5s 4.5s;
+    animation: fadeinUndo 0.5s, fadeoutUndo 0.5s 4.5s;
+}
+
+@-webkit-keyframes fadeinUndo {
+    from {top: 50px; opacity: 0;} 
+    to {top: 65px; opacity: 1;}
+}
+
+@keyframes fadeinUndo {
+    from {top: 50px; opacity: 0;}
+    to {top: 65px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeoutUndo {
+    from {top: 65px; opacity: 1;} 
+    to {top: 50px; opacity: 0;}
+}
+
+@keyframes fadeoutUndo {
+    from {top: 65px; opacity: 1;}
+    to {top: 50px; opacity: 0;}
+}
+
+
+
+
 
 #infobar {
     visibility: hidden; /* Hidden by default. Visible on click */
@@ -958,15 +1005,6 @@ color: #f4f4f4; padding-left: 5px; font-size: 60%; font-weight: 400
     bottom: 30px; /* 30px from the bottom */
 }
 
-/* Show the snackbar when clicking on a button (class added with JavaScript) */
-#snackbar.show {
-    visibility: visible; /* Show the snackbar */
-
-/* Add animation: Take 0.5 seconds to fade in and out the snackbar. 
-However, delay the fade out process for 2.5 seconds */
-    -webkit-animation: fadein 0.5s, fadeout 0.5s 4.5s;
-    animation: fadein 0.5s, fadeout 0.5s 4.5s;
-}
 
 #infobar.show {
     visibility: visible; 
@@ -1228,6 +1266,37 @@ ol ol {
     background: none;
     opacity: 1;
 }
+
+/*saved comments buttons*/
+.savedCommentButton{
+  cursor: pointer;
+  padding: 6px 24px 6px 6px;
+  margin-top: 4px;
+}
+
+.savedCommentButton:hover{
+  border-color: #ee5357;
+  color: #ee5357;
+}
+
+
+.savedCommentButtonIcon{
+  float: left;
+  background: none;
+  opacity: 0;
+  padding-right: 6px;
+  color: #ee5357;
+}
+
+
+.savedCommentButton:hover .savedCommentButtonIcon{
+    background: none;
+    opacity: 1;
+}
+
+
+
+
 /*
 
 .billSettingsOptionIcon:hover, .billSettingsOptionIcon:focus, .billSettingsOptionIcon:active{
@@ -2260,7 +2329,9 @@ ol ol {
     color: #FFF;
     padding-left: 1em;
     padding-right: 1em;
-  }
+ }
+
+
 
   #mainLoading .loadingCounter{
     font-size: 18px;
@@ -2271,6 +2342,22 @@ ol ol {
     width: 30px;
     display: inline-block;
     text-align: center;
+
+   -webkit-animation: fadeinDelayed 4s;
+    animation: fadeinDelayed 4s;
+
+  }
+
+  @-webkit-keyframes fadeinDelayed {
+    0% { opacity:0; } 
+    50% { opacity:0; }
+    100% { opacity:1; }
+  }
+
+  @keyframes fadeinDelayed {
+    0% { opacity:0; } 
+    50% { opacity:0; }
+    100% { opacity:1; }
   }
 
 
