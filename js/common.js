@@ -107,7 +107,6 @@ function showLoading(time, text){
   document.getElementById("generalLoaderCount").innerHTML = startCount;
 
   loadingLapsedInterval = window.setInterval(function() {
-    console.log('Triggering..')
     if(startCount == 1){
       clearInterval(loadingLapsedInterval);
       document.getElementById("generalLoadingModal").style.display = 'none';

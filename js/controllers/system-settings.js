@@ -476,6 +476,8 @@ function performRecoveryResetLogin(){
     "token": tempToken
   }
 
+  showLoading(10000, 'Logging on to the Server');  
+
   $.ajax({
     type: 'POST',
     url: 'https://www.zaitoon.online/services/posserverrecoverylogin.php',
@@ -484,6 +486,7 @@ function performRecoveryResetLogin(){
     dataType: 'json',
     timeout: 10000,
     success: function(data) {
+      hideLoading();
       if(data.status){
         window.localStorage.appCustomSettings_InactivityToken = btoa('0000');
         showToast('Screen Lock successfully reset to <b>0000</b>. Change it now.', '#27ae60');
@@ -497,6 +500,7 @@ function performRecoveryResetLogin(){
 
     },
     error: function(data){
+      hideLoading();
       showToast('Server not responding. Check your connection.', '#e74c3c');
     }
 
