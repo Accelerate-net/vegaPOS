@@ -2865,3 +2865,20 @@ position: absolute;
 @keyframes blinker {  
   50% { opacity: 0; }
 }
+
+
+
+
+.addressChoose{
+    padding: 0;
+    background: #FFF;
+    margin: 10px;
+    box-shadow: 0 1px 3px 0px rgba(0, 0, 0, 0.2);
+}
+
+.featureName{
+  margin-top: 10px;
+    font-size: 16px;
+    color: #34495e;
+    font-family: 'Source Sans Pro', 'Segoe UI', 'Droid Sans', Tahoma, Arial, sans-serif;
+}

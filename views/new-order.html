@@ -187,16 +187,42 @@
          <div class="modal-content">
 
             <div class="modal-body" style="max-height: 420px; overflow: scroll;" id="pickAddressForNewOrderModalContent">
-                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px">Delivery Address</h1>
+                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px">Delivery Address
+                     <button class="btn btn-default btn-sm" onclick="clearDefaultDeliveryAddressContents()" style="float: right; margin-right: 25px;">Reset</button>
+                  </h1>
 
-                     <div class="row">
-                        <div class="col-lg-12">
+                     <div class="row" style="padding: 5px 30px 20px 15px;">
+                        <div class="col-sm-12">
                            <div class="form-group">
-                              <textarea value="" placeholder="Enter Delivery Address" class="form-control tip deliveryAddressWithRows" id="delivery_address_parcel" rows="4" required="required" /></textarea>
+                              <input type="text" value="" placeholder="Recepient Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_name" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-12">
+                           <div class="form-group">
+                              <input type="number" value="" placeholder="Mobile Number" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_contact" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Flat/House No" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_flatNo" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Flat/House Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_flatName" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Landmark" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_landmark" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Area" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_area" required="required" />
                            </div>
                         </div>
                      </div>
-
 
             </div>
             <div class="modal-footer">
@@ -208,6 +234,66 @@
    </div>
 
 
+
+
+   <!-- Modal -->
+   <div id="chooseAddressForNewOrderModal" class="modal">
+      <div class="modal-dialog" style="top: 20%">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 420px; overflow: scroll;" id="pickAddressForNewOrderModalContent">
+                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px">Saved Delivery Addressess
+                  <button class="btn btn-success btn-sm" id="addNewSavedDeliveryAddressButton" onclick="openNewSavedDeliveryAddressArea()" style="float: right">Add New</button>
+                  </h1>
+                     <div class="row" style="margin: 0" id="areaForSavedAddressRender">
+
+                     </div>
+
+                     <div class="row" id="addNewSavedWindow" style="padding: 20px 30px 20px 15px; display: none">
+                        <h1 style="font-size: 18px; color: #1abc9c; text-align: left; padding-left: 15px; margin-top: 0;">Add New Address</h1>
+                        <div class="col-sm-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Recepient Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_name" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-12">
+                           <div class="form-group">
+                              <input type="number" value="" placeholder="Mobile Number" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_contact" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Flat/House No" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_flatNo" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Flat/House Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_flatName" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Landmark" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_landmark" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Area" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_area" required="required" />
+                           </div>
+                        </div>
+                        <button type="button" class="btn btn-default" onclick="hideNewSavedDeliveryAddressArea()" style="float: left; margin-left: 15px">Close</button>
+                        <button type="button" class="btn btn-success" onclick="saveNewDeliveryAddress()" style="float: right; margin-right: 15px">Save Address</button>
+                     </div>
+
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+               <button type="button" class="btn btn-default" onclick="chooseAddressFromSavedListHide()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Cancel</button>
+            </div>
+         </div>
+      </div>
+   </div>
 
 
    <!-- Modal -->
