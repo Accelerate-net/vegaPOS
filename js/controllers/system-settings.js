@@ -510,3 +510,145 @@ function performRecoveryResetLogin(){
 
   });    
 }
+
+
+
+/*RESET OPTIONS*/
+
+function masterResetConfirm(){
+  document.getElementById("masterResetConfirmModal").style.display = 'block';
+}
+
+function masterResetConfirmHide(){
+  document.getElementById("masterResetConfirmModal").style.display = 'none';
+}
+
+
+function masterResetAction(){
+
+  masterResetConfirmHide();
+  document.getElementById("fullScreenLoader").style.display = 'block';
+
+  //test unit
+  var resetLinks = [{
+                    "name": "Billing Modes",
+                    "url": "./data/static/test.json",
+                    "type": "json"
+                  }, {
+                    "name": "Billing Parameters",
+                    "url": "./data/static/test.json",
+                    "type": "json"
+                  }];
+
+/* Production unit: 
+
+  var resetLinks = [{
+                    "name": "Billing Modes",
+                    "url": "./data/static/billingmodes.json",
+                    "type": "json"
+                  }, {
+                    "name": "Billing Parameters",
+                    "url": "./data/static/billingparameters.json",
+                    "type": "json"
+                  }, {
+                    "name": "Cooking Ingredients",
+                    "url": "./data/static/cookingingredients.json",
+                    "type": "json"
+                  }, {
+                    "name": "Dine Sessions",
+                    "url": "./data/static/dinesessions.json",
+                    "type": "json"
+                  }, {
+                    "name": "Discount Types",
+                    "url": "./data/static/discounttypes.json",
+                    "type": "json"
+                  }, {
+                    "name": "Master Menu",
+                    "url": "./data/static/mastermenu.json",
+                    "type": "json"
+                  }, {
+                    "name": "Menu Categories",
+                    "url": "./data/static/menuCategories.json",
+                    "type": "json"
+                  }, {
+                    "name": "Payment Modes",
+                    "url": "./data/static/paymentmodes.json",
+                    "type": "json"
+                  }, {
+                    "name": "Personalisations",
+                    "url": "./data/static/personalisations.json",
+                    "type": "json"
+                  }, {
+                    "name": "Saved Comments",
+                    "url": "./data/static/savedcomments.json",
+                    "type": "json"
+                  }, {
+                    "name": "Tables",
+                    "url": "./data/static/tables.json",
+                    "type": "json"
+                  }, {
+                    "name": "Table Mapping",
+                    "url": "./data/static/tablemapping.json",
+                    "type": "json"
+                  }, {
+                    "name": "Table Sections",
+                    "url": "./data/static/tablesections.json",
+                    "type": "json"
+                  }, {
+                    "name": "User Profiles",
+                    "url": "./data/static/userprofiles.json",
+                    "type": "json"
+                  }, {
+                    "name": "KOT Number Count",
+                    "url": "./data/static/lastKOT.txt",
+                    "type": "counter"
+                  }, {
+                    "name": "Tables",
+                    "url": "./data/static/tables.json",
+                    "type": "json"
+                  }, {
+                    "name": "Tables",
+                    "url": "./data/static/tables.json",
+                    "type": "json"
+                  }];
+
+  */
+
+
+  //DELETE MENU IMAGES !
+
+  var n = 0;
+  var actualCount = 1;
+  while(resetLinks[n]){
+
+       var content;
+       if(resetLinks[n].type == 'json'){
+        content = JSON.stringify([]);
+        }else if(resetLinks[n].type == 'counter'){
+          content = 1;
+        }else{
+          content = '';
+        }
+       fs.writeFile(resetLinks[n].url, content, 'utf8', (err) => {
+         if(err){
+            showToast('System Reset failed!', 'red');
+            document.getElementById("fullScreenLoader").style.display = 'none';
+            return '';
+         }
+
+         if(actualCount == resetLinks.length){
+          resetFinished();
+         }
+
+         actualCount++;
+
+       }); 
+    n++;
+  }
+  
+}
+
+function resetFinished(){
+  showToast('System Reset Completed!', 'green');
+  document.getElementById("fullScreenLoader").style.display = 'none';  
+}

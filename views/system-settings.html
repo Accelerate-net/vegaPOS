@@ -15,6 +15,7 @@
                         <div class="billSettingsOption" onclick="openSystemSettings('personalOptions')"> Personalisations<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('systemSecurity')"> Security<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('resetOptions')"> System Reset<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openSystemSettings('backOptions')"> Take Backup<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         
                         <div class="clearfix"></div>
                     </div>
@@ -278,6 +279,10 @@
                         <div class="box-header" style="padding: 10px 0px">
                            <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">System Reset</h3>
                         </div>
+
+                        <p>Master System Reset would completely delete the data including <b>the Menu, Menu Photos, Created Users, Application Settings and Personal Settings</b>. Only the Customer Data and the generated Bills data, which are synced with the Server, will not be deleted.</p>
+
+                        <button class="btn btn-danger" onclick="masterResetConfirm()">Proceed to Master Reset</button>
                         
                         <div class="clearfix"></div>
                     </div>
@@ -382,6 +387,23 @@
                 </div>
              </div>
           </div>
+
+        <!-- Modal -->
+        <div id="masterResetConfirmModal" class="modal">
+           <div class="modal-dialog" style="top: 20%">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 30px 15px; background: #dd4b39">
+                  <p style="font-size: 16px; margin: 0; color: #FFF;">
+                    Proceed only if you have understood the after effects of performing <b>Master Reset</b>? In case you are confused, please contact Accelerate Support before you continue.
+                  </P>
+                 </div>
+                 <div class="modal-footer">
+                    <button type="button" class="btn btn-default" onclick="masterResetConfirmHide()" style="float: left">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="masterResetAction()">Proceed</button></div>
+              </div>
+           </div>
+        </div>
 
 
 
