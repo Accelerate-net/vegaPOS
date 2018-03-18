@@ -1122,6 +1122,25 @@ function hideClearCartModal(){
 /*customer info*/
 function renderCustomerInfo(){
 
+
+	var addressOptionsAvailable = false;
+	var addressObj; 
+	var userInfoAutoFound;
+
+	if(!window.localStorage.userAutoFound || window.localStorage.userAutoFound == ''){
+		addressOptionsAvailable = false;
+	}
+	else{
+		userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
+		if(!jQuery.isEmptyObject(userInfoAutoFound)){
+			addressObj = userInfoAutoFound.savedAddresses;
+			if(addressObj && addressObj.length > 0){
+				addressOptionsAvailable = true;
+			}
+		}
+	}
+	
+
 	//Check if New Order / Editing KOT
 	var isEditingKOT = false;
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
@@ -1149,15 +1168,28 @@ function renderCustomerInfo(){
 						itemList = itemList+', '+holding_orders[n].cartDetails[i].name;
 				}
 
-				var displayAddress = holding_orders[n].customerDetails.mappedAddress;
-				if(holding_orders[n].customerDetails.mappedAddress == ''){
+				var displayAddress = '';
+				
 					if(holding_orders[n].customerDetails.modeType =='DINE'){
-						displayAddress = '<tag style="font-weight: 400">'+holding_orders[n].customerDetails.mode+'</tag>';
+						if(holding_orders[n].customerDetails.mappedAddress == ''){
+							displayAddress = '<tag style="font-weight: 400">'+holding_orders[n].customerDetails.mode+'</tag>';
+						}
+						else{
+							
+							displayAddress = holding_orders[n].customerDetails.mappedAddress;
+
+						}
 					}
 					else if(holding_orders[n].customerDetails.modeType =='PARCEL'){
-						displayAddress = '<tag style="font-weight: 400">'+holding_orders[n].customerDetails.mode+'</tag>';
+						if(holding_orders[n].customerDetails.mappedAddress == ''){
+							displayAddress = '<tag style="font-weight: 400">'+holding_orders[n].customerDetails.mode+'</tag>';
+						}
+						else{
+							var address = JSON.parse(holding_orders[n].customerDetails.mappedAddress);
+							displayAddress = address.name+', '+address.flatNo+', '+address.flatName+', '+address.landmark+', '+address.area;
+						}
 					}
-				}
+				
 
 				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+displayAddress+
 									'<tag class="holdTimeAgo">'+getFormattedTime(holding_orders[n].timestamp)+' ago</tag></p>'+
@@ -1249,11 +1281,22 @@ function renderCustomerInfo(){
 					//Ask for MappedAddress value
 					if(!isEditingKOT){
 						if(tempModeType == 'PARCEL'){ //ask for address
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag>';
-							
-							if(customerInfo.mappedAddress){
-								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag class="btn btn-default" onclick="pickAddressForNewOrder(\''+customerInfo.mappedAddress+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+
+							if(addressOptionsAvailable){
+									selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
+									
+									if(customerInfo.mappedAddress && customerInfo.mappedAddress != ''){
+										selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-default" onclick="chooseAddressFromSavedList()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
+									}	
 							}
+							else{
+									selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
+									
+									if(customerInfo.mappedAddress && customerInfo.mappedAddress != ''){
+										selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
+									}								
+							}
+
 						}
 						else if(tempModeType == 'DINE'){ //ask for table
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag class="btn btn-danger" style="width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickTableForNewOrder()">Select Table</tag>';
@@ -1274,16 +1317,16 @@ function renderCustomerInfo(){
 					else{
 
 						if(tempModeType == 'PARCEL'){ //ask for address
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag>';
+							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
 							
-							if(customerInfo.mappedAddress){
-								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag class="btn btn-default" onclick="pickAddressForNewOrder(\''+customerInfo.mappedAddress+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+							if(customerInfo.mappedAddress && customerInfo.mappedAddress != ''){
+								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
 							}
 						}
 						else if(tempModeType == 'DINE'){ //ask for table
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag class="btn btn-danger disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Not Set</tag>';
 							
-							if(customerInfo.mappedAddress){
+							if(customerInfo.mappedAddress && customerInfo.mappedAddress != ''){
 								selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
 							}
 						}					
@@ -1320,7 +1363,7 @@ function renderCustomerInfo(){
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-6" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+      			                           
 			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
@@ -1348,7 +1391,7 @@ function renderCustomerInfo(){
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-6" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+    			                           
 			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
@@ -1383,9 +1426,23 @@ function renderCustomerInfo(){
 
 }
 
-function suggestCustomerInfoFromMobile(inputElement){
+function getFormattedAddress(addressObject){
+	var address = JSON.parse(addressObject);
+	var addressString = address.name+' '+address.flatNo+' '+address.flatName+' '+address.landmark+' '+address.area+' ';
 
-	var mobileNumber = inputElement.value;
+	return addressString;
+}
+
+function suggestCustomerInfoFromMobile(mode, inputElement){
+
+	var mobileNumber = '';
+
+	if(mode == 'GENERIC'){
+		mobileNumber = inputElement.value
+	}
+	else if(mode == 'DIRECT'){
+		mobileNumber = inputElement;
+	}
 
 	if(mobileNumber.length == 10){
 
@@ -1405,26 +1462,98 @@ function suggestCustomerInfoFromMobile(inputElement){
 	    timeout: 10000,
 	    success: function(data) {
 	      hideLoading();
-	      if(data.docs.length != 0){
+	      if(data.docs.length != 0){ //USER FOUND!!!
+
+	      	window.localStorage.userAutoFound = 1;
+	      	window.localStorage.userDetailsAutoFound = JSON.stringify(data.docs[0]);
+
+	      	var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData) : {};
+	      	
 	      	if(data.docs[0].name != ''){
 	      		document.getElementById("customer_form_data_name").value = data.docs[0].name;
-	      		changeCustomerInfo('name');
+	      		customerInfo.name = data.docs[0].name;
 	      	}
 
-	      	//Set Address if mode == 'PARCEL'
+	      	//Set Address if any saved address found and the mode == 'PARCEL'
+	      	var savedAddressesEncoded = '';
 	      	if(data.docs[0].savedAddresses){
-	      		var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData) : [];
 
-	      		if(customerInfo.modeType == 'PARCEL'){
-	      			saveNewDeliveryAddressAuto(data.docs[0].savedAddresses[0]);
+	      		savedAddressesEncoded = encodeURI(JSON.stringify(data.docs[0].savedAddresses));
+	      	
+	      		//set default address to 1st saved address
+		      	if(customerInfo.modeType == 'PARCEL' && data.docs[0].savedAddresses.length > 0){
+		      		customerInfo.mappedAddress = JSON.stringify(data.docs[0].savedAddresses[0]);   			
 	      		}
+	      	}
+	      	else{
+	      		if(customerInfo.modeType == 'PARCEL'){
+		      		//set default address to null
+		      		customerInfo.mappedAddress = "";  			
+	      		}
+	      	}
+
+	      	//save changes
+	      	customerInfo.mobile = mobileNumber;
+	      	window.localStorage.customerData = JSON.stringify(customerInfo);
+	      	$("#add_item_by_search").focus();
+			renderCustomerInfo();
+
+	      }
+	      else{ //USER NOT FOUND
+	      	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
+	      		//The previous search had found user and set address, name accordingly.
+	      		//So, reset those on this iteration
+	      		window.localStorage.userAutoFound = 0;
+	      		window.localStorage.userDetailsAutoFound = '';
+	      		
+	      		var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData) : {};
+	      		
+	      		customerInfo.name = '';
+	      		document.getElementById("customer_form_data_name").value = ''; /*TWEAK*/
+	      		
+	      		customerInfo.mobile = mobileNumber;
+	      		
+	      		if(customerInfo.modeType == 'PARCEL'){
+	      			customerInfo.mappedAddress = '';
+	      			document.getElementById("parcelAddressButtonWrap").innerHTML = '<tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag>';
+	      		}
+	      		
+	      		window.localStorage.customerData = JSON.stringify(customerInfo);
+	      		//renderCustomerInfo(); // WHY? --> reloading causes focusing out input fields
 	      	}
 
 	      }
 	    }
 	  });  
 	}
+	else{
+
+		if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
+	      		//The previous search had found user and set address, name accordingly.
+	      		//So, reset those on this iteration
+	      		window.localStorage.userAutoFound = 0;
+	      		window.localStorage.userDetailsAutoFound = '';
+	      		
+	      		var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData) : {};
+	      		
+	      		customerInfo.name = '';
+	      		document.getElementById("customer_form_data_name").value = ''; /*TWEAK*/
+	      		
+	      		customerInfo.mobile = mobileNumber;
+	      		
+	      		if(customerInfo.modeType == 'PARCEL'){
+	      			customerInfo.mappedAddress = '';
+	      			document.getElementById("parcelAddressButtonWrap").innerHTML = '<tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag>';
+	      		}
+	      		
+	      		window.localStorage.customerData = JSON.stringify(customerInfo);
+	      		//renderCustomerInfo(); // WHY? --> reloading causes focusing out input fields
+	    }
+	}
 }
+
+
+
 
 function changeCustomerInfo(type){
 	var value = document.getElementById("customer_form_data_"+type).value;
@@ -1461,6 +1590,10 @@ function changeCustomerInfo(type){
 						//reset address if type changed
 						if(customerInfo.modeType != billing_modes[n].type){
 							customerInfo.mappedAddress = "";
+
+							var tempNumber = document.getElementById("customer_form_data_mobile").value;
+							if(tempNumber != '')
+								suggestCustomerInfoFromMobile('DIRECT', tempNumber)
 						}
 
 						customerInfo.modeType = billing_modes[n].type;
@@ -1481,9 +1614,7 @@ function changeCustomerInfo(type){
 		}
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
-	
 
-	console.log('customer info changed')
 }
 
 function setCustomerInfoTable(tableID){
@@ -2031,6 +2162,8 @@ function clearAllMetaData(){
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 	window.localStorage.zaitoon_cart = '';
+	window.localStorage.userAutoFound = '';
+	window.localStorage.userDetailsAutoFound = '';
 }
 
 function addToTableMapping(tableID, kotID, assignedTo){
@@ -2271,43 +2404,318 @@ function pickTableForNewOrderHide(){
 
 
 /*Set Delivery address*/
-function pickAddressForNewOrder(currentAddress){
-	document.getElementById("pickAddressForNewOrderModal").style.display = 'block';
+function pickAddressForNewOrder(encodedCurrentAddress){
+		
+		//General Address popup
+		document.getElementById("pickAddressForNewOrderModal").style.display = 'block';
+		clearDefaultDeliveryAddressContents();
 
-	if(currentAddress){
-		currentAddress = currentAddress.replace(/, /g, '\n');
-		document.getElementById("delivery_address_parcel").value = currentAddress;
-	}
+		if(encodedCurrentAddress && encodedCurrentAddress != ''){
+			var address = JSON.parse(decodeURI(encodedCurrentAddress));
+			
+			document.getElementById("delivery_address_parcel_name").value = address.name;
+			document.getElementById("delivery_address_parcel_contact").value = address.contact;
+			document.getElementById("delivery_address_parcel_flatNo").value = address.flatNo;
+			document.getElementById("delivery_address_parcel_flatName").value = address.flatName;
+			document.getElementById("delivery_address_parcel_landmark").value = address.landmark;
+			document.getElementById("delivery_address_parcel_area").value = address.area;
+
+			$("#delivery_address_parcel_name").focus();
+		}
+		else{
+			//pre-fill name and mobile
+			document.getElementById("delivery_address_parcel_name").value = document.getElementById("customer_form_data_name").value;
+			document.getElementById("delivery_address_parcel_contact").value = document.getElementById("customer_form_data_mobile").value;
+			
+			if(document.getElementById("delivery_address_parcel_name").value == ''){
+				$("#delivery_address_parcel_name").focus();
+			}
+			else if(document.getElementById("delivery_address_parcel_contact").value == ''){
+				$("#delivery_address_parcel_contact").focus();
+			}
+			else{
+				$("#delivery_address_parcel_flatNo").focus();
+			}			
+		}
+
+
+
+
 }
 
-function saveNewDeliveryAddress(){
-	var address = document.getElementById("delivery_address_parcel").value;
-	address = address.replace(/\n/g, ', ');
-	address = address.replace(/, ,/g, ','); /*TWEAK*/
-	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
-	
-	if(address != ''){
-		customerInfo.mappedAddress = address;
-		window.localStorage.customerData = JSON.stringify(customerInfo);
-		pickAddressForNewOrderHide();
-		renderCustomerInfo();
+/* Choose from Saved Addresses List */
+function chooseAddressFromSavedList(){
+
+	document.getElementById("chooseAddressForNewOrderModal").style.display = 'block';
+	hideNewSavedDeliveryAddressArea(); 
+
+	var addressOptionsAvailable = false;
+	var userInfoAutoFound;
+	var addressObj;
+
+	if(!window.localStorage.userAutoFound || window.localStorage.userAutoFound == ''){
+		addressOptionsAvailable = false;
 	}
 	else{
-		showToast('Warning: Delivery Address is empty', '#e67e22');                                 
+		userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
+		if(!jQuery.isEmptyObject(userInfoAutoFound)){
+			addressObj = userInfoAutoFound.savedAddresses;
+			if(addressObj && addressObj.length > 0){
+				addressOptionsAvailable = true;
+			}
+		}
+	}
+
+
+	//close this window and open normal address window 
+	if(!addressOptionsAvailable){
+		chooseAddressFromSavedListHide();
+		pickAddressForNewOrder();
+	}
+	
+	var registeredMobile = userInfoAutoFound.mobile;
+	var savedAddressesList = '';
+
+	var n = 0;
+	while(addressObj[n]){
+
+		savedAddressesList += '<div class="col-sm-5 addressChoose" style="padding: 10px">'+    
+                           '<p class="featureName">'+addressObj[n].name+'<br> '+addressObj[n].flatNo+' '+addressObj[n].flatName+'<br> '+addressObj[n].landmark+' '+addressObj[n].area+'<br> '+( addressObj[n].contact && addressObj[n].contact != '' ? 'Mob. '+addressObj[n].contact : '' )+'</p>'+
+                            '<button class="btn btn-sm btn-outline" onclick="useThisSavedAddress(\''+encodeURI(JSON.stringify(addressObj[n]))+'\')">Use Address</button>'+
+                            '<span onclick="deleteThisSavedAddress(\''+registeredMobile+'\', \''+addressObj[n].id+'\')" class="btn btn-sm" style="border: none; display: inline; float: right; color: #e74c3c"><i class="fa fa-trash-o"></i></span>'+
+                        '</div>';
+		n++;
+	}
+
+	document.getElementById("areaForSavedAddressRender").innerHTML = savedAddressesList;
+}
+
+function useThisSavedAddress(encodedCurrentAddress){
+
+	var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData) : {};
+	customerInfo.mappedAddress = decodeURI(encodedCurrentAddress); //make just stringified only
+
+	window.localStorage.customerData = JSON.stringify(customerInfo);
+	chooseAddressFromSavedListHide();
+	renderCustomerInfo();
+}
+
+
+function deleteThisSavedAddress(mobile, addressID){
+	//delete particular address from server copy
+
+	var addressOptionsAvailable = false;
+	var userInfoAutoFound;
+	var addressObj;
+
+	var memoriseAddressForRecovery;
+
+	if(!window.localStorage.userAutoFound || window.localStorage.userAutoFound == ''){
+		addressOptionsAvailable = false;
+	}
+	else{
+		userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
+		if(!jQuery.isEmptyObject(userInfoAutoFound)){
+			addressObj = userInfoAutoFound.savedAddresses;
+			if(addressObj && addressObj.length > 0){
+				addressOptionsAvailable = true;
+			}
+		}
+	}
+
+
+	var n = 0;
+	while(addressObj[n]){
+
+		if(addressObj[n].id == addressID){
+			memoriseAddressForRecovery = addressObj[n];
+			addressObj.splice(n, 1);
+			break;
+		}
+
+		n++;
+	}
+
+	userInfoAutoFound.savedAddresses = addressObj;
+	window.localStorage.userDetailsAutoFound = JSON.stringify(userInfoAutoFound);
+
+	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){//update the server as well
+		chooseAddressFromSavedList();
+		console.log('******** REMINDER: UPDATE SERVER')
+
+		//Undo delete
+		var encodedAddress = encodeURI(JSON.stringify(memoriseAddressForRecovery));
+		showUndo('Deleted', 'saveNewDeliveryAddressAutoRecovery(\''+encodedAddress+'\')');
+	}
+
+}
+
+function clearDefaultDeliveryAddressContents(){
+			document.getElementById("delivery_address_parcel_name").value = '';
+			document.getElementById("delivery_address_parcel_contact").value = '';
+			document.getElementById("delivery_address_parcel_flatNo").value = '';
+			document.getElementById("delivery_address_parcel_flatName").value = '';
+			document.getElementById("delivery_address_parcel_landmark").value = '';
+			document.getElementById("delivery_address_parcel_area").value = '';	
+}
+
+
+function chooseAddressFromSavedListHide(){
+	document.getElementById("chooseAddressForNewOrderModal").style.display = 'none';
+}
+
+function openNewSavedDeliveryAddressArea(){
+
+	document.getElementById("addNewSavedWindow").style.display = 'block';
+	document.getElementById("areaForSavedAddressRender").style.display = 'none';
+	document.getElementById("addNewSavedDeliveryAddressButton").style.display = 'none';
+
+	//pre-fill name and mobile
+	document.getElementById("add_new_deliveryAddress_name").value = document.getElementById("customer_form_data_name").value;
+	document.getElementById("add_new_deliveryAddress_contact").value = document.getElementById("customer_form_data_mobile").value;
+	
+	if(document.getElementById("add_new_deliveryAddress_name").value == ''){
+		$("#add_new_deliveryAddress_name").focus();
+	}
+	else if(document.getElementById("add_new_deliveryAddress_contact").value == ''){
+		$("#add_new_deliveryAddress_contact").focus();
+	}
+	else{
+		$("#add_new_deliveryAddress_flatNo").focus();
 	}
 }
 
-function saveNewDeliveryAddressAuto(address){
-	address = address.replace(/\n/g, ', ');
-	address = address.replace(/, ,/g, ','); /*TWEAK*/
-	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+function hideNewSavedDeliveryAddressArea(){
+	document.getElementById("addNewSavedWindow").style.display = 'none';
+	document.getElementById("areaForSavedAddressRender").style.display = 'block';
+	document.getElementById("addNewSavedDeliveryAddressButton").style.display = 'block';
+}
+
+function saveNewDeliveryAddressAutoRecovery(encodedAddress){
+	var address = JSON.parse(decodeURI(encodedAddress));
+
+	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
+		//update the server as well
+		console.log('******** REMINDER: UPDATE SERVER')
 	
-	if(address != ''){
-		customerInfo.mappedAddress = address;
-		window.localStorage.customerData = JSON.stringify(customerInfo);
-		pickAddressForNewOrderHide();
-		renderCustomerInfo();
+
+		//modify user auto found details
+		var backup_userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
+		if(!jQuery.isEmptyObject(backup_userInfoAutoFound)){
+			if(backup_userInfoAutoFound.savedAddresses){
+				backup_userInfoAutoFound.savedAddresses.push(address);
+			}
+			else{
+				var tempAddressHolder = [];
+				tempAddressHolder.push(address)
+				backup_userInfoAutoFound.savedAddresses = tempAddressHolder;
+			}
+			
+			window.localStorage.userDetailsAutoFound = JSON.stringify(backup_userInfoAutoFound);
+		}
+
 	}
+
+	chooseAddressFromSavedList();
+}
+
+
+
+function saveNewDeliveryAddress(newAddressAssignedID){
+
+	/* NOTE: If user auto-found (already registered user) --> Save to Server as well */
+
+	var addressOptionsAvailable = false
+	var addressObj;
+	var userInfoAutoFound;
+
+	if(!window.localStorage.userAutoFound || window.localStorage.userAutoFound == ''){
+		addressOptionsAvailable = false;
+	}
+	else{
+		userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
+		if(!jQuery.isEmptyObject(userInfoAutoFound)){
+			addressObj = userInfoAutoFound.savedAddresses;
+			if(addressObj && addressObj.length > 0){
+				addressOptionsAvailable = true;
+			}
+		}
+	}
+	
+
+
+	var address = {};
+
+	if(!addressOptionsAvailable){ //Not registered user or regstrd user with NO available saved addresses
+		address.id = 1;
+		address.name = document.getElementById("delivery_address_parcel_name").value;
+		address.contact = document.getElementById("delivery_address_parcel_contact").value;
+		address.flatNo = document.getElementById("delivery_address_parcel_flatNo").value;
+		address.flatName = document.getElementById("delivery_address_parcel_flatName").value;
+		address.landmark = document.getElementById("delivery_address_parcel_landmark").value;
+		address.area = document.getElementById("delivery_address_parcel_area").value;
+	}
+	else{
+
+		var nextAddressID = 1;
+
+		var n = 0;
+		while(addressObj[n]){
+			if(nextAddressID < addressObj[n].id){
+				nextAddressID = addressObj[n].id;
+			}
+			n++;
+		}
+
+		address.id = nextAddressID + 1;
+		address.name = document.getElementById("add_new_deliveryAddress_name").value;
+		address.contact = document.getElementById("add_new_deliveryAddress_contact").value;
+		address.flatNo = document.getElementById("add_new_deliveryAddress_flatNo").value;
+		address.flatName = document.getElementById("add_new_deliveryAddress_flatName").value;
+		address.landmark = document.getElementById("add_new_deliveryAddress_landmark").value;
+		address.area = document.getElementById("add_new_deliveryAddress_area").value;
+
+	}
+
+
+	//quick validation
+	if(address.name == '' && address.contact == '' && address.flatNo == '' && address.flatName == '' && address.landmark == '' && address.area == ''){
+		showToast('Warning: All fields in Delivery Address is empty', '#e67e22');
+		return '';
+	}
+
+
+	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
+		//User found --> Update address to the Server
+		//update the server as well
+		console.log('******** REMINDER: UPDATE SERVER')
+	
+
+		//modify user auto found details
+		var backup_userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
+		if(!jQuery.isEmptyObject(backup_userInfoAutoFound)){
+			if(backup_userInfoAutoFound.savedAddresses){
+				backup_userInfoAutoFound.savedAddresses.push(address);
+			}
+			else{
+				var tempAddressHolder = [];
+				tempAddressHolder.push(address)
+				backup_userInfoAutoFound.savedAddresses = tempAddressHolder;
+			}
+			
+			window.localStorage.userDetailsAutoFound = JSON.stringify(backup_userInfoAutoFound);
+		}
+
+	}
+
+
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+
+	customerInfo.mappedAddress = JSON.stringify(address);
+	window.localStorage.customerData = JSON.stringify(customerInfo);
+	pickAddressForNewOrderHide();
+	chooseAddressFromSavedListHide();
+	renderCustomerInfo();
 }
 
 function pickAddressForNewOrderHide(){
@@ -2488,7 +2896,7 @@ function openItemWiseCommentModal(itemCode, variant){
 	          	var modesTag = '';
 
 				for (var i=0; i<modes.length; i++){
-					modesTag = modesTag + '<button type="button" style="margin-right: 5px" class="btn btn-outline" onclick="addFromSuggestions(\''+modes[i]+'\')">'+modes[i]+'</button>';
+					modesTag = modesTag + '<button type="button" style="margin: 0 5px 5px 0" class="btn btn-outline" onclick="addFromSuggestions(\''+modes[i]+'\')">'+modes[i]+'</button>';
         		}
 
 				if(!modesTag)

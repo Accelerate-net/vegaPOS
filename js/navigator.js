@@ -100,7 +100,7 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('new-order', 'New Order');
+renderPage('system-settings', 'New Order');
 
 
 const ipc = require('electron').ipcRenderer;
