@@ -19,6 +19,10 @@ function getFormattedTime(time){
     return tempTime;
 }
 
+function getFancyTime(time){
+  return moment(time, 'hhmm').format('hh:mm A')
+}
+
 
 //Returns today, and current time
 function getCurrentTime(type){
@@ -57,6 +61,9 @@ function getCurrentTime(type){
 
     if(type == 'DATE')
     	return today;
+
+    if(type == 'DATE_DDMMYY')
+      return dd+mm+yyyy;
 	 
 }
 

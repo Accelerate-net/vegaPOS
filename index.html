@@ -121,8 +121,8 @@
 
                     <li onclick="renderPage('reward-points', 'Reward Points')">
                         <a href="#"><i class="fa fa-gift"></i> <span>Reward Points</span></a></li>
-                    <li onclick="renderPage('settled-bills', 'Settled Bills')">
-                     <a href="#"><i class="fa fa-check"></i> <span>Settled Bills</span></a></li>
+                    <li onclick="renderPage('settled-bills', 'Generated Bills')">
+                     <a href="#"><i class="fa fa-check"></i> <span>Generated Bills</span></a></li>
 
                      <li id="sidebarTools" class="treeview mm_products" onclick="activateSidebarElement('sidebarTools')">
                         <a href="#">
@@ -249,7 +249,33 @@
                </div>
             </div>
          </div>
-      </div>
+      </div>  
+
+    <!-- Modal -->
+      <div id="billSettlementDetailsModal" class="modal" style="display: none">
+         <div class="modal-dialog" style="top: 10%">
+            <div class="modal-header cartTitleRow">
+              <h1 style="font-size: 24px; margin: 0; text-align: center;" id="billSettlementPreviewContentTitle">Settle Bill</h1>
+            </div>
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-body" style="height: 540px; overflow: scroll; padding: 10px 10px 5px 10px">
+
+                <div id="billSettlementDetailsContent">
+                </div>
+
+                <div id="billSettlementSplitDetailsContent">
+                </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0; border: none;">
+                <div class="row" style="margin: 0" id="billSettlementPreviewContentActions">
+
+                </div>
+               </div>
+            </div>
+         </div>
+      </div>    
 
 
 
@@ -275,7 +301,7 @@
     <script type="text/javascript" src="js/layout.js"></script>
 
 
-    <!-- Billing Functions : To be called from Seating Layout, Live Orders, Punch Order pages -->
+    <!-- Billing Functions: To be called from Seating Layout, Live Orders, Punch Order, Generated Bills pages -->
     <script type="text/javascript" src="js/billing.js"></script>
 
 

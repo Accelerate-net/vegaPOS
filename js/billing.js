@@ -1,3 +1,4 @@
+
 function generateBillFromKOT(kotID, optionalPageRef){
 
 /*
@@ -138,10 +139,6 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
           else{
           	customExtraTag = '<td width="35%" class="cartSummaryRow">Other Charges</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>';
           }   
-
-
-
-
 
 
           if(otherChargerRenderCount%2 == 0){
@@ -360,7 +357,7 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 								'                    </div>'+
 								'                </div>';
 
-			document.getElementById("billPreviewContentActions").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Confirm</button>'+
+			document.getElementById("billPreviewContentActions").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Generate Bill</button>'+
                         		'<button style="margin: 0" class="btn btn-default tableOptionsButton breakWord" onclick="hideBillPreviewModal()">Close</button>'
 
           document.getElementById("billPreviewModal").style.display = 'block';
@@ -1251,4 +1248,391 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 		}
 	}
 
+}
+
+
+/* SAMPLE BILL - Format
+
+{
+  "billNumber": "100021",
+  "paymentMode": "Cash",
+  "totalAmountPaid": 234.5,
+  "paymentReference": "paytm",
+  "KOTNumber": "KOT1228",
+  "orderDetails": {
+    "mode": "AC Dine",
+    "modeType": "DINE",
+    "reference": ""
+  },
+  "table": "T1",
+  "customerName": "Abhijith C S",
+  "customerMobile": "9043960876",
+  "stewardName": "Abhijith C S",
+  "stewardCode": "9043960876",
+  "orderStatus": 1,
+  "date": "19-03-2018",
+  "timePunch": "1408",
+  "timeKOT": "",
+  "timeBill": "",
+  "timeSettle": "",
+  "cart": [{
+    "name": "Malabar Chicken Biriyani",
+    "price": "90",
+    "isCustom": false,
+    "code": "3158",
+    "qty": 1
+  }],
+  "specialRemarks": "SPECIAL COMMENTS",
+  "extras": [{
+    "name": "CGST",
+    "value": 5,
+    "unit": "PERCENTAGE",
+    "amount": 4.5
+  }, {
+    "name": "SGST",
+    "value": 5,
+    "unit": "PERCENTAGE",
+    "amount": 4.5
+  }, {
+    "name": "Service Charge",
+    "value": 50,
+    "unit": "FIXED",
+    "amount": 50
+  }],
+  "discount": {
+    "amount": 9,
+    "type": "Staffs Guest",
+    "unit": "PERCENTAGE",
+    "value": "10",
+    "reference": ""
+  },
+  "customExtras": {
+    "amount": 4.5,
+    "type": "Parcel Charges",
+    "unit": "PERCENTAGE",
+    "value": "5",
+    "reference": ""
+  }
+}
+
+*/
+
+
+
+
+function confirmBillGeneration(kotID, optionalPageRef){
+
+
+      fs.readFile('./data/static/lastBILL.txt', 'utf8', function readFileCallback(err, data){
+       if (err){
+           showToast('System Error: Unable to read order related data. Please contact Accelerate Support.', '#e74c3c');
+       } else{
+          var billNumber = parseInt(data) + 1;
+          confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef)
+       }
+       });
+}
+
+
+function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef){
+
+  /*Read mentioned KOT - kotID*/
+   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
+      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
+    if (err){
+        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+    } else {
+          var kotfile = JSON.parse(data);
+          kotfile.billNumber = billNumber,
+          kotfile.paymentMode = "";
+          kotfile.totalAmountPaid = "";
+          kotfile.paymentReference = "";
+
+          kotfile.timeBill = getCurrentTime('TIME');
+
+
+                    fs.writeFile("./data/bills/"+billNumber+".json", JSON.stringify(kotfile), 'utf8', (err) => {
+                        if(err){
+                           showToast('Error: Could not generate the Bill. Please contact Accelerate Support.', '#e74c3c');
+                        }
+                        else{
+
+                          showToast('Bill #'+billNumber+' generated Successfully', '#27ae60');
+                          
+                          clearAllMetaDataOfBilling();
+                          hideBillPreviewModal();
+                          renderCustomerInfo();
+
+                          fs.writeFile("./data/static/lastBILL.txt", billNumber, 'utf8', (err) => {
+                              if(err)
+                                 showToast('System Error: Unable to modify billing related data. Please contact Accelerate Support.', '#e74c3c');                
+                          });
+                        }
+                      });
+
+          }    
+
+  });
+   } else {
+      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+   }    
+}
+
+
+
+function clearAllMetaDataOfBilling(){
+  //to remove cart info, customer info
+  var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+
+  customerInfo.name = "";
+  customerInfo.mobile = "";
+  customerInfo.mappedAddress = "";
+  customerInfo.reference = "";
+
+  window.localStorage.customerData = JSON.stringify(customerInfo);
+  window.localStorage.zaitoon_cart = '';
+  window.localStorage.userAutoFound = '';
+  window.localStorage.userDetailsAutoFound = '';
+
+  window.localStorage.edit_KOT_originalCopy = '';
+}
+
+
+
+/* SETTLE BILL */
+function settleBillAndPush(encodedBill, optionalPageRef){
+  var bill = JSON.parse(decodeURI(encodedBill));
+
+  window.localStorage.billSettleSplitPlayHoldList = '';
+
+  document.getElementById("billSettlementDetailsModal").style.display = 'block';
+  document.getElementById("billSettlementPreviewContentTitle").innerHTML = 'Settle Bill <b>#'+bill.billNumber+'</b>';
+
+
+  var optionsList = '';
+
+    if(fs.existsSync('./data/static/paymentmodes.json')) {
+        fs.readFile('./data/static/paymentmodes.json', 'utf8', function readFileCallback(err, data){
+      if (err){
+          showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+      } else {
+
+              if(data == ''){ data = '[]'; }
+
+              var modes = JSON.parse(data);
+              modes.sort(); //alphabetical sorting 
+
+              if(modes.length == 0){
+                showToast('No Payment Mode added yet. Please add a Mode to continue.', '#e74c3c');
+                return '';
+              }
+
+              for (var i = 0; i < modes.length; i++){
+                optionsList += '<button class="btn btn-success paymentModeOption" onclick="addToSplitPay(\''+modes[i].code+'\', \''+modes[i].name+'\')" id="billPayment_'+modes[i].code+'">'+modes[i].name+'</button>';
+              }
+
+              document.getElementById("billSettlementDetailsContent").innerHTML = '<h1 style="margin-bottom: 0; text-align: center; font-size: 48px; font-weight: bold; color: #00a584;"><tag id="fullAmount">345.50</tag></h1>'+
+                            '<p style="color: gray; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; text-align: center; ">Total Amount to be paid</p>'+
+                            '<hr><div class="row" style="padding: 0 20px; margin: 0"><center>'+optionsList+'</center></div>';
+
+              document.getElementById("billSettlementSplitDetailsContent").innerHTML = "";
+
+              document.getElementById("billSettlementPreviewContentActions").innerHTML = '<div class="col-sm-4" style="padding: 0">'+
+                                                               '<button type="button" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Cancel</button>'+
+                                                            '</div>'+
+                                                            '<div class="col-sm-8" style="padding: 0">'+
+                                                                '<button type="button" class="btn btn-success" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Confirm</button>'+
+                                                            '</div>';
+
+    }
+    });
+      } else {
+        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+      } 
+
+
+}
+
+
+
+function addToSplitPay(mode, modeName){
+  
+  var splitPayHoldList = window.localStorage.billSettleSplitPlayHoldList ? JSON.parse(window.localStorage.billSettleSplitPlayHoldList): [];
+
+  var fullAmount = document.getElementById("fullAmount").innerHTML;
+  if(!fullAmount || fullAmount == ''){
+    fullAmount = 0;
+  }
+  else{
+    fullAmount = parseFloat(fullAmount);
+  }
+
+  /*check if already clicked*/
+  var alreadyAdded = false;
+  var n = 0;
+  while(splitPayHoldList[n]){
+    if(splitPayHoldList[n].code == mode){
+      splitPayHoldList.splice(n,1);
+      alreadyAdded = true;
+
+      document.getElementById("billPayment_"+mode).innerHTML = modeName; 
+        
+      break;
+    }
+    n++;
+  }
+
+  if(!alreadyAdded){
+
+    var j = 0;
+    var cumulativeSum = 0;
+    while(splitPayHoldList[j]){
+      cumulativeSum += parseFloat(splitPayHoldList[j].amount);
+      j++;
+    }
+
+    if(cumulativeSum > fullAmount){
+      cumulativeSum = fullAmount; //To avoid negative suggestions
+    }
+
+
+    if(splitPayHoldList.length == 0)
+      splitPayHoldList.push({"name": modeName, "code": mode, "amount": fullAmount});
+    else
+      splitPayHoldList.push({"name": modeName, "code": mode, "amount": (fullAmount - cumulativeSum)});
+
+    document.getElementById("billPayment_"+mode).innerHTML += ' <i class="fa fa-check"></i>';
+  }
+
+
+  window.localStorage.billSettleSplitPlayHoldList = JSON.stringify(splitPayHoldList);
+  renderSplitPayPart(mode);
+}
+
+
+
+function renderSplitPayPart(optionalFocusCode){
+ var splitPayHoldList = window.localStorage.billSettleSplitPlayHoldList ? JSON.parse(window.localStorage.billSettleSplitPlayHoldList): [];
+ 
+  var fullAmount = document.getElementById("fullAmount").innerHTML;
+  if(!fullAmount || fullAmount == ''){
+    fullAmount = 0;
+  }
+  else{
+    fullAmount = parseFloat(fullAmount);
+  }
+
+  var splitTotalAmount = 0;
+
+ if(splitPayHoldList.length > 0){
+
+  var splitDetails = '';
+  for(var i = 0; i < splitPayHoldList.length; i++){
+
+    splitTotalAmount += parseFloat(splitPayHoldList[i].amount);
+
+    splitDetails += '<div class="row" style="border: 1px solid #ddd; margin: 2px 15px;">'+
+                        '<div class="col-sm-4 paymentModeOptionSelected">'+
+                            '<p style="font-size: 18px; padding-top: 12px;">'+
+                            '<tag class="paymentModeOptionSelectedDeleteButton" onclick="deleteSplitPaymentMode(\''+splitPayHoldList[i].code+'\')"><i class="fa fa-minus-circle"></i></tag>'+splitPayHoldList[i].name+'</p>'+
+                        '</div>'+
+                        '<div class="col-sm-4"> <input type="text" value="" placeholder="References" style="border: none; height: 43px; font-size: 16px; text-align: center;" class="form-control tip" id="billSplitComments_'+splitPayHoldList[i].code+'"/> </div>'+
+                        '<div class="col-sm-4">'+
+                           '<div class="form-group" style="margin-bottom: 2px">'+
+                              '<input type="number" value="'+(splitPayHoldList[i].amount != ''? splitPayHoldList[i].amount : 0)+'" onkeyup="adjustBillSplit(\''+splitPayHoldList[i].code+'\')" onchange="renderSplitPayPart()" placeholder="00.00" style="border: none; height: 43px; font-size: 24px; text-align: right;" class="form-control tip" id="billSplitValue_'+splitPayHoldList[i].code+'"/>'+
+                           '</div>'+
+                        '</div>'+
+                    '</div>'
+  }
+
+
+  var warningAmount = '';
+  if(splitTotalAmount < fullAmount){
+    warningAmount = '<tag style="color: #f15959; font-weight: initial"> - '+(fullAmount - splitTotalAmount)+'</tag>';
+  }
+  else if(splitTotalAmount > fullAmount){
+    warningAmount = '<tag style="color: #08ca08; font-weight: initial"> + '+(splitTotalAmount - fullAmount)+'</tag>';
+  }
+  else{
+    warningAmount = '';
+  }
+
+  document.getElementById("billSettlementSplitDetailsContent").innerHTML = '<p style="color: gray; margin-top: 15px; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; text-align: center; ">PAYMENT SPLIT</p>'+
+                                      splitDetails + 
+                                      '<div class="row" style="border: 1px solid #ddd; margin: 4px 15px; background: #eeeeee">'+
+                                              '<div class="col-sm-6"> <p style="font-size: 18px; padding-top: 12px; padding-left: 20px">Grand Sum</p> </div>'+
+                                              '<div class="col-sm-6">'+
+                                                 '<div class="form-group" style="margin-bottom: 2px"> <p style="background: none; margin: 0; border: none; font-weight: bold; height: 43px; font-size: 24px; text-align: right;" class="form-control tip" />'+fullAmount+''+warningAmount+'</p> </div>'+
+                                              '</div>'+
+                                      '</div> ';
+
+  if(!optionalFocusCode || optionalFocusCode == ''){
+
+  }
+  else{
+    $("#billSplitValue_"+optionalFocusCode).focus();
+  }
+
+ }
+ else{
+  document.getElementById("billSettlementSplitDetailsContent").innerHTML = "";
+ }
+}
+
+
+function adjustBillSplit(code){
+
+    var amountValue = document.getElementById("billSplitValue_"+code).value;
+    if(!amountValue || amountValue == ''){
+      amountValue = 0;
+    }
+
+    var splitPayHoldList = window.localStorage.billSettleSplitPlayHoldList ? JSON.parse(window.localStorage.billSettleSplitPlayHoldList): [];
+
+    var n = 0;
+    while(splitPayHoldList[n]){
+      if(splitPayHoldList[n].code == code){
+        splitPayHoldList[n].amount = amountValue;
+        break;
+      }
+      n++;
+    }
+
+    window.localStorage.billSettleSplitPlayHoldList = JSON.stringify(splitPayHoldList);
+} 
+
+function hideSettleBillAndPush(){
+  window.localStorage.billSettleSplitPlayHoldList = '';
+  document.getElementById("billSettlementDetailsModal").style.display = 'none';
+}
+
+
+function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
+
+    var bill = JSON.parse(decodeURI(encodedBill));
+
+
+        //Post to local Server
+          showLoading(10000, 'Generating Bill');
+          
+          $.ajax({
+            type: 'POST',
+            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/',
+            data: JSON.stringify(bill),
+            contentType: "application/json",
+            dataType: 'json',
+            timeout: 10000,
+            success: function(data) {
+              hideLoading();
+              if(data.ok){
+                showToast("Bill Generated!")
+              }
+              else{
+                showToast("Bill FAILED!")
+              }
+            },
+            error: function(data){           
+            
+            }
+          });    
 }

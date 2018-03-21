@@ -32,6 +32,16 @@ function saveToCart(productToAdd){
 
 function additemtocart(encodedItem, optionalSource){
 
+	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+		
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+			return '';
+		}
+	}
+
 	var productToAdd = JSON.parse(decodeURI(encodedItem));
 	
 	if(productToAdd.isCustom){
@@ -126,6 +136,18 @@ function deleteItem(item, isCustom, variant){
 }
 
 function changeqty(item, isCustom, variant){
+
+
+	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+		
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+			return '';
+		}
+	}
+
 
 	var itemCode = JSON.parse(decodeURI(item))
 	var cart_products = JSON.parse(window.localStorage.zaitoon_cart)
@@ -499,12 +521,18 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
  	//EDIT - Actions     
  	if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'TOKEN'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
-                        '<div class="col-xs-12" style="padding: 0">'+
-                           '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #bdc3c7 !important" class="btn bg-purple btn-block btn-flat" onclick="clearCurrentEditingOrder()">Hide</button>'+
-                           '</div>'+
-                        '</div>'+
-                     '</div>';
+	                        '<div class="col-xs-4" style="padding: 0;">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelKOT()">Cancel</button>'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
+	                           '</div>'+
+	                        '</div>'+ 		
+	                        '<div class="col-xs-8" style="padding: 0 0 0 4px">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print Bill</button>'+
+	                           '</div>'+
+	                        '</div>'+
+	                     '</div>';
  	}   
  	else if(selectedBillingModeInfo.type == 'DINE'){
 
@@ -609,6 +637,7 @@ function undoChangesInKOT(){
 
 
 function compareChangesAndGnerateBillFromKOT(kotID, optionalPageRef){
+
 	/*
 		Proceed to bill generation only if,
 			1. There are no un-printed items in active Cart
@@ -1146,7 +1175,7 @@ function renderCustomerInfo(){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 		isEditingKOT = true;
 		var kotCopy = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : {};
-		document.getElementById("ongoingOrderTitle").innerHTML = '<tag class="blink_me">Running Order</tag> <tag style="float: right; font-weight: 300;">Table <b>#'+kotCopy.table+'</b></tag>';
+		document.getElementById("ongoingOrderTitle").innerHTML = '<tag class="blink_me">Running Order</tag>'+( kotCopy.orderDetails.modeType == 'DINE'? '<tag style="float: right; font-weight: 300;">Table <b>#'+kotCopy.table+'</b></tag>' : '');
 	}
 	else{
 
@@ -2115,10 +2144,11 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
               	if(orderMetaInfo.modeType == 'DINE'){
               		addToTableMapping(obj.table, kot, obj.customerName);
               		showToast('#'+kot+' generated Successfully', '#27ae60');
-		           	clearAllMetaData();
-	              	renderCustomerInfo();
-	              	$("#add_item_by_search").focus();
 
+              		
+              		clearAllMetaData();
+              		renderCustomerInfo();
+              		$("#add_item_by_search").focus();
               	}
               	else if(orderMetaInfo.modeType == 'TOKEN'){
               		/*Increment Token Counter*/
@@ -2128,20 +2158,19 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
               		}
               		showToast('#'+kot+' generated Successfully', '#27ae60');
               		window.localStorage.lastPrintedToken = parseInt(tempToken) + 1;
-              		clearAllMetaData();
-              		renderCustomerInfo();
-              		$("#add_item_by_search").focus();
+ 					
+ 					pushCurrentOrderAsEditKOT(encodeURI(json));
+              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
               	}
               	else if(orderMetaInfo.modeType == 'PARCEL'){
               		showToast('#'+kot+' generated Successfully', '#27ae60');
-              		clearAllMetaData();
-              		renderCustomerInfo();
-              		$("#add_item_by_search").focus();
+              		
+              		pushCurrentOrderAsEditKOT(encodeURI(json));
+              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
               	}
               }
               	 
            });
-
 
           fs.writeFile("./data/static/lastKOT.txt", num, 'utf8', (err) => {
               if(err)
@@ -2149,6 +2178,29 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
            });
        }
        });
+}
+
+
+
+/*Add to edit KOT*/
+function pushCurrentOrderAsEditKOT(encodedKOT){
+    
+    var kot = JSON.parse(decodeURI(encodedKOT));
+
+    var customerInfo = {};
+    customerInfo.name = kot.customerName;
+    customerInfo.mobile = kot.customerMobile;
+    customerInfo.mappedAddress = kot.table;
+    customerInfo.mode = kot.orderDetails.mode;
+    customerInfo.modeType = kot.orderDetails.modeType;
+    customerInfo.reference = kot.orderDetails.reference;
+
+    //Pending new order will be removed off the cart.
+    window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
+    window.localStorage.customerData = JSON.stringify(customerInfo);
+    window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+
+    renderCustomerInfo();
 }
 
 function clearAllMetaData(){

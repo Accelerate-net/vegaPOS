@@ -73,7 +73,7 @@ function doLogin(){
 	    },
 	    error: function(data){
 	    	hideLoading();
-	      showToast('Server not responding. Check your connection.', '#e74c3c');
+	      	showToast('Server not responding. Check your connection.', '#e74c3c');
 	    }
 
 	});		
