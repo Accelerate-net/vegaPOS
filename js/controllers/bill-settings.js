@@ -732,6 +732,11 @@ function addPaymentMode() {
 		return '';
 	}
 
+  if(paramObj.code == 'MULTIPLE'){
+    showToast('Warning: Reserved Keyword. Please set different a code', '#e67e22');
+    return '';
+  }
+
       //Check if file exists
       if(fs.existsSync('./data/static/paymentmodes.json')) {
          fs.readFile('./data/static/paymentmodes.json', 'utf8', function readFileCallback(err, data){

@@ -854,6 +854,8 @@ color: #f4f4f4; padding-left: 5px; font-size: 60%; font-weight: 400
 .deliveryAddress{
   border: 1px solid gray;
     padding: 10px;
+  height: 80px;
+  overflow: scroll;
 }
 
 .deliveryTitle{
@@ -2974,10 +2976,20 @@ position: absolute;
 .billTypeSmallBox{
   background: #4b6584;
   color: #FFF;
-  padding: 2px 5px;
+  padding: 4px 8px;
   margin-left: 15px;
-  border-radius: 3px;
-  font-size: 16px;
+  border-radius: 2px;
+  font-size: 14px;
+}
+
+.viewAddressBox{
+  background: #ED4C67;
+  color: #FFF;
+  cursor: pointer;
+}
+
+.viewAddressBox:hover, .viewAddressBox:active, .viewAddressBox:focus{
+  background: #BB294E;
 }
 
 
@@ -3013,3 +3025,99 @@ position: absolute;
     background: none;
     opacity: 1;
 }
+
+.billRowOtherCharges{
+  background: #fcfcfc; 
+}
+
+
+
+.billRowOtherCharges td{
+  padding: 3px 8px !important;
+}
+
+
+
+
+/* Split Payment List*/
+
+
+.splitPayListButton {
+    top: -5px;
+    background: none;
+    position: relative;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+    font-size: 12px;
+    padding: 4px 6px;
+    border: 1px solid #2980b9;
+    color: #2980b9;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.splitPayListButton:focus{
+  outline: none !important;
+}
+
+.splitPayListDropdown {
+    position: relative;
+    display: inline-block;
+    float: right; margin-right: 5px; margin-top: 5px;
+}
+
+.splitPayListDropdown-content {
+
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 240px;
+    max-width: 360px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+
+}
+
+.holdContentArea{
+    max-height: 60vh !important;
+    overflow: auto;
+}
+
+.splitPayListDropdown-content a {
+    font-size: 16px;
+    text-align: left;
+    border-bottom: 1px solid #e2e2e2;
+    color: #444;
+    padding: 12px 16px;
+    text-decoration: none;
+    font-weight: 400;
+    text-transform: none;
+    display: block;
+    min-height: 60px;
+}
+
+.splitPayListDropdown-content a:hover {background-color: #f1f1f1}
+
+.splitPayListDropdown:hover .splitPayListDropdown-content {
+    display: block;
+}
+.splitPayListDropdown:hover .splitPayListButton {
+    background-color: #2980b9;
+    color: #FFF;
+}
+
+.splitPayListTitle{
+  margin: 10px 0;
+  font-size: 16px; text-overflow:ellipsis; 
+  overflow:hidden; white-space:nowrap; 
+}
+
+.splitPayListRef{
+  margin: 0; color: #446d86; 
+  font-size: 14px;
+  text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+}
+
+
+
