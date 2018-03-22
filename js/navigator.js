@@ -27,7 +27,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}
 		case 'settled-bills':{
-
+			loadAllPendingSettlementBills();
 			break;
 		}	
 		case 'seating-status':{
@@ -100,7 +100,7 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('system-settings', 'New Order');
+renderPage('settled-bills', 'New Order');
 
 
 const ipc = require('electron').ipcRenderer;

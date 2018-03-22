@@ -1,54 +1,209 @@
-function renderOnlineOrders($http){
-	var xmlhttp = new XMLHttpRequest();
-	var url = "http://jafry.in/fetchorders.php";
 
-	var lastOrderFetchData = window.localStorage.lastOrderFetchData ?  JSON.parse(window.localStorage.lastOrderFetchData) : [];
+function renderOnlineOrders(){
 
-	xmlhttp.onreadystatechange = function() {
-	    if (this.readyState == 4 && this.status == 200) {
-	        var myArr = JSON.parse(this.responseText);
-	        //console.log(myArr);
-	        var i =0;
-	        var items = "";
-	        var incomingOrdersCount = myArr.length;
-	        while(i<myArr.length){
-	        	items = items + '<tr role="row" onclick="OrderWiseItemList(\''+myArr[i].orderID+'\')"> <td>'+myArr[i].orderID+'</td> <td>'+myArr[i].userName+'<br>'+myArr[i].userID+'</td> <td><i class="fa fa-inr"></i> '+myArr[i].amountPaid+'</td> <td>'+myArr[i].timePlace+' pm</td> </tr>';
-	        	i++;
-	        }
-	        //console.log(myArr)
-	        window.localStorage.lastOrderFetchData = JSON.stringify(myArr);
-	        document.getElementById("onlineOrders").innerHTML = items;
-	        document.getElementById("incomingOrdersCount").innerHTML = incomingOrdersCount;
-	    }
-	};
-	xmlhttp.open("GET", url, true);
-	xmlhttp.send();
+
+	var data = {
+		"token": window.localStorage.loggedInAdmin,
+		"status": 1
+	}
+
+	var items = '';
+
+	showLoading(10000, 'Loading...');
+
+	$.ajax({
+		type: 'POST',
+		url: 'https://www.zaitoon.online/services/posfetchonlineorders.php',
+		data: JSON.stringify(data),
+		contentType: "application/json",
+		dataType: 'json',
+		timeout: 10000,
+		success: function(data) {
+			hideLoading();
+			if(data.status){
+				var i = 0;
+				while(data.response[i]){
+					items = items + '<tr role="row" id="onlineListing_'+data.response[i].orderID+'" class="onlineOrderListing" onclick="fetchOrderDetails(\''+data.response[i].orderID+'\')"> <td>'+data.response[i].orderID+'<br>'+(data.response[i].isTakeaway? '<tag class="onlineTakeAwayTag">TAKE AWAY</tag>' : '<tag class="onlineDeliveryTag">DELIVERY</tag>')+'</td> <td>'+data.response[i].userName+'<br>'+data.response[i].userID+'</td>'+
+						'<td><i class="fa fa-inr"></i> '+data.response[i].amountPaid+'</td> <td>'+data.response[i].timePlace+'</td> </tr>';
+				
+					if(i == 0){
+						fetchOrderDetails(data.response[i].orderID);
+					}
+
+					i++;
+				}
+
+				window.localStorage.lastOrderFetchData = JSON.stringify(data.response);
+				if(items != ''){
+	        		document.getElementById("onlineOrders").innerHTML = items;
+	        	}
+	        	else{
+	        		document.getElementById("itemInfo").innerHTML = '';
+	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Incoming Orders</td></tr>';
+	        	}
+	        	document.getElementById("incomingOrdersCount").innerHTML = data.count;
+
+
+			}
+			else
+			{
+				document.getElementById("itemInfo").innerHTML = '';
+				document.getElementById("incomingOrdersCount").innerHTML = data.count;
+	        	document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Incoming Orders</td></tr>';
+			}
+
+			if(data.errorCode == 404){
+				forceLogoutOnlineOrders(data.error);
+			}
+
+		},
+		error: function(data){
+			hideLoading();
+			showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+		}
+	});	
 
 }
 
-function OrderWiseItemList(orderID){
-	//console.log(orderID);
-	var lastOrderFetchData = window.localStorage.lastOrderFetchData ?  JSON.parse(window.localStorage.lastOrderFetchData) : [];
+
+
+function forceLogoutOnlineOrders(customeError){
+	window.localStorage.loggedInAdmin = "";
+	
+	if(customeError)
+		showToast(customeError, '#e74c3c');
+	else
+		showToast('You have been logged out', '#e74c3c');
+}
+
+
+
+function fetchOrderDetails(orderID){
+
+	var lastOrderFetchInfo = window.localStorage.lastOrderFetchData ?  JSON.parse(window.localStorage.lastOrderFetchData) : [];
+	
 	var i = 0;
-	while(i<lastOrderFetchData.length){
-		if(lastOrderFetchData[i].orderID==orderID){
-			var ordertype = lastOrderFetchData[i].isPrepaid ? "PREPAID ORDER" : "Cash on Delivery";
-			document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderID+' <tag class="onlinePrepaid">'+ordertype+'</tag> </h3> <button class="btn btn-success btn-sm" style="float: right">Punch KOT</button>';
+	while(i < lastOrderFetchInfo.length){
+
+		if(lastOrderFetchInfo[i].orderID == orderID){
+
+			$("#onlineOrders>tr.onlineOrderListingBorder").removeClass("onlineOrderListingBorder");
+			$("#onlineListing_"+orderID).addClass("onlineOrderListingBorder");
+
+
+			document.getElementById("renderOnlineOrderArea").style.display = 'block';
+
+
+			if(lastOrderFetchInfo[i].isPrepaid){
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderID+
+									'<tag class="onlinePrepaid">PREPAID ORDER</tag> </h3> '+
+									'<button class="btn btn-success btn-sm" style="float: right" onclick="punchOnlineOrderToKOT(\''+encodeURI(JSON.stringify(lastOrderFetchInfo[i]))+'\')">Punch Order</button>';
+			}
+			else{
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderID+
+									'<tag class="onlineCOD">Cash on Delivery</tag> </h3> '+
+									'<button class="btn btn-success btn-sm" style="float: right" onclick="punchOnlineOrderToKOT(\''+encodeURI(JSON.stringify(lastOrderFetchInfo[i]))+'\')">Punch Order</button>';
+			}
+				
+			
 			var j = 0;
-			var item = "";
-			while(j<lastOrderFetchData[i].cart.length){
-				item = item + '<tr> <td>'+(j+1)+'</td> <td>'+lastOrderFetchData[i].cart[j].name+'</td> <td>'+lastOrderFetchData[i].cart[j].qty+'</td> <td><i class="fa fa-inr"></i> '+lastOrderFetchData[i].cart[j].price+'</td> <td><i class="fa fa-inr"></i> '+lastOrderFetchData[i].cart[j].qty*lastOrderFetchData[i].cart[j].price+'</td> </tr>'; 
+			var allItems = "";
+			var myCart = lastOrderFetchInfo[i].cart.items;
+
+			while(j < myCart.length){
+				allItems = allItems + '<tr> <td>'+(j+1)+'</td> <td>'+myCart[j].itemName+'</td> <td style="text-align: center">'+myCart[j].qty+'</td>'+
+							'<td style="text-align: center"><i class="fa fa-inr"></i> '+myCart[j].itemPrice+'</td> <td style="text-align: right"><i class="fa fa-inr"></i> '+myCart[j].qty*myCart[j].itemPrice+'</td> </tr>'; 
 				j++;
 			}
-			item = item + '<tr style="background: #fcfcfc"> <td></td> <td></td> <td><b>Sub Total</b></td> <td></td> <td><i class="fa fa-inr"></i> '+lastOrderFetchData[i].amountPaid+'</td> </tr>';
-			item = item +'<tr style="background: #fcfcfc"> <td></td> <td></td> <td><b>Total Extras</b></td> <td></td> <td><i class="fa fa-inr"></i> 0</td> </tr>';
-			item = item +'<tr style="background: #fcfcfc"> <td></td> <td></td> <td><b>Total Discounts</b></td> <td></td> <td><i class="fa fa-inr"></i> 0</td> </tr>';
-			item = item + '<tr style="background: #fcfcfc"> <td></td> <td></td> <td><b>Total Amount Received</b></td> <td></td> <td><i class="fa fa-inr"></i> '+lastOrderFetchData[i].amountPaid+'</td> </tr>';
-			document.getElementById("itemInfo").innerHTML = item;
-			document.getElementById("addressInfo").innerHTML = '<div class="col-xs-5"> <div class="deliveryAddress"> <p class="deliveryTitle">Delivery Address</p> <p class="deliveryText">'+lastOrderFetchData[i].deliveryAddress+'</p> <p class="deliveryText">Mob. <b>'+lastOrderFetchData[i].userID+'</b></p> </div> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <div class="deliveryAddress"> <p class="deliveryTitle">COMMENTS TO CHEF</p> <p class="deliveryComment">'+lastOrderFetchData[i].comments+'</p> </div> </div>';
+			
+			//Other Calculations
+			allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Sub Total</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].amountPaid+'</td> </tr>';
+			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Extras</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> 0</td> </tr>';
+			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Discounts</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> 0</td> </tr>';
+
+			if(lastOrderFetchInfo[i].isPrepaid){
+				allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Amount Received</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].amountPaid+'</b></td> </tr>';
+			}
+			else{
+				allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Cash to be Collected</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].amountPaid+'</b></td> </tr>';
+			}
+			
+			
+			document.getElementById("itemInfo").innerHTML = allItems;
+
+
+			if(!lastOrderFetchInfo[i].isTakeaway){
+				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Delivery Address</p>'+
+																			'<p class="deliveryText">'+lastOrderFetchInfo[i].deliveryAddress.name+'<br>'+lastOrderFetchInfo[i].deliveryAddress.flatNo+', '+lastOrderFetchInfo[i].deliveryAddress.flatName+
+																			'<br>'+lastOrderFetchInfo[i].deliveryAddress.landmark+'<br>'+lastOrderFetchInfo[i].deliveryAddress.area+'</p> <p class="deliveryText">Mob. <b>'+lastOrderFetchInfo[i].deliveryAddress.contact+
+																			'</b></p> </div>';
+			}
+			else{
+				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+
+															'<p class="deliveryText" style="font-size: 21px;">'+lastOrderFetchInfo[i].userName+'</p> <p class="deliveryText" style="font-size: 21px;">Mob. '+lastOrderFetchInfo[i].userID+'</p> </div>';
+			}
+
+			if(lastOrderFetchInfo[i].comments && lastOrderFetchInfo[i].comments != ''){
+				document.getElementById("commentsInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">COMMENTS TO CHEF</p> <p class="deliveryComment">'+lastOrderFetchInfo[i].comments+'</p> </div>';
+			}
+			else{
+				document.getElementById("commentsInfo").innerHTML = '';
+			}
+
 			break;
 		}
+
 		i++;
 	}
 
+}
+
+
+
+
+function punchOnlineOrderToKOT(encodedOrder){
+	var order = JSON.parse(decodeURI(encodedOrder));
+
+	var customerInfo = {
+		"name": order.userName,
+		"mobile": order.userID,
+		"mode": "Delivery",
+		"modeType": "PARCEL",
+		"mappedAddress": JSON.stringify(order.deliveryAddress),
+		"reference": order.orderID
+	}
+
+	var cart = [];
+
+	var n = 0;
+	while(order.cart.items[n]){
+
+		if(order.cart.items[n].isCustom){
+		cart.push({
+					"name": order.cart.items[n].itemName,
+					"price": order.cart.items[n].itemPrice,
+					"isCustom": true,
+					"variant": order.cart.items[n].variant,
+					"code": order.cart.items[n].itemCode,
+					"qty": order.cart.items[n].qty
+				});
+		}
+		else{
+		cart.push({
+					"name": order.cart.items[n].itemName,
+					"price": order.cart.items[n].itemPrice,
+					"isCustom": false,
+					"code": order.cart.items[n].itemCode,
+					"qty": order.cart.items[n].qty
+				});
+		}
+
+		n++;
+	}
+
+
+	window.localStorage.zaitoon_cart = JSON.stringify(cart);
+	window.localStorage.customerData = JSON.stringify(customerInfo);
+
+	console.log(cart);
 }

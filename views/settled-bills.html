@@ -1,166 +1,55 @@
 <template class="task-template">
 <div class="row">
             <div class="col-xs-5">
-                <div class="box box-primary">
+
+                <div class="row">
+                    <div class="col-xs-6" onclick="loadAllPendingSettlementBills()" style="cursor: pointer">
+                        <div class="box box-primary">
+                            <div class="box-body" id="billSelection_pending">
+                                <div id="pendingBillsCount" class="rewardsCount">..</div>
+                                <div class="rewardsName">PENDING SETTLEMENT</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6" onclick="loadAllSettledBills()" style="cursor: pointer">
+                        <div class="box box-primary">
+                            <div class="box-body" id="billSelection_settled">
+                                <div id="settledBillsCount" class="rewardsCount">..</div>
+                                <div class="rewardsName">SETTLED BILLS</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="box box-primary" >
 
                     <div class="box-body">
+
                         
                         <div class="box-header" style="padding: 10px 0px">
-                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Settled Bills</h3>
-                           <button class="btn btn-success btn-sm" style="float: right">></button>
-                           <button class="btn btn-success btn-sm" style="float: right"><</button>
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;" id="billTypeTitle">Bills</h3>
+                           <tag style="float: right" id="navigationAssitantBills">
+
+                           </tag>
                         </div>
 
-                        <div class="table-responsive">
-                            <table id="StData" class="table">
+                            <div class="table-responsive">
+                                <table class="table" id="billBriefDisplayRender">
 
-                                <thead style="background: #f4f4f4;">
-                                    <tr>
-                                        <th style="text-align: left">#</th>
-                                        <th style="text-align: left">Date</th>
-                                        <th style="text-align: left">Table</th>
-                                        <th style="text-align: left">Customer</th>
-                                        <th style="text-align: left">Amount</th>
-                                        <th style="text-align: left">Mode</th>
-                                    </tr>
-                                </thead>
+                                </table>
+                            </div>
+                            <div class="clearfix"></div>
 
-                                <tbody>
+                    
 
-                                <tr role="row">
-                                    <td>#101031</td>
-                                    <td>11:01 pm<br>02-02-2018</td>
-                                    <td>T1</td>
-                                    <td>Abhijith<br>9043960876</td>
-                                    <td><i class="fa fa-inr"></i> 435</td>
-                                    <td>Card</td>
-                                </tr>
-
-                                </tbody>
-
-
-                            </table>
-                        </div>
-                        <div class="clearfix"></div>
                     </div>
                 </div>
             </div>
 
-            <div class="col-xs-7">
-
-
-
-                <div class="box box-primary">
-
-                    <div class="box-body">
-                        
-                        <div class="box-header" style="padding: 10px 0px">
-                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Bill #101031 
-
-                            <tag class="onlinePrepaid"><i class="fa fa-credit-card"></i> Card Payment</tag>
-
-                        </h3>
-                           <button class="btn btn-success btn-sm" style="float: right">Print</button>
-                        </div>
-
-                        <div class="table-responsive">
-                            <table id="StData" class="table">
-                                <thead style="background: #f4f4f4;">
-                                    <tr>
-                                        <th style="text-align: left">#</th>
-                                        <th style="text-align: left">Item</th>
-                                        <th style="text-align: left">Quantity</th>
-                                        <th style="text-align: left">Unit Price</th>
-                                        <th style="text-align: left">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-
-                                <tr>
-                                    <td>1</td>
-                                    <td>Chicken 65</td>
-                                    <td>4</td>
-                                    <td><i class="fa fa-inr"></i> 40</td>
-                                    <td><i class="fa fa-inr"></i> 160</td>
-                                </tr>
-
-
-
-                                <tr>
-                                    <td>2</td>
-                                    <td>Chicken Shawarma - Plate</td>
-                                    <td>1</td>
-                                    <td><i class="fa fa-inr"></i> 120</td>
-                                    <td><i class="fa fa-inr"></i> 120</td>
-                                </tr>
-
-                                <tr style="background: #fcfcfc">
-                                    <td></td>
-                                <td></td>
-                                    <td><b>Sub Total</b></td>
-                                    
-                                    <td></td>
-                                    <td><i class="fa fa-inr"></i> 280</td>
-                                </tr>
-
-                                <tr style="background: #fcfcfc">
-                                    <td></td>
-                                    <td></td>
-                                    <td><b>Total Extras</b></td>
-                                    
-                                    <td></td>
-                                    <td><i class="fa fa-inr"></i> 30</td>
-                                </tr>
-
-                                 <tr style="background: #fcfcfc">
-                                    <td></td>
-                                    <td></td>
-                                    <td><b>Total Discounts</b></td>
-                                    
-                                    <td></td>
-                                    <td><i class="fa fa-inr"></i> 20</td>
-                                </tr>                               
-
-
-                                 <tr style="background: #fcfcfc">
-                                    <td></td>
-                                    <td></td>
-                                    <td><b>Total Amount Received</b></td>
-                                    
-                                    <td></td>
-                                    <td><i class="fa fa-inr"></i> 290</td>
-                                </tr>    
-
-                                </tbody>
-
-
-                            </table>
-
-                            <div class="row" style="margin-top: 40px">
-                                <div class="col-xs-5">
-                                    <div class="deliveryAddress">
-                                        <p class="deliveryTitle">Customer Details</p>
-                                        <p class="deliveryText">Anas Jafry</p>
-                                        <p class="deliveryText">Mob. <b>8075815178</b></p>
-                                    </div>
-                                </div>
-                                <div class="col-xs-2">
-                                </div>
-                                <div class="col-xs-5">
-                                    <div class="deliveryAddress">
-                                        <p class="deliveryTitle">Steward Details</p>
-                                        <p class="deliveryText">Maneesh</p>
-                                        <p class="deliveryText">Code: <b>8924829922</b></p>
-                                    </div>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                        <div class="clearfix"></div>
-                    </div>
-                </div>
+            <div class="col-xs-7" id="billDetailedDisplayRender">
 
             </div>
         </div>
