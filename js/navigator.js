@@ -27,6 +27,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}
 		case 'settled-bills':{
+			loadAllSettledBills();
 			loadAllPendingSettlementBills();
 			break;
 		}	

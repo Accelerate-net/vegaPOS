@@ -704,8 +704,8 @@ function changeDiscountTypeBillingOptions(){
 
 function roughCalculateDiscount(){
 
-	var tempTotal = parseFloat(document.getElementById("grandSumDisplay").innerHTML);
-	var discValue = parseFloat(document.getElementById("applyBillDiscountWindow_value").value);
+	var tempTotal = parseFloat(document.getElementById("grandSumDisplay").innerHTML).toFixed(2);
+	var discValue = parseFloat(document.getElementById("applyBillDiscountWindow_value").value).toFixed(2);
 
 	if(document.getElementById("applyBillDiscountWindow_value").value == ''){
 		discValue = 0;
@@ -904,8 +904,8 @@ function changeCustomExtraTypeOptions(){
 
 function roughCalculateCustomExtraValue(){
 
-	var tempTotal = parseFloat(document.getElementById("grandSumDisplay").innerHTML);
-	var extraChargeValue = parseFloat(document.getElementById("applyCustomExtraWindow_value").value);
+	var tempTotal = parseFloat(document.getElementById("grandSumDisplay").innerHTML).toFixed(2);
+	var extraChargeValue = parseFloat(document.getElementById("applyCustomExtraWindow_value").value).toFixed(2);
 
 	if(document.getElementById("applyCustomExtraWindow_value").value == ''){
 		extraChargeValue = 0;
@@ -1403,10 +1403,41 @@ function clearAllMetaDataOfBilling(){
 function settleBillAndPush(encodedBill, optionalPageRef){
   var bill = JSON.parse(decodeURI(encodedBill));
 
+  //Calculate Sum to be paid
+  var grandPayableBill = 0;
+  var n = 0;
+  while(bill.cart[n]){
+    grandPayableBill += bill.cart[n].price * bill.cart[n].qty;
+    n++;
+  }
+
+  //add extras
+  if(!jQuery.isEmptyObject(bill.extras)){
+    var m = 0;
+    while(bill.extras[m]){
+      grandPayableBill += bill.extras[m].amount;
+      m++;
+    }
+  } 
+
+  //add custom extras if any
+  if(!jQuery.isEmptyObject(bill.customExtras)){
+    grandPayableBill += bill.customExtras.amount;
+  }  
+
+
+  //substract discounts if any
+  if(!jQuery.isEmptyObject(bill.discount)){
+    grandPayableBill -= bill.discount.amount;
+  }  
+
+  grandPayableBill = parseFloat(grandPayableBill).toFixed(2);
+
+
   window.localStorage.billSettleSplitPlayHoldList = '';
 
   document.getElementById("billSettlementDetailsModal").style.display = 'block';
-  document.getElementById("billSettlementPreviewContentTitle").innerHTML = 'Settle Bill <b>#'+bill.billNumber+'</b>';
+  document.getElementById("billSettlementPreviewContentTitle").innerHTML = 'Settle Bill <b>#'+bill.billNumber+'</b>'+ (bill.orderDetails.modeType == 'DINE' ? '<tag style="float: right">Table <b>#'+bill.table+'</b></tag>' : '') + (bill.orderDetails.modeType == 'TOKEN' ? '<tag style="float: right">Token <b>#'+bill.table+'</b></tag>' : '');
 
 
   var optionsList = '';
@@ -1431,7 +1462,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                 optionsList += '<button class="btn btn-success paymentModeOption" onclick="addToSplitPay(\''+modes[i].code+'\', \''+modes[i].name+'\')" id="billPayment_'+modes[i].code+'">'+modes[i].name+'</button>';
               }
 
-              document.getElementById("billSettlementDetailsContent").innerHTML = '<h1 style="margin-bottom: 0; text-align: center; font-size: 48px; font-weight: bold; color: #00a584;"><tag id="fullAmount">345.50</tag></h1>'+
+              document.getElementById("billSettlementDetailsContent").innerHTML = '<h1 style="margin-bottom: 0; text-align: center; font-size: 48px; font-weight: bold; color: #00a584;"><tag id="fullAmount">'+grandPayableBill+'</tag></h1>'+
                             '<p style="color: gray; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; text-align: center; ">Total Amount to be paid</p>'+
                             '<hr><div class="row" style="padding: 0 20px; margin: 0"><center>'+optionsList+'</center></div>';
 
@@ -1443,7 +1474,6 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                                                             '<div class="col-sm-8" style="padding: 0">'+
                                                                 '<button type="button" class="btn btn-success" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Confirm</button>'+
                                                             '</div>';
-
     }
     });
       } else {
@@ -1464,7 +1494,7 @@ function addToSplitPay(mode, modeName){
     fullAmount = 0;
   }
   else{
-    fullAmount = parseFloat(fullAmount);
+    fullAmount = parseFloat(fullAmount).toFixed(2);
   }
 
   /*check if already clicked*/
@@ -1495,11 +1525,12 @@ function addToSplitPay(mode, modeName){
       cumulativeSum = fullAmount; //To avoid negative suggestions
     }
 
+    console.log('Assign: '+fullAmount+'     '+cumulativeSum)
 
     if(splitPayHoldList.length == 0)
       splitPayHoldList.push({"name": modeName, "code": mode, "amount": fullAmount});
     else
-      splitPayHoldList.push({"name": modeName, "code": mode, "amount": (fullAmount - cumulativeSum)});
+      splitPayHoldList.push({"name": modeName, "code": mode, "amount": parseFloat((fullAmount-cumulativeSum)).toFixed(2)});
 
     document.getElementById("billPayment_"+mode).innerHTML += ' <i class="fa fa-check"></i>';
   }
@@ -1519,7 +1550,7 @@ function renderSplitPayPart(optionalFocusCode){
     fullAmount = 0;
   }
   else{
-    fullAmount = parseFloat(fullAmount);
+    fullAmount = parseFloat(fullAmount).toFixed(2);
   }
 
   var splitTotalAmount = 0;
@@ -1534,9 +1565,9 @@ function renderSplitPayPart(optionalFocusCode){
     splitDetails += '<div class="row" style="border: 1px solid #ddd; margin: 2px 15px;">'+
                         '<div class="col-sm-4 paymentModeOptionSelected">'+
                             '<p style="font-size: 18px; padding-top: 12px;">'+
-                            '<tag class="paymentModeOptionSelectedDeleteButton" onclick="deleteSplitPaymentMode(\''+splitPayHoldList[i].code+'\')"><i class="fa fa-minus-circle"></i></tag>'+splitPayHoldList[i].name+'</p>'+
+                            '<tag class="paymentModeOptionSelectedDeleteButton" onclick="addToSplitPay(\''+splitPayHoldList[i].code+'\', \''+splitPayHoldList[i].name+'\')"><i class="fa fa-minus-circle"></i></tag>'+splitPayHoldList[i].name+'</p>'+
                         '</div>'+
-                        '<div class="col-sm-4"> <input type="text" value="" placeholder="References" style="border: none; height: 43px; font-size: 16px; text-align: center;" class="form-control tip" id="billSplitComments_'+splitPayHoldList[i].code+'"/> </div>'+
+                        '<div class="col-sm-4"> <input type="text" value="'+(splitPayHoldList[i].reference && splitPayHoldList[i].reference != ''? splitPayHoldList[i].reference : '')+'" onkeyup="adjustBillSplit(\''+splitPayHoldList[i].code+'\')" onchange="renderSplitPayPart()" placeholder="References" style="border: none; height: 43px; font-size: 16px; text-align: center;" class="form-control tip" id="billSplitComments_'+splitPayHoldList[i].code+'"/> </div>'+
                         '<div class="col-sm-4">'+
                            '<div class="form-group" style="margin-bottom: 2px">'+
                               '<input type="number" value="'+(splitPayHoldList[i].amount != ''? splitPayHoldList[i].amount : 0)+'" onkeyup="adjustBillSplit(\''+splitPayHoldList[i].code+'\')" onchange="renderSplitPayPart()" placeholder="00.00" style="border: none; height: 43px; font-size: 24px; text-align: right;" class="form-control tip" id="billSplitValue_'+splitPayHoldList[i].code+'"/>'+
@@ -1547,11 +1578,17 @@ function renderSplitPayPart(optionalFocusCode){
 
 
   var warningAmount = '';
+
+  splitTotalAmount = parseFloat(splitTotalAmount).toFixed(2);
+
+  splitTotalAmount = parseFloat(splitTotalAmount);
+  fullAmount = parseFloat(fullAmount);
+
   if(splitTotalAmount < fullAmount){
-    warningAmount = '<tag style="color: #f15959; font-weight: initial"> - '+(fullAmount - splitTotalAmount)+'</tag>';
+    warningAmount = '<tag style="color: #f15959; font-weight: initial"> - '+(fullAmount-splitTotalAmount)+'</tag>';
   }
   else if(splitTotalAmount > fullAmount){
-    warningAmount = '<tag style="color: #08ca08; font-weight: initial"> + '+(splitTotalAmount - fullAmount)+'</tag>';
+    warningAmount = '<tag style="color: #08ca08; font-weight: initial"> + '+(splitTotalAmount-fullAmount)+'</tag>';
   }
   else{
     warningAmount = '';
@@ -1562,9 +1599,12 @@ function renderSplitPayPart(optionalFocusCode){
                                       '<div class="row" style="border: 1px solid #ddd; margin: 4px 15px; background: #eeeeee">'+
                                               '<div class="col-sm-6"> <p style="font-size: 18px; padding-top: 12px; padding-left: 20px">Grand Sum</p> </div>'+
                                               '<div class="col-sm-6">'+
-                                                 '<div class="form-group" style="margin-bottom: 2px"> <p style="background: none; margin: 0; border: none; font-weight: bold; height: 43px; font-size: 24px; text-align: right;" class="form-control tip" />'+fullAmount+''+warningAmount+'</p> </div>'+
+                                                 '<div class="form-group" style="margin-bottom: 2px"> <p style="background: none; margin: 0; border: none; font-weight: bold; height: 43px; font-size: 24px; text-align: right;" class="form-control tip" />'+parseFloat(fullAmount).toFixed(2)+''+warningAmount+'</p> </div>'+
                                               '</div>'+
-                                      '</div> ';
+                                      '</div> '+
+                                      (splitTotalAmount < fullAmount ? '<p style="margin: 0; text-align: right; margin-right: 15px; font-size: 12px; color: #f15959;">Deficit amount of <i class="fa fa-inr"></i>'+(fullAmount-splitTotalAmount)+' will be marked as Round Off</p>' : '')+
+                                      (splitTotalAmount > fullAmount ? '<p style="margin: 0; text-align: right; margin-right: 15px; font-size: 12px; color: #08ca08;">Extra amount of <i class="fa fa-inr"></i>'+(splitTotalAmount-fullAmount)+' will be marked as Tips</p>' : '');
+                                      
 
   if(!optionalFocusCode || optionalFocusCode == ''){
 
@@ -1587,12 +1627,19 @@ function adjustBillSplit(code){
       amountValue = 0;
     }
 
+    var referenceValue = document.getElementById("billSplitComments_"+code).value;
+    if(!referenceValue || referenceValue == ''){
+      referenceValue = '';
+    }
+
+
     var splitPayHoldList = window.localStorage.billSettleSplitPlayHoldList ? JSON.parse(window.localStorage.billSettleSplitPlayHoldList): [];
 
     var n = 0;
     while(splitPayHoldList[n]){
       if(splitPayHoldList[n].code == code){
         splitPayHoldList[n].amount = amountValue;
+        splitPayHoldList[n].reference = referenceValue;
         break;
       }
       n++;
@@ -1601,19 +1648,111 @@ function adjustBillSplit(code){
     window.localStorage.billSettleSplitPlayHoldList = JSON.stringify(splitPayHoldList);
 } 
 
+
+
 function hideSettleBillAndPush(){
   window.localStorage.billSettleSplitPlayHoldList = '';
   document.getElementById("billSettlementDetailsModal").style.display = 'none';
 }
 
 
+//settle bill and post to local server
+
 function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
     var bill = JSON.parse(decodeURI(encodedBill));
 
 
+    var splitPayHoldList = window.localStorage.billSettleSplitPlayHoldList ? JSON.parse(window.localStorage.billSettleSplitPlayHoldList): [];
+
+    if(splitPayHoldList.length == 0){
+      showToast('Warning: Click on a Payment Method to continue', '#e67e22');
+      return '';
+    }
+
+    var paymentModeSelected = '';
+    if(splitPayHoldList.length > 1){
+      paymentModeSelected = 'MULTIPLE';
+    }
+    else{
+      paymentModeSelected = splitPayHoldList[0].code;
+
+      var comments = splitPayHoldList[0].reference;
+      if(comments && comments != ''){
+        bill.paymentReference = comments;
+      }
+    }
+
+    var splitObj = [];
+
+    var totalSplitSum = 0;
+    var n = 0;
+    var actualNoZeroSplits = 0;
+    while(splitPayHoldList[n]){
+
+      if(splitPayHoldList[n].amount > 0){ //Skip Zeros
+          totalSplitSum += parseFloat(splitPayHoldList[n].amount);
+          splitObj.push(splitPayHoldList[n]);
+          actualNoZeroSplits++;
+      }
+      
+      n++;
+    } 
+
+    totalSplitSum = parseFloat(totalSplitSum).toFixed(2);
+    totalSplitSum = parseFloat(totalSplitSum);
+
+
+    //In case multiple selected but value added only for one, all others kept empty
+    if(splitPayHoldList.length > 1 && actualNoZeroSplits == 1){
+      paymentModeSelected = splitObj[0].code;
+
+      var comments = splitObj[0].reference;
+      if(comments && comments != ''){
+        bill.paymentReference = comments;
+      }      
+    }   
+
+    bill.timeSettle = getCurrentTime('TIME');
+    bill.totalAmountPaid = parseFloat(totalSplitSum).toFixed(2);
+    bill.paymentMode = paymentModeSelected;
+
+
+    //Split Payment details
+    if(paymentModeSelected == 'MULTIPLE'){
+      bill.paymentSplits = splitObj;
+    }
+
+
+
+    //Compare Full Payable Amount
+    var fullAmount = document.getElementById("fullAmount").innerHTML;
+    if(!fullAmount || fullAmount == ''){
+      fullAmount = 0;
+    }
+    else{
+      fullAmount = parseFloat(fullAmount).toFixed(2);
+    }
+
+
+    if(totalSplitSum < fullAmount && fullAmount-totalSplitSum > (fullAmount*0.05)){
+      showToast('Warning: Huge difference in the sum. Please make sure the split amounts are correct.', '#e67e22');
+      return '';
+    }
+
+    //Round Off or Tips calculation - auto
+    if(totalSplitSum < fullAmount){
+      bill.roundOffAmount = fullAmount - totalSplitSum;
+    }
+
+    if(totalSplitSum > fullAmount){
+      bill.tipsAmount = totalSplitSum - fullAmount;
+    }
+
+
+
         //Post to local Server
-          showLoading(10000, 'Generating Bill');
+          showLoading(10000, 'Settling Bill');
           
           $.ajax({
             type: 'POST',
@@ -1625,14 +1764,16 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
             success: function(data) {
               hideLoading();
               if(data.ok){
-                showToast("Bill Generated!")
+                showToast("Bill #"+bill.billNumber+" is settled successfully", '#27ae60');
+                //Successfully pushed
+                hideSettleBillAndPush();
               }
               else{
-                showToast("Bill FAILED!")
+                showToast('Warning: Bill #'+tableID+' was not Settled. Try again.', '#e67e22');
               }
             },
             error: function(data){           
-            
+              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
             }
           });    
 }
