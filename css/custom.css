@@ -1447,6 +1447,13 @@ ol ol {
 }
 
 
+.deleteConfirmationHeader{
+  background: #dd4b39 !important;
+  color: #FFF !important;
+  font-weight: 400 !important;
+}
+
+
 /*Cart */
 
 /*Default Theme - GREEN and GREEN LIGHT*/

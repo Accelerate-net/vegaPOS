@@ -1751,9 +1751,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
 
 
-        //Post to local Server
-          showLoading(10000, 'Settling Bill');
-          
+          //Post to local Server
           $.ajax({
             type: 'POST',
             url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/',
@@ -1762,7 +1760,6 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
             dataType: 'json',
             timeout: 10000,
             success: function(data) {
-              hideLoading();
               if(data.ok){
                 showToast("Bill #"+bill.billNumber+" is settled successfully", '#27ae60');
                 //Successfully pushed

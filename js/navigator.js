@@ -27,8 +27,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}
 		case 'settled-bills':{
-			loadAllSettledBills();
-			loadAllPendingSettlementBills();
+			loadAllPendingSettlementBills('EXTERNAL');
 			break;
 		}	
 		case 'seating-status':{
