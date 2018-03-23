@@ -703,7 +703,7 @@ function renderCurrentUserDisplay(){
   }
 
   if(loggedInStaffInfo.name != '' && loggedInStaffInfo.code != ''){
-    document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: bold">'+loggedInStaffInfo.name+'</span>';
+    document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: 400">'+loggedInStaffInfo.name+'</span>';
   }
   else{
     document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/default_user.png" class="user-image" alt="Avatar" /> <span>Profile Not Selected</span>';

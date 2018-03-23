@@ -1,7 +1,7 @@
 
 /*Custom Fonts*/
-/*@import url('https://fonts.googleapis.com/css?family= Francois+One|Oswald|Roboto');
-*/
+@import url('https://fonts.googleapis.com/css?family= Francois+One|Oswald|Roboto');
+/**/
 html, body {
         height: 100%;
         margin: 0px;
@@ -854,7 +854,7 @@ color: #f4f4f4; padding-left: 5px; font-size: 60%; font-weight: 400
 .deliveryAddress{
   border: 1px solid gray;
     padding: 10px;
-  height: 80px;
+  min-height: 80px;
   overflow: scroll;
 }
 
@@ -2126,9 +2126,11 @@ ol ol {
 
 .tableOptionsButtonBig{
   width: 100%;
-  font-size: 18px;
+  font-size: 21px;
   min-height: 60px;
   margin-bottom: 5px;
+  text-align: left;
+  border-radius: 0;
 }
 
 
@@ -2881,7 +2883,6 @@ position: absolute;
   background: none !important;
 }
 
-
 .breakWord{
   text-overflow:ellipsis; 
   overflow:hidden; 
@@ -3126,5 +3127,28 @@ position: absolute;
   text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
 }
 
+/*modal headers*/
+
+.defaultModalColoredHeader{
+  background-color: #1abc9c;
+  color: #FFF;
+  border: none;
+}
+
+.skin-blue .defaultModalColoredHeader, .skin-blue-light .defaultModalColoredHeader{
+  background-color: #367fa9;
+}
+
+.skin-red .defaultModalColoredHeader, .skin-red-light .defaultModalColoredHeader{
+  background-color: #d73925;
+}
+
+.skin-purple .defaultModalColoredHeader, .skin-purple-light .defaultModalColoredHeader{
+  background-color: #555299;
+}
+
+.skin-yellow .defaultModalColoredHeader, .skin-yellow-light .defaultModalColoredHeader{
+  background-color: #e08e0b;
+}
 
 

@@ -9,6 +9,8 @@ function renderAllKOTs() {
             return;
         }
 
+        var actualReadableFileCount = 0;
+        var iterationsCount = 0;
 
         filenames.forEach(function(filename) {
             fs.readFile(dirname + '/' + filename, 'utf-8', function(err, data) {
@@ -17,35 +19,50 @@ function renderAllKOTs() {
                     return;
                 } else {
 
+                    iterationsCount++;
+
                     if(filename.toLowerCase().indexOf(".json") < 0){ //Neglect any files other than JSON
-                        return '';
+                        
+                    }
+                    else{
+
+                            actualReadableFileCount++;
+                            if(actualReadableFileCount == 1){
+                                document.getElementById("liveKOTMain").innerHTML = '<div class="col-xs-12 kotListing"> <ul id="fullKOT"> </ul> </div>';
+                            }
+
+                            var kot = JSON.parse(data);
+
+                            if(kot.orderDetails.modeType == 'DINE'){
+                                var i = 0;
+                                var fullKOT = "";
+                                var begKOT = "";
+                                var itemsInCart = "";
+                                var items = "";
+
+                                begKOT = '<li> <a href="#" onclick="liveOrderOptions(\''+encodeURI(JSON.stringify(kot))+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
+                                while (i < kot.cart.length) {
+                                    itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ '</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
+                                    i++;
+                                }
+
+                                items = begKOT + itemsInCart + '</table> </div>'+(i > 6?'<more class="more">More Items</more>':'')+
+                                                        '<tag class="bottomTag">'+
+                                                        '<p class="tagSteward">' +(kot.stewardName != ''? kot.stewardName   : 'Unknown Staff')+ '</p>'+
+                                                        '<p class="tagUpdate">'+(kot.timeKOT == ''? 'First KOT Printed '+getFormattedTime(kot.timePunch)+' ago': 'KOT Edited '+getFormattedTime(kot.timeKOT)+' ago' )+'</p>'+
+                                                        '</tag> </a>';
+
+                                fullKOT = fullKOT + items + '</li>';
+                                finalRender(fullKOT)
+                            }
+                    }
+
+                    if(iterationsCount == filenames.length && actualReadableFileCount == 0){
+                        document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Dine orders</tag>';
                     }
 
 
-                    var kot = JSON.parse(data);
 
-                    if(kot.orderDetails.modeType == 'DINE'){
-                        var i = 0;
-                        var fullKOT = "";
-                        var begKOT = "";
-                        var itemsInCart = "";
-                        var items = "";
-
-                        begKOT = '<li> <a href="#" onclick="liveOrderOptions(\''+encodeURI(JSON.stringify(kot))+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
-                        while (i < kot.cart.length) {
-                            itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ '</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
-                            i++;
-                        }
-
-                        items = begKOT + itemsInCart + '</table> </div>'+(i > 6?'<more class="more">More Items</more>':'')+
-                                                '<tag class="bottomTag">'+
-                                                '<p class="tagSteward">' +(kot.stewardName != ''? kot.stewardName   : 'Unknown Staff')+ '</p>'+
-                                                '<p class="tagUpdate">'+(kot.timeKOT == ''? 'First KOT Printed '+getFormattedTime(kot.timePunch)+' ago': 'KOT Edited '+getFormattedTime(kot.timeKOT)+' ago' )+'</p>'+
-                                                '</tag> </a>';
-
-                        fullKOT = fullKOT + items + '</li>';
-                        finalRender(fullKOT)
-                    }
                 }
 
             });
@@ -65,10 +82,10 @@ function liveOrderOptions(encodedKOT){
     var kot = JSON.parse(decodeURI(encodedKOT));
 
     document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="pushToEditKOT(\''+encodedKOT+'\')">Edit Order</button>'+ 
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')">Change Table</button>'+ 
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')">Generate Bill</button>'+ 
-                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelKOTOrder(\''+kot.KOTNumber+'\')">Cancel Order</button>'+  
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="pushToEditKOT(\''+encodedKOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button>'+ 
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag></button>'+ 
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button>'+ 
+                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelKOTOrder(\''+kot.KOTNumber+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+  
                   '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
 
     document.getElementById("liveOrderOptionsModal").style.display = 'block';

@@ -89,13 +89,17 @@
 
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
-                        <li class="noHover"><a href="#" class="noHover"><i class="fa fa-clock-o"></i> <tag id="globalTimeDisplay"></tag></a></li>
+
                         <li style="width: 165px !important; text-align: center" onclick="checkLogin()"><a href="#"><tag id="globalServerConnectionStatus">...</tag></a></li>
-                        <li><a href="#" onclick="renderPage('live-orders', 'Live Orders')">Live Orders</a></li>
-                        <li><a href="#" onclick="renderPage('sales-summary', 'Sales Summary')">Today's Sales</a></li>
-                        <li><a href="#" id="print-pdf">Print KOT (Test)</a></li>
+
+                        <li class="noHover"><a href="#" class="noHover" style="padding: 13.5px 30px"><tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 300"></tag></a></li>
+
+                        <li class="noHover"><a href="#" class="noHover" style="padding: 15px 30px; font-size: 18px; "><i class="fa fa-laptop"></i> <tag id="thisSystemName" style="padding-left: 5px;"></tag></a></li>
+
+
+                        <!-- <li><a href="#" id="print-pdf">Print KOT (Test)</a></li> -->
                         <li class="dropdown user user-menu">
-                            <a href="#" onclick="selectStewardWindow()" id="currentUserProfileDisplay">
+                            <a href="#" onclick="selectStewardWindow()" id="currentUserProfileDisplay" style="font-size: 18px; font-weight: 400;">
                                 <img src="images/default_user.png" class="user-image" alt="Avatar" />
                                 <span>Profile Not Selected</span>
                             </a>
@@ -166,6 +170,7 @@
                     </li>
                 </ul>
             </section>
+
         </aside>
 
         <div class="content-wrapper">
