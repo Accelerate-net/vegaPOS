@@ -5,6 +5,9 @@ var displayType = 'PENDING';
 
 function loadAllPendingSettlementBills(optionalSource){
 
+	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
+
+
 	$("#billSelection_settled").removeClass("billTypeSelectionBox");
 	$("#billSelection_pending").addClass("billTypeSelectionBox");
 	document.getElementById("billDetailedDisplayRender").innerHTML = ''
@@ -25,6 +28,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 	//to load settled bills count
 	if(optionalSource && optionalSource == 'EXTERNAL'){
+		renderBillPageDefault();
 		calculateSettledCount();
 	}
 
@@ -45,7 +49,8 @@ function loadAllPendingSettlementBills(optionalSource){
 	    	return '';
 	    }
         
-        filenames = filenames.sort();
+        filenames.sort();
+        filenames.reverse();
 
         filenames.forEach(function(filename) {       	
 
@@ -67,6 +72,13 @@ function loadAllPendingSettlementBills(optionalSource){
 
 
                     totalResultsCount++;
+
+                    console.log('Current Page: '+currentPage)
+                    console.log('Total Results: '+totalResultsCount)
+
+                    if((currentPage-1)*10 == totalResultsCount){
+                    	currentPage--;
+                    }
 
                 	//Skip first 10 (for second page), first 20 (for third page) etc.
                 	if(((currentPage-1)*10) < totalResultsCount && totalResultsCount <= (currentPage*10)){

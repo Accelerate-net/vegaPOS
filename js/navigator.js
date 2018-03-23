@@ -19,7 +19,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}
 		case 'live-orders':{
-			renderKOT();
+			renderAllKOTs();
 			break;
 		}
 		case 'online-orders':{
@@ -100,7 +100,7 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('settled-bills', 'New Order');
+renderPage('live-orders', 'New Order');
 
 
 const ipc = require('electron').ipcRenderer;

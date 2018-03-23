@@ -740,7 +740,7 @@ html, body {
 	padding: 0px 6px;
 	border-radius: 20px; 
 
-    position: fixed;
+    position: absolute;
     bottom: 50px;
     right: 5px;
 
@@ -2133,7 +2133,7 @@ ol ol {
 
 
 .tableOptionsHeader{
-      margin: 0 0 5px 0;
+      margin: 5px 0 10px 0;
     font-size: 21px;
     font-weight: 400;
     text-align: center;

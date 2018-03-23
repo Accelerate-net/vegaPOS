@@ -112,6 +112,7 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 }
 
 function removeOtherKOTS(kotList){ /*TWEAK*/
+	
 	            var h = 1; //Do not count first KOT
               	while(kotList[h]){
               		if(fs.existsSync('./data/KOT/'+kotList[h]+'.json')) {

@@ -1206,6 +1206,9 @@ function hideBillPreviewModal(){
 //What to do after any successful execution of Bill Options (Apply/Remove Coupon, Apply/Remove Discount etc.)
 function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 
+
+  console.log('>>> '+optionalPageRef); return '';
+
 	if(!action || action == '' || !optionalPageRef || optionalPageRef == '' || !modifiedKOTFile){
 		return '';
 	}
@@ -1243,7 +1246,7 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 
 			break;
 		}
-		case 'SEATING_STATUS':{
+		case 'LIVE_ORDERS':{
 			break;
 		}
 	}
@@ -1361,7 +1364,19 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef){
                           
                           clearAllMetaDataOfBilling();
                           hideBillPreviewModal();
-                          renderCustomerInfo();
+
+                          //Delete corresponding KOT file
+                          if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
+                            fs.unlinkSync('./data/KOT/'+kotID+'.json')
+                          }
+
+
+                          if(optionalPageRef == 'ORDER_PUNCHING'){
+                            renderCustomerInfo();
+                          }
+                          else if(optionalPageRef == 'LIVE_ORDERS'){
+                            renderAllKOTs();
+                          }
 
                           fs.writeFile("./data/static/lastBILL.txt", billNumber, 'utf8', (err) => {
                               if(err)
@@ -1735,7 +1750,12 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
     }
 
 
-    if(totalSplitSum < fullAmount && fullAmount-totalSplitSum > (fullAmount*0.05)){
+    var maxTolerance = fullAmount*0.05;
+    if(maxTolerance < 10){
+      maxTolerance = 10;
+    }
+
+    if(totalSplitSum < fullAmount && fullAmount-totalSplitSum > maxTolerance){
       showToast('Warning: Huge difference in the sum. Please make sure the split amounts are correct.', '#e67e22');
       return '';
     }
@@ -1764,6 +1784,15 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                 showToast("Bill #"+bill.billNumber+" is settled successfully", '#27ae60');
                 //Successfully pushed
                 hideSettleBillAndPush();
+
+                //Delete corresponding Bill file
+                if(fs.existsSync('./data/bills/'+bill.billNumber+'.json')) {
+                  fs.unlinkSync('./data/bills/'+bill.billNumber+'.json')
+                }
+
+                //re-render page
+                loadAllPendingSettlementBills('EXTERNAL'); 
+
               }
               else{
                 showToast('Warning: Bill #'+tableID+' was not Settled. Try again.', '#e67e22');
@@ -1774,3 +1803,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
             }
           });    
 }
+
+
+
+

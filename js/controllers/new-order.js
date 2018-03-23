@@ -565,7 +565,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGnerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;">Print Bill</button>'+
+	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;">Print Bill</button>'+
 	                        '</div>'+                            
 	                     '</div>';
  		}
@@ -636,7 +636,7 @@ function undoChangesInKOT(){
 }
 
 
-function compareChangesAndGnerateBillFromKOT(kotID, optionalPageRef){
+function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
 
 	/*
 		Proceed to bill generation only if,
