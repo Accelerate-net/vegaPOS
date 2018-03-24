@@ -70,6 +70,10 @@ function getCurrentTime(type){
 
     if(type == 'DATE_DDMMYY')
       return dd+mm+yyyy;
+
+
+    if(type == 'DATE_STAMP')
+      return yyyy+mm+dd;
 	 
 }
 

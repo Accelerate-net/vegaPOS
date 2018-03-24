@@ -39,7 +39,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}				
 		case 'sales-summary':{
-
+			fetchSalesSummary();
 			break;
 		}
 		case 'manage-menu':{
@@ -100,9 +100,9 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('live-orders', 'New Order');
+renderPage('sales-summary', 'New Order');
 
-
+/*
 const ipc = require('electron').ipcRenderer;
 const printPDFButton = document.getElementById("print-pdf");
 
@@ -110,5 +110,6 @@ printPDFButton.addEventListener('click', function(event){
 	console.log(event)
 	ipc.send('print-to-pdf');
 });
+*/
 
 /* Printer */

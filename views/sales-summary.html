@@ -1,46 +1,61 @@
 <template class="task-template">
 
                <div class="row">
-                  <div class="col-xs-8">
+
+
+
+
+                  <div class="col-xs-4">
                      <div class="box box-primary">
                         <div class="box-body">
                            <div class="box-header" style="padding: 10px 0px">
-                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Online Orders Summary</h3>
+                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Summary</h3>
                            </div>
-                           <div class="table-responsive">
-                              <table class="table" style="margin: 0">
-                                 <tbody>
-                                    <tr class="summaryRowTitle">
-                                       <td>Type</td>
-                                       <td class="summaryLine1">Prepaid</td>
-                                       <td class="summaryLine2">COD</td>
-                                       <td class="summaryLine3">All Orders</td>
-                                    </tr>
-                                    <tr>
-                                       <td>Online Delivery</td>
-                                       <td class="summaryLine1"><i class="fa fa-inr"></i> 1200<br><count class="summaryCount">8 Orders</count></td>
-                                       <td class="summaryLine2"><i class="fa fa-inr"></i> 400<br><count class="summaryCount">3 Orders</count></td>
-                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 1600<br><count class="summaryCount">11 Orders</count></td>
-                                    </tr>    
-                                    <tr>
-                                       <td>Online Takeaway</td>
-                                       <td class="summaryLine1"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">1 Orders</count></td>
-                                       <td class="summaryLine2">-<br><count class="summaryCount"></count></td>
-                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">1 Orders</count></td>
-                                    </tr>  
-                                    <tr class="summaryRowHighlight">
-                                       <td>Over All</td>
-                                       <td class="summaryLine1"><i class="fa fa-inr"></i> 1400<br><count class="summaryCount">9 Orders</count></td>
-                                       <td class="summaryLine2"><i class="fa fa-inr"></i> 400<br><count class="summaryCount">3 Orders</count></td>
-                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 1800<br><count class="summaryCount">12 Orders</count></td>
-                                    </tr>                                                                                                        
-                                 </tbody>
-                              </table>
+                           <div class="col-lg-12" style="padding: 0">
+                               <div class="row">
+                                  <div class="col-sm-5">
+                                     <label style="font-size: 10px">FROM DATE</label><br>
+                                     <input type="date" id="reportFromDate" style="border: none; border-bottom: 1px solid">
+                                  </div>
+                                  <div class="col-sm-5"  style="margin-left: 20px">
+                                     <label style="font-size: 10px">TO DATE</label><br>
+                                     <input type="date" id="reportToDate" style="border: none; border-bottom: 1px solid">
+                                  </div>
+                               </div>
+                            
+                               <div class="row" style="margin-top: 20px">
+                                  <div class="col-sm-12">
+                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSalesSummary()"><i class="fa fa-download" style="padding-right: 10px"></i> Restaurant Sales Report</button>
+                                  </div>
+                               </div>
+                               <div class="row" style="margin-top: 10px">
+                                  <div class="col-sm-12">
+                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSalesSummary()"><i class="fa fa-download" style="padding-right: 10px"></i> Online Sales Report</button>
+                                  </div>
+                               </div>
+                               <div class="row" style="margin-top: 10px">
+                                  <div class="col-sm-12">
+                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSalesSummary()"><i class="fa fa-download" style="padding-right: 10px"></i> Discounted Sales Report</button>
+                                  </div>
+                               </div>
+
                            </div>
+                           <div class="clearfix"></div>
                         </div>
                      </div>
+                  </div>
 
 
+
+                  
+
+
+
+
+
+
+                  <div class="col-xs-8">
+                    
 
                      <div class="box box-primary">
                         <div class="box-body">
@@ -112,50 +127,41 @@
                      </div>
 
 
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Others</h3>
+                           </div>
+                           <div class="table-responsive">
+                              <table class="table" style="margin: 0">
+                                 <tbody>
+                                    <tr>
+                                       <td>Round Off Amount</td>
+                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 1200<br><count class="summaryCount">34 Orders</count></td>
+                                    </tr>    
+                                    <tr>
+                                       <td>Tips Amount</td>
+                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">14 Orders</count></td>
+                                    </tr> 
+                                    <tr>
+                                       <td>Discount Offered</td>
+                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">14 Orders</count></td>
+                                    </tr>  
+                                    <tr>
+                                       <td>Rewards Offered</td>
+                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">14 Orders</count></td>
+                                    </tr>                                                                                              
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                     </div>
+
 
 
                   </div>
                   
 
-                  <div class="col-xs-4">
-                     <div class="box box-primary">
-                        <div class="box-body">
-                           <div class="box-header" style="padding: 10px 0px">
-                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Reports</h3>
-                           </div>
-                           <div class="col-lg-12" style="padding: 0">
-                               <div class="row">
-                                  <div class="col-sm-5">
-                                     <label style="font-size: 10px">FROM DATE</label><br>
-                                     <input type="date" id="reportFromDate" style="border: none; border-bottom: 1px solid">
-                                  </div>
-                                  <div class="col-sm-5"  style="margin-left: 20px">
-                                     <label style="font-size: 10px">TO DATE</label><br>
-                                     <input type="date" id="reportToDate" style="border: none; border-bottom: 1px solid">
-                                  </div>
-                               </div>
-                            
-                               <div class="row" style="margin-top: 20px">
-                                  <div class="col-sm-12">
-                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" ng-click="generateReport('SALES')"><i class="fa fa-download" style="padding-right: 10px"></i> Restaurant Sales Report</button>
-                                  </div>
-                               </div>
-                               <div class="row" style="margin-top: 10px">
-                                  <div class="col-sm-12">
-                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" ng-click="generateReport('ONLINE')"><i class="fa fa-download" style="padding-right: 10px"></i> Online Sales Report</button>
-                                  </div>
-                               </div>
-                               <div class="row" style="margin-top: 10px">
-                                  <div class="col-sm-12">
-                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" ng-click="generateReport('DISCOUNT')"><i class="fa fa-download" style="padding-right: 10px"></i> Discounted Sales Report</button>
-                                  </div>
-                               </div>
-
-                           </div>
-                           <div class="clearfix"></div>
-                        </div>
-                     </div>
-                  </div>
                </div>
             </section>
 </template>

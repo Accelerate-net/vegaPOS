@@ -1540,12 +1540,12 @@ function addToSplitPay(mode, modeName){
       cumulativeSum = fullAmount; //To avoid negative suggestions
     }
 
-    console.log('Assign: '+fullAmount+'     '+cumulativeSum)
+    var differenceAmount = parseFloat((fullAmount-cumulativeSum)).toFixed(2);
 
     if(splitPayHoldList.length == 0)
-      splitPayHoldList.push({"name": modeName, "code": mode, "amount": fullAmount});
+      splitPayHoldList.push({"name": modeName, "code": mode, "amount": parseFloat(fullAmount)});
     else
-      splitPayHoldList.push({"name": modeName, "code": mode, "amount": parseFloat((fullAmount-cumulativeSum)).toFixed(2)});
+      splitPayHoldList.push({"name": modeName, "code": mode, "amount": parseFloat(differenceAmount)});
 
     document.getElementById("billPayment_"+mode).innerHTML += ' <i class="fa fa-check"></i>';
   }
@@ -1642,6 +1642,9 @@ function adjustBillSplit(code){
       amountValue = 0;
     }
 
+    amountValue = parseFloat(amountValue).toFixed(2);
+    amountValue = parseFloat(amountValue);
+
     var referenceValue = document.getElementById("billSplitComments_"+code).value;
     if(!referenceValue || referenceValue == ''){
       referenceValue = '';
@@ -1731,6 +1734,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
     bill.timeSettle = getCurrentTime('TIME');
     bill.totalAmountPaid = parseFloat(totalSplitSum).toFixed(2);
     bill.paymentMode = paymentModeSelected;
+    bill.dateStamp = getCurrentTime('DATE_STAMP');
 
 
     //Split Payment details
@@ -1762,13 +1766,16 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
     //Round Off or Tips calculation - auto
     if(totalSplitSum < fullAmount){
-      bill.roundOffAmount = fullAmount - totalSplitSum;
+      bill.roundOffAmount = parseFloat(fullAmount - totalSplitSum).toFixed(2);
+      bill.roundOffAmount = parseFloat(bill.roundOffAmount);
     }
 
     if(totalSplitSum > fullAmount){
-      bill.tipsAmount = totalSplitSum - fullAmount;
+      bill.tipsAmount = parseFloat(totalSplitSum - fullAmount).toFixed(2);
+      bill.tipsAmount = parseFloat(bill.tipsAmount);
     }
 
+    bill.totalAmountPaid = parseFloat(bill.totalAmountPaid);
 
 
           //Post to local Server

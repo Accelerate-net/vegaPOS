@@ -133,7 +133,7 @@ function calculateSettledCount(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_all_docs',
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoices/_view/all',
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
@@ -211,7 +211,7 @@ function loadAllSettledBills(){
 
 	  $.ajax({
 	    type: 'GET',
-	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_all_docs?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoices/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 	    contentType: "application/json",
 	    dataType: 'json',
 	    timeout: 10000,
