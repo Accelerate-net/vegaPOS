@@ -25,12 +25,12 @@
                             
                                <div class="row" style="margin-top: 20px">
                                   <div class="col-sm-12">
-                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSalesSummary()"><i class="fa fa-download" style="padding-right: 10px"></i> Restaurant Sales Report</button>
+                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" onclick="fetchPaymentModeWiseSummary()"><i class="fa fa-download" style="padding-right: 10px"></i> Summary by Payment Modes</button>
                                   </div>
                                </div>
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
-                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSalesSummary()"><i class="fa fa-download" style="padding-right: 10px"></i> Online Sales Report</button>
+                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSalesSummary()"><i class="fa fa-download" style="padding-right: 10px"></i> Summary by Billing Modes</button>
                                   </div>
                                </div>
                                <div class="row" style="margin-top: 10px">
@@ -60,36 +60,11 @@
                      <div class="box box-primary">
                         <div class="box-body">
                            <div class="box-header" style="padding: 10px 0px">
-                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Restaurant Orders Summary - by Channel</h3>
+                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Summary by <b>Billing Modes</b></h3>
                            </div>
                            <div class="table-responsive">
-                              <table class="table" style="margin: 0">
-                                 <tbody>
-                                    <tr class="summaryRowTitle">
-                                       <td>Channel</td>
-                                       <td class="summaryLine1">Total</td>
-                                    </tr>
-                                    <tr>
-                                       <td>Walk In</td>
-                                       <td class="summaryLine1"><i class="fa fa-inr"></i> 1200<br><count class="summaryCount">34 Orders</count></td>
-                                    </tr>    
-                                    <tr>
-                                       <td>Zomato Call</td>
-                                       <td class="summaryLine1"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">14 Orders</count></td>
-                                    </tr>  
-                                     <tr>
-                                       <td>Delivery (Swiggy)</td>
-                                       <td class="summaryLine1"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">6 Orders</count></td>
-                                    </tr>   
-                                     <tr>
-                                       <td>Delivery (Zomato)</td>
-                                       <td class="summaryLine1"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">2 Orders</count></td>
-                                    </tr>                                                                         
-                                    <tr class="summaryRowHighlight">
-                                       <td>Over All</td>
-                                       <td class="summaryLine1"><i class="fa fa-inr"></i> 1400<br><count class="summaryCount">9 Orders</count></td>
-                                    </tr>                                                                                                        
-                                 </tbody>
+                              <table class="table" style="margin: 0" id="summaryRender_billingMode">
+                                 
                               </table>
                            </div>
                         </div>
@@ -99,28 +74,11 @@
                      <div class="box box-primary">
                         <div class="box-body">
                            <div class="box-header" style="padding: 10px 0px">
-                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">All Orders Summary - by Payment Mode</h3>
+                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Summary by <b>Payment Modes</b></h3>
                            </div>
                            <div class="table-responsive">
-                              <table class="table" style="margin: 0">
-                                 <tbody>
-                                    <tr class="summaryRowTitle">
-                                       <td>Mode of Payment</td>
-                                       <td class="summaryLine3">Amount</td>
-                                    </tr>
-                                    <tr>
-                                       <td>Cash</td>
-                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 1200<br><count class="summaryCount">34 Orders</count></td>
-                                    </tr>    
-                                    <tr>
-                                       <td>Card</td>
-                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">14 Orders</count></td>
-                                    </tr>                                                                           
-                                    <tr class="summaryRowHighlight">
-                                       <td>Grand Sum</td>
-                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 1400<br><count class="summaryCount">48 Orders</count></td>
-                                    </tr>                                                                                                        
-                                 </tbody>
+                              <table class="table" style="margin: 0" id="summaryRender_paymentMode">
+
                               </table>
                            </div>
                         </div>
@@ -142,15 +100,7 @@
                                     <tr>
                                        <td>Tips Amount</td>
                                        <td class="summaryLine3"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">14 Orders</count></td>
-                                    </tr> 
-                                    <tr>
-                                       <td>Discount Offered</td>
-                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">14 Orders</count></td>
-                                    </tr>  
-                                    <tr>
-                                       <td>Rewards Offered</td>
-                                       <td class="summaryLine3"><i class="fa fa-inr"></i> 200<br><count class="summaryCount">14 Orders</count></td>
-                                    </tr>                                                                                              
+                                    </tr>               
                                  </tbody>
                               </table>
                            </div>
