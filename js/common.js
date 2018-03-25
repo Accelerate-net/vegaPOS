@@ -86,6 +86,19 @@ function getCurrentTime(type){
 }
 
 
+
+function random_rgba_color_set() {
+
+    var o = Math.round;
+    var r = Math.random;
+    var s = 255;
+
+    var color = o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s);
+
+    return ['rgba('+color+', 0.2)', 'rgba('+color+', 1)'];
+}
+
+
 //Returns first letters of the 2 words in the string
 function getImageCode(text){
 	text = text.replace(/[^a-zA-Z ]/g, "");
