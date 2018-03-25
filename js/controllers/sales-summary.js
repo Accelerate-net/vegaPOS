@@ -30,8 +30,6 @@ function fetchSalesSummary(fromDate, toDate) {
 	          	var modes = JSON.parse(data);
 	          	modes.sort(); //alphabetical sorting 
 
-	          	modes = []
-
 	          	if(modes.length == 0){
 	          		document.getElementById("summaryRender_billingMode").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no billing modes added</tag>';
 	          		return '';
@@ -82,8 +80,6 @@ function fetchSalesSummary(fromDate, toDate) {
 
 
 function fetchSalesSummaryCallback(index, modes, fromDate, toDate, grandSum, grandCount){
-
-	console.log(index)
 
 				$.ajax({
 				    type: 'GET',
@@ -147,6 +143,10 @@ function fetchPaymentModeWiseSummary(fromDate, toDate) {
 	fromDate = '20180320';
 	toDate = getCurrentTime('DATE_STAMP');
 
+
+
+	document.getElementById("summaryRender_paymentMode").innerHTML = '';
+
 		if(fs.existsSync('./data/static/paymentmodes.json')) {
 	      fs.readFile('./data/static/paymentmodes.json', 'utf8', function readFileCallback(err, data){
 	    if (err){
@@ -161,43 +161,60 @@ function fetchPaymentModeWiseSummary(fromDate, toDate) {
 	          		return '';
 	          	}
 
-	          	var iterationCount = 0;
-
 	          	//For a given PAYMENT MODE, the total Sales in the given DATE RANGE
-	          	var n = 0;
-	          	while(modes[n]){
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[n].code+'","'+fromDate+'"]&endkey=["'+modes[n].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
+				    	
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
 
 				    	if(data.rows.length > 0){
-				    		modes[iterationCount].count = data.rows[0].value.count;
-				    		modes[iterationCount].amount = data.rows[0].value.sum;
-				    		console.log('Single '+modes[iterationCount].name+': '+data.rows[0].value.sum)
-				    	}
-				    	else{
-				    		modes[iterationCount].count = 0;
-				    		modes[iterationCount].amount = 0;
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
 				    	}
 
-				    	iterationCount++;
-				    	
-				    	//finally check for split payments
-				    	if(iterationCount == modes.length){
-				    		findSplitPayments(modes, fromDate, toDate);
-				  		}
+				    		//Now check in split payments
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+									//time to render...
+							    	if(temp_count > 0){
+							    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>'+temp_sum+'<br><count class="summaryCount">'+temp_count+' Orders</count></td> </tr>';
+							    	}
+							    	else{
+							    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>0<br><count class="summaryCount">No Orders</count></td> </tr>';
+							    	}
+
+
+							    	//Check if next mode exists...
+							    	if(modes[1]){
+							    		fetchPaymentModeWiseSummaryCallback(1, modes, fromDate, toDate);
+							    	}
+
+								},
+								error: function(data){
+
+								}
+							}); 
+
 
 				    },
 				    error: function(data){
 
 				    }
 				  });  
-
-				  n++;
-				}
 
 		}
 		});
@@ -209,75 +226,61 @@ function fetchPaymentModeWiseSummary(fromDate, toDate) {
 
 
 
-function findSplitPayments(modes, fromDate, toDate){
+function fetchPaymentModeWiseSummaryCallback(index, modes, fromDate, toDate){
 
-	modes.sort();
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
 
-	var m = 0;
-	var iterationInnerCount = 0;
-
-	while(modes[m]){
-
-		$.ajax({
-			type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[m].code+'","'+fromDate+'"]&endkey=["'+modes[m].code+'","'+toDate+'"]',
-			timeout: 10000,
-			success: function(data) {
-
-					
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
 
 				    	if(data.rows.length > 0){
-				    		modes[iterationInnerCount].count += data.rows[0].value.count;
-				    		modes[iterationInnerCount].amount += data.rows[0].value.sum;
-				    		console.log('Splitted '+modes[iterationInnerCount].name+': '+data.rows[0].value.sum)
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
 				    	}
-				    		
-				    	iterationInnerCount++;
+				    	
 
-				    	//finally render
-				    	if(iterationInnerCount == modes.length){
-				    		renderSplitPayments(modes);
-				    		console.log('---------------------------------')
-				  		}				    	
+				    		//Now check in split payments
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+									//time to render...
+							    	if(temp_count > 0){
+							    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>'+temp_sum+'<br><count class="summaryCount">'+temp_count+' Orders</count></td> </tr>';
+							    	}
+							    	else{
+							    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>0<br><count class="summaryCount">No Orders</count></td> </tr>';
+							    	}
 
 
-			},
-			error: function(data){
+							    	//Check if next mode exists...
+							    	if(modes[index+1]){
+							    		fetchPaymentModeWiseSummaryCallback(index+1, modes, fromDate, toDate);
+							    	}
 
-			}
-		}); 
+								},
+								error: function(data){
 
-		m++;
-	}
-}
+								}
+							}); 
 
 
-function renderSplitPayments(modes){
+				    },
+				    error: function(data){
 
-	modes.sort();
-
-	var summaryRow = '';
-
-	var n = 0;
-	while(modes[n]){
-		if(modes[n].count != 0){
-			summaryRow += '<tr> <td>'+modes[n].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>'+modes[n].amount+'<br><count class="summaryCount">'+(modes[n].count != 0? modes[n].count+' Orders' : 'No Orders')+'</count></td> </tr>';
-		}
-		else{
-			summaryRow += '<tr> <td>'+modes[n].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>0<br><count class="summaryCount">No Orders</count></td> </tr>';
-		}
-
-		if(n == modes.length - 1){ //last iteration
-			document.getElementById("summaryRender_paymentMode").innerHTML = '<tbody>'+
-										                                    '<tr class="summaryRowTitle" style="background: #f9f9f9">'+
-										                                       '<td>Mode of Payment</td>'+
-										                                       '<td class="summaryLine3">Amount</td>'+
-										                                    '</tr>'+summaryRow+
-										                                    '</tbody>';
-		}
-
-		n++;
-	}
+				    }
+				  }); 
 
 }
 
