@@ -18,6 +18,8 @@ function fetchSalesSummary(fromDate, toDate) {
 	fromDate = '20180320';
 	toDate = getCurrentTime('DATE_STAMP');
 
+	document.getElementById("summaryRender_billingMode").innerHTML = '';
+
 
 		if(fs.existsSync('./data/static/billingmodes.json')) {
 	      fs.readFile('./data/static/billingmodes.json', 'utf8', function readFileCallback(err, data){
@@ -28,7 +30,7 @@ function fetchSalesSummary(fromDate, toDate) {
 	          	var modes = JSON.parse(data);
 	          	modes.sort(); //alphabetical sorting 
 
-	          	console.log(modes)
+	          	modes = []
 
 	          	if(modes.length == 0){
 	          		document.getElementById("summaryRender_billingMode").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no billing modes added</tag>';
@@ -36,62 +38,41 @@ function fetchSalesSummary(fromDate, toDate) {
 	          	}
 
 	          	var summaryRow = '';
-	          	var iterationCount = 0;
+
 	          	var grandSum = 0;
 	          	var grandCount = 0;
 
 	          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
-	          	var n = 0;
-	          	while(modes[n]){
-
 				$.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[n].name+'","'+fromDate+'"]&endkey=["'+modes[n].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
-				    	iterationCount++;
-
-				    	console.log(data)
 
 				    	if(data.rows.length > 0){
 				    		var result = data.rows[0].value;
-				    		summaryRow += '<tr> <td>'+modes[iterationCount-1].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>'+result.sum+'<br><count class="summaryCount">'+(result.count != 0? result.count+' Orders' : 'No Orders')+'</count></td> </tr>';
+				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>'+result.sum+'<br><count class="summaryCount">'+(result.count != 0? result.count+' Orders' : 'No Orders')+'</count></td> </tr>';
+				    		
 				    		grandSum += result.sum;
 				    		grandCount += result.count;
 
-				    		console.log(modes[iterationCount-1].name+' : '+result.sum)
-
 				    	}
 				    	else{
-				    		summaryRow += '<tr> <td>'+modes[iterationCount-1].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>0<br><count class="summaryCount">No Orders</count></td> </tr>';
+				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>0<br><count class="summaryCount">No Orders</count></td> </tr>';
 				    	}
-				    	
-				    	//finally render
-				    	if(iterationCount == modes.length){
-				    		document.getElementById("summaryRender_billingMode").innerHTML = '<tbody>'+
-										                                    '<tr class="summaryRowTitle" style="background: #f9f9f9">'+
-										                                       '<td>Billing Mode</td>'+
-										                                       '<td class="summaryLine3">Amount</td>'+
-										                                    '</tr>'+summaryRow+
-										                                    '<tr class="summaryRowHighlight">'+
-										                                       '<td>Over All</td>'+
-										                                       '<td class="summaryLine1"><i class="fa fa-inr"></i>'+grandSum+'<br><count class="summaryCount">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count></td>'+
-										                                    '</tr> '+
-										                                    '</tbody>';
-				  		}
+
+
+				    	//Check if next mode exists...
+				    	if(modes[1]){
+				    		fetchSalesSummaryCallback(1, modes, fromDate, toDate, grandSum, grandCount);
+				    	}
 
 				    },
 				    error: function(data){
 
 				    }
-				});  	
-
-
-				  
-
-				  n++;
-				}
+				});  
 
 		}
 		});
@@ -100,44 +81,39 @@ function fetchSalesSummary(fromDate, toDate) {
 }
 
 
-function fetchSalesSummaryCallback(){
+function fetchSalesSummaryCallback(index, modes, fromDate, toDate, grandSum, grandCount){
+
+	console.log(index)
 
 				$.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[n].name+'","'+fromDate+'"]&endkey=["'+modes[n].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
-				    	iterationCount++;
-
-				    	console.log(data)
-
 				    	if(data.rows.length > 0){
 				    		var result = data.rows[0].value;
-				    		summaryRow += '<tr> <td>'+modes[iterationCount-1].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>'+result.sum+'<br><count class="summaryCount">'+(result.count != 0? result.count+' Orders' : 'No Orders')+'</count></td> </tr>';
+				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>'+result.sum+'<br><count class="summaryCount">'+(result.count != 0? result.count+' Orders' : 'No Orders')+'</count></td> </tr>';
+				    		
 				    		grandSum += result.sum;
 				    		grandCount += result.count;
 
-				    		console.log(modes[iterationCount-1].name+' : '+result.sum)
-
 				    	}
 				    	else{
-				    		summaryRow += '<tr> <td>'+modes[iterationCount-1].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>0<br><count class="summaryCount">No Orders</count></td> </tr>';
+				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3"><i class="fa fa-inr"></i>0<br><count class="summaryCount">No Orders</count></td> </tr>';
 				    	}
-				    	
-				    	//finally render
-				    	if(iterationCount == modes.length){
-				    		document.getElementById("summaryRender_billingMode").innerHTML = '<tbody>'+
-										                                    '<tr class="summaryRowTitle" style="background: #f9f9f9">'+
-										                                       '<td>Billing Mode</td>'+
-										                                       '<td class="summaryLine3">Amount</td>'+
-										                                    '</tr>'+summaryRow+
-										                                    '<tr class="summaryRowHighlight">'+
-										                                       '<td>Over All</td>'+
-										                                       '<td class="summaryLine1"><i class="fa fa-inr"></i>'+grandSum+'<br><count class="summaryCount">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count></td>'+
-										                                    '</tr> '+
-										                                    '</tbody>';
-				  		}
+
+				    	//Check if next mode exists...
+				    	if(modes[index+1]){
+				    		fetchSalesSummaryCallback(index+1, modes, fromDate, toDate, grandSum, grandCount);
+				    	}
+				    	else{
+				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
+														                                       '<td>Over All</td>'+
+														                                       '<td class="summaryLine1"><i class="fa fa-inr"></i>'+grandSum+'<br><count class="summaryCount">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count></td>'+
+														                                      '</tr> '
+				    	}
+
 
 				    },
 				    error: function(data){
