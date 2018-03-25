@@ -39,7 +39,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}				
 		case 'sales-summary':{
-			fetchSalesSummary();
+			setSummaryDateRange();
 			break;
 		}
 		case 'manage-menu':{

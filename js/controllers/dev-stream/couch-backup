@@ -1,0 +1,38 @@
+{
+  "_id": "_design/invoice-summary",
+  "_rev": "52-82ec874b0837f3d7e7e55507d05a39ca",
+  "views": {
+    "sumbybillingmode": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n  if(doc.orderDetails.mode && doc.dateStamp){\n    emit([doc.orderDetails.mode, doc.dateStamp], doc.totalAmountPaid);\n  }\n}"
+    },
+    "sumbypaymentmode": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n  if(doc.paymentMode && doc.dateStamp){\n    emit([doc.paymentMode, doc.dateStamp], doc.totalAmountPaid);\n  }\n}"
+    },
+    "sumbypaymentmode_multiple": {
+      "map": "function (doc) {\n  if(doc.paymentMode == 'MULTIPLE' && doc.dateStamp){\n    var n = 0;\n    while(doc.paymentSplits[n]){\n      emit([doc.paymentSplits[n].code, doc.dateStamp], doc.paymentSplits[n].amount);\n      n++;\n    }\n    \n  }\n}",
+      "reduce": "_stats"
+    },
+    "sumbyextras": {
+      "map": "function (doc) {\n  if(doc.extras[0].name && doc.dateStamp){\n    var n = 0;\n    while(doc.extras[n]){\n      emit([doc.extras[n].name, doc.dateStamp], doc.extras[n].amount);\n      n++;\n    }\n  }\n}",
+      "reduce": "_stats"
+    },
+    "sumbyextras_custom": {
+      "map": "function (doc) {\n  if(doc.customExtras.type && doc.dateStamp){\n    emit([doc.customExtras.type, doc.dateStamp], doc.customExtras.amount);\n  }\n}",
+      "reduce": "_stats"
+    },
+    "sumbydiscounts": {
+      "map": "function (doc) {\n  if(doc.discount.type && doc.dateStamp){\n     emit([doc.discount.type, doc.dateStamp], doc.discount.amount);\n  }\n}\n",
+      "reduce": "_stats"
+    },
+    "grandtotal_discounts": {
+      "map": "function (doc) {\n  if(doc.dateStamp){\n     emit([doc.dateStamp], doc.discount.totalAmountPaid);\n  }\n}\n",
+      "reduce": "_stats"
+    },
+    "grandtotal_sales": {
+      "map": "function (doc) {\n  if(doc.discount.type && doc.dateStamp){\n     emit([doc.dateStamp], doc.discount.amount);\n  }\n}\n"
+    }
+  },
+  "language": "javascript"
+}

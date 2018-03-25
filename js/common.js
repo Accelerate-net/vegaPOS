@@ -30,6 +30,12 @@ function getFancyTime(time){
 }
 
 
+function getSummaryStandardDate(date){
+  //convert YYYY-MM-DD to YYYY-MM-DD
+  return moment(date, 'YYYY-MM-DD').format('YYYYMMDD')
+}
+
+
 //Returns today, and current time
 function getCurrentTime(type){
           
@@ -71,6 +77,8 @@ function getCurrentTime(type){
     if(type == 'DATE_DDMMYY')
       return dd+mm+yyyy;
 
+    if(type == 'DATE_YYYY-MM-DD')
+      return yyyy+'-'+mm+'-'+dd;
 
     if(type == 'DATE_STAMP')
       return yyyy+mm+dd;
