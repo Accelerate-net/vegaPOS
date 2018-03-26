@@ -1104,6 +1104,8 @@ function fetchDiscountSaleSummary(){
 
 
 		var graphData = [];
+		var total_Count = 0;
+		var total_Sum = 0;
 
 		document.getElementById("summaryRender_discountSummary").innerHTML = '';
 
@@ -1143,6 +1145,10 @@ function fetchDiscountSaleSummary(){
 				    		temp_sum = data.rows[0].value.sum;
 				    	}
 
+				    	total_Count += parseInt(temp_count);
+				    	total_Sum += parseFloat(temp_sum);
+				    	console.log(total_Count)
+
 				    	//beautify name
 				    	if(modes[0].name == 'COUPON'){modes[0].name = 'Coupons'}
 				    	if(modes[0].name == 'VOUCHER'){modes[0].name = 'Vouchers'}
@@ -1166,9 +1172,14 @@ function fetchDiscountSaleSummary(){
 
 						//Check if next mode exists...
 						if(modes[1]){
-							fetchDiscountSaleSummaryCallback(1, modes, fromDate, toDate, graphData);
+							fetchDiscountSaleSummaryCallback(1, modes, fromDate, toDate, graphData, total_Count, total_Sum);
 						}
 						else{
+				    		document.getElementById("summaryRender_discountSummary").innerHTML += '<tr class="summaryRowHighlight">'+
+														                                       '<td>Over All</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+total_Sum+'</td>'+
+														                                      '</tr> '
+
 							renderGraph_DiscountSummary(graphData);
 						}
 
@@ -1187,7 +1198,7 @@ function fetchDiscountSaleSummary(){
 
 
 
-function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphData){
+function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphData, total_Count, total_Sum){
 
 				  $.ajax({
 				    type: 'GET',
@@ -1202,6 +1213,9 @@ function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphD
 				    		temp_count = data.rows[0].value.count;
 				    		temp_sum = data.rows[0].value.sum;
 				    	}
+
+				    	total_Count += parseInt(temp_count);
+				    	total_Sum += parseFloat(temp_sum);
 				    	
 
 				    	//beautify name
@@ -1229,9 +1243,14 @@ function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphD
 
 						//Check if next mode exists...
 						if(modes[index+1]){
-							fetchDiscountSaleSummaryCallback(index+1, modes, fromDate, toDate, graphData);
+							fetchDiscountSaleSummaryCallback(index+1, modes, fromDate, toDate, graphData, total_Count, total_Sum);
 						}
 						else{
+							console.log(total_Count)
+							document.getElementById("summaryRender_discountSummary").innerHTML += '<tr class="summaryRowHighlight">'+
+														                                       '<td>Over All</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+total_Sum+'</td>'+
+														                                      '</tr> '
 							renderGraph_DiscountSummary(graphData)
 						}
 

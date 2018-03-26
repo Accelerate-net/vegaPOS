@@ -3,15 +3,6 @@
 */
 
 var COMMON_LOCAL_SERVER_IP = 'http://127.0.0.1:5984/';
-var CURRENT_SYSTEM_NAME = 'Alpha';
-
-
-function setSystemNameDisplay(){
-  document.getElementById("thisSystemName").innerHTML = CURRENT_SYSTEM_NAME;
-}
-
-setSystemNameDisplay();
-
 
 //To format the time in '' ago format
 function getFormattedTime(time){

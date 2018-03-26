@@ -84,13 +84,13 @@ function openSubMenuPhotos(subtype){
 function openPhotoOptions(name, item, type, category){
 	if(type == 'PHOTO_AVAILABLE'){ /* Photo Already Uploaded */
 		document.getElementById("photoOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+name+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="loadPhotoCropper(\''+item+'\', \''+name+'\', \''+category+'\', 1)">Change Photo</button> '+
-                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeItemPhoto(\''+item+'\', \''+category+'\')">Remove Photo</button> '+ 
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="loadPhotoCropper(\''+item+'\', \''+name+'\', \''+category+'\', 1)"><i class="fa fa-image" style=""></i><tag style="padding-left: 15px">Change Photo</tag></button> '+
+                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeItemPhoto(\''+item+'\', \''+category+'\')"><i class="fa fa-ban" style="color: #FFF"></i><tag style="padding-left: 15px">Remove Photo</tag></button> '+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hidePhotoOptions()">Close</button> ';
 	}
 	else if(type == 'PHOTO_NOT_AVAILABLE'){ /* No photo */
 		document.getElementById("photoOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+name+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="loadPhotoCropper(\''+item+'\', \''+name+'\', \''+category+'\', 0)">Upload Photo</button> '+ 
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="loadPhotoCropper(\''+item+'\', \''+name+'\', \''+category+'\', 0)"><i class="fa fa-image" style=""></i><tag style="padding-left: 15px">Upload Photo</tag></button> '+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hidePhotoOptions()">Close</button> ';
 	}
 

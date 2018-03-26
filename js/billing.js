@@ -1373,6 +1373,10 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef){
 
                           if(optionalPageRef == 'ORDER_PUNCHING'){
                             renderCustomerInfo();
+                            if(kotfile.orderDetails.modeType != 'DINE'){
+                              //Pop up bill settlement window
+                              settleBillAndPush(encodeURI(JSON.stringify(kotfile)), 'ORDER_PUNCHING');
+                            }
                           }
                           else if(optionalPageRef == 'LIVE_ORDERS'){
                             renderAllKOTs();
@@ -1484,7 +1488,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
               document.getElementById("billSettlementSplitDetailsContent").innerHTML = "";
 
               document.getElementById("billSettlementPreviewContentActions").innerHTML = '<div class="col-sm-4" style="padding: 0">'+
-                                                               '<button type="button" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Cancel</button>'+
+                                                               '<button type="button" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Not Now</button>'+
                                                             '</div>'+
                                                             '<div class="col-sm-8" style="padding: 0">'+
                                                                 '<button type="button" class="btn btn-success" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Confirm</button>'+
@@ -1600,10 +1604,10 @@ function renderSplitPayPart(optionalFocusCode){
   fullAmount = parseFloat(fullAmount);
 
   if(splitTotalAmount < fullAmount){
-    warningAmount = '<tag style="color: #f15959; font-weight: initial"> - '+(fullAmount-splitTotalAmount)+'</tag>';
+    warningAmount = '<tag style="color: #f15959; font-weight: initial"> - '+parseFloat(fullAmount-splitTotalAmount).toFixed(2)+'</tag>';
   }
   else if(splitTotalAmount > fullAmount){
-    warningAmount = '<tag style="color: #08ca08; font-weight: initial"> + '+(splitTotalAmount-fullAmount)+'</tag>';
+    warningAmount = '<tag style="color: #08ca08; font-weight: initial"> + '+parseFloat(splitTotalAmount-fullAmount).toFixed(2)+'</tag>';
   }
   else{
     warningAmount = '';
@@ -1617,8 +1621,8 @@ function renderSplitPayPart(optionalFocusCode){
                                                  '<div class="form-group" style="margin-bottom: 2px"> <p style="background: none; margin: 0; border: none; font-weight: bold; height: 43px; font-size: 24px; text-align: right;" class="form-control tip" />'+parseFloat(fullAmount).toFixed(2)+''+warningAmount+'</p> </div>'+
                                               '</div>'+
                                       '</div> '+
-                                      (splitTotalAmount < fullAmount ? '<p style="margin: 0; text-align: right; margin-right: 15px; font-size: 12px; color: #f15959;">Deficit amount of <i class="fa fa-inr"></i>'+(fullAmount-splitTotalAmount)+' will be marked as Round Off</p>' : '')+
-                                      (splitTotalAmount > fullAmount ? '<p style="margin: 0; text-align: right; margin-right: 15px; font-size: 12px; color: #08ca08;">Extra amount of <i class="fa fa-inr"></i>'+(splitTotalAmount-fullAmount)+' will be marked as Tips</p>' : '');
+                                      (splitTotalAmount < fullAmount ? '<p style="margin: 0; text-align: right; margin-right: 15px; font-size: 12px; color: #f15959;">Deficit amount of <i class="fa fa-inr"></i>'+parseFloat(fullAmount-splitTotalAmount).toFixed(2)+' will be marked as Round Off</p>' : '')+
+                                      (splitTotalAmount > fullAmount ? '<p style="margin: 0; text-align: right; margin-right: 15px; font-size: 12px; color: #08ca08;">Extra amount of <i class="fa fa-inr"></i>'+parseFloat(splitTotalAmount-fullAmount).toFixed(2)+' will be marked as Tips</p>' : '');
                                       
 
   if(!optionalFocusCode || optionalFocusCode == ''){
@@ -1677,6 +1681,8 @@ function hideSettleBillAndPush(){
 //settle bill and post to local server
 
 function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
+
+  console.log('LOADED')
 
     var bill = JSON.parse(decodeURI(encodedBill));
 
@@ -1798,7 +1804,8 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                 }
 
                 //re-render page
-                loadAllPendingSettlementBills('EXTERNAL'); 
+                if(optionalPageRef == 'GENERATED_BILLS')
+                  loadAllPendingSettlementBills('EXTERNAL'); 
 
               }
               else{

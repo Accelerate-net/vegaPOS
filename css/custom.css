@@ -3060,7 +3060,20 @@ position: absolute;
 }
 
 
+.smallResetButton{
+  cursor: pointer;
+  padding: 1px 3px; 
+  background: #ff6b81;
+  color: #FFF;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 400;
+  border-radius: 3px;
+}
 
+.smallResetButton:focus, .smallResetButton:active, .smallResetButton:hover{
+  background: #ff4757;
+}
 
 .paymentModeOptionSelected{
   cursor: pointer;
@@ -3080,6 +3093,34 @@ position: absolute;
     background: none;
     opacity: 1;
 }
+
+
+.deleteItemIcon{
+  width: 30px;
+  opacity: 0;
+  padding-left: 6px;
+  color: #ee5357;
+  cursor: pointer;
+}
+
+
+.deleteItemWrap:hover .deleteItemIcon{
+    background: none;
+    opacity: 1;
+}
+
+
+
+.specialPinkButton{
+  border-color: #b5383b;
+  background: #ee5357 !important;
+  color: #FFF !important;
+}
+
+.specialPinkButton:hover, .specialPinkButton:focus, .specialPinkButton:active{
+  background: #b5383b !important;
+}
+
 
 .billRowOtherCharges{
   background: #fcfcfc; 

@@ -33,6 +33,7 @@
                         <table style="width: 100%">
                           <col width="40%">
                           <col width="60%">
+
                           <tr>
                             <td style="vertical-align: middle; font-weight: bold;">Theme</td>
                             <td style="padding-top:10px">
@@ -85,6 +86,19 @@
                                    </div>                                   
 
                                 </div>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">System Name</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="changeSystemName()" style="font-size: 21px; border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; color: #ff4757; font-weight: 400;" id="edit_main_system_name" placeholder="Set System Name" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
                             </td>
                           </tr>
 
@@ -259,8 +273,8 @@
                             <td style="vertical-align: middle; font-weight: bold;">Passcode</td>
                             <td style="padding-top:10px;">
                                 <div class="form-group">
-                                  <button onclick="changePasscodeToNew()">Change</button>
-                                  <button onclick="recoveryPasscodeLogin()">Reset</button>
+                                  <button class="btn btn-sm btn-success" onclick="changePasscodeToNew()">Change</button>
+                                  <button class="btn btn-sm btn-danger" onclick="recoveryPasscodeLogin()">Reset</button>
                                 </div>
                             </td>
                           </tr>  

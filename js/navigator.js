@@ -100,7 +100,7 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('sales-summary', 'New Order');
+renderPage('system-settings', 'New Order');
 
 /*
 const ipc = require('electron').ipcRenderer;

@@ -136,9 +136,7 @@ function editItemPrice(encodedItem, inCateogry){
 
 	//removes cache
 	document.getElementById("extraChoicesArea").innerHTML = ''; 
-	document.getElementById("removeExtraChoiceButton").style.display = 'none';	 
-	
-
+	document.getElementById("removeExtraChoiceButton").style.display = 'none';	
 
 	var item = JSON.parse(decodeURI(encodedItem));
 
@@ -149,6 +147,44 @@ function editItemPrice(encodedItem, inCateogry){
 	document.getElementById("editItemPriceModalTitle").innerHTML = 'Edit <b>'+item.name+'</b>';
 	document.getElementById("editPriceModalActions").innerHTML = '<button type="button" class="btn btn-default" onclick="hideEditMenuItemPrice()" style="float: left">Cancel</button>'+
                   												   '<button type="button" onclick="reviewItemPrice(\''+inCateogry+'\')" class="btn btn-success">Save</button>';
+
+    //Check if More Options already added
+    if((item.cookingTime && item.cookingTime != '') || (item.ingredients && item.ingredients.length > 0) || (item.shortCode && item.shortCode != '')){
+
+    	document.getElementById("edit_moreOptionsArea").style.display = 'block';
+    	
+    	if(item.shortCode && item.shortCode != ''){
+    		document.getElementById("edit_more_options_customCode").value = item.shortCode;
+    	}
+    	else{
+    		document.getElementById("edit_more_options_customCode").value = '';
+    	}
+
+    	if(item.cookingTime && item.cookingTime != ''){
+    		document.getElementById("edit_more_options_cookingTime").value = item.cookingTime;
+    	}
+    	else{
+    		document.getElementById("edit_more_options_cookingTime").value = '';
+    	}
+
+    	if(item.ingredients && item.ingredients.length > 0){
+    		document.getElementById("edit_more_options_ingredients").value = (item.ingredients).toString();
+    		document.getElementById("edit_ingredientsResetButton").style.display = 'inline-block';
+    	}
+    	else{
+    		document.getElementById("edit_more_options_ingredients").value = '';
+    		edit_addMoreOptions('RELOAD');
+    	}
+
+		document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button>';
+    }
+    else{
+    	document.getElementById("edit_moreOptionsArea").style.display = 'none';
+    	document.getElementById("edit_more_options_customCode").value = '';
+    	document.getElementById("edit_more_options_cookingTime").value = '';
+    	document.getElementById("edit_more_options_ingredients").value = '';
+    	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>';
+    }
 	
 	if(item.isCustom){
 			for(var i=1; i<=item.customOptions.length; i++){
@@ -304,8 +340,8 @@ function openSubMenu(menuCategory){
 							}
 
 							itemsInCategory = itemsInCategory + '<tr>'+
-							                                       '<td>'+mastermenu[i].items[j].name+'</td>'+
-							                                       '<td><button class="btn btn-sm itemPriceTag" onclick="editItemPrice(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-inr"></i> '+mastermenu[i].items[j].price+'</button></td>'+
+							                                       '<td class="deleteItemWrap">'+mastermenu[i].items[j].name+'<tag class="deleteItemIcon" onclick="deleteItemFromMenu(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-minus-circle"></i></tag></td>'+
+							                                       '<td><button class="btn btn-sm itemPriceTag" onclick="editItemPrice(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-inr"></i>'+mastermenu[i].items[j].price+'</button></td>'+
 							                                       '<td>'+availabilityTag+'</td>'+
 							                                    '</tr>';
 				
@@ -385,6 +421,72 @@ function openSubMenu(menuCategory){
 	document.getElementById("menuDetailsArea").style.display = "block";
 }
 
+function deleteItemFromMenu(encodedItem, categoryName){
+
+	var item = JSON.parse(decodeURI(encodedItem));
+
+    /*to find the latest item code*/
+    if (fs.existsSync('./data/static/mastermenu.json')) {
+        fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data) {
+            if (err) {
+                showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
+            } else {
+                if (data == '') {
+                    data = '[]';
+                }
+                var mastermenu = JSON.parse(data);
+
+                console.log(mastermenu)
+
+                var n = 0;
+                while(mastermenu[n]){
+                	if(mastermenu[n].category == categoryName){
+						
+						var m = 0;
+						while(mastermenu[n].items[m]){
+							if(mastermenu[n].items[m].code == item.code){
+								mastermenu[n].items.splice(m,1);
+								deleteItemFromMenuAfterProcess(encodedItem, categoryName, mastermenu);
+								break;
+							}
+							m++;
+						}
+
+                		break;
+                	}
+                	n++;
+                }
+
+
+            }
+
+        });
+
+    } else {
+        showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
+    }
+
+}
+
+function deleteItemFromMenuAfterProcess(encodedItem, categoryName, newMenuObj){
+
+	   var item = JSON.parse(decodeURI(encodedItem));
+       
+       var newjson = JSON.stringify(newMenuObj);
+       fs.writeFile('./data/static/mastermenu.json', newjson, 'utf8', (err) => {
+         if(err){
+            showToast('System Error: Unable to make changes in Categories data. Please contact Accelerate Support.', '#e74c3c');
+         }
+         else{
+         	openSubMenu(categoryName);
+         	showUndo('<b>'+item.name+'</b> was deleted', 'saveEncodedItemToFile(\''+categoryName+'\', \''+encodedItem+'\')');
+         }
+          
+       }); 
+	
+}
+
+
 function hideNewBill(){
 	
 	document.getElementById("newBillArea").style.display = "none";
@@ -409,6 +511,7 @@ function hideNewMenuCategory(){
 /* Modal - New Item*/
 function openNewMenuItem(category){
 	/* removes previous cache */
+	removeMoreOptions();
 	document.getElementById("newItemChoicesArea").innerHTML = ""; 
 	document.getElementById("new_item_choice_count").value = 0;
 	document.getElementById("new_item_price").disabled = false;
@@ -431,11 +534,157 @@ function hideNewMenuItem(){
 	document.getElementById("newMenuItemModal").style.display = "none";
 }
 
+/*view more options*/
+function addMoreOptions(optionalSource){
+
+	document.getElementById("moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="removeMoreOptions()">Remove Options</button>';
+	
+	document.getElementById("moreOptionsArea").style.display = 'block';
+
+	if(optionalSource && optionalSource == 'RESET'){
+		document.getElementById("more_options_ingredients").value = '';
+		document.getElementById("ingredientsResetButton").style.display = 'none';
+	}
+	else{
+		document.getElementById("more_options_cookingTime").value = '';
+		document.getElementById("more_options_customCode").value = '';
+		document.getElementById("more_options_ingredients").value = '';
+		$("#more_options_customCode").focus();
+	}
+
+
+    if(fs.existsSync('./data/static/cookingingredients.json')) {
+        fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
+      if (err){
+          showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      } else {
+
+          if(data == ''){ data = '[]'; }
+
+              var modes = JSON.parse(data);
+              modes.sort(); //alphabetical sorting 
+
+              var modesTag = '';
+
+		        for (var i=0; i<modes.length; i++){
+		          modesTag = modesTag + '<tag class="extrasSelButton" onclick="addIngredientToInput(\''+modes[i]+'\', \'ingredient_'+i+'\')" id="ingredient_'+i+'">'+modes[i]+'</tag>';
+		        }
+
+		        if(!modesTag){
+		            document.getElementById("ingredientsList").innerHTML = '<i>*Please update <b style="cursor: pointer" onclick="openOtherSettings(\'ingredientsList\')">Cooking Ingredient List</b> first.</i>';
+		        }
+		        else{            
+		            document.getElementById("ingredientsList").innerHTML = 'Ingredients List: '+modesTag;
+		        }
+    }
+    });
+      } else {
+        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      } 
+
+}
+
+function addIngredientToInput(name, id){
+
+  document.getElementById("ingredientsResetButton").style.display = 'inline-block';
+
+  if(document.getElementById("more_options_ingredients").value == "" || document.getElementById("more_options_ingredients").value == "Choose from below list"){
+    document.getElementById("more_options_ingredients").value = name;
+  }
+  else{
+    document.getElementById("more_options_ingredients").value = document.getElementById("more_options_ingredients").value + ',' +name;
+  }
+
+  document.getElementById(id).style.display = "none";
+}
+
+
+/*view more options - EDIT */
+function edit_addMoreOptions(optionalSource){
+
+	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button>';
+
+	document.getElementById("edit_moreOptionsArea").style.display = 'block';
+
+	if(optionalSource && optionalSource == 'RESET'){
+		document.getElementById("edit_more_options_ingredients").value = '';
+		document.getElementById("edit_ingredientsResetButton").style.display = 'none';
+	}
+	else if(optionalSource && optionalSource == 'RELOAD'){
+		document.getElementById("edit_ingredientsResetButton").style.display = 'inline-block';
+	}
+	else{
+		document.getElementById("edit_more_options_cookingTime").value = '';
+		document.getElementById("edit_more_options_customCode").value = '';
+		document.getElementById("edit_more_options_ingredients").value = '';
+		$("#edit_more_options_customCode").focus();
+	}
+
+
+    if(fs.existsSync('./data/static/cookingingredients.json')) {
+        fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
+      if (err){
+          showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      } else {
+
+          if(data == ''){ data = '[]'; }
+
+              var modes = JSON.parse(data);
+              modes.sort(); //alphabetical sorting 
+
+
+              var modesTag = '';
+
+		        for (var i=0; i<modes.length; i++){
+		          modesTag = modesTag + '<tag class="extrasSelButton" onclick="edit_addIngredientToInput(\''+modes[i]+'\', \'edit_ingredient_'+i+'\')" id="edit_ingredient_'+i+'">'+modes[i]+'</tag>';
+		        }
+
+		        if(!modesTag){
+		            document.getElementById("edit_ingredientsList").innerHTML = '<i>*Please update <b style="cursor: pointer" onclick="openOtherSettings(\'ingredientsList\')">Cooking Ingredient List</b> first.</i>';
+		        }
+		        else{            
+		            document.getElementById("edit_ingredientsList").innerHTML = 'Ingredients List: '+modesTag;
+		        }
+    }
+    });
+      } else {
+        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      } 
+
+}
+
+function edit_addIngredientToInput(name, id){
+
+  document.getElementById("edit_ingredientsResetButton").style.display = 'inline-block';
+
+  if(document.getElementById("edit_more_options_ingredients").value == "" || document.getElementById("edit_more_options_ingredients").value == "Choose from below list"){
+    document.getElementById("edit_more_options_ingredients").value = name;
+  }
+  else{
+    document.getElementById("edit_more_options_ingredients").value = document.getElementById("edit_more_options_ingredients").value + ',' +name;
+  }
+
+  document.getElementById(id).style.display = "none";
+}
+
+
+
+
+
+function removeMoreOptions(){
+	document.getElementById("ingredientsResetButton").style.display = 'none';
+	document.getElementById("moreOptionsArea").style.display = 'none';
+	document.getElementById("moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default" onclick="addMoreOptions()">More Options</button>';
+}
+
+function edit_removeMoreOptions(){
+	document.getElementById("edit_ingredientsResetButton").style.display = 'none';
+	document.getElementById("edit_moreOptionsArea").style.display = 'none';
+	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>';	
+}
 
 /* add new choice*/
-function addChoice(){
-
-	
+function addChoice(){	
 
 	if(!document.getElementById("newItemChoicesArea").innerHTML){
 		document.getElementById("new_item_price").value = '';
@@ -539,8 +788,6 @@ function validateMenuItem(item){
 
 function saveItemToFile(category, item, editFlag) {
 
-
-
     /*to find the latest item code*/
     if (fs.existsSync('./data/static/mastermenu.json')) {
         fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data) {
@@ -562,8 +809,9 @@ function saveItemToFile(category, item, editFlag) {
                         }
                     }
 
-                    item.code = lastKey + 1;
+                    item.code = parseInt(lastKey) + 1;
                 }
+
 
 
                 //Proceed to Save
@@ -622,7 +870,6 @@ function saveItemToFile(category, item, editFlag) {
                                         showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
                                     } else {
                                         showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
-                                        console.log('Adding item.. DONE!')
 
                                     }
 
@@ -741,12 +988,230 @@ function saveItemToFile(category, item, editFlag) {
 
 
 
+function saveEncodedItemToFile(category, encodedItem) { //Custom function for Undo Delete
+
+	var item = JSON.parse(decodeURI(encodedItem));
+	var editFlag = false;
+
+    /*to find the latest item code*/
+    if (fs.existsSync('./data/static/mastermenu.json')) {
+        fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data) {
+            if (err) {
+                showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
+            } else {
+                if (data == '') {
+                    data = '[]';
+                }
+                var mastermenu = JSON.parse(data);
+                var lastKey = 0; //To generate the item code
+
+                if (!editFlag) {
+                    for (var i = 0; i < mastermenu.length; i++) {
+                        for (var j = 0; j < mastermenu[i].items.length; j++) {
+                            if (mastermenu[i].items[j].code > lastKey) {
+                                lastKey = mastermenu[i].items[j].code;
+                            }
+                        }
+                    }
+
+                    item.code = parseInt(lastKey) + 1;
+                }
+
+
+
+                //Proceed to Save
+
+                /*begin save*/
+
+
+                /*beautify item price if Custom item*/
+                if (item.isCustom) {
+                    var min = 0;
+                    var max = 0;
+                    var i = 0;
+                    while (item.customOptions[i]) {
+                        if (i == 0) {
+                            min = item.customOptions[i].customPrice;
+                        }
+
+                        if (max < item.customOptions[i].customPrice) {
+                            max = item.customOptions[i].customPrice;
+                        }
+
+                        if (min > item.customOptions[i].customPrice) {
+                            min = item.customOptions[i].customPrice;
+                        }
+
+                        i++;
+                    }
+
+                    if (min < max) {
+                        item.price = min + '-' + max;
+                    } else {
+                        item.price = max;
+                    }
+
+                }
+
+
+                if (fs.existsSync('./data/static/mastermenu.json')) {
+                    fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data) {
+
+                        if (err) {
+                            showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+                        } else {
+                            if (data == "") {
+                                var obj = []
+                                var menuitem = []
+                                menuitem.push(item)
+                                obj.push({
+                                    "category": category,
+                                    "items": menuitem
+                                }); //add some data
+
+                                json = JSON.stringify(obj); //convert it back to json
+                                fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
+                                    if (err) {
+                                        showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
+                                    } else {
+                                        showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+
+                                    }
+
+                                });
+                            } else {
+                                var flag = 0; //Category exists or not
+                                if (data == '') {
+                                    data = '[]';
+                                }
+                                var obj = JSON.parse(data); //now it an object
+
+                                for (var i = 0; i < obj.length; i++) {
+                                    if (obj[i].category == category) {
+                                        flag = 1;
+                                        break;
+                                    }
+                                }
+                                if (flag == 1) { //category exists
+                                    var dupflag = 0;
+   
+                                    for (var j = 0; j < obj[i].items.length; j++) {
+                                        if (obj[i].items[j].code == item.code) {
+                                            dupflag = 1;
+                                            break;
+                                        }
+                                    }
+
+                                    if (dupflag == 1) {
+                                        if (editFlag) { //Found
+                                        	
+                                            obj[i].items[j] = item
+                                            json = JSON.stringify(obj); //convert it back to json
+                                            fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
+                                                if (err) {
+                                                    showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
+                                                } else {
+                                                    showToast(item.name + ' is added to the Menu.', '#27ae60');
+                                                    openSubMenu(category);
+                                                }
+
+                                            });
+                                        } else {
+                                            showToast('Warning: Item Code already exists. Please choose a different code.', '#e67e22');
+                                        }
+
+                                    } else {
+                                    	obj[i].items[j] = item;
+                                        var json = JSON.stringify(obj); //convert it back to json
+                                       
+                                        fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
+                                        	
+                                            if (err) {
+                                                showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
+                                            } else {
+                                            	
+                                                showToast(item.name + ' is added to the Menu.', '#27ae60');
+                                                openSubMenu(category);
+                                            }
+
+                                        });
+                                    }
+
+                                } else { //no category found -> create one and then save
+                                    var menuitem = []
+                                    menuitem.push(item)
+
+                                    obj.push({
+                                        "category": category,
+                                        "items": menuitem
+                                    }); //add some data
+                                    json = JSON.stringify(obj); //convert it back to json
+                                    fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
+                                        if (err) {
+                                            showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
+                                        } else {
+                                            showToast(item.name + ' is added to the Menu.', '#27ae60');
+                                            openSubMenu(category);
+                                        }
+                                    });
+                                }
+
+                            }
+
+                        }
+                    });
+                } else {
+                    //var itemjson = JSON.stringify(item);
+                    var menuitem = []
+                    menuitem.push(item)
+                    obj.push({
+                        "category": category,
+                        "items": menuitem
+                    });
+                    var json = JSON.stringify(obj);
+                    fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
+                        if (err) {
+                            showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
+                        } else {
+                            showToast(item.name + ' is added to the Menu.', '#27ae60');
+                            openSubMenu(category);
+                        }
+                    });
+                }
+
+                /* end of save*/
+
+            }
+
+        });
+
+    } else {
+        showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
+    }
+}
+
+
+
+
+
 function readNewItem(category){
 	var item = {};
 	item.name = document.getElementById("new_item_name").value;
 	item.price = document.getElementById("new_item_price").value;
 	item.isCustom = document.getElementById("new_item_choice_count").value > 0 ? true: false;
 
+	if(document.getElementById("more_options_customCode") && document.getElementById("more_options_customCode").value != ''){
+		item.shortCode = document.getElementById("more_options_customCode").value;
+	}
+
+	if(document.getElementById("more_options_cookingTime") && document.getElementById("more_options_cookingTime").value != ''){
+		item.cookingTime = parseInt(document.getElementById("more_options_cookingTime").value);
+	}
+
+	if(document.getElementById("more_options_ingredients") && document.getElementById("more_options_ingredients").value != ''){
+		 var tempList = document.getElementById("more_options_ingredients").value;
+		 item.ingredients = tempList.split(',');
+	}
 
 	if(item.isCustom){
 		var custom = [];
@@ -779,6 +1244,49 @@ function reviewItemPrice(category){
 	item.price = document.getElementById("item_main_price").value;
 	item.code = document.getElementById("item_main_code_secret").value;
 
+	//if more options is removed
+	if(document.getElementById("edit_moreOptionsArea").style.display == 'none'){
+		if(item.shortCode){
+			delete item.shortCode;
+		}	
+		if(item.cookingTime){
+			delete item.cookingTime;
+		}	
+		if(item.ingredients){
+			delete item.ingredients;
+		}
+	}
+	else{
+		//other cases
+		if(document.getElementById("edit_more_options_customCode") && document.getElementById("edit_more_options_customCode").value != ''){
+			item.shortCode = document.getElementById("edit_more_options_customCode").value;
+		}
+		else{
+			if(item.shortCode){
+				delete item.shortCode;
+			}
+		}
+
+		if(document.getElementById("edit_more_options_cookingTime") && document.getElementById("edit_more_options_cookingTime").value != ''){
+			item.cookingTime = document.getElementById("edit_more_options_cookingTime").value;
+		}
+		else{
+			if(item.cookingTime){
+				delete item.cookingTime;
+			}
+		}
+	
+		if(document.getElementById("edit_more_options_ingredients") && document.getElementById("edit_more_options_ingredients").value != ''){
+			 var tempList = document.getElementById("edit_more_options_ingredients").value;
+			 item.ingredients = tempList.split(',');
+		}
+		else{
+			if(item.ingredients){
+				delete item.ingredients;
+			}
+		}
+	}
+
 		var custom = [];
 		var i = 1;
 		while($("#edit_choiceName_"+i).length != 0){
@@ -792,6 +1300,8 @@ function reviewItemPrice(category){
 
 	/* VALIDATE BEFORE ADDING TO DATA FILE */
 	var response = validateMenuItem(item);
+
+	console.log(item)
 
 	if(response.status){
 		item.isAvailable = true;
@@ -938,7 +1448,7 @@ function deleteCategory(name) {
        } else {
        	if(data == ''){ data = '[]'; }
        var obj = JSON.parse(data); //now it an object
-       //console.log(obj.length)
+
        for (var i=0; i<obj.length; i++) {  
          if (obj[i] == name){
             obj.splice(i,1);

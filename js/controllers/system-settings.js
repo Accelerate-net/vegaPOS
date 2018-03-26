@@ -61,6 +61,9 @@ function renderPersonalisations(){
             else if(params[i].name == "virtualKeyboard"){
               document.getElementById("personalisationEditKeyboard").value = params[i].value;
             }
+            else if(params[i].name == "systemName"){
+              document.getElementById("edit_main_system_name").value = params[i].value;
+            }
             else if(params[i].name == "screenLockOptions"){
               if(params[i].value == 'SCREENSAVER' || params[i].value == 'LOCKSCREEN'){
                 document.getElementById("personalisationInactiveScreen").value = params[i].value;
@@ -247,6 +250,20 @@ function changePersonalisationLock(){
 
   initScreenSaver();
 }
+
+
+function changeSystemName(){
+  var newValue = document.getElementById("edit_main_system_name").value;
+  if(newValue == ''){
+    showToast('Warning: System Name can not be left blank', '#e67e22');
+    return '';
+  }
+
+  document.getElementById("thisSystemName").innerHTML = newValue;
+  window.localStorage.appCustomSettings_SystemName = newValue;
+  changePersonalisationFile('systemName', newValue);
+}
+
 
 
 function changePersonalisationIdleDuration(){
