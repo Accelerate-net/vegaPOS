@@ -83,7 +83,7 @@ function fetchSalesSummary() {
 				    	else{
 				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
 														                                       '<td>Over All</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+grandSum+'</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
 														                                      '</tr> '
 							renderGraph_SalesSummary(graphData);
 				    	}
@@ -135,7 +135,7 @@ function fetchSalesSummaryCallback(index, modes, fromDate, toDate, grandSum, gra
 				    	else{
 				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
 														                                       '<td>Over All</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+grandSum+'</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
 														                                      '</tr> '
 							renderGraph_SalesSummary(graphData);
 				    	}
@@ -1177,7 +1177,7 @@ function fetchDiscountSaleSummary(){
 						else{
 				    		document.getElementById("summaryRender_discountSummary").innerHTML += '<tr class="summaryRowHighlight">'+
 														                                       '<td>Over All</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+total_Sum+'</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(total_Sum).toFixed(2)+'</td>'+
 														                                      '</tr> '
 
 							renderGraph_DiscountSummary(graphData);
@@ -1249,7 +1249,7 @@ function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphD
 							console.log(total_Count)
 							document.getElementById("summaryRender_discountSummary").innerHTML += '<tr class="summaryRowHighlight">'+
 														                                       '<td>Over All</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+total_Sum+'</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(total_Sum).toFixed(2)+'</td>'+
 														                                      '</tr> '
 							renderGraph_DiscountSummary(graphData)
 						}

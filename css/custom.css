@@ -191,6 +191,117 @@ html, body {
     background-color: #1abc9c;
 }
 
+/*Choose Billing Mode*/
+
+
+.chosenModeButton {
+    width: 100%;
+    background: #40739e;
+    color: #FFF;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    border: 1px solid #487eb0;
+    cursor: pointer;
+    font-weight: 400;
+    text-transform: none;
+}
+
+.chosenModeButton:focus{
+  outline: none !important;
+}
+
+.chosenModeDropdown {
+
+}
+
+.chosenModeDropdown-content {
+    margin-top: 5px;
+    display: none;
+    border: 3px solid #40739e;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 320px;
+    max-width: 420px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+
+}
+
+.chosenModeDropdownArea{
+    max-height: 60vh !important;
+    overflow: auto;
+}
+
+.chosenModeDropdown-content a {
+    font-size: 14px;
+    text-align: left;
+    border-bottom: 1px solid #e2e2e2;
+    color: #444;
+    padding: 6px 10px;
+    text-decoration: none;
+    font-weight: 400;
+    text-transform: none;
+    display: block;
+    min-height: 60px;
+}
+
+.selected, .currentActiveMode, .chosenModeDropdown-content a:hover {
+  background-color: #487eb0;
+  color: #FFF;
+}
+/*
+.chosenModeDropdown:hover .chosenModeButton {
+    background-color: #487eb0;
+}
+*/
+.chosenModeDropdownModeName{
+  font-size: 15px; text-overflow:ellipsis; 
+  margin-bottom: 2px;
+  color: #40739e;
+  overflow:hidden; white-space:nowrap; font-weight: 600;
+}
+
+.selected .chosenModeDropdownModeName, .currentActiveMode .chosenModeDropdownModeName, .chosenModeDropdown-content a:hover .chosenModeDropdownModeName{
+  color: #FFF;
+}
+
+.chosenModeDropdownMinimumBill{
+  float: right; font-size: 12px; font-weight: 400; color: #484848;
+}
+
+.selected .chosenModeDropdownMinimumBill, .currentActiveMode .chosenModeDropdownMinimumBill, .chosenModeDropdown-content a:hover .chosenModeDropdownMinimumBill{
+  color: #FFF;
+}
+
+.chosenModeDropdownBrief{
+  margin: 0; color: #a0a0a0; 
+  font-size: 11px;
+  text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+}
+
+.selected .chosenModeDropdownBrief, .currentActiveMode .chosenModeDropdownBrief, .chosenModeDropdown-content a:hover .chosenModeDropdownBrief{
+  color: #e4e4e4;
+}
+
+.modeTypeLabel{
+    color: #a0a0a0;
+    font-weight: 600;
+    float: left;
+
+}
+
+
+.currentActiveMode .modeTypeLabel, .chosenModeDropdown-content a:hover .modeTypeLabel{
+  color: #e4e4e4;
+}
+
+
+
+
+
+
+
 
 
 /* Hold List*/
@@ -201,8 +312,8 @@ html, body {
     background: #f39c12;
     position: relative;
     color: #FFF;
-    padding: 4px;
-    border-radius: 4px;
+    padding: 4px 6px;
+    border-radius: 2px;
     font-size: 14px;
     border: none;
     cursor: pointer;
