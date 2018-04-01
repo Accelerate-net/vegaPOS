@@ -102,14 +102,3 @@ function renderPage(pageReference, title){
 //Default View
 renderPage('new-order', 'New Order');
 
-/*
-const ipc = require('electron').ipcRenderer;
-const printPDFButton = document.getElementById("print-pdf");
-
-printPDFButton.addEventListener('click', function(event){
-	console.log(event)
-	ipc.send('print-to-pdf');
-});
-*/
-
-/* Printer */

@@ -2244,7 +2244,11 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
               if(err){
 				showToast('System Error: Unable to generate KOT. Please contact Accelerate Support.', '#e74c3c');
               }
-              else{          
+              else{  
+              	
+              	//Send KOT for Printing
+              	sendToPrinter(kot, 'KITCHEN')
+
               	if(orderMetaInfo.modeType == 'DINE'){
               		addToTableMapping(obj.table, kot, obj.customerName);
               		showToast('#'+kot+' generated Successfully', '#27ae60');
