@@ -10,8 +10,8 @@ Table Status
 /*Open/Close Options*/
 function openFreeSeatOptions(tableID){
 	document.getElementById("freeSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableID+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="punchNewOrder(\''+tableID+'\')">Punch New Order</button>'+ 
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="addToReserveListConsent(\''+tableID+'\')">Reserve this Table</button>'+  
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="punchNewOrder(\''+tableID+'\')"><i class="fa fa-plus" style=""></i><tag style="padding-left: 15px">Punch New Order</tag></button>'+ 
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="addToReserveListConsent(\''+tableID+'\')"><i class="fa fa-male" style=""></i><tag style="padding-left: 15px">Reserve this Table</tag></button>'+  
                   '<button class="btn btn-default tableOptionsButton" onclick="hideFreeSeatOptions()">Close</button>';
 	document.getElementById("freeSeatOptionsModal").style.display ='block';
 }
@@ -24,8 +24,8 @@ function hideFreeSeatOptions(){
 
 function openReservedSeatOptions(tableID){
 	document.getElementById("reservedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Reserved Table <b>'+tableID+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="punchNewOrder(\''+tableID+'\')">Punch New Order</button>'+ 
-                  '<button class="btn btn-primary tableOptionsButtonBig" onclick="removeFromReserveList(\''+tableID+'\')">Free this Table</button>'+  
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="punchNewOrder(\''+tableID+'\')"><i class="fa fa-plus" style=""></i><tag style="padding-left: 15px">Punch New Order</tag></button>'+ 
+                  '<button class="btn btn-primary tableOptionsButtonBig" onclick="removeFromReserveList(\''+tableID+'\')"><i class="fa fa-check-square-o" style=""></i><tag style="padding-left: 15px">Free this Table</tag></button>'+  
                   '<button class="btn btn-default tableOptionsButton" onclick="hideReservedSeatOptions()">Close</button>';
 	document.getElementById("reservedSeatOptionsModal").style.display ='block';
 }
@@ -43,15 +43,15 @@ function openOccuppiedSeatOptions(tableInfo){
 
 	if(tableData.status == 1){ /* Not Billed */
 		document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="editOrderKOT(\''+tableData.KOT+'\')">Edit Order #'+tableData.KOT+'</button> '+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\'); hideOccuppiedSeatOptions();">Generate Bill</button> '+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="mergeDifferentBills(\''+tableData.table+'\')">Merge Orders</button> '+
-                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelOrderKOT(\''+tableData.KOT+'\')">Cancel Order</button> '+ 
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="editOrderKOT(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="mergeDifferentBills(\''+tableData.table+'\')"><i class="fa fa-compress" style=""></i><tag style="padding-left: 15px">Merge Orders</tag></button> '+
+                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelOrderKOT(\''+tableData.KOT+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
 	}
 	else if(tableData.status == 2){ /* Billed */
 		document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="settlePrintedBill(\''+tableData.KOT+'\')">Settle Bill</button> '+ 
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="settlePrintedBill(\''+tableData.KOT+'\')"><i class="fa fa-credit-card" style=""></i><tag style="padding-left: 15px">Settle Bill</tag></button> '+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
 	}
 
@@ -112,6 +112,7 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 }
 
 function removeOtherKOTS(kotList){ /*TWEAK*/
+	
 	            var h = 1; //Do not count first KOT
               	while(kotList[h]){
               		if(fs.existsSync('./data/KOT/'+kotList[h]+'.json')) {
@@ -180,10 +181,15 @@ function punchNewOrder(tableID){
 }
 
 function addToReserveListConsent(tableID){
+
+	hideFreeSeatOptions();
+	
 	document.getElementById("addToReservedConsentModal").style.display = 'block';
 	document.getElementById("addToReserveListConsentButton").innerHTML = '<button type="button" onclick="addToReserveList(\''+tableID+'\')" class="btn btn-success">Proceed and Reserve</button>';
 	document.getElementById("addToReserveListConsentTitle").innerHTML = "Reserve Table #"+tableID;
 	document.getElementById("reserve_table_in_the_name_of").value = '';
+
+	$('#reserve_table_in_the_name_of').focus();
 }
 
 function addToReserveListConsentClose(){

@@ -19,7 +19,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}
 		case 'live-orders':{
-			renderKOT();
+			renderAllKOTs();
 			break;
 		}
 		case 'online-orders':{
@@ -27,8 +27,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}
 		case 'settled-bills':{
-			loadAllSettledBills();
-			loadAllPendingSettlementBills();
+			loadAllPendingSettlementBills('EXTERNAL');
 			break;
 		}	
 		case 'seating-status':{
@@ -40,7 +39,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}				
 		case 'sales-summary':{
-
+			setSummaryDateRange();
 			break;
 		}
 		case 'manage-menu':{
@@ -101,15 +100,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('settled-bills', 'New Order');
+renderPage('new-order', 'New Order');
 
-
-const ipc = require('electron').ipcRenderer;
-const printPDFButton = document.getElementById("print-pdf");
-
-printPDFButton.addEventListener('click', function(event){
-	console.log(event)
-	ipc.send('print-to-pdf');
-});
-
-/* Printer */

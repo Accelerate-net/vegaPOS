@@ -47,6 +47,12 @@ function applyPersonalisations(){
               /*update localstorage*/             
               window.localStorage.appCustomSettings_Keyboard = tempVal;
             }
+            else if(params[i].name == "systemName"){
+              var tempVal = params[i].value;
+              
+              /*update localstorage*/             
+              window.localStorage.appCustomSettings_SystemName = tempVal;
+            }
             else if(params[i].name == "screenLockOptions"){
               var tempVal = params[i].value;
               
@@ -80,6 +86,22 @@ function applyPersonalisations(){
 }
 
 applyPersonalisations();
+
+
+
+function applySystemName(){
+  if(window.localStorage.appCustomSettings_SystemName && window.localStorage.appCustomSettings_SystemName != ''){
+    document.getElementById("thisSystemName").innerHTML = window.localStorage.appCustomSettings_SystemName;
+  }
+  else{
+    window.localStorage.appCustomSettings_SystemName = 'No Name System';
+    document.getElementById("thisSystemName").innerHTML = 'No Name System';
+  }
+}
+
+applySystemName();
+
+
 
 /*Start Up Sound*/
 //playNotificationSound('STARTUP');
@@ -703,7 +725,7 @@ function renderCurrentUserDisplay(){
   }
 
   if(loggedInStaffInfo.name != '' && loggedInStaffInfo.code != ''){
-    document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: bold">'+loggedInStaffInfo.name+'</span>';
+    document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: 400">'+loggedInStaffInfo.name+'</span>';
   }
   else{
     document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/default_user.png" class="user-image" alt="Avatar" /> <span>Profile Not Selected</span>';

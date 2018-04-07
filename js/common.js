@@ -4,9 +4,6 @@
 
 var COMMON_LOCAL_SERVER_IP = 'http://127.0.0.1:5984/';
 
-
-
-
 //To format the time in '' ago format
 function getFormattedTime(time){
     var tempTime = moment(time, 'hhmm').fromNow(true);
@@ -21,6 +18,12 @@ function getFormattedTime(time){
 
 function getFancyTime(time){
   return moment(time, 'hhmm').format('hh:mm A')
+}
+
+
+function getSummaryStandardDate(date){
+  //convert YYYY-MM-DD to YYYY-MM-DD
+  return moment(date, 'YYYY-MM-DD').format('YYYYMMDD')
 }
 
 
@@ -64,7 +67,26 @@ function getCurrentTime(type){
 
     if(type == 'DATE_DDMMYY')
       return dd+mm+yyyy;
+
+    if(type == 'DATE_YYYY-MM-DD')
+      return yyyy+'-'+mm+'-'+dd;
+
+    if(type == 'DATE_STAMP')
+      return yyyy+mm+dd;
 	 
+}
+
+
+
+function random_rgba_color_set() {
+
+    var o = Math.round;
+    var r = Math.random;
+    var s = 255;
+
+    var color = o(r()*s) + ',' + o(r()*s) + ',' + o(r()*s);
+
+    return ['rgba('+color+', 0.2)', 'rgba('+color+', 1)'];
 }
 
 

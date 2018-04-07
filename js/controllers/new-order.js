@@ -227,7 +227,7 @@ function renderCart(){
 
 	          	var params = JSON.parse(data);
 
-	          	var selectedModeExtrasList = (selectedBillingModeInfo.extras).split(",");
+	          	var selectedModeExtrasList = selectedBillingModeInfo.extras ? (selectedBillingModeInfo.extras).split(",") : [];
 	          	var cartExtrasList = [];
 
 	          	var n = 0;
@@ -565,7 +565,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGnerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;">Print Bill</button>'+
+	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;">Print Bill</button>'+
 	                        '</div>'+                            
 	                     '</div>';
  		}
@@ -636,7 +636,7 @@ function undoChangesInKOT(){
 }
 
 
-function compareChangesAndGnerateBillFromKOT(kotID, optionalPageRef){
+function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
 
 	/*
 		Proceed to bill generation only if,
@@ -1151,7 +1151,6 @@ function hideClearCartModal(){
 /*customer info*/
 function renderCustomerInfo(){
 
-
 	var addressOptionsAvailable = false;
 	var addressObj; 
 	var userInfoAutoFound;
@@ -1273,6 +1272,7 @@ function renderCustomerInfo(){
 	          	billingModesInfo = JSON.parse(data);
 	          	billingModesInfo.sort(); //alphabetical sorting 
 
+
 	          	window.localStorage.billingModesData = data; /*For cart rendering purpose*/
 	          	
 				/*Billing modes not set or not rendering*/
@@ -1292,13 +1292,34 @@ function renderCustomerInfo(){
 				}
 				else{
 
-					var modeOptions = '';
+					var billingModesListRenderer = '';
 					var n = 0;
+					var currentModeIndex = 0;
 					while(billingModesInfo[n]){
-						modeOptions = modeOptions + '<option value="'+billingModesInfo[n].name+'">'+billingModesInfo[n].name+'</option>';
+
+						if(billingModesInfo[n].name == customerInfo.mode){
+							billingModesListRenderer += '<a href="#" class="currentActiveMode" onclick="changeCustomerInfo(\'mode\', \''+billingModesInfo[n].name+'\')"><p class="chosenModeDropdownModeName">'+billingModesInfo[n].name+' <i class="fa fa-check-circle"></i>'+
+															'<tag class="chosenModeDropdownMinimumBill">'+(billingModesInfo[n].minimumBill > 0 ? 'Min <i class="fa fa-inr"></i>'+billingModesInfo[n].minimumBill : '')+'</tag></p>'+
+															'<p class="chosenModeDropdownBrief"><b class="modeTypeLabel">'+billingModesInfo[n].type+'</b></p>'+
+													   	'</a>';
+							currentModeIndex = n;
+						}
+						else{
+							billingModesListRenderer += '<a href="#" onclick="changeCustomerInfo(\'mode\', \''+billingModesInfo[n].name+'\')"><p class="chosenModeDropdownModeName">'+billingModesInfo[n].name+
+															'<tag class="chosenModeDropdownMinimumBill">'+(billingModesInfo[n].minimumBill > 0 ? 'Min <i class="fa fa-inr"></i>'+billingModesInfo[n].minimumBill : '')+'</tag></p>'+
+															'<p class="chosenModeDropdownBrief"><b class="modeTypeLabel">'+billingModesInfo[n].type+'</b></p>'+
+													   	'</a>';
+						}
+
 						n++;
 					}
 					
+					var billingModesList = 	'<div class="chosenModeDropdown">'+
+											    '<div class="chosenModeButton" value="'+billingModesInfo[currentModeIndex].name+'" id="customer_form_data_mode">'+billingModesInfo[currentModeIndex].name+'</div>'+
+											    '<div class="chosenModeDropdown-content" style="display: none" id="modeListingDropdown"><div class="chosenModeDropdownArea" id="modeListingDropdownArea">'+billingModesListRenderer+'</div>'+
+											    '</div>'+
+											'</div>';
+
 
 					var selectMappedAddressButton = '';
 					var tempModeType = customerInfo.modeType;
@@ -1370,10 +1391,6 @@ function renderCustomerInfo(){
 					}	
 
 
-
-
-
-			
 					if(isEditingKOT){ //Editing KOT
 					
 					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px"> '+
@@ -1403,13 +1420,12 @@ function renderCustomerInfo(){
 			                           '</div>';
 					}
 					else{ //New Order
-					
+
 					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px"> '+
 			                                 '<div class="col-xs-8" style="padding: 0; padding-right: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<div class="input-group" style="width:100%;">'+
-			                                       		 '<label class="cartCustomerLabel">Order Type</label>'+
-			                                             '<select name="group" onchange="changeCustomerInfo(\'mode\')" id="customer_form_data_mode" class="form-control input-tip select2">'+modeOptions+'</select>'+
+			                                       		 '<label class="cartCustomerLabel">Order Type</label>'+billingModesList+
 			                                       '</div>'+
 			                                       '<div style="clear:both;"></div>'+
 			                                    '</div>'+
@@ -1434,6 +1450,80 @@ function renderCustomerInfo(){
 
 			        document.getElementById("customer_form_data_mode").value = customerInfo.mode;
 
+
+					//Key Actions to Select from dropdown
+					
+					
+					$('#customer_form_data_mode').on('click', function(event) {
+
+						var x = document.getElementById("modeListingDropdown");
+
+						if(x.style.display == 'none'){
+							x.style.display = 'block';
+						}
+						else{
+							x.style.display = 'none';
+						}
+
+						$("#modeListingDropdownArea a").removeClass("selected");
+
+						var liSelected = undefined;
+						var li = $('#modeListingDropdownArea a');
+
+						$(document).keyup(function(e) {
+							
+						    if (e.which === 40 || e.which === 38) {
+						        
+						        // If the Up-Arrow or Down-Arrow is pressed  
+							    if(e.which === 40){
+
+							        if(liSelected){
+							            liSelected.removeClass('selected');
+							            next = liSelected.next();
+							            if(next.length > 0){
+							                liSelected = next.addClass('selected');
+							            }else{
+							                liSelected = li.eq(0).addClass('selected');
+							            }
+							        }else{
+							            liSelected = li.eq(0).addClass('selected');
+							        }
+							    }else if(e.which === 38){
+							        if(liSelected){
+							            liSelected.removeClass('selected');
+							            next = liSelected.prev();
+							            if(next.length > 0){
+							                liSelected = next.addClass('selected');
+							            }else{
+							                liSelected = li.last().addClass('selected');
+							            }
+							        }else{
+							            liSelected = li.last().addClass('selected');
+							        }
+							    }
+
+
+						    }
+						    else if (e.which === 13) {
+						        
+						        //If the Enter Key is pressed 
+						        $("#modeListingDropdownArea a").each(function(){
+							        if($(this).hasClass("selected")){
+							        	$(this).click();
+							        	$('#customer_form_data_mobile').focus();
+							        }
+							    });
+						    }					   			    
+						});
+					});
+
+					$('#customer_form_data_mode').on('mouseout', function(event){
+						$(document).off('keyup');
+					});
+
+		
+
+
 			        /*First dropdown item as default*/ /*TWEAK*/
 			        if(customerInfo.mode == ""){
 			        	$("#customer_form_data_mode").val($("#customer_form_data_mode option:first").val());
@@ -1457,9 +1547,14 @@ function renderCustomerInfo(){
 
 function getFormattedAddress(addressObject){
 	var address = JSON.parse(addressObject);
-	var addressString = address.name+' '+address.flatNo+' '+address.flatName+' '+address.landmark+' '+address.area+' ';
 
-	return addressString;
+	if(address){
+		var addressString = address.name+' '+address.flatNo+' '+address.flatName+' '+address.landmark+' '+address.area+' ';
+		return addressString;
+	}
+	else{
+		return '-';
+	}
 }
 
 function suggestCustomerInfoFromMobile(mode, inputElement){
@@ -1584,8 +1679,17 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 
 
 
-function changeCustomerInfo(type){
-	var value = document.getElementById("customer_form_data_"+type).value;
+function changeCustomerInfo(type, optionalValue){
+
+	var value = '';
+
+	if(type == 'mode'){
+		value = optionalValue;
+	}
+	else{
+		value = document.getElementById("customer_form_data_"+type).value;
+	}
+
 	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
 	var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
 
@@ -2140,7 +2244,11 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
               if(err){
 				showToast('System Error: Unable to generate KOT. Please contact Accelerate Support.', '#e74c3c');
               }
-              else{          
+              else{  
+              	
+              	//Send KOT for Printing
+              	sendToPrinter(kot, 'KITCHEN')
+
               	if(orderMetaInfo.modeType == 'DINE'){
               		addToTableMapping(obj.table, kot, obj.customerName);
               		showToast('#'+kot+' generated Successfully', '#27ae60');
@@ -2446,6 +2554,11 @@ function pickTableForNewOrder(currentTableID){
 		    }
 		    });
 		     }
+}
+
+function pickDummyTableForNewOrder(){
+	//assign a dummy table value
+	setCustomerInfoTable('None')
 }
 
 

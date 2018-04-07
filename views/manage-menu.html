@@ -1,8 +1,5 @@
 <template class="task-template">
-Add: 
-> Approximate Cooking time (for SMS updates)
-> Item Set Code
-> Main Ingredients (Auto Warning - ALLERGY WARNINGS)
+
                <div class="row">
                   <div class="col-xs-4">
                      <div class="box box-primary">
@@ -52,7 +49,7 @@ Add:
          <div class="modal-dialog" style="top: 20%">
             <!-- Modal content-->
             <div class="modal-content">
-               <div class="modal-header">
+               <div class="modal-header defaultModalColoredHeader">
                   <button type="button" onclick="hideNewMenuCategory()" style="float: right;" class="btn clearButton">X</button>
                   <h4 class="modal-title">New Category</h4>
                </div>
@@ -82,8 +79,12 @@ Add:
          <div class="modal-dialog" style="top: 20%">
             <!-- Modal content-->
             <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" onclick="hideNewMenuItem()" style="float: right;" class="btn clearButton">X</button>
+               <div class="modal-header defaultModalColoredHeader">
+
+                  <tag id="moreOptionsButtonWrap">
+                     <button type="button" style="float: right;" class="btn btn-sm btn-default" onclick="addMoreOptions()">More Options</button>
+                  </tag> 
+
                   <h4 class="modal-title" id="newItemModalTitle">New Item</h4>
                </div>
                <div class="modal-body" style="max-height: 420px; overflow: scroll">
@@ -102,28 +103,61 @@ Add:
                      </div>
                      <input type="hidden" id="new_item_choice_count" value="0"/>
                      <div id="newItemChoicesArea"></div>
+                     
                   </form>  
                   <button type="button" style="float: left; background: none; display: none" class="btn btn-sm  btn-default" id="removeChoiceButton" onclick="removeChoice()">Clear Choices</button>           
                   <button type="button" style="float: right" class="btn btn-sm btn-default" id="addChoiceButton" onclick="addChoice()">Add Choice</button>
 
-               </div>
-               <div class="modal-footer" id="newItemModalActions">
+
 
                </div>
+               <div class="modal-footer" id="newItemModalActions">
+                 
+               </div>
             </div>
+
+            <!-- More Options -->
+            <div class="modal-content" id="moreOptionsArea" style="width: 300px; position: absolute; right: -310px; top: 0px; display: none; max-height: 460px; padding: 0; overflow: scroll">
+                     <div class="modal-header defaultModalColoredHeader">
+                        <h2 class="posCartSubHead" style="margin-top: 5px;">More Options</h2>
+                     </div>  
+               
+                     <div class="row" style="margin: 0; padding: 10px">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Custom Short Code</label> <input type="text" value="" class="form-control tip" id="more_options_customCode" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Minimum Cooking Time (in Mins)</label> <input type="number" value="" class="form-control tip" id="more_options_cookingTime" placeholder="Time in Minutes" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Main Ingredients<tag class="smallResetButton" id="ingredientsResetButton" style="display: none; margin-left: 5px" onclick="addMoreOptions('RESET')">Reset</tag></label> <input type="text" value="" class="form-control tip" id="more_options_ingredients" required="required" disabled/>
+                              <p style="font-size: 14px; padding: 0; color: #168c9a; margin: 5px 0" id="ingredientsList"></p>
+                           </div>
+                        </div>
+                     </div>
+            </div>
+
          </div>
       </div>
 
 
 
 
-      <!-- Modal -->
+      <!-- Modal for Edit --> 
       <div id="editMenuItemPriceModal" class="modal">
          <div class="modal-dialog" style="top: 20%">
             <!-- Modal content-->
             <div class="modal-content">
-               <div class="modal-header">
-                  <button type="button" onclick="hideEditMenuItemPrice()" style="float: right;" class="btn clearButton">X</button>
+               <div class="modal-header defaultModalColoredHeader">
+                  <tag id="edit_moreOptionsButtonWrap">
+                     <button type="button" style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>
+                  </tag> 
+
                   <h4 class="modal-title" id="editItemPriceModalTitle">Edit Item</h4>
                </div>
                <div class="modal-body" style="max-height: 420px; overflow: scroll">
@@ -138,6 +172,34 @@ Add:
 
                </div>
             </div>
+
+            <!-- More Options for Edit -->
+            <div class="modal-content" id="edit_moreOptionsArea" style="width: 300px; position: absolute; right: -310px; top: 0px; display: none; max-height: 460px; padding: 0; overflow: scroll">
+                  <div class="modal-header defaultModalColoredHeader">
+                     <h2 class="posCartSubHead" style="margin-top: 5px;">More Options</h2>
+                  </div>               
+               
+                     <div class="row" style="margin: 0; padding: 10px">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Custom Short Code</label> <input type="text" value="" class="form-control tip" id="edit_more_options_customCode" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Minimum Cooking Time (in Mins)</label> <input type="number" value="" class="form-control tip" id="edit_more_options_cookingTime" placeholder="Time in Minutes" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Main Ingredients<tag class="smallResetButton" id="edit_ingredientsResetButton" style="display: none; margin-left: 5px" onclick="edit_addMoreOptions('RESET')">Reset</tag></label> <input type="text" value="" class="form-control tip" id="edit_more_options_ingredients" required="required" disabled/>
+                              <p style="font-size: 14px; padding: 0; color: #168c9a; margin: 5px 0" id="edit_ingredientsList"></p>
+                           </div>
+                        </div>
+                     </div>
+            </div>
+
+
          </div>
       </div>
 
@@ -147,7 +209,7 @@ Add:
          <div class="modal-dialog" style="top: 20%">
             <!-- Modal content-->
             <div class="modal-content">
-               <div class="modal-header">
+               <div class="modal-header defaultModalColoredHeader">
                   <button type="button" onclick="hideEditCategoryName()" style="float: right;" class="btn clearButton">X</button>
                   <h4 class="modal-title">Edit Category Name</h4>
                </div>
@@ -167,10 +229,11 @@ Add:
          <div class="modal-dialog" style="top: 20%">
             <!-- Modal content-->
             <div class="modal-content">
+               <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Confirm Delete</h1> </div>
                <div class="modal-body" style="max-height: 420px; overflow: scroll">
                 <p style="font-size: 16px; margin: 0; color: #e74c3c;" id="deleteConfirmationText"></P>
                </div>
-               <div class="modal-footer" id="deleteConfirmationConsent">
+               <div class="modal-footer" style="border: none; padding-top: 0" id="deleteConfirmationConsent">
                </div>
             </div>
          </div>

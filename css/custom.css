@@ -1,7 +1,7 @@
 
 /*Custom Fonts*/
 /*@import url('https://fonts.googleapis.com/css?family= Francois+One|Oswald|Roboto');
-*/
+/**/
 html, body {
         height: 100%;
         margin: 0px;
@@ -191,6 +191,117 @@ html, body {
     background-color: #1abc9c;
 }
 
+/*Choose Billing Mode*/
+
+
+.chosenModeButton {
+    width: 100%;
+    background: #40739e;
+    color: #FFF;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    border: 1px solid #487eb0;
+    cursor: pointer;
+    font-weight: 400;
+    text-transform: none;
+}
+
+.chosenModeButton:focus{
+  outline: none !important;
+}
+
+.chosenModeDropdown {
+
+}
+
+.chosenModeDropdown-content {
+    margin-top: 5px;
+    display: none;
+    border: 3px solid #40739e;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 320px;
+    max-width: 420px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 10;
+
+}
+
+.chosenModeDropdownArea{
+    max-height: 60vh !important;
+    overflow: auto;
+}
+
+.chosenModeDropdown-content a {
+    font-size: 14px;
+    text-align: left;
+    border-bottom: 1px solid #e2e2e2;
+    color: #444;
+    padding: 6px 10px;
+    text-decoration: none;
+    font-weight: 400;
+    text-transform: none;
+    display: block;
+    min-height: 60px;
+}
+
+.selected, .currentActiveMode, .chosenModeDropdown-content a:hover {
+  background-color: #487eb0;
+  color: #FFF;
+}
+/*
+.chosenModeDropdown:hover .chosenModeButton {
+    background-color: #487eb0;
+}
+*/
+.chosenModeDropdownModeName{
+  font-size: 15px; text-overflow:ellipsis; 
+  margin-bottom: 2px;
+  color: #40739e;
+  overflow:hidden; white-space:nowrap; font-weight: 600;
+}
+
+.selected .chosenModeDropdownModeName, .currentActiveMode .chosenModeDropdownModeName, .chosenModeDropdown-content a:hover .chosenModeDropdownModeName{
+  color: #FFF;
+}
+
+.chosenModeDropdownMinimumBill{
+  float: right; font-size: 12px; font-weight: 400; color: #484848;
+}
+
+.selected .chosenModeDropdownMinimumBill, .currentActiveMode .chosenModeDropdownMinimumBill, .chosenModeDropdown-content a:hover .chosenModeDropdownMinimumBill{
+  color: #FFF;
+}
+
+.chosenModeDropdownBrief{
+  margin: 0; color: #a0a0a0; 
+  font-size: 11px;
+  text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+}
+
+.selected .chosenModeDropdownBrief, .currentActiveMode .chosenModeDropdownBrief, .chosenModeDropdown-content a:hover .chosenModeDropdownBrief{
+  color: #e4e4e4;
+}
+
+.modeTypeLabel{
+    color: #a0a0a0;
+    font-weight: 600;
+    float: left;
+
+}
+
+
+.currentActiveMode .modeTypeLabel, .chosenModeDropdown-content a:hover .modeTypeLabel{
+  color: #e4e4e4;
+}
+
+
+
+
+
+
+
 
 
 /* Hold List*/
@@ -201,8 +312,8 @@ html, body {
     background: #f39c12;
     position: relative;
     color: #FFF;
-    padding: 4px;
-    border-radius: 4px;
+    padding: 4px 6px;
+    border-radius: 2px;
     font-size: 14px;
     border: none;
     cursor: pointer;
@@ -740,7 +851,7 @@ html, body {
 	padding: 0px 6px;
 	border-radius: 20px; 
 
-    position: fixed;
+    position: absolute;
     bottom: 50px;
     right: 5px;
 
@@ -796,20 +907,67 @@ html, body {
 
 /* Sales Summary */
 .summaryCount{
-  font-size: 11px; 
+  font-size: 10px; 
   color: grey;
 }
 
 .summaryLine1{
   color: #6f20ab;
+  font-size: 18px;
 }
 
 .summaryLine2{
   color: #43a3de;
+  font-size: 18px;
 }
 
 .summaryLine3{
   color: #55bd9c;
+  font-size: 18px;
+}
+
+.summaryLineBlack{
+  color: #444;
+  font-size: 18px;
+}
+
+
+.viewOptionsIcon{
+  margin-left: 8px;
+  background: none;
+  opacity: 0;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #FFF;
+  border-radius: 4px;
+  font-weight: bold;
+  padding: 2px 6px;
+}
+
+
+.detailedByMode:hover .viewOptionsIcon{
+    background: #ee5357;
+    opacity: 1;
+}
+
+
+
+.detailedByMode{
+  cursor: pointer;
+}
+
+.detailedByMode:hover, .detailedByMode:active, .detailedByMode:focus{
+  background: #f9f9f9;
+}
+
+.summaryLineGreen{
+  color: #55bd9c;
+  font-size: 18px;
+}
+
+.summaryLineRed{
+  color: #e74c3c;
+  font-size: 18px;
 }
 
 .summaryRowHighlight{
@@ -854,7 +1012,7 @@ color: #f4f4f4; padding-left: 5px; font-size: 60%; font-weight: 400
 .deliveryAddress{
   border: 1px solid gray;
     padding: 10px;
-  height: 80px;
+  min-height: 80px;
   overflow: scroll;
 }
 
@@ -1444,6 +1602,13 @@ ol ol {
   outline: none;
   background: #00bcd4;
   color: #FFF;
+}
+
+
+.deleteConfirmationHeader{
+  background: #dd4b39 !important;
+  color: #FFF !important;
+  font-weight: 400 !important;
 }
 
 
@@ -2119,14 +2284,16 @@ ol ol {
 
 .tableOptionsButtonBig{
   width: 100%;
-  font-size: 18px;
+  font-size: 21px;
   min-height: 60px;
   margin-bottom: 5px;
+  text-align: left;
+  border-radius: 0;
 }
 
 
 .tableOptionsHeader{
-      margin: 0 0 5px 0;
+      margin: 5px 0 10px 0;
     font-size: 21px;
     font-weight: 400;
     text-align: center;
@@ -2874,7 +3041,6 @@ position: absolute;
   background: none !important;
 }
 
-
 .breakWord{
   text-overflow:ellipsis; 
   overflow:hidden; 
@@ -3005,7 +3171,20 @@ position: absolute;
 }
 
 
+.smallResetButton{
+  cursor: pointer;
+  padding: 1px 3px; 
+  background: #ff6b81;
+  color: #FFF;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 400;
+  border-radius: 3px;
+}
 
+.smallResetButton:focus, .smallResetButton:active, .smallResetButton:hover{
+  background: #ff4757;
+}
 
 .paymentModeOptionSelected{
   cursor: pointer;
@@ -3025,6 +3204,34 @@ position: absolute;
     background: none;
     opacity: 1;
 }
+
+
+.deleteItemIcon{
+  width: 30px;
+  opacity: 0;
+  padding-left: 6px;
+  color: #ee5357;
+  cursor: pointer;
+}
+
+
+.deleteItemWrap:hover .deleteItemIcon{
+    background: none;
+    opacity: 1;
+}
+
+
+
+.specialPinkButton{
+  border-color: #b5383b;
+  background: #ee5357 !important;
+  color: #FFF !important;
+}
+
+.specialPinkButton:hover, .specialPinkButton:focus, .specialPinkButton:active{
+  background: #b5383b !important;
+}
+
 
 .billRowOtherCharges{
   background: #fcfcfc; 
@@ -3119,5 +3326,28 @@ position: absolute;
   text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
 }
 
+/*modal headers*/
+
+.defaultModalColoredHeader{
+  background-color: #1abc9c;
+  color: #FFF;
+  border: none;
+}
+
+.skin-blue .defaultModalColoredHeader, .skin-blue-light .defaultModalColoredHeader{
+  background-color: #367fa9;
+}
+
+.skin-red .defaultModalColoredHeader, .skin-red-light .defaultModalColoredHeader{
+  background-color: #d73925;
+}
+
+.skin-purple .defaultModalColoredHeader, .skin-purple-light .defaultModalColoredHeader{
+  background-color: #555299;
+}
+
+.skin-yellow .defaultModalColoredHeader, .skin-yellow-light .defaultModalColoredHeader{
+  background-color: #e08e0b;
+}
 
 
