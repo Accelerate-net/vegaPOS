@@ -23,7 +23,6 @@ if (!shell.which('git')) {
 }
 else{
   
- console.log(shell.pwd())
 }
 
 

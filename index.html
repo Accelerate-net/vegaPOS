@@ -111,6 +111,13 @@
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
 
+                        <li class="dropdown user user-menu">
+
+                            <a href="#" onclick="selectSessionWindow()" style="font-size: 18px; font-weight: 400;">
+                                <i class="fa fa-history"></i>Session: <span id="currentSessionDisplay">Not Set</span>
+                            </a>
+                        </li>
+
                         <li style="width: 165px !important; text-align: center" onclick="checkLogin()"><a href="#"><tag id="globalServerConnectionStatus">...</tag></a></li>
 
                         <li class="noHover"><a href="#" class="noHover" style="padding: 13.5px 30px"><tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 300"></tag></a></li>
@@ -230,6 +237,18 @@
                 </div>
              </div>
           </div>
+
+
+        <!-- SESSION MODAL -->
+        <div id="sessionModalHome" class="modal">
+             <div class="modal-dialog" style="width: 27em !important;">
+                <!-- Modal content-->
+                <div class="modal-content" style="border-radius: 4px; right: 10px !important; top: 60px !important; position: fixed; width: 420px; max-height: 480px; overflow: scroll; padding: 8px" id="sessionModalHomeContent">
+                    
+                </div>
+             </div>
+          </div>
+
 
 
         <!-- LOGIN MODAL -->
