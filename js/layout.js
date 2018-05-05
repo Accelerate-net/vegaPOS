@@ -188,16 +188,17 @@ function renderServerConnectionStatus(){
         timeout: 2000,
         success: function(data) {
           if(data.status){
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-circle"></i> Connected</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-globe"></i> Connected</tag>';
           }
           else
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
               showToast(data.error, '#e74c3c');
-              document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-circle"></i> Re-authenticate</tag>';
+              document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Re-authenticate</tag>';
+              return '';
             }
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-circle"></i> Re-authenticate</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Not Connected</tag>';
           }
         },
         error: function(data){
@@ -223,17 +224,19 @@ function getServerConnectionStatus(){
         dataType: 'json',
         timeout: 2000,
         success: function(data) {
+
           if(data.status){
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-circle"></i> Connected</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-globe"></i> Connected</tag>';
           }
           else
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
               showToast(data.error, '#e74c3c');
-              document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-circle"></i> Re-authenticate</tag>';
+              document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Re-authenticate</tag>';
+              return '';
             }
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-circle"></i> Re-authenticate</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Not Connected</tag>';
           }
         },
         error: function(data){
@@ -250,6 +253,60 @@ function getServerConnectionStatus(){
 }
 
 getServerConnectionStatus();
+
+
+/* CouchDB Local Server Connection Test */
+var checkServerRefreshInterval;
+var serverRefreshCounter = 10;
+
+function testLocalServerConnection(retryFlag){
+
+        serverRefreshCounter = 10;
+        clearInterval(checkServerRefreshInterval);
+
+        showLoading(10000, 'Trying to reach the Server'); 
+        $.ajax({
+            type: 'GET',
+            url: COMMON_LOCAL_SERVER_IP,
+            timeout: 10000,
+            success: function(data) {
+              
+              hideLoading();
+              document.getElementById("serverConnectionFailureLock").style.display = 'none';
+
+              if(retryFlag && retryFlag == 1){
+                playNotificationSound('STARTUP');
+                showToast('Connected to the Server', '#27ae60');
+              }
+
+              clearInterval(checkServerRefreshInterval);
+            },
+            error: function(data){
+
+              hideLoading();
+
+              checkServerRefreshInterval = window.setInterval(function() { 
+                if(serverRefreshCounter == 1){
+                  serverRefreshCounter = 10;
+                  testLocalServerConnection(1);
+                }
+                else{
+                  serverRefreshCounter--;
+                }
+
+                document.getElementById("refreshServerCheckCounter").innerHTML = 'Auto retry in '+serverRefreshCounter+' seconds';
+              }, 1000);
+
+              document.getElementById("serverConnectionFailureLock").style.display = 'block';
+              playNotificationSound('ERROR');
+              showToast('The local Server is not running or not connected. Please check the connection and start the server.', '#8e44ad')
+            }
+        });     
+}
+
+testLocalServerConnection();
+
+
 
 
 
