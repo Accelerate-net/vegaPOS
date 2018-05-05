@@ -4,6 +4,30 @@
 
 var COMMON_LOCAL_SERVER_IP = 'http://127.0.0.1:5984/';
 
+
+
+
+
+
+
+
+/*
+  Connect to the Server
+*/
+
+var shell = require('shelljs');
+ 
+if (!shell.which('git')) {
+  showToast('System Configuration Alert: Git needs to be installed', '#6F1E51')
+  shell.exit(1);
+}
+else{
+  
+}
+
+
+
+
 //To format the time in '' ago format
 function getFormattedTime(time){
     var tempTime = moment(time, 'hhmm').fromNow(true);
@@ -197,6 +221,9 @@ function hideLoading(){
 /* USAGE:
 showLoading(3000, 'Custom Text');
 */
+
+
+
 
 
 

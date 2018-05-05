@@ -188,16 +188,17 @@ function renderServerConnectionStatus(){
         timeout: 2000,
         success: function(data) {
           if(data.status){
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-circle"></i> Connected</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-globe"></i> Connected</tag>';
           }
           else
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
               showToast(data.error, '#e74c3c');
-              document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-circle"></i> Re-authenticate</tag>';
+              document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Re-authenticate</tag>';
+              return '';
             }
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-circle"></i> Re-authenticate</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Not Connected</tag>';
           }
         },
         error: function(data){
@@ -223,17 +224,19 @@ function getServerConnectionStatus(){
         dataType: 'json',
         timeout: 2000,
         success: function(data) {
+
           if(data.status){
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-circle"></i> Connected</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-globe"></i> Connected</tag>';
           }
           else
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
               showToast(data.error, '#e74c3c');
-              document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-circle"></i> Re-authenticate</tag>';
+              document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Re-authenticate</tag>';
+              return '';
             }
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-circle"></i> Re-authenticate</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Not Connected</tag>';
           }
         },
         error: function(data){
@@ -250,6 +253,60 @@ function getServerConnectionStatus(){
 }
 
 getServerConnectionStatus();
+
+
+/* CouchDB Local Server Connection Test */
+var checkServerRefreshInterval;
+var serverRefreshCounter = 10;
+
+function testLocalServerConnection(retryFlag){
+
+        serverRefreshCounter = 10;
+        clearInterval(checkServerRefreshInterval);
+
+        showLoading(10000, 'Trying to reach the Server'); 
+        $.ajax({
+            type: 'GET',
+            url: COMMON_LOCAL_SERVER_IP,
+            timeout: 10000,
+            success: function(data) {
+              
+              hideLoading();
+              document.getElementById("serverConnectionFailureLock").style.display = 'none';
+
+              if(retryFlag && retryFlag == 1){
+                playNotificationSound('STARTUP');
+                showToast('Connected to the Server', '#27ae60');
+              }
+
+              clearInterval(checkServerRefreshInterval);
+            },
+            error: function(data){
+
+              hideLoading();
+
+              checkServerRefreshInterval = window.setInterval(function() { 
+                if(serverRefreshCounter == 1){
+                  serverRefreshCounter = 10;
+                  testLocalServerConnection(1);
+                }
+                else{
+                  serverRefreshCounter--;
+                }
+
+                document.getElementById("refreshServerCheckCounter").innerHTML = 'Auto retry in '+serverRefreshCounter+' seconds';
+              }, 1000);
+
+              document.getElementById("serverConnectionFailureLock").style.display = 'block';
+              playNotificationSound('ERROR');
+              showToast('The local Server is not running or not connected. Please check the connection and start the server.', '#8e44ad')
+            }
+        });     
+}
+
+testLocalServerConnection();
+
+
 
 
 
@@ -650,11 +707,6 @@ function selectStewardWindow(){
               var users = JSON.parse(data);
               users.sort(); //alphabetical sorting 
 
-              if(users.length == 1){
-                showToast('Warning: No other profiles created yet.', '#e67e22');
-                return '';
-              }
-
               if(users.length == 0){
                 showToast('Warning: No profile created yet.', '#e67e22');
                 return '';
@@ -733,4 +785,131 @@ function renderCurrentUserDisplay(){
 }
 
 renderCurrentUserDisplay();
+
+
+
+
+/* SESSION SELECTION */
+
+function switchSession(name, from, to){
+
+   var setSessionInfo = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData): {};
+  
+  if(jQuery.isEmptyObject(setSessionInfo)){
+    setSessionInfo.name = "";
+    setSessionInfo.timeFrom = "";
+    setSessionInfo.timeTo = "";
+  }
+ 
+    setSessionInfo.name = name;
+    setSessionInfo.timeFrom = from;
+    setSessionInfo.timeTo = to;
+
+    window.localStorage.setSessionData = JSON.stringify(setSessionInfo);
+    renderCurrentSessionDisplay();
+    selectSessionWindowClose();
+}
+
+function selectSessionWindow(){
+  var setSessionInfo = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData): {};
+  
+  if(jQuery.isEmptyObject(setSessionInfo)){
+    setSessionInfo.name = "";
+    setSessionInfo.code = "";
+  }
+
+
+    if(fs.existsSync('./data/static/dinesessions.json')) {
+        fs.readFile('./data/static/dinesessions.json', 'utf8', function readFileCallback(err, data){
+      if (err){
+          showToast('System Error: Unable to read Dine Sessions. Please contact Accelerate Support.', '#e74c3c');
+      } else {
+
+              var sessions = JSON.parse(data);
+              sessions.sort(); //alphabetical sorting 
+
+              if(sessions.length == 0){
+                showToast('Warning: No Session created yet.', '#e67e22');
+                return '';
+              }
+
+              var n = 0;
+              var renderContent = '';
+              var isRendered = false;
+              var currentSessionFound = false;
+              while(sessions[n]){
+
+                isRendered = false;
+
+                if(n == 0){
+                  isRendered = true;
+                  renderContent = '<tag onclick="selectSessionWindowClose()" class="stewardWindowClose">X</tag> <div class="row" style="margin: 0">';
+                  renderContent += '<div onclick="switchSession(\''+sessions[n].name+'\', \''+sessions[n].startTime+'\', \''+sessions[n].endTime+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="session_switch_'+sessions[n].name+'"> <h1 class="stewardName" style="padding-top: 11px">'+sessions[n].name+'<span style="padding-top: 4px; display: block; font-size: 60%; color: #8a8080">'+getFancyTime(sessions[n].startTime)+' - '+getFancyTime(sessions[n].endTime)+'</span></h1> <div class="stewardIcon">'+(n+1)+'</div> </div> </div>';
+                }
+                else if(n == 1){
+                  isRendered = true;
+                  renderContent += '<div onclick="switchSession(\''+sessions[n].name+'\', \''+sessions[n].startTime+'\', \''+sessions[n].endTime+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="session_switch_'+sessions[n].name+'"> <h1 class="stewardName" style="padding-top: 11px">'+sessions[n].name+'<span style="padding-top: 4px; display: block; font-size: 60%; color: #8a8080">'+getFancyTime(sessions[n].startTime)+' - '+getFancyTime(sessions[n].endTime)+'</span></h1> <div class="stewardIcon">'+(n+1)+'</div> </div> </div>';
+                  renderContent += '</div>';
+                }
+                else if(n > 1 && n%2 == 0){
+                  renderContent += '<div class="row" style="margin: 4px 0 0 0">';
+                }
+
+                if(!isRendered){
+                  renderContent += '<div onclick="switchSession(\''+sessions[n].name+'\', \''+sessions[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="session_switch_'+sessions[n].name+'"> <h1 class="stewardName" style="padding-top: 11px">'+sessions[n].name+'<span style="padding-top: 4px; display: block; font-size: 60%; color: #8a8080">'+getFancyTime(sessions[n].startTime)+' - '+getFancyTime(sessions[n].endTime)+'</span></h1> <div class="stewardIcon">'+(n+1)+'</div> </div> </div>';
+                }
+
+                if(n > 1 && n%2 == 1){
+                  renderContent += '</div>';
+                }
+
+                //Find Current User
+                if(setSessionInfo.name == sessions[n].name){
+                  currentSessionFound = true;
+                }
+
+                n++;
+              }
+
+          document.getElementById("sessionModalHomeContent").innerHTML = renderContent;
+          document.getElementById("sessionModalHome").style.display = 'block';
+
+          if(currentSessionFound){
+            document.getElementById("session_switch_"+setSessionInfo.name).classList.add('selectUserProfile');
+          }
+
+    }
+    });
+      } else {
+        showToast('System Error: Unable to read Dine Sessions. Please contact Accelerate Support.', '#e74c3c');
+      } 
+}
+
+function selectSessionWindowClose(){
+  document.getElementById("sessionModalHome").style.display = 'none';
+}
+
+function renderCurrentSessionDisplay(){
+   var setSessionInfo = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData): {};
+  
+  if(jQuery.isEmptyObject(setSessionInfo)){
+    setSessionInfo.name = "";
+    setSessionInfo.timeFrom = "";
+    setSessionInfo.timeTo = "";
+  }
+
+  if(setSessionInfo.name != '' && setSessionInfo.timeFrom != '' && setSessionInfo.timeTo != ''){
+    document.getElementById("currentSessionDisplay").innerHTML = '<span style="font-weight: 400">'+setSessionInfo.name+'</span>';
+  }
+  else{
+    document.getElementById("currentSessionDisplay").innerHTML = '<span>Session not Set</span>';
+  }
+}
+
+renderCurrentSessionDisplay();
+
+
+
+
+
 
