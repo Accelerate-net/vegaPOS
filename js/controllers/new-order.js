@@ -99,6 +99,17 @@ function hideCustomiseItem(){
 
 function deleteItem(item, isCustom, variant){
 
+	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+		
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+			return '';
+		}
+	}
+
+
 	var itemCode = JSON.parse(decodeURI(item))
 	var cart_products = JSON.parse(window.localStorage.zaitoon_cart)
 
@@ -135,7 +146,36 @@ function deleteItem(item, isCustom, variant){
 
 }
 
-function changeqty(item, isCustom, variant){
+function senseQuantityChange(event, item, isCustom, variant){
+
+	if(isCustom != 'true'){
+		variant = '';	
+	}
+
+	if(event.which === 40){ //Decrease Qty
+
+		if(document.getElementById("qty"+item+variant).value == 1){
+			return '';
+		}
+
+		document.getElementById("qty"+item+variant).value = parseInt(document.getElementById("qty"+item+variant).value) - 1;
+	}
+	else if(event.which === 38){ //Increase Qty
+		document.getElementById("qty"+item+variant).value = parseInt(document.getElementById("qty"+item+variant).value) + 1;
+	}
+	else{
+		//Do nothing if not UP or DOWN key pressed.
+		return '';
+
+	}
+
+	var optionalFocusKey = "qty"+item+variant;
+
+	changeqty(item, isCustom, variant, optionalFocusKey);
+}
+
+
+function changeqty(item, isCustom, variant, optionalFocusKey){
 
 
 	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
@@ -178,7 +218,7 @@ function changeqty(item, isCustom, variant){
 					while(i < cart_products.length){
 
 						if(cart_products[i].code == itemCode){
-							temp = document.getElementById("qty"+cart_products[i].code+cart_products[i].variant).value;
+							temp = document.getElementById("qty"+cart_products[i].code).value;
 								if(temp == '' || isNaN(temp) || temp == 0){
 									temp = 1;
 									break;
@@ -194,11 +234,11 @@ function changeqty(item, isCustom, variant){
 
 
     window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
-    renderCart()
+    renderCart(optionalFocusKey)
 }
 
 
-function renderCart(){
+function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field to be focused
 
 	//Render Cart Items based on local storage
 	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
@@ -242,7 +282,7 @@ function renderCart(){
 	          		n++;
 	          	}
 
-	          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList)	          	
+	          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, optionalFocusKey)	          	
 
 		}
 		});
@@ -252,13 +292,27 @@ function renderCart(){
 
 }
 
-function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras){
+function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras, optionalFocusKey){
 
 	/*
 		cart_products - cart of items 
 		selectedBillingModeInfo - info relating to the particular mode like minBillAmount, isDiscountable? etc.
 		selectedModeExtras - extras of taxes to be calculated		
 	*/
+
+
+	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
+	var disableQuantityChange = false;
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+		
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+			disableQuantityChange = true;
+			//to prevent changes
+		}
+	}
+
+
 
 	if(cart_products.length < 1){
 		document.getElementById("cartTitleHead").innerHTML = '';
@@ -324,7 +378,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 				'<td style="vertical-align: middle">'+
-					'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+cart_products[i].variant+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')">'+notifyIcon+
+					'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 				'</td>'+
 				'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 			i++
@@ -341,14 +395,14 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				variantName = ' ('+cart_products[i].variant+')';
 			}
 
-			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+cart_products[i].variant+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
+			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 			i++
 		}
 	}
 
 	if(checkIfItemDeleted() == 'DELETED'){
 		hasUnsavedChanges = true;
-		temp = '<tr class="success"><td colspan="5" style="color: #e74c3c; text-align: center"><i class="fa fa-exclamation-circle"></i> Removed some items</td></tr>' + temp;
+		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center"><i class="fa fa-exclamation-circle"></i> Removed some items</td></tr>' + temp;
 	}
 	
 	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Subtotal</th>  </tr>';
@@ -615,7 +669,11 @@ else{
  	}  
 }
 
-    
+	//optionalFocusKey --> Which input field to be focused after cart is rendered
+	if(optionalFocusKey && optionalFocusKey != '' && optionalFocusKey != undefined){
+		/* cuurently used for quantity up and down operation only!  --> ADD MORE */
+		$('#'+optionalFocusKey).focus();
+	}
 }
 
 function undoChangesInKOT(){
@@ -1134,13 +1192,35 @@ function removeTableFromReserveList(tableID){
 
 /*Clear cart*/
 function clearCart(){
-	window.localStorage.zaitoon_cart = "";
-	renderCart();
-	hideClearCartModal();
+
+		//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
+		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+			
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+				return '';
+			}
+		}
+
+		window.localStorage.zaitoon_cart = "";
+		renderCart();
+		hideClearCartModal();
 }
 
 function clearCartConsent(){
-	document.getElementById("clearCartConsentModal").style.display = "block";
+
+		//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
+		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+			
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+				return '';
+			}
+		}
+
+		document.getElementById("clearCartConsentModal").style.display = "block";
 }
 
 function hideClearCartModal(){
@@ -1995,6 +2075,9 @@ function generateEditedKOT(){
 	}
 
 
+	//Track changes in the KOT
+	var comparisonResult = [];
+
 	//Compare changes in the Cart
 	var original_cart_products = originalData.cart;
 
@@ -2005,6 +2088,7 @@ function generateEditedKOT(){
 		//Find each item in original cart in the changed cart
 		var itemFound = false;
 		for(var i = 0; i < changed_cart_products.length; i++){
+			
 			//same item found, check for its quantity and report changes
 			if(!original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code)){
 				
@@ -2012,13 +2096,23 @@ function generateEditedKOT(){
 
 				//Change in Quantity
 				if(changed_cart_products[i].qty > original_cart_products[n].qty){ //qty increased
-					console.log(changed_cart_products[n].name+' x '+changed_cart_products[n].qty+' ('+(changed_cart_products[n].qty-original_cart_products[i].qty)+' More)');
+					//console.log(.name+' x '+changed_cart_products[n].qty+' ('+(changed_cart_products[n].qty-original_cart_products[i].qty)+' More)');
+					
+					var tempItem = changed_cart_products[n];
+					tempItem.change = "QUANTITY_INCREASE";
+					tempItem.oldValue = original_cart_products[n].qty;
+					comparisonResult.push(tempItem);
 				}
 				else if(changed_cart_products[i].qty < original_cart_products[n].qty){ //qty decreased
-					console.log(changed_cart_products[n].name+' x '+changed_cart_products[n].qty+' ('+(original_cart_products[n].qty-changed_cart_products[i].qty)+' Less)');
+					//console.log(changed_cart_products[n].name+' x '+changed_cart_products[n].qty+' ('+(original_cart_products[n].qty-changed_cart_products[i].qty)+' Less)');
+					
+					var tempItem = changed_cart_products[n];
+					tempItem.change = "QUANTITY_DECREASE";
+					tempItem.oldValue = original_cart_products[n].qty;
+					comparisonResult.push(tempItem);
 				}
 				else{ //same qty
-					console.log(original_cart_products[n].name+' x '+original_cart_products[n].qty);
+					//console.log(original_cart_products[n].name+' x '+original_cart_products[n].qty);
 				}
 
 				break;
@@ -2026,14 +2120,52 @@ function generateEditedKOT(){
 			}
 			else if(original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code) && (original_cart_products[n].variant == changed_cart_products[i].variant)){
 				
-				//itemFound = true;
+				itemFound = true;
+
+				//Change in Quantity
+				if(changed_cart_products[i].qty > original_cart_products[n].qty){ //qty increased
+					//console.log(.name+' x '+changed_cart_products[n].qty+' ('+(changed_cart_products[n].qty-original_cart_products[i].qty)+' More)');
+					
+					var tempItem = changed_cart_products[n];
+					tempItem.change = "QUANTITY_INCREASE";
+					tempItem.oldValue = original_cart_products[n].qty;
+					comparisonResult.push(tempItem);
+				}
+				else if(changed_cart_products[i].qty < original_cart_products[n].qty){ //qty decreased
+					//console.log(changed_cart_products[n].name+' x '+changed_cart_products[n].qty+' ('+(original_cart_products[n].qty-changed_cart_products[i].qty)+' Less)');
+					
+					var tempItem = changed_cart_products[n];
+					tempItem.change = "QUANTITY_DECREASE";
+					tempItem.oldValue = original_cart_products[n].qty;
+					comparisonResult.push(tempItem);
+				}
+				else{ //same qty
+					//console.log(original_cart_products[n].name+' x '+original_cart_products[n].qty);
+				}
+
+				break;
 
 			}
 
 			//Last iteration to find the item
 			if(i == changed_cart_products.length-1){
 				if(!itemFound){ //Item Deleted
-					console.log(original_cart_products[n].name+' x 0 (Deleted)');
+					if(original_cart_products[n].isCustom){
+						//console.log(original_cart_products[n].name+' - '+original_cart_products[n].variant+' x 0 (Deleted)');
+						
+						var tempItem = original_cart_products[n];
+						tempItem.change = "ITEM_DELETED";
+						tempItem.oldValue = "";
+						comparisonResult.push(tempItem);
+					}
+					else{
+						//console.log(original_cart_products[n].name+' x 0 (Deleted)');
+						
+						var tempItem = original_cart_products[n];
+						tempItem.change = "ITEM_DELETED";
+						tempItem.oldValue = "";
+						comparisonResult.push(tempItem);
+					}
 				}
 			}
 		} 
@@ -2059,14 +2191,110 @@ function generateEditedKOT(){
 
 			//Last iteration to find the item
 			if(m == original_cart_products.length-1){
-				//console.log('** New Item: '+changed_cart_products[j].name)
-				console.log(changed_cart_products[j].name+' x '+changed_cart_products[j].qty+' (New)');
+				//console.log(changed_cart_products[j].name+' x '+changed_cart_products[j].qty+' (New)');
+				
+				var tempItem = changed_cart_products[j];
+				tempItem.change = "NEW_ITEM";
+				tempItem.oldValue = "";
+				comparisonResult.push(tempItem);
 			}
 		} 
 
 		j++;
 	}
 
+	console.log('Change History:')
+	console.log(comparisonResult)
+
+}
+
+/* to quick view what items got removed */
+function quickViewRemovedItems(){
+
+	var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+
+	var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+	if(changed_cart_products.length == 0){
+		showToast('Empty Cart! Add items and try again', '#e74c3c');
+		return '';
+	}
+
+
+	var itemDeletedList = [];
+
+	//Compare changes in the Cart
+	var original_cart_products = originalData.cart;
+
+	//Search for changes in the existing items
+	var n = 0;
+	while(original_cart_products[n]){
+		
+		//Find each item in original cart in the changed cart
+		var itemFound = false;
+		for(var i = 0; i < changed_cart_products.length; i++){
+			
+			//same item found, check for its quantity and report changes
+			if(!original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code)){			
+				itemFound = true;
+				break;
+			}
+			else if(original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code) && (original_cart_products[n].variant == changed_cart_products[i].variant)){
+				
+				itemFound = true;
+				break;
+			}
+
+			//Last iteration to find the item
+			if(i == changed_cart_products.length-1){
+				if(!itemFound){ //Item Deleted
+					itemDeletedList.push(original_cart_products[n]);
+				}
+			}
+		} 
+
+		//Last iteration of items search
+		if(n == original_cart_products.length-1){
+			openQuickDeletedViewModal(itemDeletedList);
+		}
+
+		n++;
+	}
+
+}
+
+function openQuickDeletedViewModal(listObj){
+
+		if(listObj.length == 0){
+			hideUndoDelete();
+			return '';
+		}
+
+		var i = 0;
+		var deleteList = '';
+		while(listObj[i]){
+			deleteList = deleteList + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton" onclick="revertDelete(\''+encodeURI(JSON.stringify(listObj[i]))+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-undo"></i></tag>'+listObj[i].name+(listObj[i].isCustom ? ' ('+listObj[i].variant+')' : '')+' x '+listObj[i].qty+'</button>';
+			i++;
+		}
+
+		document.getElementById("deleteItemsListing").innerHTML = deleteList;
+		document.getElementById("undoDeleteModal").style.display = 'block';
+}
+
+function hideUndoDelete(){
+	document.getElementById("undoDeleteModal").style.display = 'none';
+}
+
+function revertDelete(encodedItem){
+	var item = JSON.parse(decodeURI(encodedItem));
+
+	if(item.isCustom){
+		addCustomToCart(item.name, item.code, item.price, item.variant);
+	}
+	else{
+		additemtocart(encodedItem);
+	}
+	
+	quickViewRemovedItems();
 }
 
 
@@ -2250,7 +2478,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
               else{  
               	
               	//Send KOT for Printing
-              	sendToPrinter(kot, 'KITCHEN')
+              	//sendToPrinter(kot, 'KITCHEN')
 
               	if(orderMetaInfo.modeType == 'DINE'){
               		addToTableMapping(obj.table, kot, obj.customerName);
@@ -2974,6 +3202,18 @@ function restartTokenManuallySave(){
 /*Add item-wise comments*/
 function addCommentToItem(itemCode, variant){
 
+
+	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+			
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+			return '';
+		}
+	}
+
+
 	var text = document.getElementById("add_item_wise_comment").value;
 	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
 
@@ -3139,8 +3379,6 @@ function initMenuSuggestion(){
 					var liSelected = undefined;
 
 				$('#add_item_by_search').keyup(function(e) {
-
-
 
 				    if (e.which === 40 || e.which === 38) {
 				        /*

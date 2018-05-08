@@ -162,6 +162,31 @@
    </div>
 
 
+
+   <!-- Modal -->
+   <div id="undoDeleteModal" class="modal">
+      <div class="modal-dialog" style="top: 20%">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" onclick="hideUndoDelete()" style="float: right;" class="btn clearButton">X</button>
+               <h4 class="modal-title">Deleting Items</h4>
+            </div>
+            <div class="modal-body" style="max-height: 420px; overflow: scroll">
+               <div class="row">
+                  <div class="col-lg-12" id="deleteItemsListing">
+                  </div>
+                  <p style="margin: 15px 15px 0 16px; color: #16a085;">New KOT is yet to be printed. Click on the items to undo deletion and add them back.</p>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-default" onclick="hideUndoDelete()" style="float: left">Close</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
    <!-- Modal -->
    <div id="pickTableForNewOrderModal" class="modal">
       <div class="modal-dialog" style="top: 10%; width: 80%">
