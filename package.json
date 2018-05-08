@@ -1,5 +1,5 @@
 {
-  "name": "vegaPOS",
+  "name": "Zaitoon",
   "version": "0.0.9",
   "description": "A minimal desktop POS application",
   "main": "main.js",
@@ -16,7 +16,11 @@
   "author": "Accelerate",
   "license": "CC0-1.0",
   "build": {
-    "appId": "yourappid",
+    "appId": "com.accelerate.zaitoon",
+    "files": [
+      "**/*",
+      "data/**/*"
+    ],
     "dmg": {
       "contents": [
         {
@@ -30,11 +34,16 @@
           "path": "/Applications"
         }
       ]
+    },
+    "win": {
+      "target": "squirrel",
+      "icon": "build/icon.ico"
     }
   },
   "devDependencies": {
     "electron": "~1.7.8",
-    "electron-builder": "^20.2.0"
+    "electron-builder": "^20.11.1",
+    "electron-packager": "^12.0.2"
   },
   "dependencies": {
     "electron-settings": "^3.1.4",
