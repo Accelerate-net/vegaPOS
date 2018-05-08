@@ -61,6 +61,8 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 */
 
 	/*Read mentioned KOT - kotID*/
+
+  
    if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
       fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
     if (err){

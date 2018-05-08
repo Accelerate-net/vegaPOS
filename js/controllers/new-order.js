@@ -1837,6 +1837,7 @@ function renderMenu(subtype){
 		if(fs.existsSync('./data/static/mastermenu.json')) {
 	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
 	    if (err){
+	    	console.log(err)
 	        
 	    } else {
 
@@ -1898,6 +1899,8 @@ function renderMenu(subtype){
 		}
 		});
 	    } else {
+	      console.log('ERR')
+	      console.log(err)
 	      showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
 	    }	
 	
