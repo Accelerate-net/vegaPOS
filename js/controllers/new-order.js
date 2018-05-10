@@ -1,3 +1,22 @@
+/* Key Watcher using MousetrapJS */
+Mousetrap.bind('4', function() { console.log('4'); });
+
+    //Open Address or Table Window
+    Mousetrap.bind(['command+a', 'ctrl+a'], function() {
+        $("#triggerClick_TableAddressButton").click();
+
+        // return false to prevent default browser behavior
+        // and stop event from bubbling
+        return false;
+    })
+
+    //Pending Saved Orders
+    Mousetrap.bind(['command+h', 'ctrl+h'], function() {
+        $("#triggerClick_SavedOrdersButton").click();
+        return false;
+    })
+
+
 
 /*Add Item to Cart */
 function saveToCart(productToAdd){
@@ -1328,8 +1347,8 @@ function renderCustomerInfo(){
 
 			if(holding_orders.length != 0){
 				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'+
-													        '<div class="holddropdown">'+
-											                 	'<div class="holddropbtn">'+n+' '+(n == 1? 'Order': 'Orders')+' on Hold</div>'+
+													        '<div id="triggerClick_SavedOrdersButton" class="holddropdown">'+
+											                 	'<div class="holddropbtn">'+n+' '+(n == 1? 'Saved Order': 'Saved Orders')+'</div>'+
 											                 	'<div class="holddropdown-content"><div class="holdContentArea">'+holdListRender+'</div>'+
 											                 	'<div class="holdCancelButton" onclick="removeAllHoldOrders()">Remove All</div>'+
 											                 	'</div>'+
@@ -1433,26 +1452,26 @@ function renderCustomerInfo(){
 						if(tempModeType == 'PARCEL'){ //ask for address
 
 							if(addressOptionsAvailable){
-									selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
+									selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
 									
 									if(customerInfo.mappedAddress && customerInfo.mappedAddress != ''){
-										selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-default" onclick="chooseAddressFromSavedList()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
+										selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="chooseAddressFromSavedList()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
 									}	
 							}
 							else{
-									selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
+									selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
 									
 									if(customerInfo.mappedAddress && customerInfo.mappedAddress != ''){
-										selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
+										selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
 									}								
 							}
 
 						}
 						else if(tempModeType == 'DINE'){ //ask for table
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag class="btn btn-danger" style="width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickTableForNewOrder()">Select Table</tag>';
+							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-danger" style="width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickTableForNewOrder()">Select Table</tag>';
 							
 							if(customerInfo.mappedAddress){
-								selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag class="btn btn-default" onclick="pickTableForNewOrder(\''+customerInfo.mappedAddress+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+								selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="pickTableForNewOrder(\''+customerInfo.mappedAddress+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
 							}
 						}					
 						else if(tempModeType == 'TOKEN'){ //assign token
@@ -1461,7 +1480,7 @@ function renderCustomerInfo(){
 								tempToken = 1;
 							}
 							customerInfo.mappedAddress = tempToken;
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+							selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
 						}
 					}
 					else{
@@ -1470,7 +1489,7 @@ function renderCustomerInfo(){
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
 							
 							if(customerInfo.mappedAddress && customerInfo.mappedAddress != ''){
-								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
+								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
 							}
 						}
 						else if(tempModeType == 'DINE'){ //ask for table

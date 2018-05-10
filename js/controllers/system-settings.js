@@ -58,6 +58,9 @@ function renderPersonalisations(){
             else if(params[i].name == "menuImages"){
               document.getElementById("personalisationEditImage").value = params[i].value;
             }
+            else if(params[i].name == "punchingRightScreen"){
+              document.getElementById("personalisationRightDisplayChoice").value = params[i].value;
+            }
             else if(params[i].name == "virtualKeyboard"){
               document.getElementById("personalisationEditKeyboard").value = params[i].value;
             }
@@ -218,6 +221,22 @@ function changePersonalisationImage(){
   window.localStorage.appCustomSettings_ImageDisplay = optName;
   changePersonalisationFile("menuImages", document.getElementById("personalisationEditImage").value);
 }
+
+function changePersonalisationRightDisplay(){
+  var optName = document.getElementById("personalisationRightDisplayChoice").value;
+
+  if(optName == 'MENU'){
+    showToast('Menu will be displayed in the Right Panel of Orders Page', '#27ae60');
+  }
+  else if(optName == 'TABLE'){
+    showToast('Table Layout will be displayed in the Right Panel of Orders Page', '#27ae60');
+  }
+
+  //Update
+  window.localStorage.appCustomSettings_OrderPageRightPanelDisplay = optName;
+  changePersonalisationFile("punchingRightScreen", optName);
+}
+
 
 
 function changePersonalisationLock(){
