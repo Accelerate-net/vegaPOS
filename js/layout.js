@@ -40,6 +40,15 @@ function applyPersonalisations(){
               /*update localstorage*/             
               window.localStorage.appCustomSettings_ImageDisplay = tempVal;
             }
+            else if(params[i].name == "punchingRightScreen"){
+
+              if(params[i].value != 'MENU' && params[i].value != 'TABLE'){
+                params[i].value = 'MENU';
+              }
+
+              /*update localstorage*/             
+              window.localStorage.appCustomSettings_OrderPageRightPanelDisplay = params[i].value;
+            }
             else if(params[i].name == "virtualKeyboard"){
               var tempVal = params[i].value;
               tempVal = parseFloat(tempVal);
