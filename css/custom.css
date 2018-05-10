@@ -3361,3 +3361,125 @@ position: absolute;
 }
 
 
+.specialRequestsHolder{
+    width: 50px;
+    padding: 0;
+    display: inline-block;
+    height: 50px;
+    position: absolute;
+    top: 0;
+    cursor: pointer;
+}
+
+.specialRequestsButton{
+    width: 34px;
+    height: 34px;
+    display: inline-block;
+    padding: 6px 9px;
+    position: relative;
+    top: 8px;
+    left: 8px;
+    border-radius: 50%;
+    color: #e6e2e2;
+    font-size: 21px;
+}
+
+/* Theme */
+.specialRequestsHolder:hover .specialRequestsButton,
+.specialRequestsHolder:active .specialRequestsButton,
+.specialRequestsHolder:focus .specialRequestsButton,
+.specialRequestsButtonActive{
+  background: #1abc9c;
+  color: #FFF;
+}
+
+
+.skin-blue .specialRequestsHolder:hover .specialRequestsButton,
+.skin-blue .specialRequestsHolder:active .specialRequestsButton,
+.skin-blue .specialRequestsHolder:focus .specialRequestsButton,
+.skin-blue .specialRequestsButtonActive,
+.skin-blue-light .specialRequestsHolder:hover .specialRequestsButton,
+.skin-blue-light .specialRequestsHolder:active .specialRequestsButton,
+.skin-blue-light .specialRequestsHolder:focus .specialRequestsButton,
+.skin-blue-light .specialRequestsButtonActive{
+  background: #3c8dbc;
+  color: #FFF;
+}
+
+
+.skin-red .specialRequestsHolder:hover .specialRequestsButton,
+.skin-red .specialRequestsHolder:active .specialRequestsButton,
+.skin-red .specialRequestsHolder:focus .specialRequestsButton,
+.skin-red .specialRequestsButtonActive,
+.skin-red-light .specialRequestsHolder:hover .specialRequestsButton,
+.skin-red-light .specialRequestsHolder:active .specialRequestsButton,
+.skin-red-light .specialRequestsHolder:focus .specialRequestsButton,
+.skin-red-light .specialRequestsButtonActive{
+  background: #dd4b39;
+  color: #FFF;
+}
+
+
+.skin-purple .specialRequestsHolder:hover .specialRequestsButton,
+.skin-purple .specialRequestsHolder:active .specialRequestsButton,
+.skin-purple .specialRequestsHolder:focus .specialRequestsButton,
+.skin-purple .specialRequestsButtonActive, 
+.skin-purple-light .specialRequestsHolder:hover .specialRequestsButton,
+.skin-purple-light .specialRequestsHolder:active .specialRequestsButton,
+.skin-purple-light .specialRequestsHolder:focus .specialRequestsButton,
+.skin-purple-light .specialRequestsButtonActive{
+  background: #605ca8;
+  color: #FFF;
+}
+
+
+.skin-yellow .specialRequestsHolder:hover .specialRequestsButton,
+.skin-yellow .specialRequestsHolder:active .specialRequestsButton,
+.skin-yellow .specialRequestsHolder:focus .specialRequestsButton,
+.skin-yellow .specialRequestsButtonActive,
+.skin-yellow-light .specialRequestsHolder:hover .specialRequestsButton,
+.skin-yellow-light .specialRequestsHolder:active .specialRequestsButton,
+.skin-yellow-light .specialRequestsHolder:focus .specialRequestsButton,
+.skin-yellow-light .specialRequestsButtonActive{
+  background: #f39c12;
+  color: #FFF;
+}
+
+
+.ingredientButton{
+  cursor: pointer;
+  padding: 6px 24px 6px 6px;
+  margin-top: 4px;
+}
+
+
+.ingredientButton:hover, .ingredientButton:focus, .ingredientButton:active{
+  border-color: #ee5357 !important;
+  color: #ee5357 !important;
+}
+
+.activeIngredient:hover, 
+.activeIngredient:focus, 
+.activeIngredient:active{
+  color: #FFF !important;
+}
+
+
+.activeIngredientButtonIcon{
+  float: left;
+  background: none;
+  opacity: 0;
+  padding-right: 6px;
+  color: #FFF;
+}
+
+.activeIngredient{
+  border-color: #ee5357 !important;
+  color: #FFF !important;
+  background: #ee5357;
+}
+
+.activeIngredient .activeIngredientButtonIcon{
+    background: none !important;
+    opacity: 1 !important;
+}
