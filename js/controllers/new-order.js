@@ -247,7 +247,7 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 	
 	var selectedBillingModeName = document.getElementById("customer_form_data_mode").value;
 	var selectedBillingModeInfo = '';
-	
+
 	var n = 0;
 	while(billing_modes[n]){
 		if(billing_modes[n].name == selectedBillingModeName){
@@ -314,17 +314,23 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 
 
-	if(cart_products.length < 1){
-		document.getElementById("cartTitleHead").innerHTML = '';
-		document.getElementById("summaryDisplay").innerHTML = '';
-		document.getElementById("summarySumDisplay").innerHTML = '<div style="height: 30vh !important;"></div>';
+	//Editing Mode
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+		//Empty Cart --> NEGLECT!
+	}
+	else{
+		if(cart_products.length < 1){
+			document.getElementById("cartTitleHead").innerHTML = '';
+			document.getElementById("summaryDisplay").innerHTML = '';
+			document.getElementById("summarySumDisplay").innerHTML = '<div style="height: 30vh !important;"></div>';
 
-		document.getElementById("cartDetails").innerHTML = '<p style="font-size: 21px; margin: 50px 0 0 0 ; text-align: center; font-weight: 300; color: #b9b9b9; }">'+
-							'<img style="width: 25%; margin: 20px 0px 5px 0px;" src="images/common/emptycart.png"><br>Order Cart is empty!</p>';
-		
-		document.getElementById("cartActionButtons").innerHTML = '';
+			document.getElementById("cartDetails").innerHTML = '<p style="font-size: 21px; margin: 50px 0 0 0 ; text-align: center; font-weight: 300; color: #b9b9b9; }">'+
+								'<img style="width: 25%; margin: 20px 0px 5px 0px;" src="images/common/emptycart.png"><br>Order Cart is empty!</p>';
+			
+			document.getElementById("cartActionButtons").innerHTML = '';
 
-		return 0;
+			return 0;
+		}		
 	}
 
 	var i = 0;
@@ -334,6 +340,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	var grandPayableSum = 0;
 
 	var hasUnsavedChanges = false;
+	var particularItemHasChanges = false;
 
 	var variantName = '';
 	var notifyIcon = '';
@@ -344,6 +351,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 		while(i < cart_products.length){
 			variantName = '';
 			notifyIcon = '';
+			particularItemHasChanges = false;
 
 			var tempItemCheck = checkForItemChanges(cart_products[i].code, cart_products[i].variant, cart_products[i].qty);
 
@@ -351,15 +359,19 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				case 'QUANTITY_INCREASE':{
 					notifyIcon = '<i class="fa fa-caret-up" style="color: #2ecc71; padding-left: 3px; font-size: 12px"></i>';
 					hasUnsavedChanges = true;
+					particularItemHasChanges = true;
 					break;
 				}
 				case 'QUANTITY_DECREASE':{
 					notifyIcon = '<i class="fa fa-caret-down" style="color: #c0392b; padding-left: 3px; font-size: 12px"></i>';
+					hasUnsavedChanges = true;
+					particularItemHasChanges = true;
 					break;
 				}
 				case 'NEW_ITEM':{
 					notifyIcon = '<i class="fa fa-star" style="color: #ffa500; padding-left: 3px; font-size: 10px"></i>';
 					hasUnsavedChanges = true;
+					particularItemHasChanges = true;
 					break;
 				}
 				default:{
@@ -376,7 +388,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				variantName = ' ('+cart_products[i].variant+')';
 			}
 
-			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 				'<td style="vertical-align: middle">'+
 					'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 				'</td>'+
@@ -400,10 +412,19 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 		}
 	}
 
-	if(checkIfItemDeleted() == 'DELETED'){
+
+	//Check for deleted items
+	var itemDeleteTest = checkIfItemDeleted();
+
+	if(itemDeleteTest == 'DELETED'){
 		hasUnsavedChanges = true;
 		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center"><i class="fa fa-exclamation-circle"></i> Removed some items</td></tr>' + temp;
 	}
+	else if(itemDeleteTest == 'DELETED_ALL'){
+		hasUnsavedChanges = true;
+		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center"><i class="fa fa-exclamation-circle"></i> Removed all items</td></tr>' + temp;
+	}
+
 	
 	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Subtotal</th>  </tr>';
 	document.getElementById("cartDetails").innerHTML = temp;
@@ -626,7 +647,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
  	}  		
 }
 else{
- 	//NEW ORDER - Actions     
+ 	//NEW ORDER - Actions    
  	if(selectedBillingModeInfo.type == 'TOKEN'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0">'+
@@ -903,7 +924,7 @@ function checkIfItemDeleted(){
 
 		var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
 		if(changed_cart_products.length == 0){
-			return 'ERROR';
+			return 'DELETED_ALL';
 		}
 
 
@@ -1043,9 +1064,8 @@ function generateInvoice(){
 }
 
 function clearCurrentEditingOrder(){
-	//clear customer info, cart
-	window.localStorage.zaitoon_cart = "";
-	window.localStorage.customerData = "";
+
+	clearAllMetaData();
 
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 		window.localStorage.edit_KOT_originalCopy = '';
@@ -1254,7 +1274,7 @@ function renderCustomerInfo(){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 		isEditingKOT = true;
 		var kotCopy = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : {};
-		document.getElementById("ongoingOrderTitle").innerHTML = '<tag class="blink_me">Running Order</tag>'+( kotCopy.orderDetails.modeType == 'DINE'? '<tag style="float: right; font-weight: 300;">Table <b>#'+kotCopy.table+'</b></tag>' : '');
+		document.getElementById("ongoingOrderTitle").innerHTML = '<tag class="cartCustomerLabel" style="display: block; color: #dd4b39;">Running Order</tag><tag class="blink_me">#'+kotCopy.KOTNumber+'</tag>'+( kotCopy.orderDetails.modeType == 'DINE'? '<tag style="float: right; font-weight: 300;"><tag style="text-transform: none; font-size: 80%">Table</tag> <b>'+kotCopy.table+'</b></tag>' : '');
 	}
 	else{
 
@@ -1307,7 +1327,7 @@ function renderCustomerInfo(){
 			}
 
 			if(holding_orders.length != 0){
-				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order'+
+				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'+
 													        '<div class="holddropdown">'+
 											                 	'<div class="holddropbtn">'+n+' '+(n == 1? 'Order': 'Orders')+' on Hold</div>'+
 											                 	'<div class="holddropdown-content"><div class="holdContentArea">'+holdListRender+'</div>'+
@@ -1316,11 +1336,11 @@ function renderCustomerInfo(){
 											               	'</div>';
 			}
 			else{
-				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order'
+				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'
 			}
 		}
 		else{
-			document.getElementById("ongoingOrderTitle").innerHTML = 'New Order'
+			document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'
 		}
 	}
 
@@ -1614,6 +1634,7 @@ function renderCustomerInfo(){
 			        window.localStorage.customerData = JSON.stringify(customerInfo);
 
 			        renderCart();
+			 
 				}
 		}
 		});
@@ -2212,18 +2233,21 @@ function generateEditedKOT(){
 function quickViewRemovedItems(){
 
 	var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
-
 	var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
-	if(changed_cart_products.length == 0){
-		showToast('Empty Cart! Add items and try again', '#e74c3c');
-		return '';
-	}
+	
 
 
 	var itemDeletedList = [];
 
 	//Compare changes in the Cart
 	var original_cart_products = originalData.cart;
+
+	//Corner case --> All items are removed
+	if(changed_cart_products.length == 0){
+		openQuickDeletedViewModal(original_cart_products);
+		return '';
+	}
+
 
 	//Search for changes in the existing items
 	var n = 0;
@@ -3342,6 +3366,128 @@ function addFromSuggestions(suggestion){
 
 function hideItemWiseCommentModal(){
 	document.getElementById("itemWiseCommentsModal").style.display = 'none';
+}
+
+
+/* Special Request */
+
+function openSpecialRequestModal(){
+
+		var allergicIngredientsList = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData): [];
+
+		if(fs.existsSync('./data/static/cookingingredients.json')) {
+	      fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
+	    if (err){
+	        
+	    } else {
+
+	    		if(data == ''){ data = '[]'; }
+
+	          	var ingredientsList = JSON.parse(data);
+	          	ingredientsList.sort(); //alphabetical sorting 
+	          	var allergicTag = '';
+
+	          	if(allergicIngredientsList.length > 0){ //there are already some allergic ingredients set
+					for (var i=0; i<ingredientsList.length; i++){
+						
+						var n = 0;
+						while(allergicIngredientsList[n]){
+							if(allergicIngredientsList[n] == ingredientsList[i]){
+								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i]+'" class="btn btn-outline ingredientButton activeIngredient" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
+								break;
+							}
+
+							if(n == allergicIngredientsList.length-1){ //last iteration
+								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i]+'" class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
+							}
+
+							n++;
+						}
+	        		}
+	        	}
+	        	else{ 
+					for (var i=0; i<ingredientsList.length; i++){
+						allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i]+'"  class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')">'+ingredientsList[i]+'</button>';
+	        		}
+	        	}
+        		
+				if(!allergicTag){
+					document.getElementById("specialRequestsAllergicSuggestions").innerHTML = '<tag style="font-style: italic; font-size: 12px; color: #f76850;">Suggestions not Available! Cooking Ingredients list is not updated.</tag>';
+				}
+				else{
+					document.getElementById("specialRequestsAllergicSuggestions").innerHTML = allergicTag;
+				}
+		}
+		});
+	    }
+
+
+
+	document.getElementById("specialRequestsModal").style.display = 'block';
+	document.getElementById("specialRequestsModalActions").innerHTML = ''+
+		'<button type="button" class="btn btn-default" onclick="hideSpecialRequestModal()" style="float: left">Cancel</button>'+
+        '<button id="specialRequestCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="saveSpecialRequest()" style="float: right">Save Request</button>';	
+
+    
+    //Enter to save
+    var duplicateClick = false;
+    $('#specialRequests_comments').keyup(function(e) {
+			if (e.which === 13) {
+				if(duplicateClick){
+					$('#specialRequestCommentsModalActions_SAVE').click();
+				}
+				else{
+					duplicateClick = true;
+				}
+			}
+    });
+}
+
+function hideSpecialRequestModal(){
+	document.getElementById("specialRequestsModal").style.display = 'none';
+}
+
+function saveSpecialRequest(){
+
+}
+
+function alterAllergicIngredientsList(ingredientName){
+
+	var allergicIngredientsList = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData): [];
+	
+	if(allergicIngredientsList.length == 0){
+		allergicIngredientsList.push(ingredientName); //Add it
+		$('#ing_'+ingredientName).addClass('activeIngredient');
+		window.localStorage.allergicIngredientsData = JSON.stringify(allergicIngredientsList);
+		return '';
+	}
+
+	var n = 0;
+	while(allergicIngredientsList[n]){
+
+		if(allergicIngredientsList[n] == ingredientName){
+			//Already present --> Remove it
+			allergicIngredientsList.splice(n,1);
+			window.localStorage.allergicIngredientsData = JSON.stringify(allergicIngredientsList);
+
+			$('#ing_'+ingredientName).removeClass('activeIngredient');
+
+			break;
+		}
+
+		if(n == allergicIngredientsList.length-1){ //last iteration
+			//Not present --> Add it 
+			allergicIngredientsList.push(ingredientName);
+			$('#ing_'+ingredientName).addClass('activeIngredient');
+
+			window.localStorage.allergicIngredientsData = JSON.stringify(allergicIngredientsList);
+			break;
+		}
+
+		n++;
+	}	
+
+
 }
 
 

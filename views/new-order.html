@@ -9,7 +9,9 @@
                <div class="well well-sm punchPOS" id="leftdiv" style="padding: 2px 2px 8px 2px; margin-bottom: 5px;">
                   <div id="lefttop" style="margin-bottom:5px;">
 
-                        <h1 class="posCartHead" id="ongoingOrderTitle">New Order</h1>
+                        <h1 class="posCartHead" id="ongoingOrderTitle">
+                           New Order<tag class="specialRequestsHolder" onclick="openSpecialRequestModal()"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>
+                        </h1>
                         <hr style="margin: 0">
 
                         <h2 class="posCartSubHead" style="margin-top: 12px">Customer Details</h2>
@@ -352,7 +354,37 @@
 
 
 
-      <!-- Modal -->
+   <!-- Modal -->
+   <div id="specialRequestsModal" class="modal">
+      <div class="modal-dialog" style="top: 20%">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-body" style="max-height: 420px; overflow: scroll;">
+
+                     <div class="row">
+                        <div class="col-lg-12">
+                                 <div class="form-group">
+                                    <label style="margin: 0 0 10px 0; font-size: 21px; font-weight: 300;">Special Requests for this Order</label>
+                                    <input type="text" value="" class="form-control tip" id="specialRequests_comments" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px;" placeholder="Add any Special Request?" required="required" />
+                                 </div>                                 
+                        </div>
+                     </div>
+
+                     <p style="margin: 0; font-size: 14px; font-weight: 400; margin-bottom: 5px; color: #969696;">Suggestions: Avoid Allergic Ingredients</p>
+                     <div id="specialRequestsAllergicSuggestions"></div>
+
+
+            </div>
+            <div class="modal-footer" id="specialRequestsModalActions">
+
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+   <!-- Modal -->
    <div id="setTokenOptionsModal" class="modal">
       <div class="modal-dialog" style="top: 20%">
          <!-- Modal content-->
