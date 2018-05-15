@@ -12,7 +12,7 @@ let $ = require('jquery');
 function fetchInitFunctions(pageReference){
 	switch (pageReference){
 		case 'new-order':{
-			renderMenu();
+			triggerRightPanelDisplay();
 			renderCustomerInfo();
 			initMenuSuggestion();
 			initOrderPunch();

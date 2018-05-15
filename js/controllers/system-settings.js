@@ -62,7 +62,7 @@ function renderPersonalisations(){
               document.getElementById("personalisationRightDisplayChoice").value = params[i].value;
             }
             else if(params[i].name == "virtualKeyboard"){
-              document.getElementById("personalisationEditKeyboard").value = params[i].value;
+              document.getElementById("personalisationEditKeyboard").value = 0; //params[i].value;
             }
             else if(params[i].name == "systemName"){
               document.getElementById("edit_main_system_name").value = params[i].value;

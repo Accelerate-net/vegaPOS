@@ -17,6 +17,27 @@ Mousetrap.bind('4', function() { console.log('4'); });
     })
 
 
+//Trigger Right Panel 
+function triggerRightPanelDisplay(){
+	//to show Menu
+	if(window.localStorage.appCustomSettings_OrderPageRightPanelDisplay && window.localStorage.appCustomSettings_OrderPageRightPanelDisplay == 'MENU'){
+		document.getElementById("fullRightPanelMenu").style.display = 'block';
+		document.getElementById("fullRightPanelTable").style.display = 'none';
+		renderMenu();
+	} //to show Table
+	else if(window.localStorage.appCustomSettings_OrderPageRightPanelDisplay && window.localStorage.appCustomSettings_OrderPageRightPanelDisplay == 'TABLE'){
+		document.getElementById("fullRightPanelTable").style.display = 'block';
+		document.getElementById("fullRightPanelMenu").style.display = 'none';
+		renderTables();
+	}
+	else{ //Render menu by default
+		document.getElementById("fullRightPanelMenu").style.display = 'block';
+		document.getElementById("fullRightPanelTable").style.display = 'none';
+		renderMenu();
+	}
+	
+}
+
 
 /*Add Item to Cart */
 function saveToCart(productToAdd){
@@ -1888,8 +1909,199 @@ function setCustomerInfoTable(tableID){
 
 	pickTableForNewOrderHide();
 	renderCustomerInfo();
+
+
+	//re-render right panel
+	if(window.localStorage.appCustomSettings_OrderPageRightPanelDisplay && window.localStorage.appCustomSettings_OrderPageRightPanelDisplay == 'TABLE'){
+		renderTables();
+	}
+
 }
 
+
+function renderTables(){
+
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+	if(customerInfo.modeType == 'DINE'){
+		currentTableID = customerInfo.mappedAddress;
+	}
+	else{
+		currentTableID = '';
+	}
+
+	
+
+			//PRELOAD TABLE MAPPING
+		    if(fs.existsSync('./data/static/tablemapping.json')) {
+		        fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
+		      if (err){
+		      	showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
+	    
+		      } else {
+
+		          	if(data == ''){ data = '[]'; }
+
+		              var tableMapping = JSON.parse(data);
+		              tableMapping.sort(); //alphabetical sorting 
+		              window.localStorage.tableMappingData = JSON.stringify(tableMapping);
+
+		              	  //PRELOAD TABLES
+						  if(fs.existsSync('./data/static/tables.json')) {
+					        fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
+					      if (err){
+					          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+					      } else {
+
+					          if(data == ''){ data = '[]'; }
+
+					              var tables = JSON.parse(data);
+					              tables.sort(); //alphabetical sorting 
+
+
+					             //PRELOAD TABLE SECTIONS
+							    if(fs.existsSync('./data/static/tablesections.json')) {
+							        fs.readFile('./data/static/tablesections.json', 'utf8', function readFileCallback(err, data){
+							      if (err){
+							          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+							      } else {
+
+							          if(data == ''){ data = '[]'; }
+
+							              var tableSections = JSON.parse(data);
+							              tableSections.sort(); //alphabetical sorting 
+
+							              
+
+							            if(0){
+
+							            }
+							            else{
+							              var renderSectionArea = '';
+
+							              var n = 0;
+							              while(tableSections[n]){
+							        
+							              	var renderTableArea = ''
+							              	for(var i = 0; i<tables.length; i++){
+							              		if(tables[i].type == tableSections[n]){
+
+							              			var tableOccupancyData = getTableLiveStatus(tables[i].name);
+
+							              			if(tableOccupancyData){ /*Occuppied*/
+														if(tableOccupancyData.status == 1 || tableOccupancyData.status == 2){
+							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
+																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo">Running</tag>'+
+																				        	'</tag>';	
+														}									
+														else if(tableOccupancyData.status == 5){
+															if(currentTableID != '' && currentTableID == tables[i].name){
+								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
+																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
+																					            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+																					        	'</tag>';	
+															}	
+															else{
+								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
+																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
+																					            '<tag class="tableInfo">Reserved</tag>'+
+																					        	'</tag>';	
+															}
+
+														}									
+														else{
+							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
+																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo">Running</tag>'+
+																				        	'</tag>';											
+														}
+
+
+							              			}
+							              			else{
+
+							              				if(currentTableID != '' && currentTableID == tables[i].name){
+							              					renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\')">'+
+																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+																				        	'</tag>';
+														}	
+														else{
+															renderTableArea = renderTableArea + '<tag class="tableTileGreen" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\')">'+
+																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo">Free</tag>'+
+																				        	'</tag>';
+														}							        	              				
+							              			}
+
+							              		}
+							              	}
+
+							              	renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
+																	   '<h1 class="seatingPlanHead" style="font-weight: 400; font-size: 18px; background: #f6f6f6; margin: 5px 5px; padding: 10px;">'+tableSections[n]+'</h1>'+
+																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
+																	    '</div>'+
+																	'</div>'
+
+							              	n++;
+							              }
+							              
+							              document.getElementById("tableRenderPlane").innerHTML = renderSectionArea;
+							            }
+							    }
+							    });
+							      } else {
+							        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+							      } 
+
+					    }
+					    });
+					      } else {
+					        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+					      } 
+
+
+		    }
+		    });
+		     }
+}
+
+
+function retrieveTableInfo(tableID, statusCode){
+
+	if(statusCode == 'MAPPED'){
+		if(fs.existsSync('./data/static/tablemapping.json')) {
+	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
+	    if (err){
+	        showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
+	    } else {
+	    	if(data == ''){ data = '[]'; }
+	          var tableMapping = JSON.parse(data); 
+
+	          for(var i=0; i<tableMapping.length; i++){
+	          	if(tableMapping[i].table == tableID){
+
+	          		console.log(tableMapping[i])
+
+	          	}
+	          }
+
+		}
+		});
+	    } else {
+	      showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
+	    }	
+	}
+	else if(statusCode == 'FREE'){
+		console.log('Free Table')
+	}
+}
 
 
 function renderCategoryTab(defaultTab){
@@ -2002,7 +2214,7 @@ function renderMenu(subtype){
 
 				/*Adjust height*/ /*TWEAK*/
 				var measures = {};
-				measures.fullHeight = document.getElementById("fullRightPanel").offsetHeight;
+				measures.fullHeight = document.getElementById("fullRightPanelMenu").offsetHeight;
 				measures.menuOriginal = document.getElementById("item-list").offsetHeight;
 				measures.menuRendered = document.getElementById("item-list").scrollHeight;
 				measures.subOriginal = document.getElementById("subMenuSelectionArea").offsetHeight;
@@ -2019,8 +2231,6 @@ function renderMenu(subtype){
 		}
 		});
 	    } else {
-	      console.log('ERR')
-	      console.log(err)
 	      showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
 	    }	
 	
