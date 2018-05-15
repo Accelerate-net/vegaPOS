@@ -140,11 +140,16 @@ function activateSidebar(){
 
 
 /* Virtual Keyboard */
+
+/* 
+
+// Disabled for Version 1 (No Touch Support) on 15.05.2018
+
 $(function () {
     "use strict";
     jqKeyboard.init();
 });
-
+*/
 
 /* Server Connectivity */
 function pingServer(){

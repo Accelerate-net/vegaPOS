@@ -425,6 +425,39 @@ html, body {
 
 /*end of theme EOT*/
 
+.punchMenuTableTitle{
+  font-size: 21px; 
+  font-weight: 300;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding: 15px 15px;
+  color: #FFF;
+  background: #1abc9c;
+ font-family: 'Oswald', sans-serif;
+     border-bottom: none;
+     text-align: center;
+}
+
+.skin-purple .punchMenuTableTitle, .skin-purple-light .punchMenuTableTitle{
+  background: #605ca8;
+}
+
+.skin-yellow .punchMenuTableTitle, .skin-yellow-light .punchMenuTableTitle{
+  background: #f39c12;
+}
+
+.skin-red .punchMenuTableTitle, .skin-red-light .punchMenuTableTitle{
+  background: #dd4b39;
+}
+
+.skin-blue .punchMenuTableTitle, .skin-blue-light .punchMenuTableTitle{
+ background: #3c8dbc;
+}
+
+.skin-green .punchMenuTableTitle, .skin-green-light .punchMenuTableTitle{
+  background: #1abc9c;
+}
+
 
 
 /*Purple Theme*/
@@ -1502,7 +1535,7 @@ ol ol {
   opacity: 1;
   color: #7f8c8d;
   animation-name: fadeInOutAnimate;
-  animation-duration: 5s;
+  animation-duration: 8s;
 }
 
 

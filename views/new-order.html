@@ -78,8 +78,8 @@
       </div>
       <div class="col-sm-8">
 
-         <div class="contents menuListingPOS" id="fullRightPanel">
-            <h1 class="punchMenuTitle"><tag id="posSubMenuTitle">...</tag>
+         <div class="contents menuListingPOS" style="display: none" id="fullRightPanelMenu">
+            <h1 class="punchMenuTitle"><tag id="posSubMenuTitle">The Menu</tag>
 
                <div class="dropdown">
                  <button class="dropbtn"><i class="fa fa-angle-down"></i></button>
@@ -90,13 +90,23 @@
 
             </h1>
             <div id="item-list" class="menuRenderPlane">
-               <p class="renderDelayText">Oops! Rendering Menu is unusually taking time.</p>
+               <p class="renderDelayText">Ohoo! Rendering Menu is unusually taking time. Could be a System Error.</p>
             </div>
          
             <div class="pickSubMenu" id="subMenuSelectionArea">
             </div>
 
          </div>
+
+
+
+         <div class="contents menuListingPOS" style="display: none" id="fullRightPanelTable">
+            <h1 class="punchMenuTableTitle">Current Table Status</h1>
+            <div id="tableRenderPlane">
+               <p class="renderDelayText" style="text-align: center">Auch! Rendering Table Status is unusually taking time. Could be a System Error.</p>
+            </div>
+         </div>
+
 
 
 
