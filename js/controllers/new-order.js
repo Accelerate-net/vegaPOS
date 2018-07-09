@@ -3070,6 +3070,7 @@ function addToTableMapping(tableID, kotID, assignedTo){
 
 		       var newjson = JSON.stringify(tableMapping);
 		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
+		       	 renderTables();
 		         if(err){
 		            showToast('System Error: Unable to map KOT and Table. Please contact Accelerate Support.', '#e74c3c');
 		           }
