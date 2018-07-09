@@ -603,7 +603,7 @@ function renderCurrentPlan(mode, currentTableID){
 									else if(tableOccupancyData.status == 5){
 		              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
 															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
+															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? (tableOccupancyData.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableOccupancyData.assigned) : "-")+'</tag>'+
 															            '<tag class="tableInfo">Reserved</tag>'+
 															        	'</tag>';	
 									}																									
@@ -681,7 +681,7 @@ function renderCurrentPlan(mode, currentTableID){
 									else if(tableOccupancyData.status == 5){
 		              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tables[i].name+'\')" class="tableReserved">'+
 															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
+															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? (tableOccupancyData.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableOccupancyData.assigned) : "-")+'</tag>'+
 															            '<tag class="tableInfo">Reserved</tag>'+
 															        	'</tag>';	
 									}									
