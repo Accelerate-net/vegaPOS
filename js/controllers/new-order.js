@@ -555,7 +555,12 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
           }
     }
     else{ //Not editing, new order being punched - Discount, other charges can not be applied at this stage -> both equals to 0
-          
+
+    	  /* Unsaved changes flag - applicable for Editing Orders only */
+		  window.localStorage.hasUnsavedChangesFlag = 0;
+		  document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+
           if(selectedModeExtras.length > 0){
 
           	for(var k = 0; k < selectedModeExtras.length; k++){
@@ -652,6 +657,13 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
  	else if(selectedBillingModeInfo.type == 'DINE'){
 
  		if(hasUnsavedChanges){
+
+ 			/* Set unsaved changes flag */
+ 			window.localStorage.hasUnsavedChangesFlag = 1;
+ 			document.getElementById("leftdiv").style.borderColor = "#e74c3c";
+ 			
+
+
 			document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
@@ -672,6 +684,11 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                     '</div>';
  		}
  		else{
+
+ 			/* Set unsaved changes flag */
+ 			window.localStorage.hasUnsavedChangesFlag = 0;
+ 			document.getElementById("leftdiv").style.borderColor = "#FFF";
+
 	 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
@@ -704,7 +721,7 @@ else{
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Hold</button>'+
+                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
                               '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()">Close</button>'+
                            '</div>'+
                         '</div>'+
@@ -717,7 +734,7 @@ else{
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Hold</button>'+
+                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
                               '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()">Close</button>'+
                            '</div>'+
                         '</div>'+
@@ -1041,6 +1058,7 @@ function cancelKOT(){
 function clearCurrentOrder(){
 	clearAllMetaData();
 	renderCustomerInfo();
+	renderTables();
 }
 
 function addHoldOrderToCurrent(encodedItem, id){
@@ -1059,7 +1077,7 @@ function addHoldOrderToCurrent(encodedItem, id){
 	holding_orders.splice(id,1);
 
 	window.localStorage.holdingOrdersData = JSON.stringify(holding_orders);
-	showToast('Order has been moved off the Hold List', '#27ae60');
+	showToast('Order has been moved off the Saved List', '#27ae60');
 
 
 	var order = JSON.parse(decodeURI(encodedItem));
@@ -1073,6 +1091,8 @@ function addHoldOrderToCurrent(encodedItem, id){
 
 
 	renderCustomerInfo();
+	renderTables();
+
 }
 
 function confirmHoldOverWritingModal(encodedItem, id){
@@ -1149,13 +1169,14 @@ function addToHoldKOT(){
 
 		//Mark the table as 'Reserved' if added to hold list
 		if(customerInfo.modeType == 'DINE' && customerInfo.mappedAddress != ''){
-			addTableToReserveList(customerInfo.mappedAddress, 'Hold Order')
+			addTableToReserveList(customerInfo.mappedAddress, 'Hold Order');
 		}
 
 		clearAllMetaData();
 		renderCustomerInfo();
 
-		showToast('The Order has been moved to Hold List', '#27ae60');
+
+		showToast('The Order has been moved to Saved List', '#27ae60');
 	}	
 }
 
@@ -1207,6 +1228,7 @@ function addTableToReserveList(tableID, optionalComments){
 
 		       var newjson = JSON.stringify(tableMapping);
 		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
+		       	renderTables();
 		       }); 
 
 		}
@@ -1322,7 +1344,6 @@ function renderCustomerInfo(){
 		if(window.localStorage.holdingOrdersData && window.localStorage.holdingOrdersData != ''){
 			
 			var holding_orders = window.localStorage.holdingOrdersData ? JSON.parse(window.localStorage.holdingOrdersData): [];
-			
 
 			var n = 0;
 			var holdListRender = '';
@@ -1367,7 +1388,7 @@ function renderCustomerInfo(){
 			}
 
 			if(holding_orders.length != 0){
-				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'+
+				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>'+
 													        '<div id="triggerClick_SavedOrdersButton" class="holddropdown">'+
 											                 	'<div class="holddropbtn">'+n+' '+(n == 1? 'Saved Order': 'Saved Orders')+'</div>'+
 											                 	'<div class="holddropdown-content"><div class="holdContentArea">'+holdListRender+'</div>'+
@@ -1376,11 +1397,11 @@ function renderCustomerInfo(){
 											               	'</div>';
 			}
 			else{
-				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'
+				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>'
 			}
 		}
 		else{
-			document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'
+			document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>'
 		}
 	}
 
@@ -1879,6 +1900,8 @@ function changeCustomerInfo(type, optionalValue){
 				window.localStorage.customerData = JSON.stringify(customerInfo);
 				renderCart();
 				renderCustomerInfo();
+				renderTables();
+
 				return '';
 			}
 			case "reference":{
@@ -1928,8 +1951,6 @@ function renderTables(){
 	else{
 		currentTableID = '';
 	}
-
-	
 
 			//PRELOAD TABLE MAPPING
 		    if(fs.existsSync('./data/static/tablemapping.json')) {
@@ -1992,21 +2013,21 @@ function renderTables(){
 							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
 																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Running</tag>'+
+																				            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].name ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Running')+'</tag>'+
 																				        	'</tag>';	
 														}									
 														else if(tableOccupancyData.status == 5){
 															if(currentTableID != '' && currentTableID == tables[i].name){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
+								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\', \''+(tableOccupancyData.assigned != "" && tableOccupancyData.assigned != "Hold Order" ? tableOccupancyData.assigned : '')+'\', '+(tableOccupancyData.assigned != "" && tableOccupancyData.assigned == "Hold Order" ? 1 : 0)+')">'+
 																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
+																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? (tableOccupancyData.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableOccupancyData.assigned) : "-")+'</tag>'+
 																					            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																					        	'</tag>';	
 															}	
 															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
+								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\', \''+(tableOccupancyData.assigned != "" && tableOccupancyData.assigned != "Hold Order" ? tableOccupancyData.assigned : '')+'\', '+(tableOccupancyData.assigned != "" && tableOccupancyData.assigned == "Hold Order" ? 1 : 0)+')">'+
 																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
+																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? (tableOccupancyData.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableOccupancyData.assigned) : "-")+'</tag>'+
 																					            '<tag class="tableInfo">Reserved</tag>'+
 																					        	'</tag>';	
 															}
@@ -2073,7 +2094,23 @@ function renderTables(){
 }
 
 
-function retrieveTableInfo(tableID, statusCode){
+function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSaveFlag){
+
+
+	/* warn if unsaved order (Not editing case) */
+	if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){
+	    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+	        showToast('Warning! There is an unsaved order being punched. Please complete it to continue.', '#e67e22');
+	        
+	       // document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
+	        //document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
+	          //                                      '<button type="button" class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
+	    	return '';
+	    }    
+	}
+	
+
+
 
 	if(statusCode == 'MAPPED'){
 		if(fs.existsSync('./data/static/tablemapping.json')) {
@@ -2088,7 +2125,7 @@ function retrieveTableInfo(tableID, statusCode){
 	          	if(tableMapping[i].table == tableID){
 
 	          		console.log(tableMapping[i])
-
+	          		moveToEditKOT(tableMapping[i].KOT);
 	          	}
 	          }
 
@@ -2099,9 +2136,95 @@ function retrieveTableInfo(tableID, statusCode){
 	    }	
 	}
 	else if(statusCode == 'FREE'){
-		console.log('Free Table')
+		freshOrderOnTable(tableID, optionalCustomerName, optionalSaveFlag);
 	}
 }
+
+
+/*Add to edit KOT*/
+function moveToEditKOT(kotID){
+
+	tableNumber = 10;
+
+
+    /*Read mentioned KOT - kotID*/
+   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
+      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
+    if (err){
+        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+    } else {
+
+		    var kot = JSON.parse(data);
+		   
+		    if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+		        var alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+		        if(alreadyEditingKOT.KOTNumber == kot.KOTNumber)//if thats the same order, neglect.
+		        {
+		            //renderPage('new-order', 'Editing Order');
+		            renderCustomerInfo();
+					initOrderPunch();
+					renderTables();
+		            return '';
+		        }
+		        else{
+
+			    	//Editing order has unsaved changes
+			    	if(window.localStorage.hasUnsavedChangesFlag && window.localStorage.hasUnsavedChangesFlag == 1){
+				        showToast('Warning! There is already an active order being modified. Please complete it to continue.', '#e67e22');
+			    		return '';
+			    	}
+		        }
+		    }
+
+		    /*
+		    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+
+		    	showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
+			        
+			    document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
+			    document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
+			                                                '<button type="button" class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
+		    	return '';
+		    }    
+		    */
+
+		    overWriteCurrentRunningOrder(data);
+
+    }});
+   } else {
+      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
+   }  
+
+}
+
+function overWriteCurrentRunningOrder(encodedKOT){
+
+    var kot = JSON.parse(decodeURI(encodedKOT));
+
+    var customerInfo = {};
+    customerInfo.name = kot.customerName;
+    customerInfo.mobile = kot.customerMobile;
+    customerInfo.mappedAddress = kot.table;
+    customerInfo.mode = kot.orderDetails.mode;
+    customerInfo.modeType = kot.orderDetails.modeType;
+    customerInfo.reference = kot.orderDetails.reference;
+
+    //Pending new order will be removed off the cart.
+    window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
+    window.localStorage.customerData = JSON.stringify(customerInfo);
+    window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+
+
+    //renderPage('new-order', 'Running Order');
+    renderCustomerInfo();
+	initOrderPunch();
+	renderTables();
+}
+
+
+
+
 
 
 function renderCategoryTab(defaultTab){
@@ -2808,7 +2931,93 @@ function clearAllMetaData(){
 	window.localStorage.zaitoon_cart = '';
 	window.localStorage.userAutoFound = '';
 	window.localStorage.userDetailsAutoFound = '';
+
+
+	window.localStorage.hasUnsavedChangesFlag = 0;
+ 	document.getElementById("leftdiv").style.borderColor = "#FFF";
+
 }
+
+
+function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
+
+
+	/* skip if in Editing Mode & has unsaved changes */
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != '' && window.localStorage.hasUnsavedChangesFlag == 1){
+		showToast('Warning: There are unsaved changes. Print the changed KOT to continue.', '#e67e22');
+		return '';
+	}
+
+
+	//to remove cart info, customer info
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+
+	/* skip if not DINE mode */
+	if(!customerInfo.modeType || customerInfo.modeType != 'DINE'){
+		var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
+		
+		if(billing_modes.length == 0){
+			showToast('Warning: There are no billing modes created.', '#e67e22');
+			return '';
+		}
+
+		var n = 0;
+		while(billing_modes[n]){
+			if(billing_modes[n].type == 'DINE'){
+				customerInfo.mode = billing_modes[n].name;
+				customerInfo.modeType = 'DINE';
+				
+				break;
+			}
+
+			if(billing_modes.length == n){
+				showToast('Warning: There are no billing modes of type Dine created.', '#e67e22');
+				return '';
+			}
+
+			n++;
+		}		
+	}
+
+	customerInfo.name = (optionalCustomerName && optionalCustomerName != '') ? optionalCustomerName : '';
+	customerInfo.mobile ="";
+	customerInfo.mappedAddress = TableNumber;
+	customerInfo.reference = "";
+
+
+	window.localStorage.customerData = JSON.stringify(customerInfo);
+	window.localStorage.edit_KOT_originalCopy = '';
+
+	if(optionalSaveFlag && optionalSaveFlag == 1){
+		/* fetch cart from saved */
+		var holding_orders = window.localStorage.holdingOrdersData ? JSON.parse(window.localStorage.holdingOrdersData): [];
+		
+		var n = 0;
+		while(holding_orders[n]){
+			if(holding_orders[n].customerDetails.mappedAddress == TableNumber){
+				addHoldOrderToCurrent(encodeURI(JSON.stringify(holding_orders[n])));
+				return '';
+			}
+			n++;
+		}
+	}
+	else{
+		window.localStorage.zaitoon_cart = '';
+	}
+
+	window.localStorage.userAutoFound = '';
+	window.localStorage.userDetailsAutoFound = '';
+
+
+
+	window.localStorage.hasUnsavedChangesFlag = 0;
+ 	document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+	renderCart();
+	renderCustomerInfo();
+	renderTables();
+}
+
 
 function addToTableMapping(tableID, kotID, assignedTo){
 
