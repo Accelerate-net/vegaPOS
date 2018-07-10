@@ -9,6 +9,9 @@
     <link href="css/styles.css" rel="stylesheet" type="text/css" />
     <link href="css/custom.css" rel="stylesheet" type="text/css" />
 
+    <!-- Spotlight -->
+    <link href="css/spotlight.min.css" rel="stylesheet" type="text/css" />
+
     <!-- Library CSS -->
     <link rel="stylesheet" href="lib/keyboard/keyboard.css" />
     <link type="text/css" href="lib/cropper/cropper.css" rel="stylesheet">
@@ -122,7 +125,7 @@
 
                         <li class="noHover"><a href="#" class="noHover" style="padding: 13.5px 30px"><tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 300"></tag></a></li>
 
-                        <li class="noHover"><a href="#" class="noHover" style="padding: 15px 30px; font-size: 18px; "><i class="fa fa-laptop"></i> <tag id="thisSystemName" style="padding-left: 5px;"></tag></a></li>
+                        <li class="noHover" onclick="showSpotlight()"><a href="#" class="noHover" style="padding: 15px 30px; font-size: 18px; "><i class="fa fa-laptop"></i> <tag id="thisSystemName" style="padding-left: 5px;"></tag></a></li>
                         
                         <li class="dropdown user user-menu">
                             <a href="#" onclick="selectStewardWindow()" id="currentUserProfileDisplay" style="font-size: 18px; font-weight: 400;">
@@ -266,6 +269,74 @@
                 </div>
              </div>
           </div>
+
+
+    <!-- 
+
+        ** SPOTLIGHT SEARCH **
+        
+        Core Features enables quick search though,
+            1. Tables (Live Status), 
+            2. Orders (both Dine and Parcels) against their order numbers, 
+            3. Customer Info against their mobile number, 
+            4. Menu Item (to easily find the price and change any details)
+    -->
+
+        <div class="ng-spotlight ng-spotlight-overlay" style="display: none;" id="spotlightSearchTool">
+
+           <div class="ng-spotlight-searchbar">
+              <div class="ng-spotlight-icon" style="font-size: 17px; color: grey">
+                 <i class="fa fa-search"></i>
+              </div>
+              <input class="ng-spotlight-input" id="spotlightSearchKey" type="text" placeholder="Spotlight Search" onblur="this.focus()">
+              <div class="ng-spotlight-input-after" style="color: red">— No Results</div>
+
+              <!-- ngIf: searchTerm.length > 0 -->
+              <div class="ng-spotlight-results-icon ng-scope">
+                <img src="brand/logo_small.png" width="32px" style="margin-top: -5px;">
+              </div>
+           </div>
+
+           <!-- If results found -->
+           <div class="ng-spotlight-results-panel">
+              <div class="ng-spotlight-results-list" id="spotlightResultsRenderArea"> <!-- key down to select a result -->
+               
+<!--                  <ul class="ng-spotlight-results-category">
+                        <div class="ng-spotlight-results-list-header">Tables</div>
+                          <li class="ng-spotlight-results-list-item active">
+                            <i class="fa fa-home"></i>
+                             22 Table
+                          </li>
+                          <li class="ng-spotlight-results-list-item">
+                            <i class="fa fa-home"></i>
+                             21 Table
+                          </li>
+                          <li class="ng-spotlight-results-list-item">
+                            <i class="fa fa-home"></i>
+                             20 Table
+                          </li>
+                       
+                        <div class="ng-spotlight-results-list-header">Customers</div>
+                          <li class="ng-spotlight-results-list-item">
+                            <i class="fa fa-user"></i>
+                             22nd Main Road, Adyar
+                          </li>
+                 </ul> -->
+ 
+              </div>
+              <div class="ng-spotlight-results-detail">
+                 <spotlight-details>
+                    <div class="ng-spotlight-results-detail-default">
+                        <i class="fa fa-user"></i>
+                        <div class="name">Table 22</div>
+                        <div style="">Free - 4 Seater</div>
+                    </div>
+                 </spotlight-details>
+              </div>
+           </div>
+
+        </div>
+
 
 
 

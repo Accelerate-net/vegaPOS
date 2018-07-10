@@ -923,7 +923,139 @@ function renderCurrentSessionDisplay(){
 renderCurrentSessionDisplay();
 
 
+// SPOTLIGHT SEARCH TOOL
+function showSpotlight(){
+        
 
+        document.getElementById("spotlightSearchTool").style.display = "block";
+        $("#spotlightSearchKey").focus();
+
+        var spotlightData = JSON.parse('[{ "category": "Customers", "list": [{ "name": "Abhijith", "mobile": "9043960876", "last": "4th July, 2018" }, { "name": "Anas Jafry", "mobile": "9884179675", "last": "3rd July, 2018" }] }, { "category": "Tables", "list": [{ "table": "T4", "assigned": "", "KOT": "KOT1395", "status": 1, "lastUpdate": "0048" }, { "table": "T3", "assigned": "", "KOT": "KOT1396", "status": 1, "lastUpdate": "0050" }, { "table": "T5", "assigned": "", "KOT": "KOT1397", "status": 1, "lastUpdate": "0050" }, { "table": "2", "assigned": "", "KOT": "KOT1398", "status": 1, "lastUpdate": "0051" }, { "table": "T5", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }, { "table": "T6", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }] }]');
+
+        /*Select on Arrow Up/Down */
+        var li = $('#spotlightResultsRenderArea li');
+        var liSelected = undefined;
+
+        $('#spotlightSearchKey').keyup(function(e) {
+
+            if (e.which === 40 || e.which === 38) {
+                /*
+                  Skip Search if the Up-Arrow or Down-Arrow
+              is pressed inside the Search Input
+                */ 
+
+                console.log('trigger')
+
+
+              if(e.which === 40){ 
+                  if(liSelected){
+                      liSelected.removeClass('active');
+                      next = liSelected.next();
+                      if(next.length > 0){
+                          liSelected = next.addClass('active');
+                      }else{
+                          liSelected = li.eq(0).addClass('active');
+                      }
+                  }else{
+                      liSelected = li.eq(0).addClass('active');
+                  }
+              }else if(e.which === 38){
+                  if(liSelected){
+                      liSelected.removeClass('active');
+                      next = liSelected.prev();
+                      if(next.length > 0){
+                          liSelected = next.addClass('active');
+                      }else{
+                          liSelected = li.last().addClass('active');
+                      }
+                  }else{
+                      liSelected = li.last().addClass('active');
+                  }
+              }
+
+
+            }
+            else if (e.which === 13) {
+                /*
+                  Add Item if the Enter Key
+              is pressed inside the Search Input
+                */ 
+
+                $("#spotlightResultsRenderArea li").each(function(){
+                  if($(this).hasClass("active")){
+                    $(this).click();
+                  }
+              });
+
+            }
+            else{
+
+              liSelected = undefined
+
+              var searchField = $(this).val();
+              if (searchField === '') {
+                  $('#spotlightResultsRenderArea').html('');
+                  return;
+              }
+
+              var regex = new RegExp(searchField, "i");
+              var renderContent = '<ul class="ng-spotlight-results-category">';
+              var count = 0;
+              var tabIndex = 1;
+              var itemsList = '';
+
+              $.each(spotlightData, function(key_1, spotResult) {
+
+                itemsList = '';
+                count = 0;
+
+                console.log(spotResult.category)
+
+                switch(spotResult.category){
+                  case "Tables":{
+                      $.each(spotResult.list, function(key_2, spotItem) {
+
+                        if ((spotItem.table.search(regex) != -1)) {
+                              tabIndex = -1;
+                              itemsList += '<li class="ng-spotlight-results-list-item" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'MAPPED\')"> <i class="fa fa-circle" style="color: '+(spotItem.status == 0 ? '#2ecc71' : '#e74c3c')+'"></i> Table #'+(spotItem.table)+'</li>';
+                              count++;
+                              tabIndex++;
+                        }
+                      });
+                      break;
+                  }
+                  case "Customers":{
+                      $.each(spotResult.list, function(key_2, spotItem) {
+
+                        if (spotItem.mobile.search(regex) != -1) {
+                              tabIndex = -1;
+                              itemsList += '<li class="ng-spotlight-results-list-item"> <i class="fa fa-home"></i> '+spotItem.name+' (<i class="fa fa-phone"></i>'+spotItem.mobile+')</li>';
+                              count++;
+                              tabIndex++;
+                        }
+                      });
+                      break;
+                  }
+                }
+
+
+                if(count > 0){
+                  renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                }
+
+              });
+
+              renderContent += '</ul>';
+
+              $('#spotlightResultsRenderArea').html(renderContent);
+
+              //Refresh dropdown list
+              li = $('#spotlightResultsRenderArea li');
+          }
+
+        });
+
+}
 
 
 
