@@ -79,6 +79,36 @@ html, body {
 
 }
 
+.spotlightMenuItemPrice{
+  display: inline-block;
+    position: absolute;
+    bottom: 5px;
+    right: 0;
+    font-weight: 600;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    min-width: 40px;
+    border-bottom-left-radius: 3px;
+    border-top-left-radius: 3px;
+    padding: 1px 4px;
+    color: #18536b;
+}
+
+.spotlightMenuItemPriceNoImage{
+  display: inline-block;
+    position: absolute;
+    bottom: 16px;
+    right: 0;
+    font-weight: 600;
+    font-size: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    min-width: 100%;
+    border-radius: 5%;
+    padding: 4px;
+    height: 24px;
+    color: #18536b;
+}
+
 .btn-outline-sub {
     border:1px solid #2c3e50;
     background:0 0;

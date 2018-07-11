@@ -926,16 +926,19 @@ renderCurrentSessionDisplay();
 // SPOTLIGHT SEARCH TOOL
 
 function renderSpotlightPreview(type, encodedData){
-  console.log('Heyy')
+
+
 
   var renderTemplate = '';
 
   switch(type){
     case "Clear":{
       renderTemplate = '';
+      console.log('Render Preview... [Clear]')
       break;
     }
     case "Tables":{
+      console.log('Render Preview... [Tables]')
       var info = JSON.parse(decodeURI(encodedData));
       if(info.status == 0){
         renderTemplate = '<div style="height: 96px"><img src="images/common/table_free.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">Table <b style="font-size: 120%">'+info.table+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Free Table</div>'; 
@@ -953,70 +956,20 @@ function renderSpotlightPreview(type, encodedData){
       }
       break;
     }
+    case "Menu":{
+      console.log('Render Preview... [Menu]')
+      var info = JSON.parse(decodeURI(encodedData));
+      if(info.isAvailable){
+        renderTemplate = '<div style="height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img src="data/photos/menu/'+info.code+'.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Available</div>'; 
+      }
+      else{
+        renderTemplate = '<div style="height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img src="data/photos/menu/'+info.code+'.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Out of Stock</div>'; 
+      }
+      break;
+    }
   }
 
   document.getElementById("spotlightPreview").innerHTML = renderTemplate;
-}
-
-
-function processSpotlightSuggestions(key, restriction){
-            
-            // SEARCH KEY, RULE AND PRIORITY
-            /*
-              1. Search for Tables
-              2*. If the input contains '#' in the beginning => Search for Orders
-              3*. If the input contains '@' in the beginning => Search for Customers
-              4. Any Text input, search in the Menu
-            */
-
-  switch(restriction){
-    case "ORDER":{
-
-      break;
-    }
-    case "CUSTOMER":{
-
-        var mobileNumber = key;
-
-        var requestData = {
-          "selector"  :{ 
-                        "mobile": mobileNumber 
-                      },
-          "fields"    : ["name", "mobile", "savedAddresses"]
-        }
-
-        $.ajax({
-          type: 'POST',
-          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
-          data: JSON.stringify(requestData),
-          contentType: "application/json",
-          dataType: 'json',
-          timeout: 10000,
-          success: function(data) {
-            if(data.docs.length != 0){ //USER FOUND!!!
-
-              console.log(data.docs)
-              
-            }
-            else{ //USER NOT FOUND
-              
-
-            }
-          }
-        });  
-
-      break;
-    }
-    default:{
-      /* Search Tables and then Menu */
-      return JSON.parse('[{ "category": "Customers", "list": [{ "name": "Abhijith", "mobile": "9043960876", "last": "4th July, 2018" }, { "name": "Anas Jafry", "mobile": "9884179675", "last": "3rd July, 2018" }] }, { "category": "Tables", "list": [{ "table": "T5", "assigned": "Hold Order", "KOT": "", "status": 5, "lastUpdate": "0048" }, { "table": "T3", "assigned": "", "KOT": "KOT1396", "status": 1, "lastUpdate": "0050" }, { "table": "T1", "assigned": "", "KOT": "KOT1397", "status": 1, "lastUpdate": "0050" }, { "table": "2", "assigned": "", "KOT": "KOT1398", "status": 1, "lastUpdate": "0051" }, { "table": "T2", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }, { "table": "T6", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }] }]');
-
-
-
-      break;
-    }
-  }
-
 }
 
 
@@ -1038,29 +991,30 @@ function showSpotlight(){
         $('#spotlightSearchKey').keyup(function(e) {
 
             /*
-              1. Search for Tables
+              1@. Search for Tables
               2*. If the input contains '#' in the beginning => Search for Orders
               3*. If the input contains '@' in the beginning => Search for Customers
-              4. Any Text input, search in the Menu
+              4@. Any Text input, search in the Menu
 
               *Note: Pause auto-search and wait for the Enter Key to be pressed to search.
-
+              @Note: Poll Only Once. Dont continuesly request server. Load whole menu/tables at once then filter.
             */
 
             var searchKey = $(this).val();
+            var spotlightType = '';
 
             if(searchKey.startsWith("@")){ //Phone Number search
               autoSearchDisabled = true;
+              spotlightType = 'CUSTOMER';
             }
             else if(searchKey.startsWith("#")){ //Order Number search
               autoSearchDisabled = true;
+              spotlightType = 'ORDER';
             }
             else{ //Tables or any item in the Menu
               autoSearchDisabled = false;
+              spotlightType = '';
             }
-
-            spotlightData = processSpotlightSuggestions(searchKey, '');
-
 
             renderSpotlightPreview('Clear'); /*TWEAK*/
 
@@ -1071,7 +1025,7 @@ function showSpotlight(){
                   is pressed inside the Search Input
                 */ 
             
-              if($(this).val() == ''){
+              if(searchKey == ''){
                 renderSpotlightPreview('Clear');
                 return '';
               }
@@ -1130,79 +1084,176 @@ function showSpotlight(){
             }
             else{
 
-              liSelected = undefined
-
-              var searchField = $(this).val();
-              if (searchField === '') {
-                  $('#spotlightResultsRenderArea').html('');
-                  return;
+              if(!searchKey || searchKey == ''){
+                $('#spotlightResultsRenderArea').html('')
+                return '';
               }
 
-              var regex = new RegExp(searchField, "i");
-              var renderContent = '<ul class="ng-spotlight-results-category">';
-              var count = 0;
-              var tabIndex = 1;
-              var itemsList = '';
+              //PULL DATA
+              switch(spotlightType){
+                case "ORDER":{
 
-              $.each(spotlightData, function(key_1, spotResult) {
-
-                itemsList = '';
-                count = 0;
-
-                console.log(spotResult.category)
-
-                switch(spotResult.category){
-                  case "Tables":{
-                      $.each(spotResult.list, function(key_2, spotItem) {
-
-                        if ((spotItem.table.search(regex) != -1)) {
-                              tabIndex = -1;
-
-                              var tempData = encodeURI(JSON.stringify(spotItem));
-
-                              if(spotItem.status == 0){
-                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
-                              }
-                              else if(spotItem.status == 1 || spotItem.status == 2){
-                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'MAPPED\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
-                              }
-                              else if(spotItem.status == 5){
-                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\', \''+(spotItem.assigned != "" && spotItem.assigned != "Hold Order" ? spotItem.assigned : '')+'\', '+(spotItem.assigned != "" && spotItem.assigned == "Hold Order" ? 1 : 0)+')"> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
-                              }
-                              
-                              count++;
-                              tabIndex++;
-                        }
-                      });
-                      break;
-                  }
-                  case "Customers":{
-                      $.each(spotResult.list, function(key_2, spotItem) {
-
-                        if (spotItem.mobile.search(regex) != -1) {
-                              tabIndex = -1;
-                              itemsList += '<li class="ng-spotlight-results-list-item"> <i class="fa fa-home"></i> '+spotItem.name+' (<i class="fa fa-phone"></i>'+spotItem.mobile+')</li>';
-                              count++;
-                              tabIndex++;
-                        }
-                      });
-                      break;
-                  }
+                  break;
                 }
+                case "CUSTOMER":{
+
+                    var mobileNumber = searchKey;
+
+                    var requestData = {
+                      "selector"  :{ 
+                                    "mobile": mobileNumber 
+                                  },
+                      "fields"    : ["name", "mobile", "savedAddresses"]
+                    }
+
+                    $.ajax({
+                      type: 'POST',
+                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+                      data: JSON.stringify(requestData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        if(data.docs.length != 0){ //USER FOUND!!!
+
+                          console.log(data.docs)
+                          //spotlightData = [];
+                          
+                        }
+                        else{ //USER NOT FOUND
+                          
+
+                        }
+
+                        spotlightData = JSON.parse('[{ "category": "Customers", "list": [{ "name": "Abhijith", "mobile": "9043960876", "last": "4th July, 2018" }, { "name": "Anas Jafry", "mobile": "9884179675", "last": "3rd July, 2018" }] }]');
 
 
-                if(count > 0){
-                  renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                      }
+                    });  
+
+                  break;
                 }
+                default:{
+                  /* Search Tables and then Menu */
 
-              });
+                    var mobileNumber = searchKey;
 
-              renderContent += '</ul>';
+                    var requestData = {
+                      "selector"  :{ 
+                                    "mobile": mobileNumber 
+                                  },
+                      "fields"    : ["name", "mobile", "savedAddresses"]
+                    }
 
-              $('#spotlightResultsRenderArea').html(renderContent);
+                    $.ajax({
+                      type: 'POST',
+                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+                      data: JSON.stringify(requestData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        if(data.docs.length != 0){ //USER FOUND!!!
 
-              //Refresh dropdown list
-              li = $('#spotlightResultsRenderArea li');
+                          console.log(data.docs)
+                          //spotlightData = [];
+                          
+                        }
+                        else{ //USER NOT FOUND
+                          
+
+                        }
+
+                        spotlightData = JSON.parse('[{ "category": "Menu", "list": [{ "code": "1009", "isPhoto": true, "name": "Chicken Hawaian Salad", "price": "50", "isAvailable": false, "isCustom": false, "customOptions": null }, { "code": "1005", "name": "Darjeeling Salad", "price": "30", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": true }, { "code": "1004", "name": "Green Salad", "price": "25", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": true }, { "code": "1003", "name": "Onion Salad", "price": "20", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": true }, { "code": "1008", "name": "Russian Salad", "price": "40", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": false }, { "code": "1001", "name": "Thoum (Garlic Paste)", "price": "25", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": true }, { "code": "1105", "name": "Afghani BBQ Chicken", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1077", "name": "BBQ Chicken 4 In 1 Combo", "price": "360", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1069", "name": "BBQ Spicy Chicken", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1081", "name": "Boneless BBQ Fish", "price": "220", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1074", "name": "Green Pepper BBQ", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1088", "name": "Mexican Chicken Shawarma", "price": "65-100", "isAvailable": true, "isCustom": true, "customOptions": [{ "customName": "Roll", "customPrice": 65 }, { "customName": "Paratha Roll", "customPrice": 75 }, { "customName": "Plate", "customPrice": 100 }] }, { "code": "1071", "name": "Pepper Barbeque", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1087", "name": "Special Shawarma", "price": "75", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": 500611114, "name": "Alfaham Dajaj", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "name": "Chicken Shawarma", "price": "120-80", "code": "500611115", "customOptions": [{ "customName": "Roll", "customPrice": "80" }, { "customName": "Plate", "customPrice": "120" }], "isCustom": true, "isAvailable": true }] }, { "category": "Tables", "list": [{ "table": "T5", "assigned": "Hold Order", "KOT": "", "status": 5, "lastUpdate": "0048" }, { "table": "T3", "assigned": "", "KOT": "KOT1396", "status": 1, "lastUpdate": "0050" }, { "table": "T1", "assigned": "", "KOT": "KOT1397", "status": 1, "lastUpdate": "0050" }, { "table": "2", "assigned": "", "KOT": "KOT1398", "status": 1, "lastUpdate": "0051" }, { "table": "T2", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }, { "table": "T6", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }] }]');
+                        
+                        liSelected = undefined
+
+                        var renderContent = '<ul class="ng-spotlight-results-category">';
+                        var count = 0;
+                        var tabIndex = 1;
+                        var itemsList = '';
+
+                        var regex = new RegExp(searchKey, "i"); //NB: Not for Order or Customer Search
+
+                        $.each(spotlightData, function(key_1, spotResult) {
+
+                          itemsList = '';
+                          count = 0;
+
+                          switch(spotResult.category){
+                            case "Tables":{
+                                $.each(spotResult.list, function(key_2, spotItem) {
+
+                                  if ((spotItem.table.search(regex) != -1)) {
+                                        tabIndex = -1;
+
+                                        var tempData = encodeURI(JSON.stringify(spotItem));
+
+                                        if(spotItem.status == 0){
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
+                                        }
+                                        else if(spotItem.status == 1 || spotItem.status == 2){
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'MAPPED\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
+                                        }
+                                        else if(spotItem.status == 5){
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\', \''+(spotItem.assigned != "" && spotItem.assigned != "Hold Order" ? spotItem.assigned : '')+'\', '+(spotItem.assigned != "" && spotItem.assigned == "Hold Order" ? 1 : 0)+')"> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
+                                        }
+                                        
+                                        count++;
+                                        tabIndex++;
+                                  }
+                                });
+                                break;
+                            }
+                            case "Menu":{
+                                $.each(spotResult.list, function(key_2, spotItem) {
+                                  
+                                  if ((spotItem.name.search(regex) != -1)) {
+                                        tabIndex = -1;
+
+                                        var tempData = encodeURI(JSON.stringify(spotItem));
+
+                                        if(spotItem.isAvailable){ //Item Available
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="additemtocart(\''+tempData+'\')"> <i class="fa fa-check" style="color: #2ecc71; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                        }
+                                        else{
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="additemtocart(\''+tempData+'\')"> <i class="fa fa-times" style="color: #e74c3c; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                        } //Not available
+
+                                        count++;
+                                        tabIndex++;
+                                  }
+                                });
+                                break;
+                            }
+                          }
+
+
+                          if(count > 0){
+                            renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                          }
+
+                        });
+
+                        renderContent += '</ul>';
+
+                        $('#spotlightResultsRenderArea').html(renderContent);
+
+                        //Refresh dropdown list
+                        li = $('#spotlightResultsRenderArea li');
+
+                      } //end of success
+
+                    }); 
+
+                  break;
+                }
+              }   
+              
+
+
+
+
           }
 
         });
