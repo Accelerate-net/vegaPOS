@@ -924,28 +924,157 @@ renderCurrentSessionDisplay();
 
 
 // SPOTLIGHT SEARCH TOOL
+
+function renderSpotlightPreview(type, encodedData){
+  console.log('Heyy')
+
+  var renderTemplate = '';
+
+  switch(type){
+    case "Clear":{
+      renderTemplate = '';
+      break;
+    }
+    case "Tables":{
+      var info = JSON.parse(decodeURI(encodedData));
+      if(info.status == 0){
+        renderTemplate = '<div style="height: 96px"><img src="images/common/table_free.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">Table <b style="font-size: 120%">'+info.table+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Free Table</div>'; 
+      }
+      else if(info.status == 5){
+        if(info.assigned == "Hold Order"){
+          renderTemplate = '<div style="height: 96px"><img src="images/common/table_saved.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">Table <b style="font-size: 120%">'+info.table+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #ecaa40;">Order Saved</div><p style="font-size: 12px; margin-top: 14px; color: #879094;">'+getFormattedTime(info.lastUpdate)+' ago</p>';
+        }
+        else{
+          renderTemplate = '<div style="height: 96px"><img src="images/common/table_reserved.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">Table <b style="font-size: 120%">'+info.table+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #ecaa40;">Reserved '+(info.assigned != '' ? 'For '+info.assigned : '')+'</div><p style="font-size: 12px; margin-top: 14px; color: #879094;">'+getFormattedTime(info.lastUpdate)+' ago</p>';
+        }
+      }
+      else{
+        renderTemplate = '<div style="height: 96px"><img src="images/common/table_occuppied.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">Table <b style="font-size: 120%">'+info.table+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Running Order</div><p style="font-size: 12px; margin-top: 14px; color: #879094;">Updated '+getFormattedTime(info.lastUpdate)+' ago</p>'; 
+      }
+      break;
+    }
+  }
+
+  document.getElementById("spotlightPreview").innerHTML = renderTemplate;
+}
+
+
+function processSpotlightSuggestions(key, restriction){
+            
+            // SEARCH KEY, RULE AND PRIORITY
+            /*
+              1. Search for Tables
+              2*. If the input contains '#' in the beginning => Search for Orders
+              3*. If the input contains '@' in the beginning => Search for Customers
+              4. Any Text input, search in the Menu
+            */
+
+  switch(restriction){
+    case "ORDER":{
+
+      break;
+    }
+    case "CUSTOMER":{
+
+        var mobileNumber = key;
+
+        var requestData = {
+          "selector"  :{ 
+                        "mobile": mobileNumber 
+                      },
+          "fields"    : ["name", "mobile", "savedAddresses"]
+        }
+
+        $.ajax({
+          type: 'POST',
+          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+          data: JSON.stringify(requestData),
+          contentType: "application/json",
+          dataType: 'json',
+          timeout: 10000,
+          success: function(data) {
+            if(data.docs.length != 0){ //USER FOUND!!!
+
+              console.log(data.docs)
+              
+            }
+            else{ //USER NOT FOUND
+              
+
+            }
+          }
+        });  
+
+      break;
+    }
+    default:{
+      /* Search Tables and then Menu */
+      return JSON.parse('[{ "category": "Customers", "list": [{ "name": "Abhijith", "mobile": "9043960876", "last": "4th July, 2018" }, { "name": "Anas Jafry", "mobile": "9884179675", "last": "3rd July, 2018" }] }, { "category": "Tables", "list": [{ "table": "T5", "assigned": "Hold Order", "KOT": "", "status": 5, "lastUpdate": "0048" }, { "table": "T3", "assigned": "", "KOT": "KOT1396", "status": 1, "lastUpdate": "0050" }, { "table": "T1", "assigned": "", "KOT": "KOT1397", "status": 1, "lastUpdate": "0050" }, { "table": "2", "assigned": "", "KOT": "KOT1398", "status": 1, "lastUpdate": "0051" }, { "table": "T2", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }, { "table": "T6", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }] }]');
+
+
+
+      break;
+    }
+  }
+
+}
+
+
+
 function showSpotlight(){
         
 
         document.getElementById("spotlightSearchTool").style.display = "block";
         $("#spotlightSearchKey").focus();
 
-        var spotlightData = JSON.parse('[{ "category": "Customers", "list": [{ "name": "Abhijith", "mobile": "9043960876", "last": "4th July, 2018" }, { "name": "Anas Jafry", "mobile": "9884179675", "last": "3rd July, 2018" }] }, { "category": "Tables", "list": [{ "table": "T4", "assigned": "", "KOT": "KOT1395", "status": 1, "lastUpdate": "0048" }, { "table": "T3", "assigned": "", "KOT": "KOT1396", "status": 1, "lastUpdate": "0050" }, { "table": "T5", "assigned": "", "KOT": "KOT1397", "status": 1, "lastUpdate": "0050" }, { "table": "2", "assigned": "", "KOT": "KOT1398", "status": 1, "lastUpdate": "0051" }, { "table": "T5", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }, { "table": "T6", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }] }]');
+        var spotlightData;
 
         /*Select on Arrow Up/Down */
         var li = $('#spotlightResultsRenderArea li');
         var liSelected = undefined;
 
+        var autoSearchDisabled = false;
+
         $('#spotlightSearchKey').keyup(function(e) {
+
+            /*
+              1. Search for Tables
+              2*. If the input contains '#' in the beginning => Search for Orders
+              3*. If the input contains '@' in the beginning => Search for Customers
+              4. Any Text input, search in the Menu
+
+              *Note: Pause auto-search and wait for the Enter Key to be pressed to search.
+
+            */
+
+            var searchKey = $(this).val();
+
+            if(searchKey.startsWith("@")){ //Phone Number search
+              autoSearchDisabled = true;
+            }
+            else if(searchKey.startsWith("#")){ //Order Number search
+              autoSearchDisabled = true;
+            }
+            else{ //Tables or any item in the Menu
+              autoSearchDisabled = false;
+            }
+
+            spotlightData = processSpotlightSuggestions(searchKey, '');
+
+
+            renderSpotlightPreview('Clear'); /*TWEAK*/
+
 
             if (e.which === 40 || e.which === 38) {
                 /*
                   Skip Search if the Up-Arrow or Down-Arrow
-              is pressed inside the Search Input
+                  is pressed inside the Search Input
                 */ 
-
-                console.log('trigger')
-
+            
+              if($(this).val() == ''){
+                renderSpotlightPreview('Clear');
+                return '';
+              }
 
               if(e.which === 40){ 
                   if(liSelected){
@@ -953,11 +1082,15 @@ function showSpotlight(){
                       next = liSelected.next();
                       if(next.length > 0){
                           liSelected = next.addClass('active');
+                          renderSpotlightPreview(liSelected.attr("spot-preview-type"), liSelected.attr("spot-preview-data"));
+
                       }else{
                           liSelected = li.eq(0).addClass('active');
+                          renderSpotlightPreview(liSelected.attr("spot-preview-type"), liSelected.attr("spot-preview-data"));
                       }
                   }else{
                       liSelected = li.eq(0).addClass('active');
+                      renderSpotlightPreview(liSelected.attr("spot-preview-type"), liSelected.attr("spot-preview-data"));
                   }
               }else if(e.which === 38){
                   if(liSelected){
@@ -965,11 +1098,14 @@ function showSpotlight(){
                       next = liSelected.prev();
                       if(next.length > 0){
                           liSelected = next.addClass('active');
+                          renderSpotlightPreview(liSelected.attr("spot-preview-type"), liSelected.attr("spot-preview-data"));
                       }else{
                           liSelected = li.last().addClass('active');
+                          renderSpotlightPreview(liSelected.attr("spot-preview-type"), liSelected.attr("spot-preview-data"));
                       }
                   }else{
                       liSelected = li.last().addClass('active');
+                      renderSpotlightPreview(liSelected.attr("spot-preview-type"), liSelected.attr("spot-preview-data"));
                   }
               }
 
@@ -977,9 +1113,13 @@ function showSpotlight(){
             }
             else if (e.which === 13) {
                 /*
-                  Add Item if the Enter Key
-              is pressed inside the Search Input
+                  If the Enter Key is pressed inside the Search Input
                 */ 
+
+                if($(this).val() == ''){
+                  renderSpotlightPreview('Clear');
+                  return '';
+                }
 
                 $("#spotlightResultsRenderArea li").each(function(){
                   if($(this).hasClass("active")){
@@ -1017,7 +1157,19 @@ function showSpotlight(){
 
                         if ((spotItem.table.search(regex) != -1)) {
                               tabIndex = -1;
-                              itemsList += '<li class="ng-spotlight-results-list-item" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'MAPPED\')"> <i class="fa fa-circle" style="color: '+(spotItem.status == 0 ? '#2ecc71' : '#e74c3c')+'"></i> Table #'+(spotItem.table)+'</li>';
+
+                              var tempData = encodeURI(JSON.stringify(spotItem));
+
+                              if(spotItem.status == 0){
+                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
+                              }
+                              else if(spotItem.status == 1 || spotItem.status == 2){
+                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'MAPPED\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
+                              }
+                              else if(spotItem.status == 5){
+                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\', \''+(spotItem.assigned != "" && spotItem.assigned != "Hold Order" ? spotItem.assigned : '')+'\', '+(spotItem.assigned != "" && spotItem.assigned == "Hold Order" ? 1 : 0)+')"> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
+                              }
+                              
                               count++;
                               tabIndex++;
                         }
