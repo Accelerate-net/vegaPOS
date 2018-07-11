@@ -967,18 +967,46 @@ function renderSpotlightPreview(type, encodedData){
       }
       break;
     }
+    case "Customers":{
+      console.log('Render Preview... [Customers]')
+      var info = JSON.parse(decodeURI(encodedData));
+      var shortSummary = '';
+      if((!info.visits || info.visits == 0) && (!info.orders || info.orders == 0)){
+        shortSummary = '';
+      }
+      else if((info.visits || info.visits != 0) && (!info.orders || info.orders == 0)){
+        shortSummary = 'Visited '+(info.visits ? info.visits : 'a few')+' times, no online orders yet.';
+      }
+      else if((!info.visits || info.visits == 0) && (info.orders || info.orders != 0)){
+        shortSummary = 'Ordered '+(info.orders ? info.orders : 'a few')+' times, never visited.';
+      }
+      else if((info.visits || info.visits != 0) && (info.orders || info.orders != 0)){
+        shortSummary = 'Visited '+(info.visits ? info.visits : 'a few')+' times and '+(info.orders ? info.orders : 'a few')+' online orders';
+      }
+
+      renderTemplate = '<div style="height: 96px;"><img src="images/common/spotlight_contact.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 18px; color: #e74c3c;"><i class="fa fa-phone"></i> '+info.mobile+'</div>'+(shortSummary != '' ? '<p style="font-size: 12px; color: #565656; display: inline-block; margin: 0; border: 1px solid #87878a; padding: 2px 8px; border-radius: 3px; min-width: 75%;">'+shortSummary+'</p>' : '')+(info.last != '' ? '<p style="font-size: 10px; padding: 0 10%; text-align: center; color: #87878a; margin: 4px;">Last visited on <b>'+info.last+'</b></p>' : ''); 
+      
+      break;
+    }
   }
 
   document.getElementById("spotlightPreview").innerHTML = renderTemplate;
 }
 
-
+function hideSpotlight(){
+  document.getElementById("spotlightSearchTool").style.display = "none";
+}
 
 function showSpotlight(){
         
 
         document.getElementById("spotlightSearchTool").style.display = "block";
         $("#spotlightSearchKey").focus();
+
+        //Initialise
+        $('#spotlightSearchKey').val(''); //initialise
+        renderSpotlightPreview('Clear'); /*TWEAK*/
+        $('#spotlightResultsRenderArea').html('');
 
         var spotlightData;
 
@@ -987,6 +1015,8 @@ function showSpotlight(){
         var liSelected = undefined;
 
         var autoSearchDisabled = false;
+
+        var isMenuAndTablesLoaded = false;
 
         $('#spotlightSearchKey').keyup(function(e) {
 
@@ -1026,9 +1056,11 @@ function showSpotlight(){
                 */ 
             
               if(searchKey == ''){
+                isMenuAndTablesLoaded = false;
                 renderSpotlightPreview('Clear');
                 return '';
               }
+
 
               if(e.which === 40){ 
                   if(liSelected){
@@ -1078,13 +1110,15 @@ function showSpotlight(){
                 $("#spotlightResultsRenderArea li").each(function(){
                   if($(this).hasClass("active")){
                     $(this).click();
+                    hideSpotlight();
                   }
-              });
+                });
 
             }
             else{
 
               if(!searchKey || searchKey == ''){
+                isMenuAndTablesLoaded = false;
                 $('#spotlightResultsRenderArea').html('')
                 return '';
               }
@@ -1097,7 +1131,7 @@ function showSpotlight(){
                 }
                 case "CUSTOMER":{
 
-                    var mobileNumber = searchKey;
+                    var mobileNumber = searchKey.substring(1); //to remove '@' in the beginning
 
                     var requestData = {
                       "selector"  :{ 
@@ -1116,17 +1150,57 @@ function showSpotlight(){
                       success: function(data) {
                         if(data.docs.length != 0){ //USER FOUND!!!
 
-                          console.log(data.docs)
-                          //spotlightData = [];
+                          console.log(data.docs[0])
                           
+                          spotlightData = JSON.parse('[{ "category": "Customers", "list": [{ "name": "Abhijith", "mobile": "9043960876", "last": "4th July, 2018", "visits": 1, "orders": 0 }, { "name": "Anas Jafry", "mobile": "9884179675", "last": "3rd July, 2018", "visits": 3, "orders": 12 }] }]');
+                        
+                          liSelected = undefined
+
+                          var renderContent = '<ul class="ng-spotlight-results-category">';
+                          var count = 0;
+                          var tabIndex = 1;
+                          var itemsList = '';
+
+                          $.each(spotlightData, function(key_1, spotResult) {
+
+                            itemsList = '';
+                            count = 0;
+
+                            switch(spotResult.category){
+                              case "Customers":{
+                                  $.each(spotResult.list, function(key_2, spotItem) {
+
+                                          tabIndex = -1;
+
+                                          var tempData = encodeURI(JSON.stringify(spotItem));
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Customers" spot-preview-data="'+tempData+'" onclick="freshOrderForCustomer(\''+tempData+'\')"><i class="fa fa-user" style="float: left; display: table-cell; width: 8%; padding: 2px 0 0 0;"></i> <name style="display: inline-block; width: 50%">'+spotItem.name+'</name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> <i class="fa fa-phone" style="font-size: 85% !important; padding-right: 0.2em"></i>'+spotItem.mobile+'</tag></li>';
+                                          
+                                          count++;
+                                          tabIndex++;
+                                    
+                                  });
+                                  break;
+                              }
+                            }
+
+
+                            if(count > 0){
+                              renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                            }
+
+                          });
+
+                          renderContent += '</ul>';
+
+                          $('#spotlightResultsRenderArea').html(renderContent);
+
+                          //Refresh dropdown list
+                          li = $('#spotlightResultsRenderArea li');
+
                         }
                         else{ //USER NOT FOUND
-                          
-
+                          spotlightData = [];
                         }
-
-                        spotlightData = JSON.parse('[{ "category": "Customers", "list": [{ "name": "Abhijith", "mobile": "9043960876", "last": "4th July, 2018" }, { "name": "Anas Jafry", "mobile": "9884179675", "last": "3rd July, 2018" }] }]');
-
 
                       }
                     });  
@@ -1134,7 +1208,12 @@ function showSpotlight(){
                   break;
                 }
                 default:{
+
+                  
                   /* Search Tables and then Menu */
+                  //Load only once - static data.
+
+                  if(!isMenuAndTablesLoaded){
 
                     var mobileNumber = searchKey;
 
@@ -1153,16 +1232,11 @@ function showSpotlight(){
                       dataType: 'json',
                       timeout: 10000,
                       success: function(data) {
-                        if(data.docs.length != 0){ //USER FOUND!!!
 
-                          console.log(data.docs)
-                          //spotlightData = [];
-                          
-                        }
-                        else{ //USER NOT FOUND
-                          
 
-                        }
+                        isMenuAndTablesLoaded = true; 
+
+
 
                         spotlightData = JSON.parse('[{ "category": "Menu", "list": [{ "code": "1009", "isPhoto": true, "name": "Chicken Hawaian Salad", "price": "50", "isAvailable": false, "isCustom": false, "customOptions": null }, { "code": "1005", "name": "Darjeeling Salad", "price": "30", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": true }, { "code": "1004", "name": "Green Salad", "price": "25", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": true }, { "code": "1003", "name": "Onion Salad", "price": "20", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": true }, { "code": "1008", "name": "Russian Salad", "price": "40", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": false }, { "code": "1001", "name": "Thoum (Garlic Paste)", "price": "25", "isAvailable": true, "isCustom": false, "customOptions": null, "isPhoto": true }, { "code": "1105", "name": "Afghani BBQ Chicken", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1077", "name": "BBQ Chicken 4 In 1 Combo", "price": "360", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1069", "name": "BBQ Spicy Chicken", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1081", "name": "Boneless BBQ Fish", "price": "220", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1074", "name": "Green Pepper BBQ", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1088", "name": "Mexican Chicken Shawarma", "price": "65-100", "isAvailable": true, "isCustom": true, "customOptions": [{ "customName": "Roll", "customPrice": 65 }, { "customName": "Paratha Roll", "customPrice": 75 }, { "customName": "Plate", "customPrice": 100 }] }, { "code": "1071", "name": "Pepper Barbeque", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": "1087", "name": "Special Shawarma", "price": "75", "isAvailable": true, "isCustom": false, "customOptions": null }, { "code": 500611114, "name": "Alfaham Dajaj", "price": "100", "isAvailable": true, "isCustom": false, "customOptions": null }, { "name": "Chicken Shawarma", "price": "120-80", "code": "500611115", "customOptions": [{ "customName": "Roll", "customPrice": "80" }, { "customName": "Plate", "customPrice": "120" }], "isCustom": true, "isAvailable": true }] }, { "category": "Tables", "list": [{ "table": "T5", "assigned": "Hold Order", "KOT": "", "status": 5, "lastUpdate": "0048" }, { "table": "T3", "assigned": "", "KOT": "KOT1396", "status": 1, "lastUpdate": "0050" }, { "table": "T1", "assigned": "", "KOT": "KOT1397", "status": 1, "lastUpdate": "0050" }, { "table": "2", "assigned": "", "KOT": "KOT1398", "status": 1, "lastUpdate": "0051" }, { "table": "T2", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }, { "table": "T6", "assigned": "", "KOT": "", "status": 0, "lastUpdate": "" }] }]');
                         
@@ -1244,7 +1318,86 @@ function showSpotlight(){
 
                       } //end of success
 
-                    }); 
+                    });
+                  }//!isMenuAndTablesLoaded
+                  else{
+
+                        liSelected = undefined
+
+                        var renderContent = '<ul class="ng-spotlight-results-category">';
+                        var count = 0;
+                        var tabIndex = 1;
+                        var itemsList = '';
+
+                        var regex = new RegExp(searchKey, "i"); //NB: Not for Order or Customer Search
+
+                        $.each(spotlightData, function(key_1, spotResult) {
+
+                          itemsList = '';
+                          count = 0;
+
+                          switch(spotResult.category){
+                            case "Tables":{
+                                $.each(spotResult.list, function(key_2, spotItem) {
+
+                                  if ((spotItem.table.search(regex) != -1)) {
+                                        tabIndex = -1;
+
+                                        var tempData = encodeURI(JSON.stringify(spotItem));
+
+                                        if(spotItem.status == 0){
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
+                                        }
+                                        else if(spotItem.status == 1 || spotItem.status == 2){
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'MAPPED\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
+                                        }
+                                        else if(spotItem.status == 5){
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\', \''+(spotItem.assigned != "" && spotItem.assigned != "Hold Order" ? spotItem.assigned : '')+'\', '+(spotItem.assigned != "" && spotItem.assigned == "Hold Order" ? 1 : 0)+')"> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
+                                        }
+                                        
+                                        count++;
+                                        tabIndex++;
+                                  }
+                                });
+                                break;
+                            }
+                            case "Menu":{
+                                $.each(spotResult.list, function(key_2, spotItem) {
+                                  
+                                  if ((spotItem.name.search(regex) != -1)) {
+                                        tabIndex = -1;
+
+                                        var tempData = encodeURI(JSON.stringify(spotItem));
+
+                                        if(spotItem.isAvailable){ //Item Available
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="additemtocart(\''+tempData+'\')"> <i class="fa fa-check" style="color: #2ecc71; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                        }
+                                        else{
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="additemtocart(\''+tempData+'\')"> <i class="fa fa-times" style="color: #e74c3c; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                        } //Not available
+
+                                        count++;
+                                        tabIndex++;
+                                  }
+                                });
+                                break;
+                            }
+                          }
+
+
+                          if(count > 0){
+                            renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                          }
+
+                        });
+
+                        renderContent += '</ul>';
+
+                        $('#spotlightResultsRenderArea').html(renderContent);
+
+                        //Refresh dropdown list
+                        li = $('#spotlightResultsRenderArea li');                    
+                  }
 
                   break;
                 }

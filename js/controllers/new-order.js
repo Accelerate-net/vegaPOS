@@ -3019,6 +3019,74 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 }
 
 
+/* Make a new order against a Customer Data provided, start with Empty Cart */
+function freshOrderForCustomer(customerEncoded){
+
+	/* skip if in Editing Mode & has unsaved changes */
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != '' && window.localStorage.hasUnsavedChangesFlag == 1){
+		showToast('Warning: There are unsaved changes. Print the changed KOT to continue.', '#e67e22');
+		return '';
+	}
+
+	var newCustomerObj = JSON.parse(decodeURI(customerEncoded));
+
+	//to remove cart info, customer info
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+
+	/* skip if not DINE mode */
+	if(!customerInfo.modeType || customerInfo.modeType != 'DINE'){
+		var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
+		
+		if(billing_modes.length == 0){
+			showToast('Warning: There are no billing modes created.', '#e67e22');
+			return '';
+		}
+
+		var n = 0;
+		while(billing_modes[n]){
+			if(billing_modes[n].type == 'DINE'){
+				customerInfo.mode = billing_modes[n].name;
+				customerInfo.modeType = 'DINE';
+				
+				break;
+			}
+
+			if(billing_modes.length == n){
+				showToast('Warning: There are no billing modes of type Dine created.', '#e67e22');
+				return '';
+			}
+
+			n++;
+		}		
+	}
+
+	customerInfo.name = newCustomerObj.name;
+	customerInfo.mobile = newCustomerObj.mobile;
+	customerInfo.mappedAddress = "";
+	customerInfo.reference = "";
+
+
+	window.localStorage.customerData = JSON.stringify(customerInfo);
+	window.localStorage.edit_KOT_originalCopy = '';
+
+	window.localStorage.zaitoon_cart = '';
+	
+	window.localStorage.userAutoFound = 1;
+	window.localStorage.userDetailsAutoFound = JSON.stringify(newCustomerObj);
+
+
+
+	window.localStorage.hasUnsavedChangesFlag = 0;
+ 	document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+	renderCart();
+	renderCustomerInfo();
+	renderTables();
+}
+
+
+
+
 function addToTableMapping(tableID, kotID, assignedTo){
 
 
