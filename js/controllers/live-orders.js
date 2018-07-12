@@ -144,6 +144,7 @@ function overWriteCurrentOrder(encodedKOT){
     var customerInfo = {};
     customerInfo.name = kot.customerName;
     customerInfo.mobile = kot.customerMobile;
+    customerInfo.count = kot.guestCount;
     customerInfo.mappedAddress = kot.table;
     customerInfo.mode = kot.orderDetails.mode;
     customerInfo.modeType = kot.orderDetails.modeType;

@@ -76,7 +76,7 @@ function additemtocart(encodedItem, optionalSource){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 			return '';
 		}
@@ -143,7 +143,7 @@ function deleteItem(item, isCustom, variant){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 			return '';
 		}
@@ -222,7 +222,7 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 			return '';
 		}
@@ -346,7 +346,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			disableQuantityChange = true;
 			//to prevent changes
 		}
@@ -639,7 +639,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	var editingKOTContent = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 
  	//EDIT - Actions     
- 	if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'TOKEN'){
+ 	if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'TOKEN' || selectedBillingModeInfo.type == 'DELIVERY'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
@@ -717,7 +717,7 @@ else{
                         '</div>'+
                      '</div>';
  	}   
- 	else if(selectedBillingModeInfo.type == 'PARCEL'){
+ 	else if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'DELIVERY'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
@@ -1279,7 +1279,7 @@ function clearCart(){
 		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 				return '';
 			}
@@ -1296,7 +1296,7 @@ function clearCartConsent(){
 		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 				return '';
 			}
@@ -1369,7 +1369,7 @@ function renderCustomerInfo(){
 
 						}
 					}
-					else if(holding_orders[n].customerDetails.modeType =='PARCEL'){
+					else if(holding_orders[n].customerDetails.modeType =='PARCEL' || holding_orders[n].customerDetails.modeType =='DELIVERY'){
 						if(holding_orders[n].customerDetails.mappedAddress == ''){
 							displayAddress = '<tag style="font-weight: 400">'+holding_orders[n].customerDetails.mode+'</tag>';
 						}
@@ -1412,6 +1412,7 @@ function renderCustomerInfo(){
 	if(jQuery.isEmptyObject(customerInfo)){
 		customerInfo.name = "";
 		customerInfo.mobile = "";
+		customerInfo.count = "";
 		customerInfo.mode = "";
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
@@ -1446,6 +1447,7 @@ function renderCustomerInfo(){
 				if(jQuery.isEmptyObject(customerInfo)){
 					customerInfo.name = "";
 					customerInfo.mobile = "";
+					customerInfo.count = "";
 					customerInfo.mode = "";
 					customerInfo.modeType = "";
 					customerInfo.mappedAddress = "";
@@ -1491,7 +1493,7 @@ function renderCustomerInfo(){
 
 					//Ask for MappedAddress value
 					if(!isEditingKOT){
-						if(tempModeType == 'PARCEL'){ //ask for address
+						if(tempModeType == 'DELIVERY'){ //ask for address
 
 							if(addressOptionsAvailable){
 									selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
@@ -1508,6 +1510,10 @@ function renderCustomerInfo(){
 									}								
 							}
 
+						}
+						else if(tempModeType == 'PARCEL'){ //ask for address
+							
+							selectMappedAddressButton = '<label class="cartCustomerLabel">Mode</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Parcel</tag>';
 						}
 						else if(tempModeType == 'DINE'){ //ask for table
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-danger" style="width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickTableForNewOrder()">Select Table</tag>';
@@ -1527,12 +1533,15 @@ function renderCustomerInfo(){
 					}
 					else{
 
-						if(tempModeType == 'PARCEL'){ //ask for address
+						if(tempModeType == 'DELIVERY'){ //ask for address
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
 							
 							if(customerInfo.mappedAddress && customerInfo.mappedAddress != ''){
 								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
 							}
+						}
+						else if(tempModeType == 'PARCEL'){ //ask for address
+							selectMappedAddressButton = '<label class="cartCustomerLabel">Mode</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Parcel</tag>';
 						}
 						else if(tempModeType == 'DINE'){ //ask for table
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag class="btn btn-danger disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Not Set</tag>';
@@ -1568,14 +1577,19 @@ function renderCustomerInfo(){
 			                                 '</div> '+                       
 			                           '</div>'+
 			                           '<div class="row" style="padding: 0 15px">'+
-			                                 '<div class="col-xs-6" style="padding: 0; padding-right: 2px">'+
+			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+      			                           
-			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
+			                                 '<div class="col-xs-5" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<input type="text" onchange="changeCustomerInfo(\'name\')" value="'+customerInfo.name+'" id="customer_form_data_name" class="form-control kb-text" placeholder="Guest Name" />'+
+			                                    '</div>'+
+			                                 '</div>'+ 
+			                                 '<div class="col-xs-2" style="padding: 0; padding-left: 2px">'+
+			                                    '<div class="form-group" style="margin-bottom:5px;">'+
+			                                       '<input type="text" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
 			                                    '</div>'+
 			                                 '</div>'+               
 			                           '</div>';
@@ -1595,14 +1609,19 @@ function renderCustomerInfo(){
 			                                 '</div> '+                       
 			                           '</div>'+
 			                           '<div class="row" style="padding: 0 15px">'+
-			                                 '<div class="col-xs-6" style="padding: 0; padding-right: 2px">'+
+			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+    			                           
-			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
+			                                 '<div class="col-xs-5" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<input type="text" onchange="changeCustomerInfo(\'name\')" value="'+customerInfo.name+'" id="customer_form_data_name" class="form-control kb-text" placeholder="Guest Name" />'+
+			                                    '</div>'+
+			                                 '</div>'+ 
+			                                 '<div class="col-xs-2" style="padding: 0; padding-left: 2px">'+
+			                                    '<div class="form-group" style="margin-bottom:5px;">'+
+			                                       '<input type="text" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
 			                                    '</div>'+
 			                                 '</div>'+                 
 			                           '</div>';
@@ -1711,7 +1730,7 @@ function getFormattedAddress(addressObject){
 	var address = JSON.parse(addressObject);
 
 	if(address){
-		var addressString = address.name+' '+address.flatNo+' '+address.flatName+' '+address.landmark+' '+address.area+' ';
+		var addressString = address.flatNo+', '+address.flatName+' '+address.landmark+' '+address.area+' ';
 		return addressString;
 	}
 	else{
@@ -1767,12 +1786,12 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 	      		savedAddressesEncoded = encodeURI(JSON.stringify(data.docs[0].savedAddresses));
 	      	
 	      		//set default address to 1st saved address
-		      	if(customerInfo.modeType == 'PARCEL' && data.docs[0].savedAddresses.length > 0){
+		      	if(customerInfo.modeType == 'DELIVERY' && data.docs[0].savedAddresses.length > 0){
 		      		customerInfo.mappedAddress = JSON.stringify(data.docs[0].savedAddresses[0]);   			
 	      		}
 	      	}
 	      	else{
-	      		if(customerInfo.modeType == 'PARCEL'){
+	      		if(customerInfo.modeType == 'DELIVERY'){
 		      		//set default address to null
 		      		customerInfo.mappedAddress = "";  			
 	      		}
@@ -1799,7 +1818,7 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 	      		
 	      		customerInfo.mobile = mobileNumber;
 	      		
-	      		if(customerInfo.modeType == 'PARCEL'){
+	      		if(customerInfo.modeType == 'DELIVERY'){
 	      			customerInfo.mappedAddress = '';
 	      			document.getElementById("parcelAddressButtonWrap").innerHTML = '<tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag>';
 	      		}
@@ -1827,7 +1846,7 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 	      		
 	      		customerInfo.mobile = mobileNumber;
 	      		
-	      		if(customerInfo.modeType == 'PARCEL'){
+	      		if(customerInfo.modeType == 'DELIVERY'){
 	      			customerInfo.mappedAddress = '';
 	      			document.getElementById("parcelAddressButtonWrap").innerHTML = '<tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag>';
 	      		}
@@ -1859,6 +1878,7 @@ function changeCustomerInfo(type, optionalValue){
 	if(jQuery.isEmptyObject(customerInfo)){
 		customerInfo.name = "";
 		customerInfo.mobile = "";
+		customerInfo.count = "";
 		customerInfo.mode = "";
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
@@ -1872,6 +1892,10 @@ function changeCustomerInfo(type, optionalValue){
 			}
 			case "mobile":{
 				customerInfo.mobile = value;
+				break;
+			}	
+			case "count":{
+				customerInfo.count = value;
 				break;
 			}	
 			case "mode":{
@@ -1921,6 +1945,7 @@ function setCustomerInfoTable(tableID){
 		customerInfo.name = "";
 		customerInfo.mobile = "";
 		customerInfo.mode = "";
+		customerInfo.count = "";
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
@@ -2205,6 +2230,7 @@ function overWriteCurrentRunningOrder(encodedKOT){
     var customerInfo = {};
     customerInfo.name = kot.customerName;
     customerInfo.mobile = kot.customerMobile;
+    customerInfo.count = kot.guestCount;
     customerInfo.mappedAddress = kot.table;
     customerInfo.mode = kot.orderDetails.mode;
     customerInfo.modeType = kot.orderDetails.modeType;
@@ -2782,9 +2808,35 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		return '';
 	}
 
-	if(customerInfo.mappedAddress == ''){
-		showToast('Table Number or Address missing', '#e74c3c');
+	if(customerInfo.mobile == '' && customerInfo.modeType == 'PARCEL'){
+		showToast('Please enter Customer Contact Number', '#e74c3c');
 		return '';
+	}
+
+	if(customerInfo.mappedAddress == '' && customerInfo.modeType != 'PARCEL'){
+		switch(customerInfo.modeType){
+			case "TOKEN":{
+				showToast('Token is not set', '#e74c3c');
+				return '';
+				break;
+			}
+			case "DELIVERY":{
+				showToast('Delivery Address not set', '#e74c3c');
+				return '';
+				break;
+			}
+			case "DINE":{
+				showToast('Table not selected', '#e74c3c');
+				return '';
+				break;
+			}
+			default:{
+				showToast('Table Number or Address missing', '#e74c3c');
+				return '';
+				break;
+			}
+		}
+		
 	}
 
 	/* customerInfo.json
@@ -2831,6 +2883,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
           obj.table = customerInfo.mappedAddress;
           obj.customerName = customerInfo.name;
           obj.customerMobile = customerInfo.mobile; 
+          obj.guestCount = customerInfo.count;
           obj.stewardName = loggedInStaffInfo.name;
           obj.stewardCode = loggedInStaffInfo.code;
           obj.orderStatus = 1;
@@ -2877,7 +2930,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
  					pushCurrentOrderAsEditKOT(encodeURI(json));
               		generateBillFromKOT(kot, 'ORDER_PUNCHING')
               	}
-              	else if(orderMetaInfo.modeType == 'PARCEL'){
+              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
               		showToast('#'+kot+' generated Successfully', '#27ae60');
               		
               		pushCurrentOrderAsEditKOT(encodeURI(json));
@@ -2905,6 +2958,7 @@ function pushCurrentOrderAsEditKOT(encodedKOT){
     var customerInfo = {};
     customerInfo.name = kot.customerName;
     customerInfo.mobile = kot.customerMobile;
+    customerInfo.count = kot.guestCount;
     customerInfo.mappedAddress = kot.table;
     customerInfo.mode = kot.orderDetails.mode;
     customerInfo.modeType = kot.orderDetails.modeType;
@@ -2924,6 +2978,7 @@ function clearAllMetaData(){
 
 	customerInfo.name = "";
 	customerInfo.mobile ="";
+	customerInfo.count = "";
 	customerInfo.mappedAddress = "";
 	customerInfo.reference = "";
 
@@ -2980,7 +3035,8 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 	}
 
 	customerInfo.name = (optionalCustomerName && optionalCustomerName != '') ? optionalCustomerName : '';
-	customerInfo.mobile ="";
+	customerInfo.mobile = "";
+	customerInfo.count = "";
 	customerInfo.mappedAddress = TableNumber;
 	customerInfo.reference = "";
 
@@ -3064,6 +3120,7 @@ function freshOrderForCustomer(customerEncoded){
 	customerInfo.mobile = newCustomerObj.mobile;
 	customerInfo.mappedAddress = "";
 	customerInfo.reference = "";
+	customerInfo.count = "";
 
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -3694,6 +3751,7 @@ function setTokenManuallySave(){
 	if(jQuery.isEmptyObject(customerInfo)){
 		customerInfo.name = "";
 		customerInfo.mobile = "";
+		customerInfo.count = "";
 		customerInfo.mode = "";
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
@@ -3717,6 +3775,7 @@ function restartTokenManuallySave(){
 	if(jQuery.isEmptyObject(customerInfo)){
 		customerInfo.name = "";
 		customerInfo.mobile = "";
+		customerInfo.count = "";
 		customerInfo.mode = "";
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
@@ -3738,7 +3797,7 @@ function addCommentToItem(itemCode, variant){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 			return '';
 		}

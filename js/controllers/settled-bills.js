@@ -88,7 +88,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 
 				      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-			                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
+			                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 			                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 			                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 			                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -237,7 +237,7 @@ function loadAllSettledBills(){
                             '        <td>#'+resultsList[n].doc.billNumber+'</td>'+
                             '        <td>'+getFancyTime(resultsList[n].doc.timeBill)+'<br><tag style="font-size: 85%">'+resultsList[n].doc.date+'</tag></td>'+
                             '        <td>'+resultsList[n].doc.orderDetails.mode+'<br>'+( resultsList[n].doc.orderDetails.modeType == 'DINE' ? 'Table #'+resultsList[n].doc.table : '' + resultsList[n].doc.orderDetails.modeType == 'TOKEN' ? 'Token #'+resultsList[n].doc.table : '')+'</td>'+
-                            '        <td>'+resultsList[n].doc.customerName+'<br>'+resultsList[n].doc.customerMobile+'</td>'+
+                            '        <td>'+(resultsList[n].doc.customerName != '' ? resultsList[n].doc.customerName+'<br>' : '')+resultsList[n].doc.customerMobile+'</td>'+
                             '        <td><i class="fa fa-inr"></i>'+resultsList[n].doc.totalAmountPaid+'</td>'+
                             '        <td>'+getPaymentCodeEquivalentName(resultsList[n].doc.paymentMode)+'</td>'+
                             '    </tr>';
@@ -373,7 +373,7 @@ function openSelectedBill(encodedBill, type){
 												'<div class="box box-primary">'+
 												'   <div class="box-body">'+ 
 												      '<div class="box-header" style="padding: 10px 0px">'+
-												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3><button class="btn btn-success" style="float: right; color: #FFF" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">Settle Bill</button>'+
+												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3><button class="btn btn-success" style="float: right; color: #FFF" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">Settle Bill</button>'+
 												      '</div>'+
 												      '<div class="table-responsive">'+
 												         '<table class="table">'+

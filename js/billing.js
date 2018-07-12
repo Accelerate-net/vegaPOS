@@ -1658,6 +1658,7 @@ function renderSplitPayPart(optionalFocusCode){
   }
   else{
     $("#billSplitValue_"+optionalFocusCode).focus();
+    $("#billSplitValue_"+optionalFocusCode).select();
   }
 
  }
