@@ -998,12 +998,12 @@ function selectSessionWindow(){
 
                 if(n == 0){
                   isRendered = true;
-                  renderContent = '<tag onclick="selectSessionWindowClose()" class="stewardWindowClose">X</tag> <div class="row" style="margin: 0">';
-                  renderContent += '<div onclick="switchSession(\''+sessions[n].name+'\', \''+sessions[n].startTime+'\', \''+sessions[n].endTime+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="session_switch_'+sessions[n].name+'"> <h1 class="stewardName" style="padding-top: 11px">'+sessions[n].name+'<span style="padding-top: 4px; display: block; font-size: 60%; color: #8a8080">'+getFancyTime(sessions[n].startTime)+' - '+getFancyTime(sessions[n].endTime)+'</span></h1> <div class="stewardIcon">'+(n+1)+'</div> </div> </div>';
+                  renderContent = '<tag onclick="selectSessionWindowClose()" class="stewardWindowClose" id="sessionWindowCloseButton">X</tag> <div class="row" style="margin: 0">';
+                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchSession(\''+sessions[n].name+'\', \''+sessions[n].startTime+'\', \''+sessions[n].endTime+'\')" class="stewardProfile easySelectTool_Session" id="session_switch_'+sessions[n].name+'"> <h1 class="stewardName" style="padding-top: 11px">'+sessions[n].name+'<span style="padding-top: 4px; display: block; font-size: 60%; color: #8a8080">'+getFancyTime(sessions[n].startTime)+' - '+getFancyTime(sessions[n].endTime)+'</span></h1> <div class="stewardIcon">'+(n+1)+'</div> </div> </div>';
                 }
                 else if(n == 1){
                   isRendered = true;
-                  renderContent += '<div onclick="switchSession(\''+sessions[n].name+'\', \''+sessions[n].startTime+'\', \''+sessions[n].endTime+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="session_switch_'+sessions[n].name+'"> <h1 class="stewardName" style="padding-top: 11px">'+sessions[n].name+'<span style="padding-top: 4px; display: block; font-size: 60%; color: #8a8080">'+getFancyTime(sessions[n].startTime)+' - '+getFancyTime(sessions[n].endTime)+'</span></h1> <div class="stewardIcon">'+(n+1)+'</div> </div> </div>';
+                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchSession(\''+sessions[n].name+'\', \''+sessions[n].startTime+'\', \''+sessions[n].endTime+'\')" class="stewardProfile easySelectTool_Session" id="session_switch_'+sessions[n].name+'"> <h1 class="stewardName" style="padding-top: 11px">'+sessions[n].name+'<span style="padding-top: 4px; display: block; font-size: 60%; color: #8a8080">'+getFancyTime(sessions[n].startTime)+' - '+getFancyTime(sessions[n].endTime)+'</span></h1> <div class="stewardIcon">'+(n+1)+'</div> </div> </div>';
                   renderContent += '</div>';
                 }
                 else if(n > 1 && n%2 == 0){
@@ -1011,7 +1011,7 @@ function selectSessionWindow(){
                 }
 
                 if(!isRendered){
-                  renderContent += '<div onclick="switchSession(\''+sessions[n].name+'\', \''+sessions[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="session_switch_'+sessions[n].name+'"> <h1 class="stewardName" style="padding-top: 11px">'+sessions[n].name+'<span style="padding-top: 4px; display: block; font-size: 60%; color: #8a8080">'+getFancyTime(sessions[n].startTime)+' - '+getFancyTime(sessions[n].endTime)+'</span></h1> <div class="stewardIcon">'+(n+1)+'</div> </div> </div>';
+                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchSession(\''+sessions[n].name+'\', \''+sessions[n].code+'\')" class="stewardProfile easySelectTool_Session" id="session_switch_'+sessions[n].name+'"> <h1 class="stewardName" style="padding-top: 11px">'+sessions[n].name+'<span style="padding-top: 4px; display: block; font-size: 60%; color: #8a8080">'+getFancyTime(sessions[n].startTime)+' - '+getFancyTime(sessions[n].endTime)+'</span></h1> <div class="stewardIcon">'+(n+1)+'</div> </div> </div>';
                 }
 
                 if(n > 1 && n%2 == 1){
@@ -1032,6 +1032,141 @@ function selectSessionWindow(){
           if(currentSessionFound){
             document.getElementById("session_switch_"+setSessionInfo.name).classList.add('selectUserProfile');
           }
+
+
+
+
+          /*
+            EasySelect Tool (TWO COLUMN - MULTI ROW GRID)
+          */
+          var tiles = $('#sessionModalHomeContent .easySelectTool_Session');
+          var tileSelected = undefined; //Check for active selection
+          var i = 0;
+          var currentIndex = 0;
+          var lastIndex = 0;
+
+          $.each(tiles, function() {
+            if($(tiles[i]).hasClass("selectUserProfile")){
+              tileSelected = tiles.eq(i);
+              currentIndex = i;
+            }
+
+            lastIndex = i;
+            i++;
+          });  
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#sessionModalHome').is(':visible')) {
+
+              console.log(e.which)
+
+                 switch(e.which){
+                  case 37:{ //  < Left Arrow
+
+                      if(tileSelected){
+                          tileSelected.removeClass('selectUserProfile');
+
+                          currentIndex--;
+                          if(currentIndex < 0){
+                            currentIndex = lastIndex;
+                          }
+
+                          if(tiles.eq(currentIndex)){
+                              tileSelected = tiles.eq(currentIndex);
+                              tileSelected = tileSelected.addClass('selectUserProfile');
+                          }
+                      }else{
+                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                      }      
+
+                    break;
+                  }
+                  case 38:{ //  ^ Up Arrow 
+              
+                      if(tileSelected){
+                          tileSelected.removeClass('selectUserProfile');
+
+                          currentIndex = currentIndex - 2;
+
+                          if(currentIndex < 0){
+                            if(Math.abs(currentIndex)%2 == 1)
+                              currentIndex = lastIndex;
+                            else
+                              currentIndex = lastIndex - 1;
+                          }
+
+                          if(tiles.eq(currentIndex)){
+                              tileSelected = tiles.eq(currentIndex);
+                              tileSelected = tileSelected.addClass('selectUserProfile');
+                          }
+                      }else{
+                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                      }      
+
+                    break;
+                  }
+                  case 39:{ // Right Arrow >
+
+                      if(tileSelected){
+                          tileSelected.removeClass('selectUserProfile');
+
+                          currentIndex++;
+                          if(currentIndex > lastIndex){
+                            currentIndex = 0;
+                          }
+
+                          if(tiles.eq(currentIndex)){
+                              tileSelected = tiles.eq(currentIndex);
+                              tileSelected = tileSelected.addClass('selectUserProfile');
+                          }
+                      }else{
+                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                      }      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+                      if(tileSelected){
+                          tileSelected.removeClass('selectUserProfile');
+
+                          currentIndex = currentIndex + 2;
+                          if(currentIndex > lastIndex){
+                            currentIndex = currentIndex % 2;
+                          }
+
+                          if(tiles.eq(currentIndex)){
+                              tileSelected = tiles.eq(currentIndex);
+                              tileSelected = tileSelected.addClass('selectUserProfile');
+                          }
+                      }else{
+                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                      }      
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    $('#sessionWindowCloseButton').click();
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#sessionModalHomeContent .easySelectTool_Session").each(function(){
+                      if($(this).hasClass("selectUserProfile")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
+            }
+          });
+
 
     }
     });
