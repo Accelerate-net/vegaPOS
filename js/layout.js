@@ -686,10 +686,10 @@ function switchProfile(name, code){
 
    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
   
-  if(jQuery.isEmptyObject(loggedInStaffInfo)){
-    loggedInStaffInfo.name = "";
-    loggedInStaffInfo.code = "";
-  }
+    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+      loggedInStaffInfo.name = "";
+      loggedInStaffInfo.code = "";
+    }
  
     loggedInStaffInfo.name = name;
     loggedInStaffInfo.code = code;
@@ -697,6 +697,8 @@ function switchProfile(name, code){
     window.localStorage.loggedInStaffData = JSON.stringify(loggedInStaffInfo);
     renderCurrentUserDisplay();
     selectStewardWindowClose();
+
+    $("#customer_form_data_mobile").focus();
 }
 
 
@@ -708,6 +710,8 @@ function selectStewardWindow(){
     loggedInStaffInfo.name = "";
     loggedInStaffInfo.code = "";
   }
+
+  console.log('OPENING//////')
 
 
     if(fs.existsSync('./data/static/userprofiles.json')) {
@@ -736,12 +740,12 @@ function selectStewardWindow(){
 
                 if(n == 0){
                   isRendered = true;
-                  renderContent = '<tag onclick="selectStewardWindowClose()" class="stewardWindowClose">X</tag> <div class="row" style="margin: 0">';
-                  renderContent += '<div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+                  renderContent = '<tag onclick="selectStewardWindowClose()" class="stewardWindowClose" id="stewardWindowCloseButton">X</tag> <div class="row" style="margin: 0">';
+                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
                 }
                 else if(n == 1){
                   isRendered = true;
-                  renderContent += '<div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
                   renderContent += '</div>';
                 }
                 else if(n > 1 && n%2 == 0){
@@ -749,7 +753,7 @@ function selectStewardWindow(){
                 }
 
                 if(!isRendered){
-                  renderContent += '<div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="col-sm-6" style="margin: 0; padding: 0"> <div class="stewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
                 }
 
                 if(n > 1 && n%2 == 1){
@@ -770,6 +774,143 @@ function selectStewardWindow(){
           if(currentUserFound){
             document.getElementById("user_switch_"+loggedInStaffInfo.code).classList.add('selectUserProfile');
           }
+
+
+          /*
+            EasySelect Tool (TWO COLUMN - MULTI ROW GRID)
+          */
+          var tiles = $('#stewardModalHomeContent .easySelectTool_StewardProfile');
+          var tileSelected = undefined; //Check for active selection
+          var i = 0;
+          var currentIndex = 0;
+          var lastIndex = 0;
+
+          $.each(tiles, function() {
+            if($(tiles[i]).hasClass("selectUserProfile")){
+              tileSelected = tiles.eq(i);
+              currentIndex = i;
+            }
+
+            lastIndex = i;
+            i++;
+          });  
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#stewardModalHome').is(':visible')) {
+
+              console.log(e.which)
+
+                 switch(e.which){
+                  case 37:{ //  < Left Arrow
+
+                      if(tileSelected){
+                          tileSelected.removeClass('selectUserProfile');
+
+                          currentIndex--;
+                          if(currentIndex < 0){
+                            currentIndex = lastIndex;
+                          }
+
+                          if(tiles.eq(currentIndex)){
+                              tileSelected = tiles.eq(currentIndex);
+                              tileSelected = tileSelected.addClass('selectUserProfile');
+                          }
+                      }else{
+                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                      }      
+
+                    break;
+                  }
+                  case 38:{ //  ^ Up Arrow 
+              
+                      if(tileSelected){
+                          tileSelected.removeClass('selectUserProfile');
+
+                          currentIndex = currentIndex - 2;
+
+                          if(currentIndex < 0){
+                            if(Math.abs(currentIndex)%2 == 1)
+                              currentIndex = lastIndex;
+                            else
+                              currentIndex = lastIndex - 1;
+                          }
+
+                          if(tiles.eq(currentIndex)){
+                              tileSelected = tiles.eq(currentIndex);
+                              tileSelected = tileSelected.addClass('selectUserProfile');
+                          }
+                      }else{
+                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                      }      
+
+                    break;
+                  }
+                  case 39:{ // Right Arrow >
+
+                      if(tileSelected){
+                          tileSelected.removeClass('selectUserProfile');
+
+                          currentIndex++;
+                          if(currentIndex > lastIndex){
+                            currentIndex = 0;
+                          }
+
+                          if(tiles.eq(currentIndex)){
+                              tileSelected = tiles.eq(currentIndex);
+                              tileSelected = tileSelected.addClass('selectUserProfile');
+                          }
+                      }else{
+                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                      }      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+                      if(tileSelected){
+                          tileSelected.removeClass('selectUserProfile');
+
+                          currentIndex = currentIndex + 2;
+                          if(currentIndex > lastIndex){
+                            currentIndex = currentIndex % 2;
+                          }
+
+                          if(tiles.eq(currentIndex)){
+                              tileSelected = tiles.eq(currentIndex);
+                              tileSelected = tileSelected.addClass('selectUserProfile');
+                          }
+                      }else{
+                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                      }      
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    $('#stewardWindowCloseButton').click();
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#stewardModalHomeContent .easySelectTool_StewardProfile").each(function(){
+                      if($(this).hasClass("selectUserProfile")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                               
+                    
+                    break;
+                  }
+                 }
+            }
+          });
+
+
+
 
     }
     });
