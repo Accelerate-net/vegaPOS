@@ -956,6 +956,40 @@ function renderSpotlightPreview(type, encodedData){
       }
       break;
     }
+    case "Orders":{
+      console.log('Render Preview... [Orders]')
+      var info = JSON.parse(decodeURI(encodedData));
+      console.log(info)
+      info.orderDetails.mainType = 'DELIVERY';
+      info.status =2
+      info.orderDetails.reference = '924950';
+
+      if(info.status == 1){ //Active
+          renderTemplate = '<div style="height: 96px"><img src="images/common/spotlight_cooking.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">'+info.orderDetails.mode+(info.orderDetails.modeType == 'TOKEN' ? '<p class="spotlightOrderTag">Token #'+info.table+'</p>' : (info.orderDetails.modeType == 'DINE' ? '<p class="spotlightOrderTag">Table #'+info.table+'</p>' : ''))+'</div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Running Order</div><p class="spotlightOrderTime">Order punched '+getFormattedTime(info.timePunch)+' ago'+(info.stewardName != '' ? ' by <b>'+info.stewardName+'</b>' : '')+'</p>'; 
+      }
+      else if(info.status == 2){ //Bill Printed
+          renderTemplate = '<div style="height: 96px"><img src="images/common/spotlight_billed.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">'+info.orderDetails.mode+(info.orderDetails.modeType == 'TOKEN' ? '<p class="spotlightOrderTag">Token #'+info.table+'</p>' : (info.orderDetails.modeType == 'DINE' ? '<p class="spotlightOrderTag">Table #'+info.table+'</p>' : ''))+'</div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Billed #'+info.billNumber+'</div><p class="spotlightOrderTime">Billed at '+getFancyTime(info.timeBill)+(info.stewardName != '' ? ' by <b>'+info.stewardName+'</b>' : '')+'</p>'; 
+          renderTemplate += '<div style="margin-top: 10px;"><button onclick="preSettleBill(\''+info.billNumber+'\')" class="btn btn-success">Settle Bill</button></div>';
+      }
+      else if(info.status == 3){ //Settled or Completed
+        if(info.orderDetails.mainType == 'DINE'){
+          renderTemplate = '<div style="height: 96px; position: relative; display: inline-block;"><img src="images/common/spotlight_order_dine.png"><img style="position: absolute; bottom: 0; right: 0;" src="images/common/spotlight_check.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">'+info.orderDetails.mode+'<p class="spotlightOrderTag">Bill <b>#'+info.billNumber+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> Dated '+info.date+'</p></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Completed</div><p class="spotlightOrderTime">Bill settled at '+getFancyTime(info.timePunch)+(info.stewardName != '' ? ' by <b>'+info.stewardName+'</b>' : '')+'</p>'; 
+        }
+        else if(info.orderDetails.mainType == 'TAKEAWAY'){
+          renderTemplate = '<div style="height: 96px; position: relative; display: inline-block;"><img src="images/common/spotlight_order_takeaway.png" height="96px"><img style="position: absolute; bottom: 0; right: 0;" src="images/common/spotlight_check.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">'+info.orderDetails.mode+'<p class="spotlightOrderTag">Bill <b>#'+info.billNumber+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> Dated '+info.date+'</p></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Completed</div><p class="spotlightOrderTime">Order placed at '+getFancyTime(info.timePunch)+'</p>'+(info.orderDetails.reference ? '<p class="spotlightOrderTime">Ref. '+info.orderDetails.reference+' <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> '+info.customerName+' <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> '+info.customerMobile+' </p>' : '');
+        }
+        else if(info.orderDetails.mainType == 'DELIVERY'){
+          renderTemplate = '<div style="height: 96px; position: relative; display: inline-block;"><img src="images/common/spotlight_order_delivery.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">'+info.orderDetails.mode+'<p class="spotlightOrderTag">Bill <b>#'+info.billNumber+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> Dated '+info.date+'</p></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Completed</div><p class="spotlightOrderTime">Order placed at '+getFancyTime(info.timePunch)+'</p>'+(info.orderDetails.reference ? '<p class="spotlightOrderTime">Ref. '+info.orderDetails.reference+' <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> '+info.customerName+' <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> '+info.customerMobile+' </p>' : '');
+        }
+
+        renderTemplate += '<div style="margin-top: 10px;"><button onlclick="printDuplicateBill(\''+info.billNumber+'\')" class="btn btn-default">Print Duplicate Bill</button></div>';
+
+      }
+      else{
+        renderTemplate = '<div style="height: 96px"><img src="images/common/table_occuppied.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">Table <b style="font-size: 120%">'+info.table+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Running Order</div><p style="font-size: 12px; margin-top: 14px; color: #879094;">Updated '+getFormattedTime(info.lastUpdate)+' ago</p>'; 
+      }
+      break;
+    }
     case "Menu":{
       console.log('Render Preview... [Menu]')
       var info = JSON.parse(decodeURI(encodedData));
@@ -1125,7 +1159,82 @@ function showSpotlight(){
 
               //PULL DATA
               switch(spotlightType){
+
                 case "ORDER":{
+
+                    var mobileNumber = searchKey.substring(1); //to remove '@' in the beginning
+
+                    var requestData = {
+                      "selector"  :{ 
+                                    "mobile": mobileNumber 
+                                  },
+                      "fields"    : ["name", "mobile", "savedAddresses"]
+                    }
+
+                    $.ajax({
+                      type: 'POST',
+                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+                      data: JSON.stringify(requestData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        if(data.docs.length != 0){ //USER FOUND!!!
+
+                          console.log(data.docs[0])
+                          
+                          spotlightData = JSON.parse('[{ "category": "Orders", "list": [{ "status": 2, "customerName": "Abhijith", "customerMobile": "9043960876", "date": "04-05-2018", "timePunch": "0129", "timeKOT": "", "timeBill": "0132", "timeSettle": "0132", "stewardName": "Manoj", "KOTNumber": "KOT1353", "table": 7, "orderDetails": { "mode": "Self Service", "modeType": "TOKEN", "reference": "" }, "billNumber": 2001146, "paymentMode": "CASH", "totalAmountPaid": 160 }] }]');
+                        
+                          liSelected = undefined
+
+                          var renderContent = '<ul class="ng-spotlight-results-category">';
+                          var count = 0;
+                          var tabIndex = 1;
+                          var itemsList = '';
+
+                          $.each(spotlightData, function(key_1, spotResult) {
+
+                            itemsList = '';
+                            count = 0;
+
+                            switch(spotResult.category){
+                              case "Orders":{
+                                  $.each(spotResult.list, function(key_2, spotItem) {
+
+                                          tabIndex = -1;
+
+                                          var tempData = encodeURI(JSON.stringify(spotItem));
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><i class="fa '+(spotItem.status == 1 ? 'fa-refresh' : (spotItem.status == 2 ? 'fa-print' : (spotItem.status == 3 ? 'fa-check': '')))+'" style="float: left; display: table-cell; width: 8%; padding: 2px 0 0 0;"></i> <name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : spotItem.KOTNumber)+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
+                                          
+                                          count++;
+                                          tabIndex++;
+                                    
+                                  });
+                                  break;
+                              }
+                            }
+
+
+                            if(count > 0){
+                              renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                            }
+
+                          });
+
+                          renderContent += '</ul>';
+
+                          $('#spotlightResultsRenderArea').html(renderContent);
+
+                          //Refresh dropdown list
+                          li = $('#spotlightResultsRenderArea li');
+
+                        }
+                        else{ //USER NOT FOUND
+                          spotlightData = [];
+                        }
+
+                      }
+                    });  
 
                   break;
                 }

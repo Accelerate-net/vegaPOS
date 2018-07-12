@@ -1506,6 +1506,32 @@ function settleBillAndPush(encodedBill, optionalPageRef){
 
 
 
+function preSettleBill(billNumber){
+
+  console.log('To settle '+billNumber)
+
+  /*Read mentioned KOT - kotID*/
+   if(fs.existsSync('./data/bills/'+billNumber+'.json')) {
+      fs.readFile('./data/bills/'+billNumber+'.json', 'utf8', function readFileCallback(err, data){
+    if (err){
+        showToast('Error: Bill was not found. Please contact Accelerate Support.', '#e74c3c');
+    } else {
+
+          var billfile = JSON.parse(data);
+          settleBillAndPush(encodeURI(JSON.stringify(billfile)), 'ORDER_PUNCHING');
+
+      }    
+
+  });
+   } else {
+      showToast('Error: Bill was not found. Please contact Accelerate Support.', '#e74c3c');
+   }   
+
+}
+
+
+
+
 function addToSplitPay(mode, modeName){
   
   var splitPayHoldList = window.localStorage.billSettleSplitPlayHoldList ? JSON.parse(window.localStorage.billSettleSplitPlayHoldList): [];

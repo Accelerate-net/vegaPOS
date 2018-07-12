@@ -79,6 +79,16 @@ html, body {
 
 }
 
+.spotlightOrderTag{
+  font-size: 11px; font-family: sans-serif; 
+  letter-spacing: 1px; text-transform: uppercase; font-weight: 300; margin: 3px 0 0 0;
+}
+
+.spotlightOrderTime{
+  margin: 4px 0 0 0;
+  font-size: 11px;
+}
+
 .spotlightMenuItemPrice{
   display: inline-block;
     position: absolute;
