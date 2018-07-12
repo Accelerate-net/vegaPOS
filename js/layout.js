@@ -1048,7 +1048,7 @@ function showSpotlight(){
         var li = $('#spotlightResultsRenderArea li');
         var liSelected = undefined;
 
-        var autoSearchDisabled = false;
+        var autoSearchEnabled = false;
 
         var isMenuAndTablesLoaded = false;
 
@@ -1068,20 +1068,19 @@ function showSpotlight(){
             var spotlightType = '';
 
             if(searchKey.startsWith("@")){ //Phone Number search
-              autoSearchDisabled = true;
+              autoSearchEnabled = true;
               spotlightType = 'CUSTOMER';
             }
             else if(searchKey.startsWith("#")){ //Order Number search
-              autoSearchDisabled = true;
+              autoSearchEnabled = true;
               spotlightType = 'ORDER';
             }
             else{ //Tables or any item in the Menu
-              autoSearchDisabled = false;
+              autoSearchEnabled = false;
               spotlightType = '';
             }
 
             renderSpotlightPreview('Clear'); /*TWEAK*/
-
 
             if (e.which === 40 || e.which === 38) {
                 /*
@@ -1155,6 +1154,10 @@ function showSpotlight(){
                 isMenuAndTablesLoaded = false;
                 $('#spotlightResultsRenderArea').html('')
                 return '';
+              }
+
+              if(autoSearchEnabled){
+                $('#spotlightResultsRenderArea').html('');
               }
 
               //PULL DATA
