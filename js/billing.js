@@ -52,6 +52,11 @@ function generateBillFromKOT(kotID, optionalPageRef){
 
 }
 
+function properRoundOff(amount){
+  return Math.round(amount);
+}
+
+
 
 function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 
@@ -70,12 +75,14 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
     } else {
           var kotfile = JSON.parse(data);
 
-          document.getElementById("billPreviewContentTitle").innerHTML = "#"+kotfile.KOTNumber;
+          document.getElementById("billPreviewContentTitle").innerHTML = kotfile.orderDetails.modeType == 'DINE' ? 'Table <b>'+kotfile.table+'</b> <tag style="float: right">#'+kotfile.KOTNumber+'</tag>' : kotfile.orderDetails.mode+'<tag style="float: right">#'+kotfile.KOTNumber+'</tag>';
 
           var itemList = '';
           var subTotal = 0;
           var qtySum = 0;
           var grandPayableSum = 0;
+          var grandPayableSumRounded = 0;
+
           var n = 0;
           while(kotfile.cart[n]){
           	itemList = itemList + '<tr class="success">'+
@@ -154,9 +161,8 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 
 
           grandPayableSum = subTotal + otherChargesSum;
-
-          grandPayableSum = Math.round(grandPayableSum * 100) / 100
-
+          grandPayableSum = Math.round(grandPayableSum * 100) / 100;
+          grandPayableSumRounded = properRoundOff(grandPayableSum);
 
           var discountButtonPart = '';
           if(kotfile.discount.amount && kotfile.discount.type != 'COUPON' && kotfile.discount.type != 'NOCOSTBILL' && kotfile.discount.type != 'VOUCHER' && kotfile.discount.type != 'REWARDS'){ /*Discount is Applied Already*/
@@ -345,9 +351,13 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 								'                                 <td width="15%" class="text-right cartSummaryRow" colspan="2"><span id="total"><i class="fa fa-inr"></i><tag id="grandSumDisplay">'+subTotal+'</tag></span></td>'+
 								'                              </tr>'+otherCharges+
 								'                              <tr class="success cartSumRow">'+
-								'                                 <td colspan="2" class="cartSumRow" style="font-weight: 400 !important; font-size: 16px;">Total Payable</td>'+
-								'                                 <td class="text-right cartSumRow" colspan="2"><span id="total-payable"><i class="fa fa-inr"></i><tag>'+grandPayableSum+'</tag></span></td>'+
+								'                                 <td colspan="2" class="cartSumRow" style="font-weight: 400 !important; font-size: 14px;">Total Amount</td>'+
+								'                                 <td class="text-right cartSumRow" colspan="2" style="font-weight: 400 !important; font-size: 80%;"><span id="total-payable"><i class="fa fa-inr"></i><tag>'+grandPayableSum+'</tag></span></td>'+
 								'                              </tr>'+
+                '                              <tr class="success cartSumRow">'+
+                '                                 <td colspan="2" class="cartSumRow" style="font-weight: 400 !important; font-size: 16px;">Payable Amount</td>'+
+                '                                 <td class="text-right cartSumRow" colspan="2"><span id="total-payable"><i class="fa fa-inr"></i><tag>'+grandPayableSumRounded+'</tag></span></td>'+
+                '                              </tr>'+
 								'                           </tbody>'+
 								'                        </table>                        '+
 								'                    </div>'+
@@ -1393,6 +1403,43 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef){
           kotfile.totalAmountPaid = "";
           kotfile.paymentReference = "";
 
+
+          /* BILL SUM CALCULATION */
+
+          //Calculate Sum to be paid
+          var grandPayableBill = 0;
+          var n = 0;
+          while(kotfile.cart[n]){
+            grandPayableBill += kotfile.cart[n].price * kotfile.cart[n].qty;
+            n++;
+          }
+
+          //add extras
+          if(!jQuery.isEmptyObject(kotfile.extras)){
+            var m = 0;
+            while(kotfile.extras[m]){
+              grandPayableBill += kotfile.extras[m].amount;
+              m++;
+            }
+          } 
+
+          //add custom extras if any
+          if(!jQuery.isEmptyObject(kotfile.customExtras)){
+            grandPayableBill += kotfile.customExtras.amount;
+          }  
+
+
+          //substract discounts if any
+          if(!jQuery.isEmptyObject(kotfile.discount)){
+            grandPayableBill -= kotfile.discount.amount;
+          }  
+
+          grandPayableBill = parseFloat(grandPayableBill).toFixed(2);   
+          grandPayableBillRounded = properRoundOff(grandPayableBill);   
+
+          kotfile.payableAmount = grandPayableBillRounded;
+          kotfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
+
           kotfile.timeBill = getCurrentTime('TIME');
 
 
@@ -1498,7 +1545,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
   }  
 
   grandPayableBill = parseFloat(grandPayableBill).toFixed(2);
-
+  grandPayableBill = properRoundOff(grandPayableBill);  
 
   window.localStorage.billSettleSplitPlayHoldList = '';
 
@@ -1528,7 +1575,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                 optionsList += '<button class="btn btn-success paymentModeOption" onclick="addToSplitPay(\''+modes[i].code+'\', \''+modes[i].name+'\')" id="billPayment_'+modes[i].code+'">'+modes[i].name+'</button>';
               }
 
-              document.getElementById("billSettlementDetailsContent").innerHTML = '<h1 style="margin-bottom: 0; text-align: center; font-size: 48px; font-weight: bold; color: #00a584;"><tag id="fullAmount">'+grandPayableBill+'</tag></h1>'+
+              document.getElementById("billSettlementDetailsContent").innerHTML = '<h1 style="margin-bottom: 0; text-align: center; font-size: 48px; font-weight: bold; color: #00a584;"><i class="fa fa-inr"></i><tag id="fullAmount">'+grandPayableBill+'</tag></h1>'+
                             '<p style="color: gray; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; text-align: center; ">Total Amount to be paid</p>'+
                             '<hr><div class="row" style="padding: 0 20px; margin: 0"><center>'+optionsList+'</center></div>';
 

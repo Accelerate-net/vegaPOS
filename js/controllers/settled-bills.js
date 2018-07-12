@@ -367,7 +367,14 @@ function openSelectedBill(encodedBill, type){
 		}
 
 		grandSumCalculated = subTotal + charges_extra;
-		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Payable Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
+
+		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Grand Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
+		
+		if(bill.calculatedRoundOff != 0){
+			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
+		}
+
+		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Payable Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+bill.payableAmount+'</td> </tr>';
 
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
 												'<div class="box box-primary">'+
@@ -439,6 +446,14 @@ function openSelectedBill(encodedBill, type){
 
 		grandSumCalculated = subTotal + charges_extra;
 		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Grand Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
+
+		if(bill.calculatedRoundOff != 0){
+			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
+		}
+
+		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Total Payable Amount</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.payableAmount+'</td> </tr>';
+		
+
 		
 		//check if any tips/round off added
 		if(bill.tipsAmount && bill.tipsAmount != 0){
@@ -446,7 +461,7 @@ function openSelectedBill(encodedBill, type){
 		}
 
 		if(bill.roundOffAmount && bill.roundOffAmount != 0){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Round Off</td>  <td style="text-align: right"><tag style="color: #f15959">- <i class="fa fa-inr"></i>'+bill.roundOffAmount+'</tag></td> </tr>';
+			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Waived Round Off</td>  <td style="text-align: right"><tag style="color: #f15959">- <i class="fa fa-inr"></i>'+bill.roundOffAmount+'</tag></td> </tr>';
 		}
 
 		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td> </tr>';
