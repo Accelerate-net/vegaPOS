@@ -1256,6 +1256,46 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 }
 
 
+
+function releaseTableAfterBillSettle(tableID, billNumber){
+
+    if(fs.existsSync('./data/static/tablemapping.json')) {
+        fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
+      if (err){
+          showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
+      } else {
+        if(data == ''){ data = '[]'; }
+
+            var tableMapping = JSON.parse(data); 
+
+            var isUpdated = false;
+
+            var timestamp = getCurrentTime('TIME');
+
+            for(var i=0; i<tableMapping.length; i++){
+              if(tableMapping[i].table == tableID && tableMapping[i].KOT == billNumber){
+                tableMapping.splice(i, 1);
+                break;
+              }
+            }
+
+           var newjson = JSON.stringify(tableMapping);
+           fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
+             renderTables();
+             if(err){
+                showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
+               }
+           }); 
+
+    }
+    });
+      } else {
+        showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
+      }
+}
+
+
+
 /* SAMPLE BILL - Format
 
 {
@@ -1366,6 +1406,11 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef){
                           
                           clearAllMetaDataOfBilling();
                           hideBillPreviewModal();
+
+                          if(kotfile.orderDetails.modeType == 'DINE'){
+                            billTableMapping(kotfile.table, billNumber, 2);
+                          }
+                          
 
                           //Delete corresponding KOT file
                           if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
@@ -1507,8 +1552,6 @@ function settleBillAndPush(encodedBill, optionalPageRef){
 
 
 function preSettleBill(billNumber){
-
-  console.log('To settle '+billNumber)
 
   /*Read mentioned KOT - kotID*/
    if(fs.existsSync('./data/bills/'+billNumber+'.json')) {
@@ -1711,8 +1754,6 @@ function hideSettleBillAndPush(){
 
 function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
-  console.log('LOADED')
-
     var bill = JSON.parse(decodeURI(encodedBill));
 
 
@@ -1831,6 +1872,10 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                 if(fs.existsSync('./data/bills/'+bill.billNumber+'.json')) {
                   fs.unlinkSync('./data/bills/'+bill.billNumber+'.json')
                 }
+
+                //Free the mapped Table
+                if(bill.orderDetails.modeType == 'DINE')
+                  releaseTableAfterBillSettle(bill.table, bill.billNumber)
 
                 //re-render page
                 if(optionalPageRef == 'GENERATED_BILLS')

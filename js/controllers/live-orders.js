@@ -225,30 +225,30 @@ function pickTableForTransferOrder(currentTableID, kotID){
                                                     if(tableOccupancyData){ /*Occuppied*/
                                                         if(tableOccupancyData.status == 1){
                                                             if(currentTableID != '' && currentTableID == tables[i].name){
-                                                            renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="transferKOTAfterProcess(\''+tables[i].name+'\', \''+kotID+'\')">'+
+                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="transferKOTAfterProcess(\''+tables[i].name+'\', \''+kotID+'\')">'+
                                                                                                 '<tag class="tableTitle">'+tables[i].name+'</tag>'+
                                                                                                 '<tag class="tableCapacity">Current Table</tag>'+
                                                                                                 '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
                                                                                                 '</tag>';   
                                                             }   
                                                             else{
-                                                                    renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
+                                                                renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
                                                                                             '<tag class="tableTitle">'+tables[i].name+'</tag>'+
                                                                                             '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo">Occuppied</tag>'+
+                                                                                            '<tag class="tableInfo">Running</tag>'+
                                                                                             '</tag>';                                                       
                                                             }
                                                         }                                   
                                                         else if(tableOccupancyData.status == 5){
                                                             if(currentTableID != '' && currentTableID == tables[i].name){
-                                                            renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="transferKOTAfterProcess(\''+tables[i].name+'\', \''+kotID+'\')">'+
+                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="transferKOTAfterProcess(\''+tables[i].name+'\', \''+kotID+'\')">'+
                                                                                                 '<tag class="tableTitle">'+tables[i].name+'</tag>'+
                                                                                                 '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
                                                                                                 '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
                                                                                                 '</tag>';   
                                                             }   
                                                             else{
-                                                            renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="transferKOTAfterProcess(\''+tables[i].name+'\', \''+kotID+'\')">'+
+                                                                renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="transferKOTAfterProcess(\''+tables[i].name+'\', \''+kotID+'\')">'+
                                                                                                 '<tag class="tableTitle">'+tables[i].name+'</tag>'+
                                                                                                 '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
                                                                                                 '<tag class="tableInfo">Reserved</tag>'+
@@ -257,10 +257,10 @@ function pickTableForTransferOrder(currentTableID, kotID){
 
                                                         }                                   
                                                         else{
-                                                        renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
+                                                            renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
                                                                                             '<tag class="tableTitle">'+tables[i].name+'</tag>'+
                                                                                             '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo">Occuppied</tag>'+
+                                                                                            '<tag class="tableInfo">Running</tag>'+
                                                                                             '</tag>';                                           
                                                         }
 

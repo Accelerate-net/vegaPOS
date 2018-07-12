@@ -117,6 +117,7 @@ function random_rgba_color_set() {
 //Returns first letters of the 2 words in the string
 function getImageCode(text){
 	text = text.replace(/[^a-zA-Z ]/g, "");
+  text = text.toUpperCase();
 	var words = text.split(' ');
 
 	if(words.length > 1){

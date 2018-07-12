@@ -1077,7 +1077,7 @@ function addHoldOrderToCurrent(encodedItem, id){
 	holding_orders.splice(id,1);
 
 	window.localStorage.holdingOrdersData = JSON.stringify(holding_orders);
-	showToast('Order has been moved off the Saved List', '#27ae60');
+	showToast('Order loaded from the Saved Orders', '#27ae60');
 
 
 	var order = JSON.parse(decodeURI(encodedItem));
@@ -2034,12 +2034,19 @@ function renderTables(){
 							              			var tableOccupancyData = getTableLiveStatus(tables[i].name);
 
 							              			if(tableOccupancyData){ /*Occuppied*/
-														if(tableOccupancyData.status == 1 || tableOccupancyData.status == 2){
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].name ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Running')+'</tag>'+
-																				        	'</tag>';	
+														if(tableOccupancyData.status == 1){
+								              				renderTableArea = renderTableArea + '<tag class="tableTileRed" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
+																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																					            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].name ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Running')+'</tag>'+
+																					        	'</tag>';	
+														}
+														else if(tableOccupancyData.status == 2){
+															renderTableArea = renderTableArea + '<tag class="tableTileYellow" style="cursor: pointer" onclick="preSettleBill(\''+tableOccupancyData.KOT+'\')">'+
+																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																					            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].name ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Billed')+'</tag>'+
+																					        	'</tag>';	
 														}									
 														else if(tableOccupancyData.status == 5){
 															if(currentTableID != '' && currentTableID == tables[i].name){
@@ -2059,7 +2066,7 @@ function renderTables(){
 
 														}									
 														else{
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
+							              				renderTableArea = renderTableArea + '<tag class="tableTileRed" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
 																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																				            '<tag class="tableInfo">Running</tag>'+
@@ -3206,9 +3213,68 @@ function addToTableMapping(tableID, kotID, assignedTo){
 	    } else {
 	      showToast('System Error: Unable to map KOT and Table. Please contact Accelerate Support.', '#e74c3c');
 	    }
-
-
 }
+
+
+
+function billTableMapping(tableID, billNumber, status){
+
+	if(status != 1 && status != 2 && status != 3){
+		showToast('Warning: Table #'+tableID+' was not mapped. But Bill is generated.', '#e67e22');
+		return '';
+	}
+
+          var today = new Date();
+          var hour = today.getHours();
+          var mins = today.getMinutes();
+
+          if(hour<10) {
+              hour = '0'+hour;
+          } 
+
+          if(mins<10) {
+              mins = '0'+mins;
+          }
+
+		if(fs.existsSync('./data/static/tablemapping.json')) {
+	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
+	    if (err){
+	        showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
+	    } else {
+	    	if(data == ''){ data = '[]'; }
+	          var tableMapping = JSON.parse(data); 
+
+	          var isUpdated = false;
+
+	          var timestamp = getCurrentTime('TIME');
+
+	          for(var i=0; i<tableMapping.length; i++){
+	          	if(tableMapping[i].table == tableID){
+	          		isUpdated = true;
+
+	          		tableMapping[i].status = status;
+	          		tableMapping[i].KOT = billNumber;
+	          		tableMapping[i].lastUpdate = hour+''+mins;
+	          	
+	          	}
+	          }
+
+		       var newjson = JSON.stringify(tableMapping);
+		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
+		       	 renderTables();
+		         if(err){
+		            showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
+		           }
+		       }); 
+
+		}
+		});
+	    } else {
+	      showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
+	    }
+}
+
+
 
 
 function getTableLiveStatus(tableID){
@@ -3290,13 +3356,20 @@ function pickTableForNewOrder(currentTableID){
 							              			var tableOccupancyData = getTableLiveStatus(tables[i].name);
 
 							              			if(tableOccupancyData){ /*Occuppied*/
-														if(tableOccupancyData.status == 1 || tableOccupancyData.status == 2){
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
+														if(tableOccupancyData.status == 1){
+							              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
 																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Occuppied</tag>'+
+																				            '<tag class="tableInfo">Running</tag>'+
 																				        	'</tag>';	
-														}									
+														}	
+														else if(tableOccupancyData.status == 2){
+															renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable">'+
+																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo">Billed</tag>'+
+																				        	'</tag>';	
+														}								
 														else if(tableOccupancyData.status == 5){
 															if(currentTableID != '' && currentTableID == tables[i].name){
 								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="setCustomerInfoTable(\''+tables[i].name+'\')">'+
@@ -3318,7 +3391,7 @@ function pickTableForNewOrder(currentTableID){
 							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
 																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Occuppied</tag>'+
+																				            '<tag class="tableInfo">Running</tag>'+
 																				        	'</tag>';											
 														}
 
