@@ -26,6 +26,12 @@ html, body {
     padding-top: 10px;
 }
 
+/* Remove NUMBER Input Arrows */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
 
 /* ORDER PUNCHING */
@@ -2442,6 +2448,7 @@ ol ol {
 .ui-menu .ui-menu-item.selected{
     background: #dff0d8 !important;
     outline: none !important;
+    color: #488160 !important;
 }
 
 .searchResultsHolder{
@@ -2463,6 +2470,7 @@ ol ol {
 .skin-blue-light .ui-menu .ui-menu-item.selected{
     background: #d9edf7 !important;
     outline: none !important;
+    color: #3773a7 !important;
 }
 
 /*.skin-red .menuSuggestionSubMenu,
@@ -2480,6 +2488,7 @@ ol ol {
 .skin-red-light .ui-menu .ui-menu-item.selected{
     background: #f2dede !important;
     outline: none !important;
+    color: #dd4b39 !important;
 }
 
 /*.skin-purple .menuSuggestionSubMenu,
@@ -2497,6 +2506,7 @@ ol ol {
 .skin-purple-light .ui-menu .ui-menu-item.selected{
     background: #e3dcf5 !important;
     outline: none !important;
+    color: #605ca8 !important;
 }
 
 /*.skin-yellow .menuSuggestionSubMenu,
@@ -2514,6 +2524,7 @@ ol ol {
 .skin-yellow-light .ui-menu .ui-menu-item.selected{
     background: #fcf8e3 !important;
     outline: none !important;
+    color: #dc9016 !important;
 }
 
 

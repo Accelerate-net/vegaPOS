@@ -1654,7 +1654,7 @@ function renderCustomerInfo(){
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+      			                           
 			                                 '<div class="col-xs-5" style="padding: 0; padding-left: 2px">'+
@@ -1664,7 +1664,7 @@ function renderCustomerInfo(){
 			                                 '</div>'+ 
 			                                 '<div class="col-xs-2" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
 			                                    '</div>'+
 			                                 '</div>'+               
 			                           '</div>';
@@ -1686,7 +1686,7 @@ function renderCustomerInfo(){
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+    			                           
 			                                 '<div class="col-xs-5" style="padding: 0; padding-left: 2px">'+
@@ -1696,7 +1696,7 @@ function renderCustomerInfo(){
 			                                 '</div>'+ 
 			                                 '<div class="col-xs-2" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
 			                                    '</div>'+
 			                                 '</div>'+                 
 			                           '</div>';
@@ -4239,6 +4239,11 @@ function initMenuSuggestion(){
 					var liSelected = undefined;
 
 				$('#add_item_by_search').keyup(function(e) {
+
+					if($('#customOptionsList').is(':visible')){ // **TWEAK**
+						//Do not navigate when the custom item choose modal is shown
+						return '';
+					}
 
 				    if (e.which === 40 || e.which === 38) {
 				        /*
