@@ -9,7 +9,9 @@ html, body {
         background: #FFF;
 }
 
-
+.navSideName{
+  position: absolute; left: 48px; font-size: 15px; padding-top: 6px;
+}
 
 .content{
   /*height: 100vh;*/

@@ -141,28 +141,50 @@
         <aside class="main-sidebar" style="position: fixed">
             <section class="sidebar">
                 <ul class="sidebar-menu">
-                    <li onclick="renderPage('new-order', 'New Order')">
-                        <a href="#"><i class="fa fa-plus"></i> <span>New Order</span></a>
-                  </li>
+                    <li onclick="renderPage('new-order', 'Punch Order')">
+                        <a href="#">
+                          <img src="images/navigation/navigate_punching.png" width="32px">
+                          <span class="navSideName">Punch Order</span>
+                        </a>
+                    </li>
                     <li onclick="renderPage('live-orders', 'Live Orders')">
-                     <a href="#"><i class="fa fa-retweet"></i> <span>Live Orders</span></a>
-                  </li>
+                        <a href="#">
+                          <img src="images/navigation/navigate_live.png" width="32px">
+                          <span class="navSideName">Live Orders</span>
+                        </a>
+                    </li>
                     <li onclick="renderPage('seating-status', 'Seating Status')">
-                        <a href="#"><i class="fa fa-th"></i> <span>Seating Status</span></a></li>                  
+                        <a href="#">
+                          <img src="images/navigation/navigate_seating.png" width="32px">
+                          <span class="navSideName">Seating Status</span>
+                        </a>
+                    </li>                  
                     <li onclick="renderPage('online-orders', 'Online Orders')">
-                     <a href="#"><i class="fa fa-globe"></i> <span>Online Orders</span></a></li>
+                        <a href="#">
+                          <img src="images/navigation/navigate_online.png" width="32px">
+                          <span class="navSideName">Online Orders</span>
+                        </a>
+                    </li>
 
                     <li onclick="renderPage('reward-points', 'Reward Points')">
-                        <a href="#"><i class="fa fa-gift"></i> <span>Reward Points</span></a></li>
+                        <a href="#">
+                          <img src="images/navigation/navigate_rewards.png" width="32px">
+                          <span class="navSideName">Reward Points</span>
+                        </a>
+                    </li>
                     <li onclick="renderPage('settled-bills', 'Generated Bills')">
-                     <a href="#"><i class="fa fa-check"></i> <span>Generated Bills</span></a></li>
+                        <a href="#">
+                          <img src="images/navigation/navigate_bills.png" width="32px">
+                          <span class="navSideName">Generated Bills</span>
+                        </a>
+                    </li>
 
                      <li id="sidebarTools" class="treeview mm_products" onclick="activateSidebarElement('sidebarTools')">
                         <a href="#">
-                            <i class="fa fa-wrench"></i>
-                            <span>Tools</span>
-                            <i class="fa fa-angle-right pull-right"></i>
-                            </a>
+                          <img src="images/navigation/navigate_tools.png" width="32px">
+                          <span class="navSideName">Tools</span>
+                        </a>
+
                         <ul class="treeview-menu">
                             <li onclick="renderPage('manage-menu', 'Manage Menu')">
                                 <a href="#"><i class="fa fa-circle-o"></i> Manage Menu</a></li>
@@ -176,9 +198,8 @@
                     </li>
                     <li id="sidebarSettings" class="treeview mm_products" onclick="activateSidebarElement('sidebarSettings')">
                         <a href="#">
-                            <i class="fa fa-cog"></i>
-                            <span>Settings</span>
-                            <i class="fa fa-angle-right pull-right"></i>
+                          <img src="images/navigation/navigate_settings.png" width="32px">
+                          <span class="navSideName">Settings</span>
                         </a>
                         <ul class="treeview-menu">
                             <li onclick="renderPage('app-data', 'App Data')">
