@@ -26,6 +26,8 @@ html, body {
     padding-top: 10px;
 }
 
+
+
 /* ORDER PUNCHING */
 
 /*Default Theme*/
@@ -77,6 +79,23 @@ html, body {
   overflow-y:auto !important;
   overflow-x: none !important;
 
+}
+
+.spotlightCustomItemTick{
+    
+    display: none;
+
+    background: #27ae60;
+    color: #FFF;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    margin-left: 8px;
+}
+
+.selectCustomItem .spotlightCustomItemTick{
+  display: inline-block !important;
 }
 
 .spotlightOrderTag{

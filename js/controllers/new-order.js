@@ -90,14 +90,89 @@ function additemtocart(encodedItem, optionalSource){
 		var i = 0;
 		var optionList = '';
 		while(productToAdd.customOptions[i]){
-			optionList = optionList + '<li onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.code+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\')">'+
-										'<a>'+productToAdd.customOptions[i].customName+' <tag style="float: right"><i class="fa fa-inr"></i> '+productToAdd.customOptions[i].customPrice+'</tag></a>'+
+			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.code+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\')">'+
+										'<a>'+productToAdd.customOptions[i].customName+'<tag class="spotlightCustomItemTick"><i class="fa fa-check"></i></tag> <tag style="float: right"><i class="fa fa-inr"></i> '+productToAdd.customOptions[i].customPrice+'</tag></a>'+
 									  '</li>';
 			i++;
 		}
 		document.getElementById("customiseItemModal").style.display ='block';
 		document.getElementById("customiseItemTitle").innerHTML = "Choice of <b>"+productToAdd.name+"</b>";
 		document.getElementById("customOptionsList").innerHTML = '<ol class="rectangle-list">'+optionList+'</ol>';
+
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+          var li = $('#customOptionsList .easySelectTool_customItem');
+          var liSelected = li.eq(0).addClass('selectCustomItem');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#customOptionsList').is(':visible')) {
+
+              console.log(e.which)
+
+
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
+
+					if(liSelected){
+					    liSelected.removeClass('selectCustomItem');
+					   	next = liSelected.prev();
+						if(next.length > 0){
+							liSelected = next.addClass('selectCustomItem');
+						}else{
+							liSelected = li.last().addClass('selectCustomItem');
+						}
+					}else{
+						liSelected = li.last().addClass('selectCustomItem');
+					}                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+					if(liSelected){
+						liSelected.removeClass('selectCustomItem');
+						next = liSelected.next();
+						if(next.length > 0){
+							liSelected = next.addClass('selectCustomItem');
+						}else{
+							liSelected = li.eq(0).addClass('selectCustomItem');
+						}
+					}else{
+						liSelected = li.eq(0).addClass('selectCustomItem');
+					}
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("customiseItemModal").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#customOptionsList .easySelectTool_customItem").each(function(){
+                      if($(this).hasClass("selectCustomItem")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                               
+                    
+                    break;
+                  }
+                 }
+            }
+          });
+
+
+
+
+
 	}
 	else if(!productToAdd.isCustom){
 		saveToCart(productToAdd)
@@ -623,7 +698,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
     					'   <tbody>'+ 
                         '      <tr class="success cartSumRow">'+
                         '         <td colspan="2" class="cartSumRow" style="font-weight: 400 !important; font-size: 16px;">'+
-                        '            Total Payable'+
+                        '            Grand Total'+
                         '         </td>'+
                         '         <td class="text-right cartSumRow" colspan="2" ><span id="total-payable"><i class="fa fa-inr"></i>'+grandPayableSum+'</span></td>'+
                         '      </tr>'+ 
