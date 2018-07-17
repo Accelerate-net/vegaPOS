@@ -263,34 +263,53 @@ function deleteDineSession(name) {
 /*read cooking ingredients*/
 function fetchAllCookingIngredients(){
 
-    if(fs.existsSync('./data/static/cookingingredients.json')) {
-        fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-          if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
 
-              var modes = JSON.parse(data);
+              var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
               var modesTag = '';
 
-        for (var i=0; i<modes.length; i++){
-          modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton" onclick="deleteCookingIngredient(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
+              for (var i=0; i<modes.length; i++){
+                modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton" onclick="deleteCookingIngredient(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
+              }
+
+              if(!modesTag)
+                document.getElementById("cookingIngredientsInfo").innerHTML = '<p style="color: #bdc3c7">No ingredient added yet.</p>';
+              else
+                document.getElementById("cookingIngredientsInfo").innerHTML = modesTag;            
+          }
+          else{
+            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
         }
-
-        if(!modesTag)
-          document.getElementById("cookingIngredientsInfo").innerHTML = '<p style="color: #bdc3c7">No ingredient added yet.</p>';
-        else
-          document.getElementById("cookingIngredientsInfo").innerHTML = modesTag;
-    }
-    });
-      } else {
+        else{
+          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
         showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-      } 
+      }
+
+    });  
+
 }
-
-
 
 
 /* add new ingredient */
@@ -304,133 +323,176 @@ function addNewCookingIngredient(optionalParameter) {
     commentName = optionalParameter;
   }
   
-
   if(commentName == ''){
     showToast('Warning: Please set a name', '#e67e22');
     return '';
   }
 
-     //Check if file exists
-      if(fs.existsSync('./data/static/cookingingredients.json')) {
-         fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-         if(data==""){
-            var obj = []
-            obj.push(commentName); //add some data
-            var json = JSON.stringify(obj);
-            fs.writeFile('./data/static/cookingingredients.json', json, 'utf8', (err) => {
-                if(err){
-                  showToast('System Error: Unable to save Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{
 
-                fetchAllCookingIngredients(); //refresh the list
-                
-                //not adding via  Undo function
-                if(!optionalParameter || optionalParameter == ''){
-                  openNewCookingIngredient();
-                }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-              }
-            });
-         }
-         else{
-             var flag=0;
-             if(data == ''){ data = '[]'; }
-             var obj = [];
-             obj = JSON.parse(data);
-             for (var i=0; i<obj.length; i++) {
-               if (obj[i] == commentName){
-                  flag=1;
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
+
+             var commentsList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<commentsList.length; i++) {
+               if (commentsList[i] == commentName){
+                  flag = 1;
                   break;
                }
              }
-             if(flag==1){
+
+
+             if(flag == 1){
                showToast('Warning: Comment already exists. Please add a different comment.', '#e67e22');
              }
              else{
-                obj.push(commentName);
-                var json = JSON.stringify(obj);
-                fs.writeFile('./data/static/cookingingredients.json', json, 'utf8', (err) => {
-                     if(err){
-                        showToast('System Error: Unable to save Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-                    }
-                else{
-                      fetchAllCookingIngredients(); //refresh the list
-                      
+                commentsList.push(commentName);
 
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_COOKING_INGREDIENTS",
+                  "value": commentsList
+                }
+
+
+                //curl -X PUT http://admin:admin@127.0.0.1:5984/zaitoon_settings/ZAITOON_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ZAITOON_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_COOKING_INGREDIENTS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+
+                      fetchAllCookingIngredients(); //refresh the list
+                    
                       //not adding via  Undo function
                       if(!optionalParameter || optionalParameter == ''){
                         openNewCookingIngredient();
                       }
-                    
+                  },
+                  error: function(data) {
+                    console.log(data)
+                    showToast('System Error: Unable to update Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
                   }
-                  });  
+
+                });  
 
              }
-                 
-         }
-          
-   }});
-      } else {
-         obj.push(commentName);
-         fs.writeFile('./data/static/cookingingredients.json', obj, 'utf8', (err) => {
-            if(err){
-               showToast('System Error: Unable to save Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-           }
-           else{
-                fetchAllCookingIngredients(); //refresh the list
                 
-                //not adding via  Undo function
-                if(!optionalParameter || optionalParameter == ''){
-                  openNewCookingIngredient();
-                }         
-           }
-         });
+          }
+          else{
+            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
       }
+
+    });  
   
 }
 
 /* delete ingredient */
-function deleteCookingIngredient(name) {  
+function deleteCookingIngredient(commentName) {  
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/cookingingredients.json')) {
-       fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-        if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i] == name){
-            obj.splice(i,1);
-            break;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/cookingingredients.json', newjson, 'utf8', (err) => {
-         if(err){
-            showToast('System Error: Unable to make changes in Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-         }
-         else{
-          /* on successful delete */
-          fetchAllCookingIngredients();
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-          showUndo('Deleted', 'addNewCookingIngredient(\''+name+'\')');
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
 
-         }
-          
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-   }
+               var commentsList = data.docs[0].value;
 
-   cancelOtherDeleteConfirmation()
+               for (var i=0; i<commentsList.length; i++) {  
+                 if (commentsList[i] == commentName){
+                    commentsList.splice(i,1);
+                    break;
+                 }
+               }
 
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_COOKING_INGREDIENTS",
+                  "value": commentsList
+                }
+
+
+                //curl -X PUT http://admin:admin@127.0.0.1:5984/zaitoon_settings/ZAITOON_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ZAITOON_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_COOKING_INGREDIENTS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    /* on successful delete */
+                    fetchAllCookingIngredients();
+
+                    showUndo('Deleted', 'addNewCookingIngredient(\''+commentName+'\')');
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+    cancelOtherDeleteConfirmation()
 }
 
 

@@ -2,7 +2,7 @@
   SERVER DETAILS
 */
 
-var COMMON_LOCAL_SERVER_IP = 'http://127.0.0.1:5984/';
+var COMMON_LOCAL_SERVER_IP = 'http://admin:admin@127.0.0.1:5984/';
 
 
 
