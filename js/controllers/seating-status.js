@@ -123,43 +123,81 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
 
 
 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Failed to update table mapping. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-	          for(var i=0; i<tableMapping.length; i++){
-	          	var n = 1; //Do not count first KOT
-	          	while(kotList[n]){
-		          	if(tableMapping[i].KOT == kotList[n]){
-		          		tableMapping.splice(i,1);
-		          		break;
-		          	}
-		          	
-		          	n++;
-		        }
-	          }
+	          	  var tableMapping = data.docs[0].value;
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Failed to update table mapping. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	preloadTableStatus();
+		          for(var i=0; i<tableMapping.length; i++){
+		          	var n = 1; //Do not count first KOT
+		          	while(kotList[n]){
+			          	if(tableMapping[i].KOT == kotList[n]){
+			          		
+			          		tableMapping[i].status = 0;
+			          		tableMapping[i].assigned = "";
+			          		tableMapping[i].lastUpdate = "";
+			          		tableMapping[i].KOT = "";
+			          		
+			          		break;
+			          	}
+			          	
+			          	n++;
+			        }
 		          }
-		       }); 
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Failed to update table mapping. Please contact Accelerate Support.', '#e74c3c');
-	    }
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
 
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        preloadTableStatus();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });  	          
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });
 }
 
 
@@ -199,19 +237,29 @@ function addToReserveListConsentClose(){
 
 function addToReserveList(tableID){
 
-		addToReserveListConsentClose();
-		var comments = document.getElementById("reserve_table_in_the_name_of").value;
+	addToReserveListConsentClose();
+	var comments = document.getElementById("reserve_table_in_the_name_of").value;
 
 
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to Reserve. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-	          var isUpdated = false;
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+	          var tableMapping = data.docs[0].value;
 
 	          for(var i=0; i<tableMapping.length; i++){
 	          	if(tableMapping[i].table == tableID){
@@ -225,96 +273,133 @@ function addToReserveList(tableID){
 	          		tableMapping[i].status = 5;
 	          		tableMapping[i].lastUpdate = "";
 
-	          		isUpdated = true;
-
 	          		break;
 	          	}
 	          }
 
-	          if(!isUpdated){
-	          	tableMapping.push({ "table": tableID, "assigned": comments, "KOT": "", "status": 5, "lastUpdate": "12:00 pm" });
-		      }
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to Reserve. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	showToast('Table '+tableID+' has been marked as Reserved', '#27ae60');
-		           	hideFreeSeatOptions();
-		           	preloadTableStatus();
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+			           	showToast('Table '+tableID+' has been marked as Reserved', '#27ae60');
+			           	hideFreeSeatOptions();
+			           	preloadTableStatus();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to Reserve. Update Tables data failed. Please contact Accelerate Support.', '#e74c3c');
+                      }
 
-		        	}
-		       }); 
+                    });  	          
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to Reserve. Please contact Accelerate Support.', '#e74c3c');
-	    }
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 function removeFromReserveList(tableID){
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to free the Table. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+	          var tableMapping = data.docs[0].value;
 
 	          for(var i=0; i<tableMapping.length; i++){
 	          	if(tableMapping[i].table == tableID){
-
 	          		if(tableMapping[i].status != 5){
 	          			return '';
 	          		}
 
-	          		tableMapping.splice(i,1);
+	          		tableMapping[i].status = 0;
+	          		tableMapping[i].assigned = "";
+	          		tableMapping[i].lastUpdate = "";
+	          		tableMapping[i].KOT = "";
 
 	          		break;
 	          	}
 	          }
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to free the Table. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	showToast('Table '+tableID+' has been marked as Free', '#27ae60');
-		           	hideReservedSeatOptions();
-		           	preloadTableStatus();
-		        	}
-		       }); 
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+			           	showToast('Table '+tableID+' has been marked as Free', '#27ae60');
+			           	hideReservedSeatOptions();
+			           	preloadTableStatus();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to free the Table. Please contact Accelerate Support.', '#e74c3c');
-	    }
+                    });  	          
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
-
-function getTableStatus(tableID){
-	/*returns table occupancy data*/
-	if(!window.localStorage.tableMappingData){
-		return '';
-	}
-
-	var tableMapData = JSON.parse(window.localStorage.tableMappingData);
-
-	var n = 0;
-	while(tableMapData[n]){
-		if(tableMapData[n].table == tableID){
-			return tableMapData[n];
-		}
-		n++;
-	}
-
-	return '';
-}
 
 function addToHoldList(id){
 	var tempList = window.localStorage.billSelectionMergeHoldList ? JSON.parse(window.localStorage.billSelectionMergeHoldList): [];
@@ -461,21 +546,32 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
 
 function mergeBillsInTheHoldList(){
+
 	var holdList = window.localStorage.billSelectionMergeHoldList ? JSON.parse(window.localStorage.billSelectionMergeHoldList): [];
 
 	var KOTList = [];
 
-			/*to find KOT IDs mapped against these tables*/
-		    if(fs.existsSync('./data/static/tablemapping.json')) {
-		        fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-		      if (err){
-		          showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
-		      } else {
+	/*to find KOT IDs mapped against these tables*/
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-		          if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-		              var tableMapping = JSON.parse(data);
-		              tableMapping.sort(); //alphabetical sorting 
+	          		var tableMapping = data.docs[0].value;
+		            tableMapping.sort(); //alphabetical sorting 
 
 		              for (var i =0; i < holdList.length; i++){
 			              var m = 0;
@@ -488,245 +584,318 @@ function mergeBillsInTheHoldList(){
 			              }		              	
 		              }
 
-		              mergeBillsInTheHoldListAfterProcess(KOTList, holdList); /* Merge KOTs*/
+		              mergeBillsInTheHoldListAfterProcess(KOTList, holdList); /* Merge KOTs*/	                    
 
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
 
-		    }
-		    });
-		      } else {
-		        showToast('System Error: Unable to read Table Mapping. Please contact Accelerate Support.', '#e74c3c');
-		      } 	
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });	
 }
 
 function preloadTableStatus(mode, currentTableID){
-		    if(fs.existsSync('./data/static/tablemapping.json')) {
-		        fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-		      if (err){
-		          showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
-		      } else {
 
-		          if(data == ''){ data = '[]'; }
 
-		              var tableMapping = JSON.parse(data);
-		              tableMapping.sort(); //alphabetical sorting 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-		              window.localStorage.tableMappingData = JSON.stringify(tableMapping);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-		              renderCurrentPlan(mode, currentTableID);
-		    }
-		    });
-		      } else {
-		        showToast('System Error: Unable to read Table Mapping. Please contact Accelerate Support.', '#e74c3c');
-		      } 	
+	          var tableMapping = data.docs[0].value;
+	          tableMapping.sort(); //alphabetical sorting 
+
+		      window.localStorage.tableMappingData = JSON.stringify(tableMapping);
+		      renderCurrentPlan(mode, currentTableID);	          
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 function renderCurrentPlan(mode, currentTableID){
 
-    if(fs.existsSync('./data/static/tables.json')) {
-        fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-
-          if(data == ''){ data = '[]'; }
-
-              var tables = JSON.parse(data);
-              tables.sort(); //alphabetical sorting 
-
-
-		    if(fs.existsSync('./data/static/tablesections.json')) {
-		        fs.readFile('./data/static/tablesections.json', 'utf8', function readFileCallback(err, data){
-		      if (err){
-		          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-		      } else {
-
-		          if(data == ''){ data = '[]'; }
-
-		              var tableSections = JSON.parse(data);
-		              tableSections.sort(); //alphabetical sorting 
-
-
-		            if(mode == 'MERGE_BILLS'){
-
-		            	if(currentTableID){
-		            		window.localStorage.billSelectionMergeHoldList = JSON.stringify([currentTableID]);
-		            	}
-		            	else{
-		            		window.localStorage.billSelectionMergeHoldList = JSON.stringify([]);
-		            	}
-
-		              var renderSectionArea = '';
-		              
-		              var totalTablesToMerge = 0;
-
-		              var n = 0;
-		              while(tableSections[n]){
-		        
-		              	var renderTableArea = ''
-		              	for(var i = 0; i<tables.length; i++){
-		              		if(tables[i].type == tableSections[n]){
-
-		              			var tableOccupancyData = getTableStatus(tables[i].name);
-
-		              			if(tableOccupancyData){ /*Occuppied*/
-									if(tableOccupancyData.status == 1){
-
-										if(tables[i].name == currentTableID){
-
-											totalTablesToMerge++;
-
-											renderTableArea = renderTableArea + '<tag class="tableTileRed selected">'+
-																	            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																	            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ''? tableOccupancyData.assigned: '-')+'</tag>'+
-																	            '<tag class="tableInfo" style="color: #fff"><i class="fa fa-check"></i></tag>'+
-																	        	'</tag>';	
-										}
-										else{
-
-											totalTablesToMerge++;
-
-				              				renderTableArea = renderTableArea + '<tag id="holdMain_'+tables[i].name+'" onclick="addToHoldList(\''+tables[i].name+'\')" class="tableTileRed">'+
-																	            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																	            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ''? tableOccupancyData.assigned: '-')+'</tag>'+
-																	            '<tag class="tableInfo" id="hold_'+tables[i].name+'" style="color: #fff">Punched '+getFormattedTime(tableOccupancyData.lastUpdate)+' ago</tag>'+
-																	        	'</tag>';												
-										}
-
-									}	
-									else if(tableOccupancyData.status == 2){
-		              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
-															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ''? tableOccupancyData.assigned: '-')+'</tag>'+
-															            '<tag class="tableInfo">Billed '+getFormattedTime(tableOccupancyData.lastUpdate)+' ago</tag>'+
-															        	'</tag>';	
-									}	
-									else if(tableOccupancyData.status == 5){
-		              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
-															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? (tableOccupancyData.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableOccupancyData.assigned) : "-")+'</tag>'+
-															            '<tag class="tableInfo">Reserved</tag>'+
-															        	'</tag>';	
-									}																									
-									else{
-		              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
-															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ''? tableOccupancyData.assigned: '-')+'</tag>'+
-															            '<tag class="tableInfo">Updated '+getFormattedTime(tableOccupancyData.lastUpdate)+' ago</tag>'+
-															        	'</tag>';											
-									}
-
-
-		              			}
-		              			else{
-
-		              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
-															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-															            '<tag class="tableInfo">Free</tag>'+
-															        	'</tag>';		              				
-		              			}
-
-		              		}
-		              	}
-
-		              	renderSectionArea = renderSectionArea + '<div class="row" style="margin-top: 25px">'+
-												   '<h1 class="seatingPlanHead">'+tableSections[n]+'</h1>'+
-												   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
-												    '</div>'+
-												'</div>'
-
-		              	n++;
-		              }
-
-		              if(totalTablesToMerge < 2){
-		              	showToast('Warning: Atleast two live orders needed to perform Merge Operation', '#e67e22');
-		              	cancelBillMerge();
-		              	return '';
-		              }
-
-		              document.getElementById("fullSeatingRenderArea").innerHTML = renderSectionArea;
-
-		              document.getElementById("confirmationRenderArea").style.display = 'block';
-		              document.getElementById("confirmationRenderArea").style.background = '#3498db';
-		              document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 21px; text-align: left;">Select Orders to Merge Bills <button style="font-size: 18px" class="btn btn-default" onclick="cancelBillMerge()">Cancel</button></p>';
-
-		            }
-		            else{
-		              var renderSectionArea = '';
-
-		              var n = 0;
-		              while(tableSections[n]){
-		        
-		              	var renderTableArea = ''
-		              	for(var i = 0; i<tables.length; i++){
-		              		if(tables[i].type == tableSections[n]){
-
-		              			var tableOccupancyData = getTableStatus(tables[i].name);
-
-		              			if(tableOccupancyData){ /*Occuppied*/
-									if(tableOccupancyData.status == 1){
-		              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tableOccupancyData))+'\')" class="tableTileRed">'+
-															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ''? tableOccupancyData.assigned: '-')+'</tag>'+
-															            '<tag class="tableInfo">Punched '+getFormattedTime(tableOccupancyData.lastUpdate)+' ago</tag>'+
-															        	'</tag>';	
-									}
-									else if(tableOccupancyData.status == 2){
-		              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tableOccupancyData))+'\')" class="tableTileYellow">'+
-															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ''? tableOccupancyData.assigned: '-')+'</tag>'+
-															            '<tag class="tableInfo">Billed '+getFormattedTime(tableOccupancyData.lastUpdate)+' ago</tag>'+
-															        	'</tag>';	
-									}
-									else if(tableOccupancyData.status == 5){
-		              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tables[i].name+'\')" class="tableReserved">'+
-															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? (tableOccupancyData.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableOccupancyData.assigned) : "-")+'</tag>'+
-															            '<tag class="tableInfo">Reserved</tag>'+
-															        	'</tag>';	
-									}									
-									else{
-		              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tableOccupancyData))+'\')" class="tableTileRed">'+
-															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ''? tableOccupancyData.assigned: '-')+'</tag>'+
-															            '<tag class="tableInfo">Updated '+getFormattedTime(tableOccupancyData.lastUpdate)+' ago</tag>'+
-															        	'</tag>';											
-									}
-
-
-		              			}
-		              			else{
-
-		              				renderTableArea = renderTableArea + '<tag onclick="openFreeSeatOptions(\''+tables[i].name+'\')" class="tableTileGreen">'+
-															            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-															            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-															            '<tag class="tableInfo">Free</tag>'+
-															        	'</tag>';		              				
-		              			}
-
-		              		}
-		              	}
-
-		              	renderSectionArea = renderSectionArea + '<div class="row" style="margin-top: 25px">'+
-												   '<h1 class="seatingPlanHead">'+tableSections[n]+'</h1>'+
-												   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
-												    '</div>'+
-												'</div>'
-
-		              	n++;
-		              }
-		              document.getElementById("fullSeatingRenderArea").innerHTML = renderSectionArea;		            	
-		            }
-		    }
-		    });
-		      } else {
-		        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-		      } 
-
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
     }
-    });
-      } else {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-      } 
 
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+              var tables = data.docs[0].value;
+              tables.sort();
+ 
+
+				    var requestData = {
+				      "selector"  :{ 
+				                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+				                  },
+				      "fields"    : ["_rev", "identifierTag", "value"]
+				    }
+
+				    $.ajax({
+				      type: 'POST',
+				      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+				      data: JSON.stringify(requestData),
+				      contentType: "application/json",
+				      dataType: 'json',
+				      timeout: 10000,
+				      success: function(data) {
+				        if(data.docs.length > 0){
+				          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+
+				              var tableSections = data.docs[0].value;
+				              tableSections.sort(); //alphabetical sorting 
+
+
+								if(mode == 'MERGE_BILLS'){
+
+					            	if(currentTableID){
+					            		window.localStorage.billSelectionMergeHoldList = JSON.stringify([currentTableID]);
+					            	}
+					            	else{
+					            		window.localStorage.billSelectionMergeHoldList = JSON.stringify([]);
+					            	}
+
+					              var renderSectionArea = '';
+					              
+					              var totalTablesToMerge = 0;
+
+					              var n = 0;
+					              while(tableSections[n]){
+					        
+					              	var renderTableArea = ''
+					              	for(var i = 0; i<tables.length; i++){
+					              		if(tables[i].type == tableSections[n]){
+
+					              			if(tables[i].status != 0){ /*Occuppied*/
+												if(tables[i].status == 1){
+
+													if(tables[i].table == currentTableID){
+
+														totalTablesToMerge++;
+
+														renderTableArea = renderTableArea + '<tag class="tableTileRed selected">'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																				            '<tag class="tableInfo" style="color: #fff"><i class="fa fa-check"></i></tag>'+
+																				        	'</tag>';	
+													}
+													else{
+
+														totalTablesToMerge++;
+
+							              				renderTableArea = renderTableArea + '<tag id="holdMain_'+tables[i].table+'" onclick="addToHoldList(\''+tables[i].table+'\')" class="tableTileRed">'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																				            '<tag class="tableInfo" id="hold_'+tables[i].table+'" style="color: #fff">Punched '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+																				        	'</tag>';												
+													}
+
+												}	
+												else if(tables[i].status == 2){
+					              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
+																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo">Billed '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+																		        	'</tag>';	
+												}	
+												else if(tables[i].status == 5){
+					              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
+																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+																		            '<tag class="tableInfo">Reserved</tag>'+
+																		        	'</tag>';	
+												}																									
+												else{
+					              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
+																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo">Updated '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+																		        	'</tag>';											
+												}
+
+
+					              			}
+					              			else{
+
+					              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
+																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
+																		            '<tag class="tableInfo">Free</tag>'+
+																		        	'</tag>';		              				
+					              			}
+
+					              		}
+					              	}
+
+					              	renderSectionArea = renderSectionArea + '<div class="row" style="margin-top: 25px">'+
+															   '<h1 class="seatingPlanHead">'+tableSections[n]+'</h1>'+
+															   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
+															    '</div>'+
+															'</div>'
+
+					              	n++;
+					              }
+
+					              if(totalTablesToMerge < 2){
+					              	showToast('Warning: Atleast two live orders needed to perform Merge Operation', '#e67e22');
+					              	cancelBillMerge();
+					              	return '';
+					              }
+
+					              document.getElementById("fullSeatingRenderArea").innerHTML = renderSectionArea;
+
+					              document.getElementById("confirmationRenderArea").style.display = 'block';
+					              document.getElementById("confirmationRenderArea").style.background = '#3498db';
+					              document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 21px; text-align: left;">Select Orders to Merge Bills <button style="font-size: 18px" class="btn btn-default" onclick="cancelBillMerge()">Cancel</button></p>';
+
+					            }
+					            else{
+					              var renderSectionArea = '';
+
+					              var n = 0;
+					              while(tableSections[n]){
+					        
+					              	var renderTableArea = ''
+					              	for(var i = 0; i<tables.length; i++){
+					              		if(tables[i].type == tableSections[n]){
+
+					              			if(tables[i].status != 0){ /*Occuppied*/
+												if(tables[i].status == 1){
+					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileRed">'+
+																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo">Punched '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+																		        	'</tag>';	
+												}
+												else if(tables[i].status == 2){
+					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileYellow">'+
+																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo">Billed '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+																		        	'</tag>';	
+												}
+												else if(tables[i].status == 5){
+					              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tables[i].table+'\')" class="tableReserved">'+
+																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+																		            '<tag class="tableInfo">Reserved</tag>'+
+																		        	'</tag>';	
+												}									
+												else{
+					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileRed">'+
+																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo">Updated '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+																		        	'</tag>';											
+												}
+
+
+					              			}
+					              			else{
+
+					              				renderTableArea = renderTableArea + '<tag onclick="openFreeSeatOptions(\''+tables[i].table+'\')" class="tableTileGreen">'+
+																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
+																		            '<tag class="tableInfo">Free</tag>'+
+																		        	'</tag>';		              				
+					              			}
+
+					              		}
+					              	}
+
+					              	renderSectionArea = renderSectionArea + '<div class="row" style="margin-top: 25px">'+
+															   '<h1 class="seatingPlanHead">'+tableSections[n]+'</h1>'+
+															   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
+															    '</div>'+
+															'</div>'
+
+					              	n++;
+					              }
+					              document.getElementById("fullSeatingRenderArea").innerHTML = renderSectionArea;		            	
+					            }
+
+
+
+				                
+				          }
+				          else{
+				            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				          }
+				        }
+				        else{
+				          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				        }
+
+				      },
+				      error: function(data) {
+				        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+				      }
+
+				    });
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }

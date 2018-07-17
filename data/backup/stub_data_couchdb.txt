@@ -1,0 +1,393 @@
+
+
+ZAITOON_BILLING_MODES
+
+{
+  "_id": "ZAITOON_BILLING_MODES",
+  "_rev": "5-0781abcdd378ef80103024e70c539591",
+  "identifierTag": "ZAITOON_BILLING_MODES",
+  "value": [
+    {
+      "name": "Delivery",
+      "isDiscountable": true,
+      "extras": "Service Charge,Parcel Charges",
+      "type": "DELIVERY",
+      "minimumBill": 10,
+      "maxDiscount": 2000
+    },
+    {
+      "name": "Dine In",
+      "isDiscountable": false,
+      "extras": "CGST,SGST",
+      "type": "DINE",
+      "minimumBill": 0,
+      "maxDiscount": ""
+    }
+  ]
+}
+
+
+
+ZAITOON_BILLING_PARAMETERS
+
+{
+  "_id": "ZAITOON_BILLING_PARAMETERS",
+  "_rev": "12-682c39eabb9b6a051f1be6154acf063c",
+  "identifierTag": "ZAITOON_BILLING_PARAMETERS",
+  "value": [
+    {
+      "name": "Parcel Charges",
+      "isCompulsary": false,
+      "value": 5,
+      "unit": "PERCENTAGE",
+      "unitName": "Percentage (%)"
+    },
+    {
+      "name": "SGST",
+      "isCompulsary": true,
+      "value": 2.5,
+      "unit": "PERCENTAGE",
+      "unitName": "Percentage (%)"
+    },
+    {
+      "name": "CGST",
+      "isCompulsary": true,
+      "value": 2.5,
+      "unit": "PERCENTAGE",
+      "unitName": "Percentage (%)"
+    },
+    {
+      "name": "Service Charge",
+      "isCompulsary": false,
+      "value": 10,
+      "unit": "PERCENTAGE",
+      "unitName": "Percentage (%)"
+    },
+    {
+      "name": "SGST",
+      "isCompulsary": true,
+      "value": 5,
+      "unit": "PERCENTAGE",
+      "unitName": "Percentage (%)"
+    }
+  ]
+}
+
+
+
+ZAITOON_COOKING_INGREDIENTS
+
+{
+  "_id": "ZAITOON_COOKING_INGREDIENTS",
+  "_rev": "25-cd246ab1c0175ec71f82ef28775e095e",
+  "identifierTag": "ZAITOON_COOKING_INGREDIENTS",
+  "value": [
+    "Chicken"
+  ]
+}
+
+
+
+ZAITOON_DINE_SESSIONS
+
+{
+  "_id": "ZAITOON_DINE_SESSIONS",
+  "_rev": "15-90501afd69cc331d023ee290b7ce673a",
+  "identifierTag": "ZAITOON_DINE_SESSIONS",
+  "value": [
+    {
+      "name": "Lunch",
+      "startTime": 1145,
+      "endTime": 1500
+    },
+    {
+      "name": "Dinner",
+      "startTime": 1845,
+      "endTime": 2330
+    }
+  ]
+}
+
+
+ZAITOON_DISCOUNT_TYPES
+
+{
+  "_id": "ZAITOON_DISCOUNT_TYPES",
+  "_rev": "7-fa287a4950224470e4a815bb43e03aea",
+  "identifierTag": "ZAITOON_DISCOUNT_TYPES",
+  "value": [
+    {
+      "name": "test",
+      "maxDiscountUnit": "PERCENTAGE",
+      "maxDiscountValue": 22
+    }
+  ]
+}
+
+
+ZAITOON_MASTER_MENU
+
+{
+	"_id": "ZAITOON_MASTER_MENU",
+	"_rev": "27-626dbfcc4b277f2041489cc52e2562c2",
+	"identifierTag": "ZAITOON_MASTER_MENU",
+	"value": [{
+		"category": "Egg Main Course",
+		"items": [{
+				"code": "3031",
+				"name": "Boiled Egg",
+				"price": "18",
+				"isAvailable": true,
+				"isCustom": false,
+				"customOptions": null,
+				"isPhoto": false
+			},
+			{
+				"code": "3033",
+				"name": "Egg Burji",
+				"price": "30",
+				"isAvailable": true,
+				"isCustom": false,
+				"customOptions": null,
+				"isPhoto": false
+			},
+			{
+				"name": "Egg Masala",
+				"price": "50-80",
+				"code": "3035",
+				"cookingTime": "20",
+				"ingredients": [
+					"test",
+					"egg",
+					"milk"
+				],
+				"customOptions": [{
+						"customName": "half portion",
+						"customPrice": "50"
+					},
+					{
+						"customName": "full portion",
+						"customPrice": "80"
+					}
+				],
+				"isCustom": true,
+				"isAvailable": true
+			}
+		]
+	}]
+}
+
+
+ZAITOON_MENU_CATEGORIES
+
+{
+  "_id": "ZAITOON_MENU_CATEGORIES",
+  "_rev": "9-544a7d92a911671389e30bbb85446b17",
+  "identifierTag": "ZAITOON_MENU_CATEGORIES",
+  "value": [
+    "Ice Creams Two",
+    "Burgers and Frankies",
+    "Chicken Main Course",
+    "Indian Breads",
+    "Egg Main Course",
+    "Vegetarian Main Course",
+    "Tandoor Starters",
+    "Noodles",
+    "Fried Rices",
+    "Chicken Starters",
+    "Soups",
+    "Vegetarian Dry",
+    "Sea Food Starters",
+    "Faloodas",
+    "Grills & Barbeques",
+    "Hummus & Salads",
+    "Soft Drinks",
+    "Milk Shakes",
+    "Fresh Juices",
+    "Rices and Pulaos",
+    "Buffets and Set Menus",
+    "Aaaaaa"
+  ]
+}
+
+
+
+ZAITOON_PAYMENT_MODES
+
+{
+  "_id": "ZAITOON_PAYMENT_MODES",
+  "_rev": "18-7c8ad434200af960bb4402d145b901b8",
+  "identifierTag": "ZAITOON_PAYMENT_MODES",
+  "value": [
+    {
+      "name": "Cash",
+      "code": "CASH"
+    }
+  ]
+}
+
+
+
+ZAITOON_PERSONALISATIONS
+
+{
+  "_id": "ZAITOON_PERSONALISATIONS",
+  "_rev": "9-d01ebb69ed567b8b156cb2cb550e5ac9",
+  "identifierTag": "ZAITOON_PERSONALISATIONS",
+  "value": [
+    {
+      "systemName": "Kitchen Kiosk",
+      "data": [
+        {
+          "name": "theme",
+          "value": "skin-blue"
+        },
+        {
+          "name": "menuImages",
+          "value": "YES"
+        },
+        {
+          "name": "punchingRightScreen",
+          "value": "TABLE"
+        },
+        {
+          "name": "systemName",
+          "value": "Kitchen Kiosk"
+        },
+        {
+          "name": "virtualKeyboard",
+          "value": 0
+        },
+        {
+          "name": "screenLockOptions",
+          "value": ""
+        },
+        {
+          "name": "screenLockDuration",
+          "value": "30"
+        },
+        {
+          "name": "securityPasscodeProtection",
+          "value": "NO"
+        }
+      ]
+    }
+  ]
+}
+
+
+ZAITOON_SAVED_COMMENTS
+
+{
+  "_id": "ZAITOON_SAVED_COMMENTS",
+  "_rev": "9-a11d09ce3e8c3c32e40728f25a65474e",
+  "identifierTag": "ZAITOON_SAVED_COMMENTS",
+  "value": [
+    "hello",
+    "test"
+  ]
+}
+
+
+
+ZAITOON_STAFF_PROFILES
+
+{
+  "_id": "ZAITOON_STAFF_PROFILES",
+  "_rev": "17-c09c4be5d40449e82a5f64faec471e4f",
+  "identifierTag": "ZAITOON_STAFF_PROFILES",
+  "value": [
+    {
+      "name": "Abhijith C S",
+      "code": "9043960876",
+      "role": "STEWARD",
+      "password": ""
+    },
+    {
+      "name": "Anas Jafry",
+      "code": "9884179675",
+      "role": "STEWARD",
+      "password": ""
+    },
+    {
+      "name": "Hamdan",
+      "code": "9003824036",
+      "role": "STEWARD",
+      "password": ""
+    },
+    {
+      "name": "Ameen",
+      "code": "9539512022",
+      "role": "STEWARD",
+      "password": ""
+    },
+    {
+      "name": "Shafeeq",
+      "code": "7418304073",
+      "role": "STEWARD",
+      "password": ""
+    }
+  ]
+}
+
+
+
+
+ZAITOON_TABLES_MASTER
+
+{
+  "_id": "ZAITOON_TABLES_MASTER",
+  "_rev": "9-d6a47ff87ea7cd3947dbe1e8032767cf",
+  "identifierTag": "ZAITOON_TABLES_MASTER",
+  "value": [
+    {
+      "table": "2",
+      "capacity": 4,
+      "type": "Back",
+      "assigned": "",
+      "KOT": 2001190,
+      "status": 2,
+      "lastUpdate": "0011"
+    },
+    {
+      "table": "3",
+      "capacity": 6,
+      "type": "Back",
+      "assigned": "",
+      "KOT": "",
+      "status": 0,
+      "lastUpdate": ""
+    },
+    {
+      "table": "10",
+      "capacity": 12,
+      "type": "Front",
+      "assigned": "",
+      "KOT": "",
+      "status": 0,
+      "lastUpdate": ""
+    },
+    {
+      "table": "11",
+      "capacity": 14,
+      "type": "Front",
+      "assigned": "",
+      "KOT": "",
+      "status": 0,
+      "lastUpdate": ""
+    }
+  ]
+}
+
+
+ZAITOON_TABLE_SECTIONS
+
+{
+  "_id": "ZAITOON_TABLE_SECTIONS",
+  "_rev": "3-421f4c6f08d772470307140049230396",
+  "identifierTag": "ZAITOON_TABLE_SECTIONS",
+  "value": [
+    "Front",
+    "Back"
+  ]
+}

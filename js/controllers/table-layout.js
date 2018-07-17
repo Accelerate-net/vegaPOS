@@ -45,66 +45,111 @@ function hideNewTableSectionModal(){
 }
 
 function fetchAllTables(){
-    if(fs.existsSync('./data/static/tables.json')) {
-        fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
 
-          if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-              var table = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+              var table = data.docs[0].value;
               table.sort(); //alphabetical sorting 
               var tablesList = '';
 
-        for (var i=0; i<table.length; i++){
-          tablesList = tablesList + '<tr role="row"> <td>'+table[i].name+'</td> <td>'+table[i].type+'</td> <td>'+table[i].capacity+'</td> <td onclick="deleteSingleTableConsent(\''+table[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+              for (var i=0; i<table.length; i++){
+                tablesList = tablesList + '<tr role="row"> <td>'+(table[i].status == 0 ? '<i class="fa fa-circle" style="color: #2ecc71; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : (table[i].status == 1 ? '<i class="fa fa-circle" style="color: #e74c3c; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : '<i class="fa fa-circle" style="color: #ecaa40; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>'))+table[i].table+'</td> <td>'+table[i].type+'</td> <td>'+table[i].capacity+'</td> <td onclick="deleteSingleTableConsent(\''+table[i].table+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+              }
+
+              if(!tablesList)
+                document.getElementById("allTablesList").innerHTML = '<p style="color: #bdc3c7">No Table added yet.</p>';
+              else
+                document.getElementById("allTablesList").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left">Table</th> <th style="text-align: left">Section</th> <th style="text-align: left">Capacity</th> <th style="text-align: left"></th> </tr> </thead> <tbody>'+
+                                        '<tbody>'+tablesList+'</tbody>';         
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
         }
 
-        if(!tablesList)
-          document.getElementById("allTablesList").innerHTML = '<p style="color: #bdc3c7">No Table added yet.</p>';
-        else
-          document.getElementById("allTablesList").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left">Table</th> <th style="text-align: left">Section</th> <th style="text-align: left">Capacity</th> <th style="text-align: left"></th> </tr> </thead> <tbody>'+
-                                  '<tbody>'+tablesList+'</tbody>';
-    }
-    });
-      } else {
+      },
+      error: function(data) {
         showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-      } 
+      }
+
+    });
 }
 
 
 function fetchAllTableSections(){
-    if(fs.existsSync('./data/static/tablesections.json')) {
-        fs.readFile('./data/static/tablesections.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
 
-          if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-              var table = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+
+              var table = data.docs[0].value;
               table.sort(); //alphabetical sorting 
               var tablesList = '';
 
-        for (var i=0; i<table.length; i++){
-          tablesList = tablesList + '<tr> <th style="text-align: left">#'+(i+1)+'</th><th style="text-align: left">'+table[i]+'</th> <th style="text-align: left" onclick="deleteSingleTableSectionConsent(\''+table[i]+'\')"> <i class="fa fa-trash-o"></i> </th> </tr>';
-        }
+              for (var i=0; i<table.length; i++){
+                tablesList = tablesList + '<tr> <th style="text-align: left">#'+(i+1)+'</th><th style="text-align: left">'+table[i]+'</th> <th style="text-align: left" onclick="deleteSingleTableSectionConsent(\''+table[i]+'\')"> <i class="fa fa-trash-o"></i> </th> </tr>';
+              }
 
-        if(!tablesList){
-          document.getElementById("openNewTableButton").style.display = "none"; /* Tweak */
-          document.getElementById("allTableSectionList").innerHTML = '<p style="color: #bdc3c7">No Table Section added yet.</p>';
+              if(!tablesList){
+                document.getElementById("openNewTableButton").style.display = "none"; /* Tweak */
+                document.getElementById("allTableSectionList").innerHTML = '<p style="color: #bdc3c7">No Table Section added yet.</p>';
+              }
+              else{
+                window.localStorage.tableSections = JSON.stringify(table);
+                document.getElementById("openNewTableButton").style.display = "block"; /* Tweak */
+                document.getElementById("allTableSectionList").innerHTML = '<thead style="background: #f4f4f4;">'+tablesList+'</thead>';
+              }      
+                
+          }
+          else{
+            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
         }
         else{
-          window.localStorage.tableSections = JSON.stringify(table);
-          document.getElementById("openNewTableButton").style.display = "block"; /* Tweak */
-          document.getElementById("allTableSectionList").innerHTML = '<thead style="background: #f4f4f4;">'+tablesList+'</thead>';
+          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
         }
-    }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
     });
-      } else {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-      } 
+
 }
 
 
@@ -132,34 +177,81 @@ function deleteSingleTableConsent(name){
 /* delete a table */
 function deleteSingleTable(name) {  
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/tables.json')) {
-       fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-        if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i].name == name){
-            obj.splice(i,1);
-            break;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/tables.json', newjson, 'utf8', (err) => {
-         if(err)
-            showToast('System Error: Unable to make changes in Tables data. Please contact Accelerate Support.', '#e74c3c');
-        
-          /* on successful delete */
-          fetchAllTables();
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Tables data. Please contact Accelerate Support.', '#e74c3c');
-   }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-   cancelTableDeleteConfirmation()
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+              var table = data.docs[0].value;
+              table.sort(); //alphabetical sorting 
+
+               for (var i=0; i<table.length; i++) {  
+                 if (table[i].table == name){
+                    if(table[i].status == 0){
+                      table.splice(i,1);
+                    }
+                    else{
+                      showToast('Warning: This table is not Free. Complete the order on this Table to continue.', '#e67e22');
+                      return '';
+                    }
+                    break;
+                 }
+               }
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": table
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        fetchAllTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });  
+  
+
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
+    cancelTableDeleteConfirmation()
 }
 
 
@@ -169,69 +261,209 @@ function deleteSingleTableSectionConsent(name){
 
 
 /* delete a table section */
-function deleteSingleTableSection(name) {  
+function deleteSingleTableSection(sectionName) {  
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/tablesections.json')) {
-       fs.readFile('./data/static/tablesections.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-        if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i] == name){
-            obj.splice(i,1);
-            break;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/tablesections.json', newjson, 'utf8', (err) => {
-         if(err)
-            showToast('System Error: Unable to make changes in Tables data. Please contact Accelerate Support.', '#e74c3c');
-        
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-          /* on successful delete */
-          fetchAllTableSections();
-          deleteAllMappedTables(name);
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Tables data. Please contact Accelerate Support.', '#e74c3c');
-   }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-   cancelTableDeleteConfirmation()
+              var table = data.docs[0].value;
+              table.sort(); //alphabetical sorting 
+
+              var allFreeTables = true;
+
+               for (var i=0; i<table.length; i++) {  
+                 if (table[i].type == sectionName){
+                    if(table[i].status != 0){
+                      allFreeTables = false;
+                      showToast('Warning: Some tables under this Section are not free. Free those Tables to continue.', '#e67e22');
+                      return '';
+                    }
+                 }
+
+                 if((i == table.length - 1) && allFreeTables){
+                    
+                    //Now proceed to delete
+
+                    var requestData = {
+                      "selector"  :{ 
+                                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+                                  },
+                      "fields"    : ["_rev", "identifierTag", "value"]
+                    }
+
+                    $.ajax({
+                      type: 'POST',
+                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                      data: JSON.stringify(requestData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        if(data.docs.length > 0){
+                          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+
+                              var sections = data.docs[0].value;
+                              for (var i=0; i<sections.length; i++) {  
+                                if (sections[i] == sectionName){
+                                  sections.splice(i,1);
+                                  break;
+                                }
+                              }
+                                
+                              //Update
+                              var updateData = {
+                                "_rev": data.docs[0]._rev,
+                                "identifierTag": "ZAITOON_TABLE_SECTIONS",
+                                "value": sections
+                              }
+
+                              $.ajax({
+                                type: 'PUT',
+                                url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLE_SECTIONS/',
+                                data: JSON.stringify(updateData),
+                                contentType: "application/json",
+                                dataType: 'json',
+                                timeout: 10000,
+                                success: function(data) {
+                                  fetchAllTableSections();
+                                  deleteAllMappedTables(sectionName)
+                                },
+                                error: function(data) {
+                                  showToast('System Error: Unable to update Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                                }
+
+                              });  
+
+                          }
+                          else{
+                            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+                          }
+                        }
+                        else{
+                          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+                        }
+
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });                 
+
+                 } //enf IF
+
+
+               } //end FOR
+
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
+    cancelTableDeleteConfirmation()
 }
 
-function deleteAllMappedTables(name){
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/tables.json')) {
-       fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-        if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i].type == name){
-            obj.splice(i,1);
-            i--;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/tables.json', newjson, 'utf8', (err) => {
-         if(err)
-            showToast('System Error: Unable to make changes in Tables data. Please contact Accelerate Support.', '#e74c3c');
-        
-          /* on successful delete */
-          fetchAllTables();
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Tables data. Please contact Accelerate Support.', '#e74c3c');
-   }
- 
+
+
+
+
+function deleteAllMappedTables(sectionName){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+                  var table = data.docs[0].value;
+                  table.sort(); //alphabetical sorting 
+
+                   for (var i=0; i<table.length; i++) {  
+                     if (table[i].type == sectionName){
+                        table.splice(i,1);
+                        i--;
+                     }
+                   }
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": table
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        fetchAllTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });  
+  
+
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
 }
 
 
@@ -244,62 +476,93 @@ function addNewTableSection(){
       return '';
    }
    else{ 
-      //Check if file exists
-      if(fs.existsSync('./data/static/tablesections.json')) {
-         fs.readFile('./data/static/tablesections.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-         if(data==""){
-            var obj = []
-            obj.push(sectionName); //add some data
-             var json = JSON.stringify(obj); //convert it back to json
-             fs.writeFile('./data/static/tablesections.json', json, 'utf8', (err) => {
-                  if(err)
-                     showToast('System Error: Unable to modify Table Sections data. Please contact Accelerate Support.', '#e74c3c');
-                  hideNewTableSectionModal();
-                  fetchAllTableSections();
-               });
-         }
-         else{
-             var flag=0;
-             var obj = JSON.parse(data); //now it an object
-             for (var i=0; i<obj.length; i++) {
-               if (obj[i] == sectionName){
-                  flag=1;
-                  break;
-               }
-             }
-             if(flag==1){
-               showToast('Warning: Table Section already exists. Please choose a different name.', '#e67e22');
-             }
-             else{
-                obj.push(sectionName); //add some data
-                var json = JSON.stringify(obj); //convert it back to json
-                fs.writeFile('./data/static/tablesections.json', json, 'utf8', (err) => {
-                     if(err)
-                        showToast('System Error: Unable to modify Table Section data. Please contact Accelerate Support.', '#e74c3c');
-                      hideNewTableSectionModal();
-                      fetchAllTableSections();
-                });  
-             }
-                 
-         }
-          
-   }});
-      } else {
-         
-         obj.push(sectionName);
-         var json = JSON.stringify(obj);
-         fs.writeFile('./data/static/tablesections.json', json, 'utf8', (err) => {
-            if(err)
-               showToast('System Error: Unable to modify Table Section data. Please contact Accelerate Support.', '#e74c3c');
-            hideNewTableSectionModal();
-            fetchAllTableSections();
-         });
-      }
-   }  
 
+
+      var requestData = {
+        "selector"  :{ 
+                      "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+                    },
+        "fields"    : ["_rev", "identifierTag", "value"]
+      }
+
+      $.ajax({
+        type: 'POST',
+        url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+        data: JSON.stringify(requestData),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+          if(data.docs.length > 0){
+            if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+
+                var table = data.docs[0].value;
+                
+                if(table == []){
+                  table.push(sectionName);
+                }
+                else{
+
+                 var isAlreadyThere = false;
+
+                 for (var i=0; i<table.length; i++) {
+                   if (table[i] == sectionName){
+                      isAlreadyThere = true;
+                      break;
+                   }
+                 }
+
+                 if(isAlreadyThere){
+                   showToast('Warning: Table Section already exists. Please choose a different name.', '#e67e22');
+                 }
+                 else{
+
+                    table.push(sectionName);
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLE_SECTIONS",
+                      "value": table
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLE_SECTIONS/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        hideNewTableSectionModal();
+                        fetchAllTableSections();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });  
+
+                 }
+                     
+              }
+                  
+            }
+            else{
+              showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+            }
+          }
+          else{
+            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+
+        },
+        error: function(data) {
+          showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+    });
+  }
 
 }
 
@@ -307,9 +570,14 @@ function addNewTableSection(){
 function addNewTable() {  
    
   var paramObj = {};
-  paramObj.name = document.getElementById("add_new_table_name").value;
+  paramObj.table = document.getElementById("add_new_table_name").value;
   paramObj.capacity = document.getElementById("add_new_table_capacity").value;
   paramObj.type = document.getElementById("add_new_table_type").value;
+  
+  paramObj.assigned = "";
+  paramObj.KOT = "";
+  paramObj.status = 0;
+  paramObj.lastUpdate = "";
 
   paramObj.capacity = parseFloat(paramObj.capacity);
 
@@ -318,7 +586,7 @@ function addNewTable() {
     return '';
   } 
 
-   if(paramObj.name == '') {
+   if(paramObj.table == '') {
       showToast('Warning: Please set a name', '#e67e22');
       return '';
    }
@@ -327,73 +595,91 @@ function addNewTable() {
       return '';    
    }
    else{ 
-      //Check if file exists
-      if(fs.existsSync('./data/static/tables.json')) {
-         fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-         if(data==""){
-            var obj = []
-            obj.push(paramObj); //add some data
-             var json = JSON.stringify(obj); //convert it back to json
-             fs.writeFile('./data/static/tables.json', json, 'utf8', (err) => {
-                  if(err)
-                     showToast('System Error: Unable to modify Tables data. Please contact Accelerate Support.', '#e74c3c');
-                      
-                      hideNewTableModal();
-                      fetchAllTables();
-               });
-         }
-         else{
-             var flag=0;
-             var obj = JSON.parse(data); //now it an object
-             for (i=0; i<obj.length; i++) {
-               if (obj[i].name == paramObj.name){
-                  flag=1;
-                  break;
-               }
-             }
-             if(flag==1){
-               showToast('Warning: Table Name already exists. Please choose a different name.', '#e67e22');
-             }
-             else{
-                obj.push(paramObj); //add some data
-                var json = JSON.stringify(obj); //convert it back to json
-                fs.writeFile('./data/static/tables.json', json, 'utf8', (err) => {
-                     if(err)
-                        showToast('System Error: Unable to modify Tables data. Please contact Accelerate Support.', '#e74c3c');
-                      
-                      hideNewTableModal();
-                      fetchAllTables();
-                });  
-             }
-                 
-         }
-          
-   }});
-      } else {
-         
-         obj.push(paramObj);
-         var json = JSON.stringify(obj);
-         fs.writeFile('./data/static/tables.json', json, 'utf8', (err) => {
-            if(err)
-               showToast('System Error: Unable to modify Tables data. Please contact Accelerate Support.', '#e74c3c');
-        
-                      hideNewTableModal();
-                      fetchAllTables();
-         });
-      }
+
+        var requestData = {
+          "selector"  :{ 
+                        "identifierTag": "ZAITOON_TABLES_MASTER" 
+                      },
+          "fields"    : ["_rev", "identifierTag", "value"]
+        }
+
+        $.ajax({
+          type: 'POST',
+          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+          data: JSON.stringify(requestData),
+          contentType: "application/json",
+          dataType: 'json',
+          timeout: 10000,
+          success: function(data) {
+            if(data.docs.length > 0){
+              if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+                  var table = data.docs[0].value;
+                  
+                  if(table == []){
+                    table.push(paramObj);
+                  }
+                  else{
+
+                   var isAlreadyThere = false;
+
+                   for (var i=0; i<table.length; i++) {
+                     if (table[i].table == paramObj.table){
+                        isAlreadyThere = true;
+                        break;
+                     }
+                   }
+
+                   if(isAlreadyThere){
+                     showToast('Warning: Table Name already exists. Please choose a different name.', '#e67e22');
+                   }
+                   else{
+
+                      table.push(paramObj);
+
+                      //Update
+                      var updateData = {
+                        "_rev": data.docs[0]._rev,
+                        "identifierTag": "ZAITOON_TABLES_MASTER",
+                        "value": table
+                      }
+
+                      $.ajax({
+                        type: 'PUT',
+                        url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                        data: JSON.stringify(updateData),
+                        contentType: "application/json",
+                        dataType: 'json',
+                        timeout: 10000,
+                        success: function(data) {
+                          hideNewTableModal();
+                          fetchAllTables();
+                        },
+                        error: function(data) {
+                          showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        }
+
+                      });  
+
+                   }
+                       
+                }
+                    
+              }
+              else{
+                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+              }
+            }
+            else{
+              showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+            }
+
+          },
+          error: function(data) {
+            showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+          }
+
+      });
+
    }
 }
-
-
-function deleteAll(){
-   fs.unlinkSync('./data/static/tables.json');
-}
-
-
-
-//fetchAll()
-
-//addTable("Table-","T4","4","Normal")

@@ -1312,39 +1312,78 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 
 function releaseTableAfterBillSettle(tableID, billNumber){
 
-    if(fs.existsSync('./data/static/tablemapping.json')) {
-        fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-        if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-            var tableMapping = JSON.parse(data); 
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-            var isUpdated = false;
-
+            var tableMapping = data.docs[0].value;
             var timestamp = getCurrentTime('TIME');
 
             for(var i=0; i<tableMapping.length; i++){
-              if(tableMapping[i].table == tableID && tableMapping[i].KOT == billNumber){
-                tableMapping.splice(i, 1);
+              if(tableMapping[i].table == tableID){
+
+                tableMapping[i].assigned = "";
+                tableMapping[i].KOT = "";
+                tableMapping[i].status = 0;
+                tableMapping[i].lastUpdate = timestamp;
+                
                 break;
               }
             }
 
-           var newjson = JSON.stringify(tableMapping);
-           fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-             renderTables();
-             if(err){
-                showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
-               }
-           }); 
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
 
-    }
-    });
-      } else {
-        showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        renderTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });             
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
       }
+
+    });
 }
 
 
@@ -1421,18 +1460,46 @@ function releaseTableAfterBillSettle(tableID, billNumber){
 function confirmBillGeneration(kotID, optionalPageRef){
 
 
-      fs.readFile('./data/static/lastBILL.txt', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read order related data. Please contact Accelerate Support.', '#e74c3c');
-       } else{
-          var billNumber = parseInt(data) + 1;
-          confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef)
-       }
-       });
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILL_INDEX" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILL_INDEX'){
+
+            var billNumber = parseInt(data.docs[0].value) + 1;
+            confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, data.docs[0]._rev)
+                
+          }
+          else{
+            showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Bill Index. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 
-function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef){
+function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, revID){
 
   /*Read mentioned KOT - kotID*/
    if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
@@ -1519,10 +1586,30 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef){
                             renderAllKOTs();
                           }
 
-                          fs.writeFile("./data/static/lastBILL.txt", billNumber, 'utf8', (err) => {
-                              if(err)
-                                 showToast('System Error: Unable to modify billing related data. Please contact Accelerate Support.', '#e74c3c');                
-                          });
+
+                          //Update bill number on server
+                          var updateData = {
+                            "_rev": revID,
+                            "identifierTag": "ZAITOON_BILL_INDEX",
+                            "value": billNumber
+                          }
+
+                          $.ajax({
+                            type: 'PUT',
+                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILL_INDEX/',
+                            data: JSON.stringify(updateData),
+                            contentType: "application/json",
+                            dataType: 'json',
+                            timeout: 10000,
+                            success: function(data) {
+                              
+                            },
+                            error: function(data) {
+                              showToast('System Error: Unable to update Billing Index. Next Bill Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+                            }
+
+                          });  
+
                         }
                       });
 

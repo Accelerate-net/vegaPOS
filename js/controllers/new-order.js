@@ -1286,18 +1286,27 @@ function removeAllHoldOrders(){
 
 function addTableToReserveList(tableID, optionalComments){
 
-		var comments = optionalComments;
+	var comments = optionalComments;
 
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	       
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-	          var isUpdated = false;
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
+	          var tableMapping = data.docs[0].value;
 	          var timestamp = getCurrentTime('TIME');
 
 	          for(var i=0; i<tableMapping.length; i++){
@@ -1311,36 +1320,74 @@ function addTableToReserveList(tableID, optionalComments){
 	          		tableMapping[i].KOT = "";
 	          		tableMapping[i].status = 5;
 	          		tableMapping[i].lastUpdate = timestamp;
-
-	          		isUpdated = true;
-
+	          		
 	          		break;
 	          	}
 	          }
 
-	          if(!isUpdated){
-	          	tableMapping.push({ "table": tableID, "assigned": comments, "KOT": "", "status": 5, "lastUpdate": timestamp });
-		      }
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		       	renderTables();
-		       }); 
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        renderTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
 
-		}
-		});
-	    }
+                    });  	          
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 
 function removeTableFromReserveList(tableID){
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	       
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+	          var tableMapping = data.docs[0].value;
 
 	          for(var i=0; i<tableMapping.length; i++){
 	          	if(tableMapping[i].table == tableID){
@@ -1349,20 +1396,54 @@ function removeTableFromReserveList(tableID){
 	          			return '';
 	          		}
 
-	          		tableMapping.splice(i,1);
+	          		tableMapping[i].status = 0;
+	          		tableMapping[i].assigned = "";
+	          		tableMapping[i].lastUpdate = "";
+	          		tableMapping[i].KOT = "";
 
 	          		break;
 	          	}
 	          }
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		         
-		       }); 
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
 
-		}
-		});
-	    }
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        renderTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });  	          
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 
@@ -2093,51 +2174,51 @@ function renderTables(){
 		currentTableID = '';
 	}
 
-			//PRELOAD TABLE MAPPING
-		    if(fs.existsSync('./data/static/tablemapping.json')) {
-		        fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-		      if (err){
-		      	showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
-	    
-		      } else {
+	//PRELOAD TABLE MAPPING
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-		          	if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-		              var tableMapping = JSON.parse(data);
-		              tableMapping.sort(); //alphabetical sorting 
-		              window.localStorage.tableMappingData = JSON.stringify(tableMapping);
+              var tables = data.docs[0].value;
+              tables.sort();
+ 
 
-		              	  //PRELOAD TABLES
-						  if(fs.existsSync('./data/static/tables.json')) {
-					        fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
-					      if (err){
-					          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-					      } else {
+				    var requestData = {
+				      "selector"  :{ 
+				                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+				                  },
+				      "fields"    : ["_rev", "identifierTag", "value"]
+				    }
 
-					          if(data == ''){ data = '[]'; }
+				    $.ajax({
+				      type: 'POST',
+				      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+				      data: JSON.stringify(requestData),
+				      contentType: "application/json",
+				      dataType: 'json',
+				      timeout: 10000,
+				      success: function(data) {
+				        if(data.docs.length > 0){
+				          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
 
-					              var tables = JSON.parse(data);
-					              tables.sort(); //alphabetical sorting 
+				              var tableSections = data.docs[0].value;
+				              tableSections.sort(); //alphabetical sorting 
 
 
-					             //PRELOAD TABLE SECTIONS
-							    if(fs.existsSync('./data/static/tablesections.json')) {
-							        fs.readFile('./data/static/tablesections.json', 'utf8', function readFileCallback(err, data){
-							      if (err){
-							          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-							      } else {
-
-							          if(data == ''){ data = '[]'; }
-
-							              var tableSections = JSON.parse(data);
-							              tableSections.sort(); //alphabetical sorting 
-
-							              
-
-							            if(0){
-
-							            }
-							            else{
 							              var renderSectionArea = '';
 
 							              var n = 0;
@@ -2147,43 +2228,41 @@ function renderTables(){
 							              	for(var i = 0; i<tables.length; i++){
 							              		if(tables[i].type == tableSections[n]){
 
-							              			var tableOccupancyData = getTableLiveStatus(tables[i].name);
-
-							              			if(tableOccupancyData){ /*Occuppied*/
-														if(tableOccupancyData.status == 1){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileRed" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+							              			if(tables[i].status != 0){ /*Occuppied*/
+														if(tables[i].status == 1){
+								              				renderTableArea = renderTableArea + '<tag class="tableTileRed" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'MAPPED\')">'+
+																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																					            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																					            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].name ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Running')+'</tag>'+
+																					            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Running')+'</tag>'+
 																					        	'</tag>';	
 														}
-														else if(tableOccupancyData.status == 2){
-															renderTableArea = renderTableArea + '<tag class="tableTileYellow" style="cursor: pointer" onclick="preSettleBill(\''+tableOccupancyData.KOT+'\')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+														else if(tables[i].status == 2){
+															renderTableArea = renderTableArea + '<tag class="tableTileYellow" style="cursor: pointer" onclick="preSettleBill(\''+tables[i].KOT+'\')">'+
+																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																					            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																					            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].name ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Billed')+'</tag>'+
+																					            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Billed')+'</tag>'+
 																					        	'</tag>';	
 														}									
-														else if(tableOccupancyData.status == 5){
-															if(currentTableID != '' && currentTableID == tables[i].name){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\', \''+(tableOccupancyData.assigned != "" && tableOccupancyData.assigned != "Hold Order" ? tableOccupancyData.assigned : '')+'\', '+(tableOccupancyData.assigned != "" && tableOccupancyData.assigned == "Hold Order" ? 1 : 0)+')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? (tableOccupancyData.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableOccupancyData.assigned) : "-")+'</tag>'+
+														else if(tables[i].status == 5){
+															if(currentTableID != '' && currentTableID == tables[i].table){
+								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\', \''+(tables[i].assigned != "" && tables[i].assigned != "Hold Order" ? tables[i].assigned : '')+'\', '+(tables[i].assigned != "" && tables[i].assigned == "Hold Order" ? 1 : 0)+')">'+
+																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
 																					            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																					        	'</tag>';	
 															}	
 															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\', \''+(tableOccupancyData.assigned != "" && tableOccupancyData.assigned != "Hold Order" ? tableOccupancyData.assigned : '')+'\', '+(tableOccupancyData.assigned != "" && tableOccupancyData.assigned == "Hold Order" ? 1 : 0)+')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? (tableOccupancyData.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableOccupancyData.assigned) : "-")+'</tag>'+
+								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\', \''+(tables[i].assigned != "" && tables[i].assigned != "Hold Order" ? tables[i].assigned : '')+'\', '+(tables[i].assigned != "" && tables[i].assigned == "Hold Order" ? 1 : 0)+')">'+
+																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
 																					            '<tag class="tableInfo">Reserved</tag>'+
 																					        	'</tag>';	
 															}
 
 														}									
 														else{
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRed" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+							              				renderTableArea = renderTableArea + '<tag class="tableTileRed" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'MAPPED\')">'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																				            '<tag class="tableInfo">Running</tag>'+
 																				        	'</tag>';											
@@ -2193,16 +2272,16 @@ function renderTables(){
 							              			}
 							              			else{
 
-							              				if(currentTableID != '' && currentTableID == tables[i].name){
-							              					renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\')">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+							              				if(currentTableID != '' && currentTableID == tables[i].table){
+							              					renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\')">'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																				            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																				        	'</tag>';
 														}	
 														else{
-															renderTableArea = renderTableArea + '<tag class="tableTileGreen" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\')">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+															renderTableArea = renderTableArea + '<tag class="tableTileGreen" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\')">'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																				            '<tag class="tableInfo">Free</tag>'+
 																				        	'</tag>';
@@ -2222,23 +2301,39 @@ function renderTables(){
 							              }
 							              
 							              document.getElementById("tableRenderPlane").innerHTML = renderSectionArea;
-							            }
-							    }
-							    });
-							      } else {
-							        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-							      } 
+   
+				          }
+				          else{
+				            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				          }
+				        }
+				        else{
+				          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				        }
 
-					    }
-					    });
-					      } else {
-					        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-					      } 
+				      },
+				      error: function(data) {
+				        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+				      }
 
+				    });
 
-		    }
-		    });
-		     }
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 
@@ -2258,29 +2353,48 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 	}
 	
 
-
-
 	if(statusCode == 'MAPPED'){
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
 
-	          for(var i=0; i<tableMapping.length; i++){
-	          	if(tableMapping[i].table == tableID){
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                  },
+		      "fields"    : ["_rev", "identifierTag", "value"]
+		    }
 
-	          		moveToEditKOT(tableMapping[i].KOT);
-	          	}
-	          }
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+			          var tableMapping = data.docs[0].value;
+			          for(var i=0; i<tableMapping.length; i++){
+			          	if(tableMapping[i].table == tableID){
+			          		moveToEditKOT(tableMapping[i].KOT);
+			          	}
+			          }
+		                
+		          }
+		          else{
+		            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+
+		      },
+		      error: function(data) {
+		        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+		      }
+
+		    });
 	}
 	else if(statusCode == 'FREE'){
 		freshOrderOnTable(tableID, optionalCustomerName, optionalSaveFlag);
@@ -3047,88 +3161,132 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	orderMetaInfo.modeType = customerInfo.modeType;
 	orderMetaInfo.reference = customerInfo.reference;
    
-      //Check if file exists
+    //Check for KOT index on Server
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_KOT_INDEX" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-      fs.readFile('./data/static/lastKOT.txt', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read order related data. Please contact Accelerate Support.', '#e74c3c');
-       } else{
-          var num = parseInt(data) + 1;
-          var kot = 'KOT' + num;
-         
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_KOT_INDEX'){
 
-          var today = getCurrentTime('DATE');
-          var time = getCurrentTime('TIME');
+	          var num = parseInt(data.docs[0].value) + 1;
+	          var kot = 'KOT' + num;
+	         
+	          var today = getCurrentTime('DATE');
+	          var time = getCurrentTime('TIME');
 
-          var obj = {}; 
-          obj.KOTNumber = kot;
-          obj.orderDetails = orderMetaInfo;
-          obj.table = customerInfo.mappedAddress;
-          obj.customerName = customerInfo.name;
-          obj.customerMobile = customerInfo.mobile; 
-          obj.guestCount = customerInfo.count;
-          obj.stewardName = loggedInStaffInfo.name;
-          obj.stewardCode = loggedInStaffInfo.code;
-          obj.orderStatus = 1;
-          obj.date = today;
-          obj.timePunch = time;
-          obj.timeKOT = "";
-          obj.timeBill = "";
-          obj.timeSettle = "";
-          obj.cart = cart_products;
-          obj.specialRemarks = 'SPECIAL COMMENTS';
-          obj.extras = otherCharges,
-          obj.discount = {},
-          obj.customExtras = {}
+	          var obj = {}; 
+	          obj.KOTNumber = kot;
+	          obj.orderDetails = orderMetaInfo;
+	          obj.table = customerInfo.mappedAddress;
+	          obj.customerName = customerInfo.name;
+	          obj.customerMobile = customerInfo.mobile; 
+	          obj.guestCount = customerInfo.count;
+	          obj.stewardName = loggedInStaffInfo.name;
+	          obj.stewardCode = loggedInStaffInfo.code;
+	          obj.orderStatus = 1;
+	          obj.date = today;
+	          obj.timePunch = time;
+	          obj.timeKOT = "";
+	          obj.timeBill = "";
+	          obj.timeSettle = "";
+	          obj.cart = cart_products;
+	          obj.specialRemarks = 'SPECIAL COMMENTS';
+	          obj.extras = otherCharges,
+	          obj.discount = {},
+	          obj.customExtras = {}
 
-          var json = JSON.stringify(obj); //convert it back to json
-          var file = './data/KOT/'+kot+'.json';
-          fs.writeFile(file, json, 'utf8', (err) => {
-              if(err){
-				showToast('System Error: Unable to generate KOT. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{  
-              	
-              	//Send KOT for Printing
-              	//sendToPrinter(kot, 'KITCHEN')
+	          var json = JSON.stringify(obj); //convert it back to json
+	          var file = './data/KOT/'+kot+'.json';
+	          fs.writeFile(file, json, 'utf8', (err) => {
+	              if(err){
+					showToast('System Error: Unable to generate KOT. Please contact Accelerate Support.', '#e74c3c');
+	              }
+	              else{  
+	              	
+	              	//Send KOT for Printing
+	              	//sendToPrinter(kot, 'KITCHEN')
 
-              	if(orderMetaInfo.modeType == 'DINE'){
-              		addToTableMapping(obj.table, kot, obj.customerName);
-              		showToast('#'+kot+' generated Successfully', '#27ae60');
+	              	if(orderMetaInfo.modeType == 'DINE'){
+	              		addToTableMapping(obj.table, kot, obj.customerName);
+	              		showToast('#'+kot+' generated Successfully', '#27ae60');
 
-              		
-              		clearAllMetaData();
-              		renderCustomerInfo();
-              		$("#add_item_by_search").focus();
-              	}
-              	else if(orderMetaInfo.modeType == 'TOKEN'){
-              		/*Increment Token Counter*/
-              		var tempToken = window.localStorage.lastPrintedToken;
-              		if(!tempToken || tempToken == ''){
-              			tempToken = 1;
-              		}
-              		showToast('#'+kot+' generated Successfully', '#27ae60');
-              		window.localStorage.lastPrintedToken = parseInt(tempToken) + 1;
- 					
- 					pushCurrentOrderAsEditKOT(encodeURI(json));
-              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
-              	}
-              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
-              		showToast('#'+kot+' generated Successfully', '#27ae60');
-              		
-              		pushCurrentOrderAsEditKOT(encodeURI(json));
-              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
-              	}
-              }
-              	 
-           });
+	              		
+	              		clearAllMetaData();
+	              		renderCustomerInfo();
+	              		$("#add_item_by_search").focus();
+	              	}
+	              	else if(orderMetaInfo.modeType == 'TOKEN'){
+	              		/*Increment Token Counter*/
+	              		var tempToken = window.localStorage.lastPrintedToken;
+	              		if(!tempToken || tempToken == ''){
+	              			tempToken = 1;
+	              		}
+	              		showToast('#'+kot+' generated Successfully', '#27ae60');
+	              		window.localStorage.lastPrintedToken = parseInt(tempToken) + 1;
+	 					
+	 					pushCurrentOrderAsEditKOT(encodeURI(json));
+	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
+	              	}
+	              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
+	              		showToast('#'+kot+' generated Successfully', '#27ae60');
+	              		
+	              		pushCurrentOrderAsEditKOT(encodeURI(json));
+	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
+	              	}
+	              }
+	              	 
+	           });
 
-          fs.writeFile("./data/static/lastKOT.txt", num, 'utf8', (err) => {
-              if(err)
-                 showToast('System Error: Unable to modify order related data. Please contact Accelerate Support.', '#e74c3c');
-           });
-       }
-       });
+                          //Update KOT number on server
+                          var updateData = {
+                            "_rev": data.docs[0]._rev,
+                            "identifierTag": "ZAITOON_KOT_INDEX",
+                            "value": num
+                          }
+
+
+                          $.ajax({
+                            type: 'PUT',
+                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_INDEX/',
+                            data: JSON.stringify(updateData),
+                            contentType: "application/json",
+                            dataType: 'json',
+                            timeout: 10000,
+                            success: function(data) {
+                              
+                            },
+                            error: function(data) {
+                              showToast('System Error: Unable to update KOT Index. Next KOT Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+                            }
+
+                          });               
+          }
+          else{
+            showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Bill Index. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 
@@ -3342,53 +3500,83 @@ function addToTableMapping(tableID, kotID, assignedTo){
               mins = '0'+mins;
           }
 
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to map KOT and Table. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
 
-	          var isUpdated = false;
 
-	          var timestamp = getCurrentTime('TIME');
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                  },
+		      "fields"    : ["_rev", "identifierTag", "value"]
+		    }
 
-	          for(var i=0; i<tableMapping.length; i++){
-	          	if(tableMapping[i].table == tableID){
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-	          		isUpdated = true;
+			          var tableMapping = data.docs[0].value;
+			          var timestamp = getCurrentTime('TIME');
 
-	          		if(tableMapping[i].status != 0 && tableMapping[i].status != 5){
-						showToast('Warning: Table #'+tableID+' was not free. But Order is punched.', '#e67e22');
-	          		}
-	          		else{
-	          			tableMapping[i].status = 1;
-	          			tableMapping[i].assigned = assignedTo;
-	          			tableMapping[i].KOT = kotID;
-	          			tableMapping[i].lastUpdate = hour+''+mins;
-	          		}
+			          for(var i=0; i<tableMapping.length; i++){
+			          	if(tableMapping[i].table == tableID){
 
-	          	}
-	          }
+			          		if(tableMapping[i].status != 0 && tableMapping[i].status != 5){
+								showToast('Warning: Table #'+tableID+' was not free. But Order is punched.', '#e67e22');
+			          		}
+			          		else{
+			          			tableMapping[i].status = 1;
+			          			tableMapping[i].assigned = assignedTo;
+			          			tableMapping[i].KOT = kotID;
+			          			tableMapping[i].lastUpdate = hour+''+mins;
+			          		}
+			          	}
+			          }
 
-	          if(!isUpdated){
-	          	tableMapping.push({ "table": tableID, "assigned": assignedTo, "KOT": kotID, "status": 1, "lastUpdate": timestamp });
+		                    //Update
+		                    var updateData = {
+		                      "_rev": data.docs[0]._rev,
+		                      "identifierTag": "ZAITOON_TABLES_MASTER",
+		                      "value": tableMapping
+		                    }
+
+		                    $.ajax({
+		                      type: 'PUT',
+		                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+		                      data: JSON.stringify(updateData),
+		                      contentType: "application/json",
+		                      dataType: 'json',
+		                      timeout: 10000,
+		                      success: function(data) {
+		                        renderTables();
+		                      },
+		                      error: function(data) {
+		                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+		                      }
+
+		                    });  	          
+
+		                
+		          }
+		          else{
+		            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+
+		      },
+		      error: function(data) {
+		        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
 		      }
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		       	 renderTables();
-		         if(err){
-		            showToast('System Error: Unable to map KOT and Table. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		       }); 
-
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to map KOT and Table. Please contact Accelerate Support.', '#e74c3c');
-	    }
+		    });
 }
 
 
@@ -3412,114 +3600,125 @@ function billTableMapping(tableID, billNumber, status){
               mins = '0'+mins;
           }
 
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
 
-	          var isUpdated = false;
 
-	          var timestamp = getCurrentTime('TIME');
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                  },
+		      "fields"    : ["_rev", "identifierTag", "value"]
+		    }
 
-	          for(var i=0; i<tableMapping.length; i++){
-	          	if(tableMapping[i].table == tableID){
-	          		isUpdated = true;
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-	          		tableMapping[i].status = status;
-	          		tableMapping[i].KOT = billNumber;
-	          		tableMapping[i].lastUpdate = hour+''+mins;
-	          	
-	          	}
-	          }
+			          var tableMapping = data.docs[0].value;
+			          var timestamp = getCurrentTime('TIME');
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		       	 renderTables();
-		         if(err){
-		            showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		       }); 
+			          for(var i=0; i<tableMapping.length; i++){
+			          	if(tableMapping[i].table == tableID){
+			          		tableMapping[i].status = status;
+			          		tableMapping[i].KOT = billNumber;
+			          		tableMapping[i].lastUpdate = hour+''+mins;
+			          	}
+			          }
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to update Table Mapping. Please contact Accelerate Support.', '#e74c3c');
-	    }
+		                    //Update
+		                    var updateData = {
+		                      "_rev": data.docs[0]._rev,
+		                      "identifierTag": "ZAITOON_TABLES_MASTER",
+		                      "value": tableMapping
+		                    }
+
+		                    $.ajax({
+		                      type: 'PUT',
+		                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+		                      data: JSON.stringify(updateData),
+		                      contentType: "application/json",
+		                      dataType: 'json',
+		                      timeout: 10000,
+		                      success: function(data) {
+		                        renderTables();
+		                      },
+		                      error: function(data) {
+		                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+		                      }
+
+		                    });  
+		          }
+		          else{
+		            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+
+		      },
+		      error: function(data) {
+		        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+		      }
+
+		    });
 }
 
-
-
-
-function getTableLiveStatus(tableID){
-	/*returns table occupancy data*/
-	if(!window.localStorage.tableMappingData){
-		return '';
-	}
-
-	var tableMapData = JSON.parse(window.localStorage.tableMappingData);
-
-	var n = 0;
-	while(tableMapData[n]){
-		if(tableMapData[n].table == tableID){
-			return tableMapData[n];
-		}
-		n++;
-	}
-
-	return '';
-}
 
 function pickTableForNewOrder(currentTableID){
 
-			//PRELOAD TABLE MAPPING
-		    if(fs.existsSync('./data/static/tablemapping.json')) {
-		        fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-		      if (err){
-		      } else {
 
-		          	if(data == ''){ data = '[]'; }
+	//PRELOAD TABLE MAPPING
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-		              var tableMapping = JSON.parse(data);
-		              tableMapping.sort(); //alphabetical sorting 
-		              window.localStorage.tableMappingData = JSON.stringify(tableMapping);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-		              //PRELOAD TABLES
-		    
-						  if(fs.existsSync('./data/static/tables.json')) {
-					        fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
-					      if (err){
-					          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-					      } else {
+              var tables = data.docs[0].value;
+              tables.sort();
+ 
 
-					          if(data == ''){ data = '[]'; }
+				    var requestData = {
+				      "selector"  :{ 
+				                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+				                  },
+				      "fields"    : ["_rev", "identifierTag", "value"]
+				    }
 
-					              var tables = JSON.parse(data);
-					              tables.sort(); //alphabetical sorting 
+				    $.ajax({
+				      type: 'POST',
+				      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+				      data: JSON.stringify(requestData),
+				      contentType: "application/json",
+				      dataType: 'json',
+				      timeout: 10000,
+				      success: function(data) {
+				        if(data.docs.length > 0){
+				          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+
+				              var tableSections = data.docs[0].value;
+				              tableSections.sort(); //alphabetical sorting 
 
 
-					             //PRELOAD TABLE SECTIONS
-							    if(fs.existsSync('./data/static/tablesections.json')) {
-							        fs.readFile('./data/static/tablesections.json', 'utf8', function readFileCallback(err, data){
-							      if (err){
-							          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-							      } else {
-
-							          if(data == ''){ data = '[]'; }
-
-							              var tableSections = JSON.parse(data);
-							              tableSections.sort(); //alphabetical sorting 
-
-							              
-
-							            if(0){
-
-							            	
-							              
-							            }
-							            else{
 							              var renderSectionArea = '';
 
 							              var n = 0;
@@ -3529,35 +3728,33 @@ function pickTableForNewOrder(currentTableID){
 							              	for(var i = 0; i<tables.length; i++){
 							              		if(tables[i].type == tableSections[n]){
 
-							              			var tableOccupancyData = getTableLiveStatus(tables[i].name);
-
-							              			if(tableOccupancyData){ /*Occuppied*/
-														if(tableOccupancyData.status == 1){
+							              			if(tables[i].status != 0){ /*Occuppied*/
+														if(tables[i].status == 1){
 							              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																				            '<tag class="tableInfo">Running</tag>'+
 																				        	'</tag>';	
 														}	
-														else if(tableOccupancyData.status == 2){
+														else if(tables[i].status == 2){
 															renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																				            '<tag class="tableInfo">Billed</tag>'+
 																				        	'</tag>';	
 														}								
-														else if(tableOccupancyData.status == 5){
-															if(currentTableID != '' && currentTableID == tables[i].name){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="setCustomerInfoTable(\''+tables[i].name+'\')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
+														else if(tables[i].status == 5){
+															if(currentTableID != '' && currentTableID == tables[i].table){
+								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
+																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
 																					            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																					        	'</tag>';	
 															}	
 															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="setCustomerInfoTable(\''+tables[i].name+'\')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
+								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
+																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
 																					            '<tag class="tableInfo">Reserved</tag>'+
 																					        	'</tag>';	
 															}
@@ -3565,7 +3762,7 @@ function pickTableForNewOrder(currentTableID){
 														}									
 														else{
 							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																				            '<tag class="tableInfo">Running</tag>'+
 																				        	'</tag>';											
@@ -3575,16 +3772,16 @@ function pickTableForNewOrder(currentTableID){
 							              			}
 							              			else{
 
-							              				if(currentTableID != '' && currentTableID == tables[i].name){
-							              					renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].name+'\')" class="tableTileBlue">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+							              				if(currentTableID != '' && currentTableID == tables[i].table){
+							              					renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="tableTileBlue">'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																				            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																				        	'</tag>';
 														}	
 														else{
-															renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].name+'\')" class="tableTileGreen">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
+															renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="tableTileGreen">'+
+																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																				            '<tag class="tableInfo">Free</tag>'+
 																				        	'</tag>';
@@ -3605,23 +3802,39 @@ function pickTableForNewOrder(currentTableID){
 							              
 							              document.getElementById("pickTableForNewOrderModalContent").innerHTML = renderSectionArea;		            	
 							              document.getElementById("pickTableForNewOrderModal").style.display = 'block';	
-							            }
-							    }
-							    });
-							      } else {
-							        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-							      } 
+							            
+				          }
+				          else{
+				            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				          }
+				        }
+				        else{
+				          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				        }
 
-					    }
-					    });
-					      } else {
-					        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-					      } 
+				      },
+				      error: function(data) {
+				        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+				      }
 
+				    });
 
-		    }
-		    });
-		     }
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 function pickDummyTableForNewOrder(){
