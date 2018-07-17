@@ -4032,29 +4032,55 @@ function openItemWiseCommentModal(itemCode, variant){
 			}			
 		}
 
-		if(fs.existsSync('./data/static/savedcomments.json')) {
-	      fs.readFile('./data/static/savedcomments.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
-
-	          	var modes = JSON.parse(data);
-	          	modes.sort(); //alphabetical sorting 
-	          	var modesTag = '';
-
-				for (var i=0; i<modes.length; i++){
-					modesTag = modesTag + '<button type="button" style="margin: 0 5px 5px 0" class="btn btn-outline" onclick="addFromSuggestions(\''+modes[i]+'\')">'+modes[i]+'</button>';
-        		}
-
-				if(!modesTag)
-					document.getElementById("savedCommentsSuggestions").innerHTML = '';
-				else
-					document.getElementById("savedCommentsSuggestions").innerHTML = modesTag;
-		}
-		});
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_SAVED_COMMENTS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
 	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_COMMENTS'){
+
+		            var modes = data.docs[0].value;
+		            modes.sort(); //alphabetical sorting 
+		            var modesTag = '';
+
+					for (var i=0; i<modes.length; i++){
+						modesTag = modesTag + '<button type="button" style="margin: 0 5px 5px 0" class="btn btn-outline" onclick="addFromSuggestions(\''+modes[i]+'\')">'+modes[i]+'</button>';
+	        		}
+
+					if(!modesTag)
+						document.getElementById("savedCommentsSuggestions").innerHTML = '';
+					else
+						document.getElementById("savedCommentsSuggestions").innerHTML = modesTag;
+
+	          }
+	          else{
+	            showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Saved Comments data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });  
+
+
 
 
 	    document.getElementById("itemWiseCommentsModal").style.display = 'block';
