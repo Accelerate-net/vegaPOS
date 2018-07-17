@@ -4090,19 +4090,31 @@ function hideItemWiseCommentModal(){
 
 function openSpecialRequestModal(){
 
-		var allergicIngredientsList = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData): [];
+	var allergicIngredientsList = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData): [];
 
-		if(fs.existsSync('./data/static/cookingingredients.json')) {
-	      fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	          	var ingredientsList = JSON.parse(data);
-	          	ingredientsList.sort(); //alphabetical sorting 
-	          	var allergicTag = '';
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
+
+              var ingredientsList = data.docs[0].value;
+              ingredientsList.sort(); //alphabetical sorting 
+              var allergicTag = '';
+
 
 	          	if(allergicIngredientsList.length > 0){ //there are already some allergic ingredients set
 					for (var i=0; i<ingredientsList.length; i++){
@@ -4134,10 +4146,22 @@ function openSpecialRequestModal(){
 				else{
 					document.getElementById("specialRequestsAllergicSuggestions").innerHTML = allergicTag;
 				}
-		}
-		});
-	    }
 
+          }
+          else{
+            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
 
 
 	document.getElementById("specialRequestsModal").style.display = 'block';
