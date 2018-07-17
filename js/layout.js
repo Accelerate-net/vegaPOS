@@ -1029,13 +1029,25 @@ function selectSessionWindow(){
   }
 
 
-    if(fs.existsSync('./data/static/dinesessions.json')) {
-        fs.readFile('./data/static/dinesessions.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Dine Sessions. Please contact Accelerate Support.', '#e74c3c');
-      } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-              var sessions = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+
+              var sessions = data.docs[0].value;
               sessions.sort(); //alphabetical sorting 
 
               if(sessions.length == 0){
@@ -1081,153 +1093,164 @@ function selectSessionWindow(){
                 n++;
               }
 
-          document.getElementById("sessionModalHomeContent").innerHTML = renderContent;
-          document.getElementById("sessionModalHome").style.display = 'block';
+              document.getElementById("sessionModalHomeContent").innerHTML = renderContent;
+              document.getElementById("sessionModalHome").style.display = 'block';
 
-          if(currentSessionFound){
-            document.getElementById("session_switch_"+setSessionInfo.name).classList.add('selectUserProfile');
-          }
-
-
+              if(currentSessionFound){
+                document.getElementById("session_switch_"+setSessionInfo.name).classList.add('selectUserProfile');
+              }
 
 
-          /*
-            EasySelect Tool (TWO COLUMN - MULTI ROW GRID)
-          */
-          var tiles = $('#sessionModalHomeContent .easySelectTool_Session');
-          var tileSelected = undefined; //Check for active selection
-          var i = 0;
-          var currentIndex = 0;
-          var lastIndex = 0;
+              /*
+                EasySelect Tool (TWO COLUMN - MULTI ROW GRID)
+              */
+              var tiles = $('#sessionModalHomeContent .easySelectTool_Session');
+              var tileSelected = undefined; //Check for active selection
+              var i = 0;
+              var currentIndex = 0;
+              var lastIndex = 0;
 
-          $.each(tiles, function() {
-            if($(tiles[i]).hasClass("selectUserProfile")){
-              tileSelected = tiles.eq(i);
-              currentIndex = i;
-            }
+              $.each(tiles, function() {
+                if($(tiles[i]).hasClass("selectUserProfile")){
+                  tileSelected = tiles.eq(i);
+                  currentIndex = i;
+                }
 
-            lastIndex = i;
-            i++;
-          });  
+                lastIndex = i;
+                i++;
+              });  
 
-          var easySelectTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
-            if($('#sessionModalHome').is(':visible')) {
+              var easySelectTool = $(document).on('keydown',  function (e) {
+                console.log('Am secretly running...')
+                if($('#sessionModalHome').is(':visible')) {
 
-              console.log(e.which)
+                  console.log(e.which)
 
-                 switch(e.which){
-                  case 37:{ //  < Left Arrow
+                     switch(e.which){
+                      case 37:{ //  < Left Arrow
 
-                      if(tileSelected){
-                          tileSelected.removeClass('selectUserProfile');
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
 
-                          currentIndex--;
-                          if(currentIndex < 0){
-                            currentIndex = lastIndex;
-                          }
+                              currentIndex--;
+                              if(currentIndex < 0){
+                                currentIndex = lastIndex;
+                              }
 
-                          if(tiles.eq(currentIndex)){
-                              tileSelected = tiles.eq(currentIndex);
-                              tileSelected = tileSelected.addClass('selectUserProfile');
-                          }
-                      }else{
-                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                      }      
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
 
-                    break;
-                  }
-                  case 38:{ //  ^ Up Arrow 
-              
-                      if(tileSelected){
-                          tileSelected.removeClass('selectUserProfile');
-
-                          currentIndex = currentIndex - 2;
-
-                          if(currentIndex < 0){
-                            if(Math.abs(currentIndex)%2 == 1)
-                              currentIndex = lastIndex;
-                            else
-                              currentIndex = lastIndex - 1;
-                          }
-
-                          if(tiles.eq(currentIndex)){
-                              tileSelected = tiles.eq(currentIndex);
-                              tileSelected = tileSelected.addClass('selectUserProfile');
-                          }
-                      }else{
-                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                      }      
-
-                    break;
-                  }
-                  case 39:{ // Right Arrow >
-
-                      if(tileSelected){
-                          tileSelected.removeClass('selectUserProfile');
-
-                          currentIndex++;
-                          if(currentIndex > lastIndex){
-                            currentIndex = 0;
-                          }
-
-                          if(tiles.eq(currentIndex)){
-                              tileSelected = tiles.eq(currentIndex);
-                              tileSelected = tileSelected.addClass('selectUserProfile');
-                          }
-                      }else{
-                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                      }      
-
-                    break;
-                  }
-                  case 40:{ // Down Arrow \/ 
-
-                      if(tileSelected){
-                          tileSelected.removeClass('selectUserProfile');
-
-                          currentIndex = currentIndex + 2;
-                          if(currentIndex > lastIndex){
-                            currentIndex = currentIndex % 2;
-                          }
-
-                          if(tiles.eq(currentIndex)){
-                              tileSelected = tiles.eq(currentIndex);
-                              tileSelected = tileSelected.addClass('selectUserProfile');
-                          }
-                      }else{
-                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                      }      
-
-                    break;
-                  }
-                  case 27:{ // Escape (Close)
-                    $('#sessionWindowCloseButton').click();
-                    easySelectTool.unbind();
-                    break;  
-                  }
-                  case 13:{ // Enter (Confirm)
-
-                    $("#sessionModalHomeContent .easySelectTool_Session").each(function(){
-                      if($(this).hasClass("selectUserProfile")){
-                        $(this).click();
-                        e.preventDefault(); 
-                        easySelectTool.unbind();   
+                        break;
                       }
-                    });    
+                      case 38:{ //  ^ Up Arrow 
+                  
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
 
-                    break;
-                  }
-                 }
-            }
-          });
+                              currentIndex = currentIndex - 2;
+
+                              if(currentIndex < 0){
+                                if(Math.abs(currentIndex)%2 == 1)
+                                  currentIndex = lastIndex;
+                                else
+                                  currentIndex = lastIndex - 1;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 39:{ // Right Arrow >
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
+
+                              currentIndex++;
+                              if(currentIndex > lastIndex){
+                                currentIndex = 0;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 40:{ // Down Arrow \/ 
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
+
+                              currentIndex = currentIndex + 2;
+                              if(currentIndex > lastIndex){
+                                currentIndex = currentIndex % 2;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 27:{ // Escape (Close)
+                        $('#sessionWindowCloseButton').click();
+                        easySelectTool.unbind();
+                        break;  
+                      }
+                      case 13:{ // Enter (Confirm)
+
+                        $("#sessionModalHomeContent .easySelectTool_Session").each(function(){
+                          if($(this).hasClass("selectUserProfile")){
+                            $(this).click();
+                            e.preventDefault(); 
+                            easySelectTool.unbind();   
+                          }
+                        });    
+
+                        break;
+                      }
+                     }
+                }
+              });
 
 
-    }
+
+          }
+          else{
+            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
     });
-      } else {
-        showToast('System Error: Unable to read Dine Sessions. Please contact Accelerate Support.', '#e74c3c');
-      } 
+
+
 }
 
 function selectSessionWindowClose(){

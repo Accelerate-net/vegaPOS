@@ -85,42 +85,83 @@ function cancelOtherDeleteConfirmation(){
 /* read dine sessions */
 function fetchAllDineSessions(){
 
-		if(fs.existsSync('./data/static/dinesessions.json')) {
-	      fs.readFile('./data/static/dinesessions.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	    		if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
 
-	          	var params = JSON.parse(data);
-	          	params.sort(); //alphabetical sorting 
-	          	var paramsTag = '';
+              var params = data.docs[0].value;
+              params.sort(); //alphabetical sorting 
+              var paramsTag = '';
 
-				for (var i=0; i<params.length; i++){
-					paramsTag = paramsTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+params[i].name+'</td> <td>'+moment(params[i].startTime,"HHmm").format("HH:mm a")+'</td> <td>'+moment(params[i].endTime,"HHmm").format("hh:mm a")+'</td> <td onclick="deleteDineSessionConfirm(\''+params[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
-				}
+              for (var i=0; i<params.length; i++){
+                paramsTag = paramsTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+params[i].name+'</td> <td>'+moment(params[i].startTime,"HHmm").format("hh:mm a")+'</td> <td>'+moment(params[i].endTime,"HHmm").format("hh:mm a")+'</td> <td onclick="deleteDineSessionConfirm(\''+params[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+              }
 
-				if(!paramsTag)
-					document.getElementById("dineSessionsTable").innerHTML = '<p style="color: #bdc3c7">No sessions added yet.</p>';
-				else
-					document.getElementById("dineSessionsTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Session</th> <th style="text-align: left">Time From</th> <th style="text-align: left">Time To</th> <th style="text-align: left"></th> </tr> </thead>'+
-																	'<tbody>'+paramsTag+'</tbody>';
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+              if(!paramsTag)
+                document.getElementById("dineSessionsTable").innerHTML = '<p style="color: #bdc3c7">No sessions added yet.</p>';
+              else
+                document.getElementById("dineSessionsTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Session</th> <th style="text-align: left">Start Time</th> <th style="text-align: left">End Time</th> <th style="text-align: left"></th> </tr> </thead>'+
+                                        '<tbody>'+paramsTag+'</tbody>';
+
+          }
+          else{
+            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
 }
 
 
 /* add new dine session */
-function addDineSession() {  
+function addDineSession(optionalName, optionalStart, optionalEnd) {  
 
 	var paramObj = {};
-	paramObj.name = document.getElementById("add_new_dineSession_name").value;
-	paramObj.startTime = document.getElementById("add_new_dineSession_from").value;
-  paramObj.endTime = document.getElementById("add_new_dineSession_to").value;
+
+  if(!optionalName || optionalName == ''){
+    paramObj.name = document.getElementById("add_new_dineSession_name").value;
+  }
+  else{
+    paramObj.name = optionalName;
+  }
+
+  if(!optionalStart || optionalStart == ''){
+    paramObj.startTime = document.getElementById("add_new_dineSession_from").value;
+  }
+  else{
+    paramObj.startTime = optionalStart;
+  }
+
+  if(!optionalEnd || optionalEnd == ''){
+    paramObj.endTime = document.getElementById("add_new_dineSession_to").value;
+  }
+  else{
+    paramObj.endTime = optionalEnd;
+  }
+
 
   paramObj.startTime = ((paramObj.startTime).toString()).replace (/:/g, "");
   paramObj.startTime = parseFloat(paramObj.startTime);
@@ -146,73 +187,84 @@ function addDineSession() {
     return '';
   }
 
-      //Check if file exists
-      if(fs.existsSync('./data/static/dinesessions.json')) {
-         fs.readFile('./data/static/dinesessions.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-         if(data==""){
-            var obj = []
-            obj.push(paramObj); //add some data
-            var json = JSON.stringify(obj);
-            fs.writeFile('./data/static/dinesessions.json', json, 'utf8', (err) => {
-                if(err){
-                  showToast('System Error: Unable to save Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{
 
-                fetchAllDineSessions(); //refresh the list
-                hideNewDineSession();
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-              }
-            });
-         }
-         else{
-             var flag=0;
-             if(data == ''){ data = '[]'; }
-             var obj = [];
-             obj = JSON.parse(data);
-             for (var i=0; i<obj.length; i++) {
-               if (obj[i].name == paramObj.name){
-                  flag=1;
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+
+             var sessionsList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<sessionsList.length; i++) {
+               if (sessionsList[i].name == paramObj.name){
+                  flag = 1;
                   break;
                }
              }
-             if(flag==1){
-               showToast('Warning: Parameter already exists. Please choose a different name.', '#e67e22');
+
+             if(flag == 1){
+               showToast('Warning: Session Name already exists. Please set a different name.', '#e67e22');
              }
              else{
-                obj.push(paramObj);
-                var json = JSON.stringify(obj);
-                fs.writeFile('./data/static/dinesessions.json', json, 'utf8', (err) => {
-                     if(err){
-                        showToast('System Error: Unable to save Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-                    }
-		            else{
-			                fetchAllDineSessions(); //refresh the list
-			                hideNewDineSession();
-		              	
-		              }
-                  });  
+
+                sessionsList.push(paramObj);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_DINE_SESSIONS",
+                  "value": sessionsList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_DINE_SESSIONS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      fetchAllDineSessions(); //refresh the list
+                      hideNewDineSession();
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
 
              }
-                 
-         }
-          
-   }});
-      } else {
-         obj.push(paramObj);
-         fs.writeFile('./data/static/dinesessions.json', obj, 'utf8', (err) => {
-            if(err){
-               showToast('System Error: Unable to save Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-           }
-           else{
-                fetchAllDineSessions(); //refresh the list
-                hideNewDineSession();         	
-           }
-         });
+                
+          }
+          else{
+            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
       }
+
+    });
   
 }
 
@@ -223,36 +275,84 @@ function deleteDineSessionConfirm(name){
 
 
 /* delete a dine session */
-function deleteDineSession(name) {  
+function deleteDineSession(sessionName) {  
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/dinesessions.json')) {
-       fs.readFile('./data/static/dinesessions.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-       	if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i].name == name){
-            obj.splice(i,1);
-            break;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/dinesessions.json', newjson, 'utf8', (err) => {
-         if(err)
-            showToast('System Error: Unable to make changes in Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-        
-        	/* on successful delete */
-   			  fetchAllDineSessions();
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-   }
 
-   cancelOtherDeleteConfirmation()
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+
+               var dineSessionsList = data.docs[0].value;
+
+               var memory_start = '';
+               var memory_end = '';
+
+               for (var i=0; i<dineSessionsList.length; i++) {  
+                 if (dineSessionsList[i].name == sessionName){
+                    memory_start = dineSessionsList[i].startTime;
+                    memory_end = dineSessionsList[i].endTime;
+                    dineSessionsList.splice(i,1);
+                    break;
+                 }
+               }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_DINE_SESSIONS",
+                  "value": dineSessionsList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_DINE_SESSIONS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    /* on successful delete */
+                    fetchAllDineSessions();
+
+                    showUndo('Deleted', 'addDineSession(\''+sessionName+'\', \''+memory_start+'\', \''+memory_end+'\')');
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
+    cancelOtherDeleteConfirmation()
 
 }
 
