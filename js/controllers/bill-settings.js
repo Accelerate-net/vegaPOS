@@ -333,44 +333,85 @@ function deleteParameter(name) {
 
 function fetchAllDiscountTypes(){
 
-    if(fs.existsSync('./data/static/discounttypes.json')) {
-        fs.readFile('./data/static/discounttypes.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-          if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
 
-              var modes = JSON.parse(data);
+              var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
               var modesTag = '';
 
-        for (var i=0; i<modes.length; i++){
-          modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+(modes[i].maxDiscountUnit == 'PERCENTAGE'? (modes[i].maxDiscountValue+'%'): ('<i class="fa fa-inr"></i> '+modes[i].maxDiscountValue))+'</td> <td onclick="deleteDiscountTypeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
-        }
+              for (var i=0; i<modes.length; i++){
+                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+(modes[i].maxDiscountUnit == 'PERCENTAGE'? (modes[i].maxDiscountValue+'%'): ('<i class="fa fa-inr"></i> '+modes[i].maxDiscountValue))+'</td> <td onclick="deleteDiscountTypeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+              }
 
-        if(!modesTag)
-          document.getElementById("discountTypesTable").innerHTML = '<p style="color: #bdc3c7">No discount types added yet.</p>';
-        else
-          document.getElementById("discountTypesTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Type Name</th> <th style="text-align: left">Max Discount</th> <th style="text-align: left"></th> </tr> </thead>'+
-                                  '<tbody>'+modesTag+'</tbody>';
-    }
-    });
-      } else {
+              if(!modesTag)
+                document.getElementById("discountTypesTable").innerHTML = '<p style="color: #bdc3c7">No discount types added yet.</p>';
+              else
+                document.getElementById("discountTypesTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Type Name</th> <th style="text-align: left">Max Discount</th> <th style="text-align: left"></th> </tr> </thead>'+
+                                        '<tbody>'+modesTag+'</tbody>';
+
+          }
+          else{
+            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
         showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-      } 
+      }
+
+    });
 }
 
 
 
 
 /* add new discount type */
-function addDiscountType() {  
+function addDiscountType(optionalName, optionalUnit, optionalValue) {  
 
   var paramObj = {};
-  paramObj.name = document.getElementById("add_new_discount_name").value;
-  paramObj.maxDiscountUnit = document.getElementById("add_new_discount_unit").value;
-  paramObj.maxDiscountValue = document.getElementById("add_new_discount_maxValue").value;
+
+  if(!optionalName || optionalName == ''){
+    paramObj.name = document.getElementById("add_new_discount_name").value;
+  }
+  else{
+    paramObj.name = optionalName;
+  }
+
+  if(!optionalUnit || optionalUnit == ''){
+    paramObj.maxDiscountUnit = document.getElementById("add_new_discount_unit").value;
+  }
+  else{
+    paramObj.maxDiscountUnit = optionalUnit;
+  }
+
+  if(!optionalValue || optionalValue == ''){
+    paramObj.maxDiscountValue = document.getElementById("add_new_discount_maxValue").value;
+  }
+  else{
+    paramObj.maxDiscountValue = optionalValue;
+  }
+
 
   paramObj.maxDiscountValue = parseFloat(paramObj.maxDiscountValue);
 
@@ -385,74 +426,86 @@ function addDiscountType() {
     return '';
   }
 
-      //Check if file exists
-      if(fs.existsSync('./data/static/discounttypes.json')) {
-         fs.readFile('./data/static/discounttypes.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-         if(data==""){
-            var obj = []
-            obj.push(paramObj); //add some data
-            var json = JSON.stringify(obj);
-            fs.writeFile('./data/static/discounttypes.json', json, 'utf8', (err) => {
-                if(err){
-                  showToast('System Error: Unable to save Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{
 
-                fetchAllDiscountTypes(); //refresh the list
-                hideNewDiscountType();
 
-              }
-            });
-         }
-         else{
-             var flag=0;
-             if(data == ''){ data = '[]'; }
-             var obj = [];
-             obj = JSON.parse(data);
-             for (var i=0; i<obj.length; i++) {
-               if (obj[i].name == paramObj.name){
-                  flag=1;
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
+
+             var discountsList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<discountsList.length; i++) {
+               if (discountsList[i].name == paramObj.name){
+                  flag = 1;
                   break;
                }
              }
-             if(flag==1){
-               showToast('Warning: Discount type name already exists. Please choose a different name', '#e67e22');
+
+             if(flag == 1){
+               showToast('Warning: Discount Name already exists. Please set a different name.', '#e67e22');
              }
              else{
-                obj.push(paramObj);
-                var json = JSON.stringify(obj);
-                fs.writeFile('./data/static/discounttypes.json', json, 'utf8', (err) => {
-                     if(err){
-                        showToast('System Error: Unable to save Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-                    }
-                else{
+
+                discountsList.push(paramObj);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_DISCOUNT_TYPES",
+                  "value": discountsList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_DISCOUNT_TYPES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
                       fetchAllDiscountTypes(); //refresh the list
                       hideNewDiscountType();
-                    
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Discount Types data. Please contact Accelerate Support.', '#e74c3c');
                   }
-                  });  
+
+                });  
 
              }
-                 
-         }
-          
-   }});
-      } else {
-         obj.push(paramObj);
-         fs.writeFile('./data/static/discounttypes.json', obj, 'utf8', (err) => {
-            if(err){
-               showToast('System Error: Unable to save Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-           }
-           else{
-                fetchAllDiscountTypes(); //refresh the list
-                hideNewDiscountType();           
-           }
-         });
+                
+          }
+          else{
+            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
       }
-  
+
+    });
+    
 }
 
 
@@ -462,37 +515,84 @@ function deleteDiscountTypeConfirm(name){
 
 
 /* delete a discount type */
-function deleteDiscountType(name) {  
-
-   //Check if file exists
-   if(fs.existsSync('./data/static/discounttypes.json')) {
-       fs.readFile('./data/static/discounttypes.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-        if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i].name == name){
-            obj.splice(i,1);
-            break;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/discounttypes.json', newjson, 'utf8', (err) => {
-         if(err)
-            showToast('System Error: Unable to make changes in Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-        
-          /* on successful delete */
-          fetchAllDiscountTypes();
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-   }
+function deleteDiscountType(discountName) {  
 
 
-   cancelSettingsDeleteConfirmation()
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
+
+               var discountsList = data.docs[0].value;
+
+               var memory_value = '';
+               var memory_unit = '';
+
+               for (var i=0; i<discountsList.length; i++) {  
+                 if (discountsList[i].name == discountName){
+                    memory_value = discountsList[i].maxDiscountValue;
+                    memory_unit = discountsList[i].maxDiscountUnit;
+                    discountsList.splice(i,1);
+                    break;
+                 }
+               }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_DISCOUNT_TYPES",
+                  "value": discountsList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_DISCOUNT_TYPES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    /* on successful delete */
+                    fetchAllDiscountTypes();
+
+                    showUndo('Deleted', 'addDiscountType(\''+discountName+'\', \''+memory_unit+'\', \''+memory_value+'\')');
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
+    cancelSettingsDeleteConfirmation()
 }
 
 

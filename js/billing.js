@@ -563,37 +563,59 @@ function closeApplyBillCouponWindow(kotID){
 
 function openApplyBillDiscountWindow(kotID, optionalPageRef){
 
-    if(fs.existsSync('./data/static/discounttypes.json')) {
-        fs.readFile('./data/static/discounttypes.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-          if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
 
-              var modes = JSON.parse(data);
+              var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
               var modesTag = '';
 
-	        for (var i=0; i<modes.length; i++){
-	        	if(i == 0)
-	          		modesTag = '<option value="'+modes[i].name+'" selected="selected">'+modes[i].name+'</option>';
-	          	else
-	          		modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
-	        }
+              for (var i=0; i<modes.length; i++){
+                if(i == 0)
+                    modesTag = '<option value="'+modes[i].name+'" selected="selected">'+modes[i].name+'</option>';
+                  else
+                    modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
+              }
 
-	        if(!modesTag)
-	          document.getElementById("applyBillDiscountWindow_type").innerHTML = '<option value="OTHER" selected="selected">Other</option>';
-	        else
-	          document.getElementById("applyBillDiscountWindow_type").innerHTML = modesTag;
+              if(!modesTag)
+                document.getElementById("applyBillDiscountWindow_type").innerHTML = '<option value="OTHER" selected="selected">Other</option>';
+              else
+                document.getElementById("applyBillDiscountWindow_type").innerHTML = modesTag;
 
-	      /*Change apply button action*/
-	      document.getElementById("applyBillDiscountButtonWrap").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" id="applyBillDiscountButton" onclick="applyBillDiscountOnKOT(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Discount</button>';
-    }
-    });
-      } else {
+              /*Change apply button action*/
+              document.getElementById("applyBillDiscountButtonWrap").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" id="applyBillDiscountButton" onclick="applyBillDiscountOnKOT(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Discount</button>';
+        
+          }
+          else{
+            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
         showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-      } 
+      }
+
+    });
 
 
 	//minimize all other open windows

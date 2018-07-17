@@ -1109,93 +1109,106 @@ function fetchDiscountSaleSummary(){
 
 		document.getElementById("summaryRender_discountSummary").innerHTML = '';
 
-		if(fs.existsSync('./data/static/discounttypes.json')) {
-	      fs.readFile('./data/static/discounttypes.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        
-	    } else {
 
-	          	var modes = JSON.parse(data);
-	          	modes.sort(); //alphabetical sorting 
 
-	          	//Reserved Keywords - Voucher, Coupon etc.
-	          	modes.push({"name":"COUPON","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
-	          	modes.push({"name":"VOUCHER","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
-	          	modes.push({"name":"REWARDS","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
-	          	modes.push({"name":"NOCOSTBILL","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
 
-	          	if(modes.length == 0){
-	          		document.getElementById("summaryRender_discountSummary").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no billing parameters added</tag>';
-	          		return '';
-	          	}
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        console.log(data)
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
 
-	          	//For a given BILLING PARAMETER, the total Sales in the given DATE RANGE
+		          	var modes = data.docs[0].value;
+		          	modes.sort(); //alphabetical sorting 
 
-				  $.ajax({
-				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
-				    timeout: 10000,
-				    success: function(data) {
-				    	
-				    	var temp_count = 0;
-				    	var temp_sum = 0;
+		          	//Reserved Keywords - Voucher, Coupon etc.
+		          	modes.push({"name":"COUPON","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+		          	modes.push({"name":"VOUCHER","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+		          	modes.push({"name":"REWARDS","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+		          	modes.push({"name":"NOCOSTBILL","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
 
-				    	if(data.rows.length > 0){
-				    		temp_count = data.rows[0].value.count;
-				    		temp_sum = data.rows[0].value.sum;
-				    	}
+		          	if(modes.length == 0){
+		          		document.getElementById("summaryRender_discountSummary").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no billing parameters added</tag>';
+		          		return '';
+		          	}
 
-				    	total_Count += parseInt(temp_count);
-				    	total_Sum += parseFloat(temp_sum);
-				    	console.log(total_Count)
+		          	//For a given BILLING PARAMETER, the total Sales in the given DATE RANGE
 
-				    	//beautify name
-				    	if(modes[0].name == 'COUPON'){modes[0].name = 'Coupons'}
-				    	if(modes[0].name == 'VOUCHER'){modes[0].name = 'Vouchers'}
-				    	if(modes[0].name == 'REWARDS'){modes[0].name = 'Reward Points'}
-				    	if(modes[0].name == 'NOCOSTBILL'){modes[0].name = 'No Cost Bill'}
+					  $.ajax({
+					    type: 'GET',
+					    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+					    timeout: 10000,
+					    success: function(data) {
+					    	
+					    	var temp_count = 0;
+					    	var temp_sum = 0;
 
-						if(temp_sum > 0){
-						    graphData.push({
-								"name": modes[0].name,
-								"value": temp_sum
-							})
-						}	
+					    	if(data.rows.length > 0){
+					    		temp_count = data.rows[0].value.count;
+					    		temp_sum = data.rows[0].value.sum;
+					    	}
 
-						//time to render...
-						if(temp_count > 0){
-							document.getElementById("summaryRender_discountSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+temp_sum+'</td> </tr>';
-						}
-						else{
-							document.getElementById("summaryRender_discountSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
-						}
+					    	total_Count += parseInt(temp_count);
+					    	total_Sum += parseFloat(temp_sum);
+					    	console.log(total_Count)
 
-						//Check if next mode exists...
-						if(modes[1]){
-							fetchDiscountSaleSummaryCallback(1, modes, fromDate, toDate, graphData, total_Count, total_Sum);
-						}
-						else{
-				    		document.getElementById("summaryRender_discountSummary").innerHTML += '<tr class="summaryRowHighlight">'+
-														                                       '<td>Over All</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(total_Sum).toFixed(2)+'</td>'+
-														                                      '</tr> '
+					    	//beautify name
+					    	if(modes[0].name == 'COUPON'){modes[0].name = 'Coupons'}
+					    	if(modes[0].name == 'VOUCHER'){modes[0].name = 'Vouchers'}
+					    	if(modes[0].name == 'REWARDS'){modes[0].name = 'Reward Points'}
+					    	if(modes[0].name == 'NOCOSTBILL'){modes[0].name = 'No Cost Bill'}
 
-							renderGraph_DiscountSummary(graphData);
-						}
+							if(temp_sum > 0){
+							    graphData.push({
+									"name": modes[0].name,
+									"value": temp_sum
+								})
+							}	
 
-				    },
-				    error: function(data){
+							//time to render...
+							if(temp_count > 0){
+								document.getElementById("summaryRender_discountSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+temp_sum+'</td> </tr>';
+							}
+							else{
+								document.getElementById("summaryRender_discountSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+							}
 
-				    }
-				  });  
+							//Check if next mode exists...
+							if(modes[1]){
+								fetchDiscountSaleSummaryCallback(1, modes, fromDate, toDate, graphData, total_Count, total_Sum);
+							}
+							else{
+					    		document.getElementById("summaryRender_discountSummary").innerHTML += '<tr class="summaryRowHighlight">'+
+															                                       '<td>Over All</td>'+
+															                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(total_Sum).toFixed(2)+'</td>'+
+															                                      '</tr> '
 
-		}
-		});
-	    } 
+								renderGraph_DiscountSummary(graphData);
+							}
+
+					    },
+					    error: function(data){
+
+					    }
+					  });  
+	          }
+	        } 
+	      }
+	    });
 
 }
-
-
 
 
 function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphData, total_Count, total_Sum){
