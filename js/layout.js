@@ -4,93 +4,130 @@ let fs = require('fs');
 /* Apply Personalisations */
 function applyPersonalisations(){
   
-    //Read from File, apply changes, and save to LocalStorage
-
-    if(fs.existsSync('./data/static/personalisations.json')) {
-        fs.readFile('./data/static/personalisations.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-      } else {
-
-          if(data == ''){ data = '[]'; }
-
-          var params = JSON.parse(data);
-
-          //Render
-          for (var i=0; i<params.length; i++){
-            if(params[i].name == "theme"){
-
-              /*Change Theme*/
-              var tempList = document.getElementById("mainAppBody").classList.toString();
-              tempList = tempList.split(" ");
-
-              tempList[0] = params[i].value;
-
-              tempList = tempList.toString();
-              tempList = tempList.replace (/,/g, " ");
-
-              document.getElementById("mainAppBody").className = tempList; 
-
-              /*update localstorage*/             
-              window.localStorage.appCustomSettings_Theme = params[i].value;
-            }
-            else if(params[i].name == "menuImages"){
-
-              var tempVal = params[i].value == 'YES'? true: false;
-
-              /*update localstorage*/             
-              window.localStorage.appCustomSettings_ImageDisplay = tempVal;
-            }
-            else if(params[i].name == "punchingRightScreen"){
-
-              if(params[i].value != 'MENU' && params[i].value != 'TABLE'){
-                params[i].value = 'MENU';
-              }
-
-              /*update localstorage*/             
-              window.localStorage.appCustomSettings_OrderPageRightPanelDisplay = params[i].value;
-            }
-            else if(params[i].name == "virtualKeyboard"){
-              var tempVal = params[i].value;
-              tempVal = parseFloat(tempVal);
-              
-              /*update localstorage*/             
-              window.localStorage.appCustomSettings_Keyboard = tempVal;
-            }
-            else if(params[i].name == "systemName"){
-              var tempVal = params[i].value;
-              
-              /*update localstorage*/             
-              window.localStorage.appCustomSettings_SystemName = tempVal;
-            }
-            else if(params[i].name == "screenLockOptions"){
-              var tempVal = params[i].value;
-              
-              /*update localstorage*/             
-              window.localStorage.appCustomSettings_InactivityEnabled = tempVal;
-            } 
-            else if(params[i].name == "screenLockDuration"){
-              var tempVal = params[i].value;
-              tempVal = parseInt(tempVal);
-              
-              /*update localstorage*/             
-              window.localStorage.appCustomSettings_InactivityScreenDelay = tempVal;
-            } 
-            else if(params[i].name == "securityPasscodeProtection"){
-
-              var tempVal = params[i].value == 'YES'? true: false;
-
-              if(tempVal){
-                lockScreen();
-              }
-
-              /*update localstorage*/             
-              window.localStorage.appCustomSettings_PasscodeProtection = tempVal;
-            }                      
-          }
-
+    //Read from Server, apply changes, and save to LocalStorage
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PERSONALISATIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
     }
-    });
-  }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+
+                    //Render
+                    for (var i=0; i<params.length; i++){
+                      if(params[i].name == "theme"){
+
+                        /*Change Theme*/
+                        var tempList = document.getElementById("mainAppBody").classList.toString();
+                        tempList = tempList.split(" ");
+
+                        tempList[0] = params[i].value;
+
+                        tempList = tempList.toString();
+                        tempList = tempList.replace (/,/g, " ");
+
+                        document.getElementById("mainAppBody").className = tempList; 
+
+                        /*update localstorage*/             
+                        window.localStorage.appCustomSettings_Theme = params[i].value;
+                      }
+                      else if(params[i].name == "menuImages"){
+
+                        var tempVal = params[i].value == 'YES'? true: false;
+
+                        /*update localstorage*/             
+                        window.localStorage.appCustomSettings_ImageDisplay = tempVal;
+                      }
+                      else if(params[i].name == "punchingRightScreen"){
+
+                        if(params[i].value != 'MENU' && params[i].value != 'TABLE'){
+                          params[i].value = 'MENU';
+                        }
+
+                        /*update localstorage*/             
+                        window.localStorage.appCustomSettings_OrderPageRightPanelDisplay = params[i].value;
+                      }
+                      else if(params[i].name == "virtualKeyboard"){
+                        var tempVal = params[i].value;
+                        tempVal = parseFloat(tempVal);
+                        
+                        /*update localstorage*/             
+                        window.localStorage.appCustomSettings_Keyboard = tempVal;
+                      }
+                      else if(params[i].name == "systemName"){
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.appCustomSettings_SystemName = tempVal;
+                      }
+                      else if(params[i].name == "screenLockOptions"){
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.appCustomSettings_InactivityEnabled = tempVal;
+                      } 
+                      else if(params[i].name == "screenLockDuration"){
+                        var tempVal = params[i].value;
+                        tempVal = parseInt(tempVal);
+                        
+                        /*update localstorage*/             
+                        window.localStorage.appCustomSettings_InactivityScreenDelay = tempVal;
+                      } 
+                      else if(params[i].name == "securityPasscodeProtection"){
+
+                        var tempVal = params[i].value == 'YES'? true: false;
+
+                        if(tempVal){
+                          lockScreen();
+                        }
+
+                        /*update localstorage*/             
+                        window.localStorage.appCustomSettings_PasscodeProtection = tempVal;
+                      }                      
+                    } //end FOR (Render)
+
+                    break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
   
 }
 

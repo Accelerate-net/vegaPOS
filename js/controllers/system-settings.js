@@ -30,71 +30,106 @@ function openSystemSettings(id){
 /*read personalisation data*/
 function renderPersonalisations(){
 
-    if(fs.existsSync('./data/static/personalisations.json')) {
-        fs.readFile('./data/static/personalisations.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-
-          if(data == ''){ data = '[]'; }
-
-              var params = JSON.parse(data);
-
-          var isScreenIdleEnabled = false;
-
-          //Render
-          for (var i=0; i<params.length; i++){
-            if(params[i].name == "theme"){
-              /*TWEAK*/
-              var themeName = params[i].value;
-              themeName = themeName.replace(/skin-/g,"");
-              themeName = themeName.replace(/-/g," ");
-              if((themeName.split(" ")).length == 1){
-                themeName = themeName+' Dark';
-              }
-
-              document.getElementById("title_"+params[i].value).innerHTML = themeName+'<tag class="selectThemeTitleDefaulted"> <i style="color: #2ecc71" class="fa fa-check-circle"></i></tag>';
-            }
-            else if(params[i].name == "menuImages"){
-              document.getElementById("personalisationEditImage").value = params[i].value;
-            }
-            else if(params[i].name == "punchingRightScreen"){
-              document.getElementById("personalisationRightDisplayChoice").value = params[i].value;
-            }
-            else if(params[i].name == "virtualKeyboard"){
-              document.getElementById("personalisationEditKeyboard").value = 0; //params[i].value;
-            }
-            else if(params[i].name == "systemName"){
-              document.getElementById("edit_main_system_name").value = params[i].value;
-            }
-            else if(params[i].name == "screenLockOptions"){
-              if(params[i].value == 'SCREENSAVER' || params[i].value == 'LOCKSCREEN'){
-                document.getElementById("personalisationInactiveScreen").value = params[i].value;
-                isScreenIdleEnabled = true;
-              }
-              else{
-                document.getElementById("personalisationInactiveScreen").value = 'NONE';
-                isScreenIdleEnabled = false;
-              }
-              
-            }
-            else if(params[i].name == "screenLockDuration"){
-              if(isScreenIdleEnabled){
-                document.getElementById("personalisationInactiveScreen_TimeOptions").style.display = 'table-row';
-                document.getElementById("personalisationIdleDuration").value = params[i].value;
-              }  
-              else{
-                document.getElementById("personalisationInactiveScreen_TimeOptions").style.display = 'none';
-                document.getElementById("personalisationIdleDuration").value = params[i].value;
-              }    
-            }                        
-          }
-
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PERSONALISATIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
     }
-    });
-      } else {
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+                    var isScreenIdleEnabled = false;
+
+                    //Render
+                    for (var i=0; i<params.length; i++){
+                      if(params[i].name == "theme"){
+                        /*TWEAK*/
+                        var themeName = params[i].value;
+                        themeName = themeName.replace(/skin-/g,"");
+                        themeName = themeName.replace(/-/g," ");
+                        if((themeName.split(" ")).length == 1){
+                          themeName = themeName+' Dark';
+                        }
+
+                        document.getElementById("title_"+params[i].value).innerHTML = themeName+'<tag class="selectThemeTitleDefaulted"> <i style="color: #2ecc71" class="fa fa-check-circle"></i></tag>';
+                      }
+                      else if(params[i].name == "menuImages"){
+                        document.getElementById("personalisationEditImage").value = params[i].value;
+                      }
+                      else if(params[i].name == "punchingRightScreen"){
+                        document.getElementById("personalisationRightDisplayChoice").value = params[i].value;
+                      }
+                      else if(params[i].name == "virtualKeyboard"){
+                        document.getElementById("personalisationEditKeyboard").value = 0; //params[i].value;
+                      }
+                      else if(params[i].name == "systemName"){
+                        document.getElementById("edit_main_system_name").value = params[i].value;
+                      }
+                      else if(params[i].name == "screenLockOptions"){
+                        if(params[i].value == 'SCREENSAVER' || params[i].value == 'LOCKSCREEN'){
+                          document.getElementById("personalisationInactiveScreen").value = params[i].value;
+                          isScreenIdleEnabled = true;
+                        }
+                        else{
+                          document.getElementById("personalisationInactiveScreen").value = 'NONE';
+                          isScreenIdleEnabled = false;
+                        }
+                        
+                      }
+                      else if(params[i].name == "screenLockDuration"){
+                        if(isScreenIdleEnabled){
+                          document.getElementById("personalisationInactiveScreen_TimeOptions").style.display = 'table-row';
+                          document.getElementById("personalisationIdleDuration").value = params[i].value;
+                        }  
+                        else{
+                          document.getElementById("personalisationInactiveScreen_TimeOptions").style.display = 'none';
+                          document.getElementById("personalisationIdleDuration").value = params[i].value;
+                        }    
+                      }                        
+                    } //end FOR (Render)
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
         showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-      }   
+      }
+
+    });  
+
 }
 
 
@@ -102,76 +137,161 @@ function renderPersonalisations(){
 /*read security data*/
 function renderSecurityOptions(){
 
-    if(fs.existsSync('./data/static/personalisations.json')) {
-        fs.readFile('./data/static/personalisations.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Security Information. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-
-          if(data == ''){ data = '[]'; }
-
-              var params = JSON.parse(data);
-
- 
-          //Render
-          for (var i=0; i<params.length; i++){         
-            if(params[i].name == "securityPasscodeProtection"){
-              document.getElementById("securityPasscodeProtection").value = params[i].value;
-              if(document.getElementById("securityPasscodeProtection").value == 'YES'){
-                document.getElementById("passcodeActionsArea").style.display = 'table-row';
-              }
-              else{
-                document.getElementById("passcodeActionsArea").style.display = 'none';
-              }
-            }                      
-          }
-
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PERSONALISATIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
     }
-    });
-      } else {
-        showToast('System Error: Unable to read Security Information. Please contact Accelerate Support.', '#e74c3c');
-      }   
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+
+                    //Render
+                    for (var i=0; i<params.length; i++){         
+                      if(params[i].name == "securityPasscodeProtection"){
+                        document.getElementById("securityPasscodeProtection").value = params[i].value;
+                        if(document.getElementById("securityPasscodeProtection").value == 'YES'){
+                          document.getElementById("passcodeActionsArea").style.display = 'table-row';
+                        }
+                        else{
+                          document.getElementById("passcodeActionsArea").style.display = 'none';
+                        }
+                      }                      
+                    } //end FOR (Render)
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Security Information data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Security Information data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Security Information data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
 }
 
 
 
 function changePersonalisationFile(type, changedValue){
 
-    if(fs.existsSync('./data/static/personalisations.json')) {
-        fs.readFile('./data/static/personalisations.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to modify Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-
-          if(data == ''){ data = '[]'; }
-
-              var params = JSON.parse(data);
-
-
-                  for (var i=0; i<params.length; i++){
-                    if(params[i].name == type){
-                      params[i].value = changedValue;
-                      break;
-                    }
-                  }
-
-           var newjson = JSON.stringify(params);
-           fs.writeFile('./data/static/personalisations.json', newjson, 'utf8', (err) => {
-             if(err){
-                showToast('System Error: Unable to save Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-               }
-               else{
-                renderPersonalisations();
-                renderSecurityOptions();
-               }
-           }); 
-
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PERSONALISATIONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
     }
-    });
-      } else {
-        showToast('System Error: Unable to modify Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-      }   
- 
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    for (var i=0; i<settingsList[n].data.length; i++){
+                      if(settingsList[n].data[i].name == type){
+                        
+                        settingsList[n].data[i].value = changedValue;
+
+
+                        //Update
+                        var updateData = {
+                          "_rev": data.docs[0]._rev,
+                          "identifierTag": "ZAITOON_PERSONALISATIONS",
+                          "value": settingsList
+                        }
+
+                        $.ajax({
+                          type: 'PUT',
+                          url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_PERSONALISATIONS/',
+                          data: JSON.stringify(updateData),
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+
+                              renderPersonalisations();
+                              renderSecurityOptions();
+
+                          },
+                          error: function(data) {
+                            console.log(data)
+                            showToast('System Error: Unable to update Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+                          }
+
+                        });  
+
+                        break;
+                      }
+                    }
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
 }
 
 /*actions*/
