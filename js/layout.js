@@ -1267,10 +1267,11 @@ function renderCurrentSessionDisplay(){
   }
 
   if(setSessionInfo.name != '' && setSessionInfo.timeFrom != '' && setSessionInfo.timeTo != ''){
-    document.getElementById("currentSessionDisplay").innerHTML = '<span style="font-weight: 400">'+setSessionInfo.name+'</span>';
+    document.getElementById("currentSessionDisplay").innerHTML = '<b>'+setSessionInfo.name+'</b> Session';
+    document.getElementById("currentSessionDisplayTime").innerHTML = getFancyTime(setSessionInfo.timeFrom) +' - '+getFancyTime(setSessionInfo.timeTo);
   }
   else{
-    document.getElementById("currentSessionDisplay").innerHTML = '<span>Session not Set</span>';
+    document.getElementById("currentSessionDisplay").innerHTML = '<span>Sessions not Set</span>';
   }
 }
 

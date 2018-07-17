@@ -781,42 +781,63 @@ function closeApplyBillDiscountWindow(kotID){
 
 function openApplyCustomExtraWindow(kotID, optionalPageRef){
 
-    if(fs.existsSync('./data/static/billingparameters.json')) {
-        fs.readFile('./data/static/billingparameters.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-          if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
 
-              var modes = JSON.parse(data);
+              var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
               var modesTag = '';
 
-	        for (var i=0; i<modes.length; i++){
-	        	if(i == 0)
-	          		modesTag = '<option value="'+modes[i].name+'" selected="selected">'+modes[i].name+'</option>';
-	          	else
-	          		modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
-	        }
+              for (var i=0; i<modes.length; i++){
+                if(i == 0)
+                    modesTag = '<option value="'+modes[i].name+'" selected="selected">'+modes[i].name+'</option>';
+                  else
+                    modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
+              }
 
-	        if(!modesTag)
-	          document.getElementById("applyCustomExtraWindow_type").innerHTML = '<option value="OTHER" selected="selected">Other</option>';
-	        else
-	          document.getElementById("applyCustomExtraWindow_type").innerHTML = modesTag;
+              if(!modesTag)
+                document.getElementById("applyCustomExtraWindow_type").innerHTML = '<option value="OTHER" selected="selected">Other</option>';
+              else
+                document.getElementById("applyCustomExtraWindow_type").innerHTML = modesTag;
 
-	      /*Change apply button action*/
-	      document.getElementById("applyCustomExtraButtonWrap").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" id="applyCustomExtraButton" onclick="applyCustomExtraOnKOT(\''+kotID+'\', \''+optionalPageRef+'\')">Add Extra Charges</button>';
-    }
+              /*Change apply button action*/
+              document.getElementById("applyCustomExtraButtonWrap").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" id="applyCustomExtraButton" onclick="applyCustomExtraOnKOT(\''+kotID+'\', \''+optionalPageRef+'\')">Add Extra Charges</button>';
+          }
+          else{
+            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
     });
-      } else {
-        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-      } 
 
-	document.getElementById("applyCustomExtraWindow").classList.add('billOptionWindowFrame');
-	document.getElementById("applyCustomExtraWindowActions").style.display = 'block';
-	document.getElementById("applyCustomExtraButton").classList.remove('btn-default');
-	document.getElementById("applyCustomExtraButton").classList.add('btn-success');
+  	document.getElementById("applyCustomExtraWindow").classList.add('billOptionWindowFrame');
+  	document.getElementById("applyCustomExtraWindowActions").style.display = 'block';
+  	document.getElementById("applyCustomExtraButton").classList.remove('btn-default');
+  	document.getElementById("applyCustomExtraButton").classList.add('btn-success');
 
 }
 
@@ -1577,19 +1598,32 @@ function settleBillAndPush(encodedBill, optionalPageRef){
 
   var optionsList = '';
 
-    if(fs.existsSync('./data/static/paymentmodes.json')) {
-        fs.readFile('./data/static/paymentmodes.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
 
-              if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-              var modes = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+
+              var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
 
               if(modes.length == 0){
-                showToast('No Payment Mode added yet. Please add a Mode to continue.', '#e74c3c');
+                showToast('No Payment Mode added yet. Please add it under Billing Settings to continue.', '#e74c3c');
+                document.getElementById("billSettlementDetailsModal").style.display = 'none';
                 return '';
               }
 
@@ -1609,11 +1643,22 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                                                             '<div class="col-sm-8" style="padding: 0">'+
                                                                 '<button type="button" class="btn btn-success" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Confirm</button>'+
                                                             '</div>';
-    }
-    });
-      } else {
+
+          }
+          else{
+            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
         showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-      } 
+      }
+
+    });
 
 
 }

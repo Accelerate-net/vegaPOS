@@ -26,39 +26,63 @@ function addExtraToInput(name, id){
 
 function openNewMode(){
 
-  document.getElementById("add_new_mode_extras").value="";
+    document.getElementById("add_new_mode_extras").value= "";
 
-  /*render extras list*/
+    /*render extras list*/
 
-    if(fs.existsSync('./data/static/billingparameters.json')) {
-        fs.readFile('./data/static/billingparameters.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          
-      } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-          if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
 
-              var modes = JSON.parse(data);
+              var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
               var modesTag = '';
 
-        for (var i=0; i<modes.length; i++){
-          modesTag = modesTag + '<tag class="extrasSelButton" onclick="addExtraToInput(\''+modes[i].name+'\', \'extra_'+i+'\')" id="extra_'+i+'">'+modes[i].name+' ('+(modes[i].unit == 'FIXED'? 'Rs. '+modes[i].value : modes[i].value+'%')+')</tag>';
-        }
+              for (var i=0; i<modes.length; i++){
+                modesTag = modesTag + '<tag class="extrasSelButton" onclick="addExtraToInput(\''+modes[i].name+'\', \'extra_'+i+'\')" id="extra_'+i+'">'+modes[i].name+' ('+(modes[i].unit == 'FIXED'? 'Rs. '+modes[i].value : modes[i].value+'%')+')</tag>';
+              }
 
-        if(!modesTag){
-            document.getElementById("extrasList").innerHTML = '<i>*Please update <b style="cursor: pointer" onclick="openBillSettings(\'billingExtras\')">Taxes & Other Extras</b> first.</i>';
-        }
-        else{            
-            document.getElementById("extrasList").innerHTML = 'Extras List: '+modesTag;
-        }
+              if(!modesTag){
+                  document.getElementById("extrasList").innerHTML = '<i>*Please update <b style="cursor: pointer" onclick="openBillSettings(\'billingExtras\')">Taxes & Other Extras</b> first.</i>';
+              }
+              else{            
+                  document.getElementById("extrasList").innerHTML = 'Extras List: '+modesTag;
+              }
 
-          document.getElementById("newModeArea").style.display = "block";
-          $("#add_new_mode_name").focus();
-          document.getElementById("openNewModeButton").style.display = "none";
-    }
+              document.getElementById("newModeArea").style.display = "block";
+              $("#add_new_mode_name").focus();
+              document.getElementById("openNewModeButton").style.display = "none";
+
+          }
+          else{
+            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
     });
-  }
 
 }
 
@@ -146,32 +170,55 @@ function cancelSettingsDeleteConfirmation(){
 /* read billing params */
 function fetchAllParams(){
 
-		if(fs.existsSync('./data/static/billingparameters.json')) {
-	      fs.readFile('./data/static/billingparameters.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	    		if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
 
-	          	var params = JSON.parse(data);
-	          	params.sort(); //alphabetical sorting 
-	          	var paramsTag = '';
+              var params = data.docs[0].value;
+              params.sort(); //alphabetical sorting 
+              var paramsTag = '';
 
-				for (var i=0; i<params.length; i++){
-					paramsTag = paramsTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+params[i].name+'</td> <td>'+params[i].value+'</td> <td>'+params[i].unitName+'</td> <td>'+(params[i].isCompulsary?"Yes": "No")+'</td> <td onclick="deleteParameterConfirm(\''+params[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
-				}
+              for (var i=0; i<params.length; i++){
+                paramsTag = paramsTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+params[i].name+'</td> <td>'+(params[i].unit == 'FIXED' ? '<i class="fa fa-inr"></i>'+params[i].value : params[i].value + '%' )+'</td> <td>'+params[i].unitName+'</td> <td>'+(params[i].isCompulsary?"Yes": "No")+'</td> <td onclick="deleteParameterConfirm(\''+params[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+              }
 
-				if(!paramsTag)
-					document.getElementById("billingParamsTable").innerHTML = '<p style="color: #bdc3c7">No parameters added yet.</p>';
-				else
-					document.getElementById("billingParamsTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Name</th> <th style="text-align: left">Value</th> <th style="text-align: left">Unit</th> <th style="text-align: left">Compulsary</th> <th style="text-align: left"></th> </tr> </thead>'+
-																	'<tbody>'+paramsTag+'</tbody>';
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+              if(!paramsTag)
+                document.getElementById("billingParamsTable").innerHTML = '<p style="color: #bdc3c7">No parameters added yet.</p>';
+              else
+                document.getElementById("billingParamsTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Name</th> <th style="text-align: left">Value</th> <th style="text-align: left">Unit</th> <th style="text-align: left">Compulsary</th> <th style="text-align: left"></th> </tr> </thead>'+
+                                        '<tbody>'+paramsTag+'</tbody>';
+
+          }
+          else{
+            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
 }
 
 
@@ -217,74 +264,83 @@ function addParameter() {
 	}	
 
 
-      //Check if file exists
-      if(fs.existsSync('./data/static/billingparameters.json')) {
-         fs.readFile('./data/static/billingparameters.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-         if(data==""){
-            var obj = []
-            obj.push(paramObj); //add some data
-            var json = JSON.stringify(obj);
-            fs.writeFile('./data/static/billingparameters.json', json, 'utf8', (err) => {
-                if(err){
-                  showToast('System Error: Unable to save Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-                fetchAllParams(); //refresh the list
-                hideNewBill();
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
 
-              }
-            });
-         }
-         else{
-             var flag=0;
-             if(data == ''){ data = '[]'; }
-             var obj = [];
-             obj = JSON.parse(data);
-             for (var i=0; i<obj.length; i++) {
-               if (obj[i].name == paramObj.name){
-                  flag=1;
+             var billingParamsList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<billingParamsList.length; i++) {
+               if (billingParamsList[i].name == paramObj.name){
+                  flag = 1;
                   break;
                }
              }
-             if(flag==1){
-               showToast('Warning: Parameter already exists. Please choose a different name.', '#e67e22');
+
+             if(flag == 1){
+               showToast('Warning: Billing Parameter already exists with same name.', '#e67e22');
              }
              else{
-                obj.push(paramObj);
-                var json = JSON.stringify(obj);
-                fs.writeFile('./data/static/billingparameters.json', json, 'utf8', (err) => {
-                     if(err){
-                        showToast('System Error: Unable to save Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-                    }
-		            else{
-			                fetchAllParams(); //refresh the list
-			                hideNewBill();
-		              	
-		              }
-                  });  
+
+                billingParamsList.push(paramObj);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_BILLING_PARAMETERS",
+                  "value": billingParamsList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILLING_PARAMETERS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      fetchAllParams(); //refresh the list
+                      hideNewBill();
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
 
              }
-                 
-         }
-          
-   }});
-      } else {
-         obj.push(paramObj);
-         fs.writeFile('./data/static/billingparameters.json', obj, 'utf8', (err) => {
-            if(err){
-               showToast('System Error: Unable to save Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-           }
-           else{
-                fetchAllParams(); //refresh the list
-                hideNewBill();         	
-           }
-         });
+                
+          }
+          else{
+            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
       }
-  
+
+    });  
 }
 
 
@@ -294,37 +350,76 @@ function deleteParameterConfirm(name){
 
 
 /* delete a param */
-function deleteParameter(name) {  
+function deleteParameter(paramName) {  
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/billingparameters.json')) {
-       fs.readFile('./data/static/billingparameters.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-       	if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i].name == name){
-            obj.splice(i,1);
-            break;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/billingparameters.json', newjson, 'utf8', (err) => {
-         if(err)
-            showToast('System Error: Unable to make changes in Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-        
-        	/* on successful delete */
-   			fetchAllParams();
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-   }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+
+               var billingParamsList = data.docs[0].value;
+
+               for (var i=0; i<billingParamsList.length; i++) {  
+                 if (billingParamsList[i].name == paramName){
+                    billingParamsList.splice(i,1);
+                    break;
+                 }
+               }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_BILLING_PARAMETERS",
+                  "value": billingParamsList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILLING_PARAMETERS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    /* on successful delete */
+                    fetchAllParams();
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
 
    cancelSettingsDeleteConfirmation()
-
 }
 
 
@@ -600,33 +695,56 @@ function deleteDiscountType(discountName) {
 /* read billing params */
 function fetchAllModes(){
 
-		if(fs.existsSync('./data/static/billingmodes.json')) {
-	      fs.readFile('./data/static/billingmodes.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	          	var modes = JSON.parse(data);
-	          	modes.sort(); //alphabetical sorting 
-	          	var modesTag = '';
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
 
-				for (var i=0; i<modes.length; i++){
-					modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td><p style="margin: 0">'+modes[i].name+'</p><p style="margin: 0; font-size: 65%; color: #f39c12;">'+modes[i].type+'</p></td> <td>'+( modes[i].extras == ''? '-' :((modes[i].extras).toString()).replace(/\,/g , ", "))+'</td> <td>'+(modes[i].minimumBill != 0? '<i class="fa fa-inr"></i>'+modes[i].minimumBill :'-')+'</td> <td>'+(modes[i].isDiscountable?"Yes": "No")+'</td> <td>'+(modes[i].maxDiscount != 0? '<i class="fa fa-inr"></i>'+modes[i].maxDiscount :'-')+'</td> <td onclick="deleteModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
-				}
+              var modes = data.docs[0].value;
+              modes.sort(); //alphabetical sorting 
+              var modesTag = '';
 
-				if(!modesTag){
-					document.getElementById("billingModesTable").innerHTML = '<p style="color: #bdc3c7">No modes added yet.</p>';
-				}else{
-					document.getElementById("billingModesTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Mode</th> <th style="text-align: left">Extras Collected</th> <th style="text-align: left">Min Bill Amount</th> <th style="text-align: left">Discountable</th><th style="text-align: left">Max Discount</th> <th style="text-align: left"></th> </tr> </thead>'+
-																	'<tbody>'+modesTag+'</tbody>';
+              for (var i=0; i<modes.length; i++){
+                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td><p style="margin: 0">'+modes[i].name+'</p><p style="margin: 0; font-size: 65%; color: #f39c12;">'+modes[i].type+'</p></td> <td>'+( modes[i].extras == ''? '-' :((modes[i].extras).toString()).replace(/\,/g , ", "))+'</td> <td>'+(modes[i].minimumBill != 0? '<i class="fa fa-inr"></i>'+modes[i].minimumBill :'-')+'</td> <td>'+(modes[i].isDiscountable?"Yes": "No")+'</td> <td>'+(modes[i].maxDiscount != 0? '<i class="fa fa-inr"></i>'+modes[i].maxDiscount :'-')+'</td> <td onclick="deleteModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+              }
+
+              if(!modesTag){
+                document.getElementById("billingModesTable").innerHTML = '<p style="color: #bdc3c7">No modes added yet.</p>';
+              }else{
+                document.getElementById("billingModesTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Mode</th> <th style="text-align: left">Extras Collected</th> <th style="text-align: left">Min Bill Amount</th> <th style="text-align: left">Discountable</th><th style="text-align: left">Max Discount</th> <th style="text-align: left"></th> </tr> </thead>'+
+                                        '<tbody>'+modesTag+'</tbody>';
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
         }
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+        else{
+          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 
@@ -647,8 +765,6 @@ function addMode() {
 	paramObj.maxDiscount = parseFloat(paramObj.maxDiscount);
 
 	paramObj.extras = paramObj.extras == 'Choose from below'? '': paramObj.extras;
-
-	console.log(paramObj)
 
 	if(paramObj.name == ''){
 		showToast('Warning: Please set a name', '#e67e22');
@@ -672,73 +788,86 @@ function addMode() {
 		paramObj.maxDiscount = "";
 	}
 
-      //Check if file exists
-      if(fs.existsSync('./data/static/billingmodes.json')) {
-         fs.readFile('./data/static/billingmodes.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-         if(data==""){
-            var obj = []
-            obj.push(paramObj); //add some data
-            var json = JSON.stringify(obj);
-            fs.writeFile('./data/static/billingmodes.json', json, 'utf8', (err) => {
-                if(err){
-                  showToast('System Error: Unable to save Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{
 
-                fetchAllModes(); //refresh the list
-                hideNewMode();
 
-              }
-            });
-         }
-         else{
-             var flag=0;
-             if(data == ''){ data = '[]'; }
-             var obj = [];
-             obj = JSON.parse(data);
-             for (var i=0; i<obj.length; i++) {
-               if (obj[i].name == paramObj.name){
-                  flag=1;
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+
+             var billingModesList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<billingModesList.length; i++) {
+               if (billingModesList[i].name == paramObj.name){
+                  flag = 1;
                   break;
                }
              }
-             if(flag==1){
-               showToast('Warning: Mode already exists. Please choose a different name.', '#e67e22');
+
+             if(flag == 1){
+               showToast('Warning: Billing Mode already exists. Please set a different name.', '#e67e22');
              }
              else{
-                obj.push(paramObj);
-                var json = JSON.stringify(obj);
-                fs.writeFile('./data/static/billingmodes.json', json, 'utf8', (err) => {
-                     if(err){
-                        showToast('System Error: Unable to save Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-                    }
-		            else{
-			                fetchAllModes(); //refresh the list
-			                hideNewMode();
-		              	
-		              }
-                  });  
+
+                billingModesList.push(paramObj);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_BILLING_MODES",
+                  "value": billingModesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILLING_MODES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      fetchAllModes(); //refresh the list
+                      hideNewMode();
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
 
              }
-                 
-         }
-          
-   }});
-      } else {
-         obj.push(paramObj);
-         fs.writeFile('./data/static/billingmodes.json', obj, 'utf8', (err) => {
-            if(err){
-               showToast('System Error: Unable to save Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-           }
-           else{
-                fetchAllModes(); //refresh the list
-                hideNewMode();         	
-           }
-         });
+                
+          }
+          else{
+            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
       }
+
+    });
   
 }
 
@@ -747,37 +876,76 @@ function deleteModeConfirm(name){
 }
 
 /* delete a param */
-function deleteMode(name) {  
+function deleteMode(modeName) {  
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/billingmodes.json')) {
-       fs.readFile('./data/static/billingmodes.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-       	if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i].name == name){
-            obj.splice(i,1);
-            break;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/billingmodes.json', newjson, 'utf8', (err) => {
-         if(err)
-            showToast('System Error: Unable to make changes in Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-        
-        	/* on successful delete */
-   			fetchAllModes();
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-   }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+
+               var billingModesList = data.docs[0].value;
+
+               for (var i=0; i<billingModesList.length; i++) {  
+                 if (billingModesList[i].name == modeName){
+                    billingModesList.splice(i,1);
+                    break;
+                 }
+               }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_BILLING_MODES",
+                  "value": billingModesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILLING_MODES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    /* on successful delete */
+                    fetchAllModes();
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
 
    cancelSettingsDeleteConfirmation()
-
 }
 
 
@@ -785,43 +953,80 @@ function deleteMode(name) {
 /* read payment modes */
 function fetchAllPaymentModes(){
 
-		if(fs.existsSync('./data/static/paymentmodes.json')) {
-	      fs.readFile('./data/static/paymentmodes.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	    		if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
 
-	          	var modes = JSON.parse(data);
-	          	modes.sort(); //alphabetical sorting 
-	          	var modesTag = '';
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
 
-				for (var i=0; i<modes.length; i++){
-					modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+modes[i].code+'</td> <td onclick="deletePaymentModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
-				}
+              var modes = data.docs[0].value;
+              modes.sort(); //alphabetical sorting 
+              var modesTag = '';
 
-				if(!modesTag)
-					document.getElementById("paymentModesTable").innerHTML = '<p style="color: #bdc3c7">No payment modes added yet.</p>';
-				else
-					document.getElementById("paymentModesTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Payment Mode</th> <th style="text-align: left">Code</th> <th style="text-align: left"></th> </tr> </thead>'+
-																	'<tbody>'+modesTag+'</tbody>';
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+
+              for (var i=0; i<modes.length; i++){
+                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+modes[i].code+'</td> <td onclick="deletePaymentModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+              }
+
+              if(!modesTag)
+                document.getElementById("paymentModesTable").innerHTML = '<p style="color: #bdc3c7">No payment modes added yet.</p>';
+              else
+                document.getElementById("paymentModesTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Payment Mode</th> <th style="text-align: left">Code</th> <th style="text-align: left"></th> </tr> </thead>'+
+                                        '<tbody>'+modesTag+'</tbody>';
+
+          }
+          else{
+            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
 }
 
 
 
 
 /* add new payment mode */
-function addPaymentMode() {  
+function addPaymentMode(optionalName, optionalCode) {  
 
 	var paramObj = {};
-	paramObj.name = document.getElementById("add_new_payment_name").value;
-	paramObj.code = document.getElementById("add_new_payment_code").value;
+
+  if(!optionalName || optionalName == ''){
+    paramObj.name = document.getElementById("add_new_payment_name").value;
+  }
+  else{
+    paramObj.name = optionalName;
+  }
+
+  if(!optionalCode || optionalCode == ''){
+    paramObj.code = document.getElementById("add_new_payment_code").value;
+  }
+  else{
+    paramObj.code = optionalCode;
+  }
+
 
 	if(paramObj.name == ''){
 		showToast('Warning: Please set a name', '#e67e22');
@@ -837,81 +1042,85 @@ function addPaymentMode() {
     return '';
   }
 
-      //Check if file exists
-      if(fs.existsSync('./data/static/paymentmodes.json')) {
-         fs.readFile('./data/static/paymentmodes.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-         if(data==""){
-            var obj = []
-            obj.push(paramObj); //add some data
-            var json = JSON.stringify(obj);
-            fs.writeFile('./data/static/paymentmodes.json', json, 'utf8', (err) => {
-                if(err){
-                  showToast('System Error: Unable to save Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{
 
-                fetchAllPaymentModes(); //refresh the list
-                hideNewPaymentMode();
 
-              }
-            });
-         }
-         else{
-             var flag=0;
-             if(data == ''){ data = '[]'; }
-             var obj = [];
-             obj = JSON.parse(data);
-             for (var i=0; i<obj.length; i++) {
-               if (obj[i].name == paramObj.name){
-                  flag=1;
-                  break;
-               }
-               else if (obj[i].code == paramObj.code){
-                  flag=2;
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+
+             var paymentTypesList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<paymentTypesList.length; i++) {
+               if (paymentTypesList[i].name == paramObj.name || paymentTypesList[i].code == paramObj.code){
+                  flag = 1;
                   break;
                }
              }
-             if(flag==1){
-               showToast('Warning: Mode Name already exists. Please choose a different name', '#e67e22');
-             }
-             else if(flag==2){
-             	showToast('Warning: Mode Code already exists. Please choose a different code', '#e67e22');
+
+             if(flag == 1){
+               showToast('Warning: Payment Mode already exists.', '#e67e22');
              }
              else{
-                obj.push(paramObj);
-                var json = JSON.stringify(obj);
-                fs.writeFile('./data/static/paymentmodes.json', json, 'utf8', (err) => {
-                     if(err){
-                        showToast('System Error: Unable to save Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-                    }
-		            else{
-			                fetchAllPaymentModes(); //refresh the list
-			                hideNewPaymentMode();
-		              	
-		              }
-                  });  
+
+                paymentTypesList.push(paramObj);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_PAYMENT_MODES",
+                  "value": paymentTypesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_PAYMENT_MODES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      fetchAllPaymentModes(); //refresh the list
+                      hideNewPaymentMode();
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
 
              }
-                 
-         }
-          
-   }});
-      } else {
-         obj.push(paramObj);
-         fs.writeFile('./data/static/paymentmodes.json', obj, 'utf8', (err) => {
-            if(err){
-               showToast('System Error: Unable to save Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-           }
-           else{
-                fetchAllPaymentModes(); //refresh the list
-                hideNewPaymentMode();         	
-           }
-         });
+                
+          }
+          else{
+            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
       }
-  
+
+    });  
 }
 
 
@@ -921,37 +1130,81 @@ function deletePaymentModeConfirm(name){
 
 
 /* delete a payment mode */
-function deletePaymentMode(name) {  
+function deletePaymentMode(modeName) {  
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/paymentmodes.json')) {
-       fs.readFile('./data/static/paymentmodes.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-       	if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i].name == name){
-            obj.splice(i,1);
-            break;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/paymentmodes.json', newjson, 'utf8', (err) => {
-         if(err)
-            showToast('System Error: Unable to make changes in Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-        
-        	/* on successful delete */
-   			fetchAllPaymentModes();
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-   }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
 
-   cancelSettingsDeleteConfirmation()
+               var modesList = data.docs[0].value;
+
+               var memory_code = '';
+
+               for (var i=0; i<modesList.length; i++) {  
+                 if (modesList[i].name == modeName){
+                    memory_code = modesList[i].code;
+                    modesList.splice(i,1);
+                    break;
+                 }
+               }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_PAYMENT_MODES",
+                  "value": modesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_PAYMENT_MODES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    /* on successful delete */
+                    fetchAllPaymentModes();
+
+                    showUndo('Deleted', 'addPaymentMode(\''+modeName+'\', \''+memory_code+'\')');
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
+    cancelSettingsDeleteConfirmation()
 }
 
 

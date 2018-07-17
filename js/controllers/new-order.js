@@ -372,38 +372,59 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 		n++;
 	}
 
-		if(fs.existsSync('./data/static/billingparameters.json')) {
-	      fs.readFile('./data/static/billingparameters.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
 
-	          	var params = JSON.parse(data);
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
 
-	          	var selectedModeExtrasList = selectedBillingModeInfo.extras ? (selectedBillingModeInfo.extras).split(",") : [];
-	          	var cartExtrasList = [];
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
 
-	          	var n = 0;
-	          	var m = 0;
-	          	while(selectedModeExtrasList[n]){
-	          		m = 0;
-	          		while(params[m]){	  
-	          			if(selectedModeExtrasList[n] == params[m].name)        			
-	          				cartExtrasList.push(params[m]);
-	          			m++;
-	          		}
-	          		n++;
-	          	}
+	              	var params = data.docs[0].value;
+		          	var selectedModeExtrasList = selectedBillingModeInfo.extras ? (selectedBillingModeInfo.extras).split(",") : [];
+		          	var cartExtrasList = [];
 
-	          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, optionalFocusKey)	          	
+		          	var n = 0, m = 0;
+		          	while(selectedModeExtrasList[n]){
+		          		m = 0;
+		          		while(params[m]){	  
+		          			if(selectedModeExtrasList[n] == params[m].name)        			
+		          				cartExtrasList.push(params[m]);
+		          			m++;
+		          		}
+		          		n++;
+		          	}
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+		          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, optionalFocusKey)	          	
+
+
+	          }
+	          else{
+	            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });
 
 }
 
@@ -1481,7 +1502,7 @@ function renderCustomerInfo(){
 	}
 
 	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
-	var billingModesInfo = {};
+	var billingModesInfo = [];
 
 
 	if(jQuery.isEmptyObject(customerInfo)){
@@ -1496,21 +1517,29 @@ function renderCustomerInfo(){
 
 
 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-		if(fs.existsSync('./data/static/billingmodes.json')) {
-	      fs.readFile('./data/static/billingmodes.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to load Billing Modes. Please contact Accelerate Support.', '#e74c3c');
-	    	renderCart();
-	    } else {
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
 
-	    		if(data == ''){ data = '[]'; }
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
 
-	          	billingModesInfo = JSON.parse(data);
+	          	billingModesInfo = data.docs[0].value;
 	          	billingModesInfo.sort(); //alphabetical sorting 
 
-
-	          	window.localStorage.billingModesData = data; /*For cart rendering purpose*/
+	          	window.localStorage.billingModesData = JSON.stringify(billingModesInfo); /*For cart rendering purpose*/
 	          	
 				/*Billing modes not set or not rendering*/
 				if(jQuery.isEmptyObject(billingModesInfo)){
@@ -1777,8 +1806,6 @@ function renderCustomerInfo(){
 					});
 
 		
-
-
 			        /*First dropdown item as default*/ /*TWEAK*/
 			        if(customerInfo.mode == ""){
 			        	$("#customer_form_data_mode").val($("#customer_form_data_mode option:first").val());
@@ -1791,13 +1818,24 @@ function renderCustomerInfo(){
 			        renderCart();
 			 
 				}
-		}
-		});
-	    }
-	    else{
-	    	showToast('System Error: Unable to load Billing Modes. Please contact Accelerate Support.', '#e74c3c');
-	    	renderCart();
-	    }	
+          }
+          else{
+            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          	renderCart();
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          renderCart();
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+      	renderCart();
+      }
+
+    });
 
 }
 
@@ -2234,7 +2272,6 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 	          for(var i=0; i<tableMapping.length; i++){
 	          	if(tableMapping[i].table == tableID){
 
-	          		console.log(tableMapping[i])
 	          		moveToEditKOT(tableMapping[i].KOT);
 	          	}
 	          }
@@ -2810,15 +2847,27 @@ function generateNewKOT(){
 	}
 
 
-		if(fs.existsSync('./data/static/billingparameters.json')) {
-	      fs.readFile('./data/static/billingparameters.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	          	var params = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+
+	          	var params = data.docs[0].value;
 
 	          	var selectedModeExtrasList = (selectedBillingModeInfo.extras).split(",");
 	          	var cartExtrasList = [];
@@ -2836,13 +2885,24 @@ function generateNewKOT(){
 	          		n++;
 	          	}
 
-	          	generateKOTAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList)	          	
+	          	generateKOTAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList)	
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+          }
+          else{
+            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
 }
 
 

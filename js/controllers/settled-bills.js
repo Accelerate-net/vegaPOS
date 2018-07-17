@@ -194,16 +194,36 @@ function loadAllSettledBills(){
 		//Preload payment modes
 		if(!window.localStorage.availablePaymentModes || window.localStorage.availablePaymentModes == '')
 		{
-			if(fs.existsSync('./data/static/paymentmodes.json')) {
-		      fs.readFile('./data/static/paymentmodes.json', 'utf8', function readFileCallback(err, data){
-				    if (err){
-				    } else {
-						if(data == ''){ data = '[]'; }
 
-						window.localStorage.availablePaymentModes = data;
-					}
-			   });
-		   	}	
+
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+		                  },
+		      "fields"    : ["identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+
+		              var modes = data.docs[0].value;
+		              if(modes.length > 0)
+		              	window.localStorage.availablePaymentModes = JSON.stringify(modes);
+		          }
+		        }
+		      }
+
+		    });
+
 		}
 
 
