@@ -711,22 +711,31 @@ function selectStewardWindow(){
     loggedInStaffInfo.code = "";
   }
 
-  console.log('OPENING//////')
 
 
-    if(fs.existsSync('./data/static/userprofiles.json')) {
-        fs.readFile('./data/static/userprofiles.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read User Profiles. Please contact Accelerate Support.', '#e74c3c');
-      } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-          if(data == ''){ data = '[]'; }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
 
-              var users = JSON.parse(data);
+              var users = data.docs[0].value;
               users.sort(); //alphabetical sorting 
 
               if(users.length == 0){
-                showToast('Warning: No profile created yet.', '#e67e22');
+                showToast('Warning: No User registered yet.', '#e67e22');
                 return '';
               }
 
@@ -768,155 +777,164 @@ function selectStewardWindow(){
                 n++;
               }
 
-          document.getElementById("stewardModalHomeContent").innerHTML = renderContent;
-          document.getElementById("stewardModalHome").style.display = 'block';
+              document.getElementById("stewardModalHomeContent").innerHTML = renderContent;
+              document.getElementById("stewardModalHome").style.display = 'block';
 
-          if(currentUserFound){
-            document.getElementById("user_switch_"+loggedInStaffInfo.code).classList.add('selectUserProfile');
-          }
+              if(currentUserFound){
+                document.getElementById("user_switch_"+loggedInStaffInfo.code).classList.add('selectUserProfile');
+              }
 
 
-          /*
-            EasySelect Tool (TWO COLUMN - MULTI ROW GRID)
-          */
-          var tiles = $('#stewardModalHomeContent .easySelectTool_StewardProfile');
-          var tileSelected = undefined; //Check for active selection
-          var i = 0;
-          var currentIndex = 0;
-          var lastIndex = 0;
+              /*
+                EasySelect Tool (TWO COLUMN - MULTI ROW GRID)
+              */
+              var tiles = $('#stewardModalHomeContent .easySelectTool_StewardProfile');
+              var tileSelected = undefined; //Check for active selection
+              var i = 0;
+              var currentIndex = 0;
+              var lastIndex = 0;
 
-          $.each(tiles, function() {
-            if($(tiles[i]).hasClass("selectUserProfile")){
-              tileSelected = tiles.eq(i);
-              currentIndex = i;
-            }
+              $.each(tiles, function() {
+                if($(tiles[i]).hasClass("selectUserProfile")){
+                  tileSelected = tiles.eq(i);
+                  currentIndex = i;
+                }
 
-            lastIndex = i;
-            i++;
-          });  
+                lastIndex = i;
+                i++;
+              });  
 
-          var easySelectTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
-            if($('#stewardModalHome').is(':visible')) {
+              var easySelectTool = $(document).on('keydown',  function (e) {
+                console.log('Am secretly running...')
+                if($('#stewardModalHome').is(':visible')) {
 
-              console.log(e.which)
+                  console.log(e.which)
 
-                 switch(e.which){
-                  case 37:{ //  < Left Arrow
+                     switch(e.which){
+                      case 37:{ //  < Left Arrow
 
-                      if(tileSelected){
-                          tileSelected.removeClass('selectUserProfile');
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
 
-                          currentIndex--;
-                          if(currentIndex < 0){
-                            currentIndex = lastIndex;
-                          }
+                              currentIndex--;
+                              if(currentIndex < 0){
+                                currentIndex = lastIndex;
+                              }
 
-                          if(tiles.eq(currentIndex)){
-                              tileSelected = tiles.eq(currentIndex);
-                              tileSelected = tileSelected.addClass('selectUserProfile');
-                          }
-                      }else{
-                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                      }      
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
 
-                    break;
-                  }
-                  case 38:{ //  ^ Up Arrow 
-              
-                      if(tileSelected){
-                          tileSelected.removeClass('selectUserProfile');
-
-                          currentIndex = currentIndex - 2;
-
-                          if(currentIndex < 0){
-                            if(Math.abs(currentIndex)%2 == 1)
-                              currentIndex = lastIndex;
-                            else
-                              currentIndex = lastIndex - 1;
-                          }
-
-                          if(tiles.eq(currentIndex)){
-                              tileSelected = tiles.eq(currentIndex);
-                              tileSelected = tileSelected.addClass('selectUserProfile');
-                          }
-                      }else{
-                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                      }      
-
-                    break;
-                  }
-                  case 39:{ // Right Arrow >
-
-                      if(tileSelected){
-                          tileSelected.removeClass('selectUserProfile');
-
-                          currentIndex++;
-                          if(currentIndex > lastIndex){
-                            currentIndex = 0;
-                          }
-
-                          if(tiles.eq(currentIndex)){
-                              tileSelected = tiles.eq(currentIndex);
-                              tileSelected = tileSelected.addClass('selectUserProfile');
-                          }
-                      }else{
-                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                      }      
-
-                    break;
-                  }
-                  case 40:{ // Down Arrow \/ 
-
-                      if(tileSelected){
-                          tileSelected.removeClass('selectUserProfile');
-
-                          currentIndex = currentIndex + 2;
-                          if(currentIndex > lastIndex){
-                            currentIndex = currentIndex % 2;
-                          }
-
-                          if(tiles.eq(currentIndex)){
-                              tileSelected = tiles.eq(currentIndex);
-                              tileSelected = tileSelected.addClass('selectUserProfile');
-                          }
-                      }else{
-                          tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                      }      
-
-                    break;
-                  }
-                  case 27:{ // Escape (Close)
-                    $('#stewardWindowCloseButton').click();
-                    easySelectTool.unbind();
-                    break;  
-                  }
-                  case 13:{ // Enter (Confirm)
-
-                    $("#stewardModalHomeContent .easySelectTool_StewardProfile").each(function(){
-                      if($(this).hasClass("selectUserProfile")){
-                        $(this).click();
-                        e.preventDefault(); 
-                        easySelectTool.unbind();   
+                        break;
                       }
-                    });    
+                      case 38:{ //  ^ Up Arrow 
+                  
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
 
-                               
-                    
-                    break;
-                  }
-                 }
-            }
-          });
+                              currentIndex = currentIndex - 2;
+
+                              if(currentIndex < 0){
+                                if(Math.abs(currentIndex)%2 == 1)
+                                  currentIndex = lastIndex;
+                                else
+                                  currentIndex = lastIndex - 1;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 39:{ // Right Arrow >
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
+
+                              currentIndex++;
+                              if(currentIndex > lastIndex){
+                                currentIndex = 0;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 40:{ // Down Arrow \/ 
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
+
+                              currentIndex = currentIndex + 2;
+                              if(currentIndex > lastIndex){
+                                currentIndex = currentIndex % 2;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 27:{ // Escape (Close)
+                        $('#stewardWindowCloseButton').click();
+                        easySelectTool.unbind();
+                        break;  
+                      }
+                      case 13:{ // Enter (Confirm)
+
+                        $("#stewardModalHomeContent .easySelectTool_StewardProfile").each(function(){
+                          if($(this).hasClass("selectUserProfile")){
+                            $(this).click();
+                            e.preventDefault(); 
+                            easySelectTool.unbind();   
+                          }
+                        });    
+
+                                   
+                        
+                        break;
+                      }
+                     }
+                }
+              });
 
 
+          }
+          else{
+            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
+    });  
 
-    }
-    });
-      } else {
-        showToast('System Error: Unable to read User Profiles. Please contact Accelerate Support.', '#e74c3c');
-      } 
 }
 
 function selectStewardWindowClose(){

@@ -574,8 +574,6 @@ function addNewComment(optionalParameter) {
 	}
 
 
-
-
     var requestData = {
       "selector"  :{ 
                     "identifierTag": "ZAITOON_SAVED_COMMENTS" 
