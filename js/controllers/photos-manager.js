@@ -2,15 +2,26 @@
 /* read categories */
 function fetchAllCategoriesPhotos(){
 
-		if(fs.existsSync('./data/static/menuCategories.json')) {
-	      fs.readFile('./data/static/menuCategories.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Category data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	          	var categories = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+
+	          	var categories = data.docs[0].value;
 	          	categories.sort(); //alphabetical sorting 
 	          	var categoryTag = '';
 
@@ -23,28 +34,51 @@ function fetchAllCategoriesPhotos(){
 			
 
 				document.getElementById("categoryAreaPhotos").innerHTML = categoryTag;
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Category data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+
+          }
+          else{
+            showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu Category data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
 }
 
 function openSubMenuPhotos(subtype){	
 
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        
-	    } else {
 
-	          		var mastermenu = JSON.parse(data); 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-	          		var itemsInSubMenu = "";
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
 
-					if(!subtype){
+	          	var mastermenu = data.docs[0].value; 
+
+	          	var itemsInSubMenu = "";
+				if(!subtype){
 						subtype = mastermenu[0].category;
-					}
+				}
 
 	         
 				for (var i=0; i<mastermenu.length; i++){
@@ -70,11 +104,24 @@ function openSubMenuPhotos(subtype){
 				if(!itemsInSubMenu){
 					document.getElementById("item-list").innerHTML = '<p style="font-size: 18px; color: #bfbfbf; padding: 20px 0;">No available items in '+subtype+'</p>';
 				}
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
-	    }			
+                
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+
 
 	//menuRenderArea
 	document.getElementById("menuDetailsAreaPhotos").style.display = "block";
@@ -214,46 +261,83 @@ function changePhotoFlagInMenu(code, changeFlag, optionalCategory){
 			optedFlag = false;
 		}
 		
-		/* Just invert the item availability status here*/
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Failed to make changes in Menu data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
+		/* Just invert the photo availability status here*/
 
-				if(data == ''){ data = '[]'; }
-	          
-	          	var mastermenu = JSON.parse(data); 
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_MASTER_MENU" 
+	                  },
+	      "fields"    : ["_rev", "identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+		        var mastermenu = data.docs[0].value; 
+				
 				for (var i=0; i<mastermenu.length; i++){
 					for(var j=0; j<mastermenu[i].items.length; j++){
 
 						if(mastermenu[i].items[j].code == code){
 
-						   mastermenu[i].items[j].isPhoto = optedFlag;
+						   	mastermenu[i].items[j].isPhoto = optedFlag;
 
-					       var newjson = JSON.stringify(mastermenu);
-					       fs.writeFile('./data/static/mastermenu.json', newjson, 'utf8', (err) => {
-					         if(err){
-					            showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-					         }
-					         else{
+						    //Update
+			                var updateData = {
+			                  "_rev": data.docs[0]._rev,
+			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "value": mastermenu
+			                }
+
+
+			                $.ajax({
+			                  type: 'PUT',
+			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  data: JSON.stringify(updateData),
+			                  contentType: "application/json",
+			                  dataType: 'json',
+			                  timeout: 10000,
+			                  success: function(data) {
 					         	if(optionalCategory){
 					         		renderPage('photos-manager', 'Photos Manager');
 					         		openSubMenuPhotos(optionalCategory);
 					         	}
 					         	return '';
+			                  },
+			                  error: function(data) {
+			                    showToast('System Error: Unable to make changes in Menu data. Please contact Accelerate Support.', '#e74c3c');
+			                  }
 
-					         }
-					       }); 
+			                }); 
 
+			                break; 
 						}
 				
 					}					
 				}
-		}
-		});
-	    } else {
-	      showToast('System Error: Failed to make changes in Menu data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
 
+		          
+	          }
+	          else{
+	            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });  
 }

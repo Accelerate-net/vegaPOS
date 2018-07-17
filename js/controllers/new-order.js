@@ -2377,18 +2377,28 @@ function overWriteCurrentRunningOrder(encodedKOT){
 
 function renderCategoryTab(defaultTab){
 
-		if(fs.existsSync('./data/static/menuCategories.json')) {
-	      fs.readFile('./data/static/menuCategories.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Menu Categories data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	          	var categories = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+
+	          	var categories = data.docs[0].value;
 	          	categories.sort(); //alphabetical sorting 
 	          	var categoryTag = '';
-
 
 				for (var i=0; i<categories.length; i++){
 					if(categories[i] == defaultTab)
@@ -2422,42 +2432,60 @@ function renderCategoryTab(defaultTab){
 					dropTag = '<p style="color: #dd4b39; padding: 20px; text-align: center; font-size: 14px; margin-bottom: 0px;">Menu is not added yet.</p>';
 
 				document.getElementById("posSubMenuDropdown").innerHTML = dropTag;
-			
 
 
+          }
+          else{
+            showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu Category data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
-			
-				
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Menu Categories data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+    }); 
 }
+
+
 
 function renderMenu(subtype){
 
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	    	console.log(err)
-	        
-	    } else {
 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-	    /* PERSONALISATIONS */
-		var showPhotosFlag = window.localStorage.appCustomSettings_ImageDisplay == 'true' ? true: false;
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
 
+	          	var mastermenu = data.docs[0].value; 
 
-	          		var mastermenu = JSON.parse(data); 
+				/* PERSONALISATIONS */
+				var showPhotosFlag = window.localStorage.appCustomSettings_ImageDisplay == 'true' ? true: false;
 
-	          		var itemsInSubMenu = "";
+	          	var itemsInSubMenu = "";
 
-					if(!subtype){
-						subtype = mastermenu[0].category;
-					}
+				if(!subtype){
+					subtype = mastermenu[0].category;
+				}
 
-					renderCategoryTab(subtype);
+				renderCategoryTab(subtype);
 	         
 				for (var i=0; i<mastermenu.length; i++){
 
@@ -2499,12 +2527,22 @@ function renderMenu(subtype){
 						document.getElementById('subMenuSelectionArea').setAttribute("style","height: 17vh !important; overflow: scroll !important");
 					}
 				}
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
-	
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });	
 }
 
 
@@ -4337,19 +4375,30 @@ function initOrderPunch(){
 /*Auto Suggetion - MENU*/
 function initMenuSuggestion(){
 
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	    	return '';
-	        
-	    } else {
-	          	
-	          	var mastermenu = JSON.parse(data);
 
-				    /*Select on Arrow Up/Down */
-					var li = $('#searchResultsRenderArea li');
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-					var liSelected = undefined;
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+	          	var mastermenu = data.docs[0].value; 
+
+				/*Select on Arrow Up/Down */
+				var li = $('#searchResultsRenderArea li');
+				var liSelected = undefined;
 
 				$('#add_item_by_search').keyup(function(e) {
 
@@ -4451,16 +4500,10 @@ function initMenuSuggestion(){
 					    //Refresh dropdown list
 					    li = $('#searchResultsRenderArea li');
 					}
+				});   
+          }
+        }
+      }
 
-				});
-
-
-
-
-		}
-		});
-	    } else {
-	      return '';
-	    }		
-
+    });
 }
