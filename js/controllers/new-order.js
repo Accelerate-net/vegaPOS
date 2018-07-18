@@ -3401,15 +3401,23 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          obj.discount = {},
 	          obj.customExtras = {}
 
-	          var json = JSON.stringify(obj); //convert it back to json
-	          var file = './data/KOT/'+kot+'.json';
-	          fs.writeFile(file, json, 'utf8', (err) => {
-	              if(err){
-					showToast('System Error: Unable to generate KOT. Please contact Accelerate Support.', '#e74c3c');
-	              }
-	              else{  
-	              	
+
+
+
+
+	          //Post to local Server
+	          $.ajax({
+	            type: 'POST',
+	            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/',
+	            data: JSON.stringify(obj),
+	            contentType: "application/json",
+	            dataType: 'json',
+	            timeout: 10000,
+	            success: function(data) {
+	              if(data.ok){
+
 	              	//Send KOT for Printing
+	              	console.log('>>>>>> PRINT THE KOT PHYSICALLY!')
 	              	//sendToPrinter(kot, 'KITCHEN')
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
@@ -3438,22 +3446,32 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              		pushCurrentOrderAsEditKOT(encodeURI(json));
 	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
 	              	}
+
 	              }
-	              	 
-	           });
+	              else{
+	                showToast('Warning: KOT was not Generated. Try again.', '#e67e22');
+	              }
+	            },
+	            error: function(data){           
+	              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	            }
+	          });  
+			  //End - post KOT to Server
+
+
              
           }
           else{
-            showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: KOT Index data not found. Please contact Accelerate Support.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: KOT Index data not found. Please contact Accelerate Support.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Bill Index. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOT Index. Please contact Accelerate Support.', '#e74c3c');
       }
 
     });

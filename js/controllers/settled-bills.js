@@ -7,13 +7,28 @@ function loadAllPendingSettlementBills(optionalSource){
 
 	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
 
+	var isFilterApplied = false;
+	var filterObject;
+
+	if(window.localStorage.billFilterCriteria && window.localStorage.billFilterCriteria != ''){
+		isFilterApplied = true;
+		filterObject = JSON.parse(window.localStorage.billFilterCriteria);
+	}
+
 
 	$("#billSelection_settled").removeClass("billTypeSelectionBox");
 	$("#billSelection_pending").addClass("billTypeSelectionBox");
 	document.getElementById("billDetailedDisplayRender").innerHTML = ''
 
 	document.getElementById("billTypeTitle").innerHTML = 'Pending Bills';
-	document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="openFilterModal(\'PENDING\')">Filter</button>';
+
+	if(isFilterApplied){
+		document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied</button>';
+	}
+	else{
+		document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModal(\'PENDING\')">Apply Filter</button>';
+	}
+	
 
 	var totalResultsCount = 0;
 	var fileCount = 0;
@@ -33,100 +48,57 @@ function loadAllPendingSettlementBills(optionalSource){
 		calculateSettledCount();
 	}
 
-	var resultRender = '';
+	  var resultRender = '';
 
-    dirname = './data/bills'
-    fs.readdir(dirname, function(err, filenames) {
+	  $.ajax({
+	    type: 'GET',
+	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bills/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+	    contentType: "application/json",
+	    dataType: 'json',
+	    timeout: 10000,
+	    success: function(data) {
 
-        if (err) {
-            showToast('System Error: Unable to load Unsettled Bills. Please contact Accelerate Support.', '#e74c3c');
-            return;
-        }
+	      if(data.total_rows == 0){
+	      	document.getElementById("pendingBillsCount").innerHTML = 0;
+	      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Unsettled Bills.</p>';
+			return '';
+	      }
 
-		fileCount = filenames.length;
-	    if(fileCount == 0){
-	    	document.getElementById("pendingBillsCount").innerHTML = 0;
-	    	document.getElementById("billBriefDisplayRender").innerHTML = 'There are no Unsettled Bills';
-	    	return '';
-	    }
-        
-        filenames.sort();
-        filenames.reverse();
+	      document.getElementById("pendingBillsCount").innerHTML = data.total_rows;
 
-        filenames.forEach(function(filename) {       	
+	      totalPages = Math.ceil(data.total_rows/10);
+	      
+	      var resultsList = data.rows;
 
-        	iterationRound++;
-            fs.readFile(dirname + '/' + filename, 'utf-8', function(err, data) {
-                if (err) {
-                    showToast('System Error: Unable to load a few Unsettled Bills. Please contact Accelerate Support.', '#e74c3c');
-                    return;
-                } else {
+	      var resultRender = '';
+	      var n = 0;
+	      while(resultsList[n]){
 
+	      	var bill = resultsList[n].doc;
 
-		            if(filename.toLowerCase().indexOf(".json") < 0){ //Neglect any files other than JSON
-		                if(iterationRound == fileCount && totalResultsCount == 0){
-		                    document.getElementById("pendingBillsCount").innerHTML = 0;
-		                    document.getElementById("billBriefDisplayRender").innerHTML = 'There are no Unsettled Bills';
-		                }
-		                return '';
-		            } 
-
-
-                    totalResultsCount++;
-
-                    console.log('Current Page: '+currentPage)
-                    console.log('Total Results: '+totalResultsCount)
-
-                    if((currentPage-1)*10 == totalResultsCount){
-                    	currentPage--;
-                    }
-
-                	//Skip first 10 (for second page), first 20 (for third page) etc.
-                	if(((currentPage-1)*10) < totalResultsCount && totalResultsCount <= (currentPage*10)){
-                    	
-                    	var bill = JSON.parse(data);
-                    	
-
-
-				      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+			resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
 			                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 			                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 			                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 			                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 			                            '        <td>'+bill.stewardName+'</td>'+
 			                            '    </tr>';
+	      	n++;
+	      }
 
 
-                    } //skip end
+			document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
+				'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+				'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+	      
+	      	renderBillPageDefault('PENDING')
 
+	    },
+	    error: function(data){
+	    	showToast('Local Server not responding. Please try again.', '#e74c3c');
+	    }
 
-                    	if(iterationRound == fileCount){
-
-                    		  totalPages = Math.ceil(totalResultsCount/10);
-						      if(totalResultsCount == 0){
-						      	document.getElementById("pendingBillsCount").innerHTML = 0;
-						      	document.getElementById("billBriefDisplayRender").innerHTML = 'There are no Unsettled Bills';
-						      	return '';
-						      }
-
-
-                    			document.getElementById("pendingBillsCount").innerHTML = totalResultsCount;
-
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
-
-						      	renderBillPageDefault('PENDING')                    	
-                    	}
-                    	
-
-                } //end of else
-
-            });
-        });
-
-
-    });
+	  });  
 
 }
 
@@ -241,7 +213,7 @@ function loadAllSettledBills(){
 
 	      if(data.total_rows == 0){
 	      	document.getElementById("settledBillsCount").innerHTML = 0;
-	      	document.getElementById("billBriefDisplayRender").innerHTML = 'There are no Settled Bills';
+	      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Settled Bills.</p>';
 			return '';
 	      }
 
@@ -636,7 +608,7 @@ function changeFilterSearchCriteria(){
 	              	return '';
 	              }
 
-	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 40px; font-size: 24px; font-weight: 300;">Filter all <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Payments</p>';
+	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Payments</p>';
 	          }
 	          else{
 	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -689,7 +661,7 @@ function changeFilterSearchCriteria(){
 	              	return '';
 	              }
 
-	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 40px; font-size: 24px; font-weight: 300;">Filter all <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Orders</p>';
+	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Orders</p>';
 	          }
 	          else{
 	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -742,4 +714,18 @@ function filterSearchInitialize(optionalRoute){
 	else{
 		loadAllPendingSettlementBills('EXTERNAL');
 	}
+
+	hideFilterModal();
+}
+
+function clearAppliedFilter(optionalRoute){
+
+	window.localStorage.billFilterCriteria = '';
+
+	if(optionalRoute == 'SETTLED'){
+		loadAllSettledBills();
+	}
+	else{
+		loadAllPendingSettlementBills('EXTERNAL');
+	}	
 }

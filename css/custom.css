@@ -3599,6 +3599,26 @@ position: absolute;
 }
 
 
+.billsFilterApplyButton{
+    position: relative;
+    top: -3px;
+    left: 10px;
+    background: none;
+    color: #a2a2a2;
+    border: none;
+    border-radius: 5px;
+    min-width: 60px; 
+    border: 1px solid #a2a2a2;
+    padding-right: 25px;
+    padding-left: 25px;
+}
+
+.billsFilterApplyButton:active, .billsFilterApplyButton:focus, .billsFilterApplyButton:hover{
+  color: #444;
+  border: 1px solid #444;
+  outline: none !important;
+}
+
 
 
 .billsFilterButton{
@@ -3610,12 +3630,37 @@ position: absolute;
     border: none;
     border-radius: 5px;
     min-width: 60px;
+    padding-left: 10px;
+    padding-right: 25px;
 }
 
 .billsFilterButton:active, .billsFilterButton:focus, .billsFilterButton:hover{
   background: #1abc9c;
   outline: none !important;
 }
+
+
+.clearFilterInsideButton{
+  float: left;
+  background: none;
+  opacity: 0;
+  padding-right: 6px;
+  color: #FFF;
+}
+
+.billsFilterButton .clearFilterInsideButton{
+    background: none !important;
+    opacity: 0 !important;
+}
+
+.billsFilterButton:hover .clearFilterInsideButton,
+.billsFilterButton:active .clearFilterInsideButton,
+.billsFilterButton:focus .clearFilterInsideButton{
+    background: none !important;
+    opacity: 1 !important;
+}
+
+
 
 
 .skin-blue .billsFilterButton,
