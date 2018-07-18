@@ -2646,7 +2646,7 @@ function moveToEditKOT(kotID){
 		    }    
 		    */
 
-		    overWriteCurrentRunningOrder(data);
+		    overWriteCurrentRunningOrder(kot);
 
         }
         else{
@@ -2661,9 +2661,10 @@ function moveToEditKOT(kotID){
     });   
 }
 
-function overWriteCurrentRunningOrder(encodedKOT){
+function overWriteCurrentRunningOrder(kot){
 
-    var kot = JSON.parse(decodeURI(encodedKOT));
+    //var kot = JSON.parse(decodeURI(encodedKOT));
+
 
     var customerInfo = {};
     customerInfo.name = kot.customerName;
@@ -2677,7 +2678,9 @@ function overWriteCurrentRunningOrder(encodedKOT){
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
-    window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+
+    //window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+    window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
 
 
     //renderPage('new-order', 'Running Order');
@@ -3444,13 +3447,13 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 						window.localStorage.claimedTokenNumber = '';
 						window.localStorage.claimedTokenNumberTimestamp = '';	              		
 	 					
-	 					pushCurrentOrderAsEditKOT(encodeURI(json));
+	 					pushCurrentOrderAsEditKOT(obj);
 	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
 	              	}
 	              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
 	              		showToast('#'+kot+' generated Successfully', '#27ae60');
 	              		
-	              		pushCurrentOrderAsEditKOT(encodeURI(json));
+	              		pushCurrentOrderAsEditKOT(obj);
 	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
 	              	}
 
@@ -3513,9 +3516,9 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 
 /*Add to edit KOT*/
-function pushCurrentOrderAsEditKOT(encodedKOT){
+function pushCurrentOrderAsEditKOT(kot){
     
-    var kot = JSON.parse(decodeURI(encodedKOT));
+    //var kot = JSON.parse(decodeURI(encodedKOT));
 
     var customerInfo = {};
     customerInfo.name = kot.customerName;
@@ -3529,7 +3532,7 @@ function pushCurrentOrderAsEditKOT(encodedKOT){
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
-    window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+    window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot); //decodeURI(encodedKOT);
 
     renderCustomerInfo();
 }

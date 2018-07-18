@@ -100,5 +100,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('live-orders', 'Punch Order');
+renderPage('settled-bills', 'Punch Order');
 

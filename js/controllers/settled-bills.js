@@ -7,18 +7,52 @@ function loadAllPendingSettlementBills(optionalSource){
 
 	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
 
+
+	/*
+		Frame the FILTER
+	*/
+
 	var isFilterApplied = false;
 	var filterObject;
+		  
+	var filter_start = '';
+	var filter_end = '';
+	var filter_key = '';
+
 
 	if(window.localStorage.billFilterCriteria && window.localStorage.billFilterCriteria != ''){
 		isFilterApplied = true;
 		filterObject = JSON.parse(window.localStorage.billFilterCriteria);
+
+		if(filterObject.dateFrom == ''){
+			filter_start = '01-01-2018'; //Since the launch of Vega POS
+		}
+		else{
+			filter_start = filterObject.dateFrom;
+		}
+
+		if(filterObject.dateTo == ''){
+			filter_end = getCurrentTime('DATE_DD-MM-YY'); //Today
+		}
+		else{
+			filter_end = filterObject.dateTo;
+		}
+
+		if(filterObject.searchKey == ''){
+			filter_end = '';
+		}	
+		else{
+			filter_key = filterObject.searchKey;
+		}				
 	}
+
+
 
 
 	$("#billSelection_settled").removeClass("billTypeSelectionBox");
 	$("#billSelection_pending").addClass("billTypeSelectionBox");
 	document.getElementById("billDetailedDisplayRender").innerHTML = ''
+
 
 	document.getElementById("billTypeTitle").innerHTML = 'Pending Bills';
 
@@ -48,58 +82,163 @@ function loadAllPendingSettlementBills(optionalSource){
 		calculateSettledCount();
 	}
 
-	  var resultRender = '';
+	if(isFilterApplied){
 
-	  $.ajax({
-	    type: 'GET',
-	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bills/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-	    contentType: "application/json",
-	    dataType: 'json',
-	    timeout: 10000,
-	    success: function(data) {
+		//just to get the COUNT
+		updatePendingCount();
 
-	      if(data.total_rows == 0){
-	      	document.getElementById("pendingBillsCount").innerHTML = 0;
-	      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Unsettled Bills.</p>';
-			return '';
-	      }
+		switch(filterObject.searchMode){
 
-	      document.getElementById("pendingBillsCount").innerHTML = data.total_rows;
+			case "customer":{
+				/*
+					FILTER USING CUSTOMER MOBILE NUMBER 
+				*/
 
-	      totalPages = Math.ceil(data.total_rows/10);
-	      
-	      var resultsList = data.rows;
+			  	//TWEAK -- Get the count for Pagination
+			  	if(currentPage == 1){
+				  	$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						timeout: 10000,
+						success: function(data) {
+					    	totalPages = Math.ceil(data.rows.length/10);
 
-	      var resultRender = '';
-	      var n = 0;
-	      while(resultsList[n]){
-
-	      	var bill = resultsList[n].doc;
-
-			resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-			                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-			                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-			                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-			                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-			                            '        <td>'+bill.stewardName+'</td>'+
-			                            '    </tr>';
-	      	n++;
-	      }
+					    	if(totalPages == 0){
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No results found</p>';
+								return '';
+						    }
 
 
-			document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-				'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-				'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
-	      
-	      	renderBillPageDefault('PENDING')
+						}
+					});  
 
-	    },
-	    error: function(data){
-	    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-	    }
+					console.log('CALLED....')
+				}
 
-	  });  
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					timeout: 10000,
+					success: function(data) {
 
+				      var resultsList = data.rows;
+				      var resultRender = '';
+
+				      var n = 0;
+				      while(resultsList[n]){
+				      	var bill = resultsList[n].value;
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
+						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td>'+bill.stewardName+'</td>'+
+						                            '    </tr>';
+				      	n++;
+				      }
+
+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+				      
+				      	renderBillPageDefault('PENDING');
+
+					},
+					error: function(data){
+						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+					}
+				});  
+
+
+				break;
+			}
+		
+
+		}
+
+
+
+
+
+
+	}
+	else{ //Filter Not Applied
+
+		  $.ajax({
+		    type: 'GET',
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bills/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+		    contentType: "application/json",
+		    dataType: 'json',
+		    timeout: 10000,
+		    success: function(data) {
+
+		      if(data.total_rows == 0){
+		      	document.getElementById("pendingBillsCount").innerHTML = 0;
+		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Unsettled Bills.</p>';
+				return '';
+		      }
+
+		      document.getElementById("pendingBillsCount").innerHTML = data.total_rows;
+		      totalPages = Math.ceil(data.total_rows/10);
+		      
+		      var resultsList = data.rows;
+		      var resultRender = '';
+		      var n = 0;
+		      while(resultsList[n]){
+
+		      	var bill = resultsList[n].doc;
+
+				resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+				                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
+				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+				                            '        <td>'+bill.stewardName+'</td>'+
+				                            '    </tr>';
+		      	n++;
+		      }
+
+
+				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
+					'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+					'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+		      
+		      	renderBillPageDefault('PENDING')
+
+		    },
+		    error: function(data){
+		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
+		    }
+
+		  });  		
+	}
+
+
+}
+
+function updatePendingCount(){
+
+		  $.ajax({
+		    type: 'GET',
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bills/_view/all?descending=true&include_docs=false&limit=10',
+		    contentType: "application/json",
+		    dataType: 'json',
+		    timeout: 10000,
+		    success: function(data) {
+
+		      if(data.total_rows == 0){
+		      	document.getElementById("pendingBillsCount").innerHTML = 0;
+				return '';
+		      }
+
+		      document.getElementById("pendingBillsCount").innerHTML = data.total_rows;
+		    },
+		    error: function(data){
+		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
+		    }
+
+		  });
 }
 
 function calculateSettledCount(){
@@ -376,6 +515,7 @@ function openSelectedBill(encodedBill, type){
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3><button class="btn btn-success" style="float: right; color: #FFF" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">Settle Bill</button>'+
 												      '</div>'+
+												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
 												      '<div class="table-responsive">'+
 												         '<table class="table">'+
 												         	'<col width="5%">'+
@@ -500,6 +640,7 @@ function openSelectedBill(encodedBill, type){
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+paymentOptionUsedButton+'</h3><button class="btn btn-default" style="float: right">Print Duplicate</button>'+
 												      '</div>'+
+												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
 												      '<div class="table-responsive">'+
 												         '<table class="table">'+
 												         	'<col width="5%">'+
@@ -698,6 +839,11 @@ function filterSearchInitialize(optionalRoute){
 	}
 	else{
 		searchKey = document.getElementById("filter_search_key").value;
+		
+		if(searchKey == ''){
+			showToast('Warning: Please enter any Search Key.', '#e67e22');
+			return '';
+		}
 	}
 
 	var searchObj = {};
@@ -723,9 +869,17 @@ function clearAppliedFilter(optionalRoute){
 	window.localStorage.billFilterCriteria = '';
 
 	if(optionalRoute == 'SETTLED'){
+		totalPages = 0;
+		currentPage = 1;
+		displayType = 'SETTLED';
+
 		loadAllSettledBills();
 	}
 	else{
+		totalPages = 0;
+		currentPage = 1;
+		displayType = 'PENDING';
+
 		loadAllPendingSettlementBills('EXTERNAL');
 	}	
 }

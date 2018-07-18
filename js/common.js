@@ -51,6 +51,15 @@ function getSummaryStandardDate(date){
 }
 
 
+
+function getSuperFancyDate(date){
+  //convert DD-MM-YYYY to DD MM, YYYY
+  return moment(date, 'DD-MM-YYYY').format('Do MMMM, YYYY')
+}
+
+
+
+
 //Returns today, and current time
 function getCurrentTime(type){
           
@@ -91,6 +100,9 @@ function getCurrentTime(type){
 
     if(type == 'DATE_DDMMYY')
       return dd+mm+yyyy;
+
+    if(type == 'DATE_DD-MM-YY')
+      return dd+'-'+mm+'-'+yyyy;
 
     if(type == 'DATE_YYYY-MM-DD')
       return yyyy+'-'+mm+'-'+dd;
