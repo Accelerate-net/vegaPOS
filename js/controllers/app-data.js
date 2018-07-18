@@ -245,7 +245,6 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
                   error: function(data) {
                       showToast('System Error: Unable to update Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
                   }
-
                 });  
 
              }

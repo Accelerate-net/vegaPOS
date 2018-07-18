@@ -2,54 +2,60 @@
 function generateBillFromKOT(kotID, optionalPageRef){
 
 /*
-	optionalPageRef -- from which page the function is called.
-	Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
+  optionalPageRef -- from which page the function is called.
+  Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
 */
 
-	if(!optionalPageRef){
-		optionalPageRef = '';
-	}
+  if(!optionalPageRef){
+    optionalPageRef = '';
+  }
 
 
-	//If there is any change in customer data w.r.t OriginalKOT, do make the changes now;
-	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
-	if(jQuery.isEmptyObject(customerInfo)){
-		showToast('Customer Details missing', '#e74c3c');
-		return '';
-	}	
+  //If there is any change in customer data w.r.t OriginalKOT, do make the changes now;
+  var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+  if(jQuery.isEmptyObject(customerInfo)){
+    showToast('Customer Details missing', '#e74c3c');
+    return '';
+  } 
 
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
+  /*Read mentioned KOT - kotID*/
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
 
           if(kotfile.customerName != customerInfo.name || kotfile.customerMobile != customerInfo.mobile){
-          	kotfile.customerName = customerInfo.name;
-          	kotfile.customerMobile = customerInfo.mobile;
+            console.log('KOT not updated on server.. please update me ***')
+            kotfile.customerName = customerInfo.name;
+            kotfile.customerMobile = customerInfo.mobile;
 
-		       var newjson = JSON.stringify(kotfile);
-		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to make changes in the Order. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           		generateBillSuccessCallback('CHANGE_CUSTOMERINFO', optionalPageRef, kotfile);
-		           		generateBillFromKOTAfterProcess(kotID, optionalPageRef);
-		           }
-		       });  
+            generateBillSuccessCallback('CHANGE_CUSTOMERINFO', optionalPageRef, kotfile); 
           }
-          else{
-          	generateBillFromKOTAfterProcess(kotID, optionalPageRef);
-          }
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  
 
+          generateBillFromKOTAfterProcess(kotfile, optionalPageRef);
+          
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
 }
 
 function properRoundOff(amount){
@@ -58,22 +64,12 @@ function properRoundOff(amount){
 
 
 
-function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
+function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
 
 /*
-	optionalPageRef -- from which page the function is called.
-	Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
+  optionalPageRef -- from which page the function is called.
+  Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
 */
-
-	/*Read mentioned KOT - kotID*/
-
-  
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
 
           document.getElementById("billPreviewContentTitle").innerHTML = kotfile.orderDetails.modeType == 'DINE' ? 'Table <b>'+kotfile.table+'</b> <tag style="float: right">#'+kotfile.KOTNumber+'</tag>' : kotfile.orderDetails.mode+'<tag style="float: right">#'+kotfile.KOTNumber+'</tag>';
 
@@ -85,17 +81,17 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 
           var n = 0;
           while(kotfile.cart[n]){
-          	itemList = itemList + '<tr class="success">'+
-								' <td class="text-center">'+(n+1)+'</td>'+
-								' <td>'+kotfile.cart[n].name+(kotfile.cart[n].isCustom ? ' ('+kotfile.cart[n].variant+')': '')+'</td>'+
-								' <td class="text-center"> <span class="text-center sprice"><i class="fa fa-inr"></i>'+kotfile.cart[n].price+'</span></td>'+
-								' <td class="text-center">x '+kotfile.cart[n].qty+'</td>'+
-								' <td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+(kotfile.cart[n].price*kotfile.cart[n].qty)+'</span></td>'+
-								' </tr>';
+            itemList = itemList + '<tr class="success">'+
+                ' <td class="text-center">'+(n+1)+'</td>'+
+                ' <td>'+kotfile.cart[n].name+(kotfile.cart[n].isCustom ? ' ('+kotfile.cart[n].variant+')': '')+'</td>'+
+                ' <td class="text-center"> <span class="text-center sprice"><i class="fa fa-inr"></i>'+kotfile.cart[n].price+'</span></td>'+
+                ' <td class="text-center">x '+kotfile.cart[n].qty+'</td>'+
+                ' <td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+(kotfile.cart[n].price*kotfile.cart[n].qty)+'</span></td>'+
+                ' </tr>';
 
-								subTotal = subTotal + (kotfile.cart[n].price*kotfile.cart[n].qty);
-								qtySum = qtySum + kotfile.cart[n].qty;
-          	n++;
+                subTotal = subTotal + (kotfile.cart[n].price*kotfile.cart[n].qty);
+                qtySum = qtySum + kotfile.cart[n].qty;
+            n++;
           }
 
 
@@ -112,15 +108,15 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 
           if(kotfile.extras.length > 0){
 
-          	for(i = 0; i < kotfile.extras.length; i++){
-          		if(i%2 == 0){
-          			otherCharges = otherCharges + '</tr><tr class="info">';
-          		}
+            for(i = 0; i < kotfile.extras.length; i++){
+              if(i%2 == 0){
+                otherCharges = otherCharges + '</tr><tr class="info">';
+              }
 
-          		otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+kotfile.extras[i].name+' ('+(kotfile.extras[i].unit == 'PERCENTAGE'? kotfile.extras[i].value + '%': '<i class="fa fa-inr"></i>'+kotfile.extras[i].value)+')</td><td width="15%" class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+kotfile.extras[i].amount+'</td>';
-          		otherChargesSum = otherChargesSum + kotfile.extras[i].amount;
-          		
-          	}
+              otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+kotfile.extras[i].name+' ('+(kotfile.extras[i].unit == 'PERCENTAGE'? kotfile.extras[i].value + '%': '<i class="fa fa-inr"></i>'+kotfile.extras[i].value)+')</td><td width="15%" class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+kotfile.extras[i].amount+'</td>';
+              otherChargesSum = otherChargesSum + kotfile.extras[i].amount;
+              
+            }
           }
 
 
@@ -129,12 +125,12 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
           //Discount
           var discountTag = '';
           if(kotfile.discount.amount &&  kotfile.discount.amount != 0){
-          	discountTag = '<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i>'+kotfile.discount.amount+'</td>';
-          	//'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i>'+kotfile.discount.amount+'</td>';
-          	otherChargesSum = otherChargesSum - kotfile.discount.amount;
+            discountTag = '<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i>'+kotfile.discount.amount+'</td>';
+            //'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i>'+kotfile.discount.amount+'</td>';
+            otherChargesSum = otherChargesSum - kotfile.discount.amount;
           }
           else{
-          	discountTag = '<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>';
+            discountTag = '<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>';
           }
 
 
@@ -142,21 +138,21 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
           //Customisable Extras
           var customExtraTag = '';
           if(kotfile.customExtras.amount &&  kotfile.customExtras.amount != 0){
-          	customExtraTag = '<td width="35%" class="cartSummaryRow">'+kotfile.customExtras.type+' ('+(kotfile.customExtras.unit == 'PERCENTAGE'? kotfile.customExtras.value+'%' : 'Rs.'+kotfile.customExtras.value)+')</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;"><i class="fa fa-inr"></i>'+kotfile.customExtras.amount+'</td>';
-          	otherChargesSum = otherChargesSum + kotfile.customExtras.amount;
+            customExtraTag = '<td width="35%" class="cartSummaryRow">'+kotfile.customExtras.type+' ('+(kotfile.customExtras.unit == 'PERCENTAGE'? kotfile.customExtras.value+'%' : 'Rs.'+kotfile.customExtras.value)+')</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;"><i class="fa fa-inr"></i>'+kotfile.customExtras.amount+'</td>';
+            otherChargesSum = otherChargesSum + kotfile.customExtras.amount;
           }
           else{
-          	customExtraTag = '<td width="35%" class="cartSummaryRow">Other Charges</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>';
+            customExtraTag = '<td width="35%" class="cartSummaryRow">Other Charges</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>';
           }   
 
 
           if(otherChargerRenderCount%2 == 0){
-          	otherCharges = otherCharges + customExtraTag + '</tr>'+
-          				'<tr class="info">'+discountTag+
-          				'<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
+            otherCharges = otherCharges + customExtraTag + '</tr>'+
+                  '<tr class="info">'+discountTag+
+                  '<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
           }
           else{
-          	otherCharges = otherCharges + '</tr> <tr class="info">'+customExtraTag+discountTag+'</tr>';
+            otherCharges = otherCharges + '</tr> <tr class="info">'+customExtraTag+discountTag+'</tr>';
           }
 
 
@@ -166,104 +162,104 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 
           var discountButtonPart = '';
           if(kotfile.discount.amount && kotfile.discount.type != 'COUPON' && kotfile.discount.type != 'NOCOSTBILL' && kotfile.discount.type != 'VOUCHER' && kotfile.discount.type != 'REWARDS'){ /*Discount is Applied Already*/
-          	discountButtonPart ='                        <div class="">'+
-								'                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeBillDiscountOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove Discount</button>'+
-								'                        </div>';
+            discountButtonPart ='                        <div class="">'+
+                '                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeBillDiscountOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove Discount</button>'+
+                '                        </div>';
           } 
-          else{         	
-          	discountButtonPart ='                        <div class="" id="applyBillDiscountWindow">'+
-								'                          <div id="applyBillDiscountWindowActions" style="display: none">'+
-								'                             <div class="row">'+
-								'                                <div class="col-lg-12">'+
-								'                                  <div class="form-group" style="margin-bottom: 5px">'+
-								'                                    <label style="font-size: 10px; font-weight: 300">TYPE</label>'+
-								'                                    <select name="unit" id="applyBillDiscountWindow_type" class="form-control input-tip select2" style="width:100%;">'+
-								'                                       <option value="OTHER" selected="selected">Other</option>'+
-								'                                    </select>'+
-								'                                 </div>'+
-								'                                 <div class="form-group" style="margin-bottom: 5px">'+
-								'                                    <label style="font-size: 10px; font-weight: 300">UNIT</label>'+
-								'                                    <select name="unit" id="applyBillDiscountWindow_unit" class="form-control input-tip select2" style="width:100%;" onchange="changeDiscountTypeBillingOptions()">'+
-								'                                       <option value="PERCENTAGE" selected="selected">Percentage (%)</option>'+
-								'                                       <option value="FIXED">Fixed Amount (Rs)</option>'+
-								'                                    </select>'+
-								'                                 </div>'+
-								'                                   <div class="form-group" style="margin-bottom: 2px">'+
-								'                                    <label style="font-size: 10px; font-weight: 300">DISCOUNT VALUE</label>'+
-								'                                      <input type="number" value="0" placeholder="Value" style="text-align: center; color: #444" class="form-control tip" id="applyBillDiscountWindow_value" onkeyup="roughCalculateDiscount()" required="required" />'+
-								'                                   </div>'+
-								'                                   <p style="font-size: 11px; color: #2ecc71">Discount Amount: <tag id="applyBillDiscountWindow_amount">0</tag></p>'+
-								'                                </div>'+
-								'                                '+
-								'                             </div> '+
-								'                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyBillDiscountWindow(\''+kotfile.KOTNumber+'\')">Cancel</button>'+
-								'                          </div>'+
-								'                          <div id="applyBillDiscountButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyBillDiscountButton" onclick="openApplyBillDiscountWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Apply Discount</button></div>'+
-								'                        </div>';
+          else{           
+            discountButtonPart ='        <div class="" id="applyBillDiscountWindow">'+
+                '                          <div id="applyBillDiscountWindowActions" style="display: none">'+
+                '                             <div class="row">'+
+                '                                <div class="col-lg-12">'+
+                '                                  <div class="form-group" style="margin-bottom: 5px">'+
+                '                                    <label style="font-size: 10px; font-weight: 300">TYPE</label>'+
+                '                                    <select name="unit" id="applyBillDiscountWindow_type" class="form-control input-tip select2" style="width:100%;">'+
+                '                                       <option value="OTHER" selected="selected">Other</option>'+
+                '                                    </select>'+
+                '                                 </div>'+
+                '                                 <div class="form-group" style="margin-bottom: 5px">'+
+                '                                    <label style="font-size: 10px; font-weight: 300">UNIT</label>'+
+                '                                    <select name="unit" id="applyBillDiscountWindow_unit" class="form-control input-tip select2" style="width:100%;" onchange="changeDiscountTypeBillingOptions()">'+
+                '                                       <option value="PERCENTAGE" selected="selected">Percentage (%)</option>'+
+                '                                       <option value="FIXED">Fixed Amount (Rs)</option>'+
+                '                                    </select>'+
+                '                                 </div>'+
+                '                                   <div class="form-group" style="margin-bottom: 2px">'+
+                '                                    <label style="font-size: 10px; font-weight: 300">DISCOUNT VALUE</label>'+
+                '                                      <input type="number" value="0" placeholder="Value" style="text-align: center; color: #444" class="form-control tip" id="applyBillDiscountWindow_value" onkeyup="roughCalculateDiscount()" required="required" />'+
+                '                                   </div>'+
+                '                                   <p style="font-size: 11px; color: #2ecc71">Discount Amount: <tag id="applyBillDiscountWindow_amount">0</tag></p>'+
+                '                                </div>'+
+                '                                '+
+                '                             </div> '+
+                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyBillDiscountWindow(\''+kotfile.KOTNumber+'\')">Cancel</button>'+
+                '                          </div>'+
+                '                          <div id="applyBillDiscountButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyBillDiscountButton" onclick="openApplyBillDiscountWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Apply Discount</button></div>'+
+                '                        </div>';
           }
 
 
           var couponButtonPart = '';
-          if(kotfile.discount.amount && kotfile.discount.type == 'COUPON'){ /*Coupon is Applied Already*/         	
-          	couponButtonPart ='                        	 <div class="">'+
-								'                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeBillCouponOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove Coupon</button>'+
-								'                        </div>';
+          if(kotfile.discount.amount && kotfile.discount.type == 'COUPON'){ /*Coupon is Applied Already*/           
+            couponButtonPart ='                          <div class="">'+
+                '                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeBillCouponOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove Coupon</button>'+
+                '                        </div>';
           }   
-          else{       	
-          	couponButtonPart ='                        <div class="" id="applyBillCouponWindow">'+
-								'                          <div id="applyBillCouponWindowActions" style="display: none">'+
-								'                             <div class="row">'+
-								'                                <div class="col-lg-12">'+
-								'                                   <div class="form-group" style="margin-bottom: 2px">'+
-								'                                    <label style="font-size: 10px; font-weight: 300">COUPON CODE</label>'+
-								'                                      <input type="text" value="" placeholder="Coupon Code" style="text-align: center; color: #444; margin-bottom: 5px; font-size: 18px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;" class="form-control tip" id="applyBillCouponWindow_code" required="required" />'+
-								'                                   </div>'+
-								'                                </div>'+
-								'                                '+
-								'                             </div> '+
-								'                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyBillCouponWindow(\''+kotfile.KOTNumber+'\')">Cancel</button> '+
-								'                          </div>'+
-								'                          <div id="applyBillCouponButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyBillCouponButton" onclick="openApplyBillCouponWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Apply Coupon</button></div>'+
-								'                        </div>';
+          else{         
+            couponButtonPart ='                        <div class="" id="applyBillCouponWindow">'+
+                '                          <div id="applyBillCouponWindowActions" style="display: none">'+
+                '                             <div class="row">'+
+                '                                <div class="col-lg-12">'+
+                '                                   <div class="form-group" style="margin-bottom: 2px">'+
+                '                                    <label style="font-size: 10px; font-weight: 300">COUPON CODE</label>'+
+                '                                      <input type="text" value="" placeholder="Coupon Code" style="text-align: center; color: #444; margin-bottom: 5px; font-size: 18px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold;" class="form-control tip" id="applyBillCouponWindow_code" required="required" />'+
+                '                                   </div>'+
+                '                                </div>'+
+                '                                '+
+                '                             </div> '+
+                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyBillCouponWindow(\''+kotfile.KOTNumber+'\')">Cancel</button> '+
+                '                          </div>'+
+                '                          <div id="applyBillCouponButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyBillCouponButton" onclick="openApplyBillCouponWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Apply Coupon</button></div>'+
+                '                        </div>';
           }
 
 
           var noCostButtonPart = '';
-          if(kotfile.discount.amount && kotfile.discount.type == 'NOCOSTBILL'){ /*No Cost is Applied Already*/         	
-          	noCostButtonPart ='                        	 <div class="">'+
-								'                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeNoCostBillOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove No Cost Bill</button>'+
-								'                        </div>';
+          if(kotfile.discount.amount && kotfile.discount.type == 'NOCOSTBILL'){ /*No Cost is Applied Already*/          
+            noCostButtonPart ='                          <div class="">'+
+                '                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeNoCostBillOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove No Cost Bill</button>'+
+                '                        </div>';
           }   
-          else{       	
-          	noCostButtonPart ='                        <div class="" id="applyNoCostBillWindow">'+
-								'                          <div id="applyNoCostBillWindowActions" style="display: none">'+
-								'                             <div class="row">'+
-								'                                <div class="col-lg-12">'+
-								'                                   <div class="form-group" style="margin-bottom: 2px">'+
-								'                                    <label style="font-size: 10px; font-weight: 300">COMMENTS</label>'+
-								'                                      <input type="text" value="" placeholder="Comments" style="text-align: center; color: #444; margin-bottom: 5px; font-size: 14px;" class="form-control tip" id="applyNoCostBillWindow_comments" required="required" />'+
-								'                                   </div>'+
-								'                                </div>'+
-								'                                '+
-								'                             </div> '+
-								'                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyNoCostBillWindow(\''+kotfile.KOTNumber+'\')">Cancel</button> '+
-								'                          </div>'+
-								'                          <div id="applyNoCostBillButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyNoCostBillButton" onclick="openMarkNoCostBill(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">No Cost Bill</button></div>'+
-								'                        </div>';
+          else{         
+            noCostButtonPart ='                        <div class="" id="applyNoCostBillWindow">'+
+                '                          <div id="applyNoCostBillWindowActions" style="display: none">'+
+                '                             <div class="row">'+
+                '                                <div class="col-lg-12">'+
+                '                                   <div class="form-group" style="margin-bottom: 2px">'+
+                '                                    <label style="font-size: 10px; font-weight: 300">COMMENTS</label>'+
+                '                                      <input type="text" value="" placeholder="Comments" style="text-align: center; color: #444; margin-bottom: 5px; font-size: 14px;" class="form-control tip" id="applyNoCostBillWindow_comments" required="required" />'+
+                '                                   </div>'+
+                '                                </div>'+
+                '                                '+
+                '                             </div> '+
+                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyNoCostBillWindow(\''+kotfile.KOTNumber+'\')">Cancel</button> '+
+                '                          </div>'+
+                '                          <div id="applyNoCostBillButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyNoCostBillButton" onclick="openMarkNoCostBill(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">No Cost Bill</button></div>'+
+                '                        </div>';
           }
 
 
 
           var rewardsButtonPart = '';
-          if(kotfile.discount.amount && kotfile.discount.type == 'REWARDS'){ /*Rewards is Applied Already*/         	
-          	rewardsButtonPart = '        <div class="">'+
-								'                          <button class="btn btn-danger tableOptionsButton breakWord" id="applyRewardPointsButton" onclick="removeRewardsOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove Reward Points</button>'+
-								'                        </div>';
+          if(kotfile.discount.amount && kotfile.discount.type == 'REWARDS'){ /*Rewards is Applied Already*/           
+            rewardsButtonPart = '        <div class="">'+
+                '                          <button class="btn btn-danger tableOptionsButton breakWord" id="applyRewardPointsButton" onclick="removeRewardsOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove Reward Points</button>'+
+                '                        </div>';
           }   
-          else{       	
-          	rewardsButtonPart =	'        <div class="">'+
-								'                          <button class="btn btn-default tableOptionsButton breakWord" id="applyRewardPointsButton" onclick="redeemPointsIfAny(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Redeem Points</button>'+
-								'                        </div>';
+          else{         
+            rewardsButtonPart = '        <div class="">'+
+                '                          <button class="btn btn-default tableOptionsButton breakWord" id="applyRewardPointsButton" onclick="redeemPointsIfAny(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Redeem Points</button>'+
+                '                        </div>';
           }
 
 
@@ -271,112 +267,108 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 
           var customExtrasButtonPart = '';
           if(kotfile.customExtras.amount && kotfile.customExtras.amount != ''){ /*Custom Extra is Applied Already*/
-          	customExtrasButtonPart ='                        <div class="">'+
-								'                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeCustomExtraOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove '+kotfile.customExtras.type+'</button>'+
-								'                        </div>';
+            customExtrasButtonPart ='                        <div class="">'+
+                '                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeCustomExtraOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove '+kotfile.customExtras.type+'</button>'+
+                '                        </div>';
           } 
-          else{         	
-          	customExtrasButtonPart ='                        <div class="" id="applyCustomExtraWindow">'+
-								'                          <div id="applyCustomExtraWindowActions" style="display: none">'+
-								'                             <div class="row">'+
-								'                                <div class="col-lg-12">'+
-								'                                  <div class="form-group" style="margin-bottom: 5px">'+
-								'                                    <label style="font-size: 10px; font-weight: 300">TYPE</label>'+
-								'                                    <select name="unit" id="applyCustomExtraWindow_type" class="form-control input-tip select2" style="width:100%;">'+
-								'                                       <option value="OTHER" selected="selected">Other</option>'+
-								'                                    </select>'+
-								'                                 </div>'+
-								'                                 <div class="form-group" style="margin-bottom: 5px">'+
-								'                                    <label style="font-size: 10px; font-weight: 300">UNIT</label>'+
-								'                                    <select name="unit" id="applyCustomExtraWindow_unit" class="form-control input-tip select2" style="width:100%;" onchange="changeCustomExtraTypeOptions()">'+
-								'                                       <option value="PERCENTAGE" selected="selected">Percentage (%)</option>'+
-								'                                       <option value="FIXED">Fixed Amount (Rs)</option>'+
-								'                                    </select>'+
-								'                                 </div>'+
-								'                                   <div class="form-group" style="margin-bottom: 2px">'+
-								'                                    <label style="font-size: 10px; font-weight: 300">VALUE</label>'+
-								'                                      <input type="number" value="0" placeholder="Value" style="text-align: center; color: #444" class="form-control tip" id="applyCustomExtraWindow_value" onkeyup="roughCalculateCustomExtraValue()" required="required" />'+
-								'                                   </div>'+
-								'                                   <p style="font-size: 11px; color: #2ecc71">Extra Amount: <tag id="applyCustomExtraWindow_amount">0</tag></p>'+
-								'                                </div>'+
-								'                                '+
-								'                             </div> '+
-								'                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyCustomExtraWindow(\''+kotfile.KOTNumber+'\')">Cancel</button> '+
-								'                          </div>'+
-								'                          <div id="applyCustomExtraButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyCustomExtraButton" onclick="openApplyCustomExtraWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Add Extra Charges</button></div>'+
-								'                        </div>';
+          else{           
+            customExtrasButtonPart ='                        <div class="" id="applyCustomExtraWindow">'+
+                '                          <div id="applyCustomExtraWindowActions" style="display: none">'+
+                '                             <div class="row">'+
+                '                                <div class="col-lg-12">'+
+                '                                  <div class="form-group" style="margin-bottom: 5px">'+
+                '                                    <label style="font-size: 10px; font-weight: 300">TYPE</label>'+
+                '                                    <select name="unit" id="applyCustomExtraWindow_type" class="form-control input-tip select2" style="width:100%;">'+
+                '                                       <option value="OTHER" selected="selected">Other</option>'+
+                '                                    </select>'+
+                '                                 </div>'+
+                '                                 <div class="form-group" style="margin-bottom: 5px">'+
+                '                                    <label style="font-size: 10px; font-weight: 300">UNIT</label>'+
+                '                                    <select name="unit" id="applyCustomExtraWindow_unit" class="form-control input-tip select2" style="width:100%;" onchange="changeCustomExtraTypeOptions()">'+
+                '                                       <option value="PERCENTAGE" selected="selected">Percentage (%)</option>'+
+                '                                       <option value="FIXED">Fixed Amount (Rs)</option>'+
+                '                                    </select>'+
+                '                                 </div>'+
+                '                                   <div class="form-group" style="margin-bottom: 2px">'+
+                '                                    <label style="font-size: 10px; font-weight: 300">VALUE</label>'+
+                '                                      <input type="number" value="0" placeholder="Value" style="text-align: center; color: #444" class="form-control tip" id="applyCustomExtraWindow_value" onkeyup="roughCalculateCustomExtraValue()" required="required" />'+
+                '                                   </div>'+
+                '                                   <p style="font-size: 11px; color: #2ecc71">Extra Amount: <tag id="applyCustomExtraWindow_amount">0</tag></p>'+
+                '                                </div>'+
+                '                                '+
+                '                             </div> '+
+                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyCustomExtraWindow(\''+kotfile.KOTNumber+'\')">Cancel</button> '+
+                '                          </div>'+
+                '                          <div id="applyCustomExtraButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyCustomExtraButton" onclick="openApplyCustomExtraWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Add Extra Charges</button></div>'+
+                '                        </div>';
           }
 
 
 
 
           document.getElementById("billPreviewContent").innerHTML = '<div class="row">'+
-								'                    <div class="col-sm-8">'+
-								'                        <h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">Bill Preview</h1>'+
-								'                        <table class="table table-striped table-condensed table-hover list-table" style="margin:0px; z-index: 2;">'+
-								'                           <colgroup>'+
-								'                              <col width="10%">'+
-								'                              <col width="40%">'+
-								'                              <col width="15%">'+
-								'                              <col width="20%">'+
-								'                              <col width="15%">'+
-								'                           </colgroup>'+
-								'                           <thead id="cartTitleHead">'+
-								'                              <tr class="success cartTitleRow">'+
-								'                                 <th class="satu cartTitleRow"></th>'+
-								'                                 <th class="cartTitleRow">Item</th>'+
-								'                                 <th class="cartTitleRow">Price</th>'+
-								'                                 <th class="cartTitleRow">Qty</th>'+
-								'                                 <th class="cartTitleRow">Subtotal</th>'+
-								'                              </tr>'+
-								'                           </thead>'+
-								'                        </table>'+
-								'                        <table class="table table-striped table-condensed table-hover list-table" style="margin:0px;">'+
-								'                            <colgroup>'+
-								'                              <col width="10%">'+
-								'                              <col width="40%">'+
-								'                              <col width="15%">'+
-								'                              <col width="20%">'+
-								'                              <col width="15%">'+
-								'                            </colgroup>                            '+
-								'                            <tbody>'+itemList+
-								'                            </tbody>'+
-								'                        </table>'+
-								'                        <table class="table table-condensed totals" style="margin: 0">'+
-								'                           <tbody>'+
-								'                              <tr class="info">'+
-								'                                 <td width="35%" class="cartSummaryRow">Total Items</td>'+
-								'                                 <td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;"><span id="count">'+qtySum+'</span></td>'+
-								'                                 <td width="35%" class="cartSummaryRow">Total</td>'+
-								'                                 <td width="15%" class="text-right cartSummaryRow" colspan="2"><span id="total"><i class="fa fa-inr"></i><tag id="grandSumDisplay">'+subTotal+'</tag></span></td>'+
-								'                              </tr>'+otherCharges+
-								'                              <tr class="success cartSumRow">'+
-								'                                 <td colspan="2" class="cartSumRow" style="font-weight: 400 !important; font-size: 14px;">Total Amount</td>'+
-								'                                 <td class="text-right cartSumRow" colspan="2" style="font-weight: 400 !important; font-size: 80%;"><span id="total-payable"><i class="fa fa-inr"></i><tag>'+grandPayableSum+'</tag></span></td>'+
-								'                              </tr>'+
+                '                    <div class="col-sm-8">'+
+                '                        <h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">Bill Preview</h1>'+
+                '                        <table class="table table-striped table-condensed table-hover list-table" style="margin:0px; z-index: 2;">'+
+                '                           <colgroup>'+
+                '                              <col width="10%">'+
+                '                              <col width="40%">'+
+                '                              <col width="15%">'+
+                '                              <col width="20%">'+
+                '                              <col width="15%">'+
+                '                           </colgroup>'+
+                '                           <thead id="cartTitleHead">'+
+                '                              <tr class="success cartTitleRow">'+
+                '                                 <th class="satu cartTitleRow"></th>'+
+                '                                 <th class="cartTitleRow">Item</th>'+
+                '                                 <th class="cartTitleRow">Price</th>'+
+                '                                 <th class="cartTitleRow">Qty</th>'+
+                '                                 <th class="cartTitleRow">Subtotal</th>'+
+                '                              </tr>'+
+                '                           </thead>'+
+                '                        </table>'+
+                '                        <table class="table table-striped table-condensed table-hover list-table" style="margin:0px;">'+
+                '                            <colgroup>'+
+                '                              <col width="10%">'+
+                '                              <col width="40%">'+
+                '                              <col width="15%">'+
+                '                              <col width="20%">'+
+                '                              <col width="15%">'+
+                '                            </colgroup>                            '+
+                '                            <tbody>'+itemList+
+                '                            </tbody>'+
+                '                        </table>'+
+                '                        <table class="table table-condensed totals" style="margin: 0">'+
+                '                           <tbody>'+
+                '                              <tr class="info">'+
+                '                                 <td width="35%" class="cartSummaryRow">Total Items</td>'+
+                '                                 <td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;"><span id="count">'+qtySum+'</span></td>'+
+                '                                 <td width="35%" class="cartSummaryRow">Total</td>'+
+                '                                 <td width="15%" class="text-right cartSummaryRow" colspan="2"><span id="total"><i class="fa fa-inr"></i><tag id="grandSumDisplay">'+subTotal+'</tag></span></td>'+
+                '                              </tr>'+otherCharges+
+                '                              <tr class="success cartSumRow">'+
+                '                                 <td colspan="2" class="cartSumRow" style="font-weight: 400 !important; font-size: 14px;">Total Amount</td>'+
+                '                                 <td class="text-right cartSumRow" colspan="2" style="font-weight: 400 !important; font-size: 80%;"><span id="total-payable"><i class="fa fa-inr"></i><tag>'+grandPayableSum+'</tag></span></td>'+
+                '                              </tr>'+
                 '                              <tr class="success cartSumRow">'+
                 '                                 <td colspan="2" class="cartSumRow" style="font-weight: 400 !important; font-size: 16px;">Payable Amount</td>'+
                 '                                 <td class="text-right cartSumRow" colspan="2"><span id="total-payable"><i class="fa fa-inr"></i><tag>'+grandPayableSumRounded+'</tag></span></td>'+
                 '                              </tr>'+
-								'                           </tbody>'+
-								'                        </table>                        '+
-								'                    </div>'+
-								'                    <div class="col-sm-4">'+
-								'                        <h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">Options</h1>'+discountButtonPart+couponButtonPart+customExtrasButtonPart+rewardsButtonPart+noCostButtonPart+
-								'                        <div class="">'+
-								'                          <button class="btn btn-default tableOptionsButton breakWord" onclick="renderPage(\'seating-status\'); hideBillPreviewModal();">Merge Bills</button>'+
-								'                        </div>'+
-								'                    </div>'+
-								'                </div>';
+                '                           </tbody>'+
+                '                        </table>                        '+
+                '                    </div>'+
+                '                    <div class="col-sm-4">'+
+                '                        <h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">Options</h1>'+discountButtonPart+couponButtonPart+customExtrasButtonPart+rewardsButtonPart+noCostButtonPart+
+                '                        <div class="">'+
+                '                          <button class="btn btn-default tableOptionsButton breakWord" onclick="renderPage(\'seating-status\'); hideBillPreviewModal();">Merge Bills</button>'+
+                '                        </div>'+
+                '                    </div>'+
+                '                </div>';
 
-			document.getElementById("billPreviewContentActions").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Generate Bill</button>'+
-                        		'<button style="margin: 0" class="btn btn-default tableOptionsButton breakWord" onclick="hideBillPreviewModal()">Close</button>'
+          document.getElementById("billPreviewContentActions").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Generate Bill</button>'+
+                            '<button style="margin: 0" class="btn btn-default tableOptionsButton breakWord" onclick="hideBillPreviewModal()">Close</button>'
 
           document.getElementById("billPreviewModal").style.display = 'block';
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }   
 }
 
 
@@ -385,174 +377,219 @@ function generateBillFromKOTAfterProcess(kotID, optionalPageRef){
 
 function openApplyBillCouponWindow(kotID, optionalPageRef){
 
-	/*Change apply button action*/
-	document.getElementById("applyBillCouponButtonWrap").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" id="applyBillCouponButton" onclick="applyBillCouponOnKOT(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Discount</button>';
+  /*Change apply button action*/
+  document.getElementById("applyBillCouponButtonWrap").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" id="applyBillCouponButton" onclick="applyBillCouponOnKOT(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Discount</button>';
 
-	//minimize all other open windows
-	//closeApplyBillDiscountWindow(kotID);
-	//closeApplyNoCostBillWindow(kotID);
+  //minimize all other open windows
+  //closeApplyBillDiscountWindow(kotID);
+  //closeApplyNoCostBillWindow(kotID);
 
-	document.getElementById("applyBillCouponWindow").classList.add('billOptionWindowFrame');
-	document.getElementById("applyBillCouponWindowActions").style.display = 'block';
-	document.getElementById("applyBillCouponButton").classList.remove('btn-default');
-	document.getElementById("applyBillCouponButton").classList.add('btn-success');
+  document.getElementById("applyBillCouponWindow").classList.add('billOptionWindowFrame');
+  document.getElementById("applyBillCouponWindowActions").style.display = 'block';
+  document.getElementById("applyBillCouponButton").classList.remove('btn-default');
+  document.getElementById("applyBillCouponButton").classList.add('btn-success');
 
 }
 
 
 function removeBillCouponOnKOT(kotID, optionalPageRef){
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
 
-			if(kotfile.discount.amount){
-				kotfile.discount = {};
-			}
-		       
-		       var newjson = JSON.stringify(kotfile);
-		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	showToast('Coupon removed', '#27ae60');
-		           	generateBillFromKOT(kotID, optionalPageRef);
-		           	generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
 
-		        	}
-		       }); 			
+          var kotfile = data.docs[0];
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
+          if(kotfile.discount.amount){
+            kotfile.discount = {};
+          }
 
-	
+          /*Save changes in KOT*/
+                
+                //Update
+                var updateData = kotfile;
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Coupon removed', '#27ae60');
+                      generateBillFromKOT(kotID, optionalPageRef);
+                      generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
 }
 
 
 function applyBillCouponOnKOT(kotID, optionalPageRef){
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
 
-          var kotfile = JSON.parse(data);
-          
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
+
           var userMobile = kotfile.customerMobile;
           var code = document.getElementById("applyBillCouponWindow_code").value;
           var grandSum = 0;
 
           if(code == ''){
-          	return '';
+            return '';
           }
 
           var n = 0;
           while(kotfile.cart[n]){
-          	grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
-          	n++;
+            grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
+            n++;
           }
+
+
 
           /*Redeem Coupon*/
 
-			var admin_data = {
-				"token": window.localStorage.loggedInAdmin,
-				"mobile": userMobile,
-				"code": code,
-				"totalBillAmount": grandSum
-			}
+          var admin_data = {
+            "token": window.localStorage.loggedInAdmin,
+            "mobile": userMobile,
+            "code": code,
+            "totalBillAmount": grandSum
+          }
 
-      showLoading(10000, 'Applying Coupon');
+          showLoading(10000, 'Applying Coupon');
 
-			$.ajax({
-				type: 'POST',
-				url: 'https://www.zaitoon.online/services/posredeemcoupon.php',
-				data: JSON.stringify(admin_data),
-				contentType: "application/json",
-				dataType: 'json',
-        timeout: 10000,
-				success: function(data) {
-          hideLoading();
-					if(data.status){
+          $.ajax({
+            type: 'POST',
+            url: 'https://www.zaitoon.online/services/posredeemcoupon.php',
+            data: JSON.stringify(admin_data),
+            contentType: "application/json",
+            dataType: 'json',
+            timeout: 10000,
+            success: function(data) {
+              hideLoading();
+              if(data.status){
 
-						/*Apply Discount*/
-						if(data.isValid){
-							totalDiscount = data.discount;
+                /*Apply Discount*/
+                if(data.isValid){
+                  totalDiscount = data.discount;
 
-							totalDiscount = Math.round(totalDiscount * 100) / 100;
+                  totalDiscount = Math.round(totalDiscount * 100) / 100;
 
-							kotfile.discount.amount = totalDiscount;
-							kotfile.discount.type = 'COUPON';
-							kotfile.discount.unit = 'FIXED';
-							kotfile.discount.value = totalDiscount;
-							kotfile.discount.reference = code;
-						       
-						       var newjson = JSON.stringify(kotfile);
-						       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-						         if(err){
-						            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-						           }
-						           else{
-						           	showToast('Redeemed Succesfully! Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
-						          
-						           	generateBillFromKOT(kotID, optionalPageRef);
-						           	generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
-						           	
+                  kotfile.discount.amount = totalDiscount;
+                  kotfile.discount.type = 'COUPON';
+                  kotfile.discount.unit = 'FIXED';
+                  kotfile.discount.value = totalDiscount;
+                  kotfile.discount.reference = code;
+                       
 
-						           }
-						       }); 			
+                      /*Save changes in KOT*/
+                      //Update
+                      var updateData = kotfile;
+
+                      $.ajax({
+                        type: 'PUT',
+                        url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                        data: JSON.stringify(updateData),
+                        contentType: "application/json",
+                        dataType: 'json',
+                        timeout: 10000,
+                        success: function(data) {
+                          showToast('Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
+                          generateBillFromKOT(kotID, optionalPageRef);
+                          generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+                        },
+                        error: function(data) {
+                            showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                        }
+                      });     
 
 
-						}
-						else{
-							showToast('Oops! '+data.validityError, '#e67e22');
-						}
-					}
-					else
-					{
-						if(data.errorCode == 404){
-							window.localStorage.loggedInAdmin = "";
-							showToast(data.error, '#e74c3c');
-						}
-						else{
-							showToast(data.error, '#e74c3c');
-						}
-					}
+                }
+                else{
+                  showToast('Oops! '+data.validityError, '#e67e22');
+                }
+              }
+              else
+              {
+                if(data.errorCode == 404){
+                  window.localStorage.loggedInAdmin = "";
+                  showToast(data.error, '#e74c3c');
+                }
+                else{
+                  showToast(data.error, '#e74c3c');
+                }
+              }
+          },
+          error: function(data){
+            hideLoading();
+            showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+          }
+          });   
+          //End - Redeem
+
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
       },
-      error: function(data){
-        hideLoading();
-        showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
       }
-			});	  
+
+    }); 
 
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
-
-	
 }
 
 
 function closeApplyBillCouponWindow(kotID){
-	
-	/*Change apply button action*/
-	document.getElementById("applyBillCouponButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton" id="applyBillCouponButton" onclick="openApplyBillCouponWindow(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Coupon</button>';
+  
+  /*Change apply button action*/
+  document.getElementById("applyBillCouponButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton" id="applyBillCouponButton" onclick="openApplyBillCouponWindow(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Coupon</button>';
 
-	document.getElementById("applyBillCouponWindow").classList.remove('billOptionWindowFrame');
-	document.getElementById("applyBillCouponWindowActions").style.display = 'none';	
+  document.getElementById("applyBillCouponWindow").classList.remove('billOptionWindowFrame');
+  document.getElementById("applyBillCouponWindowActions").style.display = 'none'; 
 
-	document.getElementById("applyBillCouponButton").classList.remove('btn-success');
-	document.getElementById("applyBillCouponButton").classList.add('btn-remove');
+  document.getElementById("applyBillCouponButton").classList.remove('btn-success');
+  document.getElementById("applyBillCouponButton").classList.add('btn-remove');
 }
 
 
@@ -618,65 +655,94 @@ function openApplyBillDiscountWindow(kotID, optionalPageRef){
     });
 
 
-	//minimize all other open windows
-	//closeApplyBillCouponWindow(kotID);
-	//closeApplyNoCostBillWindow(kotID);
+  //minimize all other open windows
+  //closeApplyBillCouponWindow(kotID);
+  //closeApplyNoCostBillWindow(kotID);
 
 
-	document.getElementById("applyBillDiscountWindow").classList.add('billOptionWindowFrame');
-	document.getElementById("applyBillDiscountWindowActions").style.display = 'block';
-	document.getElementById("applyBillDiscountButton").classList.remove('btn-default');
-	document.getElementById("applyBillDiscountButton").classList.add('btn-success');
+  document.getElementById("applyBillDiscountWindow").classList.add('billOptionWindowFrame');
+  document.getElementById("applyBillDiscountWindowActions").style.display = 'block';
+  document.getElementById("applyBillDiscountButton").classList.remove('btn-default');
+  document.getElementById("applyBillDiscountButton").classList.add('btn-success');
 
 }
 
 
 function removeBillDiscountOnKOT(kotID, optionalPageRef){
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
 
-			if(kotfile.discount.amount){
-				kotfile.discount = {};
-			}
-		       
-		       var newjson = JSON.stringify(kotfile);
-		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	showToast('Discount removed', '#27ae60');
-		           	generateBillFromKOT(kotID, optionalPageRef);
-		           	generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
-		           	
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
 
-		        	}
-		       }); 			
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
+          var kotfile = data.docs[0];
 
-	
+          if(kotfile.discount.amount){
+            kotfile.discount = {};
+          }
+
+          /*Save changes in KOT*/
+                
+                //Update
+                var updateData = kotfile;
+                
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+
+                    showToast('Discount removed', '#27ae60');
+                    generateBillFromKOT(kotID, optionalPageRef);
+                    generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+                  
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
 }
 
 
 function applyBillDiscountOnKOT(kotID, optionalPageRef){
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
 
           /*Calculate Discount*/
           var type = document.getElementById("applyBillDiscountWindow_type").value;
@@ -687,88 +753,103 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
 
           var n = 0;
           while(kotfile.cart[n]){
-          	grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
-          	n++;
+            grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
+            n++;
           }
 
-          	var totalDiscount = 0;
-			if(unit == 'PERCENTAGE'){
-				totalDiscount = grandSum*value/100;
-			}
-			else if(unit == 'FIXED'){
-				totalDiscount = value;
-			}
+          var totalDiscount = 0;
+      
+          if(unit == 'PERCENTAGE'){
+            totalDiscount = grandSum*value/100;
+          }
+          else if(unit == 'FIXED'){
+            totalDiscount = value;
+          }
 
-			totalDiscount = Math.round(totalDiscount * 100) / 100;
+          totalDiscount = Math.round(totalDiscount * 100) / 100;
 
 
-			kotfile.discount.amount = totalDiscount;
-			kotfile.discount.type = type;
-			kotfile.discount.unit = unit;
-			kotfile.discount.value = value;
-			kotfile.discount.reference = '';
-		       
-		       var newjson = JSON.stringify(kotfile);
-		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           		showToast('Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
-		        		generateBillFromKOT(kotID, optionalPageRef);
-		        		generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
-		        		
-		        		
-		        	}
-		       }); 			
+          kotfile.discount.amount = totalDiscount;
+          kotfile.discount.type = type;
+          kotfile.discount.unit = unit;
+          kotfile.discount.value = value;
+          kotfile.discount.reference = '';
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
+          /*Save changes in KOT*/
+                
+                //Update
+                var updateData = kotfile;
 
-	
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    showToast('Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
+                    generateBillFromKOT(kotID, optionalPageRef);
+                    generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
 }
 
 
 
 function changeDiscountTypeBillingOptions(){
-	roughCalculateDiscount();
+  roughCalculateDiscount();
 }
 
 function roughCalculateDiscount(){
 
-	var tempTotal = parseFloat(document.getElementById("grandSumDisplay").innerHTML).toFixed(2);
-	var discValue = parseFloat(document.getElementById("applyBillDiscountWindow_value").value).toFixed(2);
+  var tempTotal = parseFloat(document.getElementById("grandSumDisplay").innerHTML).toFixed(2);
+  var discValue = parseFloat(document.getElementById("applyBillDiscountWindow_value").value).toFixed(2);
 
-	if(document.getElementById("applyBillDiscountWindow_value").value == ''){
-		discValue = 0;
-	}
+  if(document.getElementById("applyBillDiscountWindow_value").value == ''){
+    discValue = 0;
+  }
 
-	/*Calculations*/
-	var roughDiscFigure = 0;
-	if(document.getElementById("applyBillDiscountWindow_unit").value == 'PERCENTAGE'){
-		roughDiscFigure = tempTotal*discValue/100;
-	}
-	else{
-		roughDiscFigure = discValue;
-	}
+  /*Calculations*/
+  var roughDiscFigure = 0;
+  if(document.getElementById("applyBillDiscountWindow_unit").value == 'PERCENTAGE'){
+    roughDiscFigure = tempTotal*discValue/100;
+  }
+  else{
+    roughDiscFigure = discValue;
+  }
 
-	roughDiscFigure = Math.round(roughDiscFigure * 100) / 100;
+  roughDiscFigure = Math.round(roughDiscFigure * 100) / 100;
 
-	document.getElementById("applyBillDiscountWindow_amount").innerHTML = roughDiscFigure;
+  document.getElementById("applyBillDiscountWindow_amount").innerHTML = roughDiscFigure;
 }
 
 function closeApplyBillDiscountWindow(kotID){
-	
-	/*Change apply button action*/
-	document.getElementById("applyBillDiscountButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton breakWord" id="applyBillDiscountButton" onclick="openApplyBillDiscountWindow(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Discount</button>';
+  
+  /*Change apply button action*/
+  document.getElementById("applyBillDiscountButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton breakWord" id="applyBillDiscountButton" onclick="openApplyBillDiscountWindow(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Discount</button>';
 
-	document.getElementById("applyBillDiscountWindow").classList.remove('billOptionWindowFrame');
-	document.getElementById("applyBillDiscountWindowActions").style.display = 'none';	
+  document.getElementById("applyBillDiscountWindow").classList.remove('billOptionWindowFrame');
+  document.getElementById("applyBillDiscountWindowActions").style.display = 'none'; 
 
-	document.getElementById("applyBillDiscountButton").classList.remove('btn-success');
-	document.getElementById("applyBillDiscountButton").classList.add('btn-remove');
+  document.getElementById("applyBillDiscountButton").classList.remove('btn-success');
+  document.getElementById("applyBillDiscountButton").classList.add('btn-remove');
 }
 
 
@@ -834,60 +915,85 @@ function openApplyCustomExtraWindow(kotID, optionalPageRef){
 
     });
 
-  	document.getElementById("applyCustomExtraWindow").classList.add('billOptionWindowFrame');
-  	document.getElementById("applyCustomExtraWindowActions").style.display = 'block';
-  	document.getElementById("applyCustomExtraButton").classList.remove('btn-default');
-  	document.getElementById("applyCustomExtraButton").classList.add('btn-success');
+    document.getElementById("applyCustomExtraWindow").classList.add('billOptionWindowFrame');
+    document.getElementById("applyCustomExtraWindowActions").style.display = 'block';
+    document.getElementById("applyCustomExtraButton").classList.remove('btn-default');
+    document.getElementById("applyCustomExtraButton").classList.add('btn-success');
 
 }
 
 
 function removeCustomExtraOnKOT(kotID, optionalPageRef){
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
 
-			if(kotfile.customExtras.amount){
-				kotfile.customExtras = {};
-			}
-		       
-		       var newjson = JSON.stringify(kotfile);
-		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	showToast('Extra Charge removed', '#27ae60');
-		           	generateBillFromKOT(kotID, optionalPageRef);
-		           	generateBillSuccessCallback('CHANGE_CUSTOMEXTRA', optionalPageRef, kotfile);
-		           	
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
 
-		        	}
-		       }); 			
+          var kotfile = data.docs[0];
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
+          if(kotfile.customExtras.amount){
+            kotfile.customExtras = {};
+          }
 
-	
+          /*Save changes in KOT*/
+              
+                //Update
+                var updateData = kotfile;
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Extra Charge removed', '#27ae60');
+                      generateBillFromKOT(kotID, optionalPageRef);
+                      generateBillSuccessCallback('CHANGE_CUSTOMEXTRA', optionalPageRef, kotfile);
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
 }
 
 
 function applyCustomExtraOnKOT(kotID, optionalPageRef){
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
 
           /*Calculate Discount*/
           var type = document.getElementById("applyCustomExtraWindow_type").value;
@@ -898,86 +1004,102 @@ function applyCustomExtraOnKOT(kotID, optionalPageRef){
 
           var n = 0;
           while(kotfile.cart[n]){
-          	grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
-          	n++;
+            grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
+            n++;
           }
 
-          	var totalExtraCharge = 0;
-			if(unit == 'PERCENTAGE'){
-				totalExtraCharge = grandSum*value/100;
-			}
-			else if(unit == 'FIXED'){
-				totalExtraCharge = value;
-			}
+          var totalExtraCharge = 0;
+          if(unit == 'PERCENTAGE'){
+            totalExtraCharge = grandSum*value/100;
+          }
+          else if(unit == 'FIXED'){
+            totalExtraCharge = value;
+          }
 
-			totalExtraCharge = Math.round(totalExtraCharge * 100) / 100;
+          totalExtraCharge = Math.round(totalExtraCharge * 100) / 100;
 
 
-			kotfile.customExtras.amount = totalExtraCharge;
-			kotfile.customExtras.type = type;
-			kotfile.customExtras.unit = unit;
-			kotfile.customExtras.value = value;
-			kotfile.customExtras.reference = '';
-		       
-		       var newjson = JSON.stringify(kotfile);
-		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	showToast(type+' of <i class="fa fa-inr"></i>'+totalExtraCharge+' added', '#27ae60');
-		           	generateBillFromKOT(kotID, optionalPageRef);
-		           	generateBillSuccessCallback('CHANGE_CUSTOMEXTRA', optionalPageRef, kotfile);
-		        	
-		        	}
-		       }); 			
+          kotfile.customExtras.amount = totalExtraCharge;
+          kotfile.customExtras.type = type;
+          kotfile.customExtras.unit = unit;
+          kotfile.customExtras.value = value;
+          kotfile.customExtras.reference = '';
+           
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
-	
+          /*Save changes in KOT*/
+                
+                //Update
+                var updateData = kotfile;
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast(type+' of <i class="fa fa-inr"></i>'+totalExtraCharge+' added', '#27ae60');
+                      generateBillFromKOT(kotID, optionalPageRef);
+                      generateBillSuccessCallback('CHANGE_CUSTOMEXTRA', optionalPageRef, kotfile);
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
 }
 
 
 function closeApplyCustomExtraWindow(kotID){
-	
-	/*Change apply button action*/
-	document.getElementById("applyCustomExtraButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton breakWord" id="applyCustomExtraButton" onclick="openApplyCustomExtraWindow(\''+kotID+'\', \''+optionalPageRef+'\')">Add Extra Charge</button>';
+  
+  /*Change apply button action*/
+  document.getElementById("applyCustomExtraButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton breakWord" id="applyCustomExtraButton" onclick="openApplyCustomExtraWindow(\''+kotID+'\', \''+optionalPageRef+'\')">Add Extra Charge</button>';
 
-	document.getElementById("applyCustomExtraWindow").classList.remove('billOptionWindowFrame');
-	document.getElementById("applyCustomExtraWindowActions").style.display = 'none';	
+  document.getElementById("applyCustomExtraWindow").classList.remove('billOptionWindowFrame');
+  document.getElementById("applyCustomExtraWindowActions").style.display = 'none';  
 
-	document.getElementById("applyCustomExtraButton").classList.remove('btn-success');
-	document.getElementById("applyCustomExtraButton").classList.add('btn-remove');
+  document.getElementById("applyCustomExtraButton").classList.remove('btn-success');
+  document.getElementById("applyCustomExtraButton").classList.add('btn-remove');
 }
 
 
 function changeCustomExtraTypeOptions(){
-	roughCalculateCustomExtraValue();
+  roughCalculateCustomExtraValue();
 }
 
 function roughCalculateCustomExtraValue(){
 
-	var tempTotal = parseFloat(document.getElementById("grandSumDisplay").innerHTML).toFixed(2);
-	var extraChargeValue = parseFloat(document.getElementById("applyCustomExtraWindow_value").value).toFixed(2);
+  var tempTotal = parseFloat(document.getElementById("grandSumDisplay").innerHTML).toFixed(2);
+  var extraChargeValue = parseFloat(document.getElementById("applyCustomExtraWindow_value").value).toFixed(2);
 
-	if(document.getElementById("applyCustomExtraWindow_value").value == ''){
-		extraChargeValue = 0;
-	}
+  if(document.getElementById("applyCustomExtraWindow_value").value == ''){
+    extraChargeValue = 0;
+  }
 
-	/*Calculations*/
-	var roughFigure = 0;
-	if(document.getElementById("applyCustomExtraWindow_unit").value == 'PERCENTAGE'){
-		roughFigure = tempTotal*extraChargeValue/100;
-	}
-	else{
-		roughFigure = extraChargeValue;
-	}
+  /*Calculations*/
+  var roughFigure = 0;
+  if(document.getElementById("applyCustomExtraWindow_unit").value == 'PERCENTAGE'){
+    roughFigure = tempTotal*extraChargeValue/100;
+  }
+  else{
+    roughFigure = extraChargeValue;
+  }
 
-	roughFigure = Math.round(roughFigure * 100) / 100;
+  roughFigure = Math.round(roughFigure * 100) / 100;
 
-	document.getElementById("applyCustomExtraWindow_amount").innerHTML = roughFigure;
+  document.getElementById("applyCustomExtraWindow_amount").innerHTML = roughFigure;
 }
 
 
@@ -987,131 +1109,178 @@ function roughCalculateCustomExtraValue(){
 /* NO COST BILL */
 
 function openMarkNoCostBill(kotID, optionalPageRef){
-	/*Change apply button action*/
-	document.getElementById("applyNoCostBillButtonWrap").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" id="applyNoCostBillButton" onclick="markNoCostBill(\''+kotID+'\', \''+optionalPageRef+'\')">Confirm</button>';
+  /*Change apply button action*/
+  document.getElementById("applyNoCostBillButtonWrap").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" id="applyNoCostBillButton" onclick="markNoCostBill(\''+kotID+'\', \''+optionalPageRef+'\')">Confirm</button>';
 
-	//minimize all other open windows
-	//closeApplyBillCouponWindow(kotID);
-	//closeApplyBillDiscountWindow(kotID);
+  //minimize all other open windows
+  //closeApplyBillCouponWindow(kotID);
+  //closeApplyBillDiscountWindow(kotID);
 
-	document.getElementById("applyNoCostBillWindow").classList.add('billOptionWindowFrame');
-	document.getElementById("applyNoCostBillWindowActions").style.display = 'block';
-	document.getElementById("applyNoCostBillButton").classList.remove('btn-default');
-	document.getElementById("applyNoCostBillButton").classList.add('btn-success');
+  document.getElementById("applyNoCostBillWindow").classList.add('billOptionWindowFrame');
+  document.getElementById("applyNoCostBillWindowActions").style.display = 'block';
+  document.getElementById("applyNoCostBillButton").classList.remove('btn-default');
+  document.getElementById("applyNoCostBillButton").classList.add('btn-success');
 
 }
 
 function closeApplyNoCostBillWindow(kotID){
-	/*Change apply button action*/
-	document.getElementById("applyNoCostBillButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton breakWord" id="applyNoCostBillButton" onclick="openMarkNoCostBill(\''+kotID+'\', \''+optionalPageRef+'\')">No Cost Bill</button>';
+  /*Change apply button action*/
+  document.getElementById("applyNoCostBillButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton breakWord" id="applyNoCostBillButton" onclick="openMarkNoCostBill(\''+kotID+'\', \''+optionalPageRef+'\')">No Cost Bill</button>';
 
-	document.getElementById("applyNoCostBillWindow").classList.remove('billOptionWindowFrame');
-	document.getElementById("applyNoCostBillWindowActions").style.display = 'none';	
+  document.getElementById("applyNoCostBillWindow").classList.remove('billOptionWindowFrame');
+  document.getElementById("applyNoCostBillWindowActions").style.display = 'none'; 
 
-	document.getElementById("applyNoCostBillButton").classList.remove('btn-success');
-	document.getElementById("applyNoCostBillButton").classList.add('btn-remove');
+  document.getElementById("applyNoCostBillButton").classList.remove('btn-success');
+  document.getElementById("applyNoCostBillButton").classList.add('btn-remove');
 
 }
 
 
 function markNoCostBill(kotID, optionalPageRef){ //APPLY FULL DISCOUNT
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
 
           /*Calculate Discount*/
           var comments = document.getElementById("applyNoCostBillWindow_comments").value;
 
           if(comments == ''){
-          	showToast('Warning: Add some comments why you are marking this order as No Cost Bill', '#e67e22');
-          	return '';
+            showToast('Warning: Add some comments why you are marking this order as No Cost Bill', '#e67e22');
+            return '';
           }
 
           var grandSum = 0;
 
           var n = 0;
           while(kotfile.cart[n]){
-          	grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
-          	n++;
+            grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
+            n++;
           }
 
           var otherExtras = 0;
           var m = 0;
           while(kotfile.extras[m]){
-          	otherExtras += kotfile.extras[m].amount;
-          	m++;
+            otherExtras += kotfile.extras[m].amount;
+            m++;
           }
 
           var o = 0;
           while(kotfile.customExtras[o]){
-          	otherExtras += kotfile.customExtras[0].amount;
-          	o++;
+            otherExtras += kotfile.customExtras[0].amount;
+            o++;
           }
 
-          	var totalDiscount = grandSum + otherExtras;
+            var totalDiscount = grandSum + otherExtras;
 
-			kotfile.discount.amount = totalDiscount;
-			kotfile.discount.type = 'NOCOSTBILL';
-			kotfile.discount.unit = 'FIXED';
-			kotfile.discount.value = totalDiscount;
-			kotfile.discount.reference = comments;
-		       
-		       var newjson = JSON.stringify(kotfile);
-		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	showToast('Marked as No Cost Bill with a discount of <i class="fa fa-inr"></i>'+totalDiscount, '#27ae60');
-		           	generateBillFromKOT(kotID, optionalPageRef);
-		           	generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
-		        	
-		        	}
-		       }); 			
+            kotfile.discount.amount = totalDiscount;
+            kotfile.discount.type = 'NOCOSTBILL';
+            kotfile.discount.unit = 'FIXED';
+            kotfile.discount.value = totalDiscount;
+            kotfile.discount.reference = comments;
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
+
+                /*Save changes in KOT*/
+                
+                //Update
+                var updateData = kotfile;
+                
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+
+                      showToast('Marked as No Cost Bill with a discount of <i class="fa fa-inr"></i>'+totalDiscount, '#27ae60');
+                      generateBillFromKOT(kotID, optionalPageRef);
+                      generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+                  
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });    
 }
 
 function removeNoCostBillOnKOT(kotID, optionalPageRef){
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
 
-			if(kotfile.discount.amount){
-				kotfile.discount = {};
-			}
-		       
-		       var newjson = JSON.stringify(kotfile);
-		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	showToast('Removed No Cost Bill', '#27ae60');
-		           	generateBillFromKOT(kotID, optionalPageRef);
-		           	generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
-		           	
 
-		        	}
-		       }); 			
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
 
+          var kotfile = data.docs[0];
+
+          if(kotfile.discount.amount){
+            kotfile.discount = {};
+          }
+
+          /*Save changes in KOT*/
+                
+                //Update
+                var updateData = kotfile;
+                
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Removed No Cost Bill', '#27ae60');
+                      generateBillFromKOT(kotID, optionalPageRef);
+                      generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
 }
 
 
@@ -1119,140 +1288,192 @@ function removeNoCostBillOnKOT(kotID, optionalPageRef){
 
 function redeemPointsIfAny(kotID, optionalPageRef){
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
 
-          var kotfile = JSON.parse(data);
-          
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
+
           var userMobile = kotfile.customerMobile;
           var grandSum = 0;
 
           var n = 0;
           while(kotfile.cart[n]){
-          	grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
-          	n++;
+            grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
+            n++;
           }
 
-          /*Redeem Points*/
-
-			var admin_data = {
-				"token": window.localStorage.loggedInAdmin,
-				"mobile": userMobile,
-				"totalBillAmount": grandSum
-			}
-
-      showLoading(10000, 'Redeeming Points');
-
-			$.ajax({
-				type: 'POST',
-				url: 'https://www.zaitoon.online/services/posredeempoints.php',
-				data: JSON.stringify(admin_data),
-				contentType: "application/json",
-				dataType: 'json',
-        timeout: 10000,
-				success: function(data) {
-          hideLoading();
-					if(data.status){
-
-						/*Apply Redeemed Discount*/
-						if(data.isValid){
-							totalDiscount = data.discount;
-
-							totalDiscount = Math.round(totalDiscount * 100) / 100;
-
-							kotfile.discount.amount = totalDiscount;
-							kotfile.discount.type = 'REWARDS';
-							kotfile.discount.unit = 'FIXED';
-							kotfile.discount.value = totalDiscount;
-							kotfile.discount.reference = data.referenceID;
-						       
-						       var newjson = JSON.stringify(kotfile);
-						       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-						         if(err){
-						            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-						           }
-						           else{
-						           	showToast(data.pointsRedeemed+ ' points redeemed Succesfully! Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
-						          
-						           	generateBillFromKOT(kotID, optionalPageRef);
-						           	generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
-						           	
-
-						           }
-						       }); 			
 
 
-						}
-						else{
-							showToast('Oops! '+data.validityError, '#e67e22');
-						}
-					}
-					else
-					{
-						if(data.errorCode == 404){
-							window.localStorage.loggedInAdmin = "";
-							showToast(data.error, '#e74c3c');
-						}
-						else{
-							showToast(data.error, '#e74c3c');
-						}
-					}
+        /*Redeem Points*/
+        
+        var admin_data = {
+          "token": window.localStorage.loggedInAdmin,
+          "mobile": userMobile,
+          "totalBillAmount": grandSum
+        }
+
+        showLoading(10000, 'Redeeming Points');
+
+        $.ajax({
+          type: 'POST',
+          url: 'https://www.zaitoon.online/services/posredeempoints.php',
+          data: JSON.stringify(admin_data),
+          contentType: "application/json",
+          dataType: 'json',
+          timeout: 10000,
+          success: function(data) {
+            hideLoading();
+            if(data.status){
+
+              /*Apply Redeemed Discount*/
+              if(data.isValid){
+                totalDiscount = data.discount;
+
+                totalDiscount = Math.round(totalDiscount * 100) / 100;
+
+                kotfile.discount.amount = totalDiscount;
+                kotfile.discount.type = 'REWARDS';
+                kotfile.discount.unit = 'FIXED';
+                kotfile.discount.value = totalDiscount;
+                kotfile.discount.reference = data.referenceID;
+                     
+                
+                  /*Save changes in KOT*/
+              
+                  //Update
+                  var updateData = kotfile;
+
+                  $.ajax({
+                    type: 'PUT',
+                    url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                    data: JSON.stringify(updateData),
+                    contentType: "application/json",
+                    dataType: 'json',
+                    timeout: 10000,
+                    success: function(data) {
+                        showToast(data.pointsRedeemed+ ' points redeemed Succesfully! Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
+                        generateBillFromKOT(kotID, optionalPageRef);
+                        generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+                        
+                    },
+                    error: function(data) {
+                        showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                    }
+                  });       
 
 
-				},
-      error: function(data){
-        hideLoading();
-        showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+              }
+              else{
+                showToast('Oops! '+data.validityError, '#e67e22');
+              }
+            }
+            else
+            {
+              if(data.errorCode == 404){
+                window.localStorage.loggedInAdmin = "";
+                showToast(data.error, '#e74c3c');
+              }
+              else{
+                showToast(data.error, '#e74c3c');
+              }
+            }
+
+
+          },
+          error: function(data){
+            hideLoading();
+            showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+          }
+        });   
+        //End - Redeem
+
+
+
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
       }
-			});	  
 
-
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
+    });   
 
 }
 
 
 function removeRewardsOnKOT(kotID, optionalPageRef){
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
 
-			if(kotfile.discount.amount){
-				kotfile.discount = {};
-			}
-		       
-		       var newjson = JSON.stringify(kotfile);
-		       fs.writeFile('./data/KOT/'+kotID+'.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to make changes. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-			           	showToast('Reward Points Discount removed', '#27ae60');
-			           	generateBillFromKOT(kotID, optionalPageRef);
-			           	generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
-		        	}
-		       }); 			
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
+
+          if(kotfile.discount.amount){
+            kotfile.discount = {};
+          }
+
+          /*Save changes in KOT*/
+                
+                //Update
+                var updateData = kotfile;
+                
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+
+                    showToast('Reward Points Discount removed', '#27ae60');
+                    generateBillFromKOT(kotID, optionalPageRef);
+                    generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+                  
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });     
 }
 
 
 function hideBillPreviewModal(){
-	document.getElementById("billPreviewModal").style.display = 'none';
+  document.getElementById("billPreviewModal").style.display = 'none';
 }
 
 
@@ -1264,47 +1485,47 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 
   console.log('>>> '+optionalPageRef); return '';
 
-	if(!action || action == '' || !optionalPageRef || optionalPageRef == '' || !modifiedKOTFile){
-		return '';
-	}
+  if(!action || action == '' || !optionalPageRef || optionalPageRef == '' || !modifiedKOTFile){
+    return '';
+  }
 
-	var alreadyEditingKOT = [];
-	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
-		alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);     
-	}
-	else{
-		return '';
-	}
-	
+  var alreadyEditingKOT = [];
+  if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+    alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);     
+  }
+  else{
+    return '';
+  }
+  
 
-	switch (optionalPageRef){
-		case 'ORDER_PUNCHING':{
-			/* 	Replace the Discount and Custom Extras sections
-				in the KOT_originalCopy */
+  switch (optionalPageRef){
+    case 'ORDER_PUNCHING':{
+      /*  Replace the Discount and Custom Extras sections
+        in the KOT_originalCopy */
 
-			if(action == 'CHANGE_DISCOUNT'){
-				alreadyEditingKOT.discount = modifiedKOTFile.discount;
-				window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT);  
-				renderCustomerInfo();
-			}
-			else if(action == 'CHANGE_CUSTOMEXTRA'){
-				alreadyEditingKOT.customExtras = modifiedKOTFile.customExtras;
-				window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT);  
-				renderCustomerInfo();
-			}
-			else if(action == 'CHANGE_CUSTOMERINFO'){
-				alreadyEditingKOT.customerName = modifiedKOTFile.customerName;
-				alreadyEditingKOT.customerMobile = modifiedKOTFile.customerMobile;
+      if(action == 'CHANGE_DISCOUNT'){
+        alreadyEditingKOT.discount = modifiedKOTFile.discount;
+        window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT);  
+        renderCustomerInfo();
+      }
+      else if(action == 'CHANGE_CUSTOMEXTRA'){
+        alreadyEditingKOT.customExtras = modifiedKOTFile.customExtras;
+        window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT);  
+        renderCustomerInfo();
+      }
+      else if(action == 'CHANGE_CUSTOMERINFO'){
+        alreadyEditingKOT.customerName = modifiedKOTFile.customerName;
+        alreadyEditingKOT.customerMobile = modifiedKOTFile.customerMobile;
 
-				window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT); 
-			}
+        window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT); 
+      }
 
-			break;
-		}
-		case 'LIVE_ORDERS':{
-			break;
-		}
-	}
+      break;
+    }
+    case 'LIVE_ORDERS':{
+      break;
+    }
+  }
 
 }
 
@@ -1501,13 +1722,20 @@ function confirmBillGeneration(kotID, optionalPageRef){
 
 function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, revID){
 
-  /*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
+          
           kotfile.billNumber = billNumber,
           kotfile.paymentMode = "";
           kotfile.totalAmountPaid = "";
@@ -1551,13 +1779,26 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
           kotfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
 
           kotfile.timeBill = getCurrentTime('TIME');
+          
 
+          /*Save NEW BILL*/
 
-                    fs.writeFile("./data/bills/"+billNumber+".json", JSON.stringify(kotfile), 'utf8', (err) => {
-                        if(err){
-                           showToast('Error: Could not generate the Bill. Please contact Accelerate Support.', '#e74c3c');
-                        }
-                        else{
+            //Remove _rev and _id (KOT File Scraps!)
+            var newBillFile = kotfile;
+            delete newBillFile._id;
+            delete newBillFile._rev
+
+            //Post to local Server
+            $.ajax({
+              type: 'POST',
+              url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/',
+              data: JSON.stringify(newBillFile),
+              contentType: "application/json",
+              dataType: 'json',
+              timeout: 10000,
+              success: function(data) {
+                if(data.ok){
+
 
                           showToast('Bill #'+billNumber+' generated Successfully', '#27ae60');
                           
@@ -1568,12 +1809,8 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                             billTableMapping(kotfile.table, billNumber, 2);
                           }
                           
-
-                          //Delete corresponding KOT file
-                          if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-                            fs.unlinkSync('./data/KOT/'+kotID+'.json')
-                          }
-
+                          console.log('>>>>>>> DELETE ME!!') 
+                          console.log('the KOT FILE  From Servererererer!')
 
                           if(optionalPageRef == 'ORDER_PUNCHING'){
                             renderCustomerInfo();
@@ -1609,16 +1846,30 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                             }
 
                           });  
+                }
+                else{
+                  showToast('Warning: Bill was not Generated. Try again.', '#e67e22');
+                }
+              },
+              error: function(data){           
+                showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              }
+            });  
+            //End - post KOT to Server
 
-                        }
-                      });
 
-          }    
 
-  });
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }    
+        }
+        else{
+          showToast('Not Found Error: Order #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read the Order. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });    
 }
 
 
@@ -1754,23 +2005,35 @@ function settleBillAndPush(encodedBill, optionalPageRef){
 
 function preSettleBill(billNumber){
 
-  /*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/bills/'+billNumber+'.json')) {
-      fs.readFile('./data/bills/'+billNumber+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Bill was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
+    billNumber = parseInt(billNumber);
 
-          var billfile = JSON.parse(data);
+    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+
+          var billfile = data.docs[0];
           settleBillAndPush(encodeURI(JSON.stringify(billfile)), 'ORDER_PUNCHING');
 
-      }    
+        }
+        else{
+          showToast('Not Found Error: Bill #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Bills data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
-  });
-   } else {
-      showToast('Error: Bill was not found. Please contact Accelerate Support.', '#e74c3c');
-   }   
-
+    });   
 }
 
 
@@ -2055,11 +2318,16 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
     bill.totalAmountPaid = parseFloat(bill.totalAmountPaid);
 
 
+    //Clean _rev and _id (bill Scraps)
+    var finalInvoice = bill;
+    delete finalInvoice._id;
+    delete finalInvoice._rev
+
           //Post to local Server
           $.ajax({
             type: 'POST',
             url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/',
-            data: JSON.stringify(bill),
+            data: JSON.stringify(finalInvoice),
             contentType: "application/json",
             dataType: 'json',
             timeout: 10000,
@@ -2069,10 +2337,8 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                 //Successfully pushed
                 hideSettleBillAndPush();
 
-                //Delete corresponding Bill file
-                if(fs.existsSync('./data/bills/'+bill.billNumber+'.json')) {
-                  fs.unlinkSync('./data/bills/'+bill.billNumber+'.json')
-                }
+                console.log('>>>>>>>> DELETE MEEEEEE!!!')
+                console.log('bill copy on the server')
 
                 //Free the mapped Table
                 if(bill.orderDetails.modeType == 'DINE')

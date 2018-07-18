@@ -3402,9 +3402,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          obj.customExtras = {}
 
 
-
-
-
 	          //Post to local Server
 	          $.ajax({
 	            type: 'POST',
