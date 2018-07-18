@@ -1694,8 +1694,7 @@ function renderCustomerInfo(){
 										selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
 									}								
 							}
-
-						}
+			 			}
 						else if(tempModeType == 'PARCEL'){ //ask for address
 							
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Mode</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Parcel</tag>';
@@ -1708,15 +1707,96 @@ function renderCustomerInfo(){
 							}
 						}					
 						else if(tempModeType == 'TOKEN'){ //assign token
-							var tempToken = window.localStorage.lastPrintedToken;
-							if(!tempToken || tempToken == ''){
-								tempToken = 1;
+							
+							var isTokenValid = true;
+							var isTokenAutoChanged = false;
+
+							if(window.localStorage.claimedTokenNumberTimestamp && window.localStorage.claimedTokenNumberTimestamp != ''){
+								
+								var currentTime = new Date();
+								var recordedTime = new Date(window.localStorage.claimedTokenNumberTimestamp);
+
+								if(currentTime - recordedTime > 300000){ //Old Token, reclaim for new Token
+									isTokenValid = false;
+									isTokenAutoChanged = true;
+								}
+								else{
+									isTokenValid = true;
+								}
 							}
-							customerInfo.mappedAddress = tempToken;
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+							else{
+								isTokenValid = false;
+							}
+
+							if(isTokenValid && window.localStorage.claimedTokenNumber && window.localStorage.claimedTokenNumber != ''){
+								customerInfo.mappedAddress = parseInt(window.localStorage.claimedTokenNumber);
+								selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+								renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							}
+							else{ //Claim a Token from Server
+
+							    var requestData = {
+							      "selector"  :{ 
+							                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+							                  },
+							      "fields"    : ["_rev", "identifierTag", "value"]
+							    }
+
+							    $.ajax({
+							      type: 'POST',
+							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+							      data: JSON.stringify(requestData),
+							      contentType: "application/json",
+							      dataType: 'json',
+							      timeout: 10000,
+							      success: function(data) {
+							        if(data.docs.length > 0){
+							          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+
+							            var tempToken = parseInt(data.docs[0].value);
+
+										if(!tempToken || tempToken == ''){
+											tempToken = 1;
+										}
+
+
+										if(!isTokenValid && isTokenAutoChanged){
+											showToast('Warning: Token Number has been adjusted to the latest Count', '#e67e22');
+										}
+
+										//Save the Claimed Token locally
+										window.localStorage.claimedTokenNumber = tempToken;
+										window.localStorage.claimedTokenNumberTimestamp = new Date();
+
+										//Update next token on Server
+										updateTokenCountOnServer(tempToken+1, data.docs[0]._rev);
+
+										customerInfo.mappedAddress = tempToken;
+										selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+
+										renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							          }
+							          else{
+							            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+							          }
+							        }
+							        else{
+							          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+							        }
+
+							      },
+							      error: function(data) {
+							        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+							      }
+
+							    });
+
+							}
+
+							
 						}
-					}
-					else{
+					} //Not Editing
+					else{ //Editing
 
 						if(tempModeType == 'DELIVERY'){ //ask for address
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
@@ -1736,15 +1816,125 @@ function renderCustomerInfo(){
 							}
 						}					
 						else if(tempModeType == 'TOKEN'){ //assign token
-							var tempToken = window.localStorage.lastPrintedToken;
-							if(!tempToken || tempToken == ''){
-								tempToken = 1;
-							}
-							customerInfo.mappedAddress = tempToken;
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
-						}						
-					}	
 
+							var isTokenValid = true;
+							var isTokenAutoChanged = false;
+
+							if(window.localStorage.claimedTokenNumberTimestamp && window.localStorage.claimedTokenNumberTimestamp != ''){
+								
+								var currentTime = new Date();
+								var recordedTime = new Date(window.localStorage.claimedTokenNumberTimestamp);
+
+								if(currentTime - recordedTime > 300000){ //Old Token, reclaim for new Token
+									isTokenValid = false;
+									isTokenAutoChanged = true;
+								}
+								else{
+									isTokenValid = true;
+								}
+							}
+							else{
+								isTokenValid = false;
+							}
+
+
+							if(isTokenValid && window.localStorage.claimedTokenNumber && window.localStorage.claimedTokenNumber != ''){
+								customerInfo.mappedAddress = parseInt(window.localStorage.claimedTokenNumber);
+								selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+								renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							}
+							else{ //Claim a Token from Server
+
+							    var requestData = {
+							      "selector"  :{ 
+							                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+							                  },
+							      "fields"    : ["_rev", "identifierTag", "value"]
+							    }
+
+							    $.ajax({
+							      type: 'POST',
+							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+							      data: JSON.stringify(requestData),
+							      contentType: "application/json",
+							      dataType: 'json',
+							      timeout: 10000,
+							      success: function(data) {
+							        if(data.docs.length > 0){
+							          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+
+							            var tempToken = parseInt(data.docs[0].value);
+
+										if(!tempToken || tempToken == ''){
+											tempToken = 1;
+										}
+
+										if(!isTokenValid && isTokenAutoChanged){
+											showToast('Warning: Token Number has been adjusted to the latest Count', '#e67e22');
+										}
+
+										//Save the Claimed Token locally
+										window.localStorage.claimedTokenNumber = tempToken;
+										window.localStorage.claimedTokenNumberTimestamp = new Date();
+
+										//Update next token on Server
+										updateTokenCountOnServer(tempToken+1, data.docs[0]._rev);
+
+										customerInfo.mappedAddress = tempToken;
+										selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+							          	
+							          	renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							         
+							          }
+							          else{
+							            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+							          }
+							        }
+							        else{
+							          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+							        }
+
+							      },
+							      error: function(data) {
+							        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+							      }
+
+							    });
+							}
+
+						}						
+					} //Editing	
+
+					if(tempModeType != 'TOKEN'){ /* TWEAK */
+						renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+					}
+					//Note: Because Token involves a network call delay.
+
+				}
+          }
+          else{
+            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          	renderCart();
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          renderCart();
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+      	renderCart();
+      }
+
+    });
+
+}
+
+
+
+function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList){
 
 					if(isEditingKOT){ //Editing KOT
 					
@@ -1817,8 +2007,6 @@ function renderCustomerInfo(){
 
 
 					//Key Actions to Select from dropdown
-					
-					
 					$('#customer_form_data_mode').on('click', function(event) {
 
 						var x = document.getElementById("modeListingDropdown");
@@ -1897,28 +2085,8 @@ function renderCustomerInfo(){
 			        window.localStorage.customerData = JSON.stringify(customerInfo);
 
 			        renderCart();
-			 
-				}
-          }
-          else{
-            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
-          	renderCart();
-          }
-        }
-        else{
-          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
-          renderCart();
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
-      	renderCart();
-      }
-
-    });
-
 }
+
 
 function getFormattedAddress(addressObject){
 	var address = JSON.parse(addressObject);
@@ -1932,7 +2100,33 @@ function getFormattedAddress(addressObject){
 	}
 }
 
+function updateTokenCountOnServer(nextToken, revID){
 
+	console.log('Server Count: ', nextToken)
+
+			                          //Update token number on server
+			                          var updateData = {
+			                            "_rev": revID,
+			                            "identifierTag": "ZAITOON_TOKEN_INDEX",
+			                            "value": nextToken
+			                          }
+
+			                          $.ajax({
+			                            type: 'PUT',
+			                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TOKEN_INDEX/',
+			                            data: JSON.stringify(updateData),
+			                            contentType: "application/json",
+			                            dataType: 'json',
+			                            timeout: 10000,
+			                            success: function(data) {
+			                              
+			                            },
+			                            error: function(data) {
+			                              showToast('System Error: Unable to update Token Index. Next Token Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+			                            }
+
+			                          });  
+}
 
 
 function suggestCustomerInfoFromMobile(mode, inputElement){
@@ -3228,13 +3422,12 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              		$("#add_item_by_search").focus();
 	              	}
 	              	else if(orderMetaInfo.modeType == 'TOKEN'){
-	              		/*Increment Token Counter*/
-	              		var tempToken = window.localStorage.lastPrintedToken;
-	              		if(!tempToken || tempToken == ''){
-	              			tempToken = 1;
-	              		}
+
 	              		showToast('#'+kot+' generated Successfully', '#27ae60');
-	              		window.localStorage.lastPrintedToken = parseInt(tempToken) + 1;
+
+	              		//Clear Token
+						window.localStorage.claimedTokenNumber = '';
+						window.localStorage.claimedTokenNumberTimestamp = '';	              		
 	 					
 	 					pushCurrentOrderAsEditKOT(encodeURI(json));
 	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
@@ -3248,30 +3441,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              }
 	              	 
 	           });
-
-                          //Update KOT number on server
-                          var updateData = {
-                            "_rev": data.docs[0]._rev,
-                            "identifierTag": "ZAITOON_KOT_INDEX",
-                            "value": num
-                          }
-
-
-                          $.ajax({
-                            type: 'PUT',
-                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_INDEX/',
-                            data: JSON.stringify(updateData),
-                            contentType: "application/json",
-                            dataType: 'json',
-                            timeout: 10000,
-                            success: function(data) {
-                              
-                            },
-                            error: function(data) {
-                              showToast('System Error: Unable to update KOT Index. Next KOT Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
-                            }
-
-                          });               
+             
           }
           else{
             showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -4171,14 +4341,52 @@ function pickAddressForNewOrderHide(){
 
 /*Set Token No.*/
 function setTokenManually(){
-	var lastToken = window.localStorage.lastPrintedToken;
 
-	if(!lastToken || lastToken == ''){
-		lastToken = 1;
-	}
+						    var requestData = {
+						      "selector"  :{ 
+						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                  },
+						      "fields"    : ["_rev", "identifierTag", "value"]
+						    }
 
-	document.getElementById("next_token_value_set").value = lastToken;
-	document.getElementById("setTokenOptionsModal").style.display = 'block';
+						    $.ajax({
+						      type: 'POST',
+						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      data: JSON.stringify(requestData),
+						      contentType: "application/json",
+						      dataType: 'json',
+						      timeout: 10000,
+						      success: function(data) {
+						        if(data.docs.length > 0){
+						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+
+						            var lastToken = parseInt(data.docs[0].value);
+
+									if(!lastToken || lastToken == ''){
+										lastToken = 1;
+									}
+
+									document.getElementById("next_token_value_set").value = lastToken;
+									document.getElementById("setTokenOptionsModal").style.display = 'block';
+
+									$("#next_token_value_set").focus();
+    								$("#next_token_value_set").select();
+
+						          }
+						          else{
+						            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						          }
+						        }
+						        else{
+						          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						        }
+
+						      },
+						      error: function(data) {
+						        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+						      }
+
+						    });
 }
 
 function setTokenManuallyHide(){
@@ -4186,68 +4394,135 @@ function setTokenManuallyHide(){
 }
 
 function setTokenManuallySave(){
-	var lastToken = window.localStorage.lastPrintedToken;
-
-	if(!lastToken || lastToken == ''){
-		lastToken = 1;
-	}
-
-	var token = document.getElementById("next_token_value_set").value;
-
-	if(token == ''){
-		token = 1;
-	}
-	else if(lastToken == token){
-		//do nothing
-	}
-	else{
-		//save new token
-		window.localStorage.lastPrintedToken = token;
-	}
 
 
+						    var requestData = {
+						      "selector"  :{ 
+						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                  },
+						      "fields"    : ["_rev", "identifierTag", "value"]
+						    }
 
+						    $.ajax({
+						      type: 'POST',
+						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      data: JSON.stringify(requestData),
+						      contentType: "application/json",
+						      dataType: 'json',
+						      timeout: 10000,
+						      success: function(data) {
+						        if(data.docs.length > 0){
+						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
 
-	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
-	
-	if(jQuery.isEmptyObject(customerInfo)){
-		customerInfo.name = "";
-		customerInfo.mobile = "";
-		customerInfo.count = "";
-		customerInfo.mode = "";
-		customerInfo.modeType = "";
-		customerInfo.mappedAddress = "";
-		customerInfo.reference = "";
-	}
+									var token = document.getElementById("next_token_value_set").value;
 
-	customerInfo.mappedAddress = token;
+									if(token == ''){
+										token = 1;
+									}
 
-	window.localStorage.customerData = JSON.stringify(customerInfo);
+									token = parseInt(token);
+									updateTokenCountOnServer(token+1, data.docs[0]._rev);
 
-	setTokenManuallyHide();
-	renderCustomerInfo();
+									window.localStorage.claimedTokenNumber = token;
+									window.localStorage.claimedTokenNumberTimestamp = new Date();
+									
+									//After setting the Token
+									var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+									
+									if(jQuery.isEmptyObject(customerInfo)){
+										customerInfo.name = "";
+										customerInfo.mobile = "";
+										customerInfo.count = "";
+										customerInfo.mode = "";
+										customerInfo.modeType = "";
+										customerInfo.mappedAddress = "";
+										customerInfo.reference = "";
+									}
+
+									customerInfo.mappedAddress = token;
+
+									window.localStorage.customerData = JSON.stringify(customerInfo);
+
+									setTokenManuallyHide();
+									renderCustomerInfo();
+
+						          }
+						          else{
+						            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						          }
+						        }
+						        else{
+						          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						        }
+
+						      },
+						      error: function(data) {
+						        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+						      }
+
+						    });
+
 }
 
 function restartTokenManuallySave(){
-	window.localStorage.lastPrintedToken = 1;
 
+						    var requestData = {
+						      "selector"  :{ 
+						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                  },
+						      "fields"    : ["_rev", "identifierTag", "value"]
+						    }
 
-	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
-	
-	if(jQuery.isEmptyObject(customerInfo)){
-		customerInfo.name = "";
-		customerInfo.mobile = "";
-		customerInfo.count = "";
-		customerInfo.mode = "";
-		customerInfo.modeType = "";
-		customerInfo.mappedAddress = "";
-		customerInfo.reference = "";
-	}
+						    $.ajax({
+						      type: 'POST',
+						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      data: JSON.stringify(requestData),
+						      contentType: "application/json",
+						      dataType: 'json',
+						      timeout: 10000,
+						      success: function(data) {
+						        if(data.docs.length > 0){
+						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
 
-	customerInfo.mappedAddress = 1;
+											updateTokenCountOnServer(2, data.docs[0]._rev);
 
-	setTokenManuallyHide();
-	renderCustomerInfo();
+											window.localStorage.claimedTokenNumber = 1;
+											window.localStorage.claimedTokenNumberTimestamp = new Date();
+									
+											//After setting the Token
+											var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+											
+											if(jQuery.isEmptyObject(customerInfo)){
+												customerInfo.name = "";
+												customerInfo.mobile = "";
+												customerInfo.count = "";
+												customerInfo.mode = "";
+												customerInfo.modeType = "";
+												customerInfo.mappedAddress = "";
+												customerInfo.reference = "";
+											}
+
+											customerInfo.mappedAddress = 1;
+
+											setTokenManuallyHide();
+											renderCustomerInfo();
+
+						          }
+						          else{
+						            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						          }
+						        }
+						        else{
+						          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						        }
+
+						      },
+						      error: function(data) {
+						        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+						      }
+
+						    });
+
 }
 
 
