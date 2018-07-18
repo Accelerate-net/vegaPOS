@@ -3597,3 +3597,110 @@ position: absolute;
     background: none !important;
     opacity: 1 !important;
 }
+
+
+
+
+.billsFilterButton{
+    position: relative;
+    top: -3px;
+    left: 10px;
+    background: #16a085;
+    color: #FFF;
+    border: none;
+    border-radius: 5px;
+    min-width: 60px;
+}
+
+.billsFilterButton:active, .billsFilterButton:focus, .billsFilterButton:hover{
+  background: #1abc9c;
+  outline: none !important;
+}
+
+
+.skin-blue .billsFilterButton,
+.skin-blue-light .billsFilterButton{
+  background: #367fa9;
+  color: #FFF;
+}
+
+.skin-blue .billsFilterButton:hover,
+.skin-blue .billsFilterButton:active,
+.skin-blue .billsFilterButton:focus,
+.skin-blue-light .billsFilterButton:hover,
+.skin-blue-light .billsFilterButton:active,
+.skin-blue-light .billsFilterButton:focus .specialRequestsButton{
+  background: #3c8dbc;
+  color: #FFF;
+}
+
+
+.skin-red .billsFilterButton,
+.skin-red-light .billsFilterButton{
+  background: #d73925;
+  color: #FFF;
+}
+
+.skin-red .billsFilterButton:hover,
+.skin-red .billsFilterButton:active,
+.skin-red .billsFilterButton:focus,
+.skin-red-light .billsFilterButton:hover,
+.skin-red-light .billsFilterButton:active,
+.skin-red-light .billsFilterButton:focus .specialRequestsButton{
+  background: #dd4b39;
+  color: #FFF;
+}
+
+.skin-yellow .billsFilterButton,
+.skin-yellow-light .billsFilterButton{
+  background: #e08e0b;
+  color: #FFF;
+}
+
+.skin-yellow .billsFilterButton:hover,
+.skin-yellow .billsFilterButton:active,
+.skin-yellow .billsFilterButton:focus,
+.skin-yellow-light .billsFilterButton:hover,
+.skin-yellow-light .billsFilterButton:active,
+.skin-yellow-light .billsFilterButton:focus .specialRequestsButton{
+  background: #f39c12;
+  color: #FFF;
+}
+
+
+.skin-purple .billsFilterButton,
+.skin-purple-light .billsFilterButton{
+  background: #555299;
+  color: #FFF;
+}
+
+.skin-purple .billsFilterButton:hover,
+.skin-purple .billsFilterButton:active,
+.skin-purple .billsFilterButton:focus,
+.skin-purple-light .billsFilterButton:hover,
+.skin-purple-light .billsFilterButton:active,
+.skin-purple-light .billsFilterButton:focus .specialRequestsButton{
+  background: #605ca8;
+  color: #FFF;
+}
+
+.myDatePicker{
+  border: none; border-bottom: 1px solid
+}
+
+.myDatePicker:active, .myDatePicker:focus, .myDatePicker:hover{
+  outline: none !important;
+  border-bottom: 2px solid 
+}
+
+.mySearchSelector{
+  border: none; padding: 0 !important; margin: 0; 
+  position: relative;
+   top: -6px; left: -6px; 
+   background: none; color: #13bb49; font-weight: bold;
+}
+
+.myInlineModeSelection{
+  width: initial; display: inline-block; border: none; font-size: 24px; 
+  font-weight: bold; color: #19bd4d; position: relative; top: 0px; left: -5px;
+}

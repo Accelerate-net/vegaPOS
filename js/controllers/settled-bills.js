@@ -13,6 +13,7 @@ function loadAllPendingSettlementBills(optionalSource){
 	document.getElementById("billDetailedDisplayRender").innerHTML = ''
 
 	document.getElementById("billTypeTitle").innerHTML = 'Pending Bills';
+	document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="openFilterModal(\'PENDING\')">Filter</button>';
 
 	var totalResultsCount = 0;
 	var fileCount = 0;
@@ -228,6 +229,7 @@ function loadAllSettledBills(){
 
 
 	document.getElementById("billTypeTitle").innerHTML = 'Settled Bills';
+	document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="openFilterModal(\'SETTLED\')">Filter</button>';
 
 	  $.ajax({
 	    type: 'GET',
@@ -552,4 +554,192 @@ function openSelectedBill(encodedBill, type){
 	else{
 		return '';
 	}	
+}
+
+
+
+
+/* SEARCH AND FILTER */
+
+function openFilterModal(optionalRoute){
+
+	document.getElementById("searchFilterModal").style.display = 'block';
+
+	if(optionalRoute == 'PENDING'){
+		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchInitialize(\'PENDING\')" style="float: right">Proceed</button>';
+	}
+	else if(optionalRoute == 'SETTLED'){
+		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchInitialize(\'SETTLED\')" style="float: right">Proceed</button>';
+	}
+
+
+	var options = {
+		maxDate: "+0D", 
+		dateFormat: "dd-mm-yy"
+	};
+
+	var $j = jQuery.noConflict();
+	$j( "#reportFromDate" ).datepicker(options);
+	$j( "#reportToDate" ).datepicker(options);
+
+
+	$("#filter_search_key").focus();
+}
+
+function hideFilterModal(){
+	document.getElementById("searchFilterModal").style.display = 'none';
+}
+
+function changeFilterSearchCriteria(){
+
+	var tempValue = '';
+	if(document.getElementById("filter_search_key") != null){
+		tempValue = document.getElementById("filter_search_key").value;
+	}
+
+
+	var criteria = document.getElementById("filterSearchCriteria").value;
+
+	if(criteria == 'payment'){
+
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+
+	              var modes = data.docs[0].value;
+	              modes.sort(); //alphabetical sorting 
+	              var modesTag = '';
+
+
+	              for (var i=0; i<modes.length; i++){
+	                modesTag = modesTag + '<option value="'+modes[i].code+'">'+modes[i].name+'</option>';
+	              }
+
+	              if(modes.length == 0){
+	              	showToast('Error: No Payment Modes added.', '#e74c3c');
+	              	hideFilterModal();
+	              	return '';
+	              }
+
+	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 40px; font-size: 24px; font-weight: 300;">Filter all <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Payments</p>';
+	          }
+	          else{
+	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });
+	}
+	else if(criteria == 'type'){
+
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_BILLING_MODES" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+
+	              var modes = data.docs[0].value;
+	              modes.sort(); //alphabetical sorting 
+	              var modesTag = '';
+
+
+	              for (var i=0; i<modes.length; i++){
+	                modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
+	              }
+
+	              if(modes.length == 0){
+	              	showToast('Error: No Billing Modes added.', '#e74c3c');
+	              	hideFilterModal();
+	              	return '';
+	              }
+
+	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 40px; font-size: 24px; font-weight: 300;">Filter all <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Orders</p>';
+	          }
+	          else{
+	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });
+	}
+	else{
+		document.getElementById("filterSearchArea").innerHTML = '<input type="text" value="'+tempValue+'" class="form-control tip" id="filter_search_key" style="border: none; border-bottom: 2px solid; font-size: 36px; height: 60px; font-weight: 300; padding: 10px 3px;" placeholder="Search Here" required="required" />';
+		$("#filter_search_key").focus();
+	}
+}
+
+function filterSearchInitialize(optionalRoute){
+
+	var dateFrom = '', dateTo = '', searchMode = 'bill', searchKey = '';
+
+	dateFrom = document.getElementById("reportFromDate").value;
+	dateTo = document.getElementById("reportToDate").value;
+
+	searchMode = document.getElementById("filterSearchCriteria").value;
+
+	if(searchMode == 'payment' || searchMode == 'type'){
+		searchKey = document.getElementById("filterSearchCriteriaSelected").value;
+	}
+	else{
+		searchKey = document.getElementById("filter_search_key").value;
+	}
+
+	var searchObj = {};
+	searchObj.dateFrom = dateFrom;
+	searchObj.dateTo = dateTo;
+	searchObj.searchMode = searchMode;
+	searchObj.searchKey = searchKey;
+
+	window.localStorage.billFilterCriteria = JSON.stringify(searchObj);
+
+	if(optionalRoute == 'SETTLED'){
+		loadAllSettledBills();
+	}
+	else{
+		loadAllPendingSettlementBills('EXTERNAL');
+	}
 }
