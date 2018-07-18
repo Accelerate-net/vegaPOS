@@ -2599,18 +2599,20 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 /*Add to edit KOT*/
 function moveToEditKOT(kotID){
 
-	tableNumber = 10;
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
 
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
 
-    /*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
+          	var kot = data.docs[0];
 
-		    var kot = JSON.parse(data);
-		   
 		    if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 
 		        var alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);
@@ -2646,11 +2648,17 @@ function moveToEditKOT(kotID){
 
 		    overWriteCurrentRunningOrder(data);
 
-    }});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
+    });   
 }
 
 function overWriteCurrentRunningOrder(encodedKOT){
@@ -3376,6 +3384,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 	          var num = parseInt(data.docs[0].value) + 1;
 	          var kot = 'KOT' + num;
+
+	          var memory_revID = data.docs[0]._rev;
 	         
 	          var today = getCurrentTime('DATE');
 	          var time = getCurrentTime('TIME');
@@ -3443,6 +3453,32 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              		pushCurrentOrderAsEditKOT(encodeURI(json));
 	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
 	              	}
+
+                          
+
+                    	  //Update KOT number on server
+
+                          var updateData = {
+                            "_rev": memory_revID,
+                            "identifierTag": "ZAITOON_KOT_INDEX",
+                            "value": num
+                          }
+
+                          $.ajax({
+                            type: 'PUT',
+                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_INDEX/',
+                            data: JSON.stringify(updateData),
+                            contentType: "application/json",
+                            dataType: 'json',
+                            timeout: 10000,
+                            success: function(data) {
+                              
+                            },
+                            error: function(data) {
+                              showToast('System Error: Unable to update KOT Index. Next KOT Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+                            }
+                          });
+
 
 	              }
 	              else{

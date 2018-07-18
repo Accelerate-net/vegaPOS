@@ -69,57 +69,107 @@ function editOrderKOT(kotID){
 
 function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTables){
 
-	var kotID = kotList[0]; //Merge all to first KOT
+	  var kotID = kotList[0]; //Merge all to first KOT
 
-	/*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
-          var kotfile = JSON.parse(data);
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
 
           if(mergedCart && mergedCart.length > 0){
-          	kotfile.cart = mergedCart;
-          	kotfile.discount = {};
-          	kotfile.extras = mergedExtras;
+            kotfile.cart = mergedCart;
+            kotfile.discount = {};
+            kotfile.extras = mergedExtras;
           }
 
+          /*Save changes in KOT*/
+                
+                //Update
+                var updateData = kotfile;
 
-          var json = JSON.stringify(kotfile); //convert it back to json
-          var file = './data/KOT/'+kotID+'.json';
-          fs.writeFile(file, json, 'utf8', (err) => {
-              if(err){
-				showToast('System Error: Unable to merge the orders. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{
-              	showToast('Orders merged Successfully to Table '+mergingTables[0], '#27ae60');
-              	cancelBillMerge();
-              	generateBillFromKOT(kotID);
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Orders merged Successfully to Table '+mergingTables[0], '#27ae60');
+                      cancelBillMerge();
+                      generateBillFromKOT(kotID);
 
-              	/*Remove all other KOTs*/
-              	removeOtherKOTS(kotList);
-              }
-              	 
-           });          
+                      /*Remove all other KOTs*/
+                      removeOtherKOTS(kotList);
 
-	}});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  	
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  	
 
 	hideOccuppiedSeatOptions();	
 }
 
 function removeOtherKOTS(kotList){ /*TWEAK*/
 	
-	            var h = 1; //Do not count first KOT
-              	while(kotList[h]){
-              		if(fs.existsSync('./data/KOT/'+kotList[h]+'.json')) {
-	              		fs.unlinkSync('./data/KOT/'+kotList[h]+'.json')
-	              	}
-              		h++;
-              	}
+	  var h = 1; //Do not count first KOT
+    while(kotList[h]){
+
+        var requestData = { "selector" :{ "KOTNumber": kotID }, "fields" : ["_rev", "_id"]}
+
+        $.ajax({
+          type: 'POST',
+          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+          data: JSON.stringify(requestData),
+          contentType: "application/json",
+          dataType: 'json',
+          timeout: 10000,
+          success: function(data) {
+            if(data.docs.length > 0){
+
+                    //Delete KOT
+                    
+                    $.ajax({
+                      type: 'DELETE',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(data.docs[0]._id)+'/?rev='+data.docs[0]._rev,
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        console.log('Deleted')
+                      }
+                    }); 
+
+            }
+          }
+
+        });   
+
+
+      h++;
+    }
 
 
 
@@ -460,18 +510,21 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
     var n = 0;
     while (n < kotCount) {
 
-        /*Read mentioned KOT hold list*/
-        if (fs.existsSync('./data/KOT/' + kotList[n] + '.json')) {
-            fs.readFile('./data/KOT/' + kotList[n] + '.json', 'utf8', function readFileCallback(err, data) {
-                if (err) {
-                    showToast('Operation Aborted! Order ' + kotList[n] + ' was not found. Please contact Accelerate Support.', '#e74c3c');
-                    return '';
-                } else {
-                	if(!data){ data = []}
+        var requestData = { "selector" :{ "KOTNumber": kotList[n] }}
 
-                	kotCounter++;
+        $.ajax({
+          type: 'POST',
+          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+          data: JSON.stringify(requestData),
+          contentType: "application/json",
+          dataType: 'json',
+          timeout: 10000,
+          success: function(data) {
+            if(data.docs.length > 0){
 
-                    var kotfile = JSON.parse(data);
+              var kotfile = data.docs[0];
+
+                    kotCounter++;
 
                     /*Generate MERGED EXTRAS*/
                     var extraDuplicateFlag = false;
@@ -529,17 +582,26 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
                         //End of iteration
                         if(kotCount == kotCounter){
-                        	confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, tableList)
+                          confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, tableList)
                         }           
                     }
-                }
-            });
-        } else {
+
+            }
+            else{
+              showToast('Operation Aborted! Order ' + kotList[n] + ' was not found. Please contact Accelerate Support.', '#e74c3c');
+              return '';
+            }
+            
+          },
+          error: function(data) {
             showToast('Operation Aborted! Order ' + kotList[n] + ' was not found. Please contact Accelerate Support.', '#e74c3c');
-        }
+            return '';
+          }
 
+        }); 
 
-     n++;    
+     
+      n++;    
     }
 
 }

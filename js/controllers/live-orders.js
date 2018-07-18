@@ -2,36 +2,39 @@ function renderAllKOTs() {
 
     document.getElementById("fullKOT").innerHTML = '';
 
-    dirname = './data/KOT'
-    fs.readdir(dirname, function(err, filenames) {
-        if (err) {
-            showToast('System Error: Unable to load Live Orders. Please contact Accelerate Support.', '#e74c3c');
-            return;
-        }
+    var runningKOTList = [];
 
-        var actualReadableFileCount = 0;
-        var iterationsCount = 0;
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_all_docs',
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.total_rows > 0){
+            
+            runningKOTList = data.rows;
 
-        filenames.forEach(function(filename) {
-            fs.readFile(dirname + '/' + filename, 'utf-8', function(err, data) {
-                if (err) {
-                    showToast('System Error: Unable to load a few Live Orders. Please contact Accelerate Support.', '#e74c3c');
-                    return;
-                } else {
+            var n = 0;
+            while(runningKOTList[n]){
 
-                    iterationsCount++;
+                var requestData = { "selector" :{ "_id": runningKOTList[n].id }}
 
-                    if(filename.toLowerCase().indexOf(".json") < 0){ //Neglect any files other than JSON
-                        
-                    }
-                    else{
+                $.ajax({
+                  type: 'POST',
+                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+                  data: JSON.stringify(requestData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    if(data.docs.length > 0){
+                            
+                            var kot = data.docs[0];
 
-                            actualReadableFileCount++;
-                            if(actualReadableFileCount == 1){
+                            if(n == 0){
                                 document.getElementById("liveKOTMain").innerHTML = '<div class="col-xs-12 kotListing"> <ul id="fullKOT"> </ul> </div>';
                             }
-
-                            var kot = JSON.parse(data);
 
                             if(kot.orderDetails.modeType == 'DINE'){
                                 var i = 0;
@@ -53,24 +56,31 @@ function renderAllKOTs() {
                                                         '</tag> </a>';
 
                                 fullKOT = fullKOT + items + '</li>';
-                                finalRender(fullKOT)
+                                finalRender(fullKOT);
                             }
+
+                      
                     }
+                  }
+                });  
 
-                    if(iterationsCount == filenames.length && actualReadableFileCount == 0){
-                        document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Dine orders</tag>';
-                    }
+                n++;        
+            }
+        }
+        else{
+          document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Dine orders</tag>';
+          return '';
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        return '';
+      }
 
-
-
-                }
-
-            });
-        });
-
-
-    });
+    }); 
 }
+
 
 function finalRender(fullKOT) {
     document.getElementById("fullKOT").innerHTML = document.getElementById("fullKOT").innerHTML + fullKOT;
@@ -340,14 +350,20 @@ function pickTableForTransferOrderHide(){
 function transferKOTAfterProcess(tableNumber, kotID){
 
 
-    /*Read mentioned KOT - kotID*/
-   if(fs.existsSync('./data/KOT/'+kotID+'.json')) {
-      fs.readFile('./data/KOT/'+kotID+'.json', 'utf8', function readFileCallback(err, data){
-    if (err){
-        showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-    } else {
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
 
-          var kotfile = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          var kotfile = data.docs[0];
+
 
           if(kotfile.table == tableNumber){ //same table
             return '';
@@ -362,27 +378,43 @@ function transferKOTAfterProcess(tableNumber, kotID){
 
           console.log('WRITE CODE: TO SEND KOT TO KITCHEN --> Table Changed')
 
+                /*Save changes in KOT*/
+                  
+                //Update
+                var updateData = kotfile;
 
-          var json = JSON.stringify(kotfile); //convert it back to json
-          var file = './data/KOT/'+kotID+'.json';
-          fs.writeFile(file, json, 'utf8', (err) => {
-              if(err){
-                showToast('System Error: Unable to transfer the Order. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{          
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
                     showToast('Order transfered to Table '+tableNumber+' Successfully', '#27ae60');
                     pickTableForTransferOrderHide();  
                     liveOrderOptionsClose();    
-                    renderAllKOTs();          
-              }
-                 
-           });
+                    renderAllKOTs();  
 
+                    console.log('********* CHANGE TABLE MAPPING!!!')
 
-    }});
-   } else {
-      showToast('Error: Order was not found. Please contact Accelerate Support.', '#e74c3c');
-   }  
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+          
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
 
 }
 
