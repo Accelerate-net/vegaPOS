@@ -57,9 +57,6 @@ function getSuperFancyDate(date){
   return moment(date, 'DD-MM-YYYY').format('Do MMMM, YYYY')
 }
 
-
-
-
 //Returns today, and current time
 function getCurrentTime(type){
           
