@@ -30,7 +30,7 @@
 
                         
                         <div class="box-header" style="padding: 10px 0px">
-                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;" id="billTypeTitle">Bills</h3>
+                           <h3 class="box-title" style="min-width: 115px; padding: 5px 0px; font-size: 21px;" id="billTypeTitle">Bills</h3>
                            <span id="billTypeTitleButton"><button class="billsFilterButton" onclick="openFilterModal()">Filter</button></span>
                            <tag style="float: right" id="navigationAssitantBills">
                            </tag>
@@ -110,6 +110,7 @@
                                             <label style="font-size: 10px">SEARCH USING</label>
                                             <select id="filterSearchCriteria" class="form-control mySearchSelector" onchange="changeFilterSearchCriteria()">
                                               <option value="bill">Bill Number</option>
+                                              <option value="all">All Bills</option>
                                               <option value="table">Table Number</option>
                                               <option value="customer">Customer Mobile</option>
                                               <option value="steward">Attended Staff</option>

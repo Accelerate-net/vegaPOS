@@ -168,7 +168,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 		"name": order.userName,
 		"mobile": order.userID,
 		"mode": "Delivery",
-		"modeType": "PARCEL",
+		"modeType": "DELIVERY",
 		"mappedAddress": JSON.stringify(order.deliveryAddress),
 		"reference": order.orderID
 	}
