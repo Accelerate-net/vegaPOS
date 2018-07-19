@@ -1882,6 +1882,8 @@ function clearAllMetaDataOfBilling(){
   customerInfo.mobile = "";
   customerInfo.mappedAddress = "";
   customerInfo.reference = "";
+  customerInfo.notes = "";
+  customerInfo.count = "";
 
   window.localStorage.customerData = JSON.stringify(customerInfo);
   window.localStorage.zaitoon_cart = '';

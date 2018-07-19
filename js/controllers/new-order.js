@@ -1594,6 +1594,7 @@ function renderCustomerInfo(){
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
+		customerInfo.notes = "";
 	}
 
 
@@ -1637,6 +1638,7 @@ function renderCustomerInfo(){
 					customerInfo.modeType = "";
 					customerInfo.mappedAddress = "";
 					customerInfo.reference = "";
+					customerInfo.notes = "";
 				}
 				else{
 
@@ -2274,6 +2276,7 @@ function changeCustomerInfo(type, optionalValue){
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
+		customerInfo.notes = "";
 	}
 
 		switch(type){
@@ -2340,6 +2343,7 @@ function setCustomerInfoTable(tableID){
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
+		customerInfo.notes = "";
 	}
 
 	customerInfo.mappedAddress = tableID;
@@ -2674,6 +2678,7 @@ function overWriteCurrentRunningOrder(kot){
     customerInfo.mode = kot.orderDetails.mode;
     customerInfo.modeType = kot.orderDetails.modeType;
     customerInfo.reference = kot.orderDetails.reference;
+    customerInfo.notes = kot.orderDetails.notes;
 
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
@@ -3528,6 +3533,7 @@ function pushCurrentOrderAsEditKOT(kot){
     customerInfo.mode = kot.orderDetails.mode;
     customerInfo.modeType = kot.orderDetails.modeType;
     customerInfo.reference = kot.orderDetails.reference;
+    customerInfo.notes = kot.orderDetails.notes;
 
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
@@ -3546,6 +3552,7 @@ function clearAllMetaData(){
 	customerInfo.count = "";
 	customerInfo.mappedAddress = "";
 	customerInfo.reference = "";
+	customerInfo.notes = "";
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 	window.localStorage.zaitoon_cart = '';
@@ -3604,6 +3611,7 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 	customerInfo.count = "";
 	customerInfo.mappedAddress = TableNumber;
 	customerInfo.reference = "";
+	customerInfo.notes = "";
 
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -3686,6 +3694,7 @@ function freshOrderForCustomer(customerEncoded){
 	customerInfo.mappedAddress = "";
 	customerInfo.reference = "";
 	customerInfo.count = "";
+	customerInfo.notes = "";
 
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -4491,6 +4500,7 @@ function setTokenManuallySave(){
 										customerInfo.modeType = "";
 										customerInfo.mappedAddress = "";
 										customerInfo.reference = "";
+										customerInfo.notes = "";
 									}
 
 									customerInfo.mappedAddress = token;
@@ -4554,6 +4564,7 @@ function restartTokenManuallySave(){
 												customerInfo.modeType = "";
 												customerInfo.mappedAddress = "";
 												customerInfo.reference = "";
+												customerInfo.notes = "";
 											}
 
 											customerInfo.mappedAddress = 1;

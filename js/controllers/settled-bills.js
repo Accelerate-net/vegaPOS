@@ -2409,7 +2409,7 @@ function changeFilterSearchCriteria(){
 
 
 	              for (var i=0; i<modes.length; i++){
-	                modesTag = modesTag + '<option value="'+modes[i].type+'">'+modes[i].name+'</option>';
+	                modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
 	              }
 
 	              if(modes.length == 0){

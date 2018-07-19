@@ -1,10 +1,131 @@
 
+function renderLiveOnlineOrders(){
+	$("#onlineOrders_incoming").removeClass("billTypeSelectionBox");
+	$("#onlineOrders_live").addClass("billTypeSelectionBox");
+	$("#onlineOrders_billed").removeClass("billTypeSelectionBox");
+
+	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Live Orders</h3>'+
+																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderLiveOnlineOrders()">Refresh</button>';
+
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_ONLINE_ORDERS_MAPPING" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_ONLINE_ORDERS_MAPPING'){
+
+	          	var onlineOrdersMapping = data.docs[0].value;
+
+	          	console.log(onlineOrdersMapping)
+	          	var items = '';
+				for (var i=0; i<onlineOrdersMapping.length; i++){
+					if(onlineOrdersMapping[i].systemStatus == 1){
+						items = items + '<tr role="row" id="onlineLiveListing_'+onlineOrdersMapping[i].onlineOrder+'" class="onlineOrderListing" onclick="fetchSystemKOT(\''+onlineOrdersMapping[i].systemBill+'\', \''+onlineOrdersMapping[i].amount+'\')"> <td>'+onlineOrdersMapping[i].onlineOrder+'<br>'+(onlineOrdersMapping[i].type == 'TAKEAWAY' ? '<tag class="onlineTakeAwayTag">TAKE AWAY</tag>' : '<tag class="onlineDeliveryTag">DELIVERY</tag>')+'</td> <td>'+onlineOrdersMapping[i].name+'<br>'+onlineOrdersMapping[i].mobile+'</td>'+
+										'<td><i class="fa fa-inr"></i> '+onlineOrdersMapping[i].amount+'</td> <td>'+getFancyTime(onlineOrdersMapping[i].lastUpdate)+'</td> </tr>';
+				
+					}
+				}
+
+				if(items != ''){
+	        		document.getElementById("onlineOrders").innerHTML = items;
+	        	}
+	        	else{
+	        		document.getElementById("itemInfo").innerHTML = '';
+	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Live Orders</td></tr>';
+	        	}
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
+
+
+}
+
+function fetchSystemKOT(kotID, amount){
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          	var kot = data.docs[0];
+          	renderSystemOrderDisplay(kot, amount);
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   	
+}
+
+
+
+
+
+
+
+function renderBilledOnlineOrders(){
+	$("#onlineOrders_incoming").removeClass("billTypeSelectionBox");
+	$("#onlineOrders_live").removeClass("billTypeSelectionBox");
+	$("#onlineOrders_billed").addClass("billTypeSelectionBox");
+
+	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Billed Orders</h3>'+
+																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderBilledOnlineOrders()">Refresh</button>';
+}
+
 function renderOnlineOrders(){
+
+	$("#onlineOrders_incoming").addClass("billTypeSelectionBox");
+	$("#onlineOrders_live").removeClass("billTypeSelectionBox");
+	$("#onlineOrders_billed").removeClass("billTypeSelectionBox");
+
+
+	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Incoming Orders</h3>'+
+																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderOnlineOrders()">Refresh</button>';
 
 
 	var data = {
 		"token": window.localStorage.loggedInAdmin,
-		"status": 1
+		"status": 5
 	}
 
 	var items = '';
@@ -160,18 +281,93 @@ function fetchOrderDetails(orderID){
 
 
 
+function renderSystemOrderDisplay(orderObj, onlineAmount){
+
+	console.log(orderObj)
+	orderObj.reference = 10066601;
+
+			document.getElementById("renderOnlineOrderArea").style.display = 'block';
+			$("#onlineOrders>tr.onlineOrderListingBorder").removeClass("onlineOrderListingBorder");
+			$("#onlineLiveListing_"+orderObj.reference).addClass("onlineOrderListingBorder");
+
+
+			if(orderObj.notes == "PREPAID"){
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderObj.reference+
+									'<tag class="onlinePrepaid">PREPAID ORDER</tag> </h3> '+
+									'<button class="btn btn-success btn-sm" style="float: right">Generate Bill</button>';
+			}
+			else{
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderObj.reference+
+									'<tag class="onlineCOD">Cash on Delivery</tag> </h3> '+
+									'<button class="btn btn-success btn-sm" style="float: right">Generate Bill</button>';
+			}
+				
+			
+			var j = 0;
+			var allItems = "";
+			var myCart = orderObj.cart;
+
+			while(j < myCart.length){
+				allItems = allItems + '<tr> <td>'+(j+1)+'</td> <td>'+myCart[j].name+'</td> <td style="text-align: center">'+myCart[j].qty+'</td>'+
+							'<td style="text-align: center"><i class="fa fa-inr"></i> '+myCart[j].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i> '+myCart[j].qty*myCart[j].price+'</td> </tr>'; 
+				j++;
+			}
+			
+			//Other Calculations
+			if(orderObj.notes == "PREPAID"){
+				allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Amount Received</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+onlineAmount+'</b></td> </tr>';
+			}
+			else{
+				allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Cash to be Collected</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+onlineAmount+'</b></td> </tr>';
+			}
+			
+			document.getElementById("itemInfo").innerHTML = allItems;
+
+			if(orderObj.orderDetails.modeType == 'DELIVERY'){
+				var address = JSON.parse(decodeURI(orderObj.table));
+				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Delivery Address</p>'+
+																			'<p class="deliveryText">'+address.name+'<br>'+address.flatNo+', '+address.flatName+
+																			'<br>'+address.landmark+'<br>'+address.area+'</p> <p class="deliveryText">Mob. <b>'+address.contact+
+																			'</b></p> </div>';
+			}
+			else{
+				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+
+															'<p class="deliveryText" style="font-size: 21px;">'+orderObj.customerName+'</p> <p class="deliveryText" style="font-size: 21px;">Mob. '+orderObj.customerMobile+'</p> </div>';
+			}
+}
+
+
+
 
 function punchOnlineOrderToKOT(encodedOrder){
+
 	var order = JSON.parse(decodeURI(encodedOrder));
 
-	var customerInfo = {
-		"name": order.userName,
-		"mobile": order.userID,
-		"mode": "Delivery",
-		"modeType": "DELIVERY",
-		"mappedAddress": JSON.stringify(order.deliveryAddress),
-		"reference": order.orderID
+	var customerInfo = '';
+
+	if(order.isTakeaway){ //Set default Takeaway Order
+		customerInfo = {
+			"name": order.userName,
+			"mobile": order.userID,
+			"mode": "Takeaway - Zatioon App",
+			"modeType": "PARCEL",
+			"mappedAddress": JSON.stringify(order.deliveryAddress),
+			"reference": order.orderID,
+			"notes": order.isPrepaid ? "PREPAID" : "COD"
+		}	
 	}
+	else{ //Set default Delivery Order
+		customerInfo = {
+			"name": order.userName,
+			"mobile": order.userID,
+			"mode": "Delivery - Zatioon App",
+			"modeType": "DELIVERY",
+			"mappedAddress": JSON.stringify(order.deliveryAddress),
+			"reference": order.orderID,
+			"notes": order.isPrepaid ? "PREPAID" : "COD"
+		}		
+	}
+
 
 	var cart = [];
 
@@ -201,9 +397,6 @@ function punchOnlineOrderToKOT(encodedOrder){
 		n++;
 	}
 
-
 	window.localStorage.zaitoon_cart = JSON.stringify(cart);
 	window.localStorage.customerData = JSON.stringify(customerInfo);
-
-	console.log(cart);
 }
