@@ -131,7 +131,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
           */
 
           if(!kotfile.discount.amount ||  kotfile.discount.amount == 0){
-            if(kotfile.orderDetails.prediscount != 0){
+            if(kotfile.orderDetails.prediscount && kotfile.orderDetails.prediscount != 0){
               savePrediscountToKOT(kotfile.KOTNumber, kotfile.orderDetails.prediscount, optionalPageRef);
               return '';
             }
@@ -1874,9 +1874,14 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
               success: function(data) {
                 if(data.ok){
 
-
                           showToast('Bill #'+billNumber+' generated Successfully', '#27ae60');
+
+                          //If an online order ==> Update Mapping
+                          if((kotfile.orderDetails.notes == 'COD' || kotfile.orderDetails.notes == 'PREPAID') && (kotfile.orderDetails.reference && kotfile.orderDetails.reference != '')){
+                            updateOnlineOrderMapping(kotfile);
+                          }
                           
+
                           clearAllMetaDataOfBilling();
                           hideBillPreviewModal();
 
@@ -1981,7 +1986,6 @@ function settleBillAndPush(encodedBill, optionalPageRef){
     settleBillAndPushAuto(bill, optionalPageRef);
     return '';
   }
-
 
   //Calculate Sum to be paid
   var grandPayableBill = 0;
@@ -2496,6 +2500,80 @@ function settleBillAndPushAuto(bill, optionalPageRef){
 }
 
 
+
+function updateOnlineOrderMapping(orderObject){
+
+  //Pass the info to the Server Mapping
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_ONLINE_ORDERS_MAPPING" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_ONLINE_ORDERS_MAPPING'){
+
+              var onlineOrdersMapping = data.docs[0].value;
+
+              var n = 0;
+              while(onlineOrdersMapping[n]){
+                if(onlineOrdersMapping[n].systemBill == orderObject.KOTNumber){
+                  onlineOrdersMapping[n].systemBill = orderObject.billNumber;
+                  onlineOrdersMapping[n].systemStatus = 2;
+                  onlineOrdersMapping[n].lastUpdate = orderObject.timeBill;
+                  break;
+                }
+                n++;
+              }
+              
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_ONLINE_ORDERS_MAPPING",
+                  "value": onlineOrdersMapping
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_ONLINE_ORDERS_MAPPING/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Online Orders Mapping. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });  
+
+
+          }
+          else{
+            showToast('Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
+}
 
 
 

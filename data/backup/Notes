@@ -13,8 +13,9 @@ Notes:
 11. Easy COPY button everywhere possible
 12. AUTO APPLY Discount (if online order has discount applied)
 13. NEW ONLINE Order warning
+14. Copy Online Order COMMENTS to Order Comments
 
 
 Reserved Keywords:
-PREPAID - In payments (for Online Prepaid orders)
+PREPAID - In payments (for Online Prepaid orders) <-- Custom name for it in Personalisation (PREPAID == 'Razor Pay Gateway')
 Zaitoon App - In Discounts (for pre applied discounts) <-- add it in Summary page also

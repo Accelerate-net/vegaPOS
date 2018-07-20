@@ -215,8 +215,10 @@ function showLoading(time, text){
       clearInterval(loadingLapsedInterval);
       document.getElementById("generalLoadingModal").style.display = 'none';
     }
+
     startCount--;
     document.getElementById("generalLoaderCount").innerHTML = startCount;
+    console.log('Am Secretly running...')
   }, 1000); 
 
 }

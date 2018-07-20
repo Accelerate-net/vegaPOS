@@ -3465,6 +3465,12 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
 	              		showToast('#'+kot+' generated Successfully', '#27ae60');
 	              		
+	              		//If an online order ==> Save Mapping
+	              		if((obj.orderDetails.notes == 'COD' || obj.orderDetails.notes == 'PREPAID') && (obj.orderDetails.reference && obj.orderDetails.reference != '')){
+	              			saveOnlineOrderMapping(obj);
+	              		}
+	              		
+
 	              		pushCurrentOrderAsEditKOT(obj);
 	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
 	              	}
@@ -3523,6 +3529,82 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
       }
 
     });
+}
+
+
+function saveOnlineOrderMapping(orderObject){
+
+	//Pass the info to the Server Mapping
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_ONLINE_ORDERS_MAPPING" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_ONLINE_ORDERS_MAPPING'){
+
+	          	var onlineOrdersMapping = data.docs[0].value;
+
+	          	var newMapping = {
+			      "onlineOrder": parseInt(orderObject.orderDetails.reference),
+			      "name": orderObject.customerName,
+			      "mobile": orderObject.customerMobile,
+			      "lastUpdate": orderObject.timePunch,
+			      "type": orderObject.orderDetails.modeType == 'PARCEL' ? 'TAKEAWAY' : 'DELIVERY',
+			      "amount": orderObject.orderDetails.notes == 'PREPAID' ? 'Prepaid' : 'Not Paid',
+			      "systemBill": orderObject.KOTNumber,
+			      "systemStatus": 1	          		
+	          	}
+
+	          	onlineOrdersMapping.push(newMapping);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_ONLINE_ORDERS_MAPPING",
+                  "value": onlineOrdersMapping
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_ONLINE_ORDERS_MAPPING/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Online Orders Mapping. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });  
+
+
+          }
+          else{
+            showToast('Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 	
 }
 
 
