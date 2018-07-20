@@ -12,3 +12,9 @@ Notes:
 10. All round off to TWO DECIMALS
 11. Easy COPY button everywhere possible
 12. AUTO APPLY Discount (if online order has discount applied)
+13. NEW ONLINE Order warning
+
+
+Reserved Keywords:
+PREPAID - In payments (for Online Prepaid orders)
+Zaitoon App - In Discounts (for pre applied discounts) <-- add it in Summary page also

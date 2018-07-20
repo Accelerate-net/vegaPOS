@@ -8,6 +8,10 @@ function renderLiveOnlineOrders(){
 																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderLiveOnlineOrders()">Refresh</button>';
 
 
+	document.getElementById("orderInfo").innerHTML = '';
+	document.getElementById("renderOnlineOrderArea").style.display = 'none';
+
+
 
     var requestData = {
       "selector"  :{ 
@@ -110,6 +114,10 @@ function renderBilledOnlineOrders(){
 
 	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Billed Orders</h3>'+
 																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderBilledOnlineOrders()">Refresh</button>';
+
+	document.getElementById("orderInfo").innerHTML = '';
+	document.getElementById("renderOnlineOrderArea").style.display = 'none';
+
 }
 
 function renderOnlineOrders(){
@@ -121,6 +129,10 @@ function renderOnlineOrders(){
 
 	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Incoming Orders</h3>'+
 																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderOnlineOrders()">Refresh</button>';
+
+	document.getElementById("orderInfo").innerHTML = '';
+	document.getElementById("renderOnlineOrderArea").style.display = 'none';
+
 
 
 	var data = {
@@ -279,8 +291,6 @@ function fetchOrderDetails(orderID){
 
 }
 
-
-
 function renderSystemOrderDisplay(orderObj, onlineAmount){
 
 	console.log(orderObj)
@@ -342,6 +352,7 @@ function renderSystemOrderDisplay(orderObj, onlineAmount){
 function punchOnlineOrderToKOT(encodedOrder){
 
 	var order = JSON.parse(decodeURI(encodedOrder));
+	console.log(order)
 
 	var customerInfo = '';
 
@@ -353,7 +364,8 @@ function punchOnlineOrderToKOT(encodedOrder){
 			"modeType": "PARCEL",
 			"mappedAddress": JSON.stringify(order.deliveryAddress),
 			"reference": order.orderID,
-			"notes": order.isPrepaid ? "PREPAID" : "COD"
+			"notes": order.isPrepaid ? "PREPAID" : "COD",
+			"prediscount": order.cart.cartDiscount
 		}	
 	}
 	else{ //Set default Delivery Order
@@ -364,7 +376,8 @@ function punchOnlineOrderToKOT(encodedOrder){
 			"modeType": "DELIVERY",
 			"mappedAddress": JSON.stringify(order.deliveryAddress),
 			"reference": order.orderID,
-			"notes": order.isPrepaid ? "PREPAID" : "COD"
+			"notes": order.isPrepaid ? "PREPAID" : "COD",
+			"prediscount": order.cart.cartDiscount
 		}		
 	}
 
@@ -395,6 +408,21 @@ function punchOnlineOrderToKOT(encodedOrder){
 		}
 
 		n++;
+	}
+
+
+	/* warn if unsaved order (Not editing case) */
+	if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){
+	    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+	        showToast('Warning! There is an unsaved order being punched. Please complete it to continue.', '#e67e22');
+	    	return '';
+	    }    
+	}
+	
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+	    showToast('Warning! There is an order being modified. Please complete it to continue.', '#e67e22');
+	    return '';
+	     
 	}
 
 	window.localStorage.zaitoon_cart = JSON.stringify(cart);

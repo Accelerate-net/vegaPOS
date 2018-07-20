@@ -122,6 +122,23 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
 
           otherChargerRenderCount = otherChargerRenderCount + i;
 
+
+
+          //Auto Calculate Discount (for Prepaid Orders from App) 
+          /* 
+            Classify those as 'Zaitoon App' discounts which are pre-applied discounts 
+            Condition: No other discount applied.
+          */
+
+          if(!kotfile.discount.amount ||  kotfile.discount.amount == 0){
+            if(kotfile.orderDetails.prediscount != 0){
+              savePrediscountToKOT(kotfile.KOTNumber, kotfile.orderDetails.prediscount, optionalPageRef);
+              return '';
+            }
+          }
+
+
+
           //Discount
           var discountTag = '';
           if(kotfile.discount.amount &&  kotfile.discount.amount != 0){
@@ -977,6 +994,64 @@ function removeCustomExtraOnKOT(kotID, optionalPageRef){
 
     });   
 }
+
+
+function savePrediscountToKOT(kotID, amount, optionalPageRef){
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+              var kotfile = data.docs[0];
+
+              kotfile.discount.amount = amount;
+              kotfile.discount.type = 'Zaitoon App';
+              kotfile.discount.unit = 'FIXED';
+              kotfile.discount.value = amount;
+              kotfile.discount.reference = 'App Pre-applied Discount';
+                       
+                
+                //Update
+                var updateData = kotfile;
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                          showToast('Discount of <i class="fa fa-inr"></i>'+amount+' pre-applied.', '#27ae60');
+                          generateBillFromKOT(kotID, optionalPageRef);
+                          generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+}
+
 
 
 function applyCustomExtraOnKOT(kotID, optionalPageRef){
@@ -1883,6 +1958,7 @@ function clearAllMetaDataOfBilling(){
   customerInfo.mappedAddress = "";
   customerInfo.reference = "";
   customerInfo.notes = "";
+  customerInfo.prediscount = "";
   customerInfo.count = "";
 
   window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -1897,7 +1973,15 @@ function clearAllMetaDataOfBilling(){
 
 /* SETTLE BILL */
 function settleBillAndPush(encodedBill, optionalPageRef){
+
   var bill = JSON.parse(decodeURI(encodedBill));
+
+  //Check if Prepaid Order ==> If YES, auto-settle
+  if(bill.orderDetails.notes == 'PREPAID'){
+    settleBillAndPushAuto(bill, optionalPageRef);
+    return '';
+  }
+
 
   //Calculate Sum to be paid
   var grandPayableBill = 0;
@@ -2222,7 +2306,6 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
     var bill = JSON.parse(decodeURI(encodedBill));
 
-
     var splitPayHoldList = window.localStorage.billSettleSplitPlayHoldList ? JSON.parse(window.localStorage.billSettleSplitPlayHoldList): [];
 
     if(splitPayHoldList.length == 0){
@@ -2360,6 +2443,60 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
             }
           });    
 }
+
+
+function settleBillAndPushAuto(bill, optionalPageRef){
+
+    bill.paymentReference = "Prepaid Order";
+    bill.timeSettle = getCurrentTime('TIME');
+    bill.totalAmountPaid = parseFloat(bill.payableAmount).toFixed(2);
+    bill.paymentMode = "PREPAID";
+    bill.dateStamp = getCurrentTime('DATE_STAMP');
+
+
+    //Clean _rev and _id (bill Scraps)
+    var finalInvoice = bill;
+    delete finalInvoice._id;
+    delete finalInvoice._rev
+
+          //Post to local Server
+          $.ajax({
+            type: 'POST',
+            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/',
+            data: JSON.stringify(finalInvoice),
+            contentType: "application/json",
+            dataType: 'json',
+            timeout: 10000,
+            success: function(data) {
+              if(data.ok){
+                showToast("Prepaid Order #"+bill.orderDetails.reference+" - bill settled successfully", '#27ae60');
+                //Successfully pushed
+                hideSettleBillAndPush();
+
+                console.log('>>>>>>>> DELETE MEEEEEE!!!')
+                console.log('bill copy on the server')
+
+                //Free the mapped Table
+                if(bill.orderDetails.modeType == 'DINE')
+                  releaseTableAfterBillSettle(bill.table, bill.billNumber)
+
+                //re-render page
+                if(optionalPageRef == 'GENERATED_BILLS')
+                  loadAllPendingSettlementBills('EXTERNAL'); 
+
+              }
+              else{
+                showToast('Warning: Bill #'+tableID+' was not Settled. Try again.', '#e67e22');
+              }
+            },
+            error: function(data){           
+              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+            }
+          });    
+}
+
+
+
 
 
 

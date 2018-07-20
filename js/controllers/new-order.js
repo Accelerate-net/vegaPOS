@@ -1595,6 +1595,7 @@ function renderCustomerInfo(){
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
 		customerInfo.notes = "";
+		customerInfo.prediscount = "";
 	}
 
 
@@ -1639,6 +1640,7 @@ function renderCustomerInfo(){
 					customerInfo.mappedAddress = "";
 					customerInfo.reference = "";
 					customerInfo.notes = "";
+					customerInfo.prediscount = "";
 				}
 				else{
 
@@ -2277,6 +2279,7 @@ function changeCustomerInfo(type, optionalValue){
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
 		customerInfo.notes = "";
+		customerInfo.prediscount = "";
 	}
 
 		switch(type){
@@ -2344,6 +2347,7 @@ function setCustomerInfoTable(tableID){
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
 		customerInfo.notes = "";
+		customerInfo.prediscount = "";
 	}
 
 	customerInfo.mappedAddress = tableID;
@@ -2679,6 +2683,7 @@ function overWriteCurrentRunningOrder(kot){
     customerInfo.modeType = kot.orderDetails.modeType;
     customerInfo.reference = kot.orderDetails.reference;
     customerInfo.notes = kot.orderDetails.notes;
+    customerInfo.prediscount = kot.orderDetails.prediscount;
 
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
@@ -3370,6 +3375,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	orderMetaInfo.mode = customerInfo.mode;
 	orderMetaInfo.modeType = customerInfo.modeType;
 	orderMetaInfo.reference = customerInfo.reference;
+	orderMetaInfo.notes = customerInfo.notes;
+	orderMetaInfo.prediscount = customerInfo.prediscount;
    
     //Check for KOT index on Server
     var requestData = {
@@ -3534,6 +3541,7 @@ function pushCurrentOrderAsEditKOT(kot){
     customerInfo.modeType = kot.orderDetails.modeType;
     customerInfo.reference = kot.orderDetails.reference;
     customerInfo.notes = kot.orderDetails.notes;
+    customerInfo.prediscount = kot.orderDetails.prediscount;
 
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
@@ -3553,6 +3561,7 @@ function clearAllMetaData(){
 	customerInfo.mappedAddress = "";
 	customerInfo.reference = "";
 	customerInfo.notes = "";
+	customerInfo.prediscount = "";
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 	window.localStorage.zaitoon_cart = '';
@@ -3612,6 +3621,7 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 	customerInfo.mappedAddress = TableNumber;
 	customerInfo.reference = "";
 	customerInfo.notes = "";
+	customerInfo.prediscount = "";
 
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -3695,6 +3705,7 @@ function freshOrderForCustomer(customerEncoded){
 	customerInfo.reference = "";
 	customerInfo.count = "";
 	customerInfo.notes = "";
+	customerInfo.prediscount = "";
 
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -4501,6 +4512,7 @@ function setTokenManuallySave(){
 										customerInfo.mappedAddress = "";
 										customerInfo.reference = "";
 										customerInfo.notes = "";
+										customerInfo.prediscount = "";
 									}
 
 									customerInfo.mappedAddress = token;
@@ -4565,6 +4577,7 @@ function restartTokenManuallySave(){
 												customerInfo.mappedAddress = "";
 												customerInfo.reference = "";
 												customerInfo.notes = "";
+												customerInfo.prediscount = "";
 											}
 
 											customerInfo.mappedAddress = 1;

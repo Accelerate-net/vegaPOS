@@ -160,6 +160,7 @@ function overWriteCurrentOrder(encodedKOT){
     customerInfo.modeType = kot.orderDetails.modeType;
     customerInfo.reference = kot.orderDetails.reference;
     customerInfo.notes = kot.orderDetails.notes;
+    customerInfo.prediscount = kot.orderDetails.prediscount;
 
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
