@@ -376,18 +376,21 @@ input[type=number]::-webkit-outer-spin-button {
 
 
 .holddropbtn {
-    top: -5px;
-    background: #f39c12;
+    top: 7px;
+    background: #ffffff;
     position: relative;
-    color: #FFF;
-    padding: 4px 6px;
-    border-radius: 2px;
-    font-size: 14px;
+    color: #fb8b01;
+    font-weight: 400 !important;
     border: none;
     cursor: pointer;
     margin-left: 10px;
-    font-weight: 400;
     text-transform: none;
+    height: 29px;
+    right: 7px;
+    border-radius: 2px;
+    padding: 6px 8px;
+    font-size: 15px;
+    font-family: 'Source Sans Pro',sans-serif;
 }
 
 .holddropbtn:focus{
@@ -397,7 +400,12 @@ input[type=number]::-webkit-outer-spin-button {
 .holddropdown {
     position: relative;
     display: inline-block;
-    float: right; margin-right: 5px; margin-top: 5px;
+    float: right;
+    margin-right: 0;
+    margin-top: 0;
+    height: 43px;
+    top: -10px;
+    right: -10px
 }
 
 .holddropdown-content {
@@ -409,6 +417,7 @@ input[type=number]::-webkit-outer-spin-button {
     max-width: 320px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 10;
+    margin-top: 10px;
 
 }
 
@@ -436,12 +445,12 @@ input[type=number]::-webkit-outer-spin-button {
     display: block;
 }
 .holddropdown:hover .holddropbtn {
-    background-color: #ffb43c;
+    background-color: rgba(255, 255, 255, 0.8);
 }
 
 .holdTableName{
-  font-size: 16px; text-overflow:ellipsis; 
-  overflow:hidden; white-space:nowrap; font-weight: bold;
+  font-size: 15px; text-overflow:ellipsis; 
+  overflow:hidden; white-space:nowrap; font-weight: 600;
 }
 
 .holdTimeAgo{
@@ -471,14 +480,69 @@ input[type=number]::-webkit-outer-spin-button {
   background: #c0392b;
 }
 
-.posCartSubHead{
-    text-align: center;
-    margin: 0 0 5px 0;
-    font-size: 16px;
-    letter-spacing: 2px;
-    font-weight: 400;
-    text-transform: uppercase;
+.posCartHeader{
+    height: 43px;
+    background: #1abc9c;
 }
+
+.posCartSubHead{
+    text-align: left;
+    padding-left: 7px;
+    letter-spacing: 1px;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 6px 0 3px 0;
+    text-transform: uppercase;
+    color: #1abc9c;
+}
+
+.posCartHead{
+    text-align: left;
+    color: #FFF;
+    font-size: 21px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 10px;
+}
+
+
+.skin-yellow-light .posCartHeader, .skin-yellow .posCartHeader{
+  background: #f39c12 !important;
+}
+
+.skin-blue-light .posCartHeader, .skin-blue .posCartHeader{
+  background: #3c8dbc !important;
+}
+
+.skin-red-light .posCartHeader, .skin-red .posCartHead{
+  background: #dd4b39 !important;
+}
+
+.skin-purple-light .posCartHeader, .skin-purple .posCartHeader{
+  background: #605ca8 !important;
+}
+
+
+
+.skin-yellow-light .posCartSubHead, .skin-yellow .posCartSubHead{
+  color: #f39c12 !important;
+}
+
+.skin-blue-light .posCartSubHead, .skin-blue .posCartSubHead{
+  color: #3c8dbc !important;
+}
+
+.skin-red-light .posCartSubHead, .skin-red .posCartSubHead{
+  color: #dd4b39 !important;
+}
+
+.skin-purple-light .posCartSubHead, .skin-purple .posCartSubHead{
+  color: #605ca8 !important;
+}
+
+
+
 
 .pos .contents #item-list .btn-both span{
     background: #16a085 !important;
@@ -497,7 +561,7 @@ input[type=number]::-webkit-outer-spin-button {
   font-weight: 300;
   margin-top: 0px;
   margin-bottom: 0px;
-  padding: 15px 15px;
+  padding: 10px;
   color: #FFF;
   background: #1abc9c;
  font-family: 'Oswald', sans-serif;
@@ -1750,14 +1814,8 @@ ol ol {
   border-color: #FFF !important;
 }
 
-.posCartHead{
-    margin: 10px 0;
-    text-align: left;
-    color: #39675e;
-    font-size: 24px;
-    font-weight: bold;
-    text-transform: uppercase;
-    padding: 0 5px;
+
+
 }
 
 .skin-green .main-header .logo:hover{
@@ -1775,9 +1833,7 @@ ol ol {
   background: #666580 !important;
 }
 
-.skin-purple .posCartHead{
-  color: #666580 !important;
-}
+
 
 .skin-purple .table>tbody>tr.success>td,
 .skin-purple .table>tbody>tr.success>th,
@@ -1847,9 +1903,6 @@ ol ol {
   background: #666580 !important;
 }
 
-.skin-purple-light .posCartHead{
-  color: #666580 !important;
-}
 
 .skin-purple-light .table>tbody>tr.success>td,
 .skin-purple-light .table>tbody>tr.success>th,
@@ -1921,9 +1974,7 @@ ol ol {
   background: #9a655f !important;
 }
 
-.skin-red .posCartHead{
-  color: #9a655f !important;
-}
+
 
 .skin-red .table>tbody>tr.success>td,
 .skin-red .table>tbody>tr.success>th,
@@ -1992,10 +2043,6 @@ ol ol {
 
 .skin-red-light .cartTitleRow, .skin-red-light .cartSumRow{
   background: #9a655f !important;
-}
-
-.skin-red-light .posCartHead{
-  color: #9a655f !important;
 }
 
 .skin-red-light .table>tbody>tr.success>td,
@@ -2068,9 +2115,7 @@ ol ol {
   background: #317890 !important;
 }
 
-.skin-blue .posCartHead{
-  color: #317890 !important;
-}
+
 
 .skin-blue .table>tbody>tr.success>td,
 .skin-blue .table>tbody>tr.success>th,
@@ -2141,9 +2186,7 @@ ol ol {
   background: #317890 !important;
 }
 
-.skin-blue-light .posCartHead{
-  color: #317890 !important;
-}
+
 
 .skin-blue-light .table>tbody>tr.success>td,
 .skin-blue-light .table>tbody>tr.success>th,
@@ -2218,9 +2261,7 @@ ol ol {
   background: #c7934d !important;
 }
 
-.skin-yellow .posCartHead{
-  color: #c7934d !important;
-}
+
 
 .skin-yellow .table>tbody>tr.success>td,
 .skin-yellow .table>tbody>tr.success>th,
@@ -2291,9 +2332,7 @@ ol ol {
   background: #c7934d !important;
 }
 
-.skin-yellow-light .posCartHead{
-  color: #c7934d !important;
-}
+
 
 .skin-yellow-light .table>tbody>tr.success>td,
 .skin-yellow-light .table>tbody>tr.success>th,
@@ -2418,7 +2457,7 @@ ol ol {
 
 .cartCustomerLabel{
       margin-bottom: 3px;
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 400;
     text-transform: uppercase;
     color: #bdbdbd;
@@ -3487,31 +3526,79 @@ position: absolute;
     width: 50px;
     padding: 0;
     display: inline-block;
-    height: 50px;
+    height: 43px;
     position: absolute;
     top: 0;
     cursor: pointer;
 }
 
 .specialRequestsButton{
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     display: inline-block;
-    padding: 6px 9px;
+    padding: 5px 6px;
     position: relative;
-    top: 8px;
+    top: 6.5px;
     left: 8px;
     border-radius: 50%;
-    color: #e6e2e2;
-    font-size: 21px;
+    color: #10866f;
+    font-size: 19px;
 }
+
+
+.skin-blue .specialRequestsButton, .skin-blue-light .specialRequestsButton{
+  color: #2b6a80;
+}
+
+.skin-red .specialRequestsButton, .skin-red-light .specialRequestsButton{
+  color: #b33323;
+}
+
+.skin-purple .specialRequestsButton, .skin-purple-light .specialRequestsButton{
+  color: #34325f;
+}
+
+.skin-yellow .specialRequestsButton, .skin-yellow-light .specialRequestsButton{
+  color: #c37d0d;
+}
+
+.bannedIngredient{
+  padding-left: 3px;
+  color: #ffeb00 !important;
+}
+
+.skin-yellow .bannedIngredient, .skin-yellow-light .bannedIngredient{
+  color: red !important;
+}
+
+
+
+.specialRequestsButtonActive{
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    padding: 5px 6px;
+    position: relative;
+    top: 6.5px;
+    left: 8px;
+    border-radius: 50%;
+    color: #10866f !important;
+    font-size: 19px;  
+    background: #FFF !important;
+}
+
+.specialRequestsButtonActive:hover,
+.specialRequestsButtonActive:active,
+.specialRequestsButtonActive:focus{
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
 
 /* Theme */
 .specialRequestsHolder:hover .specialRequestsButton,
 .specialRequestsHolder:active .specialRequestsButton,
 .specialRequestsHolder:focus .specialRequestsButton,
 .specialRequestsButtonActive{
-  background: #1abc9c;
   color: #FFF;
 }
 
@@ -3524,7 +3611,6 @@ position: absolute;
 .skin-blue-light .specialRequestsHolder:active .specialRequestsButton,
 .skin-blue-light .specialRequestsHolder:focus .specialRequestsButton,
 .skin-blue-light .specialRequestsButtonActive{
-  background: #3c8dbc;
   color: #FFF;
 }
 
@@ -3537,7 +3623,6 @@ position: absolute;
 .skin-red-light .specialRequestsHolder:active .specialRequestsButton,
 .skin-red-light .specialRequestsHolder:focus .specialRequestsButton,
 .skin-red-light .specialRequestsButtonActive{
-  background: #dd4b39;
   color: #FFF;
 }
 
@@ -3550,7 +3635,6 @@ position: absolute;
 .skin-purple-light .specialRequestsHolder:active .specialRequestsButton,
 .skin-purple-light .specialRequestsHolder:focus .specialRequestsButton,
 .skin-purple-light .specialRequestsButtonActive{
-  background: #605ca8;
   color: #FFF;
 }
 
@@ -3563,7 +3647,6 @@ position: absolute;
 .skin-yellow-light .specialRequestsHolder:active .specialRequestsButton,
 .skin-yellow-light .specialRequestsHolder:focus .specialRequestsButton,
 .skin-yellow-light .specialRequestsButtonActive{
-  background: #f39c12;
   color: #FFF;
 }
 
@@ -3593,6 +3676,7 @@ position: absolute;
   opacity: 0;
   padding-right: 6px;
   color: #FFF;
+  display: inline-block;
 }
 
 .activeIngredient{

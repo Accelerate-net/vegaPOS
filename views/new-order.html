@@ -1,21 +1,30 @@
 <template class="task-template">
         
-   <div class="row">
-      <div class="col-sm-4">
+   <div class="row" style="position: relative; top: -5px;">
+      <div class="col-sm-4" style="padding: 0 0 0 10px">
 
-         <div id="pos">
-            <form>
-            
-               <div class="well well-sm punchPOS" id="leftdiv" style="padding: 2px 2px 8px 2px; margin-bottom: 5px; border: 3px solid #FFF;">
+               <div class="posCartHeader">
+                     <h1 class="posCartHead" style="margin: 0" id="ongoingOrderTitle">
+                              New Order
+                        <tag class="specialRequestsHolder" onclick="openSpecialRequestModal()"><tag class="specialRequestsButtonActive"><i class="fa fa-comment-o"></i></tag></tag>
+                     </h1> 
+               </div>   
+
+               <div class="well well-sm punchPOS" id="leftdiv" style="padding: 0 2px 8px 2px; margin-bottom: 5px;">
+
                   <div id="lefttop" style="margin-bottom: 5px;">
 
-                        <h1 class="posCartHead" id="ongoingOrderTitle">
-                           New Order<tag class="specialRequestsHolder" onclick="openSpecialRequestModal()"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>
-                        </h1>
+
+<!-- 
+                           <h1 class="posCartHead" id="ongoingOrderTitle">
+                              New Order<tag class="specialRequestsHolder" onclick="openSpecialRequestModal()"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>
+                           </h1>
+ -->
+                       
                      
                         <hr style="margin: 0">
 
-                        <h2 class="posCartSubHead" style="margin-top: 12px">Customer Details</h2>
+                        <h2 class="posCartSubHead" style="margin-top: 8px; margin-bottom: 0">Customer Details</h2>
                         <div style="padding: 0 6px" id="orderCustomerInfo"></div>
 
                         <h2 class="posCartSubHead" style="margin-top: 8px">Order Cart</h2>
@@ -62,18 +71,11 @@
                      </div>
                   </div>
 
-
                </div>
-            </form>
-                  
+            
+         
+            <div id="cartActionButtons" class="col-xs-12 text-center"> </div>
 
-                  <div id="cartActionButtons" class="col-xs-12 text-center">
-
-                  </div>
-
-
-
-         </div>
 
 
       </div>
@@ -375,14 +377,14 @@
                      <div class="row">
                         <div class="col-lg-12">
                                  <div class="form-group">
-                                    <label style="margin: 0 0 10px 0; font-size: 21px; font-weight: 300;">Special Requests for this Order</label>
-                                    <hr>
-                                    <input type="text" value="" class="form-control tip" id="specialRequests_comments" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px;" placeholder="Add any Special Request?" required="required" />
+                                    <label style="margin: 0 0 10px 0; font-size: 21px; font-weight: 400; font-family: sans-serif;">Special Requests for this Order</label>
+                                    <hr style="margin-top: 0">
+                                    <input type="text" value="" class="form-control tip" id="specialRequests_comments" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px; margin: 30px 0 20px 0" placeholder="Add any Special Request?" required="required" />
                                  </div>                                 
                         </div>
                      </div>
 
-                     <p style="margin: 0; font-size: 14px; font-weight: 400; margin-bottom: 5px; color: #969696;">Suggestions: Avoid Allergic Ingredients</p>
+                     <p style="margin: 0; font-size: 11px; font-weight: bold; margin-bottom: 5px; color: #969696; text-transform: uppercase; letter-spacing: 1px;">Avoid Allergic Ingredients</p>
                      <div id="specialRequestsAllergicSuggestions"></div>
 
 

@@ -83,6 +83,29 @@ function additemtocart(encodedItem, optionalSource){
 	}
 
 	var productToAdd = JSON.parse(decodeURI(encodedItem));
+
+	//Allergy Check
+	var allergicIngredients = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
+	if(allergicIngredients.length > 0){
+		console.log(productToAdd)
+		if(productToAdd.ingredients && productToAdd.ingredients.length > 0){
+			var a = 0;
+			var allergyIngredientDetected = false;
+			while(allergicIngredients[a] && !allergyIngredientDetected){
+				
+				for(var i = 0; i < productToAdd.ingredients.length; i++){
+					if(allergicIngredients[a] == productToAdd.ingredients[i]){
+						showToast('Ingredient Filter Warning: '+productToAdd.name+' contains <b>'+ allergicIngredients[a] + '</b>', '#48929B');
+						allergyIngredientDetected = true;
+						break;
+					}
+				}
+
+				a++;
+			}			
+		}
+	}
+
 	
 	if(productToAdd.isCustom){
 		//Pop up
@@ -533,6 +556,9 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 		}
 	}
 	else{ //New Order
+
+		var allergyIngredientDetected = false;
+
 		while(i < cart_products.length){
 			variantName = '';
 			totqty = totqty + cart_products[i].qty
@@ -543,7 +569,47 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				variantName = ' ('+cart_products[i].variant+')';
 			}
 
-			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
+			//Allergy Check
+			var allergicIngredients = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
+			if(allergicIngredients.length > 0){
+				if(cart_products[i].ingredients && cart_products[i].ingredients.length > 0){
+					
+					var itemContainsAllergicIngredient = false;
+
+					var a = 0;
+					while(allergicIngredients[a] && !itemContainsAllergicIngredient){
+						
+						for(var c = 0; c < cart_products[i].ingredients.length; c++){
+							if(allergicIngredients[a] == cart_products[i].ingredients[c]){
+								itemContainsAllergicIngredient = true;
+								allergyIngredientDetected = true;
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+								break;
+							}
+						}
+
+						if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
+							temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+						}
+
+						a++;
+					}			
+				}
+				else{
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+				}
+			}
+			else{
+				temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+			}
+
+
+			if(i == cart_products.length - 1){
+				if(allergyIngredientDetected){
+					showToast('<i class="fa fa-ban"></i> Ingredient Filter Warning: Certain items in this order contains allergic ingredients', '#48929B');
+				}
+			}
+
 			i++
 		}
 	}
@@ -735,6 +801,20 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	var editingKOTContent = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 
  	//EDIT - Actions     
+ 	if(!selectedBillingModeInfo || selectedBillingModeInfo == ''){
+ 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
+	                        '<div class="col-xs-12" style="padding: 0">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()">Close</button>'+
+	                           '</div>'+
+	                        '</div>'+
+	                     '</div>';
+
+	    showToast('Unknown Billing Mode. Check if the mode '+document.getElementById("customer_form_data_mode").value+' exists.', '#e74c3c');
+          
+ 		return '';
+ 	}
+
  	if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'TOKEN' || selectedBillingModeInfo.type == 'DELIVERY'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
@@ -800,7 +880,22 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
  	}  		
 }
 else{
- 	//NEW ORDER - Actions    
+ 	//NEW ORDER - Actions 
+
+ 	if(!selectedBillingModeInfo || selectedBillingModeInfo == ''){
+ 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
+	                        '<div class="col-xs-12" style="padding: 0">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()">Close</button>'+
+	                           '</div>'+
+	                        '</div>'+
+	                     '</div>';
+
+	    showToast('Unknown Billing Mode. Check if the mode '+document.getElementById("customer_form_data_mode").value+' exists.', '#e74c3c');
+          
+ 		return '';
+ 	}
+
  	if(selectedBillingModeInfo.type == 'TOKEN'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0">'+
@@ -848,6 +943,15 @@ else{
 		/* cuurently used for quantity up and down operation only!  --> ADD MORE */
 		$('#'+optionalFocusKey).focus();
 	}
+}
+
+
+
+function startFreshOrder(){
+	clearAllMetaData();
+	renderCustomerInfo();
+	renderTables();
+	renderCart();
 }
 
 function undoChangesInKOT(){
@@ -1194,7 +1298,7 @@ function addHoldOrderToCurrent(encodedItem, id){
 function confirmHoldOverWritingModal(encodedItem, id){
 	document.getElementById("overWriteHoldOrderModal").style.display = 'block';
 	document.getElementById("overWriteHoldOrderModalActions").innerHTML = '<button type="button" class="btn btn-default" onclick="confirmHoldOverWritingModalHide()" style="float: left">Cancel</button>'+
-                  						'<button type="button" class="btn btn-danger" onclick="openHeldOrderConfirm(\''+encodedItem+'\', \''+id+'\')">Open Held Order</button>';
+                  						'<button type="button" class="btn btn-danger" onclick="openHeldOrderConfirm(\''+encodedItem+'\', \''+id+'\')">Open Saved Order</button>';
 }
 
 function confirmHoldOverWritingModalHide(){
@@ -1513,7 +1617,7 @@ function renderCustomerInfo(){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 		isEditingKOT = true;
 		var kotCopy = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : {};
-		document.getElementById("ongoingOrderTitle").innerHTML = '<tag class="cartCustomerLabel" style="display: block; color: #dd4b39;">Running Order</tag><tag class="blink_me">#'+kotCopy.KOTNumber+'</tag>'+( kotCopy.orderDetails.modeType == 'DINE'? '<tag style="float: right; font-weight: 300;"><tag style="text-transform: none; font-size: 80%">Table</tag> <b>'+kotCopy.table+'</b></tag>' : '');
+		document.getElementById("ongoingOrderTitle").innerHTML = '<tag class="cartCustomerLabel blink_me" style="display: block; color: #FFF; font-weight: bold !important; position: fixed; margin-top: -8px;">Running Order</tag><tag>#'+kotCopy.KOTNumber+'</tag>'+( kotCopy.orderDetails.modeType == 'DINE'? '<tag style="float: right; font-weight: 300;"><tag style="text-transform: none; font-size: 80%">Table</tag> <b class="blink_me">'+kotCopy.table+'</b></tag>' : '');
 	}
 	else{
 
@@ -1556,29 +1660,34 @@ function renderCustomerInfo(){
 						}
 					}
 				
-
-				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+displayAddress+
+				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+(holding_orders[n].customerDetails.modeType == 'DINE' ? 'Table #'+holding_orders[n].table : holding_orders[n].customerDetails.modeType+(holding_orders[n].customerDetails.name != '' ? ' <tag style="font-weight: 300; font-size: 90%">('+holding_orders[n].customerDetails.name+')</tag>' : '')  )+
 									'<tag class="holdTimeAgo">'+getFormattedTime(holding_orders[n].timestamp)+' ago</tag></p>'+
 									'<p class="holdItemsBrief">'+itemList+'</p>'+
 								  '</a>';
 				n++;
 			}
 
+			//Check if Special Requests added
+			var isSpecialRequests = false;
+			if((window.localStorage.allergicIngredientsData && window.localStorage.allergicIngredientsData != '[]' && window.localStorage.allergicIngredientsData != '') || (window.localStorage.specialRequests_comments && window.localStorage.specialRequests_comments != '')){
+				isSpecialRequests = true;
+			}
+
 			if(holding_orders.length != 0){
-				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>'+
+				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="'+(isSpecialRequests ? 'specialRequestsButtonActive' : 'specialRequestsButton')+'"><i class="fa fa-comment-o"></i></tag></tag>'+
 													        '<div id="triggerClick_SavedOrdersButton" class="holddropdown">'+
-											                 	'<div class="holddropbtn">'+n+' '+(n == 1? 'Saved Order': 'Saved Orders')+'</div>'+
+											                 	'<div class="holddropbtn"><tag class="fa fa-cloud-download" style="color: #d2d6de; padding-right: 5px"></tag><b>'+n+'</b> '+(n == 1? 'Saved Order': 'Saved Orders')+'</div>'+
 											                 	'<div class="holddropdown-content"><div class="holdContentArea">'+holdListRender+'</div>'+
 											                 	'<div class="holdCancelButton" onclick="removeAllHoldOrders()">Remove All</div>'+
 											                 	'</div>'+
 											               	'</div>';
 			}
 			else{
-				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>'
+				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-comment-o"></i></tag></tag>'
 			}
 		}
 		else{
-			document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>'
+			document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-comment-o"></i></tag></tag>'
 		}
 	}
 
@@ -1946,7 +2055,7 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			                                 '<div class="col-xs-8" style="padding: 0; padding-right: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<div class="input-group" style="width:100%;">'+
-			                                       		 '<label class="cartCustomerLabel">Order Type</label>'+
+			                                       		 '<label class="cartCustomerLabel">Order Type<tag id="orderTypeDisplay" style="color: #ec2465; font-size: 10px; font-weight: bold; padding-left: 3px;">'+customerInfo.modeType+'</tag></label>'+
 			                                             '<input type="text" value="'+customerInfo.mode+'" id="customer_form_data_mode" class="form-control kb-text" disabled/>'+
 			                                       '</div>'+
 			                                       '<div style="clear:both;"></div>'+
@@ -1979,7 +2088,7 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			                                 '<div class="col-xs-8" style="padding: 0; padding-right: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<div class="input-group" style="width:100%;">'+
-			                                       		 '<label class="cartCustomerLabel">Order Type</label>'+billingModesList+
+			                                       		 '<label class="cartCustomerLabel">Order Type</label><tag id="orderTypeDisplay" style="color: #ec2465; font-weight: bold; padding-left: 3px; font-size: 10px">'+customerInfo.modeType+'</tag>'+billingModesList+
 			                                       '</div>'+
 			                                       '<div style="clear:both;"></div>'+
 			                                    '</div>'+
@@ -3647,6 +3756,7 @@ function clearAllMetaData(){
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 	window.localStorage.zaitoon_cart = '';
+	window.localStorage.edit_KOT_originalCopy = '';
 	window.localStorage.userAutoFound = '';
 	window.localStorage.userDetailsAutoFound = '';
 
@@ -4894,12 +5004,12 @@ function openSpecialRequestModal(){
 						var n = 0;
 						while(allergicIngredientsList[n]){
 							if(allergicIngredientsList[n] == ingredientsList[i]){
-								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i]+'" class="btn btn-outline ingredientButton activeIngredient" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
+								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'" class="btn btn-outline ingredientButton activeIngredient" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
 								break;
 							}
 
 							if(n == allergicIngredientsList.length-1){ //last iteration
-								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i]+'" class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
+								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'" class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
 							}
 
 							n++;
@@ -4908,7 +5018,7 @@ function openSpecialRequestModal(){
 	        	}
 	        	else{ 
 					for (var i=0; i<ingredientsList.length; i++){
-						allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i]+'"  class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')">'+ingredientsList[i]+'</button>';
+						allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'"  class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
 	        		}
 	        	}
         		
@@ -4941,6 +5051,15 @@ function openSpecialRequestModal(){
 		'<button type="button" class="btn btn-default" onclick="hideSpecialRequestModal()" style="float: left">Cancel</button>'+
         '<button id="specialRequestCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="saveSpecialRequest()" style="float: right">Save Request</button>';	
 
+	if(window.localStorage.specialRequests_comments && window.localStorage.specialRequests_comments != ''){
+		$('#specialRequests_comments').val(window.localStorage.specialRequests_comments);
+		$('#specialRequests_comments').focus();
+		$('#specialRequests_comments').select();
+	}
+	else{
+		$('#specialRequests_comments').focus();
+	}
+
     
     //Enter to save
     var duplicateClick = false;
@@ -4961,7 +5080,16 @@ function hideSpecialRequestModal(){
 }
 
 function saveSpecialRequest(){
+	var comments = document.getElementById("specialRequests_comments").value;
+	if(comments && comments!= ''){
+		window.localStorage.specialRequests_comments = comments;
+	}	
+	else{
+		window.localStorage.specialRequests_comments = '';
+	}
 
+	hideSpecialRequestModal();
+	renderCustomerInfo();
 }
 
 function alterAllergicIngredientsList(ingredientName){
@@ -4970,7 +5098,8 @@ function alterAllergicIngredientsList(ingredientName){
 	
 	if(allergicIngredientsList.length == 0){
 		allergicIngredientsList.push(ingredientName); //Add it
-		$('#ing_'+ingredientName).addClass('activeIngredient');
+		var className = ingredientName.replace(/\s/g,'');
+		$('#ing_'+className).addClass('activeIngredient');
 		window.localStorage.allergicIngredientsData = JSON.stringify(allergicIngredientsList);
 		return '';
 	}
@@ -4983,7 +5112,8 @@ function alterAllergicIngredientsList(ingredientName){
 			allergicIngredientsList.splice(n,1);
 			window.localStorage.allergicIngredientsData = JSON.stringify(allergicIngredientsList);
 
-			$('#ing_'+ingredientName).removeClass('activeIngredient');
+			var className = ingredientName.replace(/\s/g,'');
+			$('#ing_'+className).removeClass('activeIngredient');
 
 			break;
 		}
@@ -4991,7 +5121,8 @@ function alterAllergicIngredientsList(ingredientName){
 		if(n == allergicIngredientsList.length-1){ //last iteration
 			//Not present --> Add it 
 			allergicIngredientsList.push(ingredientName);
-			$('#ing_'+ingredientName).addClass('activeIngredient');
+			var className = ingredientName.replace(/\s/g,'');
+			$('#ing_'+className).addClass('activeIngredient');
 
 			window.localStorage.allergicIngredientsData = JSON.stringify(allergicIngredientsList);
 			break;
