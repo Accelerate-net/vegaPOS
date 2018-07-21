@@ -239,7 +239,7 @@ function renderServerConnectionStatus(){
         timeout: 2000,
         success: function(data) {
           if(data.status){
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-globe"></i> Connected</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-globe globeRotation"></i> Connected</tag>';
           }
           else
           {
@@ -277,7 +277,7 @@ function getServerConnectionStatus(){
         success: function(data) {
 
           if(data.status){
-            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-globe"></i> Connected</tag>';
+            document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatus"><i class="fa fa-globe globeRotation"></i> Connected</tag>';
           }
           else
           {

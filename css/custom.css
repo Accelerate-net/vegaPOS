@@ -3585,6 +3585,7 @@ position: absolute;
     color: #10866f !important;
     font-size: 19px;  
     background: #FFF !important;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
 }
 
 .specialRequestsButtonActive:hover,
@@ -3840,4 +3841,28 @@ position: absolute;
 .myInlineModeSelection{
   width: initial; display: inline-block; border: none; font-size: 24px; 
   font-weight: bold; color: #19bd4d; position: relative; top: 0px; left: -5px;
+}
+
+
+.specialRequestsButtonActive .swing {
+    animation: swing ease-in-out 0.2s infinite alternate;
+    transform-origin: top;
+}
+ 
+@keyframes swing {
+    0% { transform: rotate(8deg); }
+    100% { transform: rotate(-8deg); }
+}
+
+.globeRotation{
+      -webkit-animation: rotation 2s infinite linear;
+}
+
+@-webkit-keyframes rotation {
+    from {
+        -webkit-transform: rotate(0deg);
+    }
+    to {
+        -webkit-transform: rotate(359deg);
+    }
 }
