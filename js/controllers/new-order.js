@@ -1739,7 +1739,7 @@ function renderCustomerInfo(){
 						}
 					}
 				
-				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+(holding_orders[n].customerDetails.modeType == 'DINE' ? 'Table #'+holding_orders[n].table : holding_orders[n].customerDetails.modeType+(holding_orders[n].customerDetails.name != '' ? ' <tag style="font-weight: 300; font-size: 90%">('+holding_orders[n].customerDetails.name+')</tag>' : '')  )+
+				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+(holding_orders[n].customerDetails.modeType == 'DINE' ? 'Table '+(holding_orders[n].table ? '#'+holding_orders[n].table : 'Unknown') : holding_orders[n].customerDetails.modeType+(holding_orders[n].customerDetails.name != '' ? ' <tag style="font-weight: 300; font-size: 90%">('+holding_orders[n].customerDetails.name+')</tag>' : '')  )+
 									'<tag class="holdTimeAgo">'+getFormattedTime(holding_orders[n].timestamp)+' ago</tag></p>'+
 									'<p class="holdItemsBrief">'+itemList+'</p>'+
 								  '</a>';
@@ -2867,6 +2867,22 @@ function overWriteCurrentRunningOrder(kot){
     customerInfo.notes = kot.orderDetails.notes;
     customerInfo.prediscount = kot.orderDetails.prediscount;
 
+
+    if(kot.specialRemarks && kot.specialRemarks != ''){
+    	window.localStorage.specialRequests_comments = kot.specialRemarks;
+    }
+    else{
+    	window.localStorage.specialRequests_comments = '';
+    }
+
+    if(kot.allergyInfo && kot.allergyInfo != []){
+    	window.localStorage.allergicIngredientsData = JSON.stringify(kot.allergyInfo);
+    }
+    else{
+    	window.localStorage.allergicIngredientsData = '';
+    }
+
+
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -3587,6 +3603,9 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          var today = getCurrentTime('DATE');
 	          var time = getCurrentTime('TIME');
 
+	          var specialRemarksInfo = window.localStorage.specialRequests_comments ? window.localStorage.specialRequests_comments : '';
+	          var allergyData = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
+
 	          var obj = {}; 
 	          obj.KOTNumber = kot;
 	          obj.orderDetails = orderMetaInfo;
@@ -3603,7 +3622,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          obj.timeBill = "";
 	          obj.timeSettle = "";
 	          obj.cart = cart_products;
-	          obj.specialRemarks = 'SPECIAL COMMENTS';
+	          obj.specialRemarks = specialRemarksInfo;
+	          obj.allergyInfo = allergyData;
 	          obj.extras = otherCharges,
 	          obj.discount = {},
 	          obj.customExtras = {}
@@ -3807,6 +3827,20 @@ function pushCurrentOrderAsEditKOT(kot){
     customerInfo.notes = kot.orderDetails.notes;
     customerInfo.prediscount = kot.orderDetails.prediscount;
 
+    if(kot.specialRemarks && kot.specialRemarks != ''){
+    	window.localStorage.specialRequests_comments = kot.specialRemarks;
+    }
+    else{
+    	window.localStorage.specialRequests_comments = '';
+    }
+
+    if(kot.allergyInfo && kot.allergyInfo != []){
+    	window.localStorage.allergicIngredientsData = JSON.stringify(kot.allergyInfo);
+    }
+    else{
+    	window.localStorage.allergicIngredientsData = '';
+    }
+
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -3833,6 +3867,8 @@ function clearAllMetaData(){
 	window.localStorage.userAutoFound = '';
 	window.localStorage.userDetailsAutoFound = '';
 
+	window.localStorage.specialRequests_comments = '';
+	window.localStorage.allergicIngredientsData = '[]';
 
 	window.localStorage.hasUnsavedChangesFlag = 0;
  	document.getElementById("leftdiv").style.borderColor = "#FFF";
@@ -3911,7 +3947,8 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 
 	window.localStorage.userAutoFound = '';
 	window.localStorage.userDetailsAutoFound = '';
-
+	window.localStorage.specialRequests_comments = '';
+	window.localStorage.allergicIngredientsData = '[]';
 
 
 	window.localStorage.hasUnsavedChangesFlag = 0;

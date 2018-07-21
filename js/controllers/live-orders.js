@@ -162,6 +162,22 @@ function overWriteCurrentOrder(encodedKOT){
     customerInfo.notes = kot.orderDetails.notes;
     customerInfo.prediscount = kot.orderDetails.prediscount;
 
+
+    if(kot.specialRemarks && kot.specialRemarks != ''){
+      window.localStorage.specialRequests_comments = kot.specialRemarks;
+    }
+    else{
+      window.localStorage.specialRequests_comments = '';
+    }
+
+    if(kot.allergyInfo && kot.allergyInfo != []){
+      window.localStorage.allergicIngredientsData = JSON.stringify(kot.allergyInfo);
+    }
+    else{
+      window.localStorage.allergicIngredientsData = '';
+    }
+
+
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
