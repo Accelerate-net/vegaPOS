@@ -1,3 +1,4 @@
+
 Notes:
 
 1. Set Default takeaway and delivery modes for ONLINE DELIVERY (Also RESERVED Payment Method)
@@ -19,6 +20,7 @@ Notes:
 16. Remove all impurities from final BILL
 17. Custom landing page (PERSONALISATION for each Machine)
 18. Continues status check for ONLINE ORDER COUNT (Layout.js) --> Only if PERSONALISATION Enbled.
+19. REMOVE SYSTEM NAME --> Kitchen Kiosk added everywhere
 
 Reserved Keywords:
 PREPAID - In payments (for Online Prepaid orders) <-- Custom name for it in Personalisation (PREPAID == 'Razor Pay Gateway')

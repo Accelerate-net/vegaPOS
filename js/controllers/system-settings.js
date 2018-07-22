@@ -11,6 +11,10 @@ function openSystemSettings(id){
       renderPersonalisations();
       break;
     } 
+    case "systemOptions":{
+      renderSystemOptions();
+      break;
+    } 
     case "keyboardShortcuts":{
  
       break;
@@ -25,6 +29,211 @@ function openSystemSettings(id){
     }            
 	}
 }
+
+
+/*read system options data*/
+function renderSystemOptions(){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SYSTEM_OPTIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SYSTEM_OPTIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              //Preload Billing Modes data
+              var requestData = {
+                "selector"  :{ 
+                              "identifierTag": "ZAITOON_BILLING_MODES" 
+                            },
+                "fields"    : ["identifierTag", "value"]
+              }
+
+              $.ajax({
+                type: 'POST',
+                url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+                dataType: 'json',
+                timeout: 10000,
+                success: function(data) {
+                  console.log(data)
+                  if(data.docs.length > 0){
+                    if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+
+                        var modes = data.docs[0].value;
+                        modes.sort(); //alphabetical sorting 
+
+                        renderSystemOptionsAfterProcess(settingsList, modes);
+
+                    }
+                    else{
+                      renderSystemOptionsAfterProcess(settingsList, []);
+                    }
+                  }
+                  else{
+                    renderSystemOptionsAfterProcess(settingsList, []);
+                  }
+                  
+                },
+                error: function(data) {
+                  renderSystemOptionsAfterProcess(settingsList, []);
+                }
+
+              });
+
+
+          }
+          else{
+            showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read System Options data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
+
+function renderSystemOptionsAfterProcess(settingsList, billingModes){
+
+console.log(billingModes)
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+                    var isOnlineOrdersEnabled = false;
+
+                    //Render
+                    for (var i=0; i<params.length; i++){
+
+                      switch(params[i].name){
+                        case "notifications": {
+                          document.getElementById("systemOptionNotification").value = params[i].value
+                          break;
+                        }
+                        case "onlineOrders": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionOnlineOrders").value = params[i].value;
+                            isOnlineOrdersEnabled = true;
+                          }
+                          else{
+                            document.getElementById("systemOptionOnlineOrders").value = 'NO';
+                            isOnlineOrdersEnabled = false;
+                          }
+                          break;
+                        }
+                        case "defaultPrepaidName": {
+                          if(isOnlineOrdersEnabled){
+                            document.getElementById("systemOptionOnlineOrders_prepaidTag").style.display = 'table-row';
+                            document.getElementById("systemOptionOnlineOrders_prepaid_keyword").value = params[i].value;
+                          }  
+                          else{
+                            document.getElementById("systemOptionOnlineOrders_prepaidTag").style.display = 'none';
+                            document.getElementById("systemOptionOnlineOrders_prepaid_keyword").value = params[i].value;
+                          }  
+                          break;
+                        }
+                        case "defaultDeliveryMode": {
+                          if(isOnlineOrdersEnabled){
+
+                            //Render Modes
+                            var n = 0;
+                            var defaultTemplate = '<option value="NONE">Not Set</option>';
+                            var atleastOneFound = false;
+                            while(billingModes[n]){
+                              if(billingModes[n].type == 'DELIVERY'){
+                                defaultTemplate += '<option value="'+billingModes[n].name+'" '+(params[i].value == billingModes[n].name ? 'selected' : '')+'>'+billingModes[n].name+'</option>';
+                                atleastOneFound = true;
+                              }
+                              n++;
+                            }
+
+                            document.getElementById("systemOptionOnlineOrders_default_delivery").style.display = 'table-row';
+                            document.getElementById("systemOptionOnlineOrder_Default_Delivery").innerHTML = atleastOneFound ? defaultTemplate : '<option value="NONE" selected>Not Set</option>';
+
+                          }  
+                          else{
+                            document.getElementById("systemOptionOnlineOrders_default_delivery").style.display = 'none';
+                          }  
+                          break;
+                        }
+                        case "defaultTakeawayMode": {
+                          if(isOnlineOrdersEnabled){
+
+                            //Render Modes
+                            var n = 0;
+                            var defaultTemplate = '<option value="NONE">Not Set</option>';
+                            var atleastOneFound = false;
+                            while(billingModes[n]){
+                              if(billingModes[n].type == 'PARCEL'){
+                                defaultTemplate += '<option value="'+billingModes[n].name+'" '+(params[i].value == billingModes[n].name ? 'selected' : '')+'>'+billingModes[n].name+'</option>';
+                                atleastOneFound = true;
+                              }
+                              n++;
+                            }
+
+                            document.getElementById("systemOptionOnlineOrders_default_takeaway").style.display = 'table-row';
+                            document.getElementById("systemOptionOnlineOrder_Default_Takeaway").innerHTML = atleastOneFound ? defaultTemplate : '<option value="NONE" selected>Not Set</option>';
+                            
+                          }  
+                          else{
+                            document.getElementById("systemOptionOnlineOrders_default_takeaway").style.display = 'none';
+                          }  
+                          break;
+                        }
+                        case "defaultDineMode": {
+
+                            //Render Modes
+                            var n = 0;
+                            var defaultTemplate = '<option value="NONE">Not Set</option>';
+                            var atleastOneFound = false;
+                            while(billingModes[n]){
+                              if(billingModes[n].type == 'DINE'){
+                                defaultTemplate += '<option value="'+billingModes[n].name+'" '+(params[i].value == billingModes[n].name ? 'selected' : '')+'>'+billingModes[n].name+'</option>';
+                                atleastOneFound = true;
+                              }
+                              n++;
+                            }
+
+                            document.getElementById("systemOptionDefaultDineMode").innerHTML = atleastOneFound ? defaultTemplate : '<option value="NONE" selected>Not Set</option>';
+                            break;
+                        }
+
+                      }
+                
+                    } //end FOR (Render)
+
+                  break;
+                }  
+              } //end - FOR
+}
+
 
 
 /*read personalisation data*/
@@ -202,6 +411,94 @@ function renderSecurityOptions(){
     });   
 }
 
+
+function changeSystemOptionsFile(type, changedValue){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SYSTEM_OPTIONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SYSTEM_OPTIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    for (var i=0; i<settingsList[n].data.length; i++){
+                      if(settingsList[n].data[i].name == type){
+                        
+                        settingsList[n].data[i].value = changedValue;
+
+
+                        //Update
+                        var updateData = {
+                          "_rev": data.docs[0]._rev,
+                          "identifierTag": "ZAITOON_SYSTEM_OPTIONS",
+                          "value": settingsList
+                        }
+
+                        $.ajax({
+                          type: 'PUT',
+                          url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SYSTEM_OPTIONS/',
+                          data: JSON.stringify(updateData),
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+
+                              renderSystemOptions();
+
+                          },
+                          error: function(data) {
+                            showToast('System Error: Unable to update System Options data. Please contact Accelerate Support.', '#e74c3c');
+                          }
+
+                        });  
+
+                        break;
+                      }
+                    }
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read System Options data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+ 
+}
 
 
 function changePersonalisationFile(type, changedValue){
@@ -732,4 +1029,58 @@ function masterResetAction(){
 function resetFinished(){
   showToast('System Reset Completed!', 'green');
   document.getElementById("fullScreenLoader").style.display = 'none';  
+}
+
+
+
+/* System Options */
+
+function changeSystemOptionOnlineOrders(){
+  var optName = document.getElementById("systemOptionOnlineOrders").value == 'YES'? true: false;
+
+  //Update
+  window.localStorage.systemOptionsSettings_OnlineOrders = optName;
+  changeSystemOptionsFile("onlineOrders", document.getElementById("systemOptionOnlineOrders").value);
+}
+
+function changeSystemOptionNotification(){
+  var optName = document.getElementById("systemOptionNotification").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_notifications = optName;
+  changeSystemOptionsFile("notifications", optName);
+}
+
+function changeSystemOptionDefaultDineMode(){
+  var optName = document.getElementById("systemOptionDefaultDineMode").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_defaultDineMode = optName;
+  changeSystemOptionsFile("defaultDineMode", optName); 
+}
+
+function systemOptionPrepaidKeyword(){
+  var optName = document.getElementById("systemOptionOnlineOrders_prepaid_keyword").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_defaultPrepaidName = optName;
+  changeSystemOptionsFile("defaultPrepaidName", optName); 
+}
+
+
+function systemOptionOnlineOrderDefaultDelivery(){
+  var optName = document.getElementById("systemOptionOnlineOrder_Default_Delivery").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_defaultDeliveryMode = optName;
+  changeSystemOptionsFile("defaultDeliveryMode", optName); 
+}
+
+
+function systemOptionOnlineOrderDefaultTakeaway(){
+  var optName = document.getElementById("systemOptionOnlineOrder_Default_Takeaway").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_defaultTakeawayMode = optName;
+  changeSystemOptionsFile("defaultTakeawayMode", optName); 
 }

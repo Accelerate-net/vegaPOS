@@ -158,6 +158,107 @@ applyPersonalisations();
 
 
 
+
+/* Apply Personalisations */
+function applySystemOptionSettings(){
+  
+    //Read from Server, apply changes, and save to LocalStorage
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SYSTEM_OPTIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SYSTEM_OPTIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+
+                    //Render
+                    for (var i=0; i<params.length; i++){
+                      if(params[i].name == "notifications"){           
+                        window.localStorage.systemOptionsSettings_notifications = params[i].value;
+                      }
+                      else if(params[i].name == "onlineOrders"){
+
+                        var tempVal = params[i].value == 'YES'? true: false;
+
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_OnlineOrders = tempVal;
+                      }
+                      else if(params[i].name == "defaultPrepaidName"){
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_defaultPrepaidName = tempVal;
+                      }
+                      else if(params[i].name == "defaultDeliveryMode"){
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_defaultDeliveryMode = tempVal;
+                      } 
+                      else if(params[i].name == "defaultTakeawayMode"){
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_defaultTakeawayMode = tempVal;
+                      } 
+                      else if(params[i].name == "defaultDineMode"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_defaultDineMode = tempVal;
+                      }                      
+                    } //end FOR (Render)
+
+                    break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read System Options data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+  
+}
+
+applySystemOptionSettings();
+
+
+
 function applySystemName(){
   if(window.localStorage.appCustomSettings_SystemName && window.localStorage.appCustomSettings_SystemName != ''){
     document.getElementById("thisSystemName").innerHTML = window.localStorage.appCustomSettings_SystemName;
