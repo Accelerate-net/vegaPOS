@@ -1,5 +1,15 @@
 function setSummaryDateRange(){
-	var today = getCurrentTime('DATE_YYYY-MM-DD');
+
+	var dateoptions = {
+		maxDate: "+0D", 
+		dateFormat: "dd-mm-yy"
+	};
+
+	var $j = jQuery.noConflict();
+	$j( "#reportFromDate" ).datepicker(dateoptions);
+	$j( "#reportToDate" ).datepicker(dateoptions);
+	
+	var today = getCurrentTime('DATE_DD-MM-YY');
 	document.getElementById("reportFromDate").value = today;
 	document.getElementById("reportToDate").value = today;
 }
@@ -698,7 +708,7 @@ function fetchOverAllTurnOver(){
 
 	//Note: Dates in YYYYMMDD format
 	var fromDate = document.getElementById("reportFromDate").value;
-	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = fromDate && fromDate != '' ? fromDate : '01-01-2018'; //Since the launch of Vega POS
 	fromDate = getSummaryStandardDate(fromDate);
 
 	var toDate = document.getElementById("reportToDate").value;
@@ -737,9 +747,11 @@ function fetchOverAllTurnOver(){
 			if(temp_totalOrders > 0){
 				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Gross Sales Amount</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i>'+temp_totalPaid+'</td> </tr>';
 				netSalesWorth = temp_totalPaid; 
+				document.getElementById("overallBarChart").style.display = 'block';
 			}
 			else{
 				document.getElementById("summaryRender_turnOver").innerHTML = '<tag style="padding: 20px 0; text-align: center; display: block; color: gray">Auch! There are no settled orders</tag>';
+				document.getElementById("overallBarChart").style.display = 'none';
 				return ''; //No orders found
 			}
 

@@ -186,7 +186,7 @@ function renderBilledOnlineOrders(){
 	        	}
 	        	else{
 	        		document.getElementById("itemInfo").innerHTML = '';
-	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Live Orders</td></tr>';
+	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Billed Orders</td></tr>';
 	        	}
 
           }
@@ -259,7 +259,7 @@ function renderOnlineOrders(){
 	$("#onlineOrders_billed").removeClass("billTypeSelectionBox");
 
 
-	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Incoming Orders</h3>'+
+	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Pending Orders</h3>'+
 																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderOnlineOrders()">Refresh</button>';
 
 	document.getElementById("orderInfo").innerHTML = '';
@@ -355,9 +355,9 @@ function renderOnlineOrders(){
 				        	}
 				        	else{
 				        		document.getElementById("itemInfo").innerHTML = '';
-				        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Incoming Orders</td></tr>';
+				        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Pending Orders</td></tr>';
 				        	}
-				        	document.getElementById("incomingOrdersCount").innerHTML = filteredOrders.length;
+				        	document.getElementById("incomingOrdersCount").innerHTML = filteredOrders.length+'<tag style="color: rgba(0, 0, 0, 0.2); "> / '+netdata.response.length+'</tag>';
 				        	//End of Online Content
 
 			          }
@@ -382,7 +382,7 @@ function renderOnlineOrders(){
 			{
 				document.getElementById("itemInfo").innerHTML = '';
 				document.getElementById("incomingOrdersCount").innerHTML = data.count;
-	        	document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Incoming Orders</td></tr>';
+	        	document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Pending Orders</td></tr>';
 			}
 
 			if(data.errorCode == 404){

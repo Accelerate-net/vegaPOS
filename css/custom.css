@@ -3823,12 +3823,12 @@ position: absolute;
 }
 
 .myDatePicker{
-  border: none; border-bottom: 1px solid
+  border: none; border-bottom: 1px solid #dddddd;
 }
 
 .myDatePicker:active, .myDatePicker:focus, .myDatePicker:hover{
   outline: none !important;
-  border-bottom: 2px solid 
+  border-bottom: 1px solid #6cbd92;
 }
 
 .mySearchSelector{

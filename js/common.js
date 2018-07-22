@@ -47,7 +47,7 @@ function getFancyTime(time){
 
 function getSummaryStandardDate(date){
   //convert YYYY-MM-DD to YYYY-MM-DD
-  return moment(date, 'YYYY-MM-DD').format('YYYYMMDD')
+  return moment(date, 'DD-MM-YYYY').format('YYYYMMDD')
 }
 
 
@@ -108,8 +108,6 @@ function getCurrentTime(type){
       return yyyy+mm+dd;
 	 
 }
-
-
 
 function random_rgba_color_set() {
 
