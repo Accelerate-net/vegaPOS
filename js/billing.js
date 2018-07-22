@@ -632,7 +632,7 @@ function openApplyBillDiscountWindow(kotID, optionalPageRef){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
 
@@ -894,7 +894,7 @@ function openApplyCustomExtraWindow(kotID, optionalPageRef){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
 
@@ -1558,8 +1558,6 @@ function hideBillPreviewModal(){
 function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 
 
-  console.log('>>> '+optionalPageRef); return '';
-
   if(!action || action == '' || !optionalPageRef || optionalPageRef == '' || !modifiedKOTFile){
     return '';
   }
@@ -1797,6 +1795,9 @@ function confirmBillGeneration(kotID, optionalPageRef){
 
 function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, revID){
 
+    var memory_id = '';
+    var memory_rev = '';
+
     var requestData = { "selector" :{ "KOTNumber": kotID }}
 
     $.ajax({
@@ -1811,6 +1812,9 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
           var kotfile = data.docs[0];
           
+          memory_id = data.docs[0]._id;
+          memory_rev = data.docs[0]._rev;
+
           kotfile.billNumber = billNumber,
           kotfile.paymentMode = "";
           kotfile.totalAmountPaid = "";
@@ -1889,8 +1893,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                             billTableMapping(kotfile.table, billNumber, 2);
                           }
                           
-                          console.log('>>>>>>> DELETE ME!!') 
-                          console.log('the KOT FILE  From Servererererer!')
+                          deleteKOTFromServer(memory_id, memory_rev);
 
                           if(optionalPageRef == 'ORDER_PUNCHING'){
                             renderCustomerInfo();
@@ -1951,6 +1954,71 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
     });    
 }
+
+
+
+
+function deleteKOTFromServer(id, revID){
+    $.ajax({
+      type: 'DELETE',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+id+'?rev='+revID,
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+      
+      },
+      error: function(data) {
+        showToast('Server Warning: Unable to modify Order KOT. Please contact Accelerate Support.', '#e67e22');
+      }
+    }); 
+}
+
+function deleteBillFromServer(billNumber){
+
+                  billNumber = parseInt(billNumber);
+
+
+                  var requestData = { "selector" :{ "billNumber": billNumber }, "fields" : ["_id", "_rev"] }
+
+                  $.ajax({
+                    type: 'POST',
+                    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+                    data: JSON.stringify(requestData),
+                    contentType: "application/json",
+                    dataType: 'json',
+                    timeout: 10000,
+                    success: function(data) {
+                      if(data.docs.length > 0){
+
+                        //Proceed to Delete
+                        $.ajax({
+                          type: 'DELETE',
+                          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/'+data.docs[0]._id+'?rev='+data.docs[0]._rev,
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+                          
+                          },
+                          error: function(data) {
+                            showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                          }
+                        }); 
+
+                      }
+                      else{
+                        showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                      }
+                    },
+                    error: function(data) {
+                      showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                    }
+
+                  });
+
+}
+
 
 
 
@@ -2426,8 +2494,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                 //Successfully pushed
                 hideSettleBillAndPush();
 
-                console.log('>>>>>>>> DELETE MEEEEEE!!!')
-                console.log('bill copy on the server')
+                deleteBillFromServer(bill.billNumber);
 
                 //Free the mapped Table
                 if(bill.orderDetails.modeType == 'DINE')
@@ -2477,8 +2544,7 @@ function settleBillAndPushAuto(bill, optionalPageRef){
                 //Successfully pushed
                 hideSettleBillAndPush();
 
-                console.log('>>>>>>>> DELETE MEEEEEE!!!')
-                console.log('bill copy on the server')
+                deleteBillFromServer(bill.billNumber);
 
                 //Free the mapped Table
                 if(bill.orderDetails.modeType == 'DINE')

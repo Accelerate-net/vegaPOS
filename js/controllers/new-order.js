@@ -2982,7 +2982,6 @@ function renderCategoryTab(defaultTab){
 
 function renderMenu(subtype){
 
-
     var requestData = {
       "selector"  :{ 
                     "identifierTag": "ZAITOON_MASTER_MENU" 

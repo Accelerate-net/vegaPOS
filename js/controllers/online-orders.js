@@ -37,7 +37,6 @@ function renderLiveOnlineOrders(){
 
 	          	var onlineOrdersMapping = data.docs[0].value;
 
-	          	console.log(onlineOrdersMapping)
 	          	var items = '';
 				for (var i=0; i<onlineOrdersMapping.length; i++){
 					if(onlineOrdersMapping[i].systemStatus == 1){
@@ -138,7 +137,6 @@ function renderBilledOnlineOrders(){
 
 	          	var onlineOrdersMapping = data.docs[0].value;
 
-	          	console.log(onlineOrdersMapping)
 	          	var items = '';
 				for (var i=0; i<onlineOrdersMapping.length; i++){
 					if(onlineOrdersMapping[i].systemStatus == 2){
@@ -541,7 +539,6 @@ function renderSystemOrderDisplay(orderObj){
 function punchOnlineOrderToKOT(encodedOrder){
 
 	var order = JSON.parse(decodeURI(encodedOrder));
-	console.log(order)
 
 	var customerInfo = '';
 
