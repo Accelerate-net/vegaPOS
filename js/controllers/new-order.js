@@ -2128,7 +2128,7 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			                                 '<div class="col-xs-8" style="padding: 0; padding-right: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<div class="input-group" style="width:100%;">'+
-			                                       		 '<label class="cartCustomerLabel">Order Type<tag id="orderTypeDisplay" style="color: #ec2465; font-size: 10px; font-weight: bold; padding-left: 3px;">'+customerInfo.modeType+'</tag></label>'+
+			                                       		 '<label class="cartCustomerLabel">Order Type<tag id="orderTypeDisplay" style="color: #40739e; font-size: 10px; font-weight: bold; padding-left: 3px;">'+customerInfo.modeType+'</tag></label>'+
 			                                             '<input type="text" value="'+customerInfo.mode+'" id="customer_form_data_mode" class="form-control kb-text" disabled/>'+
 			                                       '</div>'+
 			                                       '<div style="clear:both;"></div>'+
@@ -2161,7 +2161,7 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			                                 '<div class="col-xs-8" style="padding: 0; padding-right: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<div class="input-group" style="width:100%;">'+
-			                                       		 '<label class="cartCustomerLabel">Order Type</label><tag id="orderTypeDisplay" style="color: #ec2465; font-weight: bold; padding-left: 3px; font-size: 10px">'+customerInfo.modeType+'</tag>'+billingModesList+
+			                                       		 '<label class="cartCustomerLabel">Order Type</label><tag id="orderTypeDisplay" style="color: #40739e; font-weight: bold; padding-left: 3px; font-size: 10px">'+customerInfo.modeType+'</tag>'+billingModesList+
 			                                       '</div>'+
 			                                       '<div style="clear:both;"></div>'+
 			                                    '</div>'+
@@ -3669,6 +3669,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              		//If an online order ==> Save Mapping
 	              		if((obj.orderDetails.notes == 'COD' || obj.orderDetails.notes == 'PREPAID') && (obj.orderDetails.reference && obj.orderDetails.reference != '')){
 	              			saveOnlineOrderMapping(obj);
+	              			getOnlineOrdersCount();
 	              		}
 	              		
 

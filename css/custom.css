@@ -2578,11 +2578,11 @@ ol ol {
 
 
 .serverStatus{
-  color: #2aea45
+  color: #33ff00; /*#2aea45*/
 }
 
 .skin-red .serverStatus, .skin-red-light .serverStatus{
-  color: #248431
+  color: #49fd46;
 }
 
 .skin-yellow .serverStatus, .skin-yellow-light .serverStatus{
@@ -3847,7 +3847,7 @@ position: absolute;
 .onlineOrderCountLabel{
     position: absolute;
     top: 6px;
-    right: 6px;
+    left: 21px;
     display: inline-block;
     background: #1abc9c;
     color: #FFF;
