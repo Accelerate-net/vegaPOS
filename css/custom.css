@@ -3844,6 +3844,24 @@ position: absolute;
 }
 
 
+.onlineOrderCountLabel{
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: inline-block;
+    background: #1abc9c;
+    color: #FFF;
+    font-weight: bold;
+    padding: 0 5px;
+    font-size: 13px;
+    height: 17px !important;
+    border-radius: 4px;
+    text-align: center;
+    min-width: 18px;  
+}
+
+
+
 .specialRequestsButtonActive .swing {
     animation: swing ease-in-out 0.2s infinite alternate;
     transform-origin: top;
@@ -3866,3 +3884,6 @@ position: absolute;
         -webkit-transform: rotate(359deg);
     }
 }
+
+
+

@@ -2621,7 +2621,7 @@ function renderTables(){
 																					        	'</tag>';	
 														}
 														else if(tables[i].status == 2){
-															renderTableArea = renderTableArea + '<tag class="tableTileYellow" style="cursor: pointer" onclick="preSettleBill(\''+tables[i].KOT+'\')">'+
+															renderTableArea = renderTableArea + '<tag class="tableTileYellow" style="cursor: pointer" onclick="preSettleBill(\''+tables[i].KOT+'\', \'ORDER_PUNCHING\')">'+
 																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																					            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Billed')+'</tag>'+
@@ -3755,6 +3755,7 @@ function saveOnlineOrderMapping(orderObject){
           if(data.docs[0].identifierTag == 'ZAITOON_ONLINE_ORDERS_MAPPING'){
 
 	          	var onlineOrdersMapping = data.docs[0].value;
+	          	var todayDate = getCurrentTime('DATE_DD-MM-YY');
 
 	          	var newMapping = {
 			      "onlineOrder": parseInt(orderObject.orderDetails.reference),
@@ -3763,6 +3764,7 @@ function saveOnlineOrderMapping(orderObject){
 			      "lastUpdate": orderObject.timePunch,
 			      "type": orderObject.orderDetails.modeType == 'PARCEL' ? 'TAKEAWAY' : 'DELIVERY',
 			      "amount": orderObject.orderDetails.notes == 'PREPAID' ? 'Prepaid' : 'Not Paid',
+			      "date": todayDate,
 			      "systemBill": orderObject.KOTNumber,
 			      "systemStatus": 1	          		
 	          	}

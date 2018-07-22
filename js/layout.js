@@ -482,8 +482,8 @@ function performRecoveryLogin(){
       hideLoading();
       showToast('Server not responding. Check your connection.', '#e74c3c');
     }
+  });
 
-  });  
 }
 
 function doHomeLogin(){
@@ -580,6 +580,47 @@ function getCurrentTimeForDisplay() {
 }
 
 getCurrentTimeForDisplay();
+
+
+//ONLINE ORDERS PENDING COUNT
+
+function getOnlineOrdersCount() {
+
+  //Refresh Badge Counts
+  var admin_data = {};
+  admin_data.token = window.localStorage.loggedInAdmin;  
+  admin_data.status = 1;
+  
+  $.ajax({
+    type: 'POST',
+    url: 'https://www.zaitoon.online/services/fetchorders.php',
+    data: JSON.stringify(admin_data),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    success: function(data) {
+      if(data.status){
+        document.getElementById('onlineOrderCounter').style.display = 'inline-block';
+        document.getElementById('onlineOrderCounter').innerHTML = data.count;
+      }
+      else{
+        document.getElementById('onlineOrderCounter').style.display = 'none';
+      }
+    },
+    error: function(data){
+      document.getElementById('onlineOrderCounter').style.display = 'none';
+    }
+  });
+
+
+  var t = setTimeout(function() {
+    getOnlineOrdersCount()
+  }, 60000); 
+}
+
+getOnlineOrdersCount();
+
+
 
 
 /*Track Inactivity*/
@@ -1318,7 +1359,7 @@ function renderSpotlightPreview(type, encodedData){
       }
       else if(info.orderStatus == 2){ //Bill Printed
           renderTemplate = '<div style="height: 96px"><img src="images/common/spotlight_billed.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">'+info.orderDetails.mode+(info.orderDetails.modeType == 'TOKEN' ? '<p class="spotlightOrderTag">Token #'+info.table+'</p>' : (info.orderDetails.modeType == 'DINE' ? '<p class="spotlightOrderTag">Table #'+info.table+'</p>' : ''))+'</div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Billed #'+info.billNumber+'</div><p class="spotlightOrderTime">Billed at '+getFancyTime(info.timeBill)+(info.stewardName != '' ? ' by <b>'+info.stewardName+'</b>' : '')+'</p>'; 
-          renderTemplate += '<div style="margin-top: 10px;"><button onclick="preSettleBill(\''+info.billNumber+'\')" class="btn btn-success">Settle Bill</button></div>';
+          renderTemplate += '<div style="margin-top: 10px;"><button onclick="preSettleBill(\''+info.billNumber+'\', \'ORDER_PUNCHING\')" class="btn btn-success">Settle Bill</button></div>';
       }
       else if(info.orderStatus == 3){ //Settled or Completed
         if(info.orderDetails.modeType == 'DINE' || info.orderDetails.modeType == 'TOKEN'){
@@ -2053,15 +2094,14 @@ function showSpotlight(){
                 }
               }   
               
-
-
-
-
           }
 
         });
 
 }
+
+
+
 
 
 

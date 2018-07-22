@@ -1598,6 +1598,9 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
     case 'LIVE_ORDERS':{
       break;
     }
+    case 'ONLINE_ORDERS':{
+      break;
+    }
   }
 
 }
@@ -1880,12 +1883,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
                           showToast('Bill #'+billNumber+' generated Successfully', '#27ae60');
 
-                          //If an online order ==> Update Mapping
-                          if((kotfile.orderDetails.notes == 'COD' || kotfile.orderDetails.notes == 'PREPAID') && (kotfile.orderDetails.reference && kotfile.orderDetails.reference != '')){
-                            updateOnlineOrderMapping(kotfile);
-                          }
-                          
-
                           clearAllMetaDataOfBilling();
                           hideBillPreviewModal();
 
@@ -1894,6 +1891,16 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                           }
                           
                           deleteKOTFromServer(memory_id, memory_rev);
+
+
+                          //If an online order ==> Update Mapping
+                          if((kotfile.orderDetails.notes == 'COD' || kotfile.orderDetails.notes == 'PREPAID') && (kotfile.orderDetails.reference && kotfile.orderDetails.reference != '')){
+                            //Skip this step, if auto settle for PREPAID orders
+                            if(kotfile.orderDetails.notes != 'PREPAID'){  
+                              updateOnlineOrderMapping(kotfile, optionalPageRef);
+                            }
+                          }
+
 
                           if(optionalPageRef == 'ORDER_PUNCHING'){
                             renderCustomerInfo();
@@ -1904,6 +1911,18 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                           }
                           else if(optionalPageRef == 'LIVE_ORDERS'){
                             renderAllKOTs();
+                          }
+                          else if(optionalPageRef == 'ONLINE_ORDERS'){
+                            if((kotfile.orderDetails.notes == 'COD' || kotfile.orderDetails.notes == 'PREPAID') && (kotfile.orderDetails.reference && kotfile.orderDetails.reference != '')){
+                              //Already updated in updateOnlineOrderMapping() call.
+                              if(kotfile.orderDetails.notes == 'PREPAID'){
+                                preSettleBill(newBillFile.billNumber, 'ONLINE_ORDERS');
+                              }
+
+                            }
+                            else{
+                              renderLiveOnlineOrders();
+                            }
                           }
 
 
@@ -2161,7 +2180,11 @@ function settleBillAndPush(encodedBill, optionalPageRef){
 
 
 
-function preSettleBill(billNumber){
+function preSettleBill(billNumber, optionalPageRef){
+
+    if(!optionalPageRef || optionalPageRef == ''){
+      optionalPageRef = 'ORDER_PUNCHING';
+    }
 
     billNumber = parseInt(billNumber);
 
@@ -2179,7 +2202,41 @@ function preSettleBill(billNumber){
         if(data.docs.length > 0){
 
           var billfile = data.docs[0];
-          settleBillAndPush(encodeURI(JSON.stringify(billfile)), 'ORDER_PUNCHING');
+          settleBillAndPush(encodeURI(JSON.stringify(billfile)), optionalPageRef);
+
+        }
+        else{
+          showToast('Not Found Error: Bill #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Bills data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
+}
+
+
+function onlineOrderEasySettleBill(billNumber){
+
+    billNumber = parseInt(billNumber);
+
+    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+
+          var billfile = data.docs[0];
+          settleBillAndPush(encodeURI(JSON.stringify(billfile)), 'ONLINE_ORDERS');
 
         }
         else{
@@ -2494,6 +2551,13 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                 //Successfully pushed
                 hideSettleBillAndPush();
 
+                //If an online order ==> Update Mapping
+                if((bill.orderDetails.notes == 'COD' || bill.orderDetails.notes == 'PREPAID') && (bill.orderDetails.reference && bill.orderDetails.reference != '')){
+                  console.log('Update settled...!!!!')
+                  updateOnlineOrderSettledMapping(bill, optionalPageRef);
+                
+                }                
+
                 deleteBillFromServer(bill.billNumber);
 
                 //Free the mapped Table
@@ -2501,8 +2565,9 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                   releaseTableAfterBillSettle(bill.table, bill.billNumber)
 
                 //re-render page
-                if(optionalPageRef == 'GENERATED_BILLS')
-                  loadAllPendingSettlementBills('EXTERNAL'); 
+                if(optionalPageRef == 'GENERATED_BILLS'){
+                  loadAllPendingSettlementBills('EXTERNAL');
+                }
 
               }
               else{
@@ -2518,12 +2583,15 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
 function settleBillAndPushAuto(bill, optionalPageRef){
 
+
+
     bill.paymentReference = "Prepaid Order";
     bill.timeSettle = getCurrentTime('TIME');
     bill.totalAmountPaid = parseFloat(bill.payableAmount).toFixed(2);
     bill.paymentMode = "PREPAID";
     bill.dateStamp = getCurrentTime('DATE_STAMP');
 
+console.log('To update AUTO SETTLE')
 
     //Clean _rev and _id (bill Scraps)
     var finalInvoice = bill;
@@ -2540,9 +2608,15 @@ function settleBillAndPushAuto(bill, optionalPageRef){
             timeout: 10000,
             success: function(data) {
               if(data.ok){
-                showToast("Prepaid Order #"+bill.orderDetails.reference+" - bill settled successfully", '#27ae60');
+                showToast("Prepaid Order #"+bill.orderDetails.reference+" - bill settled automatically", '#27ae60');
                 //Successfully pushed
                 hideSettleBillAndPush();
+
+                //If an online order ==> Update Mapping
+                if((bill.orderDetails.notes == 'COD' || bill.orderDetails.notes == 'PREPAID') && (bill.orderDetails.reference && bill.orderDetails.reference != '')){
+                  updateOnlineOrderSettledMapping(bill, optionalPageRef);
+                  console.log('DOCTOR!')
+                }           
 
                 deleteBillFromServer(bill.billNumber);
 
@@ -2567,7 +2641,9 @@ function settleBillAndPushAuto(bill, optionalPageRef){
 
 
 
-function updateOnlineOrderMapping(orderObject){
+function updateOnlineOrderMapping(orderObject, optionalPageRef){
+
+  console.log('To update billed mapping: ')
 
   //Pass the info to the Server Mapping
     var requestData = {
@@ -2609,6 +2685,8 @@ function updateOnlineOrderMapping(orderObject){
                   "value": onlineOrdersMapping
                 }
 
+                console.log('Inside Billed Mapping'+updateData._rev)
+
                 $.ajax({
                   type: 'PUT',
                   url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_ONLINE_ORDERS_MAPPING/',
@@ -2617,6 +2695,9 @@ function updateOnlineOrderMapping(orderObject){
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
+                      if(optionalPageRef && optionalPageRef == 'ONLINE_ORDERS'){
+                        renderLiveOnlineOrders();
+                      }
                   },
                   error: function(data) {
                       showToast('System Error: Unable to update Online Orders Mapping. Please contact Accelerate Support.', '#e74c3c');
@@ -2641,6 +2722,91 @@ function updateOnlineOrderMapping(orderObject){
     });   
 }
 
+
+
+function updateOnlineOrderSettledMapping(orderObject, optionalPageRef){
+
+
+
+  console.log('To update settled mapping:' + optionalPageRef)
+
+    //Pass the info to the Server Mapping
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_ONLINE_ORDERS_MAPPING" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_ONLINE_ORDERS_MAPPING'){
+
+              var onlineOrdersMapping = data.docs[0].value;
+
+              
+
+              var n = 0;
+              while(onlineOrdersMapping[n]){
+                if(onlineOrdersMapping[n].systemBill == orderObject.billNumber || onlineOrdersMapping[n].systemBill == orderObject.KOTNumber){
+                  onlineOrdersMapping[n].systemStatus = 3;
+                  onlineOrdersMapping[n].lastUpdate = orderObject.timeSettle;
+                  break;
+                }
+                n++;
+              }
+              
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_ONLINE_ORDERS_MAPPING",
+                  "value": onlineOrdersMapping
+                }
+
+                console.log('Inside Settled Mapping: '+updateData._rev)
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_ONLINE_ORDERS_MAPPING/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(updata) {
+                      if(optionalPageRef && optionalPageRef == 'ONLINE_ORDERS'){
+                        renderBilledOnlineOrders();
+                      }
+                  },
+                  error: function(updata) {
+                      showToast('System Error: Unable to update Online Orders Mapping. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });  
+
+
+          }
+          else{
+            showToast('Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
+}
 
 
 

@@ -36,10 +36,11 @@ function renderLiveOnlineOrders(){
           if(data.docs[0].identifierTag == 'ZAITOON_ONLINE_ORDERS_MAPPING'){
 
 	          	var onlineOrdersMapping = data.docs[0].value;
+	          	var todayDate = getCurrentTime('DATE_DD-MM-YY');
 
 	          	var items = '';
 				for (var i=0; i<onlineOrdersMapping.length; i++){
-					if(onlineOrdersMapping[i].systemStatus == 1){
+					if(onlineOrdersMapping[i].systemStatus == 1 && onlineOrdersMapping[i].date == todayDate){
 						items = items + '<tr role="row" id="onlineLiveListing_'+onlineOrdersMapping[i].onlineOrder+'" class="onlineOrderListing" onclick="fetchSystemKOT(\''+onlineOrdersMapping[i].systemBill+'\')"> <td>'+onlineOrdersMapping[i].onlineOrder+'<br>'+(onlineOrdersMapping[i].type == 'TAKEAWAY' ? '<tag class="onlineTakeAwayTag">TAKE AWAY</tag>' : '<tag class="onlineDeliveryTag">DELIVERY</tag>')+'</td> <td>'+onlineOrdersMapping[i].name+'<br>'+onlineOrdersMapping[i].mobile+'</td>'+
 										'<td style="font-size: 80%">'+(onlineOrdersMapping[i].amount == 'Prepaid' ? '<span style="color: #41a041">Prepaid</span>' : '<span style="color: #e01d1d">COD</span>')+'</td> <td>'+getFancyTime(onlineOrdersMapping[i].lastUpdate)+'</td> </tr>';
 					}
@@ -86,7 +87,7 @@ function fetchSystemKOT(kotID){
         if(data.docs.length > 0){
 
           	var kot = data.docs[0];
-          	renderSystemOrderDisplay(kot);
+          	renderSystemOrderDisplay(kot, 'NOT_BILLED');
 
         }
         else{
@@ -102,7 +103,41 @@ function fetchSystemKOT(kotID){
 }
 
 
+function fetchSystemBill(billNum){
+
+	billNum = parseInt(billNum);
+    var requestData = { "selector" :{ "billNumber": billNum }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          	var bill = data.docs[0];
+          	renderSystemOrderDisplay(bill, 'BILLED');
+
+        }
+        else{
+          showToast('Not Found Error: Bill #'+billNum+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Bill data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   	
+}
+
+
 function renderBilledOnlineOrders(){
+
+	console.log('renderBilledOnlineOrders RENDERERERER')
 
 	$("#onlineOrders_incoming").removeClass("billTypeSelectionBox");
 	$("#onlineOrders_live").removeClass("billTypeSelectionBox");
@@ -136,11 +171,12 @@ function renderBilledOnlineOrders(){
           if(data.docs[0].identifierTag == 'ZAITOON_ONLINE_ORDERS_MAPPING'){
 
 	          	var onlineOrdersMapping = data.docs[0].value;
+	          	var todayDate = getCurrentTime('DATE_DD-MM-YY');
 
 	          	var items = '';
 				for (var i=0; i<onlineOrdersMapping.length; i++){
-					if(onlineOrdersMapping[i].systemStatus == 2){
-						items = items + '<tr role="row" id="onlineLiveListing_'+onlineOrdersMapping[i].onlineOrder+'" class="onlineOrderListing" onclick="fetchSystemKOT(\''+onlineOrdersMapping[i].systemBill+'\')"> <td>'+onlineOrdersMapping[i].onlineOrder+'<br>'+(onlineOrdersMapping[i].type == 'TAKEAWAY' ? '<tag class="onlineTakeAwayTag">TAKE AWAY</tag>' : '<tag class="onlineDeliveryTag">DELIVERY</tag>')+'</td> <td>'+onlineOrdersMapping[i].name+'<br>'+onlineOrdersMapping[i].mobile+'</td>'+
+					if(onlineOrdersMapping[i].systemStatus == 2 && onlineOrdersMapping[i].date == todayDate){
+						items = items + '<tr role="row" id="onlineLiveListing_'+onlineOrdersMapping[i].onlineOrder+'" class="onlineOrderListing" onclick="fetchSystemBill(\''+onlineOrdersMapping[i].systemBill+'\')"> <td>'+onlineOrdersMapping[i].onlineOrder+'<br>'+(onlineOrdersMapping[i].type == 'TAKEAWAY' ? '<tag class="onlineTakeAwayTag">TAKE AWAY</tag>' : '<tag class="onlineDeliveryTag">DELIVERY</tag>')+'</td> <td>'+onlineOrdersMapping[i].name+'<br>'+onlineOrdersMapping[i].mobile+'</td>'+
 										'<td style="font-size: 80%">'+(onlineOrdersMapping[i].amount == 'Prepaid' ? '<span style="color: #41a041">Prepaid</span>' : '<span style="color: #e01d1d">COD</span>')+'</td> <td>'+getFancyTime(onlineOrdersMapping[i].lastUpdate)+'</td> </tr>';
 					}
 				}
@@ -191,23 +227,23 @@ function displayOrderCounts(){
           if(data.docs[0].identifierTag == 'ZAITOON_ONLINE_ORDERS_MAPPING'){
 
 	          	var onlineOrdersMapping = data.docs[0].value;
+	          	var todayDate = getCurrentTime('DATE_DD-MM-YY');
+
 	          	var count_live = 0;
 	          	var count_billed = 0;
 
 	          	var items = '';
 				for (var i=0; i<onlineOrdersMapping.length; i++){
-					if(onlineOrdersMapping[i].systemStatus == 1){
+					if(onlineOrdersMapping[i].systemStatus == 1 && onlineOrdersMapping[i].date == todayDate){
 						count_live++;
 					}
-					else if(onlineOrdersMapping[i].systemStatus == 2){
+					else if(onlineOrdersMapping[i].systemStatus == 2 && onlineOrdersMapping[i].date == todayDate){
 						count_billed++;
 					}
-
-					if(i == onlineOrdersMapping.length - 1){ //last iteration
-						document.getElementById("liveOrdersCount").innerHTML = count_live;
-						document.getElementById("billedOrdersCount").innerHTML = count_billed;
-					}
 				}
+
+				document.getElementById("liveOrdersCount").innerHTML = count_live;
+				document.getElementById("billedOrdersCount").innerHTML = count_billed;				
 
           }
         } 
@@ -275,25 +311,43 @@ function renderOnlineOrders(){
 				          	var onlineOrdersMapping = data.docs[0].value;
 				          	var filteredOrders = [];
 
-							//Online Content
-							var i = 0;
-							while(netdata.response[i]){
+				          	var todayDate = getCurrentTime('DATE_DD-MM-YY');
 
-								for (var n=0; n<onlineOrdersMapping.length; n++){
-									if(parseInt(netdata.response[i].orderID) == onlineOrdersMapping[n].onlineOrder){
-										break;
-									}
-
-									if(n == onlineOrdersMapping.length - 1){ //last iteration for a given order and not found.
+				          	if(onlineOrdersMapping.length == 0){
+				          			
+				          			filteredOrders = netdata.response;
+										
+									for (var i=0; i<filteredOrders.length; i++){
 										items = items + '<tr role="row" id="onlineListing_'+netdata.response[i].orderID+'" class="onlineOrderListing" onclick="fetchOrderDetails(\''+netdata.response[i].orderID+'\')"> <td>'+netdata.response[i].orderID+'<br>'+(netdata.response[i].isTakeaway? '<tag class="onlineTakeAwayTag">TAKE AWAY</tag>' : '<tag class="onlineDeliveryTag">DELIVERY</tag>')+'</td> <td>'+netdata.response[i].userName+'<br>'+netdata.response[i].userID+'</td>'+
-											'<td><i class="fa fa-inr"></i> '+netdata.response[i].amountPaid+'</td> <td>'+netdata.response[i].timePlace+'</td> </tr>';
-									
-										filteredOrders.push(netdata.response[i]);
-									}
-								}	
+												'<td><i class="fa fa-inr"></i> '+netdata.response[i].amountPaid+'</td> <td>'+netdata.response[i].timePlace+'</td> </tr>';
+									}	
+				          	
+				          	}
+				          	else{
+								//Online Content
+								var i = 0;
+								while(netdata.response[i]){
 
-								i++;
-							}
+									for (var n=0; n<onlineOrdersMapping.length; n++){
+										if(parseInt(netdata.response[i].orderID) == onlineOrdersMapping[n].onlineOrder){
+											break;
+										}
+
+										if(n == onlineOrdersMapping.length - 1){ //last iteration for a given order and not found.
+											if(onlineOrdersMapping[n].date == todayDate){
+												items = items + '<tr role="row" id="onlineListing_'+netdata.response[i].orderID+'" class="onlineOrderListing" onclick="fetchOrderDetails(\''+netdata.response[i].orderID+'\')"> <td>'+netdata.response[i].orderID+'<br>'+(netdata.response[i].isTakeaway? '<tag class="onlineTakeAwayTag">TAKE AWAY</tag>' : '<tag class="onlineDeliveryTag">DELIVERY</tag>')+'</td> <td>'+netdata.response[i].userName+'<br>'+netdata.response[i].userID+'</td>'+
+													'<td><i class="fa fa-inr"></i> '+netdata.response[i].amountPaid+'</td> <td>'+netdata.response[i].timePlace+'</td> </tr>';
+											
+												filteredOrders.push(netdata.response[i]);
+												break;
+											}
+										}
+									}	
+
+									i++;
+								}				          		
+				          	}
+				          	
 
 							window.localStorage.lastOrderFetchData = JSON.stringify(filteredOrders);
 							if(items != ''){
@@ -437,22 +491,30 @@ function fetchOrderDetails(orderID){
 
 }
 
-function renderSystemOrderDisplay(orderObj){
+function renderSystemOrderDisplay(orderObj, status){
 
 			document.getElementById("renderOnlineOrderArea").style.display = 'block';
 			$("#onlineOrders>tr.onlineOrderListingBorder").removeClass("onlineOrderListingBorder");
 			$("#onlineLiveListing_"+orderObj.orderDetails.reference).addClass("onlineOrderListingBorder");
 
+			var actionButton = '';
 
-			if(orderObj.notes == "PREPAID"){
+			if(status == 'NOT_BILLED'){
+				actionButton = '<button class="btn btn-success btn-sm" style="float: right" onclick="generateBillFromKOT(\''+orderObj.KOTNumber+'\', \'ONLINE_ORDERS\');">Generate Bill</button>';				
+			}
+			else if(status == 'BILLED'){
+				actionButton = '<button class="btn btn-success btn-sm" style="float: right" onclick="onlineOrderEasySettleBill(\''+orderObj.billNumber+'\')">Settle Bill</button>';	
+			}
+
+			if(orderObj.orderDetails.notes == "PREPAID"){
 				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderObj.orderDetails.reference+
-									'<tag class="onlinePrepaid">PREPAID ORDER</tag> </h3> '+
-									'<button class="btn btn-success btn-sm" style="float: right">Generate Bill</button>';
+									'<tag class="onlinePrepaid">PREPAID ORDER</tag> </h3> '+actionButton
+									
 			}
 			else{
 				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderObj.orderDetails.reference+
-									'<tag class="onlineCOD">Cash on Delivery</tag> </h3> '+
-									'<button class="btn btn-success btn-sm" style="float: right">Generate Bill</button>';
+									'<tag class="onlineCOD">Cash on Delivery</tag> </h3> '+actionButton
+									
 			}
 				
 			
@@ -511,7 +573,7 @@ function renderSystemOrderDisplay(orderObj){
 
 			//Other Calculations
 			var finalBar = '';
-			if(orderObj.notes == "PREPAID"){
+			if(orderObj.orderDetails.notes == "PREPAID"){
 				finalBar = '<tr style="background: #f4f4f4;"> <td></td><td></td> <td colspan="2"><b>Total Received Amount</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+Math.round(totalSum)+'</b></td> </tr>';
 			}
 			else{

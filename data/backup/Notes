@@ -16,7 +16,8 @@ Notes:
 14. Copy Online Order COMMENTS to Order Comments
 15. Remember INGREDIENTS RESTRICTION (while editing Order, save it to KOT. Remove when billed.)
 16. Remove all impurities from final BILL
-
+17. Custom landing page (PERSONALISATION for each Machine)
+18. Continues status check for ONLINE ORDER COUNT (Layout.js) --> Only if PERSONALISATION Enbled.
 
 Reserved Keywords:
 PREPAID - In payments (for Online Prepaid orders) <-- Custom name for it in Personalisation (PREPAID == 'Razor Pay Gateway')
