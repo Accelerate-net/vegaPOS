@@ -363,6 +363,11 @@ testLocalServerConnection();
 
 /*Check Login*/
 function checkLogin(){
+
+  if(window.localStorage.loggedInAdmin == ""){
+    window.localStorage.loggedInAdminData = '';
+  }
+
   var loggedInAdminInfo = window.localStorage.loggedInAdminData ? JSON.parse(window.localStorage.loggedInAdminData): {};
   
   if(jQuery.isEmptyObject(loggedInAdminInfo)){
