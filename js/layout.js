@@ -1,6 +1,29 @@
 let fs = require('fs');
 
 
+/* GLOBAL TIME DISPLAY */
+
+/* Analogue Clock */
+function updateClock() {
+            var now = moment(),
+                second = now.seconds() * 6,
+                minute = now.minutes() * 6 + second / 60,
+                hour = ((now.hours() % 12) / 12) * 360 + 90 + minute / 12;
+            $('#hour').css("transform", "rotate(" + hour + "deg)");
+            $('#minute').css("transform", "rotate(" + minute + "deg)");
+            $('#second').css("transform", "rotate(" + second + "deg)");
+
+            document.getElementById('globalTimeDisplay').innerHTML = moment().format('h:mm:ss a')
+}
+
+function timedUpdate () {
+  updateClock();
+  setTimeout(timedUpdate, 1000);
+}
+
+timedUpdate();
+
+
 /* Apply Personalisations */
 function applyPersonalisations(){
   
@@ -560,31 +583,6 @@ function cancelLoginWindow(){
   document.getElementById("loginModalHome").style.display = 'none';
 }
 
-/* Time Display */
-
-function checkTime(i) {
-  if (i < 10) {
-    i = "0" + i;
-  }
-  return i;
-}
-
-function getCurrentTimeForDisplay() {
-  var today = new Date();
-  var h = today.getHours();
-  var m = today.getMinutes();
-  var s = today.getSeconds();
-  // add a zero in front of numbers<10
-  h = checkTime(h);
-  m = checkTime(m);
-  s = checkTime(s);
-  document.getElementById('globalTimeDisplay').innerHTML = h + ":" + m + ":" + s;
-  var t = setTimeout(function() {
-    getCurrentTimeForDisplay()
-  }, 500);
-}
-
-getCurrentTimeForDisplay();
 
 
 //ONLINE ORDERS PENDING COUNT

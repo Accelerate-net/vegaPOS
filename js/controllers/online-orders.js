@@ -5,7 +5,7 @@ function renderLiveOnlineOrders(){
 	$("#onlineOrders_live").addClass("billTypeSelectionBox");
 	$("#onlineOrders_billed").removeClass("billTypeSelectionBox");
 
-	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">KOT Printed Orders</h3>'+
+	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Unbilled KOTs</h3>'+
 																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderLiveOnlineOrders()">Refresh</button>';
 
 
@@ -51,7 +51,7 @@ function renderLiveOnlineOrders(){
 	        	}
 	        	else{
 	        		document.getElementById("itemInfo").innerHTML = '';
-	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no active KOTs Printed</td></tr>';
+	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Unbilled KOTs</td></tr>';
 	        	}
 
           }
@@ -186,7 +186,7 @@ function renderBilledOnlineOrders(){
 	        	}
 	        	else{
 	        		document.getElementById("itemInfo").innerHTML = '';
-	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Billed Orders</td></tr>';
+	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Unsettled Orders</td></tr>';
 	        	}
 
           }
@@ -450,9 +450,9 @@ function fetchOrderDetails(orderID){
 			}
 			
 			//Other Calculations
-			allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Sub Total</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].amountPaid+'</td> </tr>';
-			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Extras</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> 0</td> </tr>';
-			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Discounts</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> 0</td> </tr>';
+			allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Sub Total</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].cart.cartTotal+'</td> </tr>';
+			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Extras</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].cart.cartExtra+'</td> </tr>';
+			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Discounts</b></td>  <td style="text-align: right">'+(lastOrderFetchInfo[i].cart.cartDiscount != 0 ? '- <i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].cart.cartDiscount : '<i class="fa fa-inr"></i> 0')+'</td> </tr>';
 
 			if(lastOrderFetchInfo[i].isPrepaid){
 				allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Amount Received</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].amountPaid+'</b></td> </tr>';

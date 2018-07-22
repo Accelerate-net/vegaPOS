@@ -126,7 +126,20 @@
 
                         <li style="width: 165px !important; text-align: center" onclick="checkLogin()"><a href="#"><tag id="globalServerConnectionStatus">...</tag></a></li>
 
-                        <li class="noHover"><a href="#" class="noHover" style="padding: 13.5px 30px"><tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 300"></tag></a></li>
+                        <li class="noHover"><a href="#" class="noHover" style="padding: 0">
+
+                          <div style="display: inline-block; position: relative; top: 5px">
+                              <div class="hero-circle">
+                                <div class="hero-face">
+                                  <div id="hour" class="hero-hour"></div>
+                                  <div id="minute" class="hero-minute"></div>
+                                  <div id="second" class="hero-second"></div>
+                                </div>
+                              </div>
+                          </div>
+                          <tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 300; position: relative; top: -8px; left: 6px;"></tag>
+
+                        </a></li>
 
                         <li class="noHover" onclick="showSpotlight()"><a href="#" class="noHover" style="padding: 15px 30px; font-size: 18px; "><i class="fa fa-laptop"></i> <tag id="thisSystemName" style="padding-left: 5px;"></tag></a></li>
                         
