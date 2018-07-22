@@ -2058,6 +2058,9 @@ function clearAllMetaDataOfBilling(){
   window.localStorage.userAutoFound = '';
   window.localStorage.userDetailsAutoFound = '';
 
+  window.localStorage.specialRequests_comments = '';
+  window.localStorage.allergicIngredientsData = '';
+
   window.localStorage.edit_KOT_originalCopy = '';
 }
 

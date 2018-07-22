@@ -5,7 +5,7 @@ function renderLiveOnlineOrders(){
 	$("#onlineOrders_live").addClass("billTypeSelectionBox");
 	$("#onlineOrders_billed").removeClass("billTypeSelectionBox");
 
-	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Live Orders</h3>'+
+	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">KOT Printed Orders</h3>'+
 																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderLiveOnlineOrders()">Refresh</button>';
 
 
@@ -51,7 +51,7 @@ function renderLiveOnlineOrders(){
 	        	}
 	        	else{
 	        		document.getElementById("itemInfo").innerHTML = '';
-	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Live Orders</td></tr>';
+	        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no active KOTs Printed</td></tr>';
 	        	}
 
           }
@@ -672,6 +672,8 @@ function punchOnlineOrderToKOT(encodedOrder){
 	    return '';
 	     
 	}
+
+	window.localStorage.specialRequests_comments = (order.comments && order.comments != '' ? order.comments : '');
 
 	window.localStorage.zaitoon_cart = JSON.stringify(cart);
 	window.localStorage.customerData = JSON.stringify(customerInfo);
