@@ -32,6 +32,7 @@
     <link rel="import" for="table-layout" href="views/table-layout.html">
     <link rel="import" for="bill-settings" href="views/bill-settings.html">
     <link rel="import" for="user-settings" href="views/user-settings.html">
+    <link rel="import" for="printer-settings" href="views/printer-settings.html">
     <link rel="import" for="app-data" href="views/app-data.html">
     <link rel="import" for="system-settings" href="views/system-settings.html">
 
@@ -223,13 +224,15 @@
                                 <a href="#"><i class="fa fa-circle-o"></i> App Data</a></li>
 
                             <li onclick="renderPage('bill-settings', 'Billing Settings')">
-                                <a href="#"><i class="fa fa-circle-o"></i> Billing Settings</a></li>                            
-                            <li onclick="renderPage('table-layout', 'Table Layout')">
-                                <a href="#"><i class="fa fa-circle-o"></i> Table Layout</a></li>
-
+                                <a href="#"><i class="fa fa-circle-o"></i> Billing Settings</a></li>      
+                            <li onclick="renderPage('printer-settings', 'Configure Printers')">
+                                <a href="#"><i class="fa fa-circle-o"></i> Configure Printers</a></li>
+                      
                             <li onclick="renderPage('system-settings', 'System Settings')">
                                 <a href="#"><i class="fa fa-circle-o"></i> System Settings</a></li>
 
+                            <li onclick="renderPage('table-layout', 'Table Layout')">
+                                <a href="#"><i class="fa fa-circle-o"></i> Table Layout</a></li>
 
                             <li onclick="renderPage('user-settings', 'Users Settings')">
                                 <a href="#"><i class="fa fa-circle-o"></i> Users Settings</a></li>                                
@@ -472,6 +475,7 @@
     <script type="text/javascript" src="js/controllers/table-layout.js"></script>
     <script type="text/javascript" src="js/controllers/bill-settings.js"></script>
     <script type="text/javascript" src="js/controllers/user-settings.js"></script>
+    <script type="text/javascript" src="js/controllers/printer-settings.js"></script>
     <script type="text/javascript" src="js/controllers/app-data.js"></script>
     <script type="text/javascript" src="js/controllers/system-settings.js"></script>
 

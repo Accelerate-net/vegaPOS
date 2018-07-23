@@ -62,6 +62,10 @@ function fetchInitFunctions(pageReference){
 			fetchAllUsersInfo();
 			break;
 		}	
+		case 'printer-settings':{
+			fetchAllPrintersInfo();
+			break;
+		}	
 		case 'app-data':{
 
 			break;
@@ -100,5 +104,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('system-settings', 'Punch Order');
+renderPage('printer-settings', 'Punch Order');
 

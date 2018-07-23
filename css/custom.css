@@ -3928,7 +3928,7 @@ position: absolute;
       }
 
 
-
+/* Animations */
 
 .specialRequestsButtonActive .swing {
     animation: swing ease-in-out 0.2s infinite alternate;
@@ -3953,5 +3953,57 @@ position: absolute;
     }
 }
 
+.myListedPrinter{
+    border: 1px solid #efefef;
+    box-shadow: 2px 2px 4px #e0e0e0;
+    border-radius: 10px;
+    padding: 25px 10px;
+    width: 180px !important;
+    display: inline-block;
+    margin: 10px 5px 0 0;
+    position: relative;
+}
+
+.myListedPrinterDelete{
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    text-align: right;
+    padding: 12px;  
+    cursor: pointer;
+}
+
+.myListedPrinterHead{
+    margin: 10px 0 0 0;
+    font-size: 20px;
+    color: #1261ad;
+    text-align: center;
+    text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+}
+
+.myListedPrinterAddress{
+    margin: 0;
+    color: #8a8a8a;
+    text-align: center;
+    font-size: 10px;
+    text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+}
+
+.myListedPrinterPaper{
+    margin: 5px 0 0 0;
+    font-size: 10px;
+    text-align: center;
+    text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+}
+
+.myListedPrinterActions{
+    font-size: 12px;
+    font-weight: 600;
+    color: #16a085;
+    text-align: center;
+    text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+}
 
 
