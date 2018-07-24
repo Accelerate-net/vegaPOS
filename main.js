@@ -16,7 +16,6 @@ const ipc = electron.ipcMain;
 const shell = electron.shell;
 
 
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
@@ -42,6 +41,7 @@ function createWindow () {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
+
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
@@ -81,7 +81,12 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
 
 /* Printer Processes */
-ipc.on('print-to-pdf', function(event){
+ipc.on('print-to-pdf', function(event, html_content){
+
+  if(!html_content || html_content == ''){
+    console.log('Error: No Content to Print');
+    return '';
+  }
 
   var pageSettings = {
     'marginsType': 1, //No Margin
@@ -92,42 +97,55 @@ ipc.on('print-to-pdf', function(event){
     }
   }
 
+  var pageSettingsSilent = {
+    'marginsType': 1, //No Margin
+    'printBackground': true, 
+    'pageSize': {
+      "height": 297000,
+      "width": 72000
+    },
+    'silent': true
+  }
+
+
 
   const pdfPath = path.join(os.tmpdir(), 'print.pdf')
-  const win =   new BrowserWindow({width: 800, height: 1500});
+  const win = new BrowserWindow({width: 800, height: 600});
 
-  win.loadURL(url.format({
-    pathname: path.join(__dirname+'/templates', 'kot.html'),
-    protocol: 'file:',
-    slashes: true
-  }));
+  // var test = win.webContents.getPrinters()
+  // console.log(test)
+  win.hide();
 
-setTimeout(function(){ 
+  win.loadURL("data:text/html;charset=utf-8," + encodeURI(html_content));
 
-  win.webContents.printToPDF(pageSettings, function(error, data){
+
+win.webContents.on('did-finish-load', () => {
+    // Use default printing options
+    //win.webContents.print(pageSettingsSilent);
+    console.log('Called...')
+    win.webContents.printToPDF(pageSettings, (error, data) => {
+    //  win.webContents.print(pageSettingsSilent, (error, data) => {
+
     if(error){
-      console.log(error.message)
-      return
+      console.log('Error Stage 1')
+      return ''
     }
     else{
-      fs.writeFile(pdfPath, data, function(err){
-        if(err){
-          console.log(error.message)
-          return
+      fs.writeFile(pdfPath, data, function(error){
+        if(error){
+          console.log('Error Stage 2 ')
+          return '';
+          
         }
         else{
-          shell.openExternal('file://'+pdfPath);
-          event.sender.send('wrote-pdf', pdfPath);
+
+            shell.openExternal('file://'+pdfPath)
         }
       })
-
     }
-  });
 
-
-}, 3000);
-
-
+    })
+})
 
 });
 

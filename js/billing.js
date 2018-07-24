@@ -1883,6 +1883,8 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
                           showToast('Bill #'+billNumber+' generated Successfully', '#27ae60');
 
+                          sendToPrinter(newBillFile, 'BILL');
+
                           clearAllMetaDataOfBilling();
                           hideBillPreviewModal();
 

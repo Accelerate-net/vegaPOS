@@ -3640,8 +3640,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              if(data.ok){
 
 	              	//Send KOT for Printing
-	              	console.log('>>>>>> PRINT THE KOT PHYSICALLY!')
-	              	//sendToPrinter(kot, 'KITCHEN')
+	              	sendToPrinter(obj, 'KOT');
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 	              		addToTableMapping(obj.table, kot, obj.customerName);

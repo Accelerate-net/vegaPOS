@@ -104,5 +104,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('printer-settings', 'Punch Order');
+renderPage('new-order', 'Punch Order');
 
