@@ -209,7 +209,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 '                                </div>'+
                 '                                '+
                 '                             </div> '+
-                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyBillDiscountWindow(\''+kotfile.KOTNumber+'\')">Cancel</button>'+
+                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyBillDiscountWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Cancel</button>'+
                 '                          </div>'+
                 '                          <div id="applyBillDiscountButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyBillDiscountButton" onclick="openApplyBillDiscountWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Apply Discount</button></div>'+
                 '                        </div>';
@@ -234,7 +234,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 '                                </div>'+
                 '                                '+
                 '                             </div> '+
-                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyBillCouponWindow(\''+kotfile.KOTNumber+'\')">Cancel</button> '+
+                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyBillCouponWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Cancel</button> '+
                 '                          </div>'+
                 '                          <div id="applyBillCouponButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyBillCouponButton" onclick="openApplyBillCouponWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Apply Coupon</button></div>'+
                 '                        </div>';
@@ -259,7 +259,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 '                                </div>'+
                 '                                '+
                 '                             </div> '+
-                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyNoCostBillWindow(\''+kotfile.KOTNumber+'\')">Cancel</button> '+
+                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyNoCostBillWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Cancel</button> '+
                 '                          </div>'+
                 '                          <div id="applyNoCostBillButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyNoCostBillButton" onclick="openMarkNoCostBill(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">No Cost Bill</button></div>'+
                 '                        </div>';
@@ -314,7 +314,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 '                                </div>'+
                 '                                '+
                 '                             </div> '+
-                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyCustomExtraWindow(\''+kotfile.KOTNumber+'\')">Cancel</button> '+
+                '                              <button class="btn btn-default tableOptionsButton breakWord" onclick="closeApplyCustomExtraWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Cancel</button> '+
                 '                          </div>'+
                 '                          <div id="applyCustomExtraButtonWrap"><button class="btn btn-default tableOptionsButton breakWord" id="applyCustomExtraButton" onclick="openApplyCustomExtraWindow(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Add Extra Charges</button></div>'+
                 '                        </div>';
@@ -597,7 +597,7 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
 }
 
 
-function closeApplyBillCouponWindow(kotID){
+function closeApplyBillCouponWindow(kotID, optionalPageRef){
   
   /*Change apply button action*/
   document.getElementById("applyBillCouponButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton" id="applyBillCouponButton" onclick="openApplyBillCouponWindow(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Coupon</button>';
@@ -746,6 +746,7 @@ function removeBillDiscountOnKOT(kotID, optionalPageRef){
 
 function applyBillDiscountOnKOT(kotID, optionalPageRef){
 
+    var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
 
     var requestData = { "selector" :{ "KOTNumber": kotID }}
 
@@ -785,6 +786,27 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
 
           totalDiscount = Math.round(totalDiscount * 100) / 100;
 
+          //Cross Check if it matches with the BILLING MODE Restriction of Discounts
+          var g = 0;
+          var maximumReached = false;
+          while(billing_modes[g]){
+            if(billing_modes[g].name == kotfile.orderDetails.mode){
+
+              if(!billing_modes[g].isDiscountable){
+                showToast('Error: Discount can not be applied on </b>'+billing_modes[g].name+'</b> orders', '#e74c3c');
+                return '';
+              }
+              else{
+                if(totalDiscount > billing_modes[g].maxDiscount){
+                  totalDiscount = billing_modes[g].maxDiscount;
+                  maximumReached = true;
+                }
+              }
+              break;
+            }
+            g++;
+          }
+
 
           kotfile.discount.amount = totalDiscount;
           kotfile.discount.type = type;
@@ -805,7 +827,14 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                    showToast('Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
+                    
+                    if(maximumReached){
+                      showToast('Warning: Maximum discount (Rs. '+billing_modes[g].maxDiscount+') for </b>'+billing_modes[g].name+'</b> order reached', '#e67e22');
+                    }
+                    else{
+                      showToast('Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
+                    }
+
                     generateBillFromKOT(kotID, optionalPageRef);
                     generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
                   },
@@ -857,7 +886,7 @@ function roughCalculateDiscount(){
   document.getElementById("applyBillDiscountWindow_amount").innerHTML = roughDiscFigure;
 }
 
-function closeApplyBillDiscountWindow(kotID){
+function closeApplyBillDiscountWindow(kotID, optionalPageRef){
   
   /*Change apply button action*/
   document.getElementById("applyBillDiscountButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton breakWord" id="applyBillDiscountButton" onclick="openApplyBillDiscountWindow(\''+kotID+'\', \''+optionalPageRef+'\')">Apply Discount</button>';
@@ -1137,7 +1166,7 @@ function applyCustomExtraOnKOT(kotID, optionalPageRef){
 }
 
 
-function closeApplyCustomExtraWindow(kotID){
+function closeApplyCustomExtraWindow(kotID, optionalPageRef){
   
   /*Change apply button action*/
   document.getElementById("applyCustomExtraButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton breakWord" id="applyCustomExtraButton" onclick="openApplyCustomExtraWindow(\''+kotID+'\', \''+optionalPageRef+'\')">Add Extra Charge</button>';
@@ -1198,7 +1227,7 @@ function openMarkNoCostBill(kotID, optionalPageRef){
 
 }
 
-function closeApplyNoCostBillWindow(kotID){
+function closeApplyNoCostBillWindow(kotID, optionalPageRef){
   /*Change apply button action*/
   document.getElementById("applyNoCostBillButtonWrap").innerHTML = '<button class="btn btn-default tableOptionsButton breakWord" id="applyNoCostBillButton" onclick="openMarkNoCostBill(\''+kotID+'\', \''+optionalPageRef+'\')">No Cost Bill</button>';
 

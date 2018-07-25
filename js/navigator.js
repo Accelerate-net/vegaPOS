@@ -104,5 +104,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('online-orders', 'Punch Order');
+renderPage('bill-settings', 'Punch Order');
 

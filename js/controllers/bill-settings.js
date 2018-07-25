@@ -720,13 +720,13 @@ function fetchAllModes(){
               var modesTag = '';
 
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td><p style="margin: 0">'+modes[i].name+'</p><p style="margin: 0; font-size: 65%; color: #f39c12;">'+modes[i].type+'</p></td> <td>'+( modes[i].extras == ''? '-' :((modes[i].extras).toString()).replace(/\,/g , ", "))+'</td> <td>'+(modes[i].minimumBill != 0? '<i class="fa fa-inr"></i>'+modes[i].minimumBill :'-')+'</td> <td>'+(modes[i].isDiscountable?"Yes": "No")+'</td> <td>'+(modes[i].maxDiscount != 0? '<i class="fa fa-inr"></i>'+modes[i].maxDiscount :'-')+'</td> <td onclick="deleteModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td><p style="margin: 0">'+modes[i].name+'</p><p style="margin: 0; font-size: 65%; color: #f39c12;">'+modes[i].type+'</p></td> <td>'+( modes[i].extras == ''? '-' :((modes[i].extras).toString()).replace(/\,/g , ", "))+'</td> <td>'+(modes[i].isDiscountable?"Yes": "No")+'</td> <td>'+(modes[i].maxDiscount != 0? '<i class="fa fa-inr"></i>'+modes[i].maxDiscount :'-')+'</td> <td onclick="deleteModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
               }
 
               if(!modesTag){
                 document.getElementById("billingModesTable").innerHTML = '<p style="color: #bdc3c7">No modes added yet.</p>';
               }else{
-                document.getElementById("billingModesTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Mode</th> <th style="text-align: left">Extras Collected</th> <th style="text-align: left">Min Bill Amount</th> <th style="text-align: left">Discountable</th><th style="text-align: left">Max Discount</th> <th style="text-align: left"></th> </tr> </thead>'+
+                document.getElementById("billingModesTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Mode</th> <th style="text-align: left">Extras Collected</th> <th style="text-align: left">Discountable</th><th style="text-align: left">Max Discount</th> <th style="text-align: left"></th> </tr> </thead>'+
                                         '<tbody>'+modesTag+'</tbody>';
               }
 
@@ -758,10 +758,7 @@ function addMode() {
 	paramObj.isDiscountable = document.getElementById("add_new_mode_discountable").value == 'YES'? true: false;
 	paramObj.extras = document.getElementById("add_new_mode_extras").value;
 	paramObj.type = document.getElementById("add_new_mode_type").value;
-	paramObj.minimumBill = document.getElementById("add_new_mode_minBill").value;
 	paramObj.maxDiscount = document.getElementById("add_new_mode_maxDisc").value;
-
-	paramObj.minimumBill = parseFloat(paramObj.minimumBill);
 	paramObj.maxDiscount = parseFloat(paramObj.maxDiscount);
 
 	paramObj.extras = paramObj.extras == 'Choose from below'? '': paramObj.extras;
@@ -770,10 +767,6 @@ function addMode() {
 		showToast('Warning: Please set a name', '#e67e22');
 		return '';
 	}
-	else if(Number.isNaN(paramObj.minimumBill)){
-		showToast('Warning: Invalid minimum bill amount. Keep it as Zero or any number', '#e67e22');
-		return '';
-	}	
 	else if(Number.isNaN(paramObj.maxDiscount) && paramObj.isDiscountable){
 		showToast('Warning: Invalid maximum discount amount', '#e67e22');
 		return '';
