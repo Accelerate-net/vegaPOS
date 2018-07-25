@@ -4043,3 +4043,42 @@ position: absolute;
     color: #FFF;
 }
 
+.billModeLabel{
+    width: 60%;
+    display: inline-block;
+    color: black;
+    margin: 8px 0 0 0;
+    padding-right: 5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.billModeDeleteIcon{
+  margin-left: 8px;
+  background: none;
+  opacity: 0;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #FFF;
+  border-radius: 4px;
+  font-weight: bold;
+  padding: 0px 5px;
+  cursor: pointer;
+}
+
+
+.billModeLabel:hover .billModeDeleteIcon{
+    background: #ee5357;
+    opacity: 1;
+}
+
+
+
+.billModeInput{
+    width: 40%;
+    display: inline;
+    float: right;
+    text-align: center;
+}
+

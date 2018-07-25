@@ -12,21 +12,24 @@ function hideNewBill(){
 }
 
 
-function addExtraToInput(name, id){
-  if(document.getElementById("add_new_mode_extras").value == "" || document.getElementById("add_new_mode_extras").value =="Choose from below list"){
-    document.getElementById("add_new_mode_extras").value = name;
-  }
-  else{
-    document.getElementById("add_new_mode_extras").value = document.getElementById("add_new_mode_extras").value + ',' +name;
-  }
+function addExtraToInput(name, value, id){
+
+  document.getElementById("selectedBillingModeExtras").innerHTML += '<div id="bill_extra_'+(name.replace(/\s/g,''))+'" class="row" style="padding: 0 15px; margin-bottom: 5px;"> <p class="billModeLabel"><tag class="billModeNamed">'+name+'</tag><tag class="billModeDeleteIcon" onclick="removeBillModeExtra(\''+name+'\', \''+id+'\')"><i class="fa fa-minus"></i></tag></p>'+
+                                              '<input type="text" id="bill_extra_in_'+(name.replace(/\s/g,''))+'" value="'+value+'" class="form-control tip billModeInput"/> </div>';
+                                 
+  $('#bill_extra_in_'+(name.replace(/\s/g,''))).focus();
+  $('#bill_extra_in_'+(name.replace(/\s/g,''))).select();
 
   document.getElementById(id).style.display = "none";
 }
 
+function removeBillModeExtra(name, old_id){
+  $("#bill_extra_"+(name.replace(/\s/g,''))).remove();
+  document.getElementById(old_id).style.display = 'inline-block'; 
+}
+
 
 function openNewMode(){
-
-    document.getElementById("add_new_mode_extras").value= "";
 
     /*render extras list*/
 
@@ -54,7 +57,7 @@ function openNewMode(){
               var modesTag = '';
 
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<tag class="extrasSelButton" onclick="addExtraToInput(\''+modes[i].name+'\', \'extra_'+i+'\')" id="extra_'+i+'">'+modes[i].name+' ('+(modes[i].unit == 'FIXED'? 'Rs. '+modes[i].value : modes[i].value+'%')+')</tag>';
+                modesTag = modesTag + '<tag class="extrasSelButton" onclick="addExtraToInput(\''+modes[i].name+'\', \''+modes[i].value+'\', \'extra_'+i+'\')" id="extra_'+i+'">'+modes[i].name+' ('+(modes[i].unit == 'FIXED'? 'Rs. '+modes[i].value : modes[i].value+'%')+')</tag>';
               }
 
               if(!modesTag){
@@ -756,12 +759,23 @@ function addMode() {
 	var paramObj = {};
 	paramObj.name = document.getElementById("add_new_mode_name").value;
 	paramObj.isDiscountable = document.getElementById("add_new_mode_discountable").value == 'YES'? true: false;
-	paramObj.extras = document.getElementById("add_new_mode_extras").value;
 	paramObj.type = document.getElementById("add_new_mode_type").value;
 	paramObj.maxDiscount = document.getElementById("add_new_mode_maxDisc").value;
 	paramObj.maxDiscount = parseFloat(paramObj.maxDiscount);
 
-	paramObj.extras = paramObj.extras == 'Choose from below'? '': paramObj.extras;
+
+  var extrasObj = [];
+
+  var extrasList = $('#selectedBillingModeExtras .row .billModeNamed');
+  var k = 0;
+  $("#selectedBillingModeExtras .row .billModeInput").each(function(){ 
+    if($(this).val() > 0){
+      extrasObj.push( {"name": extrasList.eq(k).html(), "value": parseFloat($(this).val()).toFixed(2)} )
+    }
+    k++;
+  });
+  
+  paramObj.extras = extrasObj;
 
 	if(paramObj.name == ''){
 		showToast('Warning: Please set a name', '#e67e22');
@@ -780,8 +794,6 @@ function addMode() {
 	if(!paramObj.isDiscountable){
 		paramObj.maxDiscount = "";
 	}
-
-
 
 
     var requestData = {
