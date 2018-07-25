@@ -4007,3 +4007,23 @@ position: absolute;
 }
 
 
+.orderSourceLabel{
+    background: blue;
+    font-size: 9px;
+    padding: 0px 4px;
+    border-radius: 3px;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.orderSourceExpLabel{
+    font-size: 12px;
+    float: right;
+    margin-left: 10px;
+    padding: 3px 6px;
+    border: 2px solid transparent;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #FFF;
+}
+

@@ -159,8 +159,7 @@ function overWriteCurrentOrder(encodedKOT){
     customerInfo.mode = kot.orderDetails.mode;
     customerInfo.modeType = kot.orderDetails.modeType;
     customerInfo.reference = kot.orderDetails.reference;
-    customerInfo.notes = kot.orderDetails.notes;
-    customerInfo.prediscount = kot.orderDetails.prediscount;
+    customerInfo.isOnline = kot.orderDetails.isOnline;
 
 
     if(kot.specialRemarks && kot.specialRemarks != ''){

@@ -704,59 +704,13 @@ function getOnlineOrdersCount() {
     timeout: 10000,
     success: function(netdata) {
       if(netdata.status){
-
-          var requestData = { "selector" :{ "identifierTag": "ZAITOON_ONLINE_ORDERS_MAPPING" }, "fields" : ["_rev", "identifierTag", "value"] }
-
-          $.ajax({
-            type: 'POST',
-            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
-            data: JSON.stringify(requestData),
-            contentType: "application/json",
-            dataType: 'json',
-            timeout: 10000,
-            success: function(data) {
-              if(data.docs.length > 0){
-                if(data.docs[0].identifierTag == 'ZAITOON_ONLINE_ORDERS_MAPPING'){
-
-                    var onlineOrdersMapping = data.docs[0].value;
-                    var todayDate = getCurrentTime('DATE_DD-MM-YY');
-                    var mappedCount = 0;
-
-                    for (var i=0; i<netdata.response.length; i++){
-                      for(var j=0; j<onlineOrdersMapping.length; j++){
-                        if(onlineOrdersMapping[j].onlineOrder == parseInt(netdata.response[i].orderID) && onlineOrdersMapping[j].date == todayDate){
-                          mappedCount++;
-                          break;
-                        }
-                      }
-                    }
-
-                    if(netdata.count - mappedCount != 0){
+                    if(netdata.count != 0){
                       document.getElementById('onlineOrderCounter').style.display = 'inline-block';
-                      document.getElementById('onlineOrderCounter').innerHTML = netdata.count - mappedCount;
+                      document.getElementById('onlineOrderCounter').innerHTML = netdata.count;
                     }
                     else{
                       document.getElementById('onlineOrderCounter').style.display = 'none';
                     }
-                    
-                }
-                else{
-                  document.getElementById('onlineOrderCounter').style.display = 'inline-block';
-                  document.getElementById('onlineOrderCounter').innerHTML = netdata.count;
-                }
-              }
-              else{
-                document.getElementById('onlineOrderCounter').style.display = 'inline-block';
-                document.getElementById('onlineOrderCounter').innerHTML = netdata.count;  
-              }
-              
-            },
-            error: function(data) {
-              document.getElementById('onlineOrderCounter').style.display = 'inline-block';
-              document.getElementById('onlineOrderCounter').innerHTML = netdata.count;
-            }
-
-          }); 
       }
       else{
         document.getElementById('onlineOrderCounter').style.display = 'none';

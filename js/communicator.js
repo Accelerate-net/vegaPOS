@@ -4,6 +4,8 @@ const ipc = require('electron').ipcRenderer;
 
 function sendToPrinter(orderObject, type, optionalRequest){
 
+   return '';
+
 	/*
 		type - Either KOT or BILL
 		optionalRequest - 'DUPLICATE' in case of Duplicate Printing
@@ -28,8 +30,13 @@ var showScanPay = false;
 
 //Scan and Pay
 if(data_custom_scanpay_enabled == 1){
-   if(orderObject.orderDetails.notes != '' && orderObject.orderDetails.notes == 'PREPAID'){
-      showScanPay = false;
+   if(orderObject.orderDetails.isOnline){ //DISABLE FOR PREPAID ORDERS
+      if(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID'){
+         showScanPay = false;
+      }
+      else{
+         showScanPay = true;
+      }
    }
    else{
       showScanPay = true;
@@ -133,17 +140,32 @@ if(orderObject.orderDetails.modeType == 'DELIVERY'){
                   '</p>'+
                '</td>';
 
-   billHeaderRender = userInfo +                
-               '<td style="vertical-align: top">'+
-                  '<p style=" text-align: right; float: right">'+
-                     '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag>'+(orderObject.orderDetails.notes == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
-                     '<tag class="subLabel">Order No</tag>'+
-                     '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
-                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
-                     '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
-                  '</p>'+
-                  '<tag>'+'</tag>'+
-               '</td>';
+   if(orderObject.orderDetails.isOnline){
+      billHeaderRender = userInfo +                
+                  '<td style="vertical-align: top">'+
+                     '<p style=" text-align: right; float: right">'+
+                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
+                        '<tag class="subLabel">Order No</tag>'+
+                        '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
+                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
+                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                     '</p>'+
+                     '<tag>'+'</tag>'+
+                  '</td>';
+   }
+   else{
+       billHeaderRender = userInfo +                
+                  '<td style="vertical-align: top">'+
+                     '<p style=" text-align: right; float: right">'+
+                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag><tag style="display: block; padding: 2px;">CASH</tag></tag>'+
+                        '<tag class="subLabel">Order No</tag>'+
+                        '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
+                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
+                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                     '</p>'+
+                     '<tag>'+'</tag>'+
+                  '</td>';     
+   }
 }
 else if(orderObject.orderDetails.modeType == 'PARCEL'){
     userInfo = '<td style="vertical-align: top; position: relative">'+
@@ -155,17 +177,32 @@ else if(orderObject.orderDetails.modeType == 'PARCEL'){
                   '</p>'+
                '</td>';  
 
-   billHeaderRender = userInfo +                
-               '<td style="vertical-align: top">'+
-                  '<p style=" text-align: right; float: right">'+
-                     '<tag class="serviceType">'+(orderObject.orderDetails.notes == 'PREPAID' ? 'PREPAID' : 'CASH')+'</tag>'+
-                     '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
-                     '<tag class="tokenNumber" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">'+orderObject.orderDetails.reference+'</tag>'+
-                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
-                     '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
-                  '</p>'+
-                  '<tag>'+'</tag>'+
-               '</td>';               
+   if(orderObject.orderDetails.isOnline){
+      billHeaderRender = userInfo +                
+                  '<td style="vertical-align: top">'+
+                     '<p style=" text-align: right; float: right">'+
+                        '<tag class="serviceType">'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? 'PREPAID' : 'CASH')+'</tag>'+
+                        '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
+                        '<tag class="tokenNumber" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">'+orderObject.orderDetails.reference+'</tag>'+
+                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
+                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                     '</p>'+
+                     '<tag>'+'</tag>'+
+                  '</td>';  
+   }   
+   else{
+      billHeaderRender = userInfo +                
+                  '<td style="vertical-align: top">'+
+                     '<p style=" text-align: right; float: right">'+
+                        '<tag class="serviceType">'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? 'PREPAID' : 'CASH')+'</tag>'+
+                        '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
+                        '<tag class="tokenNumber" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">'+orderObject.orderDetails.reference+'</tag>'+
+                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
+                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                     '</p>'+
+                     '<tag>'+'</tag>'+
+                  '</td>';  
+   }          
 }
 else{
 

@@ -37,7 +37,8 @@ function getFormattedTime(time){
 }
 
 function getFancyTime(time){
-  return moment(time, 'hhmm').format('hh:mm A')
+  var fancy = moment(time, 'hhmm').format('hh:mm A');
+  return fancy == 'Invalid date' ? '--:--' : fancy;
 }
 
 

@@ -21,6 +21,9 @@ Notes:
 17. Custom landing page (PERSONALISATION for each Machine)
 18. Continues status check for ONLINE ORDER COUNT (Layout.js) --> Only if PERSONALISATION Enbled.
 19. REMOVE SYSTEM NAME --> Kitchen Kiosk added everywhere
+20. Tax EXEMPTED List (item wise - Pepsie exempted from GST)
+21. Option, if price is inclusive of taxes already (Just show the figures or add it to grand sum?)
+22. Idle Screen ==> PROFILE CHOOSER be default
 
 Reserved Keywords:
 PREPAID - In payments (for Online Prepaid orders) <-- Custom name for it in Personalisation (PREPAID == 'Razor Pay Gateway')
