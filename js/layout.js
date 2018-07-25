@@ -1548,8 +1548,9 @@ function showSpotlight(){
         var liSelected = undefined;
 
         var autoSearchEnabled = false;
-
         var isMenuAndTablesLoaded = false;
+
+
 
         $('#spotlightSearchKey').keyup(function(e) {
 
@@ -1580,6 +1581,13 @@ function showSpotlight(){
             }
 
             renderSpotlightPreview('Clear'); /*TWEAK*/
+
+
+            if(searchKey.length == 0 || !searchKey.replace(/\s/g, '').length){
+              document.getElementById("noResultSpotlight").style.display = 'none'; 
+              document.getElementById("spotlightRenderPanel").style.display = 'none';
+              return '';
+            }
 
             if (e.which === 40 || e.which === 38) {
                 /*
@@ -1717,6 +1725,13 @@ function showSpotlight(){
 
                             if(count > 0){
                               renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                            
+                              document.getElementById("noResultSpotlight").style.display = 'none';
+                              document.getElementById("spotlightRenderPanel").style.display = 'block';
+                            }
+                            else{
+                              document.getElementById("noResultSpotlight").style.display = 'block';
+                              document.getElementById("spotlightRenderPanel").style.display = 'none';                              
                             }
 
                           });
@@ -1785,6 +1800,12 @@ function showSpotlight(){
 
                                   if(count > 0){
                                     renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                                    document.getElementById("noResultSpotlight").style.display = 'none'; 
+                                    document.getElementById("spotlightRenderPanel").style.display = 'block';
+                                  }
+                                  else{
+                                    document.getElementById("noResultSpotlight").style.display = 'block'; 
+                                    document.getElementById("spotlightRenderPanel").style.display = 'none';
                                   }
 
                                 });
@@ -1851,6 +1872,12 @@ function showSpotlight(){
 
                                         if(count > 0){
                                           renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                                          document.getElementById("noResultSpotlight").style.display = 'none'; 
+                                          document.getElementById("spotlightRenderPanel").style.display = 'block';
+                                        }
+                                        else{
+                                          document.getElementById("noResultSpotlight").style.display = 'block'; 
+                                          document.getElementById("spotlightRenderPanel").style.display = 'none';
                                         }
 
                                       });
@@ -1866,6 +1893,8 @@ function showSpotlight(){
                                     else{
                                       //Search for INVOICE
                                       spotlightData = [];
+                                      document.getElementById("noResultSpotlight").style.display = 'block'; 
+                                      document.getElementById("spotlightRenderPanel").style.display = 'none';
                                     }
                                   }
                                 });  
@@ -1938,6 +1967,12 @@ function showSpotlight(){
 
                             if(count > 0){
                               renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                              document.getElementById("noResultSpotlight").style.display = 'none'; 
+                              document.getElementById("spotlightRenderPanel").style.display = 'block';
+                            }
+                            else{
+                              document.getElementById("noResultSpotlight").style.display = 'block'; 
+                              document.getElementById("spotlightRenderPanel").style.display = 'none';
                             }
 
                           });
@@ -1952,6 +1987,8 @@ function showSpotlight(){
                         }
                         else{ //USER NOT FOUND
                           spotlightData = [];
+                          document.getElementById("noResultSpotlight").style.display = 'block'; 
+                          document.getElementById("spotlightRenderPanel").style.display = 'none';
                         }
 
                       }
@@ -2038,6 +2075,8 @@ function showSpotlight(){
 
                                       var regex = new RegExp(searchKey, "i"); //NB: Not for Order or Customer Search
 
+                                      var general_query_atleast_one_result = false;
+
                                       $.each(spotlightData, function(key_1, spotResult) {
 
                                         itemsList = '';
@@ -2064,6 +2103,8 @@ function showSpotlight(){
                                                       
                                                       count++;
                                                       tabIndex++;
+
+                                                      general_query_atleast_one_result = true;
                                                 }
                                               });
                                               break;
@@ -2085,15 +2126,26 @@ function showSpotlight(){
 
                                                       count++;
                                                       tabIndex++;
+
+                                                      general_query_atleast_one_result = true;
                                                 }
                                               });
                                               break;
                                           }
                                         }
 
-
+console.log('am here')
                                         if(count > 0){
                                           renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                                        }
+
+                                        if(general_query_atleast_one_result){
+                                          document.getElementById("noResultSpotlight").style.display = 'none'; 
+                                          document.getElementById("spotlightRenderPanel").style.display = 'block';
+                                        }
+                                        else{
+                                          document.getElementById("noResultSpotlight").style.display = 'block'; 
+                                          document.getElementById("spotlightRenderPanel").style.display = 'none';
                                         }
 
                                       });
@@ -2129,6 +2181,8 @@ function showSpotlight(){
                         var tabIndex = 1;
                         var itemsList = '';
 
+                        var general_query_atleast_one_result = false;
+
                         var regex = new RegExp(searchKey, "i"); //NB: Not for Order or Customer Search
 
                         $.each(spotlightData, function(key_1, spotResult) {
@@ -2157,6 +2211,8 @@ function showSpotlight(){
                                         
                                         count++;
                                         tabIndex++;
+
+                                        general_query_atleast_one_result = true;
                                   }
                                 });
                                 break;
@@ -2178,6 +2234,9 @@ function showSpotlight(){
 
                                         count++;
                                         tabIndex++;
+
+                                        general_query_atleast_one_result = true;
+
                                   }
                                 });
                                 break;
@@ -2185,8 +2244,19 @@ function showSpotlight(){
                           }
 
 
+
+console.log('am here 2')
                           if(count > 0){
                             renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                          }
+
+                          if(general_query_atleast_one_result){
+                            document.getElementById("noResultSpotlight").style.display = 'none'; 
+                            document.getElementById("spotlightRenderPanel").style.display = 'block';
+                          }
+                          else{
+                            document.getElementById("noResultSpotlight").style.display = 'block'; 
+                            document.getElementById("spotlightRenderPanel").style.display = 'none';
                           }
 
                         });
@@ -2208,9 +2278,3 @@ function showSpotlight(){
         });
 
 }
-
-
-
-
-
-

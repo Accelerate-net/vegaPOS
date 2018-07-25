@@ -330,45 +330,18 @@
                  <i class="fa fa-search"></i>
               </div>
               <input class="ng-spotlight-input" id="spotlightSearchKey" type="text" placeholder="Spotlight Search" onblur="this.focus()">
-              <div class="ng-spotlight-input-after" style="color: red">— No Results</div>
-
-              <!-- ngIf: searchTerm.length > 0 -->
-              <div class="ng-spotlight-results-icon ng-scope">
-                <img src="brand/logo_small.png" width="32px" style="margin-top: -5px;">
+              <div class="ng-spotlight-input-after" style="display: none" id="noResultSpotlight">— No Results</div>
+              <div class="ng-spotlight-results-icon mySpotlightLogo">
               </div>
            </div>
 
            <!-- If results found -->
-           <div class="ng-spotlight-results-panel">
-              <div class="ng-spotlight-results-list" id="spotlightResultsRenderArea"> <!-- key down to select a result -->
-               
-<!--                  <ul class="ng-spotlight-results-category">
-                        <div class="ng-spotlight-results-list-header">Tables</div>
-                          <li class="ng-spotlight-results-list-item active">
-                            <i class="fa fa-home"></i>
-                             22 Table
-                          </li>
-                          <li class="ng-spotlight-results-list-item">
-                            <i class="fa fa-home"></i>
-                             21 Table
-                          </li>
-                          <li class="ng-spotlight-results-list-item">
-                            <i class="fa fa-home"></i>
-                             20 Table
-                          </li>
-                       
-                        <div class="ng-spotlight-results-list-header">Customers</div>
-                          <li class="ng-spotlight-results-list-item">
-                            <i class="fa fa-user"></i>
-                             22nd Main Road, Adyar
-                          </li>
-                 </ul> -->
- 
+           <div class="ng-spotlight-results-panel" style="display: none" id="spotlightRenderPanel">
+              <div class="ng-spotlight-results-list" id="spotlightResultsRenderArea">
               </div>
               <div class="ng-spotlight-results-detail">
                  <spotlight-details>
                     <div class="ng-spotlight-results-detail-default" style="padding-top: 55px;" id="spotlightPreview">
-                        
                     </div>
                  </spotlight-details>
               </div>

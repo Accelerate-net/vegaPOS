@@ -256,7 +256,7 @@ document.getElementById("renderAreaUserStats").innerHTML = '<div>'+
                     '<div class="col-xs-4">'+
                         '<div class="box box-primary">'+
                             '<div class="box-body">'+
-                                '<div class="rewardsCount">'+data.volume+'<i class="fa fa-inr rewardsRs"></i></div>'+
+                                '<div class="rewardsCount">'+data.volume+'<i class="fa fa-inr rewardsRs" style="font-size: 50% !important; position: relative; top: -10px; padding-left: 5px;"></i></div>'+
                                 '<div class="rewardsName">TOTAL SPENT</div>'+
                             '</div>'+
                         '</div>'+
