@@ -42,8 +42,6 @@ function triggerRightPanelDisplay(){
 /*Add Item to Cart */
 function saveToCart(productToAdd){
 
-	console.log(productToAdd)
-
 		var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
 
 		var i = 0;
@@ -89,7 +87,7 @@ function additemtocart(encodedItem, optionalSource){
 	//Allergy Check
 	var allergicIngredients = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
 	if(allergicIngredients.length > 0){
-		console.log(productToAdd)
+
 		if(productToAdd.ingredients && productToAdd.ingredients.length > 0){
 			var a = 0;
 			var allergyIngredientDetected = false;
@@ -134,9 +132,6 @@ function additemtocart(encodedItem, optionalSource){
           var easySelectTool = $(document).on('keydown',  function (e) {
             console.log('Am secretly running...')
             if($('#customOptionsList').is(':visible')) {
-
-              console.log(e.which)
-
 
                  switch(e.which){
                   case 38:{ //  ^ Up Arrow 
@@ -223,8 +218,6 @@ function addCustomToCart(name, code, price, variant, optionalSource, encodedIngr
 		productToAdd.variant = variant;
 		productToAdd.isCustom = true;
 		productToAdd.ingredients = ingredientsTemp;
-
-		console.log(productToAdd)
 
 		saveToCart(productToAdd)
 		document.getElementById("customiseItemModal").style.display ='none'
@@ -402,6 +395,18 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 		n++;
 	}
 
+	//Caution: BILLING MODE not found
+	if(!selectedBillingModeInfo || selectedBillingModeInfo == ''){
+		showToast('Error: Unknown Billing Mode. Check if mode <b>'+selectedBillingModeName+'</b> exists', '#e74c3c');
+		selectedBillingModeInfo = {
+			"name": "Unknown",
+			"extras": [],
+			"isDiscountable": false,
+			"maxDiscount": 0,
+			"type": "ERROR"
+		}
+	}
+
 
 	    var requestData = {
 	      "selector"  :{ 
@@ -425,7 +430,6 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 	              	var params = data.docs[0].value;
 		          	var selectedModeExtrasList = selectedBillingModeInfo.extras;
 		          	var cartExtrasList = [];
-
 		          	var n = 0, m = 0;
 		          	while(selectedModeExtrasList[n]){
 		          		m = 0;
@@ -871,8 +875,8 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 
 	var editingKOTContent = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 
- 	//EDIT - Actions     
- 	if(!selectedBillingModeInfo || selectedBillingModeInfo == ''){
+ 	//EDIT - Actions   
+ 	if(!selectedBillingModeInfo || selectedBillingModeInfo == '' || selectedBillingModeInfo.name == 'Unknown'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
 	                        '<div class="col-xs-12" style="padding: 0">'+
 	                           '<div class="btn-group-vertical btn-block">'+
@@ -880,9 +884,6 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                           '</div>'+
 	                        '</div>'+
 	                     '</div>';
-
-	    showToast('Unknown Billing Mode. Check if the mode '+document.getElementById("customer_form_data_mode").value+' exists.', '#e74c3c');
-          
  		return '';
  	}
 
@@ -953,7 +954,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 else{
  	//NEW ORDER - Actions 
 
- 	if(!selectedBillingModeInfo || selectedBillingModeInfo == ''){
+ 	if(!selectedBillingModeInfo || selectedBillingModeInfo == '' || selectedBillingModeInfo.name == 'Unknown'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
 	                        '<div class="col-xs-12" style="padding: 0">'+
 	                           '<div class="btn-group-vertical btn-block">'+
@@ -962,8 +963,6 @@ else{
 	                        '</div>'+
 	                     '</div>';
 
-	    showToast('Unknown Billing Mode. Check if the mode '+document.getElementById("customer_form_data_mode").value+' exists.', '#e74c3c');
-          
  		return '';
  	}
 
@@ -1019,10 +1018,57 @@ else{
 
 
 function startFreshOrder(){
-	clearAllMetaData();
+
+	//to remove cart info, customer info
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+
+	customerInfo.name = "";
+	customerInfo.mobile ="";
+	customerInfo.count = "";
+	customerInfo.mappedAddress = "";
+	customerInfo.reference = "";
+	customerInfo.isOnline = false;
+
+
+		var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
+		
+		if(billing_modes.length == 0){
+			showToast('Warning: There are no billing modes created.', '#e67e22');
+		}
+		else{
+
+			var n = 0;
+			while(billing_modes[n]){
+				if(billing_modes[n].type == 'DINE'){
+					customerInfo.mode = billing_modes[n].name;
+					customerInfo.modeType = 'DINE';
+					break;
+				}
+
+				if(n == billing_modes.length - 1){ //No dine modes ==> Set first in the list be default
+					customerInfo.mode = billing_modes[0].name;
+					customerInfo.modeType = billing_modes[0].type;
+				}
+
+				n++;
+			}	
+
+		}
+
+	window.localStorage.customerData = JSON.stringify(customerInfo);
+	window.localStorage.zaitoon_cart = '';
+	window.localStorage.edit_KOT_originalCopy = '';
+	window.localStorage.userAutoFound = '';
+	window.localStorage.userDetailsAutoFound = '';
+
+	window.localStorage.specialRequests_comments = '';
+	window.localStorage.allergicIngredientsData = '[]';
+
+	window.localStorage.hasUnsavedChangesFlag = 0;
+ 	document.getElementById("leftdiv").style.borderColor = "#FFF";
+
 	renderCustomerInfo();
 	renderTables();
-	renderCart();
 }
 
 function undoChangesInKOT(){
@@ -2288,7 +2334,6 @@ function getFormattedAddress(addressObject){
 
 function updateTokenCountOnServer(nextToken, revID){
 
-	console.log('Server Count: ', nextToken)
 
 			                          //Update token number on server
 			                          var updateData = {
@@ -2547,6 +2592,15 @@ function setCustomerInfoTable(tableID){
 
 
 function renderTables(){
+
+	//re-render right panel
+	if(window.localStorage.appCustomSettings_OrderPageRightPanelDisplay && window.localStorage.appCustomSettings_OrderPageRightPanelDisplay == 'TABLE'){
+		//Proceed
+	}
+	else{
+		return '';
+	}
+
 
 	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
 	if(customerInfo.modeType == 'DINE'){
@@ -3424,7 +3478,7 @@ function generateNewKOT(){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
 
@@ -3577,7 +3631,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		orderMetaInfo.onlineOrderDetails = customerInfo.onlineOrderDetails;
 	}
 
-	console.log(orderMetaInfo)
    
     //Check for KOT index on Server
     var requestData = {
@@ -3652,7 +3705,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              	sendToPrinter(obj, 'KOT');
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
-	              		addToTableMapping(obj.table, kot, obj.customerName);
+	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
 	              		showToast('#'+kot+' generated Successfully', '#27ae60');
 
 	              		
@@ -4014,7 +4067,7 @@ function freshOrderForCustomer(customerEncoded){
 
 
 
-function addToTableMapping(tableID, kotID, assignedTo){
+function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 
 
           var today = new Date();
@@ -4110,7 +4163,7 @@ function addToTableMapping(tableID, kotID, assignedTo){
 
 
 
-function billTableMapping(tableID, billNumber, status){
+function billTableMapping(tableID, billNumber, status, optionalPageRef){
 
 	if(status != 1 && status != 2 && status != 3){
 		showToast('Warning: Table #'+tableID+' was not mapped. But Bill is generated.', '#e67e22');
@@ -4175,7 +4228,16 @@ function billTableMapping(tableID, billNumber, status){
 		                      dataType: 'json',
 		                      timeout: 10000,
 		                      success: function(data) {
-		                        renderTables();
+		                      	if(optionalPageRef && optionalPageRef == 'ORDER_PUNCHING'){
+		                      		renderTables();
+		                      	}else if(optionalPageRef && optionalPageRef == 'SEATING_STATUS'){
+		                      		preloadTableStatus();
+		                      	}
+		                      	else if(optionalPageRef && optionalPageRef == 'LIVE_ORDERS'){
+		                      		renderAllKOTs();
+		                      	}
+
+		                        
 		                      },
 		                      error: function(data) {
 		                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');

@@ -104,5 +104,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('bill-settings', 'Punch Order');
+renderPage('seating-status', 'Punch Order');
 

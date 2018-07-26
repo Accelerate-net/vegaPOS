@@ -43,7 +43,7 @@ function renderAllKOTs() {
                                 var itemsInCart = "";
                                 var items = "";
 
-                                begKOT = '<li> <a href="#" onclick="liveOrderOptions(\''+encodeURI(JSON.stringify(kot))+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
+                                begKOT = '<li> <a href="#" onclick="liveOrderOptions(\''+kot.KOTNumber+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
                                 while (i < kot.cart.length) {
                                     itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ '</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
                                     i++;
@@ -87,18 +87,41 @@ function finalRender(fullKOT) {
 }
 
 
-function liveOrderOptions(encodedKOT){
-    
-    var kot = JSON.parse(decodeURI(encodedKOT));
+function liveOrderOptions(kotID){
+ 
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
 
-    document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="pushToEditKOT(\''+encodedKOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button>'+ 
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag></button>'+ 
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button>'+ 
-                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelKOTOrder(\''+kot.KOTNumber+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+  
-                  '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          var kot = data.docs[0];
 
-    document.getElementById("liveOrderOptionsModal").style.display = 'block';
+          document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
+                        '<button class="btn btn-success tableOptionsButtonBig" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button>'+ 
+                        '<button class="btn btn-success tableOptionsButtonBig" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag></button>'+ 
+                        '<button class="btn btn-success tableOptionsButtonBig" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button>'+ 
+                        '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelKOTOrder(\''+kot.KOTNumber+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+  
+                        '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
+
+          document.getElementById("liveOrderOptionsModal").style.display = 'block';
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
 }
 
 function liveOrderOptionsClose(){
@@ -115,41 +138,74 @@ function cancelKOTOrder(kotID){
 
 
 /*Add to edit KOT*/
-function pushToEditKOT(encodedKOT){
-    
-    var kot = JSON.parse(decodeURI(encodedKOT));
-   
-    if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+function pushToEditKOT(kotID){
+ 
+    liveOrderOptionsClose();
 
-        var alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);
-        if(alreadyEditingKOT.KOTNumber == kot.KOTNumber)//if thats the same order, neglect.
-        {
-            renderPage('new-order', 'Editing Order');
-            return '';
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          var kot = data.docs[0];
+
+          if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+              var alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+              if(alreadyEditingKOT.KOTNumber == kot.KOTNumber)//if thats the same order, neglect.
+              {
+                  renderPage('new-order', 'Editing Order');
+                  return '';
+              }
+              else{
+                  showToast('Warning! There is already an active order being modified. Please complete it to continue.', '#e67e22');
+                  return '';
+              }
+          }
+
+          if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+              showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
+              
+              document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
+              document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Close</button>'+
+                                                      '<button type="button" class="btn btn-danger" onclick="overWriteCurrentOrderConsent(\''+(encodeURI(JSON.stringify(kot)))+'\')">Proceed to Over Write</button>';
+          
+              return '';
+          }    
+
+          overWriteCurrentOrder(kot);
+
         }
         else{
-            showToast('Warning! There is already an active order being modified. Please complete it to continue.', '#e67e22');
-            return '';
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
         }
-    }
-
-    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
-        showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
         
-        document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
-        document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
-                                                '<button type="button" class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
-    }    
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
-    overWriteCurrentOrder(encodedKOT)
+    }); 
 }
+
+
 
 function overWriteCurrentOrderModalClose(){
     document.getElementById("overWriteCurrentOrderModal").style.display = 'none';  
 }
 
-function overWriteCurrentOrder(encodedKOT){
-    var kot = JSON.parse(decodeURI(encodedKOT));
+function overWriteCurrentOrderConsent(encodedKOT){
+  var kot = JSON.parse(decodeURI(encodedKOT));
+  overWriteCurrentOrder(kot);
+}
+
+function overWriteCurrentOrder(kot){
 
     var customerInfo = {};
     customerInfo.name = kot.customerName;
@@ -180,7 +236,7 @@ function overWriteCurrentOrder(encodedKOT){
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
-    window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+    window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
     renderPage('new-order', 'Running Order');
 }
 

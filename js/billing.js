@@ -1630,13 +1630,16 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
     case 'ONLINE_ORDERS':{
       break;
     }
+    case 'SEATING_STATUS':{
+      break;
+    }
   }
 
 }
 
 
 
-function releaseTableAfterBillSettle(tableID, billNumber){
+function releaseTableAfterBillSettle(tableID, billNumber, optionalPageRef){
 
     var requestData = {
       "selector"  :{ 
@@ -1686,7 +1689,12 @@ function releaseTableAfterBillSettle(tableID, billNumber){
                       dataType: 'json',
                       timeout: 10000,
                       success: function(data) {
-                        renderTables();
+                        if(optionalPageRef && optionalPageRef == 'ORDER_PUNCHING'){
+                          renderTables();
+                        }
+                        else if(optionalPageRef && optionalPageRef == 'SEATING_STATUS'){
+                          preloadTableStatus();
+                        }
                       },
                       error: function(data) {
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
@@ -1918,11 +1926,10 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                           hideBillPreviewModal();
 
                           if(kotfile.orderDetails.modeType == 'DINE'){
-                            billTableMapping(kotfile.table, billNumber, 2);
+                            billTableMapping(kotfile.table, billNumber, 2, optionalPageRef);
                           }
                           
                           deleteKOTFromServer(memory_id, memory_rev);
-
 
                           //If an online order ==> Update Mapping
                           if(kotfile.orderDetails.isOnline){
@@ -1940,9 +1947,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                               settleBillAndPush(encodeURI(JSON.stringify(kotfile)), 'ORDER_PUNCHING');
                             }
                           }
-                          else if(optionalPageRef == 'LIVE_ORDERS'){
-                            renderAllKOTs();
-                          }
                           else if(optionalPageRef == 'ONLINE_ORDERS'){
                             if(kotfile.orderDetails.isOnline){
                               //Already updated in updateOnlineOrderMapping() call.
@@ -1955,7 +1959,12 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                               renderLiveOnlineOrders();
                             }
                           }
-
+                          else if(optionalPageRef == 'SEATING_STATUS'){
+                            //Already handled inside billTableMapping() call
+                          }
+                          else if(optionalPageRef == 'LIVE_ORDERS'){
+                            //Already handled inside billTableMapping() call
+                          }
 
                           //Update bill number on server
                           var updateData = {
@@ -2594,7 +2603,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
                 //Free the mapped Table
                 if(bill.orderDetails.modeType == 'DINE')
-                  releaseTableAfterBillSettle(bill.table, bill.billNumber)
+                  releaseTableAfterBillSettle(bill.table, bill.billNumber, optionalPageRef)
 
                 //re-render page
                 if(optionalPageRef == 'GENERATED_BILLS'){
@@ -2652,7 +2661,7 @@ console.log('To update AUTO SETTLE')
 
                 //Free the mapped Table
                 if(bill.orderDetails.modeType == 'DINE')
-                  releaseTableAfterBillSettle(bill.table, bill.billNumber)
+                  releaseTableAfterBillSettle(bill.table, bill.billNumber, optionalPageRef)
 
                 //re-render page
                 if(optionalPageRef == 'GENERATED_BILLS')

@@ -22,9 +22,9 @@ function hideFreeSeatOptions(){
 
 
 
-function openReservedSeatOptions(tableID){
+function openReservedSeatOptions(tableID, optionalCustomerName, optionalSaveFlag){
 	document.getElementById("reservedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Reserved Table <b>'+tableID+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="punchNewOrder(\''+tableID+'\')"><i class="fa fa-plus" style=""></i><tag style="padding-left: 15px">Punch New Order</tag></button>'+ 
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="punchNewOrder(\''+tableID+'\', \''+optionalCustomerName+'\', '+optionalSaveFlag+')"><i class="fa fa-plus" style=""></i><tag style="padding-left: 15px">Punch New Order</tag></button>'+ 
                   '<button class="btn btn-primary tableOptionsButtonBig" onclick="removeFromReserveList(\''+tableID+'\')"><i class="fa fa-check-square-o" style=""></i><tag style="padding-left: 15px">Free this Table</tag></button>'+  
                   '<button class="btn btn-default tableOptionsButton" onclick="hideReservedSeatOptions()">Close</button>';
 	document.getElementById("reservedSeatOptionsModal").style.display ='block';
@@ -43,15 +43,17 @@ function openOccuppiedSeatOptions(tableInfo){
 
 	if(tableData.status == 1){ /* Not Billed */
 		document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="editOrderKOT(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button> '+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="moveKOTForEditing(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\', \'SEATING_STATUS\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button> '+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="mergeDifferentBills(\''+tableData.table+'\')"><i class="fa fa-compress" style=""></i><tag style="padding-left: 15px">Merge Orders</tag></button> '+
-                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelOrderKOT(\''+tableData.KOT+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+ 
+                  '<button class="btn btn-danger tableOptionsButtonBig" ondblclick="cancelOrderKOT(\''+tableData.KOT+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+ 
+                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeTableMappingWarning(\''+tableData.table+'\')"><i class="fa fa-warning" style="color: yellow"></i><tag style="padding-left: 15px">Remove Mapping</tag></button>'+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
 	}
 	else if(tableData.status == 2){ /* Billed */
 		document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="settlePrintedBill(\''+tableData.KOT+'\')"><i class="fa fa-credit-card" style=""></i><tag style="padding-left: 15px">Settle Bill</tag></button> '+ 
+                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeTableMappingWarning(\''+tableData.table+'\')"><i class="fa fa-warning" style="color: yellow"></i><tag style="padding-left: 15px">Remove Mapping</tag></button>'+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
 	}
 
@@ -62,10 +64,109 @@ function hideOccuppiedSeatOptions(){
 	document.getElementById("occuppiedSeatOptionsModal").style.display ='none';
 }
 
-/*seat options: actions*/
-function editOrderKOT(kotID){
+function settlePrintedBill(billNumber){
+  hideOccuppiedSeatOptions();
+  preSettleBill(billNumber, 'SEATING_STATUS');
+}
+
+
+function removeTableMappingWarning(tableNumber){
+  hideOccuppiedSeatOptions();
+  document.getElementById("mappingDeleteConfirmation").style.display = 'block';
+  document.getElementById("mappingDeleteConfirmationText").innerHTML = 'You are removing the Order Mapping on <b>Table #'+tableNumber+'</b>. Order will not get affected, only the mapping will be erased. Are you sure want to continue?'
+
+  document.getElementById("mappingDeleteConfirmationConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="removeTableMappingWarningHide()" style="float: left">Close</button>'+
+                                '<button type="button" class="btn btn-danger" onclick="removeTableMapping(\''+tableNumber+'\')">Proceed to Remove</button>';
 
 }
+
+function removeTableMappingWarningHide(){
+  document.getElementById("mappingDeleteConfirmation").style.display = 'none';
+}
+
+
+function removeTableMapping(tableNumber){
+
+    removeTableMappingWarningHide();
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+            if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+              var tableMapping = data.docs[0].value;
+
+              for(var i=0; i<tableMapping.length; i++){
+                if(tableMapping[i].table == tableNumber){
+
+                  if(tableMapping[i].status == 0){
+                    return '';
+                  }
+
+                  tableMapping[i].assigned = "";
+                  tableMapping[i].KOT = "";
+                  tableMapping[i].status = 0;
+                  tableMapping[i].lastUpdate = "";
+                  
+                  break;
+                }
+              }
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        preloadTableStatus();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });             
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+}
+
 
 function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTables){
 
@@ -106,7 +207,7 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
                   success: function(data) {
                       showToast('Orders merged Successfully to Table '+mergingTables[0], '#27ae60');
                       cancelBillMerge();
-                      generateBillFromKOT(kotID);
+                      generateBillFromKOT(kotID, 'SEATING_STATUS');
 
                       /*Remove all other KOTs*/
                       removeOtherKOTS(kotList);
@@ -134,10 +235,12 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 
 function removeOtherKOTS(kotList){ /*TWEAK*/
 	
+    console.log(kotList)
+
 	  var h = 1; //Do not count first KOT
     while(kotList[h]){
 
-        var requestData = { "selector" :{ "KOTNumber": kotID }, "fields" : ["_rev", "_id"]}
+        var requestData = { "selector" :{ "KOTNumber": kotList[h] }, "fields" : ["_rev", "_id"]}
 
         $.ajax({
           type: 'POST',
@@ -170,8 +273,10 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
 
       h++;
     }
+}
 
 
+function removeOtherKOTAfterProcess(kotList){
 
     var requestData = {
       "selector"  :{ 
@@ -191,24 +296,24 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-	          	  var tableMapping = data.docs[0].value;
+                var tableMapping = data.docs[0].value;
 
-		          for(var i=0; i<tableMapping.length; i++){
-		          	var n = 1; //Do not count first KOT
-		          	while(kotList[n]){
-			          	if(tableMapping[i].KOT == kotList[n]){
-			          		
-			          		tableMapping[i].status = 0;
-			          		tableMapping[i].assigned = "";
-			          		tableMapping[i].lastUpdate = "";
-			          		tableMapping[i].KOT = "";
-			          		
-			          		break;
-			          	}
-			          	
-			          	n++;
-			        }
-		          }
+                for(var i=0; i<tableMapping.length; i++){
+                  var n = 1; //Do not count first KOT
+                  while(kotList[n]){
+                    if(tableMapping[i].KOT == kotList[n]){
+                      
+                      tableMapping[i].status = 0;
+                      tableMapping[i].assigned = "";
+                      tableMapping[i].lastUpdate = "";
+                      tableMapping[i].KOT = "";
+                      
+                      break;
+                    }
+                    
+                    n++;
+                  }
+                }
 
                     //Update
                     var updateData = {
@@ -231,7 +336,7 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
 
-                    });  	          
+                    });             
 
                 
           }
@@ -247,7 +352,7 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
       error: function(data) {
         showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
       }
-    });
+    });  
 }
 
 
@@ -259,13 +364,78 @@ function mergeDifferentBills(currentID){
 	preloadTableStatus('MERGE_BILLS', currentID);	
 }
 
-function settlePrintedBill(kotID){
-	//ask for payment mode, reference etc.
-	//should release the table finally
-}
 
-function punchNewOrder(tableID){
+function punchNewOrder(TableNumber, optionalCustomerName, optionalSaveFlag){
 
+  hideReservedSeatOptions();
+  hideFreeSeatOptions();
+  
+
+  /* skip if in Editing Mode & has unsaved changes */
+  if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != '' && window.localStorage.hasUnsavedChangesFlag == 1){
+    showToast('Warning: There are unsaved changes. Print the changed KOT to continue.', '#e67e22');
+    return '';
+  }
+
+  if(optionalSaveFlag && optionalSaveFlag == 1){
+    showToast('Warning: There is already a saved order on Table #'+TableNumber, '#e67e22');
+    return '';    
+  }
+
+
+  //to remove cart info, customer info
+  var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+
+  /* skip if not DINE mode */
+  if(!customerInfo.modeType || customerInfo.modeType != 'DINE'){
+    var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
+    
+    if(billing_modes.length == 0){
+      showToast('Warning: There are no billing modes created.', '#e67e22');
+      return '';
+    }
+
+    var n = 0;
+    while(billing_modes[n]){
+      if(billing_modes[n].type == 'DINE'){
+        customerInfo.mode = billing_modes[n].name;
+        customerInfo.modeType = 'DINE';
+        
+        break;
+      }
+
+      if(billing_modes.length == n){
+        showToast('Warning: There are no billing modes of type Dine created.', '#e67e22');
+        return '';
+      }
+
+      n++;
+    }   
+  }
+
+  customerInfo.name = (optionalCustomerName && optionalCustomerName != '') ? optionalCustomerName : '';
+  customerInfo.mobile = "";
+  customerInfo.count = "";
+  customerInfo.mappedAddress = TableNumber;
+  customerInfo.reference = "";
+  customerInfo.isOnline = false;
+
+
+  window.localStorage.customerData = JSON.stringify(customerInfo);
+  window.localStorage.edit_KOT_originalCopy = '';
+
+  window.localStorage.zaitoon_cart = '';
+
+  window.localStorage.userAutoFound = '';
+  window.localStorage.userDetailsAutoFound = '';
+  window.localStorage.specialRequests_comments = '';
+  window.localStorage.allergicIngredientsData = '[]';
+
+
+  window.localStorage.hasUnsavedChangesFlag = 0;
+
+  renderPage('new-order', 'Punch Order');
+  renderTables();
 }
 
 function addToReserveListConsent(tableID){
@@ -451,6 +621,117 @@ function removeFromReserveList(tableID){
 }
 
 
+
+
+// EDIT KOT
+
+
+/*Add to edit KOT*/
+function moveKOTForEditing(kotID){
+
+     hideOccuppiedSeatOptions();
+
+     var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          var kot = data.docs[0];
+
+          if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+              var alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+              if(alreadyEditingKOT.KOTNumber == kot.KOTNumber)//if thats the same order, neglect.
+              {
+                  renderPage('new-order', 'Editing Order');
+                  return '';
+              }
+              else{
+                  showToast('Warning! There is already an active order being modified. Please complete it to continue.', '#e67e22');
+                  return '';
+              }
+          }
+
+          if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+              showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
+              
+              document.getElementById("seating_overWriteCurrentOrderModal").style.display = 'block';
+              document.getElementById("seating_overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="seating_overWriteCurrentOrderModalClose()" style="float: left">Close</button>'+
+                                                      '<button type="button" class="btn btn-danger" onclick="seating_overWriteCurrentOrderConsent(\''+(encodeURI(JSON.stringify(kot)))+'\')">Proceed to Over Write</button>';
+              return '';
+          }    
+
+          seating_overWriteCurrentOrder(kot);
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+}
+
+function seating_overWriteCurrentOrderModalClose(){
+    document.getElementById("seating_overWriteCurrentOrderModal").style.display = 'none';  
+}
+
+function seating_overWriteCurrentOrderConsent(encodedKOT){
+  var kot = JSON.parse(decodeURI(encodedKOT));
+  seating_overWriteCurrentOrder(kot);
+}
+
+function seating_overWriteCurrentOrder(kot){
+
+    var customerInfo = {};
+    customerInfo.name = kot.customerName;
+    customerInfo.mobile = kot.customerMobile;
+    customerInfo.count = kot.guestCount;
+    customerInfo.mappedAddress = kot.table;
+    customerInfo.mode = kot.orderDetails.mode;
+    customerInfo.modeType = kot.orderDetails.modeType;
+    customerInfo.reference = kot.orderDetails.reference;
+    customerInfo.isOnline = kot.orderDetails.isOnline;
+
+
+    if(kot.specialRemarks && kot.specialRemarks != ''){
+      window.localStorage.specialRequests_comments = kot.specialRemarks;
+    }
+    else{
+      window.localStorage.specialRequests_comments = '';
+    }
+
+    if(kot.allergyInfo && kot.allergyInfo != []){
+      window.localStorage.allergicIngredientsData = JSON.stringify(kot.allergyInfo);
+    }
+    else{
+      window.localStorage.allergicIngredientsData = '';
+    }
+
+    //Pending new order will be removed off the cart.
+    window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
+    window.localStorage.customerData = JSON.stringify(customerInfo);
+    window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
+    renderPage('new-order', 'Running Order');
+}
+
+
+
+
+
+
+// BILL MERGE
+
 function addToHoldList(id){
 	var tempList = window.localStorage.billSelectionMergeHoldList ? JSON.parse(window.localStorage.billSelectionMergeHoldList): [];
 	
@@ -507,6 +788,8 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
     var kotCount = kotList.length;
     var kotCounter = 0;
 
+    console.log(kotList, tableList)
+
     var n = 0;
     while (n < kotCount) {
 
@@ -520,6 +803,7 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
           dataType: 'json',
           timeout: 10000,
           success: function(data) {
+
             if(data.docs.length > 0){
 
               var kotfile = data.docs[0];
@@ -588,13 +872,13 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
             }
             else{
-              showToast('Operation Aborted! Order ' + kotList[n] + ' was not found. Please contact Accelerate Support.', '#e74c3c');
+              showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found. Please contact Accelerate Support.', '#e74c3c');
               return '';
             }
             
           },
           error: function(data) {
-            showToast('Operation Aborted! Order ' + kotList[n] + ' was not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found. Please contact Accelerate Support.', '#e74c3c');
             return '';
           }
 
@@ -666,52 +950,52 @@ function mergeBillsInTheHoldList(){
     });	
 }
 
-function preloadTableStatus(mode, currentTableID){
+// function preloadTableStatus(mode, currentTableID){
 
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+//     var requestData = {
+//       "selector"  :{ 
+//                     "identifierTag": "ZAITOON_TABLES_MASTER" 
+//                   },
+//       "fields"    : ["_rev", "identifierTag", "value"]
+//     }
 
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+//     $.ajax({
+//       type: 'POST',
+//       url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+//       data: JSON.stringify(requestData),
+//       contentType: "application/json",
+//       dataType: 'json',
+//       timeout: 10000,
+//       success: function(data) {
+//         if(data.docs.length > 0){
+//           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-	          var tableMapping = data.docs[0].value;
-	          tableMapping.sort(); //alphabetical sorting 
+// 	          var tableMapping = data.docs[0].value;
+// 	          tableMapping.sort(); //alphabetical sorting 
 
-		      window.localStorage.tableMappingData = JSON.stringify(tableMapping);
-		      renderCurrentPlan(mode, currentTableID);	          
+// 		      window.localStorage.tableMappingData = JSON.stringify(tableMapping);
+// 		      renderCurrentPlan(mode, currentTableID);	          
 
                 
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-        }
+//           }
+//           else{
+//             showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+//           }
+//         }
+//         else{
+//           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+//         }
 
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-      }
+//       },
+//       error: function(data) {
+//         showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+//       }
 
-    });
-}
+//     });
+// }
 
-function renderCurrentPlan(mode, currentTableID){
+function preloadTableStatus(mode, currentTableID){
 
     var requestData = {
       "selector"  :{ 
@@ -859,8 +1143,9 @@ function renderCurrentPlan(mode, currentTableID){
 					              document.getElementById("confirmationRenderArea").style.background = '#3498db';
 					              document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 21px; text-align: left;">Select Orders to Merge Bills <button style="font-size: 18px" class="btn btn-default" onclick="cancelBillMerge()">Cancel</button></p>';
 
-					            }
-					            else{
+					     }
+					     else{
+
 					              var renderSectionArea = '';
 
 					              var n = 0;
@@ -886,7 +1171,7 @@ function renderCurrentPlan(mode, currentTableID){
 																		        	'</tag>';	
 												}
 												else if(tables[i].status == 5){
-					              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tables[i].table+'\')" class="tableReserved">'+
+					              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tables[i].table+'\', \''+tables[i].assigned+'\', '+(tables[i].assigned == 'Hold Order' ? 1 : 0)+')" class="tableReserved">'+
 																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
 																		            '<tag class="tableCapacity">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
 																		            '<tag class="tableInfo">Reserved</tag>'+
