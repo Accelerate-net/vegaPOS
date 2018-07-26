@@ -2675,7 +2675,7 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
 
     var requestData = {
       "selector"  :{ 
-                    "_id": orderObject.orderDetails.orderSource +'_'+orderObject.orderDetails.reference
+                    "_id": orderObject.orderDetails.onlineOrderDetails.orderSource +'_'+orderObject.orderDetails.reference
                   }
     }
 
@@ -2704,7 +2704,7 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_online_orders/'+orderObject.orderDetails.orderSource +'_'+orderObject.orderDetails.reference+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_online_orders/'+orderObject.orderDetails.onlineOrderDetails.orderSource +'_'+orderObject.orderDetails.reference+'/',
                   data: JSON.stringify(onlineOrdersMapping),
                   contentType: "application/json",
                   dataType: 'json',
@@ -2720,7 +2720,7 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
                 });  
         }
         else{
-          showToast('**Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
         }
         
       },

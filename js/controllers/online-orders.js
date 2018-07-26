@@ -504,11 +504,11 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 
 			if(orderObj.orderDetails.onlineOrderDetails.paymentMode == "PREPAID"){
 				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderObj.orderDetails.reference+
-									'<tag class="onlinePrepaid">PREPAID ORDER</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(orderObj.orderDetails.orderSource)+'">'+(orderObj.orderDetails.orderSource ? orderObj.orderDetails.orderSource+' - ' : '')+(orderObj.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : 'TAKE AWAY')+'</type> </h3> '+ actionButton
+									'<tag class="onlinePrepaid">PREPAID ORDER</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(orderObj.orderDetails.onlineOrderDetails.orderSource)+'">'+(orderObj.orderDetails.onlineOrderDetails.orderSource ? orderObj.orderDetails.onlineOrderDetails.orderSource+' - ' : '')+(orderObj.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : 'TAKE AWAY')+'</type> </h3> '+ actionButton
 			}
 			else{
 				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderObj.orderDetails.reference+
-									'<tag class="onlineCOD">Cash on Delivery</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(orderObj.orderDetails.orderSource)+'">'+(orderObj.orderDetails.orderSource ? orderObj.orderDetails.orderSource+' - ' : '')+(orderObj.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : 'TAKE AWAY')+'</type> </h3> '+ actionButton
+									'<tag class="onlineCOD">Cash on Delivery</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(orderObj.orderDetails.onlineOrderDetails.orderSource)+'">'+(orderObj.orderDetails.onlineOrderDetails.orderSource ? orderObj.orderDetails.onlineOrderDetails.orderSource+' - ' : '')+(orderObj.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : 'TAKE AWAY')+'</type> </h3> '+ actionButton
 			}
 
 			var statusHeader = ''+
