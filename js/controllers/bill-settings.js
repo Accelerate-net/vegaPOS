@@ -15,7 +15,7 @@ function hideNewBill(){
 function addExtraToInput(name, value, id){
 
   document.getElementById("selectedBillingModeExtras").innerHTML += '<div id="bill_extra_'+(name.replace(/\s/g,''))+'" class="row" style="padding: 0 15px; margin-bottom: 5px;"> <p class="billModeLabel"><tag class="billModeNamed">'+name+'</tag><tag class="billModeDeleteIcon" onclick="removeBillModeExtra(\''+name+'\', \''+id+'\')"><i class="fa fa-minus"></i></tag></p>'+
-                                              '<input type="text" id="bill_extra_in_'+(name.replace(/\s/g,''))+'" value="'+value+'" class="form-control tip billModeInput"/> </div>';
+                                              '<input type="number" id="bill_extra_in_'+(name.replace(/\s/g,''))+'" value="'+value+'" class="form-control tip billModeInput"/> </div>';
                                  
   $('#bill_extra_in_'+(name.replace(/\s/g,''))).focus();
   $('#bill_extra_in_'+(name.replace(/\s/g,''))).select();
@@ -64,7 +64,7 @@ function openNewMode(){
                   document.getElementById("extrasList").innerHTML = '<i>*Please update <b style="cursor: pointer" onclick="openBillSettings(\'billingExtras\')">Taxes & Other Extras</b> first.</i>';
               }
               else{            
-                  document.getElementById("extrasList").innerHTML = 'Extras List: '+modesTag;
+                  document.getElementById("extrasList").innerHTML = 'Choose from List: '+modesTag;
               }
 
               document.getElementById("newModeArea").style.display = "block";
@@ -203,7 +203,7 @@ function fetchAllParams(){
               if(!paramsTag)
                 document.getElementById("billingParamsTable").innerHTML = '<p style="color: #bdc3c7">No parameters added yet.</p>';
               else
-                document.getElementById("billingParamsTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Name</th> <th style="text-align: left">Value</th> <th style="text-align: left">Unit</th> <th style="text-align: left">Compulsary</th> <th style="text-align: left"></th> </tr> </thead>'+
+                document.getElementById("billingParamsTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Name</th> <th style="text-align: left">Standard Value</th> <th style="text-align: left">Unit</th> <th style="text-align: left">Compulsary</th> <th style="text-align: left"></th> </tr> </thead>'+
                                         '<tbody>'+paramsTag+'</tbody>';
 
           }
@@ -701,6 +701,46 @@ function fetchAllModes(){
 
     var requestData = {
       "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+
+              var params = data.docs[0].value;
+              fetchAllModesAfterProcess(params)
+
+          }
+          else{
+            fetchAllModesAfterProcess([])
+          }
+        }
+        else{
+          fetchAllModesAfterProcess([])
+        }
+        
+      },
+      error: function(data) {
+        fetchAllModesAfterProcess([])
+      }
+
+    });
+}
+
+function fetchAllModesAfterProcess(extrasInfo){
+    var requestData = {
+      "selector"  :{ 
                     "identifierTag": "ZAITOON_BILLING_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
@@ -723,7 +763,27 @@ function fetchAllModes(){
               var modesTag = '';
 
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td><p style="margin: 0">'+modes[i].name+'</p><p style="margin: 0; font-size: 65%; color: #f39c12;">'+modes[i].type+'</p></td> <td>'+( modes[i].extras == ''? '-' :((modes[i].extras).toString()).replace(/\,/g , ", "))+'</td> <td>'+(modes[i].isDiscountable?"Yes": "No")+'</td> <td>'+(modes[i].maxDiscount != 0? '<i class="fa fa-inr"></i>'+modes[i].maxDiscount :'-')+'</td> <td onclick="deleteModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+
+                var extras_list = '';
+                for(var n=0; n < modes[i].extras.length; n++){
+
+                  var k = 0;
+                  var metaType = '';
+                  while(extrasInfo[k]){
+                    if(extrasInfo[k].name == modes[i].extras[n].name){
+                      metaType = extrasInfo[k].unit;
+                      break;
+                    }
+                    k++;
+                  }
+
+                  extras_list += modes[i].extras[n].name + ' <tag style="font-size: 80%; color: gray">('+(metaType == 'PERCENTAGE' ? modes[i].extras[n].value+'%' : (metaType == 'FIXED' ? '<i class="fa fa-inr"></i>'+modes[i].extras[n].value : modes[i].extras[n].value ) )+')</tag>';
+                  if(n != modes[i].extras.length - 1){
+                    extras_list += ', <br>';
+                  }
+                }
+
+                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td><p style="margin: 0">'+modes[i].name+'</p><p style="margin: 0; font-size: 65%; color: #f39c12;">'+modes[i].type+'</p></td> <td>'+extras_list+'</td> <td>'+(modes[i].isDiscountable?"Yes": "No")+'</td> <td>'+(modes[i].maxDiscount != 0? '<i class="fa fa-inr"></i>'+modes[i].maxDiscount :'-')+'</td> <td onclick="deleteModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
               }
 
               if(!modesTag){
@@ -747,10 +807,8 @@ function fetchAllModes(){
         showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
       }
 
-    });
+    });  
 }
-
-
 
 
 /* add new mode */

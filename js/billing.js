@@ -827,7 +827,7 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                    
+
                     if(maximumReached){
                       showToast('Warning: Maximum discount (Rs. '+billing_modes[g].maxDiscount+') for </b>'+billing_modes[g].name+'</b> order reached', '#e67e22');
                     }
@@ -2720,7 +2720,7 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
                 });  
         }
         else{
-          showToast('Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('**Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
         }
         
       },

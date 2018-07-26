@@ -423,22 +423,24 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
 
 	              	var params = data.docs[0].value;
-		          	var selectedModeExtrasList = selectedBillingModeInfo.extras ? (selectedBillingModeInfo.extras).split(",") : [];
+		          	var selectedModeExtrasList = selectedBillingModeInfo.extras;
 		          	var cartExtrasList = [];
 
 		          	var n = 0, m = 0;
 		          	while(selectedModeExtrasList[n]){
 		          		m = 0;
 		          		while(params[m]){	  
-		          			if(selectedModeExtrasList[n] == params[m].name)        			
+		          			if(selectedModeExtrasList[n].name == params[m].name)  
+		          			{
+		          				params[m].value = parseFloat(selectedModeExtrasList[n].value);      			
 		          				cartExtrasList.push(params[m]);
+		          			}
 		          			m++;
 		          		}
 		          		n++;
 		          	}
 
-		          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, optionalFocusKey)	          	
-
+		          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, optionalFocusKey);	          	
 
 	          }
 	          else{
@@ -3428,7 +3430,7 @@ function generateNewKOT(){
 
 	          	var params = data.docs[0].value;
 
-	          	var selectedModeExtrasList = (selectedBillingModeInfo.extras).split(",");
+	          	var selectedModeExtrasList = selectedBillingModeInfo.extras;
 	          	var cartExtrasList = [];
 
 	          	var n = 0;
@@ -3436,14 +3438,16 @@ function generateNewKOT(){
 	          	while(selectedModeExtrasList[n]){
 	          		m = 0;
 	          		while(params[m]){	  
-	          			if(selectedModeExtrasList[n] == params[m].name)        			
-	          				cartExtrasList.push(params[m])
+	          			if(selectedModeExtrasList[n].name == params[m].name){  
+	          				params[m].value = parseFloat(selectedModeExtrasList[n].value);    			
+	          				cartExtrasList.push(params[m]);
+	          			}
 	          			
 	          			m++;
 	          		}
 	          		n++;
 	          	}
-
+	          	
 	          	generateKOTAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList)	
 
           }
