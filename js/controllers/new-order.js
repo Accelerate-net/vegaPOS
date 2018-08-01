@@ -1386,27 +1386,73 @@ function addHoldOrderToCurrent(encodedItem, id){
 		return '';
 	}
 
-	
-	var holding_orders = window.localStorage.holdingOrdersData ? JSON.parse(window.localStorage.holdingOrdersData): [];
-	holding_orders.splice(id,1);
 
-	window.localStorage.holdingOrdersData = JSON.stringify(holding_orders);
-	showToast('Order loaded from the Saved Orders', '#27ae60');
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+
+				var holding_orders = data.docs[0].value;
+				holding_orders.splice(id,1);
+
+				showToast('Order loaded from the Saved Orders', '#27ae60');
+
+				var order = JSON.parse(decodeURI(encodedItem));
+				window.localStorage.customerData = JSON.stringify(order.customerDetails);
+				window.localStorage.zaitoon_cart = JSON.stringify(order.cartDetails);
+
+				//Remove from Table mapping (if already added)
+				if(order.customerDetails.modeType == 'DINE' && order.customerDetails.mappedAddress != ''){
+					removeTableFromReserveList(order.customerDetails.mappedAddress)
+				}
 
 
-	var order = JSON.parse(decodeURI(encodedItem));
-	window.localStorage.customerData = JSON.stringify(order.customerDetails);
-	window.localStorage.zaitoon_cart = JSON.stringify(order.cartDetails);
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_SAVED_ORDERS",
+                      "value": holding_orders
+                    }
 
-	//Remove from Table mapping (if already added)
-	if(order.customerDetails.modeType == 'DINE' && order.customerDetails.mappedAddress != ''){
-			removeTableFromReserveList(order.customerDetails.mappedAddress)
-	}
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_ORDERS/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+						renderCustomerInfo();
+						renderTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });     
 
-
-	renderCustomerInfo();
-	renderTables();
-
+          }
+          else{
+            showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });
 }
 
 function confirmHoldOverWritingModal(encodedItem, id){
@@ -1459,47 +1505,222 @@ function addToHoldKOT(){
 
 		var time = getCurrentTime('TIME');
 
-		var holding_orders = window.localStorage.holdingOrdersData ? JSON.parse(window.localStorage.holdingOrdersData): [];
+	    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
 
-		var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData): [];
-		var product_cart = window.localStorage.zaitoon_cart ? JSON.parse(window.localStorage.zaitoon_cart): [];
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
 
-		if(customerInfo.length == 0){
-			showToast('Oops! The Customer Details missing.', '#e67e22');
-			return '';
-		}
-		else if(product_cart.length == 0){
-			showToast('Oops! The Order Cart is empty!', '#e67e22');
-			return '';
-		}
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
 
-		var new_holding_order = {};
-		new_holding_order.customerDetails = customerInfo;
-		new_holding_order.cartDetails = product_cart;
-		new_holding_order.timestamp = time;
+					var holding_orders = data.docs[0].value;
 
-		holding_orders.push(new_holding_order);
-		window.localStorage.holdingOrdersData = JSON.stringify(holding_orders);
+					var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData): [];
+					var product_cart = window.localStorage.zaitoon_cart ? JSON.parse(window.localStorage.zaitoon_cart): [];
 
-		//Mark the table as 'Reserved' if added to hold list
-		if(customerInfo.modeType == 'DINE' && customerInfo.mappedAddress != ''){
-			addTableToReserveList(customerInfo.mappedAddress, 'Hold Order');
-		}
+					if(customerInfo.length == 0){
+						showToast('Oops! The Customer Details missing.', '#e67e22');
+						return '';
+					}
+					else if(product_cart.length == 0){
+						showToast('Oops! The Order Cart is empty!', '#e67e22');
+						return '';
+					}
 
-		clearAllMetaData();
-		renderCustomerInfo();
+					var new_holding_order = {};
+					new_holding_order.customerDetails = customerInfo;
+					new_holding_order.cartDetails = product_cart;
+					new_holding_order.timestamp = time;
 
 
-		showToast('The Order has been moved to Saved List', '#27ae60');
+						holding_orders.push(new_holding_order);
+
+	                    //Update
+	                    var updateData = {
+	                      "_rev": data.docs[0]._rev,
+	                      "identifierTag": "ZAITOON_SAVED_ORDERS",
+	                      "value": holding_orders
+	                    }
+
+	                    $.ajax({
+	                      type: 'PUT',
+	                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_ORDERS/',
+	                      data: JSON.stringify(updateData),
+	                      contentType: "application/json",
+	                      dataType: 'json',
+	                      timeout: 10000,
+	                      success: function(data) {
+							clearAllMetaData();
+							renderCustomerInfo();
+	                      },
+	                      error: function(data) {
+	                        showToast('System Error: Unable to update Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+	                      }
+	                    });     
+
+
+					//Mark the table as 'Reserved' if added to hold list
+					if(customerInfo.modeType == 'DINE' && customerInfo.mappedAddress != ''){
+						addTableToReserveList(customerInfo.mappedAddress, 'Hold Order');
+					}
+
+					showToast('The Order has been moved to Saved List', '#27ae60');
+	          }
+	          else{
+	            showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+	    });
 	}	
 }
 
 function removeAllHoldOrders(){
-	window.localStorage.holdingOrdersData = '';
-	renderCustomerInfo();
+
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+
+					var holding_orders = []
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_SAVED_ORDERS",
+                      "value": holding_orders
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_ORDERS/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                      	renderCustomerInfo();
+                      	clearSavedOrderMappingFromTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });     
+
+          }
+          else{
+            showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });
 }
 
 
+
+function clearSavedOrderMappingFromTables(){
+	//removes all the "Saved Mapping" from Tables.
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+	          		var tableMapping = data.docs[0].value;
+
+
+		          	for(var i=0; i<tableMapping.length; i++){
+		          		if(tableMapping[i].status == 5 && tableMapping[i].assigned == 'Hold Order'){
+
+		          			tableMapping[i].assigned = "";
+		          			tableMapping[i].KOT = "";
+		          			tableMapping[i].status = 0;
+		          			tableMapping[i].lastUpdate = "";
+		          		}
+		          	}
+
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        renderTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });  	          
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
+}
 
 
 function addTableToReserveList(tableID, optionalComments){
@@ -1708,6 +1929,39 @@ function hideClearCartModal(){
 /*customer info*/
 function renderCustomerInfo(){
 
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+
+				var holding_orders = data.docs[0].value;
+				renderCustomerInfoBeforeProcess(holding_orders);  
+          }
+          else{
+            renderCustomerInfoBeforeProcess([]);  
+          }
+        }
+        else{
+        	renderCustomerInfoBeforeProcess([]);    
+        }
+      },
+      error: function(data) {
+      	renderCustomerInfoBeforeProcess([]);  
+      }
+    });
+}
+
+function renderCustomerInfoBeforeProcess(holding_orders){
+
 	var addressOptionsAvailable = false;
 	var addressObj; 
 	var userInfoAutoFound;
@@ -1746,10 +2000,8 @@ function renderCustomerInfo(){
 
 
 		//Check if any order in Hold List
-		if(window.localStorage.holdingOrdersData && window.localStorage.holdingOrdersData != ''){
+		if(holding_orders.length > 0){
 			
-			var holding_orders = window.localStorage.holdingOrdersData ? JSON.parse(window.localStorage.holdingOrdersData): [];
-
 			var n = 0;
 			var holdListRender = '';
 			while(holding_orders[n]){
@@ -1784,7 +2036,7 @@ function renderCustomerInfo(){
 						}
 					}
 				
-				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+(holding_orders[n].customerDetails.modeType == 'DINE' ? 'Table '+(holding_orders[n].table ? '#'+holding_orders[n].table : 'Unknown') : holding_orders[n].customerDetails.modeType+(holding_orders[n].customerDetails.name != '' ? ' <tag style="font-weight: 300; font-size: 90%">('+holding_orders[n].customerDetails.name+')</tag>' : '')  )+
+				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+(holding_orders[n].customerDetails.modeType == 'DINE' ? 'Table '+(holding_orders[n].customerDetails.mappedAddress ? '#'+holding_orders[n].customerDetails.mappedAddress : 'Unknown') : holding_orders[n].customerDetails.modeType+(holding_orders[n].customerDetails.name != '' ? ' <tag style="font-weight: 300; font-size: 90%">('+holding_orders[n].customerDetails.name+')</tag>' : '')  )+
 									'<tag class="holdTimeAgo">'+getFormattedTime(holding_orders[n].timestamp)+' ago</tag></p>'+
 									'<p class="holdItemsBrief">'+itemList+'</p>'+
 								  '</a>';
@@ -3963,17 +4215,37 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 	window.localStorage.edit_KOT_originalCopy = '';
 
 	if(optionalSaveFlag && optionalSaveFlag == 1){
-		/* fetch cart from saved */
-		var holding_orders = window.localStorage.holdingOrdersData ? JSON.parse(window.localStorage.holdingOrdersData): [];
 		
-		var n = 0;
-		while(holding_orders[n]){
-			if(holding_orders[n].customerDetails.mappedAddress == TableNumber){
-				addHoldOrderToCurrent(encodeURI(JSON.stringify(holding_orders[n])));
-				return '';
-			}
-			n++;
-		}
+			/* fetch cart from saved */
+
+		    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+
+						var holding_orders = data.docs[0].value;
+
+						var n = 0;
+						while(holding_orders[n]){
+							if(holding_orders[n].customerDetails.mappedAddress == TableNumber){
+								addHoldOrderToCurrent(encodeURI(JSON.stringify(holding_orders[n])));
+								return '';
+							}
+							n++;
+						}
+
+		          }
+		        }		        
+		      }
+		    });	
 	}
 	else{
 		window.localStorage.zaitoon_cart = '';
@@ -3986,7 +4258,7 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 
 
 	window.localStorage.hasUnsavedChangesFlag = 0;
- 	document.getElementById("leftdiv").style.borderColor = "#FFF";
+ 	//document.getElementById("leftdiv").style.borderColor = "#FFF";
 
 	renderCart();
 	renderCustomerInfo();
@@ -4066,7 +4338,6 @@ function freshOrderForCustomer(customerEncoded){
 
 function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 
-
           var today = new Date();
           var hour = today.getHours();
           var mins = today.getMinutes();
@@ -4078,8 +4349,6 @@ function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
           if(mins<10) {
               mins = '0'+mins;
           }
-
-
 
 		    var requestData = {
 		      "selector"  :{ 

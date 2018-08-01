@@ -3316,7 +3316,6 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
                       error: function(data) {
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
-
                     });     
           }
           else{

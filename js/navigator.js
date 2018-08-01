@@ -108,5 +108,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('cancelled-bills', 'Punch Order');
+renderPage('new-order', 'Punch Order');
 
