@@ -417,10 +417,12 @@ function pickTableForTransferOrderHide(){
     document.getElementById("pickTableForTransferOrderModal").style.display = 'none';
 }
 
+
 function transferKOTAfterProcess(tableNumber, kotID){
 
-
     var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    console.log('transfer', tableNumber, kotID)
 
     $.ajax({
       type: 'POST',
@@ -440,9 +442,12 @@ function transferKOTAfterProcess(tableNumber, kotID){
           }
 
           if(kotfile.orderDetails.modeType != 'DINE'){
-            showToast('Meh? Order is not a Dine-In order', '#e67e22');
+            showToast('Error: Order is not a Dine-In order', '#e67e22');
             return '';
           }
+
+          var tableID_old = kotfile.table;
+          var tableID_new = tableNumber;
 
           kotfile.table = tableNumber;
 
@@ -467,6 +472,7 @@ function transferKOTAfterProcess(tableNumber, kotID){
                     renderAllKOTs();  
 
                     console.log('********* CHANGE TABLE MAPPING!!!')
+                    swapTableMapping(tableID_old, tableID_new);
 
                   },
                   error: function(data) {
@@ -486,6 +492,127 @@ function transferKOTAfterProcess(tableNumber, kotID){
 
     }); 
 
+}
+
+
+function swapTableMapping(old, newTable){
+
+  console.log('Swap', old, newTable)
+
+        var requestData = {
+          "selector"  :{ 
+                        "identifierTag": "ZAITOON_TABLES_MASTER" 
+                      },
+          "fields"    : ["_rev", "identifierTag", "value"]
+        }
+
+        $.ajax({
+          type: 'POST',
+          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+          data: JSON.stringify(requestData),
+          contentType: "application/json",
+          dataType: 'json',
+          timeout: 10000,
+          success: function(data) {
+            if(data.docs.length > 0){
+              if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+                var tableMapping = data.docs[0].value;
+
+                var nextIndex = -1;
+                var memory_status, memory_assigned, memory_KOT, memory_lastTime;
+                var oldValueDetected = false;
+
+
+
+                for(var i=0; i<tableMapping.length; i++){
+                  
+                  if(tableMapping[i].table == old){ 
+
+                    oldValueDetected = true;
+
+                    if(nextIndex == -1){ // OLD Table < NEW Table
+                      memory_status = tableMapping[i].status;
+                      memory_assigned = tableMapping[i].assigned;
+                      memory_KOT = tableMapping[i].KOT;
+                      memory_lastTime = tableMapping[i].lastUpdate;
+
+                      tableMapping[i].status = 0;
+                      tableMapping[i].assigned = "";
+                      tableMapping[i].KOT = "";
+                      tableMapping[i].lastUpdate = "";
+                      console.log('Swapped @1')
+                    }
+                    else{
+                      tableMapping[i].status = 0;
+                      tableMapping[i].assigned = "";
+                      tableMapping[i].KOT = "";
+                      tableMapping[i].lastUpdate = ""; 
+
+                      tableMapping[nextIndex].status = memory_status;
+                      tableMapping[nextIndex].assigned = memory_assigned;
+                      tableMapping[nextIndex].KOT = memory_KOT;
+                      tableMapping[nextIndex].lastUpdate = memory_lastTime; 
+                      console.log('Swapped @2')
+
+                      break;
+                    }
+                  }
+                  else if(tableMapping[i].table == newTable){
+                    nextIndex = i;
+
+                    if(oldValueDetected){
+                      tableMapping[nextIndex].status = memory_status;
+                      tableMapping[nextIndex].assigned = memory_assigned;
+                      tableMapping[nextIndex].KOT = memory_KOT;
+                      tableMapping[nextIndex].lastUpdate = memory_lastTime;    
+                      console.log('Swapped @3')  
+
+                      break;                
+                    }
+                  }
+
+                }
+
+                        //Update
+                        var updateData = {
+                          "_rev": data.docs[0]._rev,
+                          "identifierTag": "ZAITOON_TABLES_MASTER",
+                          "value": tableMapping
+                        }
+
+                        $.ajax({
+                          type: 'PUT',
+                          url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                          data: JSON.stringify(updateData),
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+
+                          },
+                          error: function(data) {
+                            showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                          }
+
+                        });             
+
+                    
+              }
+              else{
+                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+              }
+            }
+            else{
+              showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+            }
+
+          },
+          error: function(data) {
+            showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+          }
+
+        });  
 }
 
 
