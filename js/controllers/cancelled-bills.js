@@ -29,6 +29,7 @@ var displayType = 'UNBILLED';
 var filterResultsCount = 0;
 
 
+
 function loadAllCancelledUnbilled(optionalSource){
 
 	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
@@ -118,7 +119,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -141,7 +142,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -160,8 +161,8 @@ function loadAllCancelledUnbilled(optionalSource){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+						                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
@@ -170,7 +171,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderCancelledPageDefault('UNBILLED');
@@ -197,7 +198,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -220,7 +221,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -239,8 +240,8 @@ function loadAllCancelledUnbilled(optionalSource){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+						                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
@@ -249,7 +250,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderCancelledPageDefault('UNBILLED');
@@ -276,7 +277,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -299,7 +300,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -318,8 +319,8 @@ function loadAllCancelledUnbilled(optionalSource){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+						                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
@@ -328,7 +329,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderCancelledPageDefault('UNBILLED');
@@ -355,7 +356,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -378,7 +379,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -397,8 +398,8 @@ function loadAllCancelledUnbilled(optionalSource){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+						                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
@@ -407,7 +408,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderCancelledPageDefault('UNBILLED');
@@ -433,7 +434,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -456,7 +457,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -475,8 +476,8 @@ function loadAllCancelledUnbilled(optionalSource){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+						                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
@@ -485,7 +486,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderCancelledPageDefault('UNBILLED');
@@ -528,15 +529,15 @@ function loadAllCancelledUnbilled(optionalSource){
 								      var resultRender = '';
 									  resultRender 				+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 										                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-										                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-										                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+										                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+										                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 										                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 										                            '        <td>'+bill.stewardName+'</td>'+
 										                            '    </tr>';
 
 
 										document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-											'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+											'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 											'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 								      
 								      	renderCancelledPageDefault('UNBILLED');
@@ -574,7 +575,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -597,7 +598,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -618,8 +619,8 @@ function loadAllCancelledUnbilled(optionalSource){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+						                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
@@ -628,7 +629,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderCancelledPageDefault('UNBILLED');
@@ -655,7 +656,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -678,7 +679,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -699,8 +700,8 @@ function loadAllCancelledUnbilled(optionalSource){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+						                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
@@ -709,7 +710,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderCancelledPageDefault('UNBILLED');
@@ -735,7 +736,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -758,7 +759,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -779,8 +780,8 @@ function loadAllCancelledUnbilled(optionalSource){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+						                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
@@ -789,7 +790,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderCancelledPageDefault('UNBILLED');
@@ -820,7 +821,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bills/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/orders/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
@@ -841,11 +842,11 @@ function loadAllCancelledUnbilled(optionalSource){
 		      while(resultsList[n]){
 
 		      	var bill = resultsList[n].doc;
-
+		      	console.log(bill)
 				resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 				                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+				                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
 				                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
 				                            '        <td>'+bill.stewardName+'</td>'+
 				                            '    </tr>';
@@ -854,7 +855,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 
 				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-					'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
+					'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
 					'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 		      
 		      	renderCancelledPageDefault('UNBILLED')
@@ -867,15 +868,14 @@ function loadAllCancelledUnbilled(optionalSource){
 
 		  });  		
 	}
-
-
 }
+
 
 function updateUnbilledCount(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bills/_view/all?descending=true&include_docs=false',
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/orders/_view/all?descending=true&include_docs=false',
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
@@ -967,6 +967,7 @@ function converPaymentCode(code){
 		return 'Paid';
 	}
 }
+
 
 
 function loadAllCancelledInvoices(){
@@ -1132,8 +1133,8 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1141,7 +1142,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1212,16 +1213,18 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
+
+
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1292,16 +1295,17 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
+					    
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1373,8 +1377,8 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1382,7 +1386,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1453,8 +1457,8 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1462,7 +1466,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1508,14 +1512,14 @@ function loadAllCancelledInvoices(){
 							                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 							                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 							                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-							                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-							                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+							                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+							                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 							                            '    </tr>';
 
 
 										document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 									      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-									      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+									      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 						      
 							      		renderCancelledPageDefault('CANCELLED')
 							      		
@@ -1601,8 +1605,8 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1610,7 +1614,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1684,8 +1688,8 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1693,7 +1697,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1767,8 +1771,8 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1776,7 +1780,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1834,16 +1838,15 @@ function loadAllCancelledInvoices(){
 	                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 	                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 	                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-	                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-	                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
+	                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+	                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 	                            '    </tr>';
 		      	n++;
 		      }
 
-
 				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 				      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-				      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+				      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 	      
 		      	renderCancelledPageDefault('CANCELLED')
 
@@ -1930,60 +1933,30 @@ function openSelectedCancelledBill(encodedBill, type){
 
 		var itemsList = '';
 		var n = 0;
-		var subTotal = 0;
-		var grandSumCalculated = 0;
+
+		var totalQuantity = 0;
+
 		while(bill.cart[n]){
 			if(bill.cart[n].isCustom)
 				itemsList += '<tr> <td>'+(n+1)+'</td> <td>'+bill.cart[n].name+' ('+bill.cart[n].variant+')</td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
 			else
 				itemsList += '<tr> <td>'+(n+1)+'</td> <td>'+bill.cart[n].name+'</td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
 			
-			subTotal += bill.cart[n].price * bill.cart[n].qty;
+			totalQuantity = totalQuantity + bill.cart[n].qty;
 
 			n++;
 		}
 
-		var otherCharges = '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
-
-
-		var charges_extra = 0;
-		if(!jQuery.isEmptyObject(bill.extras)){
-			var m = 0;
-			while(bill.extras[m]){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.extras[m].name+' ('+(bill.extras[m].unit == 'PERCENTAGE' ? bill.extras[m].value+'%' : 'Rs. '+bill.extras[m].value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.extras[m].amount+'</td> </tr>';
-				charges_extra += bill.extras[m].amount;
-				m++;
-			}
-		}
-
-		if(!jQuery.isEmptyObject(bill.customExtras)){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.customExtras.amount+'</td> </tr>';
-			charges_extra += bill.customExtras.amount;
-		}
-
-		if(!jQuery.isEmptyObject(bill.discount)){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts</td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
-			charges_extra = charges_extra - bill.discount.amount;
-		}
-
-		grandSumCalculated = subTotal + charges_extra;
-		grandSumCalculated = parseFloat(grandSumCalculated).toFixed(2);
-
-		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Grand Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
-		
-		if(bill.calculatedRoundOff != 0){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
-		}
-
-		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Payable Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.payableAmount).toFixed(2)+'</td> </tr>';
+		var otherCharges = '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Number of Items</td> <td style="text-align: right">'+n+'</td> </tr>'+
+				'<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Total Quantity</td> <td style="text-align: right">'+totalQuantity+'</td> </tr>';
 
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
 												'<div class="box box-primary">'+
 												'   <div class="box-body">'+ 
 												      '<div class="box-header" style="padding: 10px 0px">'+
-												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="checkDeliveryAddr(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3><button class="btn btn-success" style="float: right; color: #FFF" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">Settle Bill</button>'+
+												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.KOTNumber+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="checkDeliveryAddr(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3><button class="btn btn-danger" onclick="cancelDetailsDisplay(\''+(encodeURI(JSON.stringify(bill.cancelDetails)))+'\')" style="float: right">Cancellation Details</button>'+
 												      '</div>'+
-												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
+												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timePunch)+'</time>'+
 												      '<div class="table-responsive">'+
 												         '<table class="table">'+
 												         	'<col width="5%">'+
@@ -2042,7 +2015,7 @@ function openSelectedCancelledBill(encodedBill, type){
 		}
 
 		if(!jQuery.isEmptyObject(bill.discount)){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts</td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
+			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts</td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
 			charges_extra = charges_extra - bill.discount.amount;
 		}
 
@@ -2067,46 +2040,41 @@ function openSelectedCancelledBill(encodedBill, type){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Waived Round Off</td>  <td style="text-align: right"><tag style="color: #f15959">- <i class="fa fa-inr"></i>'+bill.roundOffAmount+'</tag></td> </tr>';
 		}
 
-		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
+		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? parseFloat(bill.totalAmountPaid).toFixed(2) : '0')+'</td> </tr>';
 		
 		//Refunds
 		var net_refund = 0;
 		if(!jQuery.isEmptyObject(bill.refundDetails)){
-			otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Refunds</b></td> <td style="font-weight: bold; text-align: right">'+(bill.refundDetails.refundAmount && bill.refundDetails.refundAmount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+parseFloat(bill.refundDetails.refundAmount).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
+			otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Refunds</b></td> <td style="font-weight: bold; text-align: right">'+(bill.refundDetails.refundAmount && bill.refundDetails.refundAmount != 0 ? '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+parseFloat(bill.refundDetails.refundAmount).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
 			net_refund = bill.refundDetails.refundAmount;
 		}
 
-		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Gross Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid-net_refund).toFixed(2)+'</td> </tr>';
+		var gross_calculated_amount = 0;
+		
+		if(bill.totalAmountPaid && bill.totalAmountPaid != ''){
+			gross_calculated_amount = bill.totalAmountPaid - net_refund;
+		}
+		else{
+			gross_calculated_amount = net_refund - bill.payableAmount;
+		}
+
+		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Gross Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right">'+(gross_calculated_amount < 0 ? '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+parseFloat(Math.abs(gross_calculated_amount)).toFixed(2)+'</tag>' : '<i class="fa fa-inr"></i>'+parseFloat(gross_calculated_amount).toFixed(2))+'</td> </tr>';
 		
 
 		//Payment Splits, if applicable
 		var paymentSplitList = '';
 		var paymentOptionUsedButton = '';
 
-		if(!jQuery.isEmptyObject(bill.paymentSplits)){
-			var n = 0;
-			while(bill.paymentSplits[n]){
-				paymentSplitList += '<a href="#"><p class="splitPayListTitle">'+bill.paymentSplits[n].name+' <tag style="float: right; font-weight: bold;"><i class="fa fa-inr"></i>'+bill.paymentSplits[n].amount+'</tag>'+
-										'<p class="splitPayListRef">'+(bill.paymentSplits[n].reference && bill.paymentSplits[n].reference != '' ? bill.paymentSplits[n].reference : '')+'</p>'+
-									'</a>';
-				n++;
-			}
+		if(bill.cancelDetails.refundStatus == 2){
 
 			paymentOptionUsedButton =  	'<div class="splitPayListDropdown">'+
-										 	'<div class="splitPayListButton">Multiple Payments</div>'+
-											'<div class="splitPayListDropdown-content"><div class="holdContentArea">'+paymentSplitList+'</div>'+
-										 	'</div>'+
-										'</div>';										
+										 	'<div class="splitPayListButton">Partial Refund</div>'+
+										'</div>';	
 		}
-		else{
-			paymentSplitList = '<a href="#"><p class="splitPayListTitle">'+converPaymentCode(bill.paymentMode)+' <tag style="float: right; font-weight: bold;"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</tag>'+
-									'<p class="splitPayListRef">'+(bill.paymentReference && bill.paymentReference != '' ? bill.paymentReference : '')+'</p>'+
-								'</a>';
+		else if(bill.cancelDetails.refundStatus == 3){
 
 			paymentOptionUsedButton =  	'<div class="splitPayListDropdown">'+
-										 	'<div class="splitPayListButton">'+converPaymentCode(bill.paymentMode)+'</div>'+
-											'<div class="splitPayListDropdown-content"><div class="holdContentArea">'+paymentSplitList+'</div>'+
-										 	'</div>'+
+										 	'<div class="splitPayListButton">Full Refund</div>'+
 										'</div>';	
 		}
 
