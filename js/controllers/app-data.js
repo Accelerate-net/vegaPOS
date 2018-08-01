@@ -29,6 +29,21 @@ function hideNewCookingIngredient(){
 
 
 
+function openNewCancellationReason(){
+  document.getElementById("add_new_CancellationReason_name").value = '';
+  document.getElementById("newCancellationReasonArea").style.display = "block";
+  $("#add_new_CancellationReason_name").focus();
+  document.getElementById("openNewCancellationReasonButton").style.display = "none";
+}
+
+function hideNewCancellationReason(){
+  
+  document.getElementById("newCancellationReasonArea").style.display = "none";
+  document.getElementById("openNewCancellationReasonButton").style.display = "block";
+}
+
+
+
 
 function openNewDineSession(){
 	document.getElementById("newDineSessionArea").style.display = "block";
@@ -65,7 +80,11 @@ function openOtherSettings(id){
     case "ingredientsList":{
       fetchAllCookingIngredients();
       break;
-    }           
+    }   
+    case "cancellationReasons":{
+      fetchAllCancellationReasons();
+      break;
+    }     
 	}
 }
 
@@ -594,6 +613,241 @@ function deleteCookingIngredient(commentName) {
     cancelOtherDeleteConfirmation()
 }
 
+
+/* Fetch all cancellation reasons */
+function fetchAllCancellationReasons(){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+
+              var modes = data.docs[0].value;
+              modes.sort(); //alphabetical sorting 
+              var modesTag = '';
+
+              for (var i=0; i<modes.length; i++){
+                modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton" onclick="deleteCancellationReason(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
+              }
+
+              if(!modesTag)
+                document.getElementById("cancellationReasonInfo").innerHTML = '<p style="color: #bdc3c7">No reasons added yet.</p>';
+              else
+                document.getElementById("cancellationReasonInfo").innerHTML = modesTag;            
+          }
+          else{
+            showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
+
+
+/* add new reason */
+function addNewCancellationReason(optionalParameter) {  
+
+  var commentName = '';
+  if(!optionalParameter || optionalParameter == ''){
+    commentName = document.getElementById("add_new_CancellationReason_name").value;
+  }
+  else{
+    commentName = optionalParameter;
+  }
+  
+  if(commentName == ''){
+    showToast('Warning: Please set a name', '#e67e22');
+    return '';
+  }
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+
+             var commentsList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<commentsList.length; i++) {
+               if (commentsList[i] == commentName){
+                  flag = 1;
+                  break;
+               }
+             }
+
+
+             if(flag == 1){
+               showToast('Warning: Reason already exists. Please add a different name.', '#e67e22');
+             }
+             else{
+                commentsList.push(commentName);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_CANCELLATION_REASONS",
+                  "value": commentsList
+                }
+
+
+                //curl -X PUT http://admin:admin@127.0.0.1:5984/zaitoon_settings/ZAITOON_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ZAITOON_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CANCELLATION_REASONS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+
+                      fetchAllCancellationReasons(); //refresh the list
+                    
+                      //not adding via  Undo function
+                      if(!optionalParameter || optionalParameter == ''){
+                        openNewCancellationReason();
+                      }
+                  },
+                  error: function(data) {
+                    console.log(data)
+                    showToast('System Error: Unable to update Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+
+             }
+                
+          }
+          else{
+            showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+  
+}
+
+/* delete reason */
+function deleteCancellationReason(commentName) {  
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+
+               var commentsList = data.docs[0].value;
+
+               for (var i=0; i<commentsList.length; i++) {  
+                 if (commentsList[i] == commentName){
+                    commentsList.splice(i,1);
+                    break;
+                 }
+               }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_CANCELLATION_REASONS",
+                  "value": commentsList
+                }
+
+
+                //curl -X PUT http://admin:admin@127.0.0.1:5984/zaitoon_settings/ZAITOON_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ZAITOON_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CANCELLATION_REASONS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    /* on successful delete */
+                    fetchAllCancellationReasons();
+
+                    showUndo('Deleted', 'addNewCancellationReason(\''+commentName+'\')');
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+    cancelOtherDeleteConfirmation()
+}
 
 
 

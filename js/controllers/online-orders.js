@@ -34,7 +34,7 @@ function renderOnlineOrders(){
 		timeout: 10000,
 		success: function(netdata) {
 			hideLoading();
-			if(data.status){
+			if(netdata.status){
 
 				//Online Content
 				var i = 0;
@@ -67,12 +67,16 @@ function renderOnlineOrders(){
 			else
 			{
 				document.getElementById("itemInfo").innerHTML = '';
-				document.getElementById("incomingOrdersCount").innerHTML = data.count;
+				document.getElementById("incomingOrdersCount").innerHTML = netdata.count;
 	        	document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Pending Orders</td></tr>';
 			}
 
-			if(data.errorCode == 404){
-				forceLogoutOnlineOrders(data.error);
+			if(netdata.errorCode == 404 || netdata.errorCode == 400){
+				document.getElementById("itemInfo").innerHTML = '';
+				document.getElementById("incomingOrdersCount").innerHTML = '..';
+	        	document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Pending Orders</td></tr>';
+
+				forceLogoutOnlineOrders(netdata.error);
 			}
 
 		},
@@ -385,6 +389,8 @@ function forceLogoutOnlineOrders(customeError){
 		showToast(customeError, '#e74c3c');
 	else
 		showToast('You have been logged out', '#e74c3c');
+
+	checkLogin();
 }
 
 

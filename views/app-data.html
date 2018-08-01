@@ -10,11 +10,13 @@
                            <h3 class="box-title" style="padding: 5px 0px 5px 5px; font-size: 21px;"><i class="fa fa-cog"></i> Settings</h3>
                         
                         </div>
-
-                        <div class="billSettingsOption" onclick="openOtherSettings('dineSessions')"> Dine Sessions <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
-                        <div class="billSettingsOption" onclick="openOtherSettings('savedComments')"> Saved Comments <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openOtherSettings('ingredientsList')"> Cooking Ingredients <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
-                        <div class="clearfix"></div>
+                        <div class="clearfix"></div>                        
+                        <div class="billSettingsOption" onclick="openOtherSettings('dineSessions')"> Dine Sessions <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openOtherSettings('cancellationReasons')"> Reasons for Cancellation <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="clearfix"></div>                        
+                        <div class="billSettingsOption" onclick="openOtherSettings('savedComments')"> Saved Comments <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+
                     </div>
                 </div>
             </div>
@@ -55,6 +57,22 @@
                 </div>
 
 
+                <!-- Cancellation Reasons -->
+                <div class="box box-primary" style="display: none" id="cancellationReasons">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Reasons for Cancellation</h3>
+                           <button class="btn btn-success btn-sm" id="openNewCancellationReasonButton" onclick="openNewCancellationReason()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div style="padding-top: 15px" id="cancellationReasonInfo">
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
                 <!-- Dine Sessions -->
                 <div class="box box-primary" style="display: none" id="dineSessions">
                     <div class="box-body">
@@ -83,8 +101,6 @@
             <div class="col-xs-4" id="detailsNewOtherSettings">
                 
               
-
-
                 <!-- Saved Comments : Actions -->
                 <div style="display: none" id="newSavedCommentArea">
                      <div class="box box-primary">
@@ -102,10 +118,38 @@
                           
 
                                  <div class="form-group">
-                                    <input type="button" style="float: right" onclick="addNewComment()" value="Save Comment" class="btn btn-primary" />
+                                    <button style="float: right" onclick="addNewComment()" class="btn btn-primary" />Save Comment</button>
 
                                     <button type="button" class="btn btn-default" onclick="hideNewSavedComment()" >Cancel</button>
 
+
+                                 </div>
+                              </form>
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Cancellation Reasons : Actions -->
+                <div style="display: none" id="newCancellationReasonArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add Cancellation Reason</h3>
+                           </div>
+                           <div class="col-lg-12">
+                              <form>
+                                 <div class="form-group">
+
+                                    <input type="text" value="" class="form-control tip" id="add_new_CancellationReason_name" style="border: none; border-bottom: 1px solid" placeholder="Reason" />
+                                 </div>                                 
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addNewCancellationReason()" class="btn btn-primary" />Save</button>
+
+                                    <button type="button" class="btn btn-default" onclick="hideNewCancellationReason()" >Cancel</button>
 
                                  </div>
                               </form>
@@ -130,10 +174,8 @@
                                     <input type="text" value="" class="form-control tip" id="add_new_CookingIngredient_name" style="border: none; border-bottom: 1px solid" placeholder="Ingredient Name" required="required" />
                                  </div>                                 
 
-                          
-
                                  <div class="form-group">
-                                    <input type="button" style="float: right" onclick="addNewCookingIngredient()" value="Save Ingredient" class="btn btn-primary" />
+                                    <button style="float: right" onclick="addNewCookingIngredient()" class="btn btn-primary" />Save Ingredient</button>
 
                                     <button type="button" class="btn btn-default" onclick="hideNewCookingIngredient()" >Cancel</button>
 
@@ -175,7 +217,7 @@
                                  
 
                                  <div class="form-group">
-                                    <input type="button" style="float: right" onclick="addDineSession()" value="Add Session" class="btn btn-primary" />
+                                    <button style="float: right" onclick="addDineSession()" class="btn btn-primary" />Add Session</button>
 
                                     <button type="button" class="btn btn-default" onclick="hideNewDineSession()" >Cancel</button>
 

@@ -2742,4 +2742,595 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
 
 
 
+// BILL CANCELLATION
 
+function initiateCancelSettledBill(billNumber, totalPaid, paymentStatus, optionalPageRef){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+
+              var reasonsList = data.docs[0].value;
+              initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+                        
+          }
+          else{
+            showToast('Warning: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+            var reasonsList = ["Not Satisfied"];
+            initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+          }
+        }
+        else{
+          showToast('Warning: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+          var reasonsList = ["Not Satisfied"];
+          initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+        }
+
+      },
+      error: function(data) {
+        showToast('Warning: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e67e22');
+        var reasonsList = ["Not Satisfied"];
+        initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+      }
+
+    });  
+}
+
+function initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList){
+  
+  document.getElementById("billCancellationsReasonModal").style.display = 'block';
+  document.getElementById("billCancellationsReasonModalActions").innerHTML = '<button class="btn btn-default" onclick="initiateCancelSettledBillHide()" style="float: left">Close</button>'+
+                  '<button class="btn btn-danger" onclick="processCancelSettledBill(\''+billNumber+'\', \''+optionalPageRef+'\')" style="float: right">Proceed to Cancel</button>';
+
+  var n = 0;
+  var reasonRender = '';
+  while(reasonsList[n]){
+    reasonRender += '<option value="'+reasonsList[n]+'">'+reasonsList[n]+'</option>';
+    n++;
+  }
+
+  document.getElementById("bill_cancel_why_reason").innerHTML = reasonRender;
+
+  if(paymentStatus == 'PAID'){ //Order is PAID
+    document.getElementById("refundCancelOrderBar").style.display = 'block';
+    document.getElementById("refundCancelOrderBar").innerHTML = '<label>Refund Status</label> <select id="bill_cancel_why_isrefund" class="form-control" onchange="changeBillCancelWhyIsRefunding('+totalPaid+')"> <option value="1">No Refund</option> <option value="2">Partial Refund</option> <option value="3">Full Refund</option> </select>';
+    $('#bill_cancel_why_isrefund').val(1);
+  }
+  else{
+    document.getElementById("refundCancelOrderBar").style.display = 'none';
+  }
+
+  $('#bill_cancel_why_comments').val('');
+  $('#bill_cancel_why_comments').focus();
+}
+
+
+function changeBillCancelWhyIsRefunding(totalPaid){
+  if($('#bill_cancel_why_isrefund').val() > 1){
+    document.getElementById("refundCancelOrderAmountBar").style.display = 'block';
+    document.getElementById("refundCancelOrderModeBar").style.display = 'block';
+
+    document.getElementById("bill_cancel_why_refundamount").value = totalPaid;
+    $('#bill_cancel_why_refundamount').focus();
+    $('#bill_cancel_why_refundamount').select();
+  } 
+  else{
+    document.getElementById("refundCancelOrderAmountBar").style.display = 'none';
+    document.getElementById("refundCancelOrderModeBar").style.display = 'none';
+  }
+}
+
+
+function initiateCancelSettledBillHide(){
+  document.getElementById("billCancellationsReasonModal").style.display = 'none';
+}
+
+function processCancelSettledBill(billNumber, optionalPageRef){
+
+    billNumber = parseInt(billNumber);
+
+    var current_time = getCurrentTime('TIME');
+    var why_reason = $('#bill_cancel_why_reason').val();
+    var why_comments = $('#bill_cancel_why_comments').val();
+
+    var staffData = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData) : {};
+    if(!staffData.name || staffData.name == ''){
+      showToast('Warning! Staff information not available. Select Staff Profile and try again.', '#e67e22');
+      return '';
+    }
+
+    if(why_comments == '' || why_comments.length < 3){
+      showToast('Warning! Please add some comments.', '#e67e22');
+      return '';      
+    }
+
+    var refund_status = 0;
+    var refund_amount = '';
+    var refund_mode = '';
+
+    if(document.getElementById("refundCancelOrderBar").style.display == 'block'){
+      //Discount Part
+      refund_status = $('#bill_cancel_why_isrefund').val();
+      
+      if(refund_status > 1){
+        refund_mode = $('#bill_cancel_why_refundmode').val();
+        refund_amount = $('#bill_cancel_why_refundamount').val();
+
+        if(refund_amount == 0 || refund_amount == ''){
+          showToast('Warning! Please mention the Refund Amount issued.', '#e67e22');
+          return '';     
+        }
+      }
+    }
+
+
+    var refund_status_flag = 5;
+    if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
+      refund_status_flag = 6;
+    }
+
+    var cancelObj = {
+            "timeCancel" : current_time,
+            "cancelledBy" : staffData.name,
+            "reason" : why_reason,
+            "comments" : why_comments,
+            "status" : refund_status_flag, //SETTLED BILL or PENDING BILL
+            "refundStatus" : refund_status,
+            "refundAmount" : refund_amount,
+            "refundMode" : refund_mode
+    }
+
+    initiateCancelSettledBillHide();
+
+
+    var requestURL = 'zaitoon_bills';
+    var requestURLSource = 'BILL';
+
+
+    if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
+      requestURL = 'zaitoon_invoices';
+      requestURLSource = 'INVOICE';
+    }
+
+
+    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(firstdata) {
+        if(firstdata.docs.length > 0){
+
+          var bill = firstdata.docs[0];
+
+          var memory_rev = firstdata.docs[0]._rev;
+          var memory_id = firstdata.docs[0]._id;
+          var memory_type = firstdata.docs[0].orderDetails.modeType;
+          var memory_table = firstdata.docs[0].table;
+          
+          var cancelBillFile = bill;
+          delete cancelBillFile._id;
+          delete cancelBillFile._rev;
+
+          cancelBillFile.cancelDetails = cancelObj;
+
+          //Refund Object
+          if(cancelObj.refundAmount && cancelObj.refundAmount != '' && cancelObj.refundAmount > 0){
+            
+            var refund_obj_mode = 'CASH';
+            if(cancelObj.refundMode == 'ORIGINAL'){
+              refund_obj_mode = bill.paymentMode;
+            }
+
+            cancelBillFile.refundDetails = {
+              "refundAmount": cancelObj.refundAmount,
+              "refundMode": refund_obj_mode
+            }
+          }
+
+            deleteCancelledInvoiceFromServer(memory_id, memory_rev, memory_type, memory_table, requestURLSource, optionalPageRef);
+
+            //Post to local Server
+            $.ajax({
+              type: 'POST',
+              url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/',
+              data: JSON.stringify(cancelBillFile),
+              contentType: "application/json",
+              dataType: 'json',
+              timeout: 10000,
+              success: function(data) {
+                if(data.ok){
+                  showToast('Invoice #'+billNumber+' has been Cancelled successfully', '#27ae60');
+                }
+                else{
+                  showToast('Warning: Cancelled Invoice was not Generated. Try again.', '#e67e22');
+                }
+              },
+              error: function(data){           
+                showToast('System Error: Unable to save Cancelled Invoice to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              }
+            });  
+            //End - post KOT to Server          
+          
+        }
+        else{
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(firstdata) {
+        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+function deleteCancelledInvoiceFromServer(id, revID, type, table, requestURLSource, optionalPageRef){
+
+  var requestLink = 'zaitoon_bills';
+  if(requestURLSource == 'BILL'){
+    requestLink = 'zaitoon_bills';
+  }
+  else if(requestURLSource == 'INVOICE'){
+    requestLink = 'zaitoon_invoices';
+  }
+
+
+    $.ajax({
+      type: 'DELETE',
+      url: COMMON_LOCAL_SERVER_IP+'/'+requestLink+'/'+id+'?rev='+revID,
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
+          loadAllSettledBills();
+        }
+        else if(optionalPageRef == 'GENERATED_BILLS_PENDING'){
+          loadAllPendingSettlementBills();
+
+          if(type == 'DINE'){
+            updateTableMappingAfterCancellation(table, 'GENERATED_BILLS_PENDING');
+          }
+
+        }
+      },
+      error: function(data) {
+        showToast('Server Warning: Unable to update Invoices. Please contact Accelerate Support.', '#e67e22');
+      }
+    });   
+}
+
+
+
+
+/*
+  CANCEL RUNNING ORDER
+*/
+
+function cancelRunningOrder(kotID, optionalPageRef){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+
+              var reasonsList = data.docs[0].value;
+              cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList)
+                        
+          }
+          else{
+            showToast('Warning: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+            var reasonsList = ["Not Satisfied"];
+            cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList)
+          }
+        }
+        else{
+          showToast('Warning: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+          var reasonsList = ["Not Satisfied"];
+          cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList)
+        }
+
+      },
+      error: function(data) {
+        showToast('Warning: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e67e22');
+        var reasonsList = ["Not Satisfied"];
+        cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList)
+      }
+
+    });  
+}
+
+
+
+
+function cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList){
+
+  document.getElementById("orderCancellationsReasonModal").style.display = 'block';
+  document.getElementById("orderCancellationsReasonModalActions").innerHTML = '<button class="btn btn-default" onclick="initiateCancelOrderHide()" style="float: left">Close</button>'+
+                  '<button class="btn btn-danger" onclick="processCancelRunningOrder(\''+kotID+'\', \''+optionalPageRef+'\')" style="float: right">Proceed to Cancel</button>';
+
+
+  var n = 0;
+  var reasonRender = '';
+  while(reasonsList[n]){
+    reasonRender += '<option value="'+reasonsList[n]+'">'+reasonsList[n]+'</option>';
+    n++;
+  }
+
+  document.getElementById("order_cancel_why_reason").innerHTML = reasonRender;
+
+  $('#order_cancel_why_comments').val('');
+  $('#order_cancel_why_comments').focus();  
+}
+
+
+function initiateCancelOrderHide(){
+  document.getElementById("orderCancellationsReasonModal").style.display = 'none';
+}
+
+
+function processCancelRunningOrder(kotID, optionalPageRef){
+
+
+    var current_time = getCurrentTime('TIME');
+    var why_reason = $('#order_cancel_why_reason').val();
+    var why_comments = $('#order_cancel_why_comments').val();
+    
+    var why_food_status = $('#order_cancel_food_status').val();
+    why_food_status = parseInt(why_food_status);
+
+
+    var staffData = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData) : {};
+    if(!staffData.name || staffData.name == ''){
+      showToast('Warning! Staff information not available. Select Staff Profile and try again.', '#e67e22');
+      return '';
+    }
+
+    if(why_comments == '' || why_comments.length < 3){
+      showToast('Warning! Please add some comments.', '#e67e22');
+      return '';      
+    }
+
+
+    var cancelObj = {
+            "timeCancel" : current_time,
+            "cancelledBy" : staffData.name,
+            "reason" : why_reason,
+            "comments" : why_comments,
+            "status" : why_food_status, //FOOD WASTED or NOT
+            "refundStatus" : 0,
+            "refundAmount" : '',
+            "refundMode" : ''
+    }
+
+    initiateCancelOrderHide();
+
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(firstdata) {
+        if(firstdata.docs.length > 0){
+
+            var kot = firstdata.docs[0];
+
+            var memory_rev = firstdata.docs[0]._rev;
+            var memory_id = firstdata.docs[0]._id;
+            var memory_type = firstdata.docs[0].orderDetails.modeType;
+            var memory_table = firstdata.docs[0].table;
+            
+            var cancelOrderFile = kot;
+            delete cancelOrderFile._id;
+            delete cancelOrderFile._rev;
+
+            cancelOrderFile.cancelDetails = cancelObj;
+
+            deleteCancelledKOTFromServer(memory_id, memory_rev, memory_type, memory_table, kotID, optionalPageRef);
+
+              //Post to local Server
+              $.ajax({
+                type: 'POST',
+                url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/',
+                data: JSON.stringify(cancelOrderFile),
+                contentType: "application/json",
+                dataType: 'json',
+                timeout: 10000,
+                success: function(data) {
+                  if(data.ok){
+                    showToast('Order #'+kotID+' has been Cancelled successfully', '#27ae60');
+                  }
+                  else{
+                    showToast('Warning: KOT was not Generated. Try again.', '#e67e22');
+                  }
+                },
+                error: function(data){           
+                  showToast('System Error: Unable to save Cancelled Order to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                }
+              });  
+              //End - post KOT to Server   
+
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+}
+
+function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPageRef){
+    $.ajax({
+      type: 'DELETE',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+id+'?rev='+revID,
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(optionalPageRef == 'ORDER_PUNCHING'){
+        
+          clearAllMetaData();
+          renderCustomerInfo();
+
+          if(type == 'DINE'){
+            updateTableMappingAfterCancellation(table, 'ORDER_PUNCHING');
+          }
+          
+        }
+        else if(optionalPageRef == 'LIVE_ORDERS'){
+          if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+            var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : []; 
+            if(originalData.KOTNumber == kotID){ //Editing Order being cancelled
+              clearAllMetaData();
+            }
+          }
+        
+          renderAllKOTs();
+        
+          if(type == 'DINE'){
+            updateTableMappingAfterCancellation(table, 'LIVE_ORDERS');
+          }
+          
+        }
+        else if(optionalPageRef == 'SEATING_STATUS'){
+          if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+            var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : []; 
+            if(originalData.KOTNumber == kotID){ //Editing Order being cancelled
+              clearAllMetaData();
+            }
+          }
+        
+          if(type == 'DINE'){
+            updateTableMappingAfterCancellation(table, 'SEATING_STATUS');
+          }
+          else{
+            preloadTableStatus();
+          }
+        }
+      },
+      error: function(data) {
+        showToast('Server Warning: Unable to update Orders. Please contact Accelerate Support.', '#e67e22');
+      }
+    });   
+}
+
+
+function updateTableMappingAfterCancellation(tableID, optionalPageRef){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+                    var tableMapping = data.docs[0].value;
+
+                    for(var i=0; i<tableMapping.length; i++){
+                      if(tableMapping[i].table == tableID){
+
+                        tableMapping[i].status = 0;
+                        tableMapping[i].assigned = "";
+                        tableMapping[i].lastUpdate = "";
+                        tableMapping[i].KOT = "";
+
+                        break;
+                      }
+                    }
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        if(optionalPageRef == 'ORDER_PUNCHING'){
+                          renderTables();
+                        }
+                        else if(optionalPageRef == 'SEATING_STATUS'){
+                          preloadTableStatus();
+                        }
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });     
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+}

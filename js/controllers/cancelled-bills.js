@@ -1,13 +1,37 @@
+/*REFERENCE:
+Cancel Status 
+0 - Cancelled Immediately, No food prepared
+1 - Cancelled after KOT, FOOD WASTAGE
+5 - Cancelled after Billing
+6 - Cancelled after Bill Settled
+
+Refund Status
+0 - Not Appicable (Not Paid)
+1 - No Refund
+2 - Partial Refund
+3 - Full Refund
+
+timeCancel:
+cancelledBy:
+reason:
+comments:
+status:
+refundStatus:
+refundAmount:
+refundMode:
+
+*/
+
 
 var currentPage = 1;
 var totalPages = 1;
-var displayType = 'PENDING';
+var displayType = 'UNBILLED';
 var filterResultsCount = 0;
 
-function loadAllPendingSettlementBills(optionalSource){
+
+function loadAllCancelledUnbilled(optionalSource){
 
 	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
-
 
 	/*
 		Frame the FILTER
@@ -21,9 +45,9 @@ function loadAllPendingSettlementBills(optionalSource){
 	var filter_key = '';
 
 
-	if(window.localStorage.billFilterCriteria && window.localStorage.billFilterCriteria != ''){
+	if(window.localStorage.cancelledFilterCriteria && window.localStorage.cancelledFilterCriteria != ''){
 		isFilterApplied = true;
-		filterObject = JSON.parse(window.localStorage.billFilterCriteria);
+		filterObject = JSON.parse(window.localStorage.cancelledFilterCriteria);
 
 		if(filterObject.dateFrom == ''){
 			filter_start = '01-01-2018'; //Since the launch of Vega POS
@@ -48,43 +72,40 @@ function loadAllPendingSettlementBills(optionalSource){
 	}
 
 
-
-
-	$("#billSelection_settled").removeClass("billTypeSelectionBox");
-	$("#billSelection_pending").addClass("billTypeSelectionBox");
+	$("#billSelection_invoiced").removeClass("billTypeSelectionBox");
+	$("#billSelection_unbilled").addClass("billTypeSelectionBox");
 	document.getElementById("billDetailedDisplayRender").innerHTML = ''
 
-
-	document.getElementById("billTypeTitle").innerHTML = 'Pending Bills';
+	document.getElementById("billTypeTitle").innerHTML = 'Cancelled Orders';
 
 	if(currentPage == 1){
 		if(isFilterApplied){
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
+			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
 		}
 		else{
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModal(\'PENDING\')">Apply Filter</button>';
+			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModal(\'UNBILLED\')">Apply Filter</button>';
 		}
 	}
 
 	
 	//reset pagination counter
-	if(displayType != 'PENDING'){
+	if(displayType != 'UNBILLED'){
 		totalPages = 0;
 		currentPage = 1;
-		displayType = 'PENDING';
-		renderBillPageDefault();
+		displayType = 'UNBILLED';
+		renderCancelledPageDefault();
 	}
 
 	//to load settled bills count
 	if(optionalSource && optionalSource == 'EXTERNAL'){
-		renderBillPageDefault();
-		calculateSettledCount();
+		renderCancelledPageDefault();
+		calculateCancelledCount();
 	}
 
 	if(isFilterApplied){
 
 		//just to get the COUNT
-		updatePendingCount();
+		updateUnbilledCount();
 
 		switch(filterObject.searchMode){
 
@@ -97,7 +118,7 @@ function loadAllPendingSettlementBills(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -106,10 +127,10 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
+								renderCancelledPageDefault('UNBILLED');
 								return '';
 						    }
 
@@ -120,7 +141,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -128,16 +149,16 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
+						renderCancelledPageDefault('UNBILLED');
 						return '';
 					  }
 
 				      var n = 0;
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -152,13 +173,13 @@ function loadAllPendingSettlementBills(optionalSource){
 							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
-				      	renderBillPageDefault('PENDING');
+				      	renderCancelledPageDefault('UNBILLED');
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');					
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('UNBILLED');					
 					}
 				});  
 
@@ -176,7 +197,7 @@ function loadAllPendingSettlementBills(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -185,10 +206,10 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
+								renderCancelledPageDefault('UNBILLED');
 								return '';
 						    }
 
@@ -199,7 +220,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -207,16 +228,16 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
+						renderCancelledPageDefault('UNBILLED');
 						return '';
 					  }
 
 				      var n = 0;
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -231,13 +252,13 @@ function loadAllPendingSettlementBills(optionalSource){
 							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
-				      	renderBillPageDefault('PENDING');
+				      	renderCancelledPageDefault('UNBILLED');
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('UNBILLED');
 					}
 				});  
 
@@ -255,7 +276,7 @@ function loadAllPendingSettlementBills(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -264,10 +285,10 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
+								renderCancelledPageDefault('UNBILLED');
 								return '';
 						    }
 
@@ -278,7 +299,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -286,16 +307,16 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
+						renderCancelledPageDefault('UNBILLED');
 						return '';
 					  }
 
 				      var n = 0;
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -310,13 +331,13 @@ function loadAllPendingSettlementBills(optionalSource){
 							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
-				      	renderBillPageDefault('PENDING');
+				      	renderCancelledPageDefault('UNBILLED');
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('UNBILLED');
 					}
 				});  
 
@@ -334,7 +355,7 @@ function loadAllPendingSettlementBills(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -343,10 +364,10 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
+								renderCancelledPageDefault('UNBILLED');
 								return '';
 						    }
 
@@ -357,7 +378,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -365,16 +386,16 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
+						renderCancelledPageDefault('UNBILLED');
 						return '';
 					  }
 
 				      var n = 0;
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -389,93 +410,13 @@ function loadAllPendingSettlementBills(optionalSource){
 							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
-				      	renderBillPageDefault('PENDING');
+				      	renderCancelledPageDefault('UNBILLED');
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "discount":{
-				/*
-					FILTER DISCOUNTED OR NON-DISCOUNTED ORDERS
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbydiscount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbydiscount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('UNBILLED');
 					}
 				});  
 
@@ -492,7 +433,7 @@ function loadAllPendingSettlementBills(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -501,10 +442,10 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
+								renderCancelledPageDefault('UNBILLED');
 								return '';
 						    }
 
@@ -515,7 +456,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -523,16 +464,16 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
+						renderCancelledPageDefault('UNBILLED');
 						return '';
 					  }
 
 				      var n = 0;
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -547,20 +488,19 @@ function loadAllPendingSettlementBills(optionalSource){
 							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
-				      	renderBillPageDefault('PENDING');
+				      	renderCancelledPageDefault('UNBILLED');
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('UNBILLED');
 					}
 				});  
 
 
 				break;
 			}
-
 
 			case "bill":{
 				/*
@@ -574,7 +514,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 							    $.ajax({
 							      type: 'POST',
-							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_find',
 							      data: JSON.stringify(requestData),
 							      contentType: "application/json",
 							      dataType: 'json',
@@ -586,7 +526,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							          var bill = data.docs[0];
 
 								      var resultRender = '';
-									  resultRender 				+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+									  resultRender 				+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 										                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 										                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 										                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -599,13 +539,13 @@ function loadAllPendingSettlementBills(optionalSource){
 											'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 											'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 								      
-								      	renderBillPageDefault('PENDING');
+								      	renderCancelledPageDefault('UNBILLED');
 							        }
 							        else{
 							        	totalPages = 0;
 							        	filterResultsCount = 0;
-									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-										renderBillPageDefault('PENDING');
+									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
+										renderCancelledPageDefault('UNBILLED');
 										return '';
 									    
 							        }
@@ -615,8 +555,8 @@ function loadAllPendingSettlementBills(optionalSource){
 							        showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
 								  	totalPages = 0;
 								  	filterResultsCount = 0;
-									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-									renderBillPageDefault('PENDING');
+									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
+									renderCancelledPageDefault('UNBILLED');
 									return '';
 								  }
 
@@ -634,7 +574,7 @@ function loadAllPendingSettlementBills(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -643,10 +583,10 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
+								renderCancelledPageDefault('UNBILLED');
 								return '';
 						    }
 
@@ -657,7 +597,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -665,10 +605,10 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
+						renderCancelledPageDefault('UNBILLED');
 						return '';
 					  }
 
@@ -676,7 +616,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var n = 0;
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -691,13 +631,13 @@ function loadAllPendingSettlementBills(optionalSource){
 							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
-				      	renderBillPageDefault('PENDING');
+				      	renderCancelledPageDefault('UNBILLED');
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('UNBILLED');
 					}
 				});  
 
@@ -715,7 +655,7 @@ function loadAllPendingSettlementBills(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -724,10 +664,10 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
+								renderCancelledPageDefault('UNBILLED');
 								return '';
 						    }
 
@@ -738,7 +678,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -746,10 +686,10 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
+						renderCancelledPageDefault('UNBILLED');
 						return '';
 					  }
 
@@ -757,7 +697,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var n = 0;
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -772,13 +712,13 @@ function loadAllPendingSettlementBills(optionalSource){
 							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
-				      	renderBillPageDefault('PENDING');
+				      	renderCancelledPageDefault('UNBILLED');
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');					
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('UNBILLED');					
 					}
 				});  
 
@@ -795,7 +735,7 @@ function loadAllPendingSettlementBills(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -804,10 +744,10 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
+								renderCancelledPageDefault('UNBILLED');
 								return '';
 						    }
 
@@ -818,7 +758,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bill-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -826,10 +766,10 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
+						renderCancelledPageDefault('UNBILLED');
 						return '';
 					  }
 
@@ -837,7 +777,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var n = 0;
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -852,13 +792,13 @@ function loadAllPendingSettlementBills(optionalSource){
 							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
-				      	renderBillPageDefault('PENDING');
+				      	renderCancelledPageDefault('UNBILLED');
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('UNBILLED');
 					}
 				});  
 
@@ -868,8 +808,8 @@ function loadAllPendingSettlementBills(optionalSource){
 
 			default:{
 				showToast('System Error: Filter criteria did not found. Please contact Accelerate Support if problem persists.', '#e74c3c');
-				document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-				renderBillPageDefault('PENDING');			
+				document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+				renderCancelledPageDefault('UNBILLED');			
 			}
 			
 		}
@@ -880,19 +820,19 @@ function loadAllPendingSettlementBills(optionalSource){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bills/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bills/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
 		    success: function(data) {
 
 		      if(data.total_rows == 0){
-		      	document.getElementById("pendingBillsCount").innerHTML = 0;
-		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Unsettled Bills.</p>';
+		      	document.getElementById("cancelledOrdersCount").innerHTML = 0;
+		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Cancelled Orders.</p>';
 				return '';
 		      }
 
-		      document.getElementById("pendingBillsCount").innerHTML = data.total_rows;
+		      document.getElementById("cancelledOrdersCount").innerHTML = data.total_rows;
 		      totalPages = Math.ceil(data.total_rows/10);
 		      
 		      var resultsList = data.rows;
@@ -902,7 +842,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 		      	var bill = resultsList[n].doc;
 
-				resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+				resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 				                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
@@ -917,7 +857,7 @@ function loadAllPendingSettlementBills(optionalSource){
 					'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
 					'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
 		      
-		      	renderBillPageDefault('PENDING')
+		      	renderCancelledPageDefault('UNBILLED')
 
 		    },
 		    error: function(data){
@@ -931,22 +871,22 @@ function loadAllPendingSettlementBills(optionalSource){
 
 }
 
-function updatePendingCount(){
+function updateUnbilledCount(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bills/_view/all?descending=true&include_docs=false',
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/bills/_view/all?descending=true&include_docs=false',
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
 		    success: function(data) {
 
 		      if(data.total_rows == 0){
-		      	document.getElementById("pendingBillsCount").innerHTML = 0;
+		      	document.getElementById("cancelledOrdersCount").innerHTML = 0;
 				return '';
 		      }
 
-		      document.getElementById("pendingBillsCount").innerHTML = data.total_rows;
+		      document.getElementById("cancelledOrdersCount").innerHTML = data.total_rows;
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
@@ -955,22 +895,24 @@ function updatePendingCount(){
 		  });
 }
 
-function updateSettledCount(){
+
+
+function updateCancelledCount(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoices/_view/all?descending=true&include_docs=false',
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoices/_view/all?descending=true&include_docs=false',
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
 		    success: function(data) {
 
 		      if(data.total_rows == 0){
-		      	document.getElementById("settledBillsCount").innerHTML = 0;
+		      	document.getElementById("cancelledInvoicesCount").innerHTML = 0;
 				return '';
 		      }
 
-		      document.getElementById("settledBillsCount").innerHTML = data.total_rows;
+		      document.getElementById("cancelledInvoicesCount").innerHTML = data.total_rows;
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
@@ -979,27 +921,28 @@ function updateSettledCount(){
 		  });
 }
 
-function calculateSettledCount(){
+function calculateCancelledCount(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoices/_view/all',
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoices/_view/all',
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
 		    success: function(data) {
 		    	
 		      if(data.total_rows == 0){
-		      	document.getElementById("settledBillsCount").innerHTML = 0;
+		      	document.getElementById("cancelledInvoicesCount").innerHTML = 0;
 		      }
 		      else{
-				document.getElementById("settledBillsCount").innerHTML = data.total_rows;
+				document.getElementById("cancelledInvoicesCount").innerHTML = data.total_rows;
 			  }
 		    }
 		  });  
 }
 
-function getPaymentCodeEquivalentName(code){
+function converPaymentCode(code){
+
 	var list = window.localStorage.availablePaymentModes ? JSON.parse(window.localStorage.availablePaymentModes) : [];
 
 	if(code == 'MULTIPLE'){
@@ -1026,8 +969,7 @@ function getPaymentCodeEquivalentName(code){
 }
 
 
-function loadAllSettledBills(){
-
+function loadAllCancelledInvoices(){
 
 	/*
 		Frame the FILTER
@@ -1041,9 +983,9 @@ function loadAllSettledBills(){
 	var filter_key = '';
 
 
-	if(window.localStorage.billFilterCriteria && window.localStorage.billFilterCriteria != ''){
+	if(window.localStorage.cancelledFilterCriteria && window.localStorage.cancelledFilterCriteria != ''){
 		isFilterApplied = true;
-		filterObject = JSON.parse(window.localStorage.billFilterCriteria);
+		filterObject = JSON.parse(window.localStorage.cancelledFilterCriteria);
 
 		if(filterObject.dateFrom == ''){
 			filter_start = '01-01-2018'; //Since the launch of Vega POS
@@ -1068,37 +1010,33 @@ function loadAllSettledBills(){
 	}
 
 
-
-
-	$("#billSelection_settled").addClass("billTypeSelectionBox");
-	$("#billSelection_pending").removeClass("billTypeSelectionBox");
+	$("#billSelection_invoiced").addClass("billTypeSelectionBox");
+	$("#billSelection_unbilled").removeClass("billTypeSelectionBox");
 	document.getElementById("billDetailedDisplayRender").innerHTML = ''
 
-
-	document.getElementById("billTypeTitle").innerHTML = 'Settled Bills';
+	document.getElementById("billTypeTitle").innerHTML = 'Cancelled Invoices';
 
 	if(currentPage == 1){
 		if(isFilterApplied){
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearAppliedFilter(\'SETTLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
+			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearAppliedFilterCancelled(\'CANCELLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
 		}
 		else{
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModal(\'SETTLED\')">Apply Filter</button>';
+			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModal(\'CANCELLED\')">Apply Filter</button>';
 		}
 	}
 
 
 	//reset pagination counter
-	if(displayType != 'SETTLED'){
+	if(displayType != 'CANCELLED'){
 		totalPages = 0;
 		currentPage = 1;
-		displayType = 'SETTLED';
-		renderBillPageDefault();
+		displayType = 'CANCELLED';
+		renderCancelledPageDefault();
 	}
 
 		//Preload payment modes
 		if(currentPage == 1)
 		{
-
 
 		    var requestData = {
 		      "selector"  :{ 
@@ -1131,12 +1069,10 @@ function loadAllSettledBills(){
 		}
 
 
-
-
 	if(isFilterApplied){
 
 		//just to get the COUNT
-		updateSettledCount();
+		updateCancelledCount();
 
 
 		switch(filterObject.searchMode){
@@ -1150,7 +1086,7 @@ function loadAllSettledBills(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1159,10 +1095,10 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
+								renderCancelledPageDefault('CANCELLED');
 								return '';
 						    }
 
@@ -1173,7 +1109,7 @@ function loadAllSettledBills(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1181,9 +1117,9 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
+						renderCancelledPageDefault('CANCELLED');
 						return '';
 					  }
 
@@ -1191,13 +1127,13 @@ function loadAllSettledBills(){
 					    while(resultsList[n]){
 					      	var bill = resultsList[n].doc;
 
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1207,13 +1143,13 @@ function loadAllSettledBills(){
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderCancelledPageDefault('CANCELLED')
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');					
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');					
 					}
 				});  
 
@@ -1226,12 +1162,11 @@ function loadAllSettledBills(){
 					FILTER USING STEWARD NAME
 				*/
 
-
 			  	//TWEAK -- Get the count for Pagination
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1240,10 +1175,10 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
+								renderCancelledPageDefault('CANCELLED');
 								return '';
 						    }
 
@@ -1254,7 +1189,7 @@ function loadAllSettledBills(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1262,9 +1197,9 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
+						renderCancelledPageDefault('CANCELLED');
 						return '';
 					  }
 
@@ -1272,13 +1207,13 @@ function loadAllSettledBills(){
 					    while(resultsList[n]){
 					      	var bill = resultsList[n].doc;
 
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1288,13 +1223,13 @@ function loadAllSettledBills(){
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderCancelledPageDefault('CANCELLED')
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');
 					}
 				});  
 
@@ -1307,12 +1242,11 @@ function loadAllSettledBills(){
 					FILTER USING MACHINE NAME
 				*/
 
-
 			  	//TWEAK -- Get the count for Pagination
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1321,10 +1255,10 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
+								renderCancelledPageDefault('CANCELLED');
 								return '';
 						    }
 
@@ -1335,7 +1269,7 @@ function loadAllSettledBills(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1343,9 +1277,9 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
+						renderCancelledPageDefault('CANCELLED');
 						return '';
 					  }
 
@@ -1353,13 +1287,13 @@ function loadAllSettledBills(){
 					    while(resultsList[n]){
 					      	var bill = resultsList[n].doc;
 
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1369,21 +1303,21 @@ function loadAllSettledBills(){
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderCancelledPageDefault('CANCELLED')
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');
 					}
 				});  
 
 
 				break;
 			}
-
 			case "session":{
+
 				/*
 					FILTER USING DINE SESSION NAME
 				*/
@@ -1393,7 +1327,7 @@ function loadAllSettledBills(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1402,10 +1336,10 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
+								renderCancelledPageDefault('CANCELLED');
 								return '';
 						    }
 
@@ -1416,7 +1350,7 @@ function loadAllSettledBills(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1424,9 +1358,9 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
+						renderCancelledPageDefault('CANCELLED');
 						return '';
 					  }
 
@@ -1434,13 +1368,13 @@ function loadAllSettledBills(){
 					    while(resultsList[n]){
 					      	var bill = resultsList[n].doc;
 
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1450,95 +1384,13 @@ function loadAllSettledBills(){
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderCancelledPageDefault('CANCELLED')
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "discount":{
-				/*
-					FILTER DISCOUNTED OR NON-DISCOUNTED ORDERS
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbydiscount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbydiscount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');
 					}
 				});  
 
@@ -1555,7 +1407,7 @@ function loadAllSettledBills(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1564,10 +1416,10 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
+								renderCancelledPageDefault('CANCELLED');
 								return '';
 						    }
 
@@ -1578,7 +1430,7 @@ function loadAllSettledBills(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1586,9 +1438,9 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
+						renderCancelledPageDefault('CANCELLED');
 						return '';
 					  }
 
@@ -1596,13 +1448,13 @@ function loadAllSettledBills(){
 					    while(resultsList[n]){
 					      	var bill = resultsList[n].doc;
 
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1612,13 +1464,13 @@ function loadAllSettledBills(){
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderCancelledPageDefault('CANCELLED')
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');
 					}
 				});  
 
@@ -1639,7 +1491,7 @@ function loadAllSettledBills(){
 
 							    $.ajax({
 							      type: 'POST',
-							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_find',
+							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_find',
 							      data: JSON.stringify(requestData),
 							      contentType: "application/json",
 							      dataType: 'json',
@@ -1651,13 +1503,13 @@ function loadAllSettledBills(){
 							          	var bill = data.docs[0];
 
 								      	var resultRender = '';
-								      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+								      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 							                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 							                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 							                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 							                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 							                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-							                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+							                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 							                            '    </tr>';
 
 
@@ -1665,14 +1517,14 @@ function loadAllSettledBills(){
 									      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 									      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 						      
-							      		renderBillPageDefault('SETTLED')
+							      		renderCancelledPageDefault('CANCELLED')
 							      		
 							        }
 							        else{
 							        	totalPages = 0;
 							        	filterResultsCount = 0;
-									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-										renderBillPageDefault('SETTLED');
+									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
+										renderCancelledPageDefault('CANCELLED');
 										return '';
 									    
 							        }
@@ -1682,8 +1534,8 @@ function loadAllSettledBills(){
 							        showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
 								  	totalPages = 0;
 								  	filterResultsCount = 0;
-									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-									renderBillPageDefault('SETTLED');
+									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
+									renderCancelledPageDefault('CANCELLED');
 									return '';
 								  }
 
@@ -1701,7 +1553,7 @@ function loadAllSettledBills(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1710,10 +1562,10 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
+								renderCancelledPageDefault('CANCELLED');
 								return '';
 						    }
 
@@ -1724,7 +1576,7 @@ function loadAllSettledBills(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1732,10 +1584,10 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
+						renderCancelledPageDefault('CANCELLED');
 						return '';
 					  }
 
@@ -1744,13 +1596,13 @@ function loadAllSettledBills(){
 					    while(resultsList[n]){
 					      	var bill = resultsList[n].doc;
 
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1760,13 +1612,13 @@ function loadAllSettledBills(){
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderCancelledPageDefault('CANCELLED')
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');
 					}
 				});  
 
@@ -1784,7 +1636,7 @@ function loadAllSettledBills(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1793,10 +1645,10 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
+								renderCancelledPageDefault('CANCELLED');
 								return '';
 						    }
 
@@ -1807,7 +1659,7 @@ function loadAllSettledBills(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1815,10 +1667,10 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
+						renderCancelledPageDefault('CANCELLED');
 						return '';
 					  }
 
@@ -1827,13 +1679,13 @@ function loadAllSettledBills(){
 					    while(resultsList[n]){
 					      	var bill = resultsList[n].doc;
 
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1843,13 +1695,13 @@ function loadAllSettledBills(){
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderCancelledPageDefault('CANCELLED')
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');					
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');					
 					}
 				});  
 
@@ -1867,7 +1719,7 @@ function loadAllSettledBills(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1876,10 +1728,10 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
+								renderCancelledPageDefault('CANCELLED');
 								return '';
 						    }
 
@@ -1890,7 +1742,7 @@ function loadAllSettledBills(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1898,10 +1750,10 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
+						renderCancelledPageDefault('CANCELLED');
 						return '';
 					  }
 
@@ -1910,13 +1762,13 @@ function loadAllSettledBills(){
 					    while(resultsList[n]){
 					      	var bill = resultsList[n].doc;
 
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1926,13 +1778,13 @@ function loadAllSettledBills(){
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderCancelledPageDefault('CANCELLED')
 
 					},
 					error: function(data){
 						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');					
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');					
 					}
 				});  
 
@@ -1943,8 +1795,8 @@ function loadAllSettledBills(){
 
 			default:{
 				showToast('System Error: Filter criteria did not found. Please contact Accelerate Support if problem persists.', '#e74c3c');
-				document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-				renderBillPageDefault('SETTLED');			
+				document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+				renderCancelledPageDefault('CANCELLED');			
 			}
 
 		}
@@ -1955,19 +1807,19 @@ function loadAllSettledBills(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoices/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoices/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
 		    success: function(data) {
 
 		      if(data.total_rows == 0){
-		      	document.getElementById("settledBillsCount").innerHTML = 0;
-		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Unsettled Bills.</p>';
+		      	document.getElementById("cancelledInvoicesCount").innerHTML = 0;
+		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Cancelled Invoices.</p>';
 				return '';
 		      }
 
-		      document.getElementById("settledBillsCount").innerHTML = data.total_rows;
+		      document.getElementById("cancelledInvoicesCount").innerHTML = data.total_rows;
 		      totalPages = Math.ceil(data.total_rows/10);
 		      
 		      var resultsList = data.rows;
@@ -1977,13 +1829,13 @@ function loadAllSettledBills(){
 
 		      	var bill = resultsList[n].doc;
 
-		      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
+		      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
 	                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 	                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 	                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 	                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 	                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-	                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+	                            '        <td>'+converPaymentCode(bill.paymentMode)+'</td>'+
 	                            '    </tr>';
 		      	n++;
 		      }
@@ -1993,7 +1845,7 @@ function loadAllSettledBills(){
 				      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
 				      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 	      
-		      	renderBillPageDefault('SETTLED')
+		      	renderCancelledPageDefault('CANCELLED')
 
 		    },
 		    error: function(data){
@@ -2009,7 +1861,7 @@ function loadAllSettledBills(){
 
 
 
-function renderBillPageDefault(target){
+function renderCancelledPageDefault(target){
 
 	if(totalPages == 0){
 		document.getElementById("navigationAssitantBills").innerHTML = '';
@@ -2020,16 +1872,16 @@ function renderBillPageDefault(target){
 	else if(totalPages > 1){
 		if(currentPage == 1){
 			document.getElementById("navigationAssitantBills").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">'+currentPage+' of '+totalPages+'</button>'+                    
-	                            '<button class="btn btn-success btn-sm" style="float: right;  border: none; border-radius: 0;" onclick="gotoBillPage(\''+(currentPage+1)+'\', \''+target+'\')"><i class="fa fa-chevron-right"></i></button>';	
+	                            '<button class="btn btn-success btn-sm" style="float: right;  border: none; border-radius: 0;" onclick="gotoCancelledBillPage(\''+(currentPage+1)+'\', \''+target+'\')"><i class="fa fa-chevron-right"></i></button>';	
 		}
 		else if(currentPage == totalPages){
 			document.getElementById("navigationAssitantBills").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">'+currentPage+' of '+totalPages+'</button>'+
-	                            '<button class="btn btn-success btn-sm" style="float: right; border: none; border-radius: 0;" onclick="gotoBillPage(\''+(currentPage-1)+'\', \''+target+'\')"><i class="fa fa-chevron-left"></i></button>';		
+	                            '<button class="btn btn-success btn-sm" style="float: right; border: none; border-radius: 0;" onclick="gotoCancelledBillPage(\''+(currentPage-1)+'\', \''+target+'\')"><i class="fa fa-chevron-left"></i></button>';		
 		}
 		else{
 			document.getElementById("navigationAssitantBills").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">'+currentPage+' of '+totalPages+'</button>'+                    
-	                            '<button class="btn btn-success btn-sm" style="float: right;  border: none; border-radius: 0;" onclick="gotoBillPage(\''+(currentPage+1)+'\', \''+target+'\')"><i class="fa fa-chevron-right"></i></button>'+
-	                            '<button class="btn btn-success btn-sm" style="float: right; border: none; border-radius: 0;" onclick="gotoBillPage(\''+(currentPage-1)+'\', \''+target+'\')"><i class="fa fa-chevron-left"></i></button>';	
+	                            '<button class="btn btn-success btn-sm" style="float: right;  border: none; border-radius: 0;" onclick="gotoCancelledBillPage(\''+(currentPage+1)+'\', \''+target+'\')"><i class="fa fa-chevron-right"></i></button>'+
+	                            '<button class="btn btn-success btn-sm" style="float: right; border: none; border-radius: 0;" onclick="gotoCancelledBillPage(\''+(currentPage-1)+'\', \''+target+'\')"><i class="fa fa-chevron-left"></i></button>';	
 		}
 	}
 	else{
@@ -2040,21 +1892,21 @@ function renderBillPageDefault(target){
 }
 
 
-function gotoBillPage(toPageID, target){
+function gotoCancelledBillPage(toPageID, target){
 	currentPage = parseInt(toPageID);
 
-	if(target == 'PENDING'){
-		loadAllPendingSettlementBills();
+	if(target == 'UNBILLED'){
+		loadAllCancelledUnbilled();
 	}
-	else if(target == 'SETTLED'){
-		loadAllSettledBills();
+	else if(target == 'CANCELLED'){
+		loadAllCancelledInvoices();
 	}
 
-	renderBillPageDefault(target);
+	renderCancelledPageDefault(target);
 }
 
 
-function viewDeliveryAddressFromBill(addressContent) {
+function checkDeliveryAddr(addressContent) {
 	var address = JSON.parse(decodeURI(addressContent));
 	document.getElementById("addressViewFromBillModal").style.display = 'block';
 
@@ -2066,15 +1918,15 @@ function viewDeliveryAddressFromBill(addressContent) {
 		'<p style="font-size: 16px; padding-left: 10px; margin: 0;">'+(address.contact && address.contact != '' ? 'Mob. '+address.contact : '')+'</p>';
 }
 
-function viewDeliveryAddressFromBillHide() {
+function checkDeliveryAddrHide() {
 	document.getElementById("addressViewFromBillModal").style.display = 'none';
 }
 
-function openSelectedBill(encodedBill, type){
+function openSelectedCancelledBill(encodedBill, type){
 
 	var bill = JSON.parse(decodeURI(encodedBill));
 
-	if(type == 'PENDING'){
+	if(type == 'UNBILLED'){
 
 		var itemsList = '';
 		var n = 0;
@@ -2129,7 +1981,7 @@ function openSelectedBill(encodedBill, type){
 												'<div class="box box-primary">'+
 												'   <div class="box-body">'+ 
 												      '<div class="box-header" style="padding: 10px 0px">'+
-												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3><button class="btn btn-success" style="float: right; color: #FFF" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">Settle Bill</button> <button class="btn btn-danger" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_PENDING\')" style="float: right; margin-right: 5px">Cancel</button>'+
+												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="checkDeliveryAddr(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3><button class="btn btn-success" style="float: right; color: #FFF" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">Settle Bill</button>'+
 												      '</div>'+
 												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
 												      '<div class="table-responsive">'+
@@ -2155,7 +2007,7 @@ function openSelectedBill(encodedBill, type){
 
 
 	}
-	else if(type == 'SETTLED'){
+	else if(type == 'CANCELLED'){
 
 		var itemsList = '';
 		var n = 0;
@@ -2202,7 +2054,7 @@ function openSelectedBill(encodedBill, type){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
 		}
 
-		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Total Payable Amount</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.payableAmount).toFixed(2)+'</td> </tr>';
+		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Total Payable</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.payableAmount).toFixed(2)+'</td> </tr>';
 		
 
 		
@@ -2215,9 +2067,17 @@ function openSelectedBill(encodedBill, type){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Waived Round Off</td>  <td style="text-align: right"><tag style="color: #f15959">- <i class="fa fa-inr"></i>'+bill.roundOffAmount+'</tag></td> </tr>';
 		}
 
-		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
+		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
+		
+		//Refunds
+		var net_refund = 0;
+		if(!jQuery.isEmptyObject(bill.refundDetails)){
+			otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Refunds</b></td> <td style="font-weight: bold; text-align: right">'+(bill.refundDetails.refundAmount && bill.refundDetails.refundAmount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+parseFloat(bill.refundDetails.refundAmount).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
+			net_refund = bill.refundDetails.refundAmount;
+		}
 
-
+		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Gross Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid-net_refund).toFixed(2)+'</td> </tr>';
+		
 
 		//Payment Splits, if applicable
 		var paymentSplitList = '';
@@ -2239,12 +2099,12 @@ function openSelectedBill(encodedBill, type){
 										'</div>';										
 		}
 		else{
-			paymentSplitList = '<a href="#"><p class="splitPayListTitle">'+getPaymentCodeEquivalentName(bill.paymentMode)+' <tag style="float: right; font-weight: bold;"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</tag>'+
+			paymentSplitList = '<a href="#"><p class="splitPayListTitle">'+converPaymentCode(bill.paymentMode)+' <tag style="float: right; font-weight: bold;"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</tag>'+
 									'<p class="splitPayListRef">'+(bill.paymentReference && bill.paymentReference != '' ? bill.paymentReference : '')+'</p>'+
 								'</a>';
 
 			paymentOptionUsedButton =  	'<div class="splitPayListDropdown">'+
-										 	'<div class="splitPayListButton">'+getPaymentCodeEquivalentName(bill.paymentMode)+'</div>'+
+										 	'<div class="splitPayListButton">'+converPaymentCode(bill.paymentMode)+'</div>'+
 											'<div class="splitPayListDropdown-content"><div class="holdContentArea">'+paymentSplitList+'</div>'+
 										 	'</div>'+
 										'</div>';	
@@ -2255,7 +2115,7 @@ function openSelectedBill(encodedBill, type){
 												'<div class="box box-primary">'+
 												'   <div class="box-body">'+
 												      '<div class="box-header" style="padding: 10px 0px">'+
-												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+paymentOptionUsedButton+'</h3><button class="btn btn-default" style="float: right">Print Duplicate</button> <button class="btn btn-danger" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')" style="float: right; margin-right: 5px">Cancel</button>'+
+												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+paymentOptionUsedButton+'</h3><button class="btn btn-danger" onclick="cancelDetailsDisplay(\''+(encodeURI(JSON.stringify(bill.cancelDetails)))+'\')" style="float: right">Cancellation Details</button>'+
 												      '</div>'+
 												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
 												      '<div class="table-responsive">'+
@@ -2296,11 +2156,11 @@ function openFilterModal(optionalRoute){
 
 	document.getElementById("searchFilterModal").style.display = 'block';
 
-	if(optionalRoute == 'PENDING'){
-		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchInitialize(\'PENDING\')" style="float: right">Proceed</button>';
+	if(optionalRoute == 'UNBILLED'){
+		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchCancelledInitialize(\'UNBILLED\')" style="float: right">Proceed</button>';
 	}
-	else if(optionalRoute == 'SETTLED'){
-		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchInitialize(\'SETTLED\')" style="float: right">Proceed</button>';
+	else if(optionalRoute == 'CANCELLED'){
+		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchCancelledInitialize(\'CANCELLED\')" style="float: right">Proceed</button>';
 	}
 
 
@@ -2321,7 +2181,7 @@ function hideFilterModal(){
 	document.getElementById("searchFilterModal").style.display = 'none';
 }
 
-function changeFilterSearchCriteria(){
+function changeCancelledFilterSearchCriteria(){
 
 	var tempValue = '';
 	if(document.getElementById("filter_search_key") != null){
@@ -2596,9 +2456,6 @@ function changeFilterSearchCriteria(){
 
 	    });
 	}
-	else if(criteria == 'discount'){
-	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="discounted">Discounted</option><option value="nondiscounted">Non Discounted</option></select>Orders</p>';
-	}
 	else if(criteria == 'all'){
 	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Showing <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="all">All the Orders</option></select></p>';
 	}
@@ -2608,7 +2465,7 @@ function changeFilterSearchCriteria(){
 	}
 }
 
-function filterSearchInitialize(optionalRoute){
+function filterSearchCancelledInitialize(optionalRoute){
 
 	var dateFrom = '', dateTo = '', searchMode = 'bill', searchKey = '';
 
@@ -2617,7 +2474,7 @@ function filterSearchInitialize(optionalRoute){
 
 	searchMode = document.getElementById("filterSearchCriteria").value;
 
-	if(searchMode == 'payment' || searchMode == 'type' || searchMode == 'steward' || searchMode == 'session' || searchMode == 'machine' || searchMode == 'discount' || searchMode == 'all'){
+	if(searchMode == 'payment' || searchMode == 'type' || searchMode == 'steward' || searchMode == 'session' || searchMode == 'machine' || searchMode == 'all'){
 		searchKey = document.getElementById("filterSearchCriteriaSelected").value;
 	}
 	else{
@@ -2635,36 +2492,121 @@ function filterSearchInitialize(optionalRoute){
 	searchObj.searchMode = searchMode;
 	searchObj.searchKey = searchKey;
 
-	window.localStorage.billFilterCriteria = JSON.stringify(searchObj);
+	window.localStorage.cancelledFilterCriteria = JSON.stringify(searchObj);
 
 	document.getElementById("billBriefDisplayRender").innerHTML = '';
 
-	if(optionalRoute == 'SETTLED'){
-		loadAllSettledBills();
+	if(optionalRoute == 'CANCELLED'){
+		loadAllCancelledInvoices();
 	}
 	else{
-		loadAllPendingSettlementBills('EXTERNAL');
+		loadAllCancelledUnbilled('EXTERNAL');
 	}
 
 	hideFilterModal();
 }
 
-function clearAppliedFilter(optionalRoute){
+function clearAppliedFilterCancelled(optionalRoute){
 
-	window.localStorage.billFilterCriteria = '';
+	window.localStorage.cancelledFilterCriteria = '';
 
-	if(optionalRoute == 'SETTLED'){
+	if(optionalRoute == 'CANCELLED'){
 		totalPages = 0;
 		currentPage = 1;
-		displayType = 'SETTLED';
+		displayType = 'CANCELLED';
 
-		loadAllSettledBills();
+		loadAllCancelledInvoices();
 	}
 	else{
 		totalPages = 0;
 		currentPage = 1;
-		displayType = 'PENDING';
+		displayType = 'UNBILLED';
 
-		loadAllPendingSettlementBills('EXTERNAL');
+		loadAllCancelledUnbilled('EXTERNAL');
 	}	
+}
+
+function getCancelledOrderStatus(code){
+	
+	code = parseInt(code);
+
+	switch(code){
+		case 0:{
+			return "Cancelled immediately, No food prepared."
+			break;
+		}
+		case 1:{
+			return "Cancelled after Order punched, caused food wastage.";
+			break;
+		}
+		case 5:{
+			return "Cancelled after billing, not paid.";
+			break;
+		}
+		case 6:{
+			return "Cancelled after Bill was paid.";
+			break;
+		}				
+		default:{
+			return 'Unknown';
+		}
+	}
+}
+
+
+function getCancelledRefundStatus(code, amount){
+	
+	code = parseInt(code);
+
+	switch(code){
+		case 0:{
+			return "Refund not applicable"
+			break;
+		}
+		case 1:{
+			return "No Refund issued";
+			break;
+		}
+		case 2:{
+			return "Partial Refund of <b>Rs. "+amount+"</b> issued";
+			break;
+		}
+		case 3:{
+			return "Full Refund of <b>Rs. "+amount+"</b> issued";
+			break;
+		}				
+		default:{
+			if(amount && amount != '' && amount != 0){
+				return "Refund of <b>Rs. "+amount+"</b> was issued";
+			}
+			else{
+				return "-";
+			}
+		}
+	}
+}
+
+function cancelDetailsDisplay(encodedReason){
+	var cancelObj = JSON.parse(decodeURI(encodedReason));
+
+	document.getElementById("cancelReasonModal").style.display = 'block';
+	document.getElementById("cancelReasonModalContent").innerHTML = ''+
+												      '<div class="table-responsive">'+
+												         '<table class="table">'+
+												         	'<col width="35%">'+
+												         	'<col width="65%">'+
+												            (cancelObj.reason && cancelObj.reason != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Reason</td> <td>'+cancelObj.reason+'</td> </tr>' : '' )+
+												            (cancelObj.comments && cancelObj.comments != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Comments</td> <td style="font-style: italic; font-weight: bold;">'+cancelObj.comments+'</td> </tr>' : '')+
+												            (cancelObj.cancelledBy && cancelObj.cancelledBy != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Cancelled By</td> <td>'+cancelObj.cancelledBy+'</td> </tr>' : '')+
+												            (cancelObj.timeCancel && cancelObj.timeCancel != '--:--' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Time</td> <td>'+getFancyTime(cancelObj.timeCancel)+'</td> </tr>' : '')+
+												            (cancelObj.status ? '<tr><td style="color: #6f90b1; font-weight: bold;">Order Status</td> <td>'+getCancelledOrderStatus(cancelObj.status)+'</td> </tr>' : '')+
+												            (cancelObj.refundStatus ? '<tr><td style="color: #6f90b1; font-weight: bold;">Refund Status</td> <td>'+getCancelledRefundStatus(cancelObj.refundStatus, cancelObj.refundAmount)+'</td> </tr>' : '')+
+												            (cancelObj.refundStatus && cancelObj.refundStatus > 1  ? '<tr><td style="color: #6f90b1; font-weight: bold;">Refund Mode</td> <td>'+(cancelObj.refundMode == 'CASH' ? 'Cash' : 'Original Mode')+'</td> </tr>' : '')+
+												            '</tbody>'+
+												         '</table>'+
+												      '</div>';
+}
+
+function cancelDetailsDisplayHide(){
+	document.getElementById("cancelReasonModal").style.display = 'none';
 }

@@ -106,7 +106,7 @@ function liveOrderOptions(kotID){
                         '<button class="btn btn-success tableOptionsButtonBig" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button>'+ 
-                        '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelKOTOrder(\''+kot.KOTNumber+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+  
+                        '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+  
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
 
           document.getElementById("liveOrderOptionsModal").style.display = 'block';
@@ -128,13 +128,10 @@ function liveOrderOptionsClose(){
     document.getElementById("liveOrderOptionsModal").style.display = 'none';
 }
 
-
-
-/* cancel the KOT */
-function cancelKOTOrder(kotID){
-
+function cancelRunningKOTOrder(kotID, pageRef){
+  liveOrderOptionsClose();
+  cancelRunningOrder(kotID, pageRef);
 }
-
 
 
 /*Add to edit KOT*/

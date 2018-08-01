@@ -30,6 +30,10 @@ function fetchInitFunctions(pageReference){
 			loadAllPendingSettlementBills('EXTERNAL');
 			break;
 		}	
+		case 'cancelled-bills':{
+			loadAllCancelledUnbilled('EXTERNAL');
+			break;
+		}			
 		case 'seating-status':{
 			preloadTableStatus();
 			break;
@@ -104,5 +108,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('seating-status', 'Punch Order');
+renderPage('cancelled-bills', 'Punch Order');
 

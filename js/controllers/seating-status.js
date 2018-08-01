@@ -46,7 +46,7 @@ function openOccuppiedSeatOptions(tableInfo){
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="moveKOTForEditing(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button> '+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\', \'SEATING_STATUS\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button> '+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="mergeDifferentBills(\''+tableData.table+'\')"><i class="fa fa-compress" style=""></i><tag style="padding-left: 15px">Merge Orders</tag></button> '+
-                  '<button class="btn btn-danger tableOptionsButtonBig" ondblclick="cancelOrderKOT(\''+tableData.KOT+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+ 
+                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelThisKOT(\''+tableData.KOT+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+ 
                   '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeTableMappingWarning(\''+tableData.table+'\')"><i class="fa fa-warning" style="color: yellow"></i><tag style="padding-left: 15px">Remove Mapping</tag></button>'+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
 	}
@@ -67,6 +67,11 @@ function hideOccuppiedSeatOptions(){
 function settlePrintedBill(billNumber){
   hideOccuppiedSeatOptions();
   preSettleBill(billNumber, 'SEATING_STATUS');
+}
+
+function cancelThisKOT(kotID){
+  hideOccuppiedSeatOptions();
+  cancelRunningOrder(kotID, 'SEATING_STATUS');
 }
 
 
@@ -174,6 +179,8 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 
     var requestData = { "selector" :{ "KOTNumber": kotID }}
 
+    console.log('FINAL MEGR')
+
     $.ajax({
       type: 'POST',
       url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
@@ -234,8 +241,6 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 }
 
 function removeOtherKOTS(kotList){ /*TWEAK*/
-	
-    console.log(kotList)
 
 	  var h = 1; //Do not count first KOT
     while(kotList[h]){
@@ -270,9 +275,10 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
 
         });   
 
-
       h++;
     }
+
+    removeOtherKOTAfterProcess(kotList);
 }
 
 
@@ -759,10 +765,10 @@ function addToHoldList(id){
 	}
 
 	if(tempList.length == 1){
-		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 21px; text-align: left;">Select Orders to Merge its Bills <button style="font-size: 18px" onclick="cancelBillMerge()" class="btn btn-default">Cancel</button></p>';	
+		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 18px; text-align: left;">Select Orders to Merge its Bills <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';	
 	}
 	else{
-		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 0; padding: 10px 120px 10px 30px !important; font-size: 21px; text-align: left;">The orders placed on Tables '+tempList.toString()+' will be merged as a single Bill on Table '+tempList[0]+'. This can not be revered.<br>Are you sure want to Merge Orders? <button class="btn btn-success" onclick="mergeBillsInTheHoldList()" style="font-size: 18px">Merge and Bill</button> <button onclick="cancelBillMerge()" style="font-size: 18px" class="btn btn-default">Cancel</button></p>';
+		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 0; padding: 10px 120px 10px 30px !important; font-size: 18px; text-align: left; line-height: 1.6em">The orders placed on Tables '+tempList.toString()+' will be merged as a single Bill on Table '+tempList[0]+'. This can not be revered. Previously applied discounts will be removed. Are you sure want to Merge Orders? <button class="btn btn-sm btn-success" onclick="mergeBillsInTheHoldList()" style="font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Merge and Bill</button> <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';
 	}
 
 	
@@ -788,7 +794,10 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
     var kotCount = kotList.length;
     var kotCounter = 0;
 
+    var mergingBillingMode = '';
+
     console.log(kotList, tableList)
+
 
     var n = 0;
     while (n < kotCount) {
@@ -806,7 +815,18 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
             if(data.docs.length > 0){
 
-              var kotfile = data.docs[0];
+                    var kotfile = data.docs[0];
+
+                    if(mergingBillingMode == ''){
+                      mergingBillingMode = kotfile.orderDetails.mode;
+                    }
+                    else{
+                      if(mergingBillingMode != kotfile.orderDetails.mode){
+                        //Suspend Merge
+                        showToast('Operation Aborted! Orders have to be billed under same mode', '#e74c3c');
+                        return '';  
+                      }
+                    }
 
                     kotCounter++;
 
@@ -819,7 +839,7 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
                         while (mergedExtras[t]) {
                                 if (mergedExtras[t].name == kotfile.extras[g].name) {
-                                    mergedExtras[t].amount += kotfile.extras[g].amount;
+                                    mergedExtras[t].amount = mergedExtras[t].amount + kotfile.extras[g].amount;
                                     extraDuplicateFlag = true;
                                     break;
                                 }
@@ -861,14 +881,13 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
                         if (!itemDuplicateFlag) { //No duplicate, push the item wholely.
                             mergedCart.push(kotfile.cart[f]);
-                        }   
-
+                        }          
+                    }
 
                         //End of iteration
                         if(kotCount == kotCounter){
                           confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, tableList)
-                        }           
-                    }
+                        }    
 
             }
             else{
@@ -924,6 +943,8 @@ function mergeBillsInTheHoldList(){
 			              while(tableMapping[m]){
 			              	if(holdList[i] == tableMapping[m].table){
 			              		KOTList.push(tableMapping[m].KOT);
+
+                        console.log(tableMapping[m])
 			              		break;
 			              	}
 			              	m++;
@@ -950,50 +971,6 @@ function mergeBillsInTheHoldList(){
     });	
 }
 
-// function preloadTableStatus(mode, currentTableID){
-
-
-//     var requestData = {
-//       "selector"  :{ 
-//                     "identifierTag": "ZAITOON_TABLES_MASTER" 
-//                   },
-//       "fields"    : ["_rev", "identifierTag", "value"]
-//     }
-
-//     $.ajax({
-//       type: 'POST',
-//       url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
-//       data: JSON.stringify(requestData),
-//       contentType: "application/json",
-//       dataType: 'json',
-//       timeout: 10000,
-//       success: function(data) {
-//         if(data.docs.length > 0){
-//           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
-
-// 	          var tableMapping = data.docs[0].value;
-// 	          tableMapping.sort(); //alphabetical sorting 
-
-// 		      window.localStorage.tableMappingData = JSON.stringify(tableMapping);
-// 		      renderCurrentPlan(mode, currentTableID);	          
-
-                
-//           }
-//           else{
-//             showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-//           }
-//         }
-//         else{
-//           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-//         }
-
-//       },
-//       error: function(data) {
-//         showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-//       }
-
-//     });
-// }
 
 function preloadTableStatus(mode, currentTableID){
 
@@ -1141,7 +1118,7 @@ function preloadTableStatus(mode, currentTableID){
 
 					              document.getElementById("confirmationRenderArea").style.display = 'block';
 					              document.getElementById("confirmationRenderArea").style.background = '#3498db';
-					              document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 21px; text-align: left;">Select Orders to Merge Bills <button style="font-size: 18px" class="btn btn-default" onclick="cancelBillMerge()">Cancel</button></p>';
+					              document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 18px; text-align: left;">Select Orders to Merge Bills <button class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;" onclick="cancelBillMerge()">Cancel</button></p>';
 
 					     }
 					     else{
