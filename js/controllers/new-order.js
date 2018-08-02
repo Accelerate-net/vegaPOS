@@ -2609,6 +2609,12 @@ function updateTokenCountOnServer(nextToken, revID){
 }
 
 
+
+/*
+	CUSTOMER DETAILS MANAGEMENT
+*/
+
+
 function suggestCustomerInfoFromMobile(mode, inputElement){
 
 	var mobileNumber = '';
@@ -2676,6 +2682,7 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 
 	      }
 	      else{ //USER NOT FOUND
+
 	      	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
 	      		//The previous search had found user and set address, name accordingly.
 	      		//So, reset those on this iteration
@@ -2727,8 +2734,6 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 	    }
 	}
 }
-
-
 
 
 function changeCustomerInfo(type, optionalValue){
@@ -3773,6 +3778,120 @@ function generateNewKOT(){
 }
 
 
+
+//Save New Customer to Database
+
+function addCustomerToDatabase(customerData){
+
+	customerData._id = customerData.mobile;
+
+	//Post to local Server
+	$.ajax({
+	    type: 'POST',
+	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/',
+	    data: JSON.stringify(customerData),
+	    contentType: "application/json",
+	    dataType: 'json',
+	    timeout: 10000,
+	    success: function(data) {
+
+        },
+        error: function(data) {
+                	
+        }
+	});  
+
+}
+
+function updateCustomerAddressOnDatabase(mobile, newAddress){
+
+    var requestData = { "selector" :{ "_id": mobile }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          		var userData = data.docs[0];
+          		userData.savedAddresses.push(newAddress);
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_users/'+mobile+'/',
+                  data: JSON.stringify(userData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                  	console.log(data)
+                  },
+                  error: function(data) {
+                      
+                  }
+                }); 
+        }
+      },
+      error: function(data) {
+        
+      }
+
+    }); 
+}
+
+
+function removeCustomerAddressFromDatabase(mobile, addressID){
+
+    var requestData = { "selector" :{ "_id": mobile }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          		var userData = data.docs[0];
+          		var n = 0;
+          		while(userData.savedAddresses[n]){
+          			if(userData.savedAddresses[n].id == addressID){
+          				userData.savedAddresses.splice(n, 1);
+          				break;
+          			}
+          			n++;
+          		}
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_users/'+mobile+'/',
+                  data: JSON.stringify(userData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                  	console.log(data)
+                  },
+                  error: function(data) {
+                      
+                  }
+                }); 
+        }
+      },
+      error: function(data) {
+        
+      }
+
+    }); 
+}
+
+
 function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras){
 	/*Process Figures*/
 	var subTotal = 0;
@@ -3881,6 +4000,37 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		orderMetaInfo.onlineOrderDetails = customerInfo.onlineOrderDetails;
 	}
 
+
+	//User not found in DB ==> Add USER to DB
+	if(!window.localStorage.userAutoFound || window.localStorage.userAutoFound == ''){
+		
+		if(customerInfo.mobile != ''){
+
+			var customerObject = {
+				"name": customerInfo.name,
+				"mobile": customerInfo.mobile,
+				"savedAddresses": []
+			}
+
+
+			if(customerInfo.modeType == 'DELIVERY'){
+
+				var address = JSON.parse(decodeURI(customerInfo.mappedAddress));
+
+				customerObject.savedAddresses. push({
+				      "id": 1,
+				      "name": address.name,
+				      "flatNo": address.flatNo,
+				      "flatName": address.flatName,
+				      "landmark": address.landmark,
+				      "area": address.area,
+				      "contact": address.contact
+				    });
+			}
+
+			addCustomerToDatabase(customerObject);				
+		}
+	}
    
     //Check for KOT index on Server
     var requestData = {
@@ -4845,6 +4995,8 @@ function deleteThisSavedAddress(mobile, addressID){
 	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){//update the server as well
 		chooseAddressFromSavedList();
 		console.log('******** REMINDER: UPDATE SERVER')
+		removeCustomerAddressFromDatabase(mobile, addressID);
+
 
 		//Undo delete
 		var encodedAddress = encodeURI(JSON.stringify(memoriseAddressForRecovery));
@@ -4898,9 +5050,8 @@ function saveNewDeliveryAddressAutoRecovery(encodedAddress){
 	var address = JSON.parse(decodeURI(encodedAddress));
 
 	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
-		//update the server as well
-		console.log('******** REMINDER: UPDATE SERVER')
-	
+		
+		
 
 		//modify user auto found details
 		var backup_userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
@@ -4916,6 +5067,10 @@ function saveNewDeliveryAddressAutoRecovery(encodedAddress){
 			
 			window.localStorage.userDetailsAutoFound = JSON.stringify(backup_userInfoAutoFound);
 		}
+
+		//update the server as well
+		console.log('******** REMINDER: UPDATE SERVER')
+		updateCustomerAddressOnDatabase(backup_userInfoAutoFound.mobile, address);
 
 	}
 
@@ -4945,7 +5100,6 @@ function saveNewDeliveryAddress(newAddressAssignedID){
 		}
 	}
 	
-
 
 	var address = {};
 
@@ -4977,7 +5131,6 @@ function saveNewDeliveryAddress(newAddressAssignedID){
 		address.flatName = document.getElementById("add_new_deliveryAddress_flatName").value;
 		address.landmark = document.getElementById("add_new_deliveryAddress_landmark").value;
 		address.area = document.getElementById("add_new_deliveryAddress_area").value;
-
 	}
 
 
@@ -4991,8 +5144,9 @@ function saveNewDeliveryAddress(newAddressAssignedID){
 	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
 		//User found --> Update address to the Server
 		//update the server as well
+		
 		console.log('******** REMINDER: UPDATE SERVER')
-	
+		updateCustomerAddressOnDatabase(userInfoAutoFound.mobile, address);
 
 		//modify user auto found details
 		var backup_userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
@@ -5712,3 +5866,11 @@ function initMenuSuggestion(){
 
     });
 }
+
+
+
+
+
+
+
+
