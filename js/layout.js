@@ -159,6 +159,199 @@ applyPersonalisations();
 
 
 
+
+/* Apply Shortcuts */
+function applyShortcuts(){
+  
+    //Read from Server, apply changes, and save to LocalStorage
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SHORTCUT_KEYS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+                    window.localStorage.custom_shortcut_keys = JSON.stringify(settingsList[n].data);
+                    initialiseKeyboardShortcuts();
+                    break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Keyboard Shortcuts data not found. Please contact Accelerate Support.', '#e74c3c');
+            initialiseKeyboardShortcuts();
+          }
+        }
+        else{
+          showToast('Not Found Error: Keyboard Shortcuts data not found. Please contact Accelerate Support.', '#e74c3c');
+          initialiseKeyboardShortcuts();
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Keyboard Shortcuts data. Please contact Accelerate Support.', '#e74c3c');
+        initialiseKeyboardShortcuts();
+      }
+
+    });    
+}
+
+applyShortcuts();
+
+
+
+/* KEYBOARD SHORTCUTS using MousetrapJS */
+
+function initialiseKeyboardShortcuts(){
+  var shortcutsData = window.localStorage.custom_shortcut_keys ? JSON.parse(window.localStorage.custom_shortcut_keys) : [];
+
+  var n = 0;
+  while(shortcutsData[n]){
+
+    if(shortcutsData[n].value != ''){
+      switch(shortcutsData[n].name){
+
+        case "Punch Item":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                $("#add_item_by_search").focus();
+                return false;
+            })
+
+          break;
+        }
+        case "Change Quantity":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                
+                return false;
+            })
+
+          break;
+        }
+        case "Delete Item":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                
+                return false;
+            })
+
+          break;
+        }
+        case "Print Items View":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                
+                return false;
+            })
+
+          break;
+        }
+        case "Print KOT":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                $("#triggerClick_PrintKOTButton").click();
+                return false;
+            })
+          break;
+        }
+        case "Print Bill":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                $("#triggerClick_PrintBillButton").click();
+                return false;
+            })
+          break;
+        }
+        case "Close Preview":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                $("#triggerClick_HideCartButton").click();
+                return false;
+            })
+
+          break;
+        }
+        case "Shift Table":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                
+                return false;
+            })
+
+          break;
+        }
+        case "Recent Printed Bills":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                
+                return false;
+            })
+
+          break;
+        }
+        case "Cancel Bill":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                
+                return false;
+            })
+
+          break;
+        } 
+        case "Issue Refund":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                
+                return false;
+            })
+
+          break;
+        } 
+        case "Table View":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                $("#triggerClick_TableAddressButton").click();
+                return false;
+            })
+
+          break;
+        }
+        case "Go to Settings":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                $("#triggerClick_TableAddressButton").click();
+                return false;
+            })
+
+          break;
+        }
+        case "Refresh Application":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                $("#triggerClick_TableAddressButton").click();
+                return false;
+            })
+
+          break;
+        }
+      }
+    }
+
+    n++;
+  }
+
+  console.log('recording...')
+}
+
+
 /* Apply Personalisations */
 function applySystemOptionSettings(){
   

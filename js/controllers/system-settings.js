@@ -1337,6 +1337,7 @@ function saveToShortcutData(settingsList, rev){
                       timeout: 10000,
                       success: function(data) {
                         renderCurrentKeys();
+                        applyShortcuts();
                       },
                       error: function(data) {
                         showToast('System Error: Unable to update Shortcut Keys data. Please contact Accelerate Support.', '#e74c3c');

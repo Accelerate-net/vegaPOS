@@ -1,20 +1,4 @@
-/* Key Watcher using MousetrapJS */
-Mousetrap.bind('4', function() { console.log('4'); });
-
-    //Open Address or Table Window
-    Mousetrap.bind(['command+a', 'ctrl+a'], function() {
-        $("#triggerClick_TableAddressButton").click();
-
-        // return false to prevent default browser behavior
-        // and stop event from bubbling
-        return false;
-    })
-
-    //Pending Saved Orders
-    Mousetrap.bind(['command+h', 'ctrl+h'], function() {
-        $("#triggerClick_SavedOrdersButton").click();
-        return false;
-    })
+	
 
 
 //Trigger Right Panel 
@@ -880,7 +864,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
 	                        '<div class="col-xs-12" style="padding: 0">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()">Close</button>'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()" id="triggerClick_HideCartButton" >Close</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                     '</div>';
@@ -892,12 +876,12 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
 	                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button>'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>'+
 	                           '</div>'+
 	                        '</div>'+ 		
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print Bill</button>'+
+	                              '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Print Bill</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                     '</div>';
@@ -916,7 +900,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
 	                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button>'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -926,7 +910,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                        '</div>'+
 	                        '<div class="col-xs-4" style="padding: 0">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()">Print Changed KOT</button>'+
+	                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
 	                           '</div>'+
 	                        '</div>'+                           
 	                     '</div>';
@@ -941,11 +925,11 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
 	                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button>'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;">Print Bill</button>'+
+	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Print Bill</button>'+
 	                        '</div>'+                            
 	                     '</div>';
  		}
@@ -958,7 +942,7 @@ else{
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
 	                        '<div class="col-xs-12" style="padding: 0">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()">Close</button>'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()" id="triggerClick_HideCartButton" >Close</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                     '</div>';
@@ -970,7 +954,7 @@ else{
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #bdc3c7 !important" class="btn bg-purple btn-block btn-flat" onclick="clearCurrentOrder()">Close</button>'+
+                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #bdc3c7 !important" class="btn bg-purple btn-block btn-flat" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
@@ -983,7 +967,7 @@ else{
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
                               '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
-                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()">Close</button>'+
+                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
@@ -996,12 +980,12 @@ else{
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
                               '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
-                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()">Close</button>'+
+                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()">Print KOT</button>'+
+                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print KOT</button>'+
                            '</div>'+
                         '</div>'+                    
                      '</div>';
