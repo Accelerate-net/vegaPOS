@@ -523,8 +523,6 @@ function swapTableMapping(old, newTable){
                 var memory_status, memory_assigned, memory_KOT, memory_lastTime;
                 var oldValueDetected = false;
 
-
-
                 for(var i=0; i<tableMapping.length; i++){
                   
                   if(tableMapping[i].table == old){ 

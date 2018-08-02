@@ -16,7 +16,7 @@ function openSystemSettings(id){
       break;
     } 
     case "keyboardShortcuts":{
- 
+      renderCurrentKeys();
       break;
     } 
     case "systemSecurity":{
@@ -1084,3 +1084,422 @@ function systemOptionOnlineOrderDefaultTakeaway(){
   window.localStorage.systemOptionsSettings_defaultTakeawayMode = optName;
   changeSystemOptionsFile("defaultTakeawayMode", optName); 
 }
+
+
+
+
+
+// CUSTOM KEYSBOARD SHORTCUTS 
+
+function renderCurrentKeys(){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SHORTCUT_KEYS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              var renderContent = '';
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+                    //Render
+                    for (var i=0; i<params.length; i++){
+
+                      var key_selected = (params[i].value).split('+'); 
+
+                      renderContent += '<div class="row" style="margin-top: 5px">'+
+                                          '<div class="col-sm-8">'+
+                                             '<p style="color: #000; font-weight: 500; margin: 0; padding: 5px 0;">'+params[i].name+'</p>'+
+                                          '</div>'+
+                                          '<div class="col-sm-4">'+
+                                             (params[i].value != '' ? '<tag class="removeShortCutIcon" onclick="unsetShortcutKey(\''+params[i].name+'\')"><i class="fa fa-minus-circle"></i></tag>' : '')+
+                                             '<button class="btn btn-sm btn-default" onclick="openKeySelectionModal(\''+params[i].name+'\', \''+key_selected[0]+'\', \''+(key_selected[1] ? key_selected[1] : '')+'\')" style="width: 100%; font-weight: bold; text-transform: uppercase">'+(key_selected[0] && key_selected[0] != '' ? key_selected[0]+(key_selected[1] ? ' + '+key_selected[1] : '') : '<tag style="font-style: italic; text-transform: initial; color: #5d5d5d; font-weight: initial;">Not Set</tag>')+'</button>'+
+                                          '</div>'+
+                                      '</div>';
+                    } //end FOR (Render)
+
+                    document.getElementById("shortCutsRenderPlane").innerHTML = renderContent;
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Shortcut Keys data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+function openKeySelectionModal(brief, key_one, key_two){
+
+  document.getElementById("selectShortKeysModal").style.display = 'block'; 
+  document.getElementById("selectShortKeysModalBrief").innerHTML = 'Select the short keys to <b>'+brief+'</b>'; 
+  document.getElementById("selectShortKeysModalActions").innerHTML = '<button class="btn btn-default" style="width: 30%; border: none; border-radius: 0" onclick="selectShortKeysModalHide()" style="float: left">Cancel</button>'+
+                                                '<button style="width: 70%; border: none; border-radius: 0; margin: 0; float: right;" class="btn btn-success" onclick="saveShortKeySelection(\''+brief+'\')">Save</button>'; 
+
+   $("#wholeKeyboard .keySelectionDetector").each(function(){
+      if($(this).attr("key-value") == key_one || $(this).attr("key-value") == key_two){
+        $(this).addClass('active');
+      }
+      else{
+        $(this).removeClass('active');
+      }
+  });  
+
+
+}
+
+function selectShortKeysModalHide(){
+  document.getElementById("selectShortKeysModal").style.display = 'none';
+}
+
+
+function saveShortKeySelection(brief){
+
+  var selectedNormalKey = '';
+  var selectedTriggerKey = '';
+
+
+  $("#wholeKeyboard .keySelectionDetector").each(function(){
+      if($(this).hasClass("active")){
+        if($(this).attr("key-value") == 'ctrl' || $(this).attr("key-value") == 'shift' || $(this).attr("key-value") == 'alt'){
+          selectedTriggerKey = $(this).attr("key-value");
+        }
+        else{
+          selectedNormalKey = $(this).attr("key-value");
+        }
+      }
+  });  
+
+  //Check if Criteria has been followed
+  if(selectedNormalKey == '' && selectedTriggerKey == ''){
+    showToast('Error: Select atleast one key', '#e74c3c');
+    return '';
+  }
+
+  if(selectedNormalKey == '' && selectedTriggerKey != ''){
+    showToast('Error: Select atleast one key other than Shift or Ctrl or Alt', '#e74c3c');
+    return '';
+  }
+
+
+  var reservedKeysData = [{ "name": "Select all text", "value": "ctrl+a" }, { "name": "Copy selected text", "value": "ctrl+c" }, { "name": "Cut currently selected text", "value": "ctrl+x" }, { "name": "Paste clipboard text", "value": "ctrl+v" } ];
+  
+  for (var i=0; i<reservedKeysData.length; i++){
+
+      var key_selected = (reservedKeysData[i].value).split('+'); 
+
+      if(selectedTriggerKey != ''){
+          if((key_selected[0] == selectedTriggerKey && key_selected[1] == selectedNormalKey) || (key_selected[1] == selectedTriggerKey && key_selected[0] == selectedNormalKey)){
+              showToast('Error: It is a System Reserved key. Choose a different Key.', '#e74c3c');
+              return '';
+          }
+      }
+      else{
+          if((key_selected[0] == selectedNormalKey) && key_selected.length == 1){
+              showToast('Error: It is a System Reserved key. Choose a different Key.', '#e74c3c');
+              return '';
+          }
+      }
+  }
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SHORTCUT_KEYS" 
+                  }
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              var replaceIndex = -1;
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    //inner FOR
+                    for (var i=0; i<settingsList[n].data.length; i++){
+
+                      var key_selected = (settingsList[n].data[i].value).split('+'); 
+
+                      if(selectedTriggerKey != ''){
+                        if((key_selected[0] == selectedTriggerKey && key_selected[1] == selectedNormalKey) || (key_selected[1] == selectedTriggerKey && key_selected[0] == selectedNormalKey)){
+                          showToast('Error: Shortcut Key already exists. Choose a different Key.', '#e74c3c');
+                          return '';
+                        }
+                      }
+                      else{
+                        if((key_selected[0] == selectedNormalKey) && key_selected.length == 1){
+                          showToast('Error: Shortcut Key already exists. Choose a different Key.', '#e74c3c');
+                          return '';
+                        }
+                      }
+
+                      //Find the index at which the key has to be set
+                      if(settingsList[n].data[i].name == brief){
+                        replaceIndex = i;
+                      }
+
+                      if((i == settingsList[n].data.length - 1) && replaceIndex > -1){ //last iteration and replace index is found
+                        settingsList[n].data[replaceIndex].value = selectedTriggerKey != '' ? selectedTriggerKey+'+'+selectedNormalKey : selectedNormalKey;
+                        selectShortKeysModalHide();
+                        saveToShortcutData(settingsList, data.docs[0]._rev);
+                      }
+                    } //end inner FOR
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Shortcut Keys data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
+
+function saveToShortcutData(settingsList, rev){
+
+                    //Update
+                    var updateData = {
+                      "_rev": rev,
+                      "identifierTag": "ZAITOON_SHORTCUT_KEYS",
+                      "value": settingsList
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SHORTCUT_KEYS/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        renderCurrentKeys();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Shortcut Keys data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });     
+}
+
+function unsetShortcutKey(brief){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SHORTCUT_KEYS" 
+                  }
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = 'Kitchen Kiosk';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              var replaceIndex = -1;
+
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+
+                    for (var i=0; i<settingsList[n].data.length; i++){
+                      if(settingsList[n].data[i].name == brief){
+                        settingsList[n].data[i].value = '';
+                        break;
+                      }
+                    }
+
+                    saveToShortcutData(settingsList, data.docs[0]._rev);
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Shortcut Keys data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
+
+function recordShortKey(element){
+
+  //Criterias
+  /*
+    > Max 2 Keys
+    > Either Single Key from F1 - F12 or A - Z
+    > Or a combination of one key and Shift/Ctrl/Alt
+    > Shift or Ctrl or Alt => Only one at a time
+  */
+
+  //Pre check : Max of 2 keys at a time.
+  var selectedKeysCount = 0;
+  var hasCtrlShiftAltSelected = false;
+  var hasNormalKeySelected = false;
+
+
+  $("#wholeKeyboard .keySelectionDetector").each(function(){
+      if($(this).hasClass("active")){
+        if($(this).attr("key-value") == 'ctrl' || $(this).attr("key-value") == 'shift' || $(this).attr("key-value") == 'alt'){
+          hasCtrlShiftAltSelected = true;
+        }
+        else{
+          hasNormalKeySelected = true;
+        }
+        selectedKeysCount++;
+      }
+  });  
+
+  if(element.classList.contains("active")){
+    element.classList.remove("active")
+  }
+  else{
+    if(selectedKeysCount < 2){
+      if($(element).attr("key-value") == 'ctrl' || $(element).attr("key-value") == 'shift' || $(element).attr("key-value") == 'alt'){
+        if(hasCtrlShiftAltSelected){
+          showToast('Warning: Shift or Ctrl or Alt - Use only one at a time', '#e67e22');
+          return '';
+        }
+        else{
+          element.classList.add("active");
+        }
+      }
+      else{ //Any Normal Key
+        if(hasNormalKeySelected){
+          showToast('Warning: Use Shift or Ctrl or Alt if you want', '#e67e22');
+          return '';
+        }
+        else{
+          element.classList.add("active");
+        }        
+      }
+      
+    }
+    else{
+      showToast('Warning: Maximum of 2 keys can be selected', '#e67e22');
+      return '';
+    }
+  }
+} 
+
+
+function openDefaultKeys(){
+  document.getElementById("systemReservedShortCutsModal").style.display = 'block';
+
+  var dataSet = [{ "name": "Select all text", "value": "ctrl+a" }, { "name": "Copy selected text", "value": "ctrl+c" }, { "name": "Cut currently selected text", "value": "ctrl+x" }, { "name": "Paste clipboard text", "value": "ctrl+v" } ];
+
+  var renderContent = '';
+
+  var n = 0;
+  while(dataSet[n]){
+
+    var key_selected = (dataSet[n].value).split('+'); 
+
+    renderContent += '<div class="row" style="margin-top: 5px">'+
+                       '<div class="col-sm-8"> <p style="color: #000; font-weight: 500; margin: 0; padding: 5px 0;">'+dataSet[n].name+'</p> </div>'+
+                       '<div class="col-sm-4"> <button class="btn btn-sm btn-default" style="width: 100%; font-weight: bold; text-transform: uppercase" disabled>'+(key_selected[0] && key_selected[0] != '' ? key_selected[0]+(key_selected[1] ? ' + '+key_selected[1] : '') : '<tag style="font-style: italic; text-transform: initial; color: #5d5d5d; font-weight: initial;">Not Set</tag>')+'</button> </div>'+
+                    '</div>'
+    n++;
+  }
+
+  document.getElementById("renderAreaSystemShorts").innerHTML = renderContent;
+}
+
+
+function systemReservedShortCutsModalHide(){
+  document.getElementById("systemReservedShortCutsModal").style.display = 'none'; 
+}
+
+
+
+
+
+
+
+
+
+

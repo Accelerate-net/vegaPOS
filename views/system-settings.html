@@ -286,18 +286,13 @@
 
                         <div class="row">
                             <div class="col-lg-12">
-                               <div class="well well-sm">
-                                  <p>Please set your shortcuts as you like, you can use F1 - F2 or any other key combinations with Crtl, Alt and Shift.</p>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="focus_add_item">Focus add/search item input</label> <input type="text" name="focus_add_item" value="ALT+F1" class="form-control tip" id="focus_add_item">
-                                     </div>
-                                  </div>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="add_customer">Add Customer</label> <input type="text" name="add_customer" value="ALT+F2" class="form-control tip" id="add_customer">
-                                     </div>
-                                  </div>
+                               <div class="well well-sm" style="margin: 0">
+                                  <p>You can use any keys F1 - F12 and A - Z. And any other key combinations with Crtl or Alt or Shift. A few key combinations are <tag onclick="openDefaultKeys()" class="systemShortcutIcon">System Reserved Shortcuts</tag> and which can not be used.</p>
+
+                                  <div id="shortCutsRenderPlane"></div>
+
+
+                                  <!-- 
                                   <div class="col-md-4 col-sm-4">
                                      <div class="form-group">
                                         <label for="toggle_category_slider">Toggle Category Slider</label> <input type="text" name="toggle_category_slider" value="ALT+F10" class="form-control tip" id="toggle_category_slider">
@@ -342,7 +337,7 @@
                                      <div class="form-group">
                                         <label for="close_register">Close Register</label> <input type="text" name="close_register" value="ALT+F7" class="form-control tip" id="close_register">
                                      </div>
-                                  </div>
+                                  </div> -->
                                   <div class="clearfix"></div>
                                </div>
                             </div>
@@ -448,6 +443,8 @@
    </div>
 </div>
 
+
+
 <!-- Modal -->
 <div id="confirmCurrentPassCodeModal" class="modal" style="display: none;">
    <div class="modal-dialog" style="top: 20%; width: 27em !important;">
@@ -527,7 +524,107 @@
         </div>
 
 
+        <!-- Modal -->
+        <div id="selectShortKeysModal" class="modal">
+           <div class="modal-dialog" style="top: 20%">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 20px;">
+                    
+                    <p id="selectShortKeysModalBrief" style="font-size: 18px; text-align: center"></p>
+                    
+                    <div style="text-align: center" id="wholeKeyboard">
 
+                      <div class="keyboardKeysSet" style="border-bottom: 1px solid #f4f4f4; margin-bottom: 15px; padding: 10px 0;">
+                        <button onclick="recordShortKey(this)" key-value="f1" class="keySelectionDetector keySelectionButton">F1</button>
+                        <button onclick="recordShortKey(this)" key-value="f2" class="keySelectionDetector keySelectionButton">F2</button>
+                        <button onclick="recordShortKey(this)" key-value="f3" class="keySelectionDetector keySelectionButton">F3</button>
+                        <button onclick="recordShortKey(this)" key-value="f4" class="keySelectionDetector keySelectionButton">F4</button>
+                        <button onclick="recordShortKey(this)" key-value="f5" class="keySelectionDetector keySelectionButton">F5</button>
+                        <button onclick="recordShortKey(this)" key-value="f6" class="keySelectionDetector keySelectionButton">F6</button>
+                        <button onclick="recordShortKey(this)" key-value="f7" class="keySelectionDetector keySelectionButton">F7</button>
+                        <button onclick="recordShortKey(this)" key-value="f8" class="keySelectionDetector keySelectionButton">F8</button>
+                        <button onclick="recordShortKey(this)" key-value="f9" class="keySelectionDetector keySelectionButton">F9</button>
+                        <button onclick="recordShortKey(this)" key-value="f10" class="keySelectionDetector keySelectionButton">F10</button>
+                        <button onclick="recordShortKey(this)" key-value="f11" class="keySelectionDetector keySelectionButton">F11</button>
+                        <button onclick="recordShortKey(this)" key-value="f12" class="keySelectionDetector keySelectionButton">F12</button>
+                      </div>
+
+                      <div class="keyboardKeysSet">
+                        <button onclick="recordShortKey(this)" key-value="q" class="keySelectionDetector keySelectionButton">Q</button>
+                        <button onclick="recordShortKey(this)" key-value="w" class="keySelectionDetector keySelectionButton">W</button>
+                        <button onclick="recordShortKey(this)" key-value="e" class="keySelectionDetector keySelectionButton">E</button>
+                        <button onclick="recordShortKey(this)" key-value="r" class="keySelectionDetector keySelectionButton">R</button>
+                        <button onclick="recordShortKey(this)" key-value="t" class="keySelectionDetector keySelectionButton">T</button>
+                        <button onclick="recordShortKey(this)" key-value="y" class="keySelectionDetector keySelectionButton">Y</button>
+                        <button onclick="recordShortKey(this)" key-value="u" class="keySelectionDetector keySelectionButton">U</button>
+                        <button onclick="recordShortKey(this)" key-value="i" class="keySelectionDetector keySelectionButton">I</button>
+                        <button onclick="recordShortKey(this)" key-value="o" class="keySelectionDetector keySelectionButton">O</button>
+                        <button onclick="recordShortKey(this)" key-value="p" class="keySelectionDetector keySelectionButton">P</button>
+                      </div>
+
+                      <div class="keyboardKeysSet" style="padding-top: 5px">
+                        <button onclick="recordShortKey(this)" key-value="a" class="keySelectionDetector keySelectionButton">A</button>
+                        <button onclick="recordShortKey(this)" key-value="s" class="keySelectionDetector keySelectionButton">S</button>
+                        <button onclick="recordShortKey(this)" key-value="d" class="keySelectionDetector keySelectionButton">D</button>
+                        <button onclick="recordShortKey(this)" key-value="f" class="keySelectionDetector keySelectionButton">F</button>
+                        <button onclick="recordShortKey(this)" key-value="g" class="keySelectionDetector keySelectionButton">G</button>
+                        <button onclick="recordShortKey(this)" key-value="h" class="keySelectionDetector keySelectionButton">H</button>
+                        <button onclick="recordShortKey(this)" key-value="j" class="keySelectionDetector keySelectionButton">J</button>
+                        <button onclick="recordShortKey(this)" key-value="k" class="keySelectionDetector keySelectionButton">K</button>
+                        <button onclick="recordShortKey(this)" key-value="l" class="keySelectionDetector keySelectionButton">L</button>
+                      </div>
+
+                      <div class="keyboardKeysSet" style="border-bottom: 1px solid #f4f4f4; margin-bottom: 15px; padding: 5px 0 10px 0;">
+                        <button onclick="recordShortKey(this)" key-value="z" class="keySelectionDetector keySelectionButton">Z</button>
+                        <button onclick="recordShortKey(this)" key-value="x" class="keySelectionDetector keySelectionButton">X</button>
+                        <button onclick="recordShortKey(this)" key-value="c" class="keySelectionDetector keySelectionButton">C</button>
+                        <button onclick="recordShortKey(this)" key-value="v" class="keySelectionDetector keySelectionButton">V</button>
+                        <button onclick="recordShortKey(this)" key-value="b" class="keySelectionDetector keySelectionButton">B</button>
+                        <button onclick="recordShortKey(this)" key-value="n" class="keySelectionDetector keySelectionButton">N</button>
+                        <button onclick="recordShortKey(this)" key-value="m" class="keySelectionDetector keySelectionButton">M</button>
+                      </div>
+
+                      <div class="keyboardKeysSet" style="padding-top: 5px">
+                        <tag onclick="recordShortKey(this)" key-value="shift" class="keySelectionDetector keySelectionButtonKey shiftKeyButton"></tag>
+                        <tag onclick="recordShortKey(this)" key-value="ctrl" class="keySelectionDetector keySelectionButtonKey ctrlKeyButton"></tag>
+                        <tag onclick="recordShortKey(this)" key-value="alt" class="keySelectionDetector keySelectionButtonKey altKeyButton"></tag>
+                      </div>
+
+                    </div>
+
+                 </div>
+                 <div class="modal-footer" style="padding: 0; border: none" id="selectShortKeysModalActions"></div>
+
+              </div>
+           </div>
+        </div>
+
+
+
+
+        <!-- Modal -->
+        <div id="systemReservedShortCutsModal" class="modal">
+           <div class="modal-dialog" style="top: 20%">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 20px;">
+                    <p style="font-size: 18px; text-align: center">System Reserved Shortcuts</p>
+                              
+                              <div class="well well-sm" style="margin: 0">
+                                  <div id="renderAreaSystemShorts"></div>          
+                                  <div class="clearfix"></div>
+                               </div>                    
+
+                 </div>
+                 <div class="modal-footer" style="padding: 0; border: none">
+                  <button class="btn btn-default" style="width: 100%; border: none; border-radius: 0" onclick="systemReservedShortCutsModalHide()" style="float: left">Close</button>
+                </div>
+
+
+              </div>
+           </div>
+        </div>
 
 
 

@@ -4082,3 +4082,100 @@ position: absolute;
     text-align: center;
 }
 
+
+.keySelectionButton{
+  width: 7%; border: 1px solid #8ca4af; 
+    background: #cdd8dc;
+    color: #4f6f7b;
+  font-weight: bold; border-radius: 4px;
+  margin: 0 2px 2px 0;
+}
+
+.keySelectionButton:hover, .keySelectionButton:active, .keySelectionButton:focus{
+  outline: none !important;
+}
+
+.keySelectionButton:hover{
+  background: #c7c7c7;
+  color: #fff;
+}
+
+.keySelectionButton.active{
+  background: #1abc9c !important;
+  color: #fff !important;
+  border-color: #16a085 !important;
+}
+
+.keySelectionButtonKey{
+  margin: 0 2px 2px 0;
+  cursor: pointer;
+}
+
+
+.altKeyButton{
+    background: url(../images/keys/key_alt_gray.png) no-repeat center center;
+    background-size: 48px;
+    width: 36px !important;
+    display: inline-block;
+    padding: 0;
+    height: 36px !important;
+}
+
+.altKeyButton.active{
+    background: url(../images/keys/key_alt_green.png) no-repeat center center !important;
+    background-size: 48px !important; 
+}
+
+
+.ctrlKeyButton{
+    background: url(../images/keys/key_ctrl_gray.png) no-repeat center center;
+    background-size: 48px;
+    width: 36px !important;
+    display: inline-block;
+    padding: 0;
+    height: 36px !important;
+}
+
+.ctrlKeyButton.active{
+    background: url(../images/keys/key_ctrl_green.png) no-repeat center center !important;
+    background-size: 48px !important; 
+}
+
+
+.shiftKeyButton{
+    background: url(../images/keys/key_shift_gray.png) no-repeat center center;
+    background-size: 48px;
+    width: 36px !important;
+    display: inline-block;
+    padding: 0;
+    height: 36px !important;
+}
+
+.shiftKeyButton.active{
+    background: url(../images/keys/key_shift_green.png) no-repeat center center !important;
+    background-size: 48px !important; 
+}
+
+.systemShortcutIcon{
+  color: #40769c;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.systemShortcutIcon:hover{
+  color: #56abe6;
+}
+
+
+.removeShortCutIcon{
+    position: absolute;
+    left: -5px;
+    top: 5px;
+    width: 20px;
+    color: #c1c0c0;
+    cursor: pointer;
+}
+
+.removeShortCutIcon:hover,.removeShortCutIcon:focus,.removeShortCutIcon:active{
+    color: #f92355;
+}

@@ -19,7 +19,7 @@ Notes:
 15.B Remove when billed.)
 16. Remove all impurities from final BILL
 17. Custom landing page (PERSONALISATION for each Machine)
-18. Continues status check for ONLINE ORDER COUNT (Layout.js) --> Only if PERSONALISATION Enbled.
+18. [DONE] - Continues status check for ONLINE ORDER COUNT (Layout.js) --> Only if PERSONALISATION Enbled.
 19. REMOVE SYSTEM NAME --> Kitchen Kiosk added everywhere
 20. Tax EXEMPTED List (item wise - Pepsie exempted from GST)
 21. Option, if price is inclusive of taxes already (Just show the figures or add it to grand sum?)
@@ -28,6 +28,9 @@ Notes:
 23.B Reason for Cancellation (add in Personalisations)
 23.C Incase of NO REFUND/PARTIAL ==> Where does that amount GO?! 
 24. Cancellation SUMMARY (Refunds, Number of Cancellations etc.)
+25. Item Change (Chicken --> Mutton Biryani)
+26. Shift items to different table
+27. Choose Delivery Agent (for in-restaurant Delivery)
 
 
 Reserved Keywords:
