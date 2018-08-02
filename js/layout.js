@@ -1815,6 +1815,9 @@ function showSpotlight(){
                       renderSpotlightPreview(liSelected.attr("spot-preview-type"), liSelected.attr("spot-preview-data"));
                   }
               }else if(e.which === 38){
+
+                  $('#spotlightSearchKey').focus().val($('#spotlightSearchKey').val()); //TWEAK!
+
                   if(liSelected){
                       liSelected.removeClass('active');
                       next = liSelected.prev();

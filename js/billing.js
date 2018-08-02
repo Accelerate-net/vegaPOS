@@ -406,6 +406,9 @@ function openApplyBillCouponWindow(kotID, optionalPageRef){
   document.getElementById("applyBillCouponButton").classList.remove('btn-default');
   document.getElementById("applyBillCouponButton").classList.add('btn-success');
 
+  $('#applyBillCouponWindow_code').focus();
+  $('#applyBillCouponWindow_code').select();
+
 }
 
 
@@ -682,6 +685,9 @@ function openApplyBillDiscountWindow(kotID, optionalPageRef){
   document.getElementById("applyBillDiscountButton").classList.remove('btn-default');
   document.getElementById("applyBillDiscountButton").classList.add('btn-success');
 
+  $('#applyBillDiscountWindow_value').focus();
+  $('#applyBillDiscountWindow_value').select();
+
 }
 
 
@@ -900,10 +906,6 @@ function closeApplyBillDiscountWindow(kotID, optionalPageRef){
 
 
 
-
-
-
-
 /*APPLY EXTRA CHARGES*/
 
 function openApplyCustomExtraWindow(kotID, optionalPageRef){
@@ -965,6 +967,10 @@ function openApplyCustomExtraWindow(kotID, optionalPageRef){
     document.getElementById("applyCustomExtraWindowActions").style.display = 'block';
     document.getElementById("applyCustomExtraButton").classList.remove('btn-default');
     document.getElementById("applyCustomExtraButton").classList.add('btn-success');
+
+
+  $('#applyCustomExtraWindow_value').focus();
+  $('#applyCustomExtraWindow_value').select();
 
 }
 
@@ -1225,6 +1231,11 @@ function openMarkNoCostBill(kotID, optionalPageRef){
   document.getElementById("applyNoCostBillButton").classList.remove('btn-default');
   document.getElementById("applyNoCostBillButton").classList.add('btn-success');
 
+
+  $('#applyNoCostBillWindow_comments').focus();
+  $('#applyNoCostBillWindow_comments').select();
+
+  
 }
 
 function closeApplyNoCostBillWindow(kotID, optionalPageRef){

@@ -5502,6 +5502,7 @@ function openItemWiseCommentModal(itemCode, variant){
                									'<button id="itemWiseCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="addCommentToItem(\''+itemCode+'\', \''+variant+'\')" style="float: right">Save Comment</button>';
 
         $("#add_item_wise_comment").focus();
+        $("#add_item_wise_comment").select();
 
         var duplicateClick = false;
         $('#add_item_wise_comment').keyup(function(e) {
