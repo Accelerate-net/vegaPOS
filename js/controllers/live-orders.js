@@ -43,7 +43,7 @@ function renderAllKOTs() {
                                 var itemsInCart = "";
                                 var items = "";
 
-                                begKOT = '<li> <a href="#" onclick="liveOrderOptions(\''+kot.KOTNumber+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
+                                begKOT = '<li> <a href="#" '+getColorPaper(kot.timeKOT == '' ? kot.timePunch : kot.timeKOT)+' onclick="liveOrderOptions(\''+kot.KOTNumber+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
                                 while (i < kot.cart.length) {
                                     itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ '</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
                                     i++;
@@ -79,6 +79,28 @@ function renderAllKOTs() {
       }
 
     }); 
+}
+
+function getColorPaper(lastUpdate){
+  
+  var recordedTime = moment(lastUpdate, 'hhmm');
+  var timeNow = moment(new Date(), 'hhmm');
+  var duration = (moment.duration(timeNow.diff(recordedTime))).asSeconds();
+
+  if(duration < 0){
+    var midnight = moment('2359', 'hhmm');
+    var firstDuration = (moment.duration(recordedTime.diff(midnight))).asSeconds();
+    var secondDuration = (moment.duration(midnight.diff(timeNow))).asSeconds();
+    duration = firstDuration + secondDuration;
+  }
+
+  if(duration > 900 && duration < 1800){ //More than 15 minutes
+    return 'style="background: #ffc"'; //Yellow
+  }
+  else if(duration >= 1800){ //More than 30 Minutes
+    return 'style="background: #fcc"'; //Red
+  }
+  
 }
 
 
