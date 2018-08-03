@@ -2818,12 +2818,15 @@ function initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentSta
 
   if(paymentStatus == 'PAID'){ //Order is PAID
     document.getElementById("refundCancelOrderBar").style.display = 'block';
-    document.getElementById("refundCancelOrderBar").innerHTML = '<label>Refund Status</label> <select id="bill_cancel_why_isrefund" class="form-control" onchange="changeBillCancelWhyIsRefunding('+totalPaid+')"> <option value="1">No Refund</option> <option value="2">Partial Refund</option> <option value="3">Full Refund</option> </select>';
+    document.getElementById("refundCancelOrderBar").innerHTML = '<label>Refund Status</label> <select id="bill_cancel_why_isrefund" class="form-control" onchange="changeBillCancelWhyIsRefunding('+totalPaid+')"> <option value="1" selected>No Refund</option> <option value="2">Partial Refund</option> <option value="3">Full Refund</option> </select>';
     $('#bill_cancel_why_isrefund').val(1);
   }
   else{
     document.getElementById("refundCancelOrderBar").style.display = 'none';
   }
+
+  document.getElementById("refundCancelOrderAmountBar").style.display = 'none';
+  document.getElementById("refundCancelOrderModeBar").style.display = 'none';
 
   $('#bill_cancel_why_comments').val('');
   $('#bill_cancel_why_comments').focus();

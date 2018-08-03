@@ -2524,7 +2524,7 @@ function changeCancelledFilterSearchCriteria(){
 	    });
 	}
 	else if(criteria == 'refund'){
-	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only Orders with <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="fullrefund">Full Refund</option><option value="partialrefund">Partial Refund</option><option value="partialrefund">No Refund</option></select>issued</p>';
+	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only Orders with <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="fullrefund">Full Refund</option><option value="partialrefund">Partial Refund</option><option value="norefund">No Refund</option></select>issued</p>';
 	}
 	else if(criteria == 'all'){
 	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Showing <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="all">All the Orders</option></select></p>';
