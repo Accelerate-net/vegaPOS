@@ -425,6 +425,21 @@ function loadAllCancelledUnbilled(optionalSource){
 				break;
 			}
 
+			case "refund":{
+				/*
+					FILTER REFUNDED OR NON-REFUNDED ORDERS
+				*/
+
+			  	//TWEAK: No refund for Unbilled orders!
+
+				document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+				document.getElementById("filterResultsCounter").innerHTML = '';
+				filterResultsCount = 0;
+				renderBillPageDefault('UNBILLED');
+
+				break;
+			}
+
 			case "table":{
 				/*
 					FILTER USING TABLE NUMBER 
@@ -1401,6 +1416,90 @@ function loadAllCancelledInvoices(){
 
 				break;
 			}
+
+
+			case "refund":{
+				/*
+					FILTER REFUNDED OR NON-REFUNDED ORDERS
+				*/
+
+				console.log('am here')
+
+			  	//TWEAK -- Get the count for Pagination
+			  	if(currentPage == 1){
+				  	$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						timeout: 10000,
+						success: function(data) {
+
+							totalPages = Math.ceil(data.rows.length/10);
+							filterResultsCount = data.rows.length;
+							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
+
+					    	if(totalPages == 0){
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+								document.getElementById("filterResultsCounter").innerHTML = '';
+								filterResultsCount = 0;
+								renderCancelledPageDefault('CANCELLED');
+								return '';
+						    }
+
+
+						}
+					});  
+				}
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					timeout: 10000,
+					success: function(data) {
+
+				      var resultsList = data.rows;
+				      var resultRender = '';
+
+					  if(resultsList.length == 0){
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						filterResultsCount = 0;
+						renderCancelledPageDefault('CANCELLED');
+						return '';
+					  }
+
+					    var n = 0;
+					    while(resultsList[n]){
+					      	var bill = resultsList[n].doc;
+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
+				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
+				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
+				                            '    </tr>';
+					      	n++;
+					    }
+
+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+			      
+				      	renderCancelledPageDefault('CANCELLED')
+
+					},
+					error: function(data){
+						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');
+					}
+				});  
+
+
+				break;
+			}
+
 
 			case "table":{
 				/*
@@ -2424,6 +2523,9 @@ function changeCancelledFilterSearchCriteria(){
 
 	    });
 	}
+	else if(criteria == 'refund'){
+	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only Orders with <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="fullrefund">Full Refund</option><option value="partialrefund">Partial Refund</option><option value="partialrefund">No Refund</option></select>issued</p>';
+	}
 	else if(criteria == 'all'){
 	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Showing <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="all">All the Orders</option></select></p>';
 	}
@@ -2442,7 +2544,7 @@ function filterSearchCancelledInitialize(optionalRoute){
 
 	searchMode = document.getElementById("filterSearchCriteria").value;
 
-	if(searchMode == 'payment' || searchMode == 'type' || searchMode == 'steward' || searchMode == 'session' || searchMode == 'machine' || searchMode == 'all'){
+	if(searchMode == 'payment' || searchMode == 'type' || searchMode == 'steward' || searchMode == 'session' || searchMode == 'machine' || searchMode == 'refund' || searchMode == 'all'){
 		searchKey = document.getElementById("filterSearchCriteriaSelected").value;
 	}
 	else{
