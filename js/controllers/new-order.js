@@ -751,7 +751,19 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 		//Calculate Discount and Custom Extra
 
-		discountValue = calculableOriginalKOT.discount.amount ? calculableOriginalKOT.discount.amount : 0;
+		if(calculableOriginalKOT.discount.value && calculableOriginalKOT.discount.value != 0){
+
+			if(calculableOriginalKOT.discount.unit == 'PERCENTAGE'){
+				discountValue = calculableOriginalKOT.discount.value * tot/100;
+			}
+			else{
+				discountValue = calculableOriginalKOT.discount.value;
+			}
+		}
+
+		discountValue = Math.round(discountValue * 100) / 100;
+
+
 
 		if(calculableOriginalKOT.customExtras.value && calculableOriginalKOT.customExtras.value != 0){
 	
@@ -762,17 +774,18 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				otherCustomChargesValue = calculableOriginalKOT.customExtras.value;
 			}
 		}
+
 		otherCustomChargesValue = Math.round(otherCustomChargesValue * 100) / 100;
 
 		 
           if(otherChargerRenderCount%2 == 0){
-          	otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : 'Rs.'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td></tr>'+
-          				'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td>'+
+          	otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td></tr>'+
+          				'<tr class="info"><td width="35%" class="cartSummaryRow">'+( discountValue != 0 ? 'Discounts ('+(calculableOriginalKOT.discount.unit == 'PERCENTAGE'? calculableOriginalKOT.discount.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.discount.value)+') ' : 'Discounts' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td>'+
           				'<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
           }
           else{
-          	otherCharges = otherCharges + '</tr> <tr class="info"><td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : 'Rs.'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td>'+
-          					'<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td></tr>';
+          	otherCharges = otherCharges + '</tr> <tr class="info"><td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td>'+
+          					'<td width="35%" class="cartSummaryRow">'+( discountValue != 0 ? 'Discounts ('+(calculableOriginalKOT.discount.unit == 'PERCENTAGE'? calculableOriginalKOT.discount.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.discount.value)+') ' : 'Discounts' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td></tr>';
           }
     }
     else{ //Not editing, new order being punched - Discount, other charges can not be applied at this stage -> both equals to 0
@@ -814,13 +827,10 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 
           if(otherChargerRenderCount%2 == 0){
-          	otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">Other Charges</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td></tr>'+
-          				'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>'+
-          				'<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
+          	otherCharges = otherCharges + '<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
           }
           else{
-          	otherCharges = otherCharges + '</tr> <tr class="info"><td width="35%" class="cartSummaryRow">Other Charges</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>'+
-          					'<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td></tr>';
+          	otherCharges = otherCharges + '</tr>';
           }
     }
 
@@ -881,7 +891,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                        '</div>'+ 		
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Print Bill</button>'+
+	                              '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                     '</div>';
@@ -929,7 +939,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Print Bill</button>'+
+	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
 	                        '</div>'+                            
 	                     '</div>';
  		}
@@ -3578,10 +3588,149 @@ function generateEditedKOT(){
 		j++;
 	}
 
-	console.log('Change History:')
-	console.log(comparisonResult)
-
+	generateEditedKOTAfterProcess(originalData.KOTNumber, changed_cart_products, changedCustomerInfo, comparisonResult)
 }
+
+
+function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject){
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          
+          var kot = data.docs[0];
+
+          //Updates the KOT
+          kot.customerMobile = changedCustomerInfo.mobile;
+          kot.customerName = changedCustomerInfo.name;
+          kot.guestCount = changedCustomerInfo.count;
+          kot.timeKOT = getCurrentTime('TIME');
+          kot.cart = newCart;
+
+          if(window.localStorage.specialRequests_comments && window.localStorage.specialRequests_comments != ''){
+          	kot.specialRemarks = window.localStorage.specialRequests_comments;
+          }
+
+          var allergyData = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
+          kot.allergyInfo = allergyData;
+
+
+
+			/* RECALCULATE New Figures*/
+			var subTotal = 0;
+
+			var n = 0;
+			while(kot.cart[n]){
+				subTotal = subTotal + kot.cart[n].qty * kot.cart[n].price;
+				n++;
+			}
+
+			/*Calculate Taxes and Other Charges*/
+	        var k = 0;
+	        if(kot.extras.length > 0){
+	          	for(k = 0; k < kot.extras.length; k++){
+
+	          		var tempExtraTotal = 0;
+	          		if(kot.extras[k].value != 0){
+	          			if(kot.extras[k].unit == 'PERCENTAGE'){
+	          				tempExtraTotal = kot.extras[k].value * subTotal/100;
+	          			}
+	          			else if(kot.extras[k].unit == 'FIXED'){
+	          				tempExtraTotal = kot.extras[k].value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		kot.extras[k] = {
+				 		"name": kot.extras[k].name,
+						"value": kot.extras[k].value,
+						"unit": kot.extras[k].unit,
+						"amount": tempExtraTotal
+	          		};
+	          	}
+	        }
+
+	        /*Calculate Discounts if Any*/     
+	        if(kot.discount){
+	          		var tempExtraTotal = 0;
+	          		if(kot.discount.value != 0){
+	          			if(kot.discount.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = kot.discount.value * subTotal/100;
+	          			}
+	          			else if(kot.discount.unit == 'FIXED'){
+	          				tempExtraTotal = kot.discount.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		kot.discount.amount = tempExtraTotal;
+	        }
+
+
+	        /*Calculate Custom Extras if Any*/     
+	        if(kot.customExtras){
+	          		var tempExtraTotal = 0;
+	          		if(kot.customExtras.value != 0){
+	          			if(kot.customExtras.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = kot.customExtras.value * subTotal/100;
+	          			}
+	          			else if(kot.customExtras.unit == 'FIXED'){
+	          				tempExtraTotal = kot.customExtras.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		kot.customExtras.amount = tempExtraTotal;
+	        }
+
+
+          	  //Update on Server
+              
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
+                  data: JSON.stringify(kot),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                  	  clearAllMetaData();
+                  	  renderCustomerInfo();
+                      sendKOTChangesToPrinter(kot, compareObject);
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });         
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    }); 
+}
+
+
+function sendKOTChangesToPrinter(kotObject, compareObject){
+
+	console.log(kotObject, compareObject)
+}
+
 
 /* to quick view what items got removed */
 function quickViewRemovedItems(){
@@ -3877,14 +4026,15 @@ function removeCustomerAddressFromDatabase(mobile, addressID){
 
 
 function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras){
-	/*Process Figures*/
-	var subTotal = 0;
+		
+		/*Process Figures*/
+		var subTotal = 0;
 
-	var n = 0;
-	while(cart_products[n]){
-		subTotal = subTotal + cart_products[n].qty * cart_products[n].price;
-		n++;
-	}
+		var n = 0;
+		while(cart_products[n]){
+			subTotal = subTotal + cart_products[n].qty * cart_products[n].price;
+			n++;
+		}
 
 		  /*Calculate Taxes and Other Charges*/ 
           var otherCharges = [];        
@@ -4053,12 +4203,16 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 	          obj.customerName = customerInfo.name;
 	          obj.customerMobile = customerInfo.mobile; 
-	          obj.guestCount = customerInfo.count;
+	          obj.guestCount = customerInfo.count && customerInfo.count != '' ? parseInt(customerInfo.count) : '';
+
+	          obj.machineName = window.localStorage.appCustomSettings_SystemName ? window.localStorage.appCustomSettings_SystemName : '';
+	          
+	          var sessionInfo = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData) : {};
+	          obj.sessionName = sessionInfo.name ? sessionInfo.name : '';
 
 	          obj.stewardName = loggedInStaffInfo.name;
 	          obj.stewardCode = loggedInStaffInfo.code;
 
-	          obj.orderStatus = 1;
 	          obj.date = today;
 	          obj.timePunch = time;
 	          obj.timeKOT = "";

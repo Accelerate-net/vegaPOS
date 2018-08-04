@@ -35,10 +35,11 @@ function generateBillFromKOT(kotID, optionalPageRef){
 
           var kotfile = data.docs[0];
 
-          if(kotfile.customerName != customerInfo.name || kotfile.customerMobile != customerInfo.mobile){
+          if(kotfile.customerName != customerInfo.name || kotfile.customerMobile != customerInfo.mobile || kotfile.guestCount != customerInfo.count){
             console.log('KOT not updated on server.. please update me ***')
             kotfile.customerName = customerInfo.name;
             kotfile.customerMobile = customerInfo.mobile;
+            kotfile.guestCount = customerInfo.count ? customerInfo.count : '';
 
             generateBillSuccessCallback('CHANGE_CUSTOMERINFO', optionalPageRef, kotfile); 
           }
@@ -141,8 +142,8 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
 
           //Discount
           var discountTag = '';
-          if(kotfile.discount.amount &&  kotfile.discount.amount != 0){
-            discountTag = '<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i>'+kotfile.discount.amount+'</td>';
+          if(kotfile.discount.amount && kotfile.discount.amount != 0){
+            discountTag = '<td width="35%" class="cartSummaryRow">Discount '+(kotfile.discount.unit == 'PERCENTAGE' ? '('+kotfile.discount.value+'%)' : kotfile.discount.unit == 'FIXED' ? '(<i class="fa fa-inr"></i>'+kotfile.discount.value+')' : '')+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i>'+kotfile.discount.amount+'</td>';
             //'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i>'+kotfile.discount.amount+'</td>';
             otherChargesSum = otherChargesSum - kotfile.discount.amount;
           }
@@ -155,7 +156,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
           //Customisable Extras
           var customExtraTag = '';
           if(kotfile.customExtras.amount &&  kotfile.customExtras.amount != 0){
-            customExtraTag = '<td width="35%" class="cartSummaryRow">'+kotfile.customExtras.type+' ('+(kotfile.customExtras.unit == 'PERCENTAGE'? kotfile.customExtras.value+'%' : 'Rs.'+kotfile.customExtras.value)+')</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;"><i class="fa fa-inr"></i>'+kotfile.customExtras.amount+'</td>';
+            customExtraTag = '<td width="35%" class="cartSummaryRow">'+kotfile.customExtras.type+' ('+(kotfile.customExtras.unit == 'PERCENTAGE'? kotfile.customExtras.value+'%' : '<i class="fa fa-inr"></i>'+kotfile.customExtras.value)+')</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;"><i class="fa fa-inr"></i>'+kotfile.customExtras.amount+'</td>';
             otherChargesSum = otherChargesSum + kotfile.customExtras.amount;
           }
           else{
@@ -1629,8 +1630,43 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
       else if(action == 'CHANGE_CUSTOMERINFO'){
         alreadyEditingKOT.customerName = modifiedKOTFile.customerName;
         alreadyEditingKOT.customerMobile = modifiedKOTFile.customerMobile;
-
+        alreadyEditingKOT.guestCount = modifiedKOTFile.guestCount;
         window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT); 
+
+              //Update changes on Server
+              var requestData = { "selector" :{ "KOTNumber": alreadyEditingKOT.KOTNumber }}
+
+              $.ajax({
+                type: 'POST',
+                url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+                dataType: 'json',
+                timeout: 10000,
+                success: function(data) {
+                  if(data.docs.length > 0){
+                    
+                    var kot = data.docs[0];
+
+                    kot.customerMobile = alreadyEditingKOT.customerMobile;
+                    kot.customerName = alreadyEditingKOT.customerName;
+                    kot.guestCount = alreadyEditingKOT.guestCount;
+
+                          //Update on Server
+                          $.ajax({
+                            type: 'PUT',
+                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
+                            data: JSON.stringify(kot),
+                            contentType: "application/json",
+                            dataType: 'json',
+                            timeout: 10000,
+                            success: function(data) {
+                              console.log('Saved KOT on Server')
+                            }
+                          });         
+                  }
+                }
+              });         
       }
 
       break;
@@ -1910,6 +1946,20 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
           kotfile.timeBill = getCurrentTime('TIME');
           
+
+          //Remove Unwanted Stuff
+          delete kotfile.specialRemarks;
+          delete kotfile.allergyInfo;
+
+          var c = 0;
+          while(kotfile.cart[c]){
+            
+            delete kotfile.cart[c].ingredients;
+            delete kotfile.cart[c].comments;
+            
+            c++;
+          }
+
 
           /*Save NEW BILL*/
 
@@ -2637,7 +2687,7 @@ function settleBillAndPushAuto(bill, optionalPageRef){
 
     bill.paymentReference = "Prepaid Order";
     bill.timeSettle = getCurrentTime('TIME');
-    bill.totalAmountPaid = parseFloat(bill.payableAmount).toFixed(2);
+    bill.totalAmountPaid = Math.round(bill.payableAmount * 100) / 100;
     bill.paymentMode = "PREPAID";
     bill.dateStamp = getCurrentTime('DATE_STAMP');
 
@@ -2896,6 +2946,8 @@ function processCancelSettledBill(billNumber, optionalPageRef){
     if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
       refund_status_flag = 6;
     }
+
+    refund_amount = Math.round(refund_amount * 100)/100;
 
     var cancelObj = {
             "timeCancel" : current_time,

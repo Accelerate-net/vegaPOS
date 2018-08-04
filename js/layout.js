@@ -224,6 +224,15 @@ applyShortcuts();
 /* KEYBOARD SHORTCUTS using MousetrapJS */
 
 function initialiseKeyboardShortcuts(){
+
+  /* Default Shortcuts */
+  Mousetrap.bind(['ctrl+y'], function() {
+    showSpotlight();
+    return false;
+  })
+
+
+
   var shortcutsData = window.localStorage.custom_shortcut_keys ? JSON.parse(window.localStorage.custom_shortcut_keys) : [];
 
   var n = 0;
@@ -232,6 +241,14 @@ function initialiseKeyboardShortcuts(){
     if(shortcutsData[n].value != ''){
       switch(shortcutsData[n].name){
 
+        case "Show Spotlight Search":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                showSpotlight();
+                return false;
+            })
+
+          break;
+        }
         case "Punch Item":{
           Mousetrap.bind([shortcutsData[n].value], function() {
                 $("#add_item_by_search").focus();
@@ -1729,7 +1746,18 @@ function hideSpotlight(){
 
 function showSpotlight(){
 
+        var cancelSpotlightTool = $(document).on('keydown',  function (e) {
+          if($('#spotlightSearchTool').is(':visible')) {
+              if(e.which == 27){
+                hideSpotlight();
+                cancelSpotlightTool.unbind();
+              }      
+          }
+        });
+
         document.getElementById("spotlightSearchTool").style.display = "block";
+        document.getElementById("spotlightRenderPanel").style.display = "none";
+        
         $("#spotlightSearchKey").focus();
 
         //Initialise
