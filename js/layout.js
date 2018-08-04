@@ -1333,6 +1333,7 @@ function CheckIdleTime(mode) {
       else if(mode == 'LOCKSCREEN'){
             if (idleSecondsCounter >= IDLE_TIMEOUT) {
               document.getElementById("inactivityLock").style.display = 'block';
+              $('#lockScreePasscode').focus();
             }
       }
 }
@@ -1392,6 +1393,7 @@ function validateScreenLockCode(code){
 
 function lockScreen(){
   document.getElementById("inactivityLock").style.display = 'block';
+  $('#lockScreePasscode').focus();
 }
 
 

@@ -26,11 +26,7 @@ function openSystemSettings(id){
     case "systemSecurity":{
       renderSecurityOptions();
       break;
-    }  
-    case "resetOptions":{
- 
-      break;
-    }            
+    }          
 	}
 }
 
@@ -1274,73 +1270,6 @@ function performRecoveryResetLogin(){
     }
 
   });    
-}
-
-
-
-/*RESET OPTIONS*/
-
-function masterResetConfirm(){
-  document.getElementById("masterResetConfirmModal").style.display = 'block';
-}
-
-function masterResetConfirmHide(){
-  document.getElementById("masterResetConfirmModal").style.display = 'none';
-}
-
-
-function masterResetAction(){
-
-  masterResetConfirmHide();
-  document.getElementById("fullScreenLoader").style.display = 'block';
-
-  //test unit
-  var resetLinks = [{
-                    "name": "Billing Modes",
-                    "url": "./data/static/test.json",
-                    "type": "json"
-                  }, {
-                    "name": "Billing Parameters",
-                    "url": "./data/static/test.json",
-                    "type": "json"
-                  }];
-
-  //DELETE MENU IMAGES !
-
-  var n = 0;
-  var actualCount = 1;
-  while(resetLinks[n]){
-
-       var content;
-       if(resetLinks[n].type == 'json'){
-        content = JSON.stringify([]);
-        }else if(resetLinks[n].type == 'counter'){
-          content = 1;
-        }else{
-          content = '';
-        }
-       fs.writeFile(resetLinks[n].url, content, 'utf8', (err) => {
-         if(err){
-            showToast('System Reset failed!', 'red');
-            document.getElementById("fullScreenLoader").style.display = 'none';
-            return '';
-         }
-
-         if(actualCount == resetLinks.length){
-          resetFinished();
-         }
-
-         actualCount++;
-
-       }); 
-    n++;
-  }
-  
-}
-
-function resetFinished(){
-  showToast('System Reset Completed!', 'green');
-  document.getElementById("fullScreenLoader").style.display = 'none';  
 }
 
 
