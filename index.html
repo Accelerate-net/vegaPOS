@@ -83,7 +83,6 @@
     </div> 
 
 
-
     <!-- SERVER CONNECTION FAILURE : SCREEN LOCK -->
     <div id="serverConnectionFailureLock" style="display: none">
         <div id="wrapper">
@@ -102,6 +101,61 @@
         </div>
     </div> 
 
+
+
+
+    <!-- APPLICATION ACTIVATION : SCREEN LOCK -->
+    <div id="applicationActivationLock" style="display: none">
+        <div id="wrapper">
+            <section id="mainLock" style="padding: 35px 44px 20px 44px">
+                <header>
+                    <span class=""><img src="images/common/application_not_activated.png" alt=""></span>
+                    <h1 style="font-size: 28px; color: #edac0d; font-family: 'Roboto';">Application not Activated</h1>
+                </header>
+
+                <form style="margin: 0;" id="applicationActivationLockDefault">
+                    <p style="color: #777">Please connect to Internet and Activate the Application.</p>
+                    <a href="#" onclick="activateApplicationFromHomeScreen()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Activate</a>
+                </form>
+
+                <form style="margin: 0; display: none" id="applicationActivationLockActive">
+                     
+                     <div class="row">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Enter Code" style="border: none; font-size: 21px; border-bottom: 1px solid #c9c9c9; padding: 10px 0; height: 45px; margin-top: 15px; text-align: center; text-transform: uppercase; letter-spacing: 5px; font-weight: bold; color: black;" class="form-control tip" id="activation_code_home_entered"/>
+                           </div>
+                        </div>
+                     </div>
+
+                    <a href="#" onclick="goProceedToActivation()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Activate Now</a>
+
+                </form>
+
+            </section>
+        </div>
+    </div> 
+
+
+
+
+
+    <!-- APPLICATION ACTIVATION : SCREEN LOCK -->
+    <div id="applicationExpireLock" style="display: none">
+        <div id="wrapper">
+            <section id="mainLock" style="padding: 35px 44px 20px 44px">
+                <header>
+                    <span class=""><img src="images/common/application_expired.png" alt=""></span>
+                    <h1 style="font-size: 28px; color: #edac0d; font-family: 'Roboto';">Licence Expired</h1>
+                </header>
+
+                <form style="margin: 0;">
+                    <p style="color: #777">Renew the Licence to continue using the Application. Contact <b>support@accelerate.net.in</b> for assistance.</p>
+                    <a href="#" onclick="applyLicenceTerms()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Refresh</a>
+                </form>
+            </section>
+        </div>
+    </div> 
 
 
         <div class="wrapper rtl rtl-inv">
@@ -440,6 +494,28 @@
       </div>
    </div>
 
+
+
+
+
+
+   <!-- Modal -->
+   <div id="sessionSwapWarning" class="modal">
+      <div class="modal-dialog" style="top: 20%">
+         <!-- Modal content-->
+         <div class="modal-content" style="border-radius: 10px;">
+
+            <div class="modal-header" style="background: #16a085; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+              <h1 style="font-size: 18px; font-weight: 600; margin: 0; text-align: left; color: #fff">Switch Session</h1>
+            </div>
+            <div class="modal-body" style="max-height: 420px; overflow: scroll;">
+              <p id="sessionSwapWarningContent" style="margin: 10px 0; font-size: 16px; line-height: 1.5em; font-weight: 500; color: #16a085;">Test</p>
+            </div>
+            <div class="modal-footer" id="sessionSwapWarningActions">                
+            </div>
+         </div>
+      </div>
+   </div>
 
 
 

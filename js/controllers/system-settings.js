@@ -15,6 +15,10 @@ function openSystemSettings(id){
       renderSystemOptions();
       break;
     } 
+    case "configureSystem":{
+      renderConfigureSystem();
+      break;
+    } 
     case "keyboardShortcuts":{
       renderCurrentKeys();
       break;
@@ -29,6 +33,230 @@ function openSystemSettings(id){
     }            
 	}
 }
+
+
+
+
+/*read system configuration data*/
+function renderConfigureSystem(){
+
+    var licenseRequest = window.localStorage.accelerate_licence_number ? window.localStorage.accelerate_licence_number : '';
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+
+              var machinesList = data.docs[0].value;
+              var machineData = '';
+
+              var n = 0;
+              while(machinesList[n]){
+                if(machinesList[n].licence == licenseRequest){
+                  machineData = machinesList[n];
+                  break;
+                }
+                n++;
+              }
+
+              //Machine Registered Already
+              if(machineData != ''){
+
+                document.getElementById("configureSystemActivationWarning").style.display = 'none';
+                document.getElementById("configureSystemDetailsRender").style.display = 'table';
+
+                $('#system_configure_license_number').val(machineData.licence);
+                $('#edit_main_system_name').val(machineData.machineCustomName);
+
+                if(machineData.isActive){
+                  if(machineData.isTrial){
+                    $('#system_configure_license_expiry').val('Trial expires on '+machineData.dateExpire);
+                  }
+                  else{
+                    $('#system_configure_license_expiry').val('Valid till '+machineData.dateExpire);
+                  }
+                }
+                else{
+                  if(machineData.isTrial){
+                    $('#system_configure_license_expiry').val('Trial expired '+machineData.dateExpire);
+                  }
+                  else{
+                    $('#system_configure_license_expiry').val('Inactive');
+                  }
+                }
+
+                $('#system_configure_license_issued').val(machineData.dateInstall);
+                $('#system_configure_license_uid').val(machineData.machineUID);
+                
+              }
+              else{ //Machine not Activated yet.
+                document.getElementById("configureSystemActivationWarning").style.display = 'block';
+                document.getElementById("configureSystemDetailsRender").style.display = 'none';
+              }
+          }
+          else{
+            showToast('Not Found Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Configured Systems data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });  
+}
+
+
+function openActivationModal(){
+  document.getElementById("applicationActivationModal").style.display = 'block';
+  $('#activation_code_entered').focus();
+}
+
+function openActivationModalHide(){
+  document.getElementById("applicationActivationModal").style.display = 'none';
+}
+
+function proceedToActivation(){
+
+  var activation_code = document.getElementById("activation_code_entered").value;
+
+  if(activation_code == ''){
+    showToast('Warning! Enter Activation Code', '#e67e22');
+    return '';
+  }
+
+      activation_code = activation_code.toUpperCase();
+
+      var admin_data = {
+        "code": activation_code,
+        "secret": "ACCELERATE_VEGA"
+      }
+
+
+      showLoading(10000, 'Activating Application');
+
+      $.ajax({
+        type: 'POST',
+        url: 'https://www.zaitoon.online/services/posactivateapplication.php',
+        data: JSON.stringify(admin_data),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+
+          hideLoading();
+
+          if(data.status){
+            pushLicenseToLocaServer(data.response);
+          }
+          else{
+            if(data.errorCode == 404){
+              showToast(data.error, '#e74c3c');
+              return '';
+            }
+          }
+        },
+        error: function(data){
+          hideLoading();
+          showToast('Failed to reach Activation Server. Please check your connection.', '#e74c3c');
+          return '';
+        }
+      });     
+}
+
+
+function pushLicenseToLocaServer(licenceObject){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+
+             var machinesList = data.docs[0].value;
+
+             for (var i=0; i<machinesList.length; i++) {
+               if(machinesList[i].licence == licenceObject.licence){
+                  showToast('Activation Error: Licence already used. Please contact Accelerate Support.', '#e74c3c');
+                  return '';
+               }
+             }
+
+
+                machinesList.push(licenceObject);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_CONFIGURED_MACHINES",
+                  "value": machinesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_MACHINES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Activation Successful', '#27ae60');
+                      openActivationModalHide();
+
+                      window.localStorage.accelerate_licence_number = licenceObject.licence;
+                      window.localStorage.accelerate_licence_machineUID = licenceObject.machineUID;
+                      renderConfigureSystem();
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update System Configurations data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });  
+          }
+          else{
+            showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read System Configurations data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
 
 
 /*read system options data*/
@@ -116,7 +344,6 @@ function renderSystemOptions(){
 
 function renderSystemOptionsAfterProcess(settingsList, billingModes){
 
-console.log(billingModes)
               var machineName = 'Kitchen Kiosk';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
@@ -695,11 +922,96 @@ function changeSystemName(){
     return '';
   }
 
+  if(newValue == 'Nameless Machine'){
+    showToast('Warning: System Name can not be set as Nameless Machine', '#e67e22');
+    return '';  
+  }
+
   document.getElementById("thisSystemName").innerHTML = newValue;
   window.localStorage.appCustomSettings_SystemName = newValue;
-  changePersonalisationFile('systemName', newValue);
+  changeConfiguredMachineName(newValue);
 }
 
+function changeConfiguredMachineName(newValue){
+
+    var licenseRequest = window.localStorage.accelerate_licence_number ? window.localStorage.accelerate_licence_number : '';
+
+    if(licenseRequest == ''){
+      showToast('System Error: Licence Number not found. Please contact Accelerate Support.', '#e74c3c');
+      return '';
+    }
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+
+              var machinesList = data.docs[0].value;
+
+              var n = 0;
+              while(machinesList[n]){
+                if(machinesList[n].licence == licenseRequest){
+                  machinesList[n].machineCustomName = newValue;
+                  break;
+                }
+
+                n++;
+              }
+
+
+                        //Update
+                        var updateData = {
+                          "_rev": data.docs[0]._rev,
+                          "identifierTag": "ZAITOON_CONFIGURED_MACHINES",
+                          "value": machinesList
+                        }
+
+                        $.ajax({
+                          type: 'PUT',
+                          url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_MACHINES/',
+                          data: JSON.stringify(updateData),
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+
+                          },
+                          error: function(data) {
+                            showToast('System Error: Unable to update Configured Systems data. Please contact Accelerate Support.', '#e74c3c');
+                          }
+
+                        });  
+
+          }
+          else{
+            showToast('Not Found Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Configured Systems data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
 
 
 function changePersonalisationIdleDuration(){

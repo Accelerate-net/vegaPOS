@@ -24,6 +24,255 @@ function timedUpdate () {
 timedUpdate();
 
 
+
+/* Apply LICENCE */
+function applyLicenceTerms(){
+
+    var licenceRequest = window.localStorage.accelerate_licence_number ? window.localStorage.accelerate_licence_number : '';
+
+    if(licenceRequest == ''){
+      document.getElementById("applicationActivationLock").style.display = 'block';
+      playNotificationSound('ERROR');
+      return '';
+    }
+
+    //Read from Server, apply changes, and save to LocalStorage
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+
+              var machinesList = data.docs[0].value;
+
+              var n = 0;
+              while(machinesList[n]){
+
+                if(machinesList[n].licence == licenceRequest){
+
+                  document.getElementById("applicationExpireLock").style.display = 'none';
+
+                  window.localStorage.accelerate_licence_number = machinesList[n].licence;
+                  window.localStorage.accelerate_licence_machineUID = machinesList[n].machineUID;
+                  window.localStorage.appCustomSettings_SystemName = machinesList[n].machineCustomName;
+                  window.localStorage.accelerate_licence_online_enabled = machinesList[n].isOnlineEnabled ? 1 : 0;
+                  
+                  //Licence Expire Check
+                  var myDate = moment(machinesList[n].dateExpire, 'DD-MM-YYYY')
+                  var diff_temp = moment().diff(myDate, 'days');
+                  if(diff_temp > 0){ //Expired!
+                    document.getElementById("applicationExpireLock").style.display = 'block';
+                    showToast('Licence Expired: Please contact Accelerate Support to renew the Licence.', '#e74c3c');
+                    return '';  
+                  }
+
+                  //Check if Local Server is Running
+                  testLocalServerConnection();
+                  applySystemOptionSettings();
+                  applyPersonalisations();
+                  applyShortcuts();
+                  autoSessionSwitchChecker();
+
+                  //If Online enabled
+                  if(machinesList[n].isOnlineEnabled){
+                    getServerConnectionStatus();
+                    getOnlineOrdersCount();
+                  }
+
+                  break;
+                }
+
+                if(n == machinesList.length - 1){ //Last iteration
+                  document.getElementById("applicationActivationLock").style.display = 'block';
+                  playNotificationSound('ERROR');
+                  return '';                  
+                }
+
+                n++;
+              }
+
+              
+
+          }
+          else{
+            showToast('Server Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+            document.getElementById("applicationActivationLock").style.display = 'block';
+            return '';          
+          }
+        }
+        else{
+            showToast('Server Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+            document.getElementById("applicationActivationLock").style.display = 'block';
+            return '';    
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Configured Systems data. Please contact Accelerate Support.', '#e74c3c');
+        document.getElementById("applicationActivationLock").style.display = 'block';
+        return '';          
+      }
+    });  
+  
+}
+
+applyLicenceTerms();
+
+
+/* Easy Activation */
+function activateApplicationFromHomeScreen(){
+  document.getElementById("applicationActivationLockDefault").style.display = 'none';
+  document.getElementById("applicationActivationLockActive").style.display = 'block';
+  $('#activation_code_home_entered').focus();
+}
+
+function activateApplicationFromHomeHide(){
+  document.getElementById("applicationActivationLockDefault").style.display = 'none';
+  document.getElementById("applicationActivationLockActive").style.display = 'block';
+}
+
+function goProceedToActivation(){
+
+  var activation_code = document.getElementById("activation_code_home_entered").value;
+
+  if(activation_code == ''){
+    showToast('Warning! Enter Activation Code', '#e67e22');
+    return '';
+  }
+
+      activation_code = activation_code.toUpperCase();
+
+      var admin_data = {
+        "code": activation_code,
+        "secret": "ACCELERATE_VEGA"
+      }
+
+
+      showLoading(10000, 'Activating Application');
+
+      $.ajax({
+        type: 'POST',
+        url: 'https://www.zaitoon.online/services/posactivateapplication.php',
+        data: JSON.stringify(admin_data),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+
+          hideLoading();
+
+          if(data.status){
+            pushLicenseToLocaServerFromHome(data.response);
+          }
+          else{
+            if(data.errorCode == 404){
+              showToast(data.error, '#e74c3c');
+              return '';
+            }
+          }
+        },
+        error: function(data){
+          hideLoading();
+          showToast('Failed to reach Activation Server. Please check your connection.', '#e74c3c');
+          return '';
+        }
+      });     
+}
+
+
+function pushLicenseToLocaServerFromHome(licenceObject){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+
+             var machinesList = data.docs[0].value;
+
+             for (var i=0; i<machinesList.length; i++) {
+               if(machinesList[i].licence == licenceObject.licence){
+                  showToast('Activation Error: Licence already used. Please contact Accelerate Support.', '#e74c3c');
+                  return '';
+               }
+             }
+
+
+                machinesList.push(licenceObject);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_CONFIGURED_MACHINES",
+                  "value": machinesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_MACHINES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Activation Successful', '#27ae60');
+                      activateApplicationFromHomeHide();
+
+                      window.localStorage.accelerate_licence_number = licenceObject.licence;
+                      window.localStorage.accelerate_licence_machineUID = licenceObject.machineUID;
+                  
+                    document.getElementById("applicationActivationLock").style.display = 'none';
+                      applyLicenceTerms();
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update System Configurations data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });  
+          }
+          else{
+            showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read System Configurations data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+
+
 /* Apply Personalisations */
 function applyPersonalisations(){
   
@@ -100,12 +349,6 @@ function applyPersonalisations(){
                         /*update localstorage*/             
                         window.localStorage.appCustomSettings_Keyboard = tempVal;
                       }
-                      else if(params[i].name == "systemName"){
-                        var tempVal = params[i].value;
-                        
-                        /*update localstorage*/             
-                        window.localStorage.appCustomSettings_SystemName = tempVal;
-                      }
                       else if(params[i].name == "screenLockOptions"){
                         var tempVal = params[i].value;
                         
@@ -153,10 +396,6 @@ function applyPersonalisations(){
     });  
   
 }
-
-applyPersonalisations();
-
-
 
 
 
@@ -217,7 +456,7 @@ function applyShortcuts(){
     });    
 }
 
-applyShortcuts();
+
 
 
 
@@ -465,8 +704,6 @@ function applySystemOptionSettings(){
   
 }
 
-applySystemOptionSettings();
-
 
 
 function applySystemName(){
@@ -474,8 +711,8 @@ function applySystemName(){
     document.getElementById("thisSystemName").innerHTML = window.localStorage.appCustomSettings_SystemName;
   }
   else{
-    window.localStorage.appCustomSettings_SystemName = 'No Name System';
-    document.getElementById("thisSystemName").innerHTML = 'No Name System';
+    window.localStorage.appCustomSettings_SystemName = 'Nameless Machine';
+    document.getElementById("thisSystemName").innerHTML = 'Nameless Machine';
   }
 }
 
@@ -634,10 +871,94 @@ function getServerConnectionStatus(){
     var t = setTimeout(function() {
       getServerConnectionStatus()
     }, 300000);
+}
+
+
+
+/* Session Auto Switcher */
+function autoSessionSwitchChecker(){
+
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+
+            var sessionsList = data.docs[0].value;
+            var currentSession = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData) : [];
+             
+            var timeNow = moment(new Date(), 'hhmm');
+            var recordedTime = moment(currentSession.timeTo, 'hhmm');
+
+            var duration = (moment.duration(timeNow.diff(recordedTime))).asSeconds();
+            
+
+            if(duration){ //Session over by more than 5 minutes
+               for (var i=0; i<sessionsList.length; i++) {
+
+                  if(sessionsList[i].name != currentSession.name){
+                      var rec_start = moment(sessionsList[i].startTime, 'hhmm');
+                      var rec_end = moment(sessionsList[i].endTime, 'hhmm');
+
+                      var timeStart = (moment.duration(timeNow.diff(rec_start))).asSeconds();
+                      var timeEnd = (moment.duration(timeNow.diff(rec_end))).asSeconds();
+                      
+
+                      if(timeStart > 0 && timeEnd < 0){
+                        //This is the Next Session!
+                        showSessionSuggestion(currentSession, sessionsList[i]);
+                        break;
+                      }
+                  }
+              }
+            }
+
+          }
+        }
+      }
+    });
+
+    //Repeat
+    var t = setTimeout(function() {
+      autoSessionSwitchChecker()
+    }, 300000);
+}
+
+
+function showSessionSuggestion(currentSession, suggestedSession){
+
+  document.getElementById("sessionSwapWarning").style.display = 'block';
+
+  document.getElementById("sessionSwapWarningContent").innerHTML = 'The current <b>'+currentSession.name+' Session</b> (from '+(getFancyTime(currentSession.timeFrom))+' to '+(getFancyTime(currentSession.timeTo))+') has ended already. Do you want to switch to the next <b>'+suggestedSession.name+' Session</b> ('+(getFancyTime(suggestedSession.startTime))+' - '+(getFancyTime(suggestedSession.endTime))+')?';
+  document.getElementById("sessionSwapWarningActions").innerHTML = '<button class="btn btn-default" onclick="hideSessionSuggestion()" style="float: left">Not Now</button>'+
+                  '<button class="btn btn-success" onclick="acceptSessionSuggestion(\''+encodeURI(JSON.stringify(suggestedSession))+'\')" style="float: right">Switch Session</button>';
 
 }
 
-getServerConnectionStatus();
+function hideSessionSuggestion(){
+  document.getElementById("sessionSwapWarning").style.display = 'none';
+}
+
+function acceptSessionSuggestion(encodedSession){
+  var sessionObject = JSON.parse(decodeURI(encodedSession));
+  hideSessionSuggestion();
+  switchSession(sessionObject.name, sessionObject.startTime, sessionObject.endTime);
+}
 
 
 /* CouchDB Local Server Connection Test */
@@ -688,8 +1009,6 @@ function testLocalServerConnection(retryFlag){
             }
         });     
 }
-
-testLocalServerConnection();
 
 
 
@@ -936,9 +1255,6 @@ function getOnlineOrdersCount() {
     getOnlineOrdersCount()
   }, 60000); 
 }
-
-getOnlineOrdersCount();
-
 
 
 

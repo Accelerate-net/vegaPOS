@@ -34,6 +34,7 @@ Notes:
 28. Add Veg/Non Veg, Item Code inputs
 
 
+
 Reserved Keywords:
 PREPAID - In payments (for Online Prepaid orders) <-- Custom name for it in Personalisation (PREPAID == 'Razor Pay Gateway')
 Zaitoon App - In Discounts (for pre applied discounts) <-- add it in Summary page also

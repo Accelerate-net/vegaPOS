@@ -11,10 +11,11 @@
                         
                         </div>
 
+                        <div class="billSettingsOption" onclick="openSystemSettings('configureSystem')"> Configure System<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('keyboardShortcuts')"> Custom Shortcuts <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('personalOptions')"> Personalisations<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
-                        <div class="billSettingsOption" onclick="openSystemSettings('systemOptions')"> System Options<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('systemSecurity')"> Security<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openSystemSettings('systemOptions')"> System Options<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('resetOptions')"> System Reset<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         
                         <div class="clearfix"></div>
@@ -23,6 +24,102 @@
             </div>
 
             <div class="col-xs-6" id="detailsDisplaySystemSettings">
+
+                <!-- Configure System -->
+                <div class="box box-primary" style="display: none" id="configureSystem">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">System Configuration</h3>
+                        </div>
+
+                        <div id="configureSystemActivationWarning">
+                          <p>This application is <b>not activated</b> yet. Application can not connect to the local server and sync with cloud server unless you activate.</p>
+
+                          <button class="btn btn-success" onclick="openActivationModal()">Activate Application</button>
+                        </div>
+
+
+
+                        <table style="width: 100%; display: none" id="configureSystemDetailsRender">
+                          <col width="40%">
+                          <col width="60%">
+
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Application License</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input style="font-size: 14px; border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: bold; text-transform: uppercase; background: none; letter-spacing: 2px;" id="system_configure_license_number" disabled class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Custom Machine Name</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="changeSystemName()" style="font-size: 18px; border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; color: #ff4757; font-weight: 400;" id="edit_main_system_name" placeholder="Set System Name" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Status</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: 400; background: none; color: gray" id="system_configure_license_expiry" class="form-control tip" disabled/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>     
+
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Machine UID</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: 400; background: none; color: gray" id="system_configure_license_uid" class="form-control tip" disabled/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>     
+
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Activation Date</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: 400; background: none; color: gray" id="system_configure_license_issued" class="form-control tip" disabled/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>                                                    
+
+
+                        </table>  
+
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
 
 
                 <!-- System Options -->
@@ -178,19 +275,6 @@
                                    </div>                                   
 
                                 </div>
-                            </td>
-                          </tr>
-
-                          <tr>
-                            <td style="vertical-align: middle; font-weight: bold;">System Name</td>
-                            <td style="padding-top:10px">
-                              <div class="row">
-                                <div class="col-lg-12">
-                                  <div class="form-group">
-                                     <input onchange="changeSystemName()" style="font-size: 21px; border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; color: #ff4757; font-weight: 400;" id="edit_main_system_name" placeholder="Set System Name" class="form-control tip"/>
-                                  </div>
-                                </div>
-                              </div>
                             </td>
                           </tr>
 
@@ -627,7 +711,33 @@
         </div>
 
 
-
+      <!-- Modal -->
+      <div id="applicationActivationModal" class="modal">
+         <div class="modal-dialog" style="top: 20%">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <button type="button" onclick="openActivationModalHide()" style="float: right;" class="btn clearButton">X</button>
+                  <h4 class="modal-title"><b>Activate Application</b></h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow: scroll">
+                  <form action="" method="post" accept-charset="utf-8">
+                     <div class="row">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Enter Code" style="border: none; font-size: 21px; border-bottom: 1px solid #c9c9c9; padding: 10px 0; height: 45px; margin-top: 15px; text-align: center; text-transform: uppercase; letter-spacing: 5px; font-weight: bold; color: black;" class="form-control tip" id="activation_code_entered"/>
+                           </div>
+                        </div>
+                     </div>
+                  </form>
+               </div>
+               <div class="modal-footer">
+                  <button type="button" class="btn btn-default" onclick="openActivationModalHide()" style="float: left">Cancel</button>
+                  <button type="button" class="btn btn-success" onclick="proceedToActivation()">Activate Now</button>
+               </div>
+            </div>
+         </div>
+      </div>
 
 
 </template>
