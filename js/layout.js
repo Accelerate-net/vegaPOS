@@ -1972,7 +1972,7 @@ function renderSpotlightPreview(type, encodedData){
       console.log('Render Preview... [Tables]')
       var info = JSON.parse(decodeURI(encodedData));
       if(info.status == 0){
-        renderTemplate = '<div style="height: 96px"><img src="images/common/table_free.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">Table <b style="font-size: 120%">'+info.table+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Free Table</div>'; 
+        renderTemplate = '<div style="height: 96px"><img src="images/common/table_free.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">Table <b style="font-size: 120%">'+info.table+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Free Table</div><p style="font-size: 12px; color: #879094;">'+(info.capacity)+' Seater</p>';
       }
       else if(info.status == 5){
         if(info.assigned == "Hold Order"){
@@ -2024,11 +2024,14 @@ function renderSpotlightPreview(type, encodedData){
       console.log('Render Preview... [Menu]')
       var info = JSON.parse(decodeURI(encodedData));
       if(info.isAvailable){
-        renderTemplate = '<div style="height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img src="data/photos/menu/'+info.code+'.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Available</div>'; 
+        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img src="data/photos/menu/'+info.code+'.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Available</div>'; 
       }
       else{
-        renderTemplate = '<div style="height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img src="data/photos/menu/'+info.code+'.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Out of Stock</div>'; 
+        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img src="data/photos/menu/'+info.code+'.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Out of Stock</div>'; 
       }
+
+      renderTemplate += '<div style="padding: 0 25px; font-family: sans-serif; font-size: 14px; color: #83838a;">'+(info.vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; display: inline-block; margin-top: -3px;">' : '')+(info.vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; display: inline-block; margin-top: -3px;">' : '')+(info.ingredients && info.ingredients != [] ? ' Contains <b>'+((info.ingredients.toString()).replace(/,/g , ", "))+'</b>' : '')+'</div>';
+
       break;
     }
     case "Customers":{
