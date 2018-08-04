@@ -3323,7 +3323,7 @@ function renderMenu(subtype){
 								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img" style="background: none !important;"><img src="data/photos/menu/'+mastermenu[i].items[j].code+'.jpg" alt="'+mastermenu[i].items[j].name+'" style="width: 110px; height: 110px;"></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
 							}
 							else{
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img"><div id="itemImage">'+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img"><div id="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
 							}
 						}
 						break;
@@ -5925,6 +5925,11 @@ function initMenuSuggestion(){
 					            liSelected = li.eq(0).addClass('selected');
 					        }
 					    }else if(e.which === 38){
+
+					    	/* TWEAK */
+					    	$('#add_item_by_search').focus().val($('#add_item_by_search').val());
+
+
 					        if(liSelected){
 					            liSelected.removeClass('selected');
 					            next = liSelected.prev();
@@ -5975,7 +5980,11 @@ function initMenuSuggestion(){
 					    	count = 0;
 					    	$.each(subMenu.items, function(key_2, items) {
 
-						        if ((items.name.search(regex) != -1)) {
+					    		if(!items.shortCode){
+					    			items.shortCode = '';
+					    		}
+
+						        if ((items.name.search(regex) != -1) || (items.price.search(regex) != -1) || (items.shortCode.search(regex) != -1)) {
 						        	tabIndex = -1;
 						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')</li>'
 						            count++;
