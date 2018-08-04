@@ -71,7 +71,7 @@ function fetchAllPrintersInfo(){
 
 		        var printersList = data.docs[0].value;
 
-            var machineName = 'Kitchen Kiosk';
+            var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
             if(!machineName || machineName == ''){
                 machineName = 'Any';
             }
@@ -188,7 +188,7 @@ function addNewPrinterProfile(){
 
              var printersList = data.docs[0].value;
 
-             var machineName = 'Kitchen Kiosk';
+             var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
              if(!machineName || machineName == ''){
                 machineName = 'Any';
              }
@@ -307,10 +307,12 @@ function deletePrinterProfile(name){
              var printers = [];
              var listIndex = 0;
              
-             var machineName = 'Kitchen Kiosk';
+             var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
              if(!machineName || machineName == ''){
                 machineName = 'Any';
              }
+
+             
 
               for(var i=0; i<printersList.length; i++){
 

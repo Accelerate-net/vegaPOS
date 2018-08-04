@@ -344,7 +344,7 @@ function renderSystemOptions(){
 
 function renderSystemOptionsAfterProcess(settingsList, billingModes){
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }
@@ -486,7 +486,7 @@ function renderPersonalisations(){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }
@@ -593,7 +593,7 @@ function renderSecurityOptions(){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }
@@ -661,7 +661,7 @@ function changeSystemOptionsFile(type, changedValue){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }
@@ -750,7 +750,7 @@ function changePersonalisationFile(type, changedValue){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }
@@ -1425,7 +1425,7 @@ function renderCurrentKeys(){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }
@@ -1568,7 +1568,7 @@ function saveShortKeySelection(brief){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }
@@ -1678,7 +1678,7 @@ function unsetShortcutKey(brief){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }

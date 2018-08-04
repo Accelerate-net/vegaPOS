@@ -4205,7 +4205,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          obj.customerMobile = customerInfo.mobile; 
 	          obj.guestCount = customerInfo.count && customerInfo.count != '' ? parseInt(customerInfo.count) : '';
 
-	          obj.machineName = window.localStorage.appCustomSettings_SystemName ? window.localStorage.appCustomSettings_SystemName : '';
+	          obj.machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
 	          
 	          var sessionInfo = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData) : {};
 	          obj.sessionName = sessionInfo.name ? sessionInfo.name : '';

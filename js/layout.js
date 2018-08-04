@@ -297,7 +297,7 @@ function applyPersonalisations(){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }
@@ -423,7 +423,7 @@ function applyShortcuts(){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }
@@ -632,7 +632,7 @@ function applySystemOptionSettings(){
 
               var settingsList = data.docs[0].value;
 
-              var machineName = 'Kitchen Kiosk';
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
               if(!machineName || machineName == ''){
                 machineName = 'Any';
               }

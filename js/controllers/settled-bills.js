@@ -8,7 +8,6 @@ function loadAllPendingSettlementBills(optionalSource){
 
 	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
 
-
 	/*
 		Frame the FILTER
 	*/
@@ -62,7 +61,7 @@ function loadAllPendingSettlementBills(optionalSource){
 			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
 		}
 		else{
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModal(\'PENDING\')">Apply Filter</button>';
+			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModalBills(\'PENDING\')">Apply Filter</button>';
 		}
 	}
 
@@ -1082,7 +1081,7 @@ function loadAllSettledBills(){
 			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearAppliedFilter(\'SETTLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
 		}
 		else{
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModal(\'SETTLED\')">Apply Filter</button>';
+			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModalBills(\'SETTLED\')">Apply Filter</button>';
 		}
 	}
 
@@ -2292,7 +2291,7 @@ function openSelectedBill(encodedBill, type){
 
 /* SEARCH AND FILTER */
 
-function openFilterModal(optionalRoute){
+function openFilterModalBills(optionalRoute){
 
 	document.getElementById("searchFilterModal").style.display = 'block';
 
@@ -2494,7 +2493,7 @@ function changeFilterSearchCriteria(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_REGISTERED_MACHINES" 
+	                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
@@ -2509,15 +2508,14 @@ function changeFilterSearchCriteria(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_REGISTERED_MACHINES'){
+	          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
 
 	              var modes = data.docs[0].value;
 	              modes.sort(); //alphabetical sorting 
 	              var modesTag = '';
 
-
 	              for (var i=0; i<modes.length; i++){
-	                modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
+	                modesTag = modesTag + '<option value="'+modes[i].machineUID+'">'+modes[i].machineCustomName+'</option>';
 	              }
 
 	              if(modes.length == 0){

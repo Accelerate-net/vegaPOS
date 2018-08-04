@@ -2421,7 +2421,7 @@ function changeCancelledFilterSearchCriteria(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_REGISTERED_MACHINES" 
+	                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
@@ -2436,7 +2436,7 @@ function changeCancelledFilterSearchCriteria(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_REGISTERED_MACHINES'){
+	          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
 
 	              var modes = data.docs[0].value;
 	              modes.sort(); //alphabetical sorting 
@@ -2444,7 +2444,7 @@ function changeCancelledFilterSearchCriteria(){
 
 
 	              for (var i=0; i<modes.length; i++){
-	                modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
+	                modesTag = modesTag + '<option value="'+modes[i].machineUID+'">'+modes[i].machineCustomName+'</option>';
 	              }
 
 	              if(modes.length == 0){
