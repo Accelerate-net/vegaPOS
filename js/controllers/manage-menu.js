@@ -209,10 +209,12 @@ function editItemPrice(encodedItem, inCateogry){
                   												   '<button type="button" onclick="reviewItemPrice(\''+inCateogry+'\')" class="btn btn-success">Save</button>';
 
     //Check if More Options already added
-    if((item.cookingTime && item.cookingTime != '') || (item.ingredients && item.ingredients.length > 0) || (item.shortCode && item.shortCode != '')){
+    if((item.cookingTime && item.cookingTime != '') || (item.ingredients && item.ingredients.length > 0) || (item.shortCode && item.shortCode != '') || item.isPackaged){
 
     	document.getElementById("edit_moreOptionsArea").style.display = 'block';
     	
+    	document.getElementById("packagedItemFlagEdit").checked = item.isPackaged;
+
     	if(item.shortCode && item.shortCode != ''){
     		document.getElementById("edit_more_options_customCode").value = item.shortCode;
     	}
@@ -294,7 +296,29 @@ function editItemPrice(encodedItem, inCateogry){
 	                     '<div id="existingChoices"></div>';
 	}
 
+
+	topEditContent = '<div class="row">'+
+                        '<div class="col-lg-4">'+
+                           '<div class="form-group">'+
+                              '<label for="new_item_name">Item Code</label> <input type="number" value="'+item.code+'" class="form-control tip" id="edit_item_manual_code" disabled/>'+
+                           '</div>'+
+                        '</div>'+
+                        '<div class="col-lg-8">'+
+                           '<div class="form-group">'+
+                              '<label for="new_item_price">Type</label>'+
+                              '<div style="display: block" id="newItemTypeOptions">'+
+                                 '<button onclick="triggerItemType(this)" veg-flag="0" class="btn btn-default foodTypeButton '+(!item.vegFlag || item.vegFlag == 0 ? 'active' : '')+'">Not Set</button>'+
+                                 '<button onclick="triggerItemType(this)" veg-flag="1" class="btn btn-default foodTypeButton '+(item.vegFlag == 1 ? 'active' : '')+'"><img src="images/common/food_veg.png">Vegetarian</button>'+
+                                 '<button onclick="triggerItemType(this)" veg-flag="2" class="btn btn-default foodTypeButton '+(item.vegFlag == 2 ? 'active' : '')+'"><img src="images/common/food_nonveg.png">Non-Vegetarian</button>'+
+                              '</div>'
+                           '</div>'
+                        '</div>'                        
+                     '</div>'
+
+
+	document.getElementById("topEditItemArea").innerHTML = topEditContent;
 	document.getElementById("editItemArea").innerHTML = editContent;
+
 	$("#item_main_name").focus();
 	document.getElementById("editItemCodeSecret").innerHTML = '<input type="hidden" id="item_main_code_secret" value="'+item.code+'"/>';
 
@@ -366,7 +390,22 @@ function removeExtraChoice(){
 
 
 
+function getVegIcon(flag){
 
+	if(!flag || flag == undefined){
+		return '<tag style="display: inline-block; width: 12px"></tag>';
+	}
+
+	if(flag == 1){ //Veg
+		return '<img style="width: 12px; position: relative; top: -2px; left: -5px;" src="images/common/food_veg.png">';
+	}
+	else if(flag == 2){ //Non Veg
+		return '<img style="width: 12px; position: relative; top: -2px; left: -5px;" src="images/common/food_nonveg.png">';
+	}
+	else{
+		return '<tag style="display: inline-block; width: 12px"></tag>';
+	}
+}
 
 
 function openSubMenu(menuCategory){	
@@ -411,7 +450,7 @@ function openSubMenu(menuCategory){
 							}
 
 							itemsInCategory = itemsInCategory + '<tr>'+
-							                                       '<td class="deleteItemWrap">'+mastermenu[i].items[j].name+'<tag class="deleteItemIcon" onclick="deleteItemFromMenu(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-minus-circle"></i></tag></td>'+
+							                                       '<td class="deleteItemWrap" style="padding-left: 25px">'+getVegIcon(mastermenu[i].items[j].vegFlag)+mastermenu[i].items[j].name+'<tag class="deleteItemIcon" onclick="deleteItemFromMenu(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-minus-circle"></i></tag></td>'+
 							                                       '<td><button class="btn btn-sm itemPriceTag" onclick="editItemPrice(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-inr"></i>'+mastermenu[i].items[j].price+'</button></td>'+
 							                                       '<td>'+availabilityTag+'</td>'+
 							                                    '</tr>';
@@ -1433,22 +1472,46 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 
 
 function readNewItem(category){
+
 	var item = {};
 	item.name = document.getElementById("new_item_name").value;
 	item.price = document.getElementById("new_item_price").value;
 	item.isCustom = document.getElementById("new_item_choice_count").value > 0 ? true: false;
 
-	if(document.getElementById("more_options_customCode") && document.getElementById("more_options_customCode").value != ''){
-		item.shortCode = document.getElementById("more_options_customCode").value;
-	}
+	//0 - Unknown, 1 - Veg, 2 - Non Veg
+	item.vegFlag = 0;
+    $("#newItemTypeOptions .foodTypeButton").each(function(){
+        if($(this).hasClass("active")){
+            item.vegFlag = $(this).attr("veg-flag");
+        }
+    });
 
-	if(document.getElementById("more_options_cookingTime") && document.getElementById("more_options_cookingTime").value != ''){
-		item.cookingTime = parseInt(document.getElementById("more_options_cookingTime").value);
-	}
 
-	if(document.getElementById("more_options_ingredients") && document.getElementById("more_options_ingredients").value != ''){
-		 var tempList = document.getElementById("more_options_ingredients").value;
-		 item.ingredients = tempList.split(',');
+    item.code = document.getElementById("new_item_manual_code").value != '' ? document.getElementById("new_item_manual_code").value : '';
+
+    //Consider More Options
+    if($('#moreOptionsArea').is(':visible')) {
+
+	    item.isPackaged = document.getElementById("packagedItemFlag").checked;
+
+		if(document.getElementById("more_options_customCode") && document.getElementById("more_options_customCode").value != ''){
+			item.shortCode = document.getElementById("more_options_customCode").value;
+		}
+
+		if(document.getElementById("more_options_cookingTime") && document.getElementById("more_options_cookingTime").value != ''){
+			item.cookingTime = parseInt(document.getElementById("more_options_cookingTime").value);
+		}
+
+		if(document.getElementById("more_options_ingredients") && document.getElementById("more_options_ingredients").value != ''){
+			 var tempList = document.getElementById("more_options_ingredients").value;
+			 item.ingredients = tempList.split(',');
+		}
+	}
+	else{
+		item.isPackaged = false;
+		item.shortCode = '';
+		item.cookingTime = '';
+		item.ingredients = [];
 	}
 
 	if(item.isCustom){
@@ -1461,6 +1524,7 @@ function readNewItem(category){
 
 		item.customOptions = custom;		
 	}
+
 
 	/* VALIDATE BEFORE ADDING TO DATA FILE */
 	var response = validateMenuItem(item);
@@ -1482,6 +1546,16 @@ function reviewItemPrice(category){
 	item.price = document.getElementById("item_main_price").value;
 	item.code = document.getElementById("item_main_code_secret").value;
 
+
+	//0 - Unknown, 1 - Veg, 2 - Non Veg
+	item.vegFlag = 0;
+    $("#newItemTypeOptions .foodTypeButton").each(function(){
+        if($(this).hasClass("active")){
+            item.vegFlag = $(this).attr("veg-flag");
+        }
+    });
+
+
 	//if more options is removed
 	if(document.getElementById("edit_moreOptionsArea").style.display == 'none'){
 		if(item.shortCode){
@@ -1493,9 +1567,15 @@ function reviewItemPrice(category){
 		if(item.ingredients){
 			delete item.ingredients;
 		}
+		if(item.isPackaged){
+			delete item.isPackaged;
+		}
 	}
 	else{
 		//other cases
+
+		item.isPackaged = document.getElementById("packagedItemFlagEdit").checked;
+
 		if(document.getElementById("edit_more_options_customCode") && document.getElementById("edit_more_options_customCode").value != ''){
 			item.shortCode = document.getElementById("edit_more_options_customCode").value;
 		}
@@ -1538,8 +1618,6 @@ function reviewItemPrice(category){
 
 	/* VALIDATE BEFORE ADDING TO DATA FILE */
 	var response = validateMenuItem(item);
-
-	console.log(item)
 
 	if(response.status){
 		item.isAvailable = true;
@@ -2009,5 +2087,19 @@ function hideEditCategoryName(){
 }
 
 //showToast('Hello from Abhijith', 'blue');
+
+
+/* Veg / Non Veg types */
+
+function triggerItemType(element){
+	$("#newItemTypeOptions .foodTypeButton").each(function(){
+        if($(this).hasClass("active")){
+            $(this).removeClass("active");
+        }
+    });
+
+	$(element).addClass('active');    
+}
+
 
 
