@@ -68,6 +68,11 @@ function additemtocart(encodedItem, optionalSource){
 
 	var productToAdd = JSON.parse(decodeURI(encodedItem));
 
+	if(!productToAdd.isAvailable){
+		showToast('Out of Stock: <b>'+productToAdd.name+'</b> is not available', '#48929B');
+		return '';
+	}
+
 	//Allergy Check
 	var allergicIngredients = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
 	if(allergicIngredients.length > 0){

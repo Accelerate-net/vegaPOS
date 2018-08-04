@@ -2104,13 +2104,17 @@ function openSelectedBill(encodedBill, type){
 		}
 
 		if(!jQuery.isEmptyObject(bill.customExtras)){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.customExtras.amount+'</td> </tr>';
-			charges_extra += bill.customExtras.amount;
+			if(bill.customExtras.amount && bill.customExtras.amount != 0){
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.customExtras.amount+'</td> </tr>';
+				charges_extra += bill.customExtras.amount;
+			}
 		}
 
 		if(!jQuery.isEmptyObject(bill.discount)){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts</td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
-			charges_extra = charges_extra - bill.discount.amount;
+			if(bill.discount.amount && bill.discount.amount != 0){
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts</td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
+				charges_extra = charges_extra - bill.discount.amount;
+			}
 		}
 
 		grandSumCalculated = subTotal + charges_extra;
@@ -2184,13 +2188,17 @@ function openSelectedBill(encodedBill, type){
 		}
 
 		if(!jQuery.isEmptyObject(bill.customExtras)){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.customExtras.amount+'</td> </tr>';
-			charges_extra += bill.customExtras.amount;
+			if(bill.customExtras.amount && bill.customExtras.amount != 0){
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.customExtras.amount+'</td> </tr>';
+				charges_extra += bill.customExtras.amount;
+			}
 		}
 
 		if(!jQuery.isEmptyObject(bill.discount)){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts</td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
-			charges_extra = charges_extra - bill.discount.amount;
+			if(bill.discount.amount && bill.discount.amount != 0){
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts</td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
+				charges_extra = charges_extra - bill.discount.amount;
+			}
 		}
 
 		grandSumCalculated = subTotal + charges_extra;
