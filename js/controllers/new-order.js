@@ -48,7 +48,7 @@ function saveToCart(productToAdd){
          	cart_products[flag].qty +=1;
       }
       else{
-      		cart_products.push({"name": productToAdd.name, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1});
+      		cart_products.push({"name": productToAdd.name, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1});
       }
 
 	  window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
@@ -498,6 +498,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	var temp = '';
 	var totqty = 0;
 	var tot = 0;
+	var totPackaged = 0;
 	var grandPayableSum = 0;
 
 	var hasUnsavedChanges = false;
@@ -543,6 +544,11 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 			totqty = totqty + cart_products[i].qty
 			tot = tot + (cart_products[i].price*cart_products[i].qty)
+
+			if(cart_products[i].isPackaged){
+				totPackaged += (cart_products[i].price*cart_products[i].qty);
+			}
+
 			var itemrem = cart_products[i].code;
 
 			if(cart_products[i].isCustom){
@@ -628,6 +634,10 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 			tot = tot + (cart_products[i].price*cart_products[i].qty)
 			var itemrem = cart_products[i].code;
 
+			if(cart_products[i].isPackaged){
+				totPackaged += (cart_products[i].price*cart_products[i].qty);
+			}
+
 			if(cart_products[i].isCustom){
 				variantName = ' ('+cart_products[i].variant+')';
 			}
@@ -709,6 +719,14 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 		>>	Once KOT is punched, everything is w.r.t the data inside the KOT JSON!
 	*/
 
+
+	/*
+		NOTE: Do not apply tax or other extras
+		marked with 'excludePackagedFoods' = true on items
+		like Pepsi etc. which is marked with 'isPackaged' = true.
+		These are sold at MRP. Packaging Charges, Delivery charges etc. not applicable.
+	*/
+
           var otherChargesSum = 0;        
           var otherCharges = '';
           var otherChargerRenderCount = 1;
@@ -733,14 +751,28 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
           		}
 
           		var tempExtraTotal = 0;
-          		if(selectedModeExtras[k].value != 0){
-          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
-          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
-          			}
-          			else if(selectedModeExtras[k].unit == 'FIXED'){
-          				tempExtraTotal = selectedModeExtras[k].value;
-          			}
+          		if(selectedModeExtras[k].isPackagedExcluded){
+
+		          		if(selectedModeExtras[k].value != 0){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = (selectedModeExtras[k].value * (tot - totPackaged))/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}
+		          		}
           		}
+          		else{
+		          		if(selectedModeExtras[k].value != 0){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}
+		          		}          			
+          		}
+
 
           		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
 
@@ -797,7 +829,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
     	  /* Unsaved changes flag - applicable for Editing Orders only */
 		  window.localStorage.hasUnsavedChangesFlag = 0;
-		  document.getElementById("leftdiv").style.borderColor = "#FFF";
+		  //document.getElementById("leftdiv").style.borderColor = "#FFF";
 
 
           if(selectedModeExtras.length > 0){
@@ -808,15 +840,31 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
           		}
 
           		var tempExtraTotal = 0;
-          		if(selectedModeExtras[k].value != 0){
-          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
-          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
-          			}
-          			else if(selectedModeExtras[k].unit == 'FIXED'){
-          				tempExtraTotal = selectedModeExtras[k].value;
-          			}
+          		if(selectedModeExtras[k].excludePackagedFoods){
+
+		          		if(selectedModeExtras[k].value != 0){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = (selectedModeExtras[k].value * (tot - totPackaged))/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}
+		          		}
+          		}
+          		else{
+
+		          		if(selectedModeExtras[k].value != 0){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}
+		          		}          			
           		}
 
+
+          		console.log(tempExtraTotal)
           		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
 
           		otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+selectedModeExtras[k].name+' ('+(selectedModeExtras[k].unit == 'PERCENTAGE'? selectedModeExtras[k].value + '%': '<i class="fa fa-inr"></i>'+selectedModeExtras[k].value)+')</td><td width="15%" class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+tempExtraTotal+'</td>';
@@ -3631,10 +3679,16 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 
 			/* RECALCULATE New Figures*/
 			var subTotal = 0;
+			var packagedSubTotal = 0;
 
 			var n = 0;
 			while(kot.cart[n]){
 				subTotal = subTotal + kot.cart[n].qty * kot.cart[n].price;
+
+				if(kot.cart[n].isPackaged){
+					packagedSubTotal += kot.cart[n].qty * kot.cart[n].price;
+				}
+
 				n++;
 			}
 
@@ -3644,14 +3698,28 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 	          	for(k = 0; k < kot.extras.length; k++){
 
 	          		var tempExtraTotal = 0;
-	          		if(kot.extras[k].value != 0){
-	          			if(kot.extras[k].unit == 'PERCENTAGE'){
-	          				tempExtraTotal = kot.extras[k].value * subTotal/100;
-	          			}
-	          			else if(kot.extras[k].unit == 'FIXED'){
-	          				tempExtraTotal = kot.extras[k].value;
-	          			}
-	          		}
+
+	          		if(kot.extras[k].isPackagedExcluded){
+			          		if(kot.extras[k].value != 0){
+			          			if(kot.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = (kot.extras[k].value * (subTotal - packagedSubTotal))/100;
+			          			}
+			          			else if(kot.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = kot.extras[k].value;
+			          			}
+			          		}
+			        }
+			        else{
+			          		if(kot.extras[k].value != 0){
+			          			if(kot.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = kot.extras[k].value * subTotal/100;
+			          			}
+			          			else if(kot.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = kot.extras[k].value;
+			          			}
+			          		}			        	
+			        }
+
 
 	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
 
@@ -3659,7 +3727,8 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 				 		"name": kot.extras[k].name,
 						"value": kot.extras[k].value,
 						"unit": kot.extras[k].unit,
-						"amount": tempExtraTotal
+						"amount": tempExtraTotal,
+						"isPackagedExcluded": kot.extras[k].isPackagedExcluded
 	          		};
 	          	}
 	        }
@@ -4034,14 +4103,23 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		
 		/*Process Figures*/
 		var subTotal = 0;
+		var packagedSubTotal = 0;
 
 		var n = 0;
 		while(cart_products[n]){
 			subTotal = subTotal + cart_products[n].qty * cart_products[n].price;
+
+			if(cart_products[n].isPackaged){
+				packagedSubTotal = packagedSubTotal + cart_products[n].qty * cart_products[n].price;
+			}
+
 			n++;
 		}
 
 		  /*Calculate Taxes and Other Charges*/ 
+
+		  //Note: Skip tax and other extras (with isCompulsary no) on packaged food Pepsi ect. (marked with 'isPackaged' = true)
+
           var otherCharges = [];        
           var k = 0;
 
@@ -4049,13 +4127,26 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
           	for(k = 0; k < selectedModeExtras.length; k++){
 
           		var tempExtraTotal = 0;
+
           		if(selectedModeExtras[k].value != 0){
-          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
-          				tempExtraTotal = selectedModeExtras[k].value * subTotal/100;
+          			if(selectedModeExtras[k].excludePackagedFoods){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = (selectedModeExtras[k].value * (subTotal-packagedSubTotal))/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}          				
           			}
-          			else if(selectedModeExtras[k].unit == 'FIXED'){
-          				tempExtraTotal = selectedModeExtras[k].value;
+          			else{
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = selectedModeExtras[k].value * subTotal/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}                 				
           			}
+
+
           		}
 
           		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
@@ -4064,7 +4155,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 			 		"name": selectedModeExtras[k].name,
 					"value": selectedModeExtras[k].value,
 					"unit": selectedModeExtras[k].unit,
-					"amount": tempExtraTotal
+					"amount": tempExtraTotal,
+					"isPackagedExcluded": selectedModeExtras[k].excludePackagedFoods
           		})
           	}
           }

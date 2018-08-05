@@ -76,6 +76,8 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
 
           var itemList = '';
           var subTotal = 0;
+          var packagedSubTotal = 0;
+
           var qtySum = 0;
           var grandPayableSum = 0;
           var grandPayableSumRounded = 0;
@@ -91,6 +93,11 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 ' </tr>';
 
                 subTotal = subTotal + (kotfile.cart[n].price*kotfile.cart[n].qty);
+
+                if(kotfile.cart[n].isPackaged){
+                  packagedSubTotal += (kotfile.cart[n].price*kotfile.cart[n].qty)
+                }
+
                 qtySum = qtySum + kotfile.cart[n].qty;
             n++;
           }

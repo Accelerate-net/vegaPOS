@@ -197,13 +197,13 @@ function fetchAllParams(){
               var paramsTag = '';
 
               for (var i=0; i<params.length; i++){
-                paramsTag = paramsTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+params[i].name+'</td> <td>'+(params[i].unit == 'FIXED' ? '<i class="fa fa-inr"></i>'+params[i].value : params[i].value + '%' )+'</td> <td>'+params[i].unitName+'</td> <td>'+(params[i].isCompulsary?"Yes": "No")+'</td> <td onclick="deleteParameterConfirm(\''+params[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+                paramsTag = paramsTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+params[i].name+'</td> <td style="text-align: center">'+(params[i].unit == 'FIXED' ? '<i class="fa fa-inr"></i>'+params[i].value : params[i].value + '%' )+'</td> <td>'+params[i].unitName+'</td> <td style="text-align: center">'+(params[i].excludePackagedFoods? "No": "Yes")+'</td> <td onclick="deleteParameterConfirm(\''+params[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
               }
 
               if(!paramsTag)
                 document.getElementById("billingParamsTable").innerHTML = '<p style="color: #bdc3c7">No parameters added yet.</p>';
               else
-                document.getElementById("billingParamsTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Name</th> <th style="text-align: left">Standard Value</th> <th style="text-align: left">Unit</th> <th style="text-align: left">Compulsary</th> <th style="text-align: left"></th> </tr> </thead>'+
+                document.getElementById("billingParamsTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Name</th> <th style="text-align: center; font-size: 80%; font-weight: 600;">Standard Value</th> <th style="text-align: center">Unit</th> <th style="text-align: center; font-size: 80%; font-weight: 600;">Applicable on Packaged Items</th> <th style="text-align: left"></th> </tr> </thead>'+
                                         '<tbody>'+paramsTag+'</tbody>';
 
           }
@@ -231,7 +231,7 @@ function addParameter() {
 	var paramObj = {};
 	paramObj.name = document.getElementById("add_new_param_name").value;
   paramObj.name = (paramObj.name).replace (/,/g, "");
-	paramObj.isCompulsary = document.getElementById("add_new_param_compulsary").value == 'YES'? true: false;
+	paramObj.excludePackagedFoods = document.getElementById("add_new_param_compulsary").value == 'YES'? true: false;
 	paramObj.value = document.getElementById("add_new_param_value").value;
 	var tempUnit = document.getElementById("add_new_param_unit").value;
 
