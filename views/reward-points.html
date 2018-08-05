@@ -19,7 +19,7 @@
                               </div>
                            </div>
 
-            <div class="row" style="margin-top: 50px">
+            <div class="row" style="margin-top: 20px">
                 <div class="col-xs-1"></div>
                 <div class="col-xs-3">
                     <div id="renderAreaUserInfo"></div>
@@ -63,26 +63,20 @@
 
 
 
-
-
-
-
-
       <!-- Modal -->
       <div id="couponRedeemModal" class="modal">
          <div class="modal-dialog" style="top: 20%">
             <!-- Modal content-->
             <div class="modal-content">
-               <div class="modal-header">
+               <div class="modal-header" style="background: #1abc9c; color: #FFF; font-weight: bold;">
                   <button type="button" onclick="hideCouponRedeemModal()" style="float: right;" class="btn clearButton">X</button>
                   <h4 class="modal-title">Coupon or Voucher Details</h4>
                </div>
                 <div class="modal-body" style="max-height: 420px; overflow: scroll" id="couponRedeemConfirmation">
                                 
                </div>
-               <div class="modal-footer">
-                    <button type="button" class="btn btn-default" onclick="hideCouponRedeemModal()" style="float: left">Cancel</button>
-                    <button type="button" onclick="processRedeemCoupon()" class="btn btn-success">Redeem</button>
+               <div class="modal-footer" style="padding: 0">
+                    <button type="button" class="btn btn-default" onclick="hideCouponRedeemModal()" style="width: 100%; border: none; border-radius: 0; height: 50px">Close</button>
                 </div>
             </div>
          </div>

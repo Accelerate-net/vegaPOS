@@ -1234,6 +1234,7 @@ function fetchDiscountSaleSummary(){
 		          	modes.push({"name":"VOUCHER","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
 		          	modes.push({"name":"REWARDS","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
 		          	modes.push({"name":"NOCOSTBILL","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+		          	modes.push({"name":"ONLINE","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
 
 		          	if(modes.length == 0){
 		          		document.getElementById("summaryRender_discountSummary").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no billing parameters added</tag>';
@@ -1264,6 +1265,7 @@ function fetchDiscountSaleSummary(){
 					    	if(modes[0].name == 'VOUCHER'){modes[0].name = 'Vouchers'}
 					    	if(modes[0].name == 'REWARDS'){modes[0].name = 'Reward Points'}
 					    	if(modes[0].name == 'NOCOSTBILL'){modes[0].name = 'No Cost Bill'}
+					    	if(modes[0].name == 'ONLINE'){modes[0].name = 'Pre-applied Online Discounts'}
 
 							if(temp_sum > 0){
 							    graphData.push({
@@ -1331,6 +1333,7 @@ function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphD
 				    	if(modes[index].name == 'VOUCHER'){modes[index].name = 'Vouchers'}
 				    	if(modes[index].name == 'REWARDS'){modes[index].name = 'Reward Points'}
 				    	if(modes[index].name == 'NOCOSTBILL'){modes[index].name = 'No Cost Bill'}
+				    	if(modes[index].name == 'ONLINE'){modes[index].name = 'Pre-applied Online Discounts'}
 
 						
 						if(temp_sum > 0){
@@ -1444,11 +1447,169 @@ function renderGraph_DiscountSummary(graphData){
 
 
 
+function fetchCancellationSummary(){
+	
+	/*
+		Total Refunds issued for CANCELLED INVOICES in given date range
+	*/
+
+	//$( "#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_cancellationSummary").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+
+	document.getElementById("summaryRender_cancellationSummary").innerHTML = '';
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+
+              	var modes = data.docs[0].value;
+	          	modes.sort(); //alphabetical sorting 
+
+	          	if(modes.length == 0){
+	          		document.getElementById("summaryRender_cancellationSummary").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no payments modes added</tag>';
+	          		return '';
+	          	}
+
+	          	var grandSum = 0;
+	          	var grandCount = 0;
+
+	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+				    	
+				    	if(data.rows.length > 0){
+					    	var temp_count = data.rows[0].value.count;
+					    	var temp_sum = data.rows[0].value.sum;
+
+					    	grandSum += temp_sum;
+				    		grandCount += temp_count;
+
+							if(temp_count > 0){
+								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
+							}
+							else{
+								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+							}
+						}
+						else{
+							document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+						}
+						
+						if(modes[1]){
+				    		fetchCancellationSummaryCallback(1, modes, fromDate, toDate, grandSum, grandCount);
+				    	}
+				    	else{
+				    		document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr class="summaryRowHighlight">'+
+														                                       '<td>Over All</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
+														                                      '</tr> '
+				    	}
+
+				    },
+				    error: function(data){
+				    	document.getElementById("summaryRender_cancellationSummary").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+				    }
+				  });  
+
+          }
+          else{
+            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+}
+
+
+function fetchCancellationSummaryCallback(index, modes, fromDate, toDate, grandSum, grandCount){
+
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+
+				    	if(data.rows.length > 0){
+				    
+					    	var temp_count = data.rows[0].value.count;
+					    	var temp_sum = data.rows[0].value.sum;
+
+					    	grandSum += temp_sum;
+				    		grandCount += temp_count;
+
+							if(temp_count > 0){
+								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
+							}
+							else{
+								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+							}
+						}
+						else{
+							document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+						}
+						
+				    	//Check if next mode exists...
+				    	if(modes[index+1]){
+				    		fetchCancellationSummaryCallback(index+1, modes, fromDate, toDate, grandSum, grandCount);
+				    	}
+				    	else{
+				    		document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr class="summaryRowHighlight">'+
+														                                       '<td>Over All</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
+														                                      '</tr> '
+				    	}
+				    },
+				    error: function(data){
+
+				    }
+				  });  
+
+}
+
+
+
+
 
 
 
 function fetchRefundSummary(){
-	
+
 	/*
 		Total Refunds issued in given date range
 	*/
@@ -1502,7 +1663,7 @@ function fetchRefundSummary(){
 	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -1542,11 +1703,11 @@ function fetchRefundSummary(){
 
           }
           else{
-            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
         }
         
       },
@@ -1555,6 +1716,8 @@ function fetchRefundSummary(){
       }
 
     });
+
+	fetchCancellationSummary();
 }
 
 
@@ -1564,7 +1727,7 @@ function fetchRefundSummaryCallback(index, modes, fromDate, toDate, grandSum, gr
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 

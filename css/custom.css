@@ -4303,3 +4303,32 @@ input:checked + .slider:before {
 .slider.round:before {
   border-radius: 50%;
 }
+
+.fa-trash-o.whiteWash,
+.fa-trash-o.whiteWash:hover,
+.fa-trash-o.whiteWash:active,
+.fa-trash-o.whiteWash:focus{
+  color: #FFF !important;
+  opacity: 1 !important;
+}
+
+
+.refundIssueSmallButton{
+  width: 16px;
+    text-align: center;
+    display: inline-block;
+    background: #bfbfbf;
+    border-radius: 50%;
+    margin-left: 5px;
+    font-size: 12px;
+    font-weight: initial;
+    cursor: pointer;
+    color: gray;
+}
+
+.refundIssueSmallButton:hover,
+.refundIssueSmallButton:active,
+.refundIssueSmallButton:focus{
+  color: #FFF !important;
+  background: gray;
+}

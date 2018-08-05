@@ -519,7 +519,7 @@ function addDiscountType(optionalName, optionalUnit, optionalValue) {
   }
 
 
-  if((paramObj.name).toUpperCase() == 'COUPON' || (paramObj.name).toUpperCase() == 'VOUCHER' || (paramObj.name).toUpperCase() == 'NOCOSTBILL' || (paramObj.name).toUpperCase() == 'REWARDS'){
+  if((paramObj.name).toUpperCase() == 'COUPON' || (paramObj.name).toUpperCase() == 'VOUCHER' || (paramObj.name).toUpperCase() == 'NOCOSTBILL' || (paramObj.name).toUpperCase() == 'REWARDS' || (paramObj.name).toUpperCase() == 'ONLINE'){
     showToast('Warning: Reserved Keyword. Please set different a name', '#e67e22');
     return '';
   }
@@ -1041,7 +1041,7 @@ function fetchAllPaymentModes(){
 
 
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+modes[i].code+'</td> '+(modes[i].code == 'PREPAID' ? '<td> <i class="fa fa-lock" style="color: #d6d6d6"></i> </td>' : '<td onclick="deletePaymentModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td>')+'</tr>';
+                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+modes[i].code+'</td> '+(modes[i].code == 'PREPAID' || modes[i].code == 'CASH' ? '<td> <i class="fa fa-lock" style="color: #90d899"></i> </td>' : '<td onclick="deletePaymentModeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td>')+'</tr>';
               }
 
               if(!modesTag)

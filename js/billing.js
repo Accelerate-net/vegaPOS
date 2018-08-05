@@ -132,7 +132,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
 
           //Auto Calculate Discount (for Prepaid Orders from App) 
           /* 
-            Classify those as 'Zaitoon App' discounts which are pre-applied discounts 
+            Classify those as 'ONLINE' discounts which are pre-applied discounts 
             Condition: No other discount applied.
           */
 
@@ -1056,10 +1056,10 @@ function savePrediscountToKOT(kotID, amount, optionalPageRef){
               var kotfile = data.docs[0];
 
               kotfile.discount.amount = amount;
-              kotfile.discount.type = 'Zaitoon App';
+              kotfile.discount.type = 'ONLINE';
               kotfile.discount.unit = 'FIXED';
               kotfile.discount.value = amount;
-              kotfile.discount.reference = 'App Pre-applied Discount';
+              kotfile.discount.reference = 'Pre-applied Online Discount';
                        
                 
                 //Update
@@ -2961,8 +2961,9 @@ function processRefundSettledBill(billNumber, optionalPageRef){
               bill.refundDetails.mode = bill.paymentMode;
           }
 
-                //Update Bill/Invoice on Server
+                var encodedBill = encodeURI(JSON.stringify(bill));
 
+                //Update Bill/Invoice on Server
                 $.ajax({
                   type: 'PUT',
                   url: COMMON_LOCAL_SERVER_IP+requestURL+'/'+(bill._id)+'/',
@@ -2972,6 +2973,7 @@ function processRefundSettledBill(billNumber, optionalPageRef){
                   timeout: 10000,
                   success: function(data) {
                       showToast('Refund of <b><i class="fa fa-inr"></i>'+refundObj.amount+'</b> issued Successfully', '#27ae60');
+                      openSelectedBill(encodedBill, 'SETTLED');
                   },
                   error: function(data) {
                       showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');

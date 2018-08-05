@@ -1027,7 +1027,6 @@ function getPaymentCodeEquivalentName(code){
 
 function loadAllSettledBills(){
 
-
 	/*
 		Frame the FILTER
 	*/
@@ -1196,7 +1195,7 @@ function loadAllSettledBills(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1277,7 +1276,7 @@ function loadAllSettledBills(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1358,7 +1357,7 @@ function loadAllSettledBills(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1439,7 +1438,7 @@ function loadAllSettledBills(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1521,7 +1520,7 @@ function loadAllSettledBills(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1601,7 +1600,7 @@ function loadAllSettledBills(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1656,7 +1655,7 @@ function loadAllSettledBills(){
 							                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 							                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 							                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-							                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+							                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 							                            '    </tr>';
 
 
@@ -1749,7 +1748,7 @@ function loadAllSettledBills(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1832,7 +1831,7 @@ function loadAllSettledBills(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1915,7 +1914,7 @@ function loadAllSettledBills(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1982,7 +1981,7 @@ function loadAllSettledBills(){
 	                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 	                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 	                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
-	                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+'</td>'+
+	                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 	                            '    </tr>';
 		      	n++;
 		      }
@@ -2112,7 +2111,7 @@ function openSelectedBill(encodedBill, type){
 
 		if(!jQuery.isEmptyObject(bill.discount)){
 			if(bill.discount.amount && bill.discount.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts</td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts<tag onclick="openDiscountDetailsInfo(\''+encodeURI(JSON.stringify(bill.discount))+'\')" class="refundIssueSmallButton"><i class="fa fa-question"></i></tag></td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
 				charges_extra = charges_extra - bill.discount.amount;
 			}
 		}
@@ -2144,7 +2143,7 @@ function openSelectedBill(encodedBill, type){
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
                                     '<li class="floaty-list-item floaty-list-item--red" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_PENDING\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
-                                        '<i class="fa fa-ban"></i>'+
+                                        '<i class="fa fa-trash-o whiteWash"></i>'+
                                       '</tag>'+
                                       '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Cancel Bill</span>'+
                                     '</li>'+     
@@ -2238,7 +2237,7 @@ function openSelectedBill(encodedBill, type){
 
 		if(!jQuery.isEmptyObject(bill.discount)){
 			if(bill.discount.amount && bill.discount.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts</td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts<tag onclick="openDiscountDetailsInfo(\''+encodeURI(JSON.stringify(bill.discount))+'\')" class="refundIssueSmallButton"><i class="fa fa-question"></i></tag></td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
 				charges_extra = charges_extra - bill.discount.amount;
 			}
 		}
@@ -2264,8 +2263,23 @@ function openSelectedBill(encodedBill, type){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Waived Round Off</td>  <td style="text-align: right"><tag style="color: #f15959">- <i class="fa fa-inr"></i>'+bill.roundOffAmount+'</tag></td> </tr>';
 		}
 
-		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
+		//Check for Refunds issued if any
+		var isDone = false;
+		var issued_refund = 0;
+		if(!jQuery.isEmptyObject(bill.refundDetails)){
+			if(bill.refundDetails.amount && bill.refundDetails.amount != 0){
+				issued_refund = bill.refundDetails.amount;
+				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
+				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Refund Issued</b><tag onclick="openRefundDetailsInfo(\''+encodeURI(JSON.stringify(bill.refundDetails))+'\')" class="refundIssueSmallButton"><i class="fa fa-info"></i></tag></td> <td style="font-weight: bold; text-align: right">'+(issued_refund != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+parseFloat(issued_refund).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
+				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Gross Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat((bill.totalAmountPaid - issued_refund)).toFixed(2)+'</td> </tr>';
+				
+				isDone = true;
+			}
+		}
 
+		if(!isDone){
+			otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
+		}
 
 
 		//Payment Splits, if applicable
@@ -2321,7 +2335,7 @@ function openSelectedBill(encodedBill, type){
                                     '</li>'+
                                     '<li class="floaty-list-item floaty-list-item--red" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
-                                        '<i class="fa fa-ban"></i>'+
+                                        '<i class="fa fa-trash-o whiteWash"></i>'+
                                       '</tag>'+
                                       '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Cancel Invoice</span>'+
                                     '</li>'+     
@@ -2381,6 +2395,115 @@ function openSelectedBill(encodedBill, type){
 	}	
 }
 
+
+function getPrimaryRefundStatus(status, amount){
+	if(status == 2){
+		return 'Partial Refund of <b><i class="fa fa-inr"></i>'+amount+'</b> issued';
+	}
+	else if(status == 3){
+		return 'Full Refund of <b><i class="fa fa-inr"></i>'+amount+'</b> issued';
+	}
+	else{
+		return '-';
+	}
+}
+
+function openRefundDetailsInfo(encodedInfo){
+	var info = JSON.parse(decodeURI(encodedInfo));
+
+	document.getElementById("refundReasonPrimaryModal").style.display = 'block';
+	document.getElementById("refundReasonPrimaryModalContent").innerHTML = ''+
+												      '<div class="table-responsive">'+
+												         '<table class="table">'+
+												         	'<col width="35%">'+
+												         	'<col width="65%">'+
+												            (info.reason && info.reason != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Reason</td> <td>'+info.reason+'</td> </tr>' : '' )+
+												            (info.comments && info.comments != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Comments</td> <td style="font-style: italic; font-weight: bold;">'+info.comments+'</td> </tr>' : '')+
+												            (info.refundedBy && info.refundedBy != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Refunded By</td> <td>'+info.refundedBy+'</td> </tr>' : '')+
+												            (info.timeRefund && info.timeRefund != '--:--' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Time</td> <td>'+getFancyTime(info.timeRefund)+'</td> </tr>' : '')+
+												            '<tr><td style="color: #6f90b1; font-weight: bold;">Refund Status</td> <td>'+getPrimaryRefundStatus(info.status, info.amount)+'</td> </tr>'+
+												            '<tr><td style="color: #6f90b1; font-weight: bold;">Refund Mode</td> <td>'+(info.mode == 'CASH' ? 'Cash' : 'Original Mode ('+info.mode+')')+'</td> </tr>'+
+												            '</tbody>'+
+												         '</table>'+
+												      '</div>';
+
+}
+
+function openRefundDetailsInfoHide(){
+	document.getElementById("refundReasonPrimaryModal").style.display = 'none';
+}
+
+
+function getDiscountTypeName(type){
+	switch(type){
+		case "COUPON":{
+			return "Coupon Applied";
+		}
+		case "VOUCHER":{
+			return "Voucher Redeemed";
+		}
+		case "NOCOSTBILL":{
+			return "Marked as No Cost Bill";
+		}
+		case "REWARDS":{
+			return "Redeemed Reward Points";
+		}
+		case "ONLINE":{
+			return "Pre-applied Online Discount";
+		}
+		default:{
+			return type;
+		}
+	}
+}
+
+function getDiscountRefName(type){
+	switch(type){
+		case "COUPON":{
+			return "Coupon Code";
+		}
+		case "VOUCHER":{
+			return "Voucher Code";
+		}
+		case "NOCOSTBILL":{
+			return "Comments";
+		}
+		case "REWARDS":{
+			return "Reference";
+		}
+		case "ONLINE":{
+			return "Reference";
+		}
+		default:{
+			return 'Reference';
+		}
+	}	
+}
+
+function openDiscountDetailsInfo(encodedInfo){
+	var info = JSON.parse(decodeURI(encodedInfo));
+
+	console.log(info)
+
+	document.getElementById("discountReasonPrimaryModal").style.display = 'block';
+	document.getElementById("discountReasonPrimaryModalContent").innerHTML = ''+
+												      '<div class="table-responsive">'+
+												         '<table class="table">'+
+												         	'<col width="35%">'+
+												         	'<col width="65%">'+
+												            (info.type && info.type != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Type</td> <td>'+getDiscountTypeName(info.type)+'</td> </tr>' : '' )+
+												            (info.amount && info.amount != 0 ? '<tr><td style="color: #6f90b1; font-weight: bold;">Amount</td> <td style="font-weight: bold;"><i class="fa fa-inr"></i>'+info.amount+'</td> </tr>' : '')+
+												            '<tr><td style="color: #6f90b1; font-weight: bold;">Discount Value</td> <td>'+(info.unit == 'PERCENTAGE' ? info.value+'%' : (info.unit == 'FIXED' ? '<i class="fa fa-inr"></i>'+info.value : '-'))+'</td> </tr>'+
+												            (info.reference && info.reference != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">'+getDiscountRefName(info.type)+'</td> <td><b>'+info.reference+'</b></td> </tr>' : '')+
+												            '</tbody>'+
+												         '</table>'+
+												      '</div>';
+
+}
+
+function openDiscountDetailsInfoHide(){
+	document.getElementById("discountReasonPrimaryModal").style.display = 'none';
+}
 
 
 
