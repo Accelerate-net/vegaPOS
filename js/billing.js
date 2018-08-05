@@ -2810,6 +2810,193 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
 
 
 
+// BILL REFUND
+
+function initiateRefundSettledBill(billNumber, totalPaid, paymentStatus, optionalPageRef){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+
+              var reasonsList = data.docs[0].value;
+              initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+                        
+          }
+          else{
+            showToast('Warning: Refund Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+            var reasonsList = ["Not Satisfied"];
+            initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+          }
+        }
+        else{
+          showToast('Warning: Refund Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+          var reasonsList = ["Not Satisfied"];
+          initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+        }
+
+      },
+      error: function(data) {
+        showToast('Warning: Unable to read Refund Reasons data. Please contact Accelerate Support.', '#e67e22');
+        var reasonsList = ["Not Satisfied"];
+        initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+      }
+
+    });  
+}
+
+function initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList){
+  
+  document.getElementById("billRefundReasonModal").style.display = 'block';
+  document.getElementById("billRefundReasonModalActions").innerHTML = '<button class="btn btn-default" onclick="initiateRefundSettledBillHide()" style="float: left">Close</button>'+
+                  '<button class="btn btn-warning" onclick="processRefundSettledBill(\''+billNumber+'\', \''+optionalPageRef+'\')" style="float: right">Issue Refund</button>';
+
+  var n = 0;
+  var reasonRender = '';
+  while(reasonsList[n]){
+    reasonRender += '<option value="'+reasonsList[n]+'">'+reasonsList[n]+'</option>';
+    n++;
+  }
+
+  document.getElementById("bill_refund_why_reason").innerHTML = reasonRender;
+
+  $('#bill_refund_why_isrefund').val(2);
+  $('#bill_refund_why_comments').val('');
+  $('#bill_refund_why_comments').focus();
+
+  document.getElementById("bill_refund_why_refundamount").value = totalPaid;
+}
+
+function initiateRefundSettledBillHide(){
+  document.getElementById("billRefundReasonModal").style.display = 'none';
+}
+
+function processRefundSettledBill(billNumber, optionalPageRef){
+
+    billNumber = parseInt(billNumber);
+
+    var current_time = getCurrentTime('TIME');
+    var why_reason = $('#bill_refund_why_reason').val();
+    var why_comments = $('#bill_refund_why_comments').val();
+
+    var staffData = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData) : {};
+    if(!staffData.name || staffData.name == ''){
+      showToast('Warning! Staff information not available. Select Staff Profile and try again.', '#e67e22');
+      return '';
+    }
+
+    if(why_comments == '' || why_comments.length < 3){
+      showToast('Warning! Please add some comments.', '#e67e22');
+      return '';      
+    }
+
+    var refund_status = 0;
+    var refund_amount = '';
+    var refund_mode = '';
+
+    refund_status = $('#bill_refund_why_isrefund').val();
+    refund_mode = $('#bill_refund_why_refundmode').val();
+    refund_amount = $('#bill_refund_why_refundamount').val();
+
+    if(refund_amount == 0 || refund_amount == ''){
+      showToast('Warning! Please mention the Refund Amount issued.', '#e67e22');
+      return '';     
+    }
+
+
+    refund_amount = Math.round(refund_amount * 100)/100;
+
+    var refundObj = {
+            "timeRefund" : current_time,
+            "refundedBy" : staffData.name,
+            "reason" : why_reason,
+            "comments" : why_comments,
+            "status" : refund_status,
+            "amount" : refund_amount,
+            "mode" : refund_mode
+    }
+
+    initiateRefundSettledBillHide();
+
+
+    var requestURL = 'zaitoon_bills';
+    var requestURLSource = 'BILL';
+
+
+    if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
+      requestURL = 'zaitoon_invoices';
+      requestURLSource = 'INVOICE';
+    }
+
+
+    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(firstdata) {
+        if(firstdata.docs.length > 0){
+
+          var bill = firstdata.docs[0];
+          bill.refundDetails = refundObj;
+
+          if(refundObj.mode == 'ORIGINAL'){
+              bill.refundDetails.mode = bill.paymentMode;
+          }
+
+                //Update Bill/Invoice on Server
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+requestURL+'/'+(bill._id)+'/',
+                  data: JSON.stringify(bill),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Refund of <b><i class="fa fa-inr"></i>'+refundObj.amount+'</b> issued Successfully', '#27ae60');
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+          
+        }
+        else{
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(firstdata) {
+        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+
+
+
+
+
 // BILL CANCELLATION
 
 function initiateCancelSettledBill(billNumber, totalPaid, paymentStatus, optionalPageRef){
@@ -3014,9 +3201,15 @@ function processCancelSettledBill(billNumber, optionalPageRef){
             }
 
             cancelBillFile.refundDetails = {
-              "refundAmount": cancelObj.refundAmount,
-              "refundMode": refund_obj_mode
+              "timeRefund" : current_time,
+              "refundedBy" : staffData.name,
+              "reason" : why_reason,
+              "comments" : why_comments,
+              "status" : refund_status,
+              "amount" : cancelObj.refundAmount,
+              "mode" : refund_obj_mode
             }
+
           }
 
             deleteCancelledInvoiceFromServer(memory_id, memory_rev, memory_type, memory_table, requestURLSource, optionalPageRef);

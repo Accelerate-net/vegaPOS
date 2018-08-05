@@ -2144,8 +2144,8 @@ function openSelectedCancelledBill(encodedBill, type){
 		//Refunds
 		var net_refund = 0;
 		if(!jQuery.isEmptyObject(bill.refundDetails)){
-			otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Refunds</b></td> <td style="font-weight: bold; text-align: right">'+(bill.refundDetails.refundAmount && bill.refundDetails.refundAmount != 0 ? '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+parseFloat(bill.refundDetails.refundAmount).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
-			net_refund = bill.refundDetails.refundAmount;
+			otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Refunds</b></td> <td style="font-weight: bold; text-align: right">'+(bill.refundDetails.amount && bill.refundDetails.amount != 0 ? '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+parseFloat(bill.refundDetails.amount).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
+			net_refund = bill.refundDetails.amount;
 		}
 
 		var gross_calculated_amount = 0;

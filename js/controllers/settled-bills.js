@@ -2128,11 +2128,35 @@ function openSelectedBill(encodedBill, type){
 
 		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Payable Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.payableAmount).toFixed(2)+'</td> </tr>';
 
+
+        //Submenu options
+        var subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+                                  '<div class="floaty-btn small" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
+                                    '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
+										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
+    									'<path d="M0-.75h24v24H0z" fill="none"/>'+
+                                    '</svg>'+
+                                    '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
+                                      '<i class="fa fa-check"></i>'+
+                                    '</tag>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Settle Bill</span>'+
+                                  '</div>'+
+                                  '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
+                                    '<li class="floaty-list-item floaty-list-item--red" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_PENDING\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-ban"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Cancel Bill</span>'+
+                                    '</li>'+     
+                                  '</ul>'+
+                                '</div>';
+
+
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
 												'<div class="box box-primary">'+
 												'   <div class="box-body">'+ 
 												      '<div class="box-header" style="padding: 10px 0px">'+
-												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3><button class="btn btn-success" style="float: right; color: #FFF" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">Settle Bill</button> <button class="btn btn-danger" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_PENDING\')" style="float: right; margin-right: 5px">Cancel</button>'+
+												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3>'+subOptions+
 												      '</div>'+
 												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
 												      '<div class="table-responsive">'+
@@ -2157,6 +2181,24 @@ function openSelectedBill(encodedBill, type){
 												'</div>';
 
 
+
+				//Floating Button Animation
+				var $floaty = $('.floaty');
+
+				$floaty.on('mouseover click', function(e) {
+				  $floaty.addClass('is-active');
+				  e.stopPropagation();
+				});
+
+				$floaty.on('mouseout', function() {
+				  $floaty.removeClass('is-active');
+				});
+
+				$('.container').on('click', function() {
+				  $floaty.removeClass('is-active');
+				});
+
+				
 	}
 	else if(type == 'SETTLED'){
 
@@ -2258,11 +2300,40 @@ function openSelectedBill(encodedBill, type){
 		}
 
 
+        //Submenu options
+        var subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+                                  '<div class="floaty-btn small" style="box-shadow: none;" onclick="printDuplicateBill(\''+bill.billNumber+'\')">'+
+                                    '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
+										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
+    									'<path d="M0-.75h24v24H0z" fill="none"/>'+
+                                    '</svg>'+
+                                    '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
+                                      '<i class="fa fa-print"></i>'+
+                                    '</tag>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Print Duplicate Bill</span>'+
+                                  '</div>'+
+                                  '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
+                                    '<li class="floaty-list-item floaty-list-item--yellow" onclick="initiateRefundSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 0px; font-size: 26px;" class="absolute-center">'+
+                                        '<i class="fa fa-inr"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Issue Refund</span>'+
+                                    '</li>'+
+                                    '<li class="floaty-list-item floaty-list-item--red" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-ban"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Cancel Invoice</span>'+
+                                    '</li>'+     
+                                  '</ul>'+
+                                '</div>';
+
+
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
 												'<div class="box box-primary">'+
 												'   <div class="box-body">'+
 												      '<div class="box-header" style="padding: 10px 0px">'+
-												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+paymentOptionUsedButton+'</h3><button class="btn btn-default" style="float: right">Print Duplicate</button> <button class="btn btn-danger" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')" style="float: right; margin-right: 5px">Cancel</button>'+
+												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#'+bill.billNumber+paymentOptionUsedButton+'</h3>'+subOptions+
 												      '</div>'+
 												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
 												      '<div class="table-responsive">'+
@@ -2286,6 +2357,22 @@ function openSelectedBill(encodedBill, type){
 												'   </div>'+
 												'</div>';
 
+
+				//Floating Button Animation
+				var $floaty = $('.floaty');
+
+				$floaty.on('mouseover click', function(e) {
+				  $floaty.addClass('is-active');
+				  e.stopPropagation();
+				});
+
+				$floaty.on('mouseout', function() {
+				  $floaty.removeClass('is-active');
+				});
+
+				$('.container').on('click', function() {
+				  $floaty.removeClass('is-active');
+				});
 
 	}
 	else{

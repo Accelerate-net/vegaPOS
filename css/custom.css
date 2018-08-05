@@ -1442,6 +1442,10 @@ However, delay the fade out process for 2.5 seconds */
 .floaty-list-item--red {
   background-color: #e74c3c;
 }
+.floaty-list-item--yellow {
+  background-color: #fdb84a;
+}
+
 .floaty-list-item--red > svg {
   fill: #fff;
 }
@@ -1480,6 +1484,20 @@ However, delay the fade out process for 2.5 seconds */
   border-radius: 50%;
   box-shadow: 0 4px 8px rgba(0,0,0,.25);
 }
+
+.floaty-btn.small {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  float: right;
+  margin-right: 15px;
+  cursor: pointer;
+  background-color: #00a65a;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,.25);
+}
+
+
 .floaty-btn:hover .floaty-btn-label {
   opacity: 1;
 }
