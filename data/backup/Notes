@@ -1,42 +1,5 @@
 
 Notes:
-
-1. [DONE] Set Default takeaway and delivery modes for ONLINE DELIVERY (Also RESERVED Payment Method)
-2. [DONE] What happens in Billing when Billing Extra deleted?
-3. [DONE] Add Session Name, and Machine name to Bill
-4. [DONE] machine name manager
-5. [DONE] Auto - Session changer (ON/OFF option)
-6. [DONE] - Add NOTES (to include COD or Prepaid) to customer info
-7. [DONE] What ever settings made (Billing Settings etc) make effecting (isDiscountable etc.) on Billing.
-8. [DONE] - SPecial Comments (add to Bill)
-9. [DONE] - AUTO WARNING (allergi contents)
-10. [DONE] All round off to TWO DECIMALS
-11. Easy COPY button everywhere possible
-12. [DONE] - AUTO APPLY Discount (if online order has discount applied)
-13. [DONE] - NEW ONLINE Order warning
-14. [DONE] - Copy Online Order COMMENTS to Order Comments
-15.A [DONE] - Remember INGREDIENTS RESTRICTION (while editing Order, save it to KOT. 
-15.B Remove when billed.)
-16. Remove all impurities from final BILL
-17. Custom landing page (PERSONALISATION for each Machine)
-18. [DONE] - Continues status check for ONLINE ORDER COUNT (Layout.js) --> Only if PERSONALISATION Enbled.
-19. REMOVE SYSTEM NAME --> Kitchen Kiosk added everywhere
-20. Tax EXEMPTED List (item wise - Pepsie exempted from GST)
-21. Option, if price is inclusive of taxes already (Just show the figures or add it to grand sum?)
-22. Idle Screen ==> PROFILE CHOOSER be default
-23.A CANCELLED AND REFUNDED Bills
-23.B Reason for Cancellation (add in Personalisations)
-23.C Incase of NO REFUND/PARTIAL ==> Where does that amount GO?! 
-24. Cancellation SUMMARY (Refunds, Number of Cancellations etc.)
-25. Item Change (Chicken --> Mutton Biryani)
-26. Shift items to different table
-27. Choose Delivery Agent (for in-restaurant Delivery)
-28. Add Veg/Non Veg, Item Code inputs
-29. Filter REFUNDED/NON REFUNDED in Bills (new Filter)
-30. LIVE ORDERS --> Add unbilled non-DINE orders! Where is it going now?
-
-
-
-Reserved Keywords:
-PREPAID - In payments (for Online Prepaid orders) <-- Custom name for it in Personalisation (PREPAID == 'Razor Pay Gateway')
-Zaitoon App - In Discounts (for pre applied discounts) <-- add it in Summary page also
+1. Item Change (Chicken --> Mutton Biryani)
+2. Choose Delivery Agent (for in-restaurant Delivery)
+3. LIVE ORDERS --> Add unbilled non-DINE orders! Where is it going now?
