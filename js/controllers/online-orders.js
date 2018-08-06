@@ -414,12 +414,12 @@ function fetchOrderDetails(orderID){
 			console.log('AM HARD CODED TOOOO!')
 
 			if(lastOrderFetchInfo[i].isPrepaid){
-				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderID+
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderID+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 									'<tag class="onlinePrepaid">PREPAID ORDER</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(lastOrderFetchInfo[i].orderSource)+'">'+lastOrderFetchInfo[i].orderSource+' - '+(lastOrderFetchInfo[i].isTakeaway ? 'TAKE AWAY' : 'DELIVERY')+'</type> </h3> '+
 									'<button class="btn btn-success btn-sm" style="float: right" onclick="punchOnlineOrderToKOT(\''+encodeURI(JSON.stringify(lastOrderFetchInfo[i]))+'\')">Punch Order</button>';
 			}
 			else{
-				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderID+
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderID+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 									'<tag class="onlineCOD">Cash on Delivery</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(lastOrderFetchInfo[i].orderSource)+'">'+lastOrderFetchInfo[i].orderSource+' - '+(lastOrderFetchInfo[i].isTakeaway ? 'TAKE AWAY' : 'DELIVERY')+'</type> </h3> '+
 									'<button class="btn btn-success btn-sm" style="float: right" onclick="punchOnlineOrderToKOT(\''+encodeURI(JSON.stringify(lastOrderFetchInfo[i]))+'\')">Punch Order</button>';
 			}
@@ -466,17 +466,17 @@ function fetchOrderDetails(orderID){
 
 			if(!lastOrderFetchInfo[i].isTakeaway){
 				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Delivery Address</p>'+
-																			'<p class="deliveryText">'+lastOrderFetchInfo[i].deliveryAddress.name+'<br>'+lastOrderFetchInfo[i].deliveryAddress.flatNo+', '+lastOrderFetchInfo[i].deliveryAddress.flatName+
-																			'<br>'+lastOrderFetchInfo[i].deliveryAddress.landmark+'<br>'+lastOrderFetchInfo[i].deliveryAddress.area+'</p> <p class="deliveryText">Mob. <b>'+lastOrderFetchInfo[i].deliveryAddress.contact+
+																			'<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.flatNo+', '+lastOrderFetchInfo[i].deliveryAddress.flatName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
+																			'<br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.landmark+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.area+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.contact+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag>'+
 																			'</b></p> </div>';
 			}
 			else{
 				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+
-															'<p class="deliveryText" style="font-size: 21px;">'+lastOrderFetchInfo[i].userName+'</p> <p class="deliveryText" style="font-size: 21px;">Mob. '+lastOrderFetchInfo[i].userID+'</p> </div>';
+															'<p class="deliveryText" style="font-size: 21px;"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].userName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText" style="font-size: 21px;">Mob. <tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].userID+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag></p> </div>';
 			}
 
 			if(lastOrderFetchInfo[i].comments && lastOrderFetchInfo[i].comments != ''){
-				document.getElementById("commentsInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">COMMENTS TO CHEF</p> <p class="deliveryComment">'+lastOrderFetchInfo[i].comments+'</p> </div>';
+				document.getElementById("commentsInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">COMMENTS TO CHEF</p> <p class="deliveryComment"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].comments+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag></p> </div>';
 			}
 			else{
 				document.getElementById("commentsInfo").innerHTML = '';
@@ -509,11 +509,11 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 			}
 
 			if(orderObj.orderDetails.onlineOrderDetails.paymentMode == "PREPAID"){
-				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderObj.orderDetails.reference+
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderObj.orderDetails.reference+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 									'<tag class="onlinePrepaid">PREPAID ORDER</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(orderObj.orderDetails.onlineOrderDetails.orderSource)+'">'+(orderObj.orderDetails.onlineOrderDetails.orderSource ? orderObj.orderDetails.onlineOrderDetails.orderSource+' - ' : '')+(orderObj.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : 'TAKE AWAY')+'</type> </h3> '+ actionButton
 			}
 			else{
-				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #'+orderObj.orderDetails.reference+
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderObj.orderDetails.reference+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 									'<tag class="onlineCOD">Cash on Delivery</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(orderObj.orderDetails.onlineOrderDetails.orderSource)+'">'+(orderObj.orderDetails.onlineOrderDetails.orderSource ? orderObj.orderDetails.onlineOrderDetails.orderSource+' - ' : '')+(orderObj.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : 'TAKE AWAY')+'</type> </h3> '+ actionButton
 			}
 
@@ -597,13 +597,13 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 			if(orderObj.orderDetails.modeType == 'DELIVERY'){
 				var address = JSON.parse(decodeURI(orderObj.table));
 				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Delivery Address</p>'+
-																			'<p class="deliveryText">'+address.name+'<br>'+address.flatNo+', '+address.flatName+
-																			'<br>'+address.landmark+'<br>'+address.area+'</p> <p class="deliveryText">Mob. <b>'+address.contact+
+																			'<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.flatNo+', '+address.flatName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
+																			'<br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.landmark+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.area+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.contact+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 																			'</b></p> </div>';
 			}
 			else{
 				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+
-															'<p class="deliveryText" style="font-size: 21px;">'+orderObj.customerName+'</p> <p class="deliveryText" style="font-size: 21px;">Mob. '+orderObj.customerMobile+'</p> </div>';
+															'<p class="deliveryText" style="font-size: 21px;"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderObj.customerName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText" style="font-size: 21px;">Mob. <tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderObj.customerMobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> </div>';
 			}
 
 			//Frame response actions - INTERNET Necessary!
@@ -651,10 +651,24 @@ function punchOnlineOrderToKOT(encodedOrder){
 	var order = JSON.parse(decodeURI(encodedOrder));
 	var customerInfo = '';
 
-	var online_order_source = 'ZAITOON';
-	var default_delivery_mode = 'Takeaway - Zatioon App';
-	var default_parcel_mode = 'Delivery - Zatioon App';
+	var online_order_source = order.source ? order.source : 'ZAITOON'; 
+	console.log('AM HARD CODED!!!!');
+	if(online_order_source == ''){
+		showToast('Error: This order can not be punched. Order Source missing.', '#e74c3c');
+		return '';
+	}
 
+	var default_parcel_mode = window.localStorage.systemOptionsSettings_defaultTakeawayMode ? window.localStorage.systemOptionsSettings_defaultTakeawayMode : ''; 
+	var default_delivery_mode = window.localStorage.systemOptionsSettings_defaultDeliveryMode ? window.localStorage.systemOptionsSettings_defaultDeliveryMode : '';
+
+
+	if(default_parcel_mode == 'NONE'){
+		default_parcel_mode = '';
+	}
+
+	if(default_delivery_mode == 'NONE'){
+		default_delivery_mode = '';
+	}
 
 	var onlineOrderObject = {
 		"onlineOrderNumber": order.orderID,
@@ -666,9 +680,13 @@ function punchOnlineOrderToKOT(encodedOrder){
 		"onlineDate": order.date,
 	}
 
-//notes, prediscount
-
 	if(order.isTakeaway){ //Set default Takeaway Order
+
+		if(default_parcel_mode == ''){
+			showToast('Warning! Default billing mode for Online Takeaway orders is not set.', '#e67e22');
+			return '';
+		}
+
 		customerInfo = {
 			"name": order.userName,
 			"mobile": order.userID,
@@ -681,6 +699,12 @@ function punchOnlineOrderToKOT(encodedOrder){
 		}	
 	}
 	else{ //Set default Delivery Order
+	
+		if(default_delivery_mode == ''){
+			showToast('Warning! Default billing mode for Online Delivery orders is not set.', '#e67e22');
+			return '';
+		}
+
 		customerInfo = {
 			"name": order.userName,
 			"mobile": order.userID,

@@ -8,9 +8,9 @@ function hideLoginModal(){
 
 
 function openCouponRedeemModal(data){
-	document.getElementById("couponRedeemConfirmation").innerHTML = '<p style="font-size: 18px; font-weight: bold; padding-left: 5px; color: #1abc9c;">'+data.brief+'</p>'+
-							'<table class="table" style="margin: 0"> <tbody> <tr> <td style="border-top: none">Issued To</td> <td style="border-top: none;">'+data.issuedTo+'</td> </tr>'+
-							'<tr> <td>Total Value</td> <td style="font-size: 21px; font-weight: bold; color: #1abc9c"><i class="fa fa-inr"></i>'+data.totalValue+'</td> </tr><tr> <td>Minimum Bill Amount</td> <td><i class="fa fa-inr"></i>'+data.minBill+'</td> </tr> <tr> <td style="color: #e74c3c">Expiry Date</td> <td style="color: #e74c3c">'+data.expiry+'</td> </tr>'+
+	document.getElementById("couponRedeemConfirmation").innerHTML = '<p style="font-size: 18px; font-weight: bold; padding-left: 5px; color: #1abc9c;"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+data.brief+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>'+
+							'<table class="table" style="margin: 0"> <tbody> <tr> <td style="border-top: none">Issued To</td> <td style="border-top: none;"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+data.issuedTo+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></td> </tr>'+
+							'<tr> <td>Total Value</td> <td style="font-size: 21px; font-weight: bold; color: #1abc9c"><i class="fa fa-inr"></i><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+data.totalValue+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></td> </tr><tr> <td>Minimum Bill Amount</td> <td><i class="fa fa-inr"></i>'+data.minBill+'</td> </tr> <tr> <td style="color: #e74c3c">Expiry Date</td> <td style="color: #e74c3c">'+data.expiry+'</td> </tr>'+
 							'</tbody> </table> <p style="color: gray; padding-left: 8px; margin: 0; padding-top: 15px">Issued by '+data.issuedAdmin+' at '+data.issuedOutlet+' on '+data.issuedDate+'</p>';
 	document.getElementById("couponRedeemModal").style.display = "block";
 }
@@ -209,8 +209,8 @@ function renderHistory(data, userID){
                     '<div class="box-body" style="padding: 30px 10px 30px 10px; text-align: center">'+
                         '<img src="data/photos/users/default_customer.png">'+
                         '<h1 style="font-size: 24px; font-weight: 400">'+data.response.name+'</h1>'+
-                        '<p style="margin: 0; color: #3498db">'+data.response.mobile+'</p>'+
-                        '<p style="margin: 0; color: #7f8c8d">'+data.response.email+'</p>'+   
+                        '<p style="margin: 0; color: #3498db"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+data.response.mobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>'+
+                        '<p style="margin: 0; color: #7f8c8d"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+data.response.email+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>'+   
                     '</div>'+
                 '</div>';
 

@@ -103,8 +103,6 @@ function applyLicenceTerms(){
                 n++;
               }
 
-              
-
           }
           else{
             showToast('Server Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -120,8 +118,7 @@ function applyLicenceTerms(){
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Configured Systems data. Please contact Accelerate Support.', '#e74c3c');
-        document.getElementById("applicationActivationLock").style.display = 'block';
+        document.getElementById("serverConnectionFailureLock").style.display = 'block';
         return '';          
       }
     });  
@@ -1668,7 +1665,7 @@ function renderCurrentUserDisplay(){
     document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: 400">'+loggedInStaffInfo.name+'</span>';
   }
   else{
-    document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/default_user.png" class="user-image" alt="Avatar" /> <span>Profile Not Selected</span>';
+    document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/default_user.png" class="user-image" alt="Avatar" /> <span style="font-style: italic; font-weight: 300">Profile Not Selected</span>';
   }
 }
 
@@ -1949,7 +1946,8 @@ function renderCurrentSessionDisplay(){
     document.getElementById("currentSessionDisplayTime").innerHTML = getFancyTime(setSessionInfo.timeFrom) +' - '+getFancyTime(setSessionInfo.timeTo);
   }
   else{
-    document.getElementById("currentSessionDisplay").innerHTML = '<span>Sessions not Set</span>';
+    document.getElementById("currentSessionDisplay").innerHTML = '<span><b>Session Not Set</b></span>';
+    document.getElementById("currentSessionDisplayTime").innerHTML = '<i style="text-transform: none">Choose a Session</i>';
   }
 }
 
@@ -2030,7 +2028,7 @@ function renderSpotlightPreview(type, encodedData){
         renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img src="data/photos/menu/'+info.code+'.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Out of Stock</div>'; 
       }
 
-      renderTemplate += '<div style="padding: 0 25px; font-family: sans-serif; font-size: 14px; color: #83838a;">'+(info.vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; display: inline-block; margin-top: -3px;">' : '')+(info.vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; display: inline-block; margin-top: -3px;">' : '')+(info.ingredients && info.ingredients != [] ? ' Contains <b>'+((info.ingredients.toString()).replace(/,/g , ", "))+'</b>' : '')+'</div>';
+      renderTemplate += '<div style="padding: 0 25px; font-family: sans-serif; font-size: 14px; color: #83838a;">'+(info.vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; display: inline-block; margin-top: -1px;">' : '')+(info.vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; display: inline-block; margin-top: -1px;">' : '')+(info.ingredients && info.ingredients != [] ? ' Contains <b>'+((info.ingredients.toString()).replace(/,/g , ", "))+'</b>' : '')+'</div>';
 
       break;
     }
@@ -2829,5 +2827,40 @@ console.log('am here 2')
           }
 
         });
-
 }
+
+
+
+
+/* 
+  ** EASY COPY TOOL **
+
+  Wrap around the Text to be Copied as follows:
+  
+  <tag class="easyCopyToolParent">
+    <tag class="easyCopyToolText">TEXT_TO_BE_COPIED</tag>
+    <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag>
+  </tag>
+
+*/
+
+function easyCopyToClipboard(element) {
+
+    var toolElement = $(element).parent();
+    var textElement = toolElement.find(".easyCopyToolText");
+
+    var $temp = $("<input>");
+    $("body").append($temp);
+    $temp.val(textElement.html()).select();
+    document.execCommand("copy");
+    $temp.remove();
+
+    //UI Changes
+    $(element).addClass('easyCopyToolEffect');
+    setTimeout(function(){
+      $(element).removeClass('easyCopyToolEffect');
+    }, 1000);
+}
+
+
+  

@@ -1,16 +1,16 @@
 
 Notes:
 
-1. Set Default takeaway and delivery modes for ONLINE DELIVERY (Also RESERVED Payment Method)
-2. What happens in Billing when Billing Extra deleted?
-3. Add Session Name, and Machine name to Bill
-4. machine name manager
-5. Auto - Session changer (ON/OFF option)
+1. [DONE] Set Default takeaway and delivery modes for ONLINE DELIVERY (Also RESERVED Payment Method)
+2. [DONE] What happens in Billing when Billing Extra deleted?
+3. [DONE] Add Session Name, and Machine name to Bill
+4. [DONE] machine name manager
+5. [DONE] Auto - Session changer (ON/OFF option)
 6. [DONE] - Add NOTES (to include COD or Prepaid) to customer info
-7. What ever settings made (Billing Settings etc) make effecting (isDiscountable etc.) on Billing.
+7. [DONE] What ever settings made (Billing Settings etc) make effecting (isDiscountable etc.) on Billing.
 8. [DONE] - SPecial Comments (add to Bill)
 9. [DONE] - AUTO WARNING (allergi contents)
-10. All round off to TWO DECIMALS
+10. [DONE] All round off to TWO DECIMALS
 11. Easy COPY button everywhere possible
 12. [DONE] - AUTO APPLY Discount (if online order has discount applied)
 13. [DONE] - NEW ONLINE Order warning
@@ -32,6 +32,8 @@ Notes:
 26. Shift items to different table
 27. Choose Delivery Agent (for in-restaurant Delivery)
 28. Add Veg/Non Veg, Item Code inputs
+29. Filter REFUNDED/NON REFUNDED in Bills (new Filter)
+30. LIVE ORDERS --> Add unbilled non-DINE orders! Where is it going now?
 
 
 
