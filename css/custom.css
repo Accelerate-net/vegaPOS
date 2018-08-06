@@ -4508,8 +4508,62 @@ input:checked + .slider:before {
   animation-duration: 1s; 
 }
 
-  
 
+.liveOrderSwitcher{
+    position: absolute;
+    right: 55px;
+    top: 65px;
+
+    display: block;
+    font-size: 16px;
+    border-radius: 5px;
+    box-shadow: none;
+    background: #d6125a;
+    font-weight: 600;
+    border: none;
+    border-bottom: 2px solid #a70c30 !important;
+    font-family: 'Source Sans Pro',sans-serif;    
+}
+
+.liveOrderSwitcher:hover, .liveOrderSwitcher:active, .liveOrderSwitcher:focus{
+  outline: none;
+  background: #a70c30;
+  border-color: #770b25 !important;
+}
+
+.liveOrderNonDine{
+  cursor: pointer;
+}
+
+.liveOrderNonDine:hover{
+  background: #fcffef;
+}
+  
+@-webkit-keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.hiddenLiveButton {
+  -webkit-animation-name: fadeOut;
+  animation-name: fadeOut;
+  animation-duration: 2s; 
+}
 
 
 

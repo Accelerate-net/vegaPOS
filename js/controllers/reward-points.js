@@ -226,7 +226,6 @@ function renderHistory(data, userID){
 			n++;
 		}
 
-		data.list[i].cart.cartPoints = 100;
 		
 		if(!data.list[i].type){
 			data.list[i].type = '';

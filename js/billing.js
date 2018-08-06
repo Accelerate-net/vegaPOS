@@ -1997,7 +1997,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                             billTableMapping(kotfile.table, billNumber, 2, optionalPageRef);
                           }
                           
-                          deleteKOTFromServer(memory_id, memory_rev);
+                          deleteKOTFromServer(memory_id, memory_rev, optionalPageRef);
 
                           //If an online order ==> Update Mapping
                           if(kotfile.orderDetails.isOnline){
@@ -2031,7 +2031,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                             //Already handled inside billTableMapping() call
                           }
                           else if(optionalPageRef == 'LIVE_ORDERS'){
-                            //Already handled inside billTableMapping() call
+                            //DINE case Already handled inside billTableMapping() call
                           }
 
                           //Update bill number on server
@@ -2085,7 +2085,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
 
 
-function deleteKOTFromServer(id, revID){
+function deleteKOTFromServer(id, revID, optionalPageRef){
     $.ajax({
       type: 'DELETE',
       url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+id+'?rev='+revID,
@@ -2093,7 +2093,9 @@ function deleteKOTFromServer(id, revID){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-      
+        if(optionalPageRef == 'LIVE_ORDERS'){
+          renderAllKOTs();
+        }
       },
       error: function(data) {
         showToast('Server Warning: Unable to modify Order KOT. Please contact Accelerate Support.', '#e67e22');
