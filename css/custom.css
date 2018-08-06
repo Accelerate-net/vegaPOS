@@ -4362,6 +4362,7 @@ input:checked + .slider:before {
   20% {
     -webkit-transform: scale3d(0.9, 0.9, 0.9);
     transform: scale3d(0.9, 0.9, 0.9);
+    color: #53bd8c;
   }
 
   50%,
@@ -4369,12 +4370,14 @@ input:checked + .slider:before {
     opacity: 1;
     -webkit-transform: scale3d(1.1, 1.1, 1.1);
     transform: scale3d(1.1, 1.1, 1.1);
+    color: #53bd8c;
   }
 
   to {
     opacity: 0;
     -webkit-transform: scale3d(0.3, 0.3, 0.3);
     transform: scale3d(0.3, 0.3, 0.3);
+    color: #53bd8c;
   }
 }
 
@@ -4382,6 +4385,7 @@ input:checked + .slider:before {
   20% {
     -webkit-transform: scale3d(0.9, 0.9, 0.9);
     transform: scale3d(0.9, 0.9, 0.9);
+    color: #53bd8c;
   }
 
   50%,
@@ -4389,12 +4393,14 @@ input:checked + .slider:before {
     opacity: 1;
     -webkit-transform: scale3d(1.1, 1.1, 1.1);
     transform: scale3d(1.1, 1.1, 1.1);
+    color: #53bd8c;
   }
 
   to {
     opacity: 0;
     -webkit-transform: scale3d(0.3, 0.3, 0.3);
     transform: scale3d(0.3, 0.3, 0.3);
+    color: #53bd8c;
   }
 }
 
