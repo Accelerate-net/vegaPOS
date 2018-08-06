@@ -444,20 +444,20 @@ function fetchOrderDetails(orderID){
 
 			while(j < myCart.length){
 				allItems = allItems + '<tr> <td>'+(j+1)+'</td> <td>'+myCart[j].itemName+(myCart[j].isCustom ? '<tag style="color: #ff8100; font-size: 80%; margin-left: 5px;">'+myCart[j].variant+'</tag>' : '')+'</td> <td style="text-align: center">'+myCart[j].qty+'</td>'+
-							'<td style="text-align: center"><i class="fa fa-inr"></i> '+myCart[j].itemPrice+'</td> <td style="text-align: right"><i class="fa fa-inr"></i> '+myCart[j].qty*myCart[j].itemPrice+'</td> </tr>'; 
+							'<td style="text-align: center"><i class="fa fa-inr"></i>'+myCart[j].itemPrice+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+myCart[j].qty*myCart[j].itemPrice+'</td> </tr>'; 
 				j++;
 			}
 			
 			//Other Calculations
-			allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Sub Total</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].cart.cartTotal+'</td> </tr>';
-			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Extras</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].cart.cartExtra+'</td> </tr>';
-			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Discounts</b></td>  <td style="text-align: right">'+(lastOrderFetchInfo[i].cart.cartDiscount != 0 ? '- <i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].cart.cartDiscount : '<i class="fa fa-inr"></i> 0')+'</td> </tr>';
+			allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Sub Total</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+lastOrderFetchInfo[i].cart.cartTotal+'</td> </tr>';
+			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Extras</b></td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+lastOrderFetchInfo[i].cart.cartExtra+'</td> </tr>';
+			allItems = allItems +'<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Discounts</b></td>  <td style="text-align: right">'+(lastOrderFetchInfo[i].cart.cartDiscount != 0 ? '- <i class="fa fa-inr"></i>'+lastOrderFetchInfo[i].cart.cartDiscount : '<i class="fa fa-inr"></i>0')+'</td> </tr>';
 
 			if(lastOrderFetchInfo[i].isPrepaid){
-				allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Amount Received</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].amountPaid+'</b></td> </tr>';
+				allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Total Amount Received</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i>'+lastOrderFetchInfo[i].amountPaid+'</b></td> </tr>';
 			}
 			else{
-				allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Cash to be Collected</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+lastOrderFetchInfo[i].amountPaid+'</b></td> </tr>';
+				allItems = allItems + '<tr style="background: #fcfcfc"> <td></td><td></td> <td colspan="2"><b>Cash to be Collected</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i>'+lastOrderFetchInfo[i].amountPaid+'</b></td> </tr>';
 			}
 			
 			
@@ -540,7 +540,7 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 
 			while(j < myCart.length){
 				allItems = allItems + '<tr> <td>'+(j+1)+'</td> <td>'+myCart[j].name+(myCart[j].isCustom ? '<tag style="color: #ff8100; font-size: 80%; margin-left: 5px;">'+myCart[j].variant+'</tag>' : '')+'</td> <td style="text-align: center">'+myCart[j].qty+'</td>'+
-							'<td style="text-align: center"><i class="fa fa-inr"></i> '+myCart[j].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i> '+myCart[j].qty*myCart[j].price+'</td> </tr>'; 
+							'<td style="text-align: center"><i class="fa fa-inr"></i>'+myCart[j].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+myCart[j].qty*myCart[j].price+'</td> </tr>'; 
 				
 				totalSum += myCart[j].price * myCart[j].qty;
 
@@ -586,10 +586,10 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 			//Other Calculations
 			var finalBar = '';
 			if(orderObj.orderDetails.onlineOrderDetails.paymentMode == "PREPAID"){
-				finalBar = '<tr style="background: #f4f4f4;"> <td></td><td></td> <td colspan="2"><b>Total Received Amount</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+Math.round(totalSum)+'</b></td> </tr>';
+				finalBar = '<tr style="background: #f4f4f4;"> <td></td><td></td> <td colspan="2"><b>Total Received Amount</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i>'+Math.round(totalSum)+'</b></td> </tr>';
 			}
 			else{
-				finalBar = '<tr style="background: #f4f4f4;"> <td></td><td></td> <td colspan="2"><b>Total Payable Amount</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i> '+Math.round(totalSum)+'</b></td> </tr>';
+				finalBar = '<tr style="background: #f4f4f4;"> <td></td><td></td> <td colspan="2"><b>Total Payable Amount</b></td>  <td style="text-align: right"><b><i class="fa fa-inr"></i>'+Math.round(totalSum)+'</b></td> </tr>';
 			}
 			
 			document.getElementById("itemInfo").innerHTML = allItems + otherCharges + discountTag + customExtraTag + finalBar;

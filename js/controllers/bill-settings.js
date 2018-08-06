@@ -455,7 +455,7 @@ function fetchAllDiscountTypes(){
               var modesTag = '';
 
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+(modes[i].maxDiscountUnit == 'PERCENTAGE'? (modes[i].maxDiscountValue+'%'): ('<i class="fa fa-inr"></i> '+modes[i].maxDiscountValue))+'</td> <td onclick="deleteDiscountTypeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+(modes[i].maxDiscountUnit == 'PERCENTAGE'? (modes[i].maxDiscountValue+'%'): ('<i class="fa fa-inr"></i>'+modes[i].maxDiscountValue))+'</td> <td onclick="deleteDiscountTypeConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
               }
 
               if(!modesTag)
