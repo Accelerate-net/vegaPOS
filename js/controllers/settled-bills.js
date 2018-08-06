@@ -2290,6 +2290,35 @@ function openSelectedBill(encodedBill, type){
 		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Payable Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.payableAmount).toFixed(2)+'</td> </tr>';
 
 
+
+		var deliveryOrderSubOption = '';
+		var deliveryAgentDetailsContent = '';
+
+		if(bill.orderDetails.modeType == 'DELIVERY'){
+			if(jQuery.isEmptyObject(bill.deliveryDetails)){
+					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS\')">'+
+			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
+			                                        '<i class="fa fa-truck"></i>'+
+			                                      '</tag>'+
+			                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Assign Delivery Agent</span>'+
+			                                    '</li>';
+			}
+			else{
+				if(bill.deliveryDetails.name == '' && bill.deliveryDetails.mobile == ''){
+					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS\')">'+
+			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
+			                                        '<i class="fa fa-truck"></i>'+
+			                                      '</tag>'+
+			                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Assign Delivery Agent</span>'+
+			                                    '</li>';
+				}		
+				else{
+					deliveryAgentDetailsContent = '<div class="deliveryAddress"> <p class="deliveryTitle">Delivery Details</p>'+( bill.deliveryDetails.name != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.deliveryDetails.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.deliveryDetails.mobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.deliveryDetails.mobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div>';
+				}		
+			}
+        }
+
+
         //Submenu options
         var subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
                                   '<div class="floaty-btn small" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
@@ -2303,6 +2332,7 @@ function openSelectedBill(encodedBill, type){
                                     '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Settle Bill</span>'+
                                   '</div>'+
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
+                                  	deliveryOrderSubOption+
                                     '<li class="floaty-list-item floaty-list-item--red" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_PENDING\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
                                         '<i class="fa fa-trash-o whiteWash"></i>'+
@@ -2311,6 +2341,8 @@ function openSelectedBill(encodedBill, type){
                                     '</li>'+     
                                   '</ul>'+
                                 '</div>';
+
+
 
 
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
@@ -2332,9 +2364,9 @@ function openSelectedBill(encodedBill, type){
 												            '</tbody>'+
 												         '</table>'+
 												         '<div class="row" style="margin-top: 40px">'+
-												            '<div class="col-xs-5"> <div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+((bill.customerName == '' && bill.customerMobile == '') ? '<p class="deliveryText" style="color: #ff8787">Not Available</p>' : '')+( bill.customerName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.customerName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.customerMobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.customerMobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
-												            '<div class="col-xs-2"></div>'+
-												            '<div class="col-xs-5"> <div class="deliveryAddress"> <p class="deliveryTitle">Steward Details</p>'+( bill.stewardName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.stewardName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.stewardCode != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.stewardCode+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
+												            '<div class="col-xs-4"> <div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+((bill.customerName == '' && bill.customerMobile == '') ? '<p class="deliveryText" style="color: #ff8787">Not Available</p>' : '')+( bill.customerName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.customerName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.customerMobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.customerMobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
+												            '<div class="col-xs-4">'+deliveryAgentDetailsContent+'</div>'+
+												            '<div class="col-xs-4"> <div class="deliveryAddress"> <p class="deliveryTitle">Steward Details</p>'+( bill.stewardName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.stewardName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.stewardCode != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.stewardCode+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
 												         '</div>'+
 												      '</div>'+
 												      '<div class="clearfix"></div>'+
@@ -2476,6 +2508,33 @@ function openSelectedBill(encodedBill, type){
 		}
 
 
+		var deliveryOrderSubOption = '';
+		var deliveryAgentDetailsContent = '';
+		
+		if(bill.orderDetails.modeType == 'DELIVERY'){
+			if(jQuery.isEmptyObject(bill.deliveryDetails)){
+					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS_SETTLED\')">'+
+			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
+			                                        '<i class="fa fa-truck"></i>'+
+			                                      '</tag>'+
+			                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Assign Delivery Agent</span>'+
+			                                    '</li>';
+			}
+			else{
+				if(bill.deliveryDetails.name == '' && bill.deliveryDetails.mobile == ''){
+					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS_SETTLED\')">'+
+			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
+			                                        '<i class="fa fa-truck"></i>'+
+			                                      '</tag>'+
+			                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Assign Delivery Agent</span>'+
+			                                    '</li>';
+				}		
+				else{
+					deliveryAgentDetailsContent = '<div class="deliveryAddress" style="position: relative"> <p class="deliveryTitle">Delivery Details<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')" style="float: right; position: absolute; top: 4px; right: 4px;"><i class="fa fa-home"></i></tag></p>'+( bill.deliveryDetails.name != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.deliveryDetails.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.deliveryDetails.mobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.deliveryDetails.mobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div>';
+				}				
+			}
+        }
+
         //Submenu options
         var subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
                                   '<div class="floaty-btn small" style="box-shadow: none;" onclick="printDuplicateBill(\''+bill.billNumber+'\')">'+
@@ -2489,6 +2548,7 @@ function openSelectedBill(encodedBill, type){
                                     '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Print Duplicate Bill</span>'+
                                   '</div>'+
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
+                                    deliveryOrderSubOption+
                                     '<li class="floaty-list-item floaty-list-item--yellow" onclick="initiateRefundSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 0px; font-size: 26px;" class="absolute-center">'+
                                         '<i class="fa fa-inr"></i>'+
@@ -2524,9 +2584,9 @@ function openSelectedBill(encodedBill, type){
 												            '</tbody>'+
 												         '</table>'+
 												         '<div class="row" style="margin-top: 40px">'+
-												            '<div class="col-xs-5"> <div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+((bill.customerName == '' && bill.customerMobile == '') ? '<p class="deliveryText" style="color: #ff8787">Not Available</p>' : '')+( bill.customerName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.customerName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.customerMobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.customerMobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
-												            '<div class="col-xs-2"></div>'+
-												            '<div class="col-xs-5"> <div class="deliveryAddress"> <p class="deliveryTitle">Steward Details</p>'+( bill.stewardName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.stewardName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.stewardCode != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.stewardCode+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
+												            '<div class="col-xs-4"> <div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+((bill.customerName == '' && bill.customerMobile == '') ? '<p class="deliveryText" style="color: #ff8787">Not Available</p>' : '')+( bill.customerName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.customerName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.customerMobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.customerMobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
+												            '<div class="col-xs-4">'+deliveryAgentDetailsContent+'</div>'+
+												            '<div class="col-xs-4"> <div class="deliveryAddress"> <p class="deliveryTitle">Steward Details</p>'+( bill.stewardName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.stewardName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.stewardCode != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+bill.stewardCode+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
 												         '</div>'+
 												      '</div>'+
 												      '<div class="clearfix"></div>'+
@@ -3049,3 +3109,308 @@ function clearAppliedFilter(optionalRoute){
 		loadAllPendingSettlementBills('EXTERNAL');
 	}	
 }
+
+
+
+/* Assign Delivery Agent */
+function assignDeliveryAgent(billNumber, optionalPageRef){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+
+              var users = data.docs[0].value;
+              users.sort(); //alphabetical sorting 
+
+              if(users.length == 0){
+                showToast('Warning: No User registered yet.', '#e67e22');
+                return '';
+              }
+
+              var n = 0;
+              var renderContent = '';
+              var isRendered = false;
+              var actualCounter = 0;
+
+              while(users[n]){
+
+              	if(users[n].role == 'AGENT'){
+
+	                isRendered = false;
+
+	                if(actualCounter == 0){
+	                  isRendered = true;
+	                  renderContent = '<div class="row" style="margin: 0">';
+	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="assignDeliveryAgentAfterProcess(\''+billNumber+'\', \''+users[n].code+'\', \''+users[n].name+'\', \''+optionalPageRef+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+	                }
+	                else if(actualCounter == 1){
+	                  isRendered = true;
+	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="assignDeliveryAgentAfterProcess(\''+billNumber+'\', \''+users[n].code+'\', \''+users[n].name+'\', \''+optionalPageRef+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+	                  renderContent += '</div>';
+	                }
+	                else if(actualCounter > 1 && actualCounter%2 == 0){
+	                  renderContent += '<div class="row" style="margin: 4px 0 0 0">';
+	                }
+
+	                if(!isRendered){
+	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="assignDeliveryAgentAfterProcess(\''+billNumber+'\', \''+users[n].code+'\', \''+users[n].name+'\', \''+optionalPageRef+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+	                }
+
+	                if(actualCounter > 1 && actualCounter%2 == 1){
+	                  renderContent += '</div>';
+	                }
+
+	                actualCounter++;
+	            }
+
+                n++;
+              }
+
+              document.getElementById("deliveryBoysModal").style.display = 'block';
+              document.getElementById("deliveryBoysModalContent").innerHTML = '<div class="modal-header" style="padding: 0; border: none"> <div class="row"><h1 style="margin: 0; font-size: 14px; color: #FFF; padding: 10px 25px; text-align: left; font-weight: bold; text-transform: uppercase; background: #607e8c;">Select a Delivery Agent</h1></div> </div> </div>'+
+              										'<div style="padding: 10px 10px 5px 10px">'+renderContent + '</div></div><div class="modal-footer" style="padding: 5px 0 0 0; border: none"> <div class="row"> <button class="btn btn-default" onclick="selectDeliveryBoyWindowSystemClose()" id="deliveryBoyWindowCloseButton" style="width: 100%; height: 40px; border: none">Close</button> </div> </div> </div>';
+
+              //<div class="row"><button>Close</button><tag >X</tag>Hello</div>';
+
+              /*
+                EasySelect Tool (TWO COLUMN - MULTI ROW GRID)
+              */
+              var tiles = $('#deliveryBoysModalContent .easySelectTool_StewardProfile');
+              var tileSelected = undefined; //Check for active selection
+              var i = 0;
+              var currentIndex = 0;
+              var lastIndex = 0;
+
+              $.each(tiles, function() {
+                if($(tiles[i]).hasClass("selectUserProfile")){
+                  tileSelected = tiles.eq(i);
+                  currentIndex = i;
+                }
+
+                lastIndex = i;
+                i++;
+              });  
+
+              var easySelectTool = $(document).on('keydown',  function (e) {
+
+                console.log('Am secretly running...')
+                if($('#deliveryBoysModal').is(':visible')) {
+
+                  console.log(e.which)
+
+                     switch(e.which){
+                      case 37:{ //  < Left Arrow
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
+
+                              currentIndex--;
+                              if(currentIndex < 0){
+                                currentIndex = lastIndex;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 38:{ //  ^ Up Arrow 
+                  
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
+
+                              currentIndex = currentIndex - 2;
+
+                              if(currentIndex < 0){
+                                if(Math.abs(currentIndex)%2 == 1)
+                                  currentIndex = lastIndex;
+                                else
+                                  currentIndex = lastIndex - 1;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 39:{ // Right Arrow >
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
+
+                              currentIndex++;
+                              if(currentIndex > lastIndex){
+                                currentIndex = 0;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 40:{ // Down Arrow \/ 
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selectUserProfile');
+
+                              currentIndex = currentIndex + 2;
+                              if(currentIndex > lastIndex){
+                                currentIndex = currentIndex % 2;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selectUserProfile');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
+                          }      
+
+                        break;
+                      }
+                      case 27:{ // Escape (Close)
+                        $('#deliveryBoyWindowCloseButton').click();
+                        easySelectTool.unbind();
+                        break;  
+                      }
+                      case 13:{ // Enter (Confirm)
+
+                        $("#deliveryBoysModalContent .easySelectTool_StewardProfile").each(function(){
+                          if($(this).hasClass("selectUserProfile")){
+                            $(this).click();
+                            e.preventDefault(); 
+                            easySelectTool.unbind();   
+                          }
+                        });    
+
+                                   
+                        
+                        break;
+                      }
+                     }
+                }
+              });
+
+
+          }
+          else{
+            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
+
+function selectDeliveryBoyWindowSystemClose(){
+  document.getElementById("deliveryBoysModal").style.display = 'none';
+}
+
+function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef){
+
+	selectDeliveryBoyWindowSystemClose();
+
+	billNumber = parseInt(billNumber);
+
+	var current_time = getCurrentTime('TIME');
+
+    var deliveryObject = {
+            "timeDelivery" : current_time,
+            "name" : name,
+            "mobile" : code
+    }
+
+    var requestURL = 'zaitoon_bills';
+    var requestURLSource = 'PENDING';
+
+
+    if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
+      requestURL = 'zaitoon_invoices';
+      requestURLSource = 'SETTLED';
+    }
+
+    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(firstdata) {
+      	console.log(firstdata)
+        if(firstdata.docs.length > 0){
+
+          var bill = firstdata.docs[0];
+          bill.deliveryDetails = deliveryObject;
+
+                var encodedBill = encodeURI(JSON.stringify(bill));
+
+                //Update Bill/Invoice on Server
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+requestURL+'/'+(bill._id)+'/',
+                  data: JSON.stringify(bill),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Delivery agent <b>'+name+'</b> assigned', '#27ae60');
+                      openSelectedBill(encodedBill, requestURLSource);
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+          
+        }
+        else{
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(firstdata) {
+        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+

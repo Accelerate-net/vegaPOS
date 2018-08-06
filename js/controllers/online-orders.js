@@ -807,7 +807,7 @@ function selectDeliveryBoyWindow(encodedMapping){
 
               while(users[n]){
 
-              	if(users[n].role != 'aAGENT'){
+              	if(users[n].role == 'AGENT'){
 
 	                isRendered = false;
 
@@ -840,8 +840,8 @@ function selectDeliveryBoyWindow(encodedMapping){
               }
 
               document.getElementById("deliveryBoysModal").style.display = 'block';
-              document.getElementById("deliveryBoysModalContent").innerHTML = '<div class="modal-header" style="padding: 5px 0 0 0; border: none"> <div class="row"><h1 style="margin: 0; font-size: 24px; color: gray; padding: 0 16px 10px 16px; text-align: center; font-weight: 300;">Select a Delivery Agent</h1></div> </div> </div>'+
-              										renderContent + '</div><div class="modal-footer" style="padding: 5px 0 0 0; border: none"> <div class="row"> <button class="btn btn-default" onclick="selectDeliveryBoyWindowClose()" id="deliveryBoyWindowCloseButton" style="width: 100%">Close</button> </div> </div> </div>';
+              document.getElementById("deliveryBoysModalContent").innerHTML = '<div class="modal-header" style="padding: 0; border: none"> <div class="row"><h1 style="margin: 0; font-size: 14px; color: #FFF; padding: 10px 25px; text-align: left; font-weight: bold; text-transform: uppercase; background: #607e8c;">Select a Delivery Agent</h1></div> </div> </div>'+
+              										'<div style="padding: 10px 10px 5px 10px">'+renderContent + '</div></div><div class="modal-footer" style="padding: 5px 0 0 0; border: none"> <div class="row"> <button class="btn btn-default" onclick="selectDeliveryBoyWindowSystemClose()" id="deliveryBoyWindowCloseButton" style="width: 100%; height: 40px; border: none">Close</button> </div> </div> </div>';
 
               //<div class="row"><button>Close</button><tag >X</tag>Hello</div>';
 
@@ -865,6 +865,7 @@ function selectDeliveryBoyWindow(encodedMapping){
               });  
 
               var easySelectTool = $(document).on('keydown',  function (e) {
+
                 console.log('Am secretly running...')
                 if($('#deliveryBoysModal').is(':visible')) {
 
