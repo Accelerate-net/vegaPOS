@@ -1,6 +1,6 @@
 {
   "_id": "_design/invoice-summary",
-  "_rev": "70-464d3dd1a8183bd2b85d843fc0948019",
+  "_rev": "72-58ff22ba1e433c8b212e28d08cb69828",
   "views": {
     "sumbybillingmode": {
       "reduce": "_stats",

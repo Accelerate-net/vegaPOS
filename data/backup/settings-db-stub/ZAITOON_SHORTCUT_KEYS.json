@@ -1,0 +1,137 @@
+{
+  "_id": "ZAITOON_SHORTCUT_KEYS",
+  "_rev": "41-b2828a4f12ef8cbbaba019b124ca7f85",
+  "identifierTag": "ZAITOON_SHORTCUT_KEYS",
+  "value": [
+    {
+      "systemName": "Z001",
+      "data": [
+        {
+          "name": "Show Spotlight Search",
+          "value": "ctrl+w"
+        },
+        {
+          "name": "Punch Item",
+          "value": ""
+        },
+        {
+          "name": "Change Quantity",
+          "value": ""
+        },
+        {
+          "name": "Delete Item",
+          "value": ""
+        },
+        {
+          "name": "Print Items View",
+          "value": ""
+        },
+        {
+          "name": "Print KOT",
+          "value": "ctrl+k"
+        },
+        {
+          "name": "Print Bill",
+          "value": "ctrl+p"
+        },
+        {
+          "name": "Close Preview",
+          "value": "ctrl+u"
+        },
+        {
+          "name": "Shift Table",
+          "value": ""
+        },
+        {
+          "name": "Recent Printed Bills",
+          "value": ""
+        },
+        {
+          "name": "Cancel Bill",
+          "value": ""
+        },
+        {
+          "name": "Issue Refund",
+          "value": ""
+        },
+        {
+          "name": "Table View",
+          "value": ""
+        },
+        {
+          "name": "Go to Settings",
+          "value": ""
+        },
+        {
+          "name": "Refresh Application",
+          "value": "ctrl+r"
+        }
+      ]
+    },
+    {
+      "systemName": "Any",
+      "data": [
+        {
+          "name": "Show Spotlight Search",
+          "value": "shift+s"
+        },
+        {
+          "name": "Punch Item",
+          "value": "ctrl+i"
+        },
+        {
+          "name": "Change Quantity",
+          "value": "shift+q"
+        },
+        {
+          "name": "Delete Item",
+          "value": ""
+        },
+        {
+          "name": "Print Items View",
+          "value": ""
+        },
+        {
+          "name": "Print KOT",
+          "value": "ctrl+k"
+        },
+        {
+          "name": "Print Bill",
+          "value": "ctrl+p"
+        },
+        {
+          "name": "Close Preview",
+          "value": "ctrl+u"
+        },
+        {
+          "name": "Shift Table",
+          "value": ""
+        },
+        {
+          "name": "Recent Printed Bills",
+          "value": ""
+        },
+        {
+          "name": "Cancel Bill",
+          "value": ""
+        },
+        {
+          "name": "Issue Refund",
+          "value": ""
+        },
+        {
+          "name": "Table View",
+          "value": ""
+        },
+        {
+          "name": "Go to Settings",
+          "value": ""
+        },
+        {
+          "name": "Refresh Application",
+          "value": "ctrl+r"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "_id": "ZAITOON_SYSTEM_OPTIONS",
+  "_rev": "32-2f71193f63c1c1af04a92a1f6cada8e7",
+  "identifierTag": "ZAITOON_SYSTEM_OPTIONS",
+  "value": [
+    {
+      "systemName": "Any",
+      "data": [
+        {
+          "name": "notifications",
+          "value": "ERRORS"
+        },
+        {
+          "name": "onlineOrders",
+          "value": "YES"
+        },
+        {
+          "name": "defaultPrepaidName",
+          "value": "Razor"
+        },
+        {
+          "name": "defaultDeliveryMode",
+          "value": "Delivery - Zatioon App"
+        },
+        {
+          "name": "defaultTakeawayMode",
+          "value": "NONE"
+        },
+        {
+          "name": "defaultDineMode",
+          "value": "Dine In"
+        }
+      ]
+    },
+    {
+      "systemName": "Z001",
+      "data": [
+        {
+          "name": "notifications",
+          "value": "ERRORS"
+        },
+        {
+          "name": "onlineOrders",
+          "value": "YES"
+        },
+        {
+          "name": "defaultPrepaidName",
+          "value": "Razor"
+        },
+        {
+          "name": "defaultDeliveryMode",
+          "value": "Delivery - Zatioon App"
+        },
+        {
+          "name": "defaultTakeawayMode",
+          "value": "Takeaway - Zatioon App"
+        },
+        {
+          "name": "defaultDineMode",
+          "value": "Dine In"
+        }
+      ]
+    }
+  ]
+}

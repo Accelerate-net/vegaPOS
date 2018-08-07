@@ -1,0 +1,63 @@
+{
+  "_id": "ZAITOON_CONFIGURED_PRINTERS",
+  "_rev": "16-8d12bc61e52ded3e3c083c05053115ec",
+  "identifierTag": "ZAITOON_CONFIGURED_PRINTERS",
+  "value": [
+    {
+      "systemName": "Any",
+      "data": [
+        {
+          "name": "Kitchen",
+          "type": "NETWORK",
+          "address": "http://192.0.1.2:9204/",
+          "actions": [
+            "KOT"
+          ],
+          "height": "",
+          "width": "123"
+        },
+        {
+          "name": "Desk",
+          "type": "NETWORK",
+          "address": "http://192.0.1.3:14214/",
+          "actions": [
+            "BILL"
+          ],
+          "height": "",
+          "width": "123"
+        },
+        {
+          "name": "AC Dine Hall",
+          "type": "NETWORK",
+          "address": "http://192.0.3.129:8090",
+          "height": "",
+          "width": "320",
+          "actions": "BILL,DUPLICATE BILL"
+        }
+      ]
+    },
+    {
+      "systemName": "Z001",
+      "data": [
+        {
+          "name": "Kitchen",
+          "type": "NETWORK",
+          "address": "http://192.0.1.2:9204/",
+          "actions": [
+            "KOT"
+          ],
+          "height": "",
+          "width": "123"
+        },
+        {
+          "name": "AC Dine Hall",
+          "type": "NETWORK",
+          "address": "http://192.0.3.129:8090",
+          "height": "",
+          "width": "320",
+          "actions": "BILL,DUPLICATE BILL"
+        }
+      ]
+    }
+  ]
+}

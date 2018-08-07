@@ -1,0 +1,11 @@
+{
+  "_id": "ZAITOON_CANCELLATION_REASONS",
+  "_rev": "20-f3aa765aca151b58991a1beba289b916",
+  "identifierTag": "ZAITOON_CANCELLATION_REASONS",
+  "value": [
+    "No Worth for Cash",
+    "Not Satisfied",
+    "Other Emergency Situations",
+    "Delayed Service"
+  ]
+}

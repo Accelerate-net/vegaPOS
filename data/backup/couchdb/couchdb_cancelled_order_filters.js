@@ -1,10 +1,7 @@
 {
-  "_id": "_design/bill-filters",
-  "_rev": "13-d69d5dfa66fcc060297907180c468b8e",
+  "_id": "_design/order-filters",
+  "_rev": "3-34090e994d91240608e8f3ffd5b50178",
   "views": {
-    "filterbydiscount": {
-      "map": "function (doc) {\n  if(doc.date){\n    if(doc.discount.amount){\n      emit(['discounted', doc.date], doc);\n    }\n    else{\n      emit(['nondiscounted', doc.date], doc);\n    }\n  }\n}"
-    },
     "filterbymachine": {
       "map": "function (doc) {\n  if(doc.machineName && doc.date){\n    emit([doc.machineName, doc.date], doc);\n  }\n}"
     },
@@ -28,9 +25,6 @@
     },
     "showall": {
       "map": "function (doc) {\n  if(doc.date){\n    emit([doc.date], doc);\n  }\n}"
-    },
-    "filterbyrefund": {
-      "map": "function (doc) {\n  if(!doc.refundDetails){\n    emit(['norefund', doc.date], doc);\n  }\n  else if(doc.refundDetails.status && doc.refundDetails.amount && doc.date){\n    if(doc.refundDetails.status == 3){\n      emit(['fullrefund', doc.date], doc);\n    }\n    else if(doc.refundDetails.status == 2){\n      emit(['partialrefund', doc.date], doc);\n    }\n  }\n}"
     }
   },
   "language": "javascript"
