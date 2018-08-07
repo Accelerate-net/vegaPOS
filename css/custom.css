@@ -4571,8 +4571,36 @@ input:checked + .slider:before {
   animation-duration: 2s; 
 }
 
+.onlineOrderDateSelection{
+    width: 30px;
+    display: inline-block;
+    color: #d2d2d2;
+    margin-left: 2px;
+    text-align: center;
+    cursor: pointer;
+}
 
+.onlineOrderDateSelection:hover,
+.onlineOrderDateSelection:active,
+.onlineOrderDateSelection:focus{
+  color: #1abc9c !important;
+}
 
+.onlineOrderDateSelectionOnDate{
+  cursor: pointer;
+  border: none;
+    border-bottom: 1px dashed #d2d2d2;
+    display: inline-block;
+    width: 110px;
+    text-align: center;
+}
+
+.onlineOrderDateSelectionOnDate:hover,
+.onlineOrderDateSelectionOnDate:focus,
+.onlineOrderDateSelectionOnDate:active{
+  color: #e42273;
+  outline: none;
+}
 
 
 

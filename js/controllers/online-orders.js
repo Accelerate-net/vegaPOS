@@ -1,3 +1,16 @@
+/* STATUS CODES
+onlineStatus 
+	0 - Not Confirmed
+	1 - Confirmed
+	2 - Completed/Dispatched
+
+systemStatus
+	1 - KOT Punched
+	2 - Bill Generated
+	3 - Bill Settled
+*/
+
+
 
 function renderOnlineOrders(){
 
@@ -154,14 +167,49 @@ function renderLiveOnlineOrders(){
 
 
 
+function undoFilterDateOnlineOrders(){
+	window.localStorage.onlineOrders_filterDate = '';
+	renderCompletedOnlineOrders();
+}
+
+function applyFilterDateOnlineOrders(){
+	window.localStorage.onlineOrders_filterDate = $('#onlineOrderDateSelectionOnDateValue').val();
+	renderCompletedOnlineOrders();
+}
+
+function openFilterDateOnlineOrders(){
+	window.localStorage.onlineOrders_filterDate = getCurrentTime('DATE_DD-MM-YY');
+	renderCompletedOnlineOrders();
+}
+
 function renderCompletedOnlineOrders(){
 
 	$("#onlineOrders_incoming").removeClass("billTypeSelectionBox");
 	$("#onlineOrders_live").removeClass("billTypeSelectionBox");
 	$("#onlineOrders_completed").addClass("billTypeSelectionBox");
 
-	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Completed Orders</h3>'+
+	var todayDate = getCurrentTime('DATE_DD-MM-YY');
+	var filterDateApplied = window.localStorage.onlineOrders_filterDate ? window.localStorage.onlineOrders_filterDate : '';
+
+
+	if(filterDateApplied == ''){
+		filterDateApplied = todayDate;
+		document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Today\'s Completed Orders<tag class="onlineOrderDateSelection" onclick="openFilterDateOnlineOrders()"><i class="fa fa-calendar"></i></tag></h3>'+
 																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderCompletedOnlineOrders()">Refresh</button>';
+	}
+	else{
+		document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Completed Orders on <input type="text" class="onlineOrderDateSelectionOnDate" id="onlineOrderDateSelectionOnDateValue" value="'+filterDateApplied+'" onchange="applyFilterDateOnlineOrders()"><tag class="onlineOrderDateSelection" onclick="undoFilterDateOnlineOrders()"><i class="fa fa-undo"></i></tag></h3>';
+	
+		var options = {
+			maxDate: "+0D", 
+			dateFormat: "dd-mm-yy"
+		};
+
+		var $j = jQuery.noConflict();
+		$j( "#onlineOrderDateSelectionOnDateValue" ).datepicker(options);
+	}		
+
+
 
 	document.getElementById("orderInfo").innerHTML = '';
 	document.getElementById("onlineOrders").innerHTML = '';
@@ -169,9 +217,7 @@ function renderCompletedOnlineOrders(){
 
 	displayOrderCounts();
 
-	var filterDate = getCurrentTime('DATE_DD-MM-YY');
-
-    var requestData = { "selector" :{ "onlineStatus": 2, "systemDate": filterDate }} //Show only todays completed orders be default
+    var requestData = { "selector" :{ "onlineStatus": 2, "systemDate": filterDateApplied }} //Show only todays completed orders be default
 
                 $.ajax({
                   type: 'POST',
@@ -196,12 +242,12 @@ function renderCompletedOnlineOrders(){
 			        	}
 			        	else{
 			        		document.getElementById("itemInfo").innerHTML = '';
-			        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Confirmed Orders</td></tr>';
+			        		document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Completed Orders</td></tr>';
 			        	}
                     }
                     else{
 						document.getElementById("itemInfo").innerHTML = '';
-			        	document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Confirmed Orders</td></tr>';
+			        	document.getElementById("onlineOrders").innerHTML = '<tr><td colspan="4" style="color: #b1b1b1; padding: 20px 0 0 0">There are no Completed Orders</td></tr>';
                     }
                   },
 			      error: function(data) {
@@ -414,12 +460,12 @@ function fetchOrderDetails(orderID){
 			console.log('AM HARD CODED TOOOO!')
 
 			if(lastOrderFetchInfo[i].isPrepaid){
-				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderID+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+orderID+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 									'<tag class="onlinePrepaid">PREPAID ORDER</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(lastOrderFetchInfo[i].orderSource)+'">'+lastOrderFetchInfo[i].orderSource+' - '+(lastOrderFetchInfo[i].isTakeaway ? 'TAKE AWAY' : 'DELIVERY')+'</type> </h3> '+
 									'<button class="btn btn-success btn-sm" style="float: right" onclick="punchOnlineOrderToKOT(\''+encodeURI(JSON.stringify(lastOrderFetchInfo[i]))+'\')">Punch Order</button>';
 			}
 			else{
-				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderID+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+orderID+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 									'<tag class="onlineCOD">Cash on Delivery</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(lastOrderFetchInfo[i].orderSource)+'">'+lastOrderFetchInfo[i].orderSource+' - '+(lastOrderFetchInfo[i].isTakeaway ? 'TAKE AWAY' : 'DELIVERY')+'</type> </h3> '+
 									'<button class="btn btn-success btn-sm" style="float: right" onclick="punchOnlineOrderToKOT(\''+encodeURI(JSON.stringify(lastOrderFetchInfo[i]))+'\')">Punch Order</button>';
 			}
@@ -466,13 +512,13 @@ function fetchOrderDetails(orderID){
 
 			if(!lastOrderFetchInfo[i].isTakeaway){
 				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Delivery Address</p>'+
-																			'<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.flatNo+', '+lastOrderFetchInfo[i].deliveryAddress.flatName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
-																			'<br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.landmark+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.area+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.contact+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag>'+
+																			'<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.flatNo+', '+lastOrderFetchInfo[i].deliveryAddress.flatName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
+																			'<br><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.landmark+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.area+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].deliveryAddress.contact+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag>'+
 																			'</b></p> </div>';
 			}
 			else{
 				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+
-															'<p class="deliveryText" style="font-size: 21px;"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+lastOrderFetchInfo[i].userName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText" style="font-size: 21px;">Mob. <tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].userID+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag></p> </div>';
+															'<p class="deliveryText" style="font-size: 21px;"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].userName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText" style="font-size: 21px;">Mob. <tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+lastOrderFetchInfo[i].userID+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag></p> </div>';
 			}
 
 			if(lastOrderFetchInfo[i].comments && lastOrderFetchInfo[i].comments != ''){
@@ -505,15 +551,15 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 				actionButton = '<button class="btn btn-success btn-sm" style="float: right" onclick="onlineOrderEasySettleBill(\''+orderObj.billNumber+'\')">Settle Bill</button>';	
 			}
 			else if(mappingObject.systemStatus == 3){
-				actionButton = '<button class="btn btn-default btn-sm" style="float: right" disabled>Bill Settled</button>';	
+				actionButton = '<span class="btn btn-default" style="float: right; color: gray !important; background: none !important; border: none !important">Invoice #<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+orderObj.billNumber+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></span>';	
 			}
 
 			if(orderObj.orderDetails.onlineOrderDetails.paymentMode == "PREPAID"){
-				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderObj.orderDetails.reference+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+orderObj.orderDetails.reference+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 									'<tag class="onlinePrepaid">PREPAID ORDER</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(orderObj.orderDetails.onlineOrderDetails.orderSource)+'">'+(orderObj.orderDetails.onlineOrderDetails.orderSource ? orderObj.orderDetails.onlineOrderDetails.orderSource+' - ' : '')+(orderObj.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : 'TAKE AWAY')+'</type> </h3> '+ actionButton
 			}
 			else{
-				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderObj.orderDetails.reference+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
+				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+orderObj.orderDetails.reference+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 									'<tag class="onlineCOD">Cash on Delivery</tag> <type class="orderSourceExpLabel" style="'+getSourceClass(orderObj.orderDetails.onlineOrderDetails.orderSource)+'">'+(orderObj.orderDetails.onlineOrderDetails.orderSource ? orderObj.orderDetails.onlineOrderDetails.orderSource+' - ' : '')+(orderObj.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : 'TAKE AWAY')+'</type> </h3> '+ actionButton
 			}
 
@@ -597,32 +643,54 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 			if(orderObj.orderDetails.modeType == 'DELIVERY'){
 				var address = JSON.parse(decodeURI(orderObj.table));
 				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Delivery Address</p>'+
-																			'<p class="deliveryText"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.flatNo+', '+address.flatName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
-																			'<br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.landmark+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.area+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+address.contact+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
+																			'<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+address.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+address.flatNo+', '+address.flatName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
+																			'<br><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+address.landmark+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag><br><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+address.area+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+address.contact+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
 																			'</b></p> </div>';
 			}
 			else{
 				document.getElementById("addressInfo").innerHTML = '<div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+
-															'<p class="deliveryText" style="font-size: 21px;"><tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderObj.customerName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText" style="font-size: 21px;">Mob. <tag class="easyCopyToolParent"> <tag class="easyCopyToolText">'+orderObj.customerMobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> </div>';
+															'<p class="deliveryText" style="font-size: 21px;"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+orderObj.customerName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> <p class="deliveryText" style="font-size: 21px;">Mob. <tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+orderObj.customerMobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p> </div>';
 			}
+
 
 			//Frame response actions - INTERNET Necessary!
 			if(orderObj.orderDetails.modeType == 'DELIVERY'){
 				if(mappingObject.systemStatus == 1){ //Not billed yet --> Option for Cancel
-					document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="dispatchOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Dispatch Now</button> </div> </div>';
+					if(mappingObject.onlineStatus == 1){
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="dispatchOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Dispatch Now</button> </div> </div>';
+					}
+					else if(mappingObject.onlineStatus == 2){
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> </div>';
+					}
 				}
 				else{
-					document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" disabled>Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="dispatchOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Dispatch Now</button> </div> </div>';
+					if(mappingObject.onlineStatus == 1){
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" disabled>Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="dispatchOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Dispatch Now</button> </div> </div>';
+					}
+					else if(mappingObject.onlineStatus == 2){
+						document.getElementById("responseActionsBar").innerHTML = '';
+					}
 				}
 			}
 			else if(orderObj.orderDetails.modeType == 'PARCEL'){
 				if(mappingObject.systemStatus == 1){ //Not billed yet --> Option for Cancel
-					document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="markReadyOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Order Ready</button> </div> </div>';
+					if(mappingObject.onlineStatus == 1){
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="markReadyOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Order Ready</button> </div> </div>';
+					}
+					else if(mappingObject.onlineStatus == 2){
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> </div>';
+					} 
 				}
 				else{
-					document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" disabled>Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="markReadyOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Order Ready</button> </div> </div>';
+					if(mappingObject.onlineStatus == 1){
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" disabled>Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="markReadyOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Order Ready</button> </div> </div>';
+					}
+					else if(mappingObject.onlineStatus == 2){
+						document.getElementById("responseActionsBar").innerHTML = '';
+					}
 				}
 			}
+
 }
 
 function cancelOnlineOrder(encodedMapping){
@@ -639,9 +707,134 @@ function markReadyOnlineOrder(encodedMapping){
 	var mappingObject = JSON.parse(decodeURI(encodedMapping));
 }
 
-function dispatchOnlineOrderAfterProcess(encodedMapping, agentCode){
+function dispatchOnlineOrderAfterProcess(encodedMapping, agentCode, agentName){
 	console.log('DISPATCHING....', agentCode)
-	selectDeliveryBoyWindowClose();
+	//Send request to CLOUD SERVER
+	
+
+
+
+	var mappingObject = JSON.parse(decodeURI(encodedMapping));
+	console.log(mappingObject);
+
+
+	updateSystemBillAgent(mappingObject.systemBill, agentCode, agentName, mappingObject.systemStatus);
+	updateOnlineOrdersMappingDispatch(mappingObject._id, agentName, agentCode);
+
+ 	selectDeliveryBoyWindowClose();
+}
+
+function updateOnlineOrdersMappingDispatch(id, name, code){
+
+    var requestData = { "selector" :{ "_id": id}}
+
+                $.ajax({
+                  type: 'POST',
+                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/_find',
+                  data: JSON.stringify(requestData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    if(data.docs.length > 0){
+
+                    	var onlineOrdersMapping = data.docs[0];
+
+                    	onlineOrdersMapping.timeDispatch = getCurrentTime('TIME');
+                    	onlineOrdersMapping.onlineStatus = 2;
+                    	onlineOrdersMapping.agentName = name;
+                    	onlineOrdersMapping.agentNumber = code;
+
+		                //Update Mapping on Server
+		                $.ajax({
+		                  type: 'PUT',
+		                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_online_orders/'+id+'/',
+		                  data: JSON.stringify(onlineOrdersMapping),
+		                  contentType: "application/json",
+		                  dataType: 'json',
+		                  timeout: 10000,
+		                  success: function(data) {
+		                      showToast('Delivery agent <b>'+name+'</b> assigned', '#27ae60');
+		                      renderLiveOnlineOrders();
+		                  },
+		                  error: function(data) {
+		                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
+		                  }
+		                }); 
+
+                    }
+                    else{
+                    	showToast('Error: Online Order mapping not found on System. Please contact Accelerate Support.', '#e74c3c');
+                    }
+                  },
+			      error: function(data) {
+			        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+			      }
+
+                });  
+}
+
+function updateSystemBillAgent(billNumber, code, name, status){
+
+	billNumber = parseInt(billNumber);
+
+	var current_time = getCurrentTime('TIME');
+
+    var deliveryObject = {
+            "timeDelivery" : current_time,
+            "name" : name,
+            "mobile" : code
+    }
+
+    var requestURL = 'zaitoon_bills';
+
+    if(status == 3){
+      requestURL = 'zaitoon_invoices';
+    }
+
+    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(firstdata) {
+      	console.log(firstdata)
+        if(firstdata.docs.length > 0){
+
+          var bill = firstdata.docs[0];
+          bill.deliveryDetails = deliveryObject;
+
+                //Update Bill/Invoice on Server
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+requestURL+'/'+(bill._id)+'/',
+                  data: JSON.stringify(bill),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+          
+        }
+        else{
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(firstdata) {
+        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
 }
 
 
@@ -814,11 +1007,11 @@ function selectDeliveryBoyWindow(encodedMapping){
 	                if(actualCounter == 0){
 	                  isRendered = true;
 	                  renderContent = '<div class="row" style="margin: 0">';
-	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="dispatchOnlineOrderAfterProcess(\''+encodedMapping+'\', \''+users[n].code+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="dispatchOnlineOrderAfterProcess(\''+encodedMapping+'\', \''+users[n].code+'\', \''+users[n].name+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
 	                }
 	                else if(actualCounter == 1){
 	                  isRendered = true;
-	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="dispatchOnlineOrderAfterProcess(\''+encodedMapping+'\', \''+users[n].code+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="dispatchOnlineOrderAfterProcess(\''+encodedMapping+'\', \''+users[n].code+'\', \''+users[n].name+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
 	                  renderContent += '</div>';
 	                }
 	                else if(actualCounter > 1 && actualCounter%2 == 0){
@@ -826,7 +1019,7 @@ function selectDeliveryBoyWindow(encodedMapping){
 	                }
 
 	                if(!isRendered){
-	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="dispatchOnlineOrderAfterProcess(\''+encodedMapping+'\', \''+users[n].code+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="dispatchOnlineOrderAfterProcess(\''+encodedMapping+'\', \''+users[n].code+'\', \''+users[n].name+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
 	                }
 
 	                if(actualCounter > 1 && actualCounter%2 == 1){

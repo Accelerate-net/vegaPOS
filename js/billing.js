@@ -2103,7 +2103,7 @@ function deleteKOTFromServer(id, revID, optionalPageRef){
     }); 
 }
 
-function deleteBillFromServer(billNumber){
+function deleteBillFromServer(billNumber, optionalPageRef){
 
                   billNumber = parseInt(billNumber);
 
@@ -2128,7 +2128,10 @@ function deleteBillFromServer(billNumber){
                           dataType: 'json',
                           timeout: 10000,
                           success: function(data) {
-                          
+                            if(optionalPageRef == 'GENERATED_BILLS')
+                            {
+                              loadAllPendingSettlementBills('EXTERNAL')
+                            }
                           },
                           error: function(data) {
                             showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
@@ -2669,7 +2672,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                   updateOnlineOrderMapping(bill, 'SETTLE', optionalPageRef);
                 }                
 
-                deleteBillFromServer(bill.billNumber);
+                deleteBillFromServer(bill.billNumber, optionalPageRef);
 
                 //Free the mapped Table
                 if(bill.orderDetails.modeType == 'DINE')
@@ -2677,7 +2680,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
                 //re-render page
                 if(optionalPageRef == 'GENERATED_BILLS'){
-                  loadAllPendingSettlementBills('EXTERNAL');
+                  //Handled in deleteBillFromServer() with >> loadAllPendingSettlementBills('EXTERNAL');
                 }
 
               }
@@ -2727,15 +2730,16 @@ console.log('To update AUTO SETTLE')
                   console.log('DOCTOR!')
                 }           
 
-                deleteBillFromServer(bill.billNumber);
+                deleteBillFromServer(bill.billNumber, optionalPageRef);
 
                 //Free the mapped Table
                 if(bill.orderDetails.modeType == 'DINE')
                   releaseTableAfterBillSettle(bill.table, bill.billNumber, optionalPageRef)
 
                 //re-render page
-                if(optionalPageRef == 'GENERATED_BILLS')
-                  loadAllPendingSettlementBills('EXTERNAL'); 
+                if(optionalPageRef == 'GENERATED_BILLS'){
+                  //Handled in deleteBillFromServer() already with >> loadAllPendingSettlementBills('EXTERNAL'); 
+                }
 
               }
               else{
