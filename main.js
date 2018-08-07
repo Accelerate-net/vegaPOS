@@ -7,6 +7,8 @@ const BrowserWindow = electron.BrowserWindow
 const path = require('path')
 const url = require('url')
 
+const { Menu } = require('electron')
+
 /*
   PRINTER
 */
@@ -14,6 +16,7 @@ const fs = require('fs')
 const os = require('os')
 const ipc = electron.ipcMain;
 const shell = electron.shell;
+
 
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -58,7 +61,64 @@ function createWindow () {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', function(){
+
+    createWindow();
+
+  // Create the Application's main menu
+  const template = [
+    {
+        label: app.getName(),
+        submenu: [
+            { label: "About Application", selector: "orderFrontStandardAboutPanel:" },
+            { type: "separator" },
+            { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+        ]
+    },
+
+    {
+      label: 'Edit',
+      submenu: [
+            { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+            { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+            { type: "separator" },
+            { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+            { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+            { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+            { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        {role: 'reload'},
+        {role: 'forcereload'},
+        {type: 'separator'},
+        {role: 'togglefullscreen'}
+      ]
+    },
+    {
+      role: 'window',
+      submenu: [
+        {role: 'minimize'},
+        {role: 'close'}
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Documentation',
+          click () { shell.openExternal('https://www.accelerate.net.in/vega/docs') }
+        },
+        { label: "Team Accelerate", click() { shell.openExternal('https://www.accelerate.net.in') } }
+      ]
+    }
+  ]
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
@@ -76,6 +136,11 @@ app.on('activate', function () {
     createWindow()
   }
 })
+
+
+
+
+
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
