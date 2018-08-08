@@ -51,7 +51,7 @@ function createWindow () {
         workerWindow = null;
     });
 
-    //workerWindow.hide();
+   // workerWindow.hide();
 
 
 // const execFile = require('child_process').execFile;
@@ -193,7 +193,6 @@ app.on('activate', function () {
 
 // retransmit it to workerWindow
 ipc.on("printPDF", (event, content) => {
-    console.log(content);
 
     if(!workerWindow){
       alert('Error CLOSED.')

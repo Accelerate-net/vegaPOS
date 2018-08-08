@@ -11,10 +11,12 @@
                         
                         </div>
 
-                        <div class="billSettingsOption" onclick="openBillSettings('billingExtras')"> Taxes & Other Extras <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openBillSettings('billLayout')"> Bill Layout<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openBillSettings('billingModes')"> Billing Modes <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
-                        <div class="billSettingsOption" onclick="openBillSettings('paymentModes')"> Payment Modes <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openBillSettings('discountTypes')"> Discount Types <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openBillSettings('paymentModes')"> Payment Modes <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openBillSettings('billingExtras')"> Taxes & Other Extras <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        
 
                         
                         <div class="clearfix"></div>
@@ -23,6 +25,24 @@
             </div>
 
             <div class="col-xs-6" id="detailsDisplayBillSettings">
+
+
+                <!-- Bill Layout -->
+                <div class="box box-primary" style="display: none" id="billLayout">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Bill Layout</h3>
+                           <button class="btn btn-success btn-sm" onclick="saveLayoutChanges()"  style="float: right">Save</button>
+                        </div>
+
+                        <div id="billLayoutRenderArea" style="width: 66%; max-width: 320px; border: 1px solid #a7a7a7; padding: 10px; position: relative"> </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
 
                 <!-- Discount Types -->
                 <div class="box box-primary" style="display: none" id="discountTypes">
