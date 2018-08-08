@@ -1,17 +1,13 @@
 const electron = require('electron')
 // Module to control application life.
 const app = electron.app
-// Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
-
 const path = require('path')
 const url = require('url')
-
 const { Menu } = require('electron')
 const { dialog } = require('electron')
 
 app.showExitPrompt = true
-
 
 /*
   PRINTER
@@ -20,7 +16,6 @@ const fs = require('fs')
 const os = require('os')
 const ipc = electron.ipcMain;
 const shell = electron.shell;
-
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -49,14 +44,14 @@ function createWindow () {
 
 
     workerWindow = new BrowserWindow();
-    workerWindow.loadURL("file://" + __dirname + "/templates/invoice.html");
+    workerWindow.loadURL("file://" + __dirname + "/templates/print-template.html");
     // workerWindow.hide();
     workerWindow.webContents.openDevTools();
     workerWindow.on("closed", () => {
         workerWindow = null;
     });
 
-    workerWindow.hide();
+    //workerWindow.hide();
 
 
 // const execFile = require('child_process').execFile;
@@ -209,18 +204,7 @@ ipc.on("printPDF", (event, content) => {
 
 // when worker window is ready
 ipc.on("readyToPrintPDF", (event) => {
-    // const pdfPath = path.join(os.tmpdir(), 'print.pdf');
-    // // Use default printing options
-    // workerWindow.webContents.printToPDF({}, function (error, data) {
-    //     if (error) throw error
-    //     fs.writeFile(pdfPath, data, function (error) {
-    //         if (error) {
-    //             throw error
-    //         }
-    //         shell.openItem(pdfPath)
-    //         event.sender.send('wrote-pdf', pdfPath)
-    //     })
-    // })
+    const pdfPath = path.join(os.tmpdir(), 'print.pdf');
 
     var pageSettingsSilent = {
       'marginsType': 1, //No Margin
@@ -231,6 +215,19 @@ ipc.on("readyToPrintPDF", (event) => {
       },
       'silent': true
     }
-    workerWindow.webContents.print(pageSettingsSilent);
+
+    workerWindow.webContents.printToPDF(pageSettingsSilent, function (error, data) {
+        if (error) throw error
+        fs.writeFile(pdfPath, data, function (error) {
+            if (error) {
+                throw error
+            }
+            shell.openItem(pdfPath)
+            event.sender.send('wrote-pdf', pdfPath)
+        })
+    })
+
+
+    // workerWindow.webContents.print(pageSettingsSilent);
 });
 
