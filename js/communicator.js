@@ -1,10 +1,8 @@
 const ipc = require('electron').ipcRenderer;
 
-
-
 function sendToPrinter(orderObject, type, optionalRequest){
 
-   return '';
+ //  return '';
 
 	/*
 		type - Either KOT or BILL
@@ -528,6 +526,8 @@ var html_template = ''+
 
 
 
-  ipc.send('print-to-pdf', html_template);
+  //ipc.send('print-to-pdf', html_template);
 
+
+  ipc.send("printPDF", html_template);
 }

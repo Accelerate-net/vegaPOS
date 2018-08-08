@@ -8,6 +8,10 @@ const path = require('path')
 const url = require('url')
 
 const { Menu } = require('electron')
+const { dialog } = require('electron')
+
+app.showExitPrompt = true
+
 
 /*
   PRINTER
@@ -20,7 +24,9 @@ const shell = electron.shell;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
+
 let mainWindow
+let workerWindow //Printer Preview Window
 
 function createWindow () {
   // Create the browser window.
@@ -41,18 +47,67 @@ function createWindow () {
 
 
 
+
+    workerWindow = new BrowserWindow();
+    workerWindow.loadURL("file://" + __dirname + "/templates/invoice.html");
+    // workerWindow.hide();
+    workerWindow.webContents.openDevTools();
+    workerWindow.on("closed", () => {
+        workerWindow = null;
+    });
+
+    workerWindow.hide();
+
+
+// const execFile = require('child_process').execFile;
+// const child = execFile('couchdb', ['--version'], (error, stdout, stderr) => {
+//     if (error) {
+//         console.error('stderr', stderr);
+//         throw error;
+//     }
+//     console.log('stdout', stdout);
+// });
+
+
   // Open the DevTools.
   mainWindow.webContents.openDevTools()
 
+  //Full Screen
+  mainWindow.setFullScreen(true)
 
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     // Dereference the window object, usually you would store windows
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
-    mainWindow = null
+    mainWindow = null;
+    workerWindow.close(); //Close WorkerWindow as well
+
   })
+
+
+
+  //Do not close warning for PRINTER Window
+  workerWindow.on('close', (e) => {
+    if (app.showExitPrompt && mainWindow != null) {
+        e.preventDefault() // Prevents the window from closing 
+        dialog.showMessageBox({
+            type: 'question',
+            buttons: ['Close Window','Keep Open'],
+            title: 'Caution',
+            message: 'Please do not Close this Window, Printing will be affected. Do you still want to Close?'
+        }, function (response) {
+            if (response === 0) { // Runs the following if 'Yes' is clicked
+                app.showExitPrompt = false
+                workerWindow.close()
+            }
+        })
+    }
+  })
+
+
 }
+
 
 
 
@@ -139,77 +194,43 @@ app.on('activate', function () {
 
 
 
-
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-
 /* Printer Processes */
-ipc.on('print-to-pdf', function(event, html_content){
 
-  if(!html_content || html_content == ''){
-    console.log('Error: No Content to Print');
-    return '';
-  }
+// retransmit it to workerWindow
+ipc.on("printPDF", (event, content) => {
+    console.log(content);
 
-  var pageSettings = {
-    'marginsType': 1, //No Margin
-    'printBackground': true, 
-    'pageSize': {
-      "height": 297000,
-      "width": 72000
+    if(!workerWindow){
+      alert('Error CLOSED.')
+      return '';
     }
-  }
+    workerWindow.webContents.send("printPDF", content);
+});
 
-  var pageSettingsSilent = {
-    'marginsType': 1, //No Margin
-    'printBackground': true, 
-    'pageSize': {
-      "height": 297000,
-      "width": 72000
-    },
-    'silent': true
-  }
+// when worker window is ready
+ipc.on("readyToPrintPDF", (event) => {
+    // const pdfPath = path.join(os.tmpdir(), 'print.pdf');
+    // // Use default printing options
+    // workerWindow.webContents.printToPDF({}, function (error, data) {
+    //     if (error) throw error
+    //     fs.writeFile(pdfPath, data, function (error) {
+    //         if (error) {
+    //             throw error
+    //         }
+    //         shell.openItem(pdfPath)
+    //         event.sender.send('wrote-pdf', pdfPath)
+    //     })
+    // })
 
-
-
-  const pdfPath = path.join(os.tmpdir(), 'print.pdf')
-  const win = new BrowserWindow({width: 800, height: 600});
-
-  // var test = win.webContents.getPrinters()
-  // console.log(test)
-  win.hide();
-
-  win.loadURL("data:text/html;charset=utf-8," + encodeURI(html_content));
-
-
-win.webContents.on('did-finish-load', () => {
-    // Use default printing options
-    //win.webContents.print(pageSettingsSilent);
-    console.log('Called...')
-    win.webContents.printToPDF(pageSettings, (error, data) => {
-    //  win.webContents.print(pageSettingsSilent, (error, data) => {
-
-    if(error){
-      console.log('Error Stage 1')
-      return ''
+    var pageSettingsSilent = {
+      'marginsType': 1, //No Margin
+      'printBackground': true, 
+      'pageSize': {
+        "height": 297000,
+        "width": 72000
+      },
+      'silent': true
     }
-    else{
-      fs.writeFile(pdfPath, data, function(error){
-        if(error){
-          console.log('Error Stage 2 ')
-          return '';
-          
-        }
-        else{
-
-            shell.openExternal('file://'+pdfPath)
-        }
-      })
-    }
-
-    })
-})
-
+    workerWindow.webContents.print(pageSettingsSilent);
 });
 

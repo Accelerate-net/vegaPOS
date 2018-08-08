@@ -5,6 +5,8 @@
 var COMMON_LOCAL_SERVER_IP = 'http://admin:admin@127.0.0.1:5984/';
 
 
+
+
 /*
   Connect to the Server
 */
