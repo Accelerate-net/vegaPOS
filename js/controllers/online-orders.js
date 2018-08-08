@@ -691,6 +691,8 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 				}
 			}
 
+			document.getElementById("commentsInfo").innerHTML = '';
+
 }
 
 function cancelOnlineOrder(encodedMapping){
