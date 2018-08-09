@@ -850,7 +850,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .tableTitle{
-	display: block; color: #FFF; font-weight: 600; font-size: 24px;
+	display: block; color: #FFF; font-weight: 900; font-size: 24px;
       text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
