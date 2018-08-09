@@ -390,10 +390,40 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 '                    </div>'+
                 '                </div>';
 
-          document.getElementById("billPreviewContentActions").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Generate Bill</button>'+
-                            '<button style="margin: 0" class="btn btn-default tableOptionsButton breakWord" onclick="hideBillPreviewModal()">Close</button>'
+          document.getElementById("billPreviewContentActions").innerHTML = '<button id="billButtonAction_generate" class="btn btn-success tableOptionsButton breakWord" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Generate Bill</button>'+
+                            '<button style="margin: 0" id="billButtonAction_cancel" class="btn btn-default tableOptionsButton breakWord" onclick="hideBillPreviewModal()">Close</button>'
 
           document.getElementById("billPreviewModal").style.display = 'block';
+
+
+
+      //Esc --> Hide
+      //Enter --> Submit
+
+          /*
+            Actions Tool - Modal
+          */
+          var duplicateClick = false;
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#billPreviewModal').is(':visible')) {
+
+                 switch(e.which){
+                  case 27:{ // Escape (Close)
+                    $('#billButtonAction_cancel').click();
+                    easyActionsTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+                    $('#billButtonAction_generate').click();
+                    easyActionsTool.unbind();
+                    break;
+                  }
+                }
+            }
+          });
+
+
 }
 
 
@@ -2258,21 +2288,196 @@ function settleBillAndPush(encodedBill, optionalPageRef){
               }
 
               for (var i = 0; i < modes.length; i++){
-                optionsList += '<button class="btn btn-success paymentModeOption" onclick="addToSplitPay(\''+modes[i].code+'\', \''+modes[i].name+'\')" id="billPayment_'+modes[i].code+'">'+modes[i].name+'</button>';
+                optionsList += '<button class="btn btn-default paymentModeOption easySelectTool_customPayment" onclick="addToSplitPay(this, \''+modes[i].code+'\', \''+modes[i].name+'\')" id="billPayment_'+modes[i].code+'">'+modes[i].name+'</button>';
               }
 
               document.getElementById("billSettlementDetailsContent").innerHTML = '<h1 style="margin-bottom: 0; text-align: center; font-size: 48px; font-weight: bold; color: #00a584;"><i class="fa fa-inr"></i><tag id="fullAmount">'+grandPayableBill+'</tag></h1>'+
                             '<p style="color: gray; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; text-align: center; ">Total Amount to be paid</p>'+
-                            '<hr><div class="row" style="padding: 0 20px; margin: 0"><center>'+optionsList+'</center></div>';
+                            '<hr><div class="row" style="padding: 0 20px; margin: 0"><div style="padding-left: 5%" id="paymentOptionsListRender">'+optionsList+'</div></div>';
 
               document.getElementById("billSettlementSplitDetailsContent").innerHTML = "";
 
               document.getElementById("billSettlementPreviewContentActions").innerHTML = '<div class="col-sm-4" style="padding: 0">'+
-                                                               '<button type="button" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Not Now</button>'+
+                                                               '<button type="button" id="paymentOptionsListRenderClose" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Not Now</button>'+
                                                             '</div>'+
                                                             '<div class="col-sm-8" style="padding: 0">'+
-                                                                '<button type="button" class="btn btn-success" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Confirm</button>'+
+                                                                '<button type="button" class="btn btn-success" id="paymentOptionsListRenderConfirm" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Confirm</button>'+
                                                             '</div>';
+
+
+
+
+                /*
+                  EasySelect Tool (THREE COLUMN - MULTI ROW GRID)
+                */
+                var tiles = $('#paymentOptionsListRender .easySelectTool_customPayment');
+                var tileSelected = undefined; //Check for active selection
+                var i = 0;
+                var currentIndex = 0;
+                var lastIndex = 0;
+
+                var hasEnterClicked = false;
+
+                $.each(tiles, function() {
+                  if($(tiles[i]).hasClass("selectSplitPayment")){
+                    tileSelected = tiles.eq(i);
+                    currentIndex = i;
+                  }
+
+                  lastIndex = i;
+                  i++;
+                });  
+
+                var easySelectTool = $(document).on('keydown',  function (e) {
+
+                  if($('#billSettlementDetailsModal').is(':visible')) {
+
+                       switch(e.which){
+                        case 37:{ //  < Left Arrow
+
+                            if(tileSelected){
+                                tileSelected.removeClass('selectSplitPayment');
+
+                                currentIndex--;
+                                if(currentIndex < 0){
+                                  currentIndex = lastIndex;
+                                }
+
+                                if(tiles.eq(currentIndex)){
+                                    tileSelected = tiles.eq(currentIndex);
+                                    tileSelected = tileSelected.addClass('selectSplitPayment');
+                                }
+                            }else{
+                                tileSelected = tiles.eq(0).addClass('selectSplitPayment');
+                            }      
+
+                          break;
+                        }
+                        case 38:{ //  ^ Up Arrow 
+                    
+                            if(tileSelected){
+                                tileSelected.removeClass('selectSplitPayment');
+                                
+                                
+
+                                if(currentIndex < 3){
+                                  if(currentIndex == 0){//First Col. (FIRST ROW)
+                                    if(lastIndex%3 == 2){ //Last Col.
+                                      currentIndex = lastIndex - 2;
+                                    }
+                                    else if(lastIndex%3 == 1){ //Middle Col.
+                                      currentIndex = lastIndex - 1;
+                                    }
+                                    else if(lastIndex%3 == 0){  //First Col.
+                                      currentIndex = lastIndex;
+                                    }
+                                  }
+                                  else if(currentIndex == 1){ //Middle Col. (FIRST ROW)
+                                    if(lastIndex%3 == 2){ //Last Col.
+                                      currentIndex = lastIndex - 1;
+                                    }
+                                    else if(lastIndex%3 == 1){ //Middle Col.
+                                      currentIndex = lastIndex;
+                                    }
+                                    else if(lastIndex%3 == 0){  //First Col.
+                                      currentIndex = lastIndex - 2;
+                                    }
+                                  }
+                                  else if(currentIndex == 2){ //Last Col. (FIRST ROW)
+                                    if(lastIndex%3 == 2){ //Last Col.
+                                      currentIndex = lastIndex;
+                                    }
+                                    else if(lastIndex%3 == 1){ //Middle Col.
+                                      currentIndex = lastIndex - 2;
+                                    }
+                                    else if(lastIndex%3 == 0){  //First Col.
+                                      currentIndex = lastIndex - 1;
+                                    }
+                                  }
+                                }
+                                else{
+                                  currentIndex = currentIndex - 3;
+                                }
+
+                                if(tiles.eq(currentIndex)){
+                                    tileSelected = tiles.eq(currentIndex);
+                                    tileSelected = tileSelected.addClass('selectSplitPayment');
+                                }
+                            }else{
+                                tileSelected = tiles.eq(0).addClass('selectSplitPayment');
+                            }    
+
+
+                          break;
+                        }
+                        case 39:{ // Right Arrow >
+
+                            if(tileSelected){
+                                tileSelected.removeClass('selectSplitPayment');
+
+                                currentIndex++;
+                                if(currentIndex > lastIndex){
+                                  currentIndex = 0;
+                                }
+
+                                if(tiles.eq(currentIndex)){
+                                    tileSelected = tiles.eq(currentIndex);
+                                    tileSelected = tileSelected.addClass('selectSplitPayment');
+                                }
+                            }else{
+                                tileSelected = tiles.eq(0).addClass('selectSplitPayment');
+                            }      
+
+                          break;
+                        }
+                        case 40:{ // Down Arrow \/ 
+
+                            if(tileSelected){
+                                tileSelected.removeClass('selectSplitPayment');
+
+                                currentIndex = currentIndex + 3;
+                                if(currentIndex > lastIndex){
+                                  currentIndex = currentIndex % 3;
+                                }
+
+                                if(tiles.eq(currentIndex)){
+                                    tileSelected = tiles.eq(currentIndex);
+                                    tileSelected = tileSelected.addClass('selectSplitPayment');
+                                }
+                            }else{
+                                tileSelected = tiles.eq(0).addClass('selectSplitPayment');
+                            }      
+
+                          break;
+                        }
+                        case 27:{ // Escape (Close)
+                          $('#paymentOptionsListRenderClose').click();
+                          easySelectTool.unbind();
+                          break;  
+                        }
+                        case 13:{ // Enter (Confirm)
+
+                          if(!hasEnterClicked){
+                            $("#paymentOptionsListRender .easySelectTool_customPayment").each(function(){
+                              if($(this).hasClass("selectSplitPayment")){
+                                $(this).click();
+                                hasEnterClicked = true;
+                                e.preventDefault(); 
+                              }
+                            }); 
+                          }
+                          else{
+                            $('#paymentOptionsListRenderConfirm').click();
+                            easySelectTool.unbind();
+                          }  
+
+                          break;
+                        }
+                       }
+                  }
+                });
+
+
 
           }
           else{
@@ -2369,8 +2574,15 @@ function onlineOrderEasySettleBill(billNumber){
 
 
 
-function addToSplitPay(mode, modeName){
+function addToSplitPay(element, mode, modeName){
   
+  if($(element).hasClass('active')){
+    $(element).removeClass('active');
+  }
+  else{
+    $(element).addClass('active');
+  }
+
   var splitPayHoldList = window.localStorage.billSettleSplitPlayHoldList ? JSON.parse(window.localStorage.billSettleSplitPlayHoldList): [];
 
   var fullAmount = document.getElementById("fullAmount").innerHTML;
@@ -2416,7 +2628,7 @@ function addToSplitPay(mode, modeName){
     else
       splitPayHoldList.push({"name": modeName, "code": mode, "amount": parseFloat(differenceAmount)});
 
-    document.getElementById("billPayment_"+mode).innerHTML += ' <i class="fa fa-check"></i>';
+    document.getElementById("billPayment_"+mode).innerHTML += ' <i class="fa fa-check" style="position: absolute; right: 5px; top: 18px;"></i>';
   }
 
 
@@ -2448,8 +2660,8 @@ function renderSplitPayPart(optionalFocusCode){
 
     splitDetails += '<div class="row" style="border: 1px solid #ddd; margin: 2px 15px;">'+
                         '<div class="col-sm-4 paymentModeOptionSelected">'+
-                            '<p style="font-size: 18px; padding-top: 12px;">'+
-                            '<tag class="paymentModeOptionSelectedDeleteButton" onclick="addToSplitPay(\''+splitPayHoldList[i].code+'\', \''+splitPayHoldList[i].name+'\')"><i class="fa fa-minus-circle"></i></tag>'+splitPayHoldList[i].name+'</p>'+
+                            '<p style="font-size: 18px; padding-top: 12px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">'+
+                            '<tag class="paymentModeOptionSelectedDeleteButton" onclick="addToSplitPay(this, \''+splitPayHoldList[i].code+'\', \''+splitPayHoldList[i].name+'\')"><i class="fa fa-minus-circle"></i></tag>'+splitPayHoldList[i].name+'</p>'+
                         '</div>'+
                         '<div class="col-sm-4"> <input type="text" value="'+(splitPayHoldList[i].reference && splitPayHoldList[i].reference != ''? splitPayHoldList[i].reference : '')+'" onkeyup="adjustBillSplit(\''+splitPayHoldList[i].code+'\')" onchange="renderSplitPayPart()" placeholder="References" style="border: none; height: 43px; font-size: 16px; text-align: center;" class="form-control tip" id="billSplitComments_'+splitPayHoldList[i].code+'"/> </div>'+
                         '<div class="col-sm-4">'+

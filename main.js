@@ -51,7 +51,7 @@ function createWindow () {
         workerWindow = null;
     });
 
-   // workerWindow.hide();
+    workerWindow.hide();
 
 
 // const execFile = require('child_process').execFile;

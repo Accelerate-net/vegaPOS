@@ -1301,7 +1301,7 @@ function renderBillLayout(){
                      '<tag class="serviceType">Self Service</tag>'+
                      '<tag class="subLabel">Token No</tag>'+
                      '<tag class="tokenNumber">103</tag>'+
-                     '<tag class="subLabel" style="margin: 5px 0 0 0"><input onfocus="selectLayoutInputText(this)" type="text" id="data_custom_top_right_name" style="border: none; border-bottom: 1px solid red; color: red; text-align: right; letter-spacing: 2px; outline: none;" value=""></tag><tag style="position: absolute; right: -50%; display: block; font-style: italic; font-size: 10px; color: #11ab8c; width: 45%; text-align: left;">To display necessary information like GST Number or Licence Number etc.</tag>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0"><input onfocus="selectLayoutInputText(this)" type="text" id="data_custom_top_right_name" style="border: none; border-bottom: 1px solid red; color: red; text-align: right; letter-spacing: 2px; outline: none;" value=""></tag><tag class="supportText" style="position: absolute; right: -50%; display: block; font-style: italic; font-size: 10px; color: #11ab8c; width: 45%; text-align: left;">To display necessary information like GST Number or Licence Number etc.</tag>'+
                      '<tag class="gstNumber"><input type="text" style="border: none; border-bottom: 1px solid red; text-align:right; font-weight: bold; outline: none; color: red" onfocus="selectLayoutInputText(this)" id="data_custom_top_right_value" value=""></tag>'+
                   '</p>'+
                '</td>'+
@@ -1380,7 +1380,7 @@ function renderBillLayout(){
             '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: middle">'+
-                  '<tag style="position: absolute; right: -50%; display: block; font-style: italic; font-size: 10px; color: #11ab8c; width: 45%; text-align: left;">If the <b>Online Easy Scan & Pay</b> is enabled, this part will be visible on the Bill (not on Prepaid Bills)</tag>'+
+                  '<tag class="supportText" style="position: absolute; right: -50%; display: block; font-style: italic; font-size: 10px; color: #11ab8c; width: 45%; text-align: left;">If the <b>Online Easy Scan & Pay</b> is enabled, this part will be visible on the Bill (not on Prepaid Bills)</tag>'+
                   '<p>'+
                     '<tag class="paymentSubHead"><input type="text" style="border:none; font-weight: bold; outline: none; border-bottom: 1px solid red; text-align: left; width: 100%; font-size: 12px; color: red" onfocus="selectLayoutInputText(this)" id="data_custom_bottom_pay_heading" value=""></tag>'+
                     '<tag class="paymentSubText"><textarea class="addressText" style="margin: 0px; width: 100%; border: 1px solid red; margin-top: 5px; padding: 5px; outline: none; text-align: left; color: red" onfocus="selectLayoutInputText(this)" id="data_custom_bottom_pay_brief"></textarea></tag>'+
@@ -1396,11 +1396,11 @@ function renderBillLayout(){
          '<table style="width: 100%">'+
             '<col style="width: 100%">'+
             '<tr>'+
-               '<td><input type="text" style="border:none; outline: none; border-bottom: 1px solid red; text-align: center; width: 100%; font-size: 12px; color: red" onfocus="selectLayoutInputText(this)" id="data_custom_footer_comments" value=""></td><tag style="position: absolute; right: -50%; display: block; font-style: italic; font-size: 10px; color: #11ab8c; width: 45%; text-align: left;">Add any note here like running promotions, upcoming events etc.</tag>'+
+               '<td><input type="text" style="border:none; outline: none; border-bottom: 1px solid red; text-align: center; width: 100%; font-size: 12px; color: red" onfocus="selectLayoutInputText(this)" id="data_custom_footer_comments" value=""></td><tag class="supportText" style="position: absolute; right: -50%; display: block; font-style: italic; font-size: 10px; color: #11ab8c; width: 45%; text-align: left;">Add any note here like running promotions, upcoming events etc.</tag>'+
             '</tr>'+
          '</table>'+
       '</div>'+
-      '<textarea class="addressText" style="margin: 0px; width: 100%; border: 1px solid red; margin-top: 5px; padding: 5px; outline: none; color: red" onfocus="selectLayoutInputText(this)" id="data_custom_footer_address"></textarea><tag style="position: absolute; right: -50%; display: block; font-style: italic; font-size: 10px; color: #11ab8c; width: 45%; text-align: left;">To display restaurant address and contact information</tag>'+
+      '<textarea class="addressText" style="margin: 0px; width: 100%; border: 1px solid red; margin-top: 5px; padding: 5px; outline: none; color: red" onfocus="selectLayoutInputText(this)" id="data_custom_footer_address"></textarea><tag class="supportText" style="position: absolute; right: -50%; display: block; font-style: italic; font-size: 10px; color: #11ab8c; width: 45%; text-align: left;">To display restaurant address and contact information</tag>'+
       '<input type="text" style="border:none; outline: none; border-bottom: 1px solid red; text-align: center; width: 100%; font-size: 9px; color: red;" onfocus="selectLayoutInputText(this)" id="data_custom_footer_contact" value="">';  
 
 

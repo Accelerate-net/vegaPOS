@@ -1021,7 +1021,7 @@ else{
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button type="button" class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
                         '</div>'+
                      '</div>';
  	}   
@@ -1034,7 +1034,7 @@ else{
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button type="button" class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
                         '</div>'+
                      '</div>';
  	}
@@ -2849,6 +2849,8 @@ function changeCustomerInfo(type, optionalValue){
 				renderCart();
 				renderCustomerInfo();
 				renderTables();
+
+				$("#add_item_by_search").focus();
 
 				return '';
 			}
@@ -5644,7 +5646,14 @@ function addCommentToItem(itemCode, variant){
 	}
 
 	window.localStorage.zaitoon_cart = JSON.stringify(cart_products);
-	showToast('Comment saved successfully', '#27ae60');
+
+	if(text != ''){
+		showToast('Comment saved successfully', '#27ae60');
+	}
+	else{
+		showToast('Comment removed', '#27ae60');
+	}
+
 	hideItemWiseCommentModal();
 	renderCart();
 
@@ -5752,20 +5761,45 @@ function openItemWiseCommentModal(itemCode, variant){
 	    document.getElementById("itemWiseCommentsModalActions").innerHTML = '<button type="button" class="btn btn-default" onclick="hideItemWiseCommentModal()" style="float: left">Cancel</button>'+
                									'<button id="itemWiseCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="addCommentToItem(\''+itemCode+'\', \''+variant+'\')" style="float: right">Save Comment</button>';
 
+
+		//Esc --> Hide
+		//Enter --> Submit
+
+          /*
+            Actions Tool - Modal
+          */
+          var duplicateClick = false;
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#itemWiseCommentsModal').is(':visible')) {
+
+                 switch(e.which){
+                  case 27:{ // Escape (Close)
+                    document.getElementById("customiseItemModal").style.display ='none';
+                    easyActionsTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    if(duplicateClick){
+                    	$('#itemWiseCommentsModalActions_SAVE').click();
+                    	easyActionsTool.unbind();
+                    }
+                    else{
+                    	duplicateClick = true;
+                    }
+                    break;
+                  }
+                  default:{
+                  	duplicateClick = false;
+                  }
+                }
+            }
+          });
+
+
         $("#add_item_wise_comment").focus();
         $("#add_item_wise_comment").select();
-
-        var duplicateClick = false;
-        $('#add_item_wise_comment').keyup(function(e) {
-			if (e.which === 13) {
-				if(duplicateClick){
-					$('#itemWiseCommentsModalActions_SAVE').click();
-				}
-				else{
-					duplicateClick = true;
-				}
-			}
-        });
 }
 
 function addFromSuggestions(suggestion){
@@ -5909,6 +5943,8 @@ function saveSpecialRequest(){
 }
 
 function alterAllergicIngredientsList(ingredientName){
+
+	$('#specialRequests_comments').focus();
 
 	var allergicIngredientsList = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData): [];
 	

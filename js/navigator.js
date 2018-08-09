@@ -1,6 +1,7 @@
 const settings = require('electron-settings')
 
 let $ = require('jquery');
+let currentRunningPage = '';
 
 /*
 	* 	Link all the pages in this file.
@@ -10,6 +11,9 @@ let $ = require('jquery');
 */
 
 function fetchInitFunctions(pageReference){
+
+	currentRunningPage = pageReference;
+
 	switch (pageReference){
 		case 'new-order':{
 			triggerRightPanelDisplay();
@@ -108,5 +112,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('bill-settings', 'Punch Order');
+renderPage('new-order', 'Punch Order');
 

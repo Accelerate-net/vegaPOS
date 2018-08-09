@@ -3383,6 +3383,7 @@ position: absolute;
 
 
 .paymentModeOption{
+  position: relative;
   height: 60px;
   width: 31%;
   text-align: center;
@@ -3391,6 +3392,17 @@ position: absolute;
   text-overflow:ellipsis; 
   overflow:hidden; 
   white-space:nowrap;
+  border: 2px solid #e4e4e4;
+}
+
+.paymentModeOption.selectSplitPayment{
+      border: 2px solid #1abc9c !important;
+}
+
+.paymentModeOption.active{
+      border: 2px solid #1abc9c !important;
+      background: #1abc9c !important;
+      color: #FFF !important;
 }
 
 

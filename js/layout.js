@@ -679,6 +679,24 @@ function initialiseKeyboardShortcuts(){
 
           break;
         }
+        case "Change Billing Mode":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                if(currentRunningPage == 'new-order'){
+                  $('#customer_form_data_mode').click();
+                }
+                return false;
+            })
+
+          break;
+        }
+        case "Switch User":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+                $("#currentUserProfileDisplay").click();
+                return false;
+            })
+
+          break;
+        }
       }
     }
 
@@ -1632,13 +1650,26 @@ function selectStewardWindow(){
                           if(tileSelected){
                               tileSelected.removeClass('selectUserProfile');
 
-                              currentIndex = currentIndex - 2;
-
-                              if(currentIndex < 0){
-                                if(Math.abs(currentIndex)%2 == 1)
-                                  currentIndex = lastIndex;
-                                else
-                                  currentIndex = lastIndex - 1;
+                              if(currentIndex < 2){
+                                if(currentIndex == 0){ //First Col. (FIRST ROW)
+                                    if(lastIndex%2 == 1){ //Last Col.
+                                      currentIndex = lastIndex - 1;
+                                    }
+                                    else if(lastIndex%2 == 0){ //First Col.
+                                      currentIndex = lastIndex;
+                                    }
+                                }
+                                else if(currentIndex == 1){ //Last Col. (FIRST ROW)
+                                    if(lastIndex%2 == 1){ //Last Col.
+                                      currentIndex = lastIndex;
+                                    }
+                                    else if(lastIndex%2 == 0){ //First Col.
+                                      currentIndex = lastIndex - 1;
+                                    }
+                                }
+                              }
+                              else{
+                                currentIndex = currentIndex - 2;
                               }
 
                               if(tiles.eq(currentIndex)){
@@ -1911,13 +1942,26 @@ function selectSessionWindow(){
                           if(tileSelected){
                               tileSelected.removeClass('selectUserProfile');
 
-                              currentIndex = currentIndex - 2;
-
-                              if(currentIndex < 0){
-                                if(Math.abs(currentIndex)%2 == 1)
-                                  currentIndex = lastIndex;
-                                else
-                                  currentIndex = lastIndex - 1;
+                              if(currentIndex < 2){
+                                if(currentIndex == 0){ //First Col. (FIRST ROW)
+                                    if(lastIndex%2 == 1){ //Last Col.
+                                      currentIndex = lastIndex - 1;
+                                    }
+                                    else if(lastIndex%2 == 0){ //First Col.
+                                      currentIndex = lastIndex;
+                                    }
+                                }
+                                else if(currentIndex == 1){ //Last Col. (FIRST ROW)
+                                    if(lastIndex%2 == 1){ //Last Col.
+                                      currentIndex = lastIndex;
+                                    }
+                                    else if(lastIndex%2 == 0){ //First Col.
+                                      currentIndex = lastIndex - 1;
+                                    }
+                                }
+                              }
+                              else{
+                                currentIndex = currentIndex - 2;
                               }
 
                               if(tiles.eq(currentIndex)){
