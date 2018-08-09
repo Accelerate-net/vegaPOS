@@ -890,6 +890,254 @@ input[type=number]::-webkit-outer-spin-button {
   background: #3498db !important;
 }
 
+
+
+
+/* If More number of tables, make it relatively smaller tiles */
+
+/*SMALL for 50 TILES */
+
+.tableTileGreen.smallTile{
+  width: 90px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 55px; margin: 2px; padding: 2px; background: #2ecc71;
+  cursor: pointer;
+}
+
+.tableTileGreen.smallTile:hover, .tableTileGreen.smallTile:active, .tableTileGreen.smallTile:focus{
+  background: #27ae60;
+}
+
+.tableTileRed.smallTile{
+  width: 90px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 55px; margin: 2px; padding: 2px;  background: #e74c3c;
+  cursor: pointer;
+}
+
+.tableTileRed.smallTile:hover, .tableTileRed.smallTile:active, .tableTileRed.smallTile:focus{
+  background: #c0392b;
+}
+
+
+.tableTileRedDisable.smallTile{
+  width: 90px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 55px; margin: 2px; padding: 2px;  background: #e74c3c;
+  cursor: not-allowed;
+}
+
+.tableTileYellow.smallTile{
+  width: 90px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 55px; margin: 2px; padding: 2px; background: #f39c12;
+  cursor: pointer;
+}
+
+.tableTileYellow.smallTile:hover, .tableTileYellow.smallTile:active, .tableTileYellow.smallTile:focus{
+  background: #e67e22;
+}
+
+.tableTileYellowDisable.smallTile{
+  width: 90px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 55px; margin: 2px; padding: 2px; background: #f39c12;
+  cursor: not-allowed;
+}
+
+
+.tableReserved.smallTile{
+  width: 90px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 55px; margin: 2px; padding: 2px; background: #8fbda3 !important;
+  cursor: pointer;
+}
+
+.tableTileOther.smallTile{
+  width: 90px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 55px; margin: 2px; padding: 2px; background: #bdc3c7 !important;
+  cursor: not-allowed;
+}
+
+
+.tableTileBlue.smallTile{
+ 
+    width: 90px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 55px; margin: 2px; padding: 2px;  background: #3498db !important;
+  cursor: pointer;
+}
+
+.tableTitle.smallTile{
+  display: block; color: #FFF; font-weight: 900; font-size: 18px;
+      text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-top: -3px;
+}
+
+.tableCapacity.smallTile{
+  display: block; color: #ecf0f5;
+      text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-top: -2px;
+    font-size: 85%;
+}
+
+.tableInfo.smallTile{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: block;
+    font-size: 80%;
+}
+
+.tableTileGreen.smallTile .tableInfo.smallTile{
+  display: block; color: #497d5f
+}
+
+.tableTileRed.smallTile .tableInfo.smallTile, .tableTileRedDisable.smallTile .tableInfo.smallTile{
+  display: block; color: #9c4540
+}
+
+.tableTileYellow.smallTile .tableInfo.smallTile, .tableTileYellowDisable.smallTile .tableInfo.smallTile{
+  display: block; color: #82612e
+}
+
+.tableTileRed.smallTile.selected{
+  background: #2980b9 !important;
+}
+
+.tableTileRed.smallTile.selectedExtra{
+  background: #3498db !important;
+}
+
+.seatingPlanHead.smallTile{
+  font-weight: 400;
+    font-size: 16px !important;
+    background: #f6f6f6;
+    margin: 3px 5px !important;
+    padding: 5px !important;
+}
+
+
+/*MEDIUM for 30 TILES*/
+
+.tableTileGreen.mediumTile{
+  width: 115px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 65px; margin: 2px; padding: 3px; background: #2ecc71;
+  cursor: pointer;
+}
+
+.tableTileGreen.mediumTile:hover, .tableTileGreen.mediumTile:active, .tableTileGreen.mediumTile:focus{
+  background: #27ae60;
+}
+
+.tableTileRed.mediumTile{
+  width: 115px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 65px; margin: 2px; padding: 3px;  background: #e74c3c;
+  cursor: pointer;
+}
+
+.tableTileRed.mediumTile:hover, .tableTileRed.mediumTile:active, .tableTileRed.mediumTile:focus{
+  background: #c0392b;
+}
+
+
+.tableTileRedDisable.mediumTile{
+  width: 115px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 65px; margin: 2px; padding: 3px;  background: #e74c3c;
+  cursor: not-allowed;
+}
+
+.tableTileYellow.mediumTile{
+  width: 115px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 65px; margin: 2px; padding: 3px; background: #f39c12;
+  cursor: pointer;
+}
+
+.tableTileYellow.mediumTile:hover, .tableTileYellow.mediumTile:active, .tableTileYellow.mediumTile:focus{
+  background: #e67e22;
+}
+
+.tableTileYellowDisable.mediumTile{
+  width: 115px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 65px; margin: 2px; padding: 3px; background: #f39c12;
+  cursor: not-allowed;
+}
+
+
+.tableReserved.mediumTile{
+  width: 115px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 65px; margin: 2px; padding: 3px; background: #8fbda3 !important;
+  cursor: pointer;
+}
+
+.tableTileOther.mediumTile{
+  width: 115px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 65px; margin: 2px; padding: 3px; background: #bdc3c7 !important;
+  cursor: not-allowed;
+}
+
+
+.tableTileBlue.mediumTile{
+ 
+    width: 115px; text-align: center; display: inline-block; max-width: 32%; 
+  height: 65px; margin: 2px; padding: 3px;  background: #3498db !important;
+  cursor: pointer;
+}
+
+.tableTitle.mediumTile{
+  display: block; color: #FFF; font-weight: 900; font-size: 20px;
+      text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-top: 0;
+}
+
+.tableCapacity.mediumTile{
+  display: block; color: #ecf0f5;
+      text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-top: -2px;
+    font-size: 95%;
+}
+
+.tableInfo.mediumTile{
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: block;
+    font-size: 90%;
+    margin-top: -2px;
+}
+
+.tableTileGreen.mediumTile .tableInfo.mediumTile{
+  display: block; color: #497d5f
+}
+
+.tableTileRed.mediumTile .tableInfo.mediumTile, .tableTileRedDisable.mediumTile .tableInfo.mediumTile{
+  display: block; color: #9c4540
+}
+
+.tableTileYellow.mediumTile .tableInfo.mediumTile, .tableTileYellowDisable.mediumTile .tableInfo.mediumTile{
+  display: block; color: #82612e
+}
+
+.tableTileRed.mediumTile.selected{
+  background: #2980b9 !important;
+}
+
+.tableTileRed.mediumTile.selectedExtra{
+  background: #3498db !important;
+}
+
+.seatingPlanHead.mediumTile{
+  font-weight: 400;
+    font-size: 18px !important;
+    background: #f6f6f6;
+    margin: 3px 5px !important;
+    padding: 7px !important;
+}
+
+
+
+
 .confirmationConsentArea{
     background: none;
     display: none;

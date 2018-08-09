@@ -2925,6 +2925,11 @@ function renderTables(){
 		currentTableID = '';
 	}
 
+
+	//To display Large (default) or Small Tables
+	var smallTableFlag = '';
+
+ 
 	//PRELOAD TABLE MAPPING
     var requestData = {
       "selector"  :{ 
@@ -2946,6 +2951,13 @@ function renderTables(){
 
               var tables = data.docs[0].value;
               tables.sort();
+
+              if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
+              	smallTableFlag = ' mediumTile';
+              }
+              else if(tables.length > 50){
+              	smallTableFlag = ' smallTile';
+              }
  
 
 				    var requestData = {
@@ -2981,41 +2993,41 @@ function renderTables(){
 
 							              			if(tables[i].status != 0){ /*Occuppied*/
 														if(tables[i].status == 1){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileRed" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'MAPPED\')">'+
-																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																					            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																					            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Running')+'</tag>'+
+								              				renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+'" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'MAPPED\')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Running')+'</tag>'+
 																					        	'</tag>';	
 														}
 														else if(tables[i].status == 2){
-															renderTableArea = renderTableArea + '<tag class="tableTileYellow" style="cursor: pointer" onclick="preSettleBill(\''+tables[i].KOT+'\', \'ORDER_PUNCHING\')">'+
-																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																					            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																					            '<tag class="tableInfo">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Billed')+'</tag>'+
+															renderTableArea = renderTableArea + '<tag class="tableTileYellow'+smallTableFlag+'" style="cursor: pointer" onclick="preSettleBill(\''+tables[i].KOT+'\', \'ORDER_PUNCHING\')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Billed')+'</tag>'+
 																					        	'</tag>';	
 														}									
 														else if(tables[i].status == 5){
 															if(currentTableID != '' && currentTableID == tables[i].table){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\', \''+(tables[i].assigned != "" && tables[i].assigned != "Hold Order" ? tables[i].assigned : '')+'\', '+(tables[i].assigned != "" && tables[i].assigned == "Hold Order" ? 1 : 0)+')">'+
-																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
-																					            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\', \''+(tables[i].assigned != "" && tables[i].assigned != "Hold Order" ? tables[i].assigned : '')+'\', '+(tables[i].assigned != "" && tables[i].assigned == "Hold Order" ? 1 : 0)+')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																					        	'</tag>';	
 															}	
 															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\', \''+(tables[i].assigned != "" && tables[i].assigned != "Hold Order" ? tables[i].assigned : '')+'\', '+(tables[i].assigned != "" && tables[i].assigned == "Hold Order" ? 1 : 0)+')">'+
-																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
-																					            '<tag class="tableInfo">Reserved</tag>'+
+								              				renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\', \''+(tables[i].assigned != "" && tables[i].assigned != "Hold Order" ? tables[i].assigned : '')+'\', '+(tables[i].assigned != "" && tables[i].assigned == "Hold Order" ? 1 : 0)+')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																					        	'</tag>';	
 															}
 
 														}									
 														else{
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRed" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'MAPPED\')">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Running</tag>'+
+							              				renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+'" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'MAPPED\')">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
 																				        	'</tag>';											
 														}
 
@@ -3024,17 +3036,17 @@ function renderTables(){
 							              			else{
 
 							              				if(currentTableID != '' && currentTableID == tables[i].table){
-							              					renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\')">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+							              					renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\')">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																				        	'</tag>';
 														}	
 														else{
-															renderTableArea = renderTableArea + '<tag class="tableTileGreen" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\')">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Free</tag>'+
+															renderTableArea = renderTableArea + '<tag class="tableTileGreen'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\')">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
 																				        	'</tag>';
 														}							        	              				
 							              			}
@@ -3043,7 +3055,7 @@ function renderTables(){
 							              	}
 
 							              	renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
-																	   '<h1 class="seatingPlanHead" style="font-weight: 400; font-size: 18px; background: #f6f6f6; margin: 5px 5px; padding: 10px;">'+tableSections[n]+'</h1>'+
+																	   '<h1 class="seatingPlanHead'+smallTableFlag+'" style="font-weight: 400; font-size: 18px; background: #f6f6f6; margin: 5px 5px; padding: 10px;">'+tableSections[n]+'</h1>'+
 																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
 																	    '</div>'+
 																	'</div>'
@@ -4930,7 +4942,10 @@ function billTableMapping(tableID, billNumber, status, optionalPageRef){
 
 function pickTableForNewOrder(currentTableID){
 
+	//To display Large (default) or Small Tables
+	var smallTableFlag = '';
 
+             
 	//PRELOAD TABLE MAPPING
     var requestData = {
       "selector"  :{ 
@@ -4953,6 +4968,12 @@ function pickTableForNewOrder(currentTableID){
               var tables = data.docs[0].value;
               tables.sort();
  
+              if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
+              	smallTableFlag = ' mediumTile';
+              }
+              else if(tables.length > 50){
+              	smallTableFlag = ' smallTile';
+              }
 
 				    var requestData = {
 				      "selector"  :{ 
@@ -4987,41 +5008,41 @@ function pickTableForNewOrder(currentTableID){
 
 							              			if(tables[i].status != 0){ /*Occuppied*/
 														if(tables[i].status == 1){
-							              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Running</tag>'+
+							              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
 																				        	'</tag>';	
 														}	
 														else if(tables[i].status == 2){
-															renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Billed</tag>'+
+															renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable'+smallTableFlag+'">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
 																				        	'</tag>';	
 														}								
 														else if(tables[i].status == 5){
 															if(currentTableID != '' && currentTableID == tables[i].table){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
-																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
-																					            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																					        	'</tag>';	
 															}	
 															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
-																					            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
-																					            '<tag class="tableInfo">Reserved</tag>'+
+								              				renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																					        	'</tag>';	
 															}
 
 														}									
 														else{
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Running</tag>'+
+							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
 																				        	'</tag>';											
 														}
 
@@ -5030,17 +5051,17 @@ function pickTableForNewOrder(currentTableID){
 							              			else{
 
 							              				if(currentTableID != '' && currentTableID == tables[i].table){
-							              					renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="tableTileBlue">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+							              					renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="tableTileBlue'+smallTableFlag+'">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																				        	'</tag>';
 														}	
 														else{
-															renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="tableTileGreen">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Free</tag>'+
+															renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
 																				        	'</tag>';
 														}							        	              				
 							              			}
@@ -5049,7 +5070,7 @@ function pickTableForNewOrder(currentTableID){
 							              	}
 
 							              	renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
-																	   '<h1 class="seatingPlanHead">'+tableSections[n]+'</h1>'+
+																	   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
 																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
 																	    '</div>'+
 																	'</div>'

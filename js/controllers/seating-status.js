@@ -974,6 +974,9 @@ function mergeBillsInTheHoldList(){
 
 function preloadTableStatus(mode, currentTableID){
 
+    //To display Large (default) or Small Tables
+    var smallTableFlag = '';
+
     var requestData = {
       "selector"  :{ 
                     "identifierTag": "ZAITOON_TABLES_MASTER" 
@@ -995,6 +998,12 @@ function preloadTableStatus(mode, currentTableID){
               var tables = data.docs[0].value;
               tables.sort();
  
+              if(tables.length < 60 && tables.length > 30){ //As per UI, it can include 30 large tables 
+                smallTableFlag = ' mediumTile';
+              }
+              else if(tables.length > 60){
+                smallTableFlag = ' smallTile';
+              }
 
 				    var requestData = {
 				      "selector"  :{ 
@@ -1045,43 +1054,43 @@ function preloadTableStatus(mode, currentTableID){
 
 														totalTablesToMerge++;
 
-														renderTableArea = renderTableArea + '<tag class="tableTileRed selected">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																				            '<tag class="tableInfo" style="color: #fff"><i class="fa fa-check"></i></tag>'+
+														renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+' selected">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'" style="color: #fff"><i class="fa fa-check"></i></tag>'+
 																				        	'</tag>';	
 													}
 													else{
 
 														totalTablesToMerge++;
 
-							              				renderTableArea = renderTableArea + '<tag id="holdMain_'+tables[i].table+'" onclick="addToHoldList(\''+tables[i].table+'\')" class="tableTileRed">'+
-																				            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																				            '<tag class="tableInfo" id="hold_'+tables[i].table+'" style="color: #fff">Punched '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+							              				renderTableArea = renderTableArea + '<tag id="holdMain_'+tables[i].table+'" onclick="addToHoldList(\''+tables[i].table+'\')" class="tableTileRed'+smallTableFlag+'">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'" id="hold_'+tables[i].table+'" style="color: #fff">Punched '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
 																				        	'</tag>';												
 													}
 
 												}	
 												else if(tables[i].status == 2){
-					              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
-																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo">Billed '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Billed '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
 																		        	'</tag>';	
 												}	
 												else if(tables[i].status == 5){
-					              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
-																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
-																		            '<tag class="tableInfo">Reserved</tag>'+
+					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																		        	'</tag>';	
 												}																									
 												else{
-					              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
-																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo">Updated '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Updated '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
 																		        	'</tag>';											
 												}
 
@@ -1089,18 +1098,18 @@ function preloadTableStatus(mode, currentTableID){
 					              			}
 					              			else{
 
-					              				renderTableArea = renderTableArea + '<tag class="tableTileOther">'+
-																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																		            '<tag class="tableInfo">Free</tag>'+
+					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
 																		        	'</tag>';		              				
 					              			}
 
 					              		}
 					              	}
 
-					              	renderSectionArea = renderSectionArea + '<div class="row" style="margin-top: 25px">'+
-															   '<h1 class="seatingPlanHead">'+tableSections[n]+'</h1>'+
+					              	renderSectionArea = renderSectionArea + '<div class="row">'+
+															   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
 															   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
 															    '</div>'+
 															'</div>'
@@ -1134,31 +1143,31 @@ function preloadTableStatus(mode, currentTableID){
 
 					              			if(tables[i].status != 0){ /*Occuppied*/
 												if(tables[i].status == 1){
-					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileRed">'+
-																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo">Punched '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileRed'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Punched '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
 																		        	'</tag>';	
 												}
 												else if(tables[i].status == 2){
-					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileYellow">'+
-																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo">Billed '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileYellow'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Billed '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
 																		        	'</tag>';	
 												}
 												else if(tables[i].status == 5){
-					              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tables[i].table+'\', \''+tables[i].assigned+'\', '+(tables[i].assigned == 'Hold Order' ? 1 : 0)+')" class="tableReserved">'+
-																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
-																		            '<tag class="tableInfo">Reserved</tag>'+
+					              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tables[i].table+'\', \''+tables[i].assigned+'\', '+(tables[i].assigned == 'Hold Order' ? 1 : 0)+')" class="tableReserved'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																		        	'</tag>';	
 												}									
 												else{
-					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileRed">'+
-																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo">Updated '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileRed'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Updated '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
 																		        	'</tag>';											
 												}
 
@@ -1166,18 +1175,18 @@ function preloadTableStatus(mode, currentTableID){
 					              			}
 					              			else{
 
-					              				renderTableArea = renderTableArea + '<tag onclick="openFreeSeatOptions(\''+tables[i].table+'\')" class="tableTileGreen">'+
-																		            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																		            '<tag class="tableInfo">Free</tag>'+
+					              				renderTableArea = renderTableArea + '<tag onclick="openFreeSeatOptions(\''+tables[i].table+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
 																		        	'</tag>';		              				
 					              			}
 
 					              		}
 					              	}
 
-					              	renderSectionArea = renderSectionArea + '<div class="row" style="margin-top: 25px">'+
-															   '<h1 class="seatingPlanHead">'+tableSections[n]+'</h1>'+
+					              	renderSectionArea = renderSectionArea + '<div class="row">'+
+															   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
 															   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
 															    '</div>'+
 															'</div>'

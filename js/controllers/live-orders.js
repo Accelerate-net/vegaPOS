@@ -449,7 +449,10 @@ function overWriteCurrentOrder(kot){
 function pickTableForTransferOrder(currentTableID, kotID){
 
     liveOrderOptionsClose();
-    
+   
+    //To display Large (default) or Small Tables
+    var smallTableFlag = '';
+
     //PRELOAD TABLE MAPPING
     var requestData = {
       "selector"  :{ 
@@ -472,7 +475,13 @@ function pickTableForTransferOrder(currentTableID, kotID){
               var tables = data.docs[0].value;
               tables.sort();
  
-
+              if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
+                smallTableFlag = ' mediumTile';
+              }
+              else if(tables.length > 50){
+                smallTableFlag = ' smallTile';
+              }
+ 
                     var requestData = {
                       "selector"  :{ 
                                     "identifierTag": "ZAITOON_TABLE_SECTIONS" 
@@ -507,42 +516,42 @@ function pickTableForTransferOrder(currentTableID, kotID){
                                                     if(tables[i].status != 0){ /*Occuppied*/
                                                         if(tables[i].status == 1){
                                                             if(currentTableID != '' && currentTableID == tables[i].table){
-                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')">'+
-                                                                                                '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-                                                                                                '<tag class="tableCapacity">Current Table</tag>'+
-                                                                                                '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')">'+
+                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">Current Table</tag>'+
+                                                                                                '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
                                                                                                 '</tag>';   
                                                             }   
                                                             else{
-                                                                renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
-                                                                                            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-                                                                                            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo">Running</tag>'+
+                                                                renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+                                                                                            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
                                                                                             '</tag>';                                                       
                                                             }
                                                         }                                   
                                                         else if(tables[i].status == 5){
                                                             if(currentTableID != '' && currentTableID == tables[i].table){
-                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')">'+
-                                                                                                '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-                                                                                                '<tag class="tableCapacity">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
-                                                                                                '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')">'+
+                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+                                                                                                '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
                                                                                                 '</tag>';   
                                                             }   
                                                             else{
-                                                                renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')">'+
-                                                                                                '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-                                                                                                '<tag class="tableCapacity">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
-                                                                                                '<tag class="tableInfo">Reserved</tag>'+
+                                                                renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')">'+
+                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+                                                                                                '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
                                                                                                 '</tag>';   
                                                             }
 
                                                         }                                   
                                                         else{
-                                                            renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
-                                                                                            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-                                                                                            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo">Running</tag>'+
+                                                            renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+                                                                                            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
                                                                                             '</tag>';                                           
                                                         }
 
@@ -550,17 +559,17 @@ function pickTableForTransferOrder(currentTableID, kotID){
                                                     else{
 
                                                         if(currentTableID != '' && currentTableID == tables[i].table){
-                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')" class="tableTileBlue">'+
-                                                                                            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-                                                                                            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')" class="tableTileBlue'+smallTableFlag+'">'+
+                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+                                                                                            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
                                                                                             '</tag>';
                                                         }   
                                                         else{
-                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')" class="tableTileGreen">'+
-                                                                                            '<tag class="tableTitle">'+tables[i].table+'</tag>'+
-                                                                                            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo">Free</tag>'+
+                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+                                                                                            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
                                                                                             '</tag>';
                                                         }                                                                   
                                                     }
@@ -569,7 +578,7 @@ function pickTableForTransferOrder(currentTableID, kotID){
                                             }
 
                                             renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
-                                                                       '<h1 class="seatingPlanHead">'+tableSections[n]+'</h1>'+
+                                                                       '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
                                                                        '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
                                                                         '</div>'+
                                                                     '</div>'

@@ -2335,6 +2335,10 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                        switch(e.which){
                         case 37:{ //  < Left Arrow
 
+                            if(hasEnterClicked){ //Select One Option only (TWEAK)
+                              break;
+                            }
+
                             if(tileSelected){
                                 tileSelected.removeClass('selectSplitPayment');
 
@@ -2354,6 +2358,10 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                           break;
                         }
                         case 38:{ //  ^ Up Arrow 
+
+                            if(hasEnterClicked){ //Select One Option only (TWEAK)
+                              break;
+                            }
                     
                             if(tileSelected){
                                 tileSelected.removeClass('selectSplitPayment');
@@ -2412,6 +2420,10 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                         }
                         case 39:{ // Right Arrow >
 
+                            if(hasEnterClicked){ //Select One Option only (TWEAK)
+                              break;
+                            }
+
                             if(tileSelected){
                                 tileSelected.removeClass('selectSplitPayment');
 
@@ -2431,6 +2443,10 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                           break;
                         }
                         case 40:{ // Down Arrow \/ 
+
+                            if(hasEnterClicked){ //Select One Option only (TWEAK)
+                              break;
+                            }
 
                             if(tileSelected){
                                 tileSelected.removeClass('selectSplitPayment');
@@ -2462,7 +2478,6 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                               if($(this).hasClass("selectSplitPayment")){
                                 $(this).click();
                                 hasEnterClicked = true;
-                                e.preventDefault(); 
                               }
                             }); 
                           }
