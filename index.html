@@ -72,12 +72,12 @@
                     <h1 style="font-size: 32px; color: #948f92; font-family: 'Roboto';">Locked</h1>
                 </header>
 
-                <form style="margin: 0">
+                <div style="margin: 0">
                     <div class="field">
                         <input type="password" id="lockScreePasscode" maxlength="4" class="lockScreenInput" placeholder="Passcode">
                     </div>
                     <a href="#" onclick="recoveryLogin()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Got locked out?</a>
-                </form>
+                </div>
             </section>
         </div>
     </div> 
@@ -92,11 +92,11 @@
                     <h1 style="font-size: 28px; color: #c20016; font-family: 'Roboto';">Server Not Connected</h1>
                 </header>
 
-                <form style="margin: 0">
+                <div style="margin: 0">
                     <p style="color: #777">Please switch on the Server and/or check the connection to it.</p>
                     <a href="#" onclick="testLocalServerConnection(1)" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Retry?</a>
                     <tag style="display: block; font-size: 80%" id="refreshServerCheckCounter">-</tag>
-                </form>
+                </div>
             </section>
         </div>
     </div> 
@@ -113,12 +113,12 @@
                     <h1 style="font-size: 28px; color: #edac0d; font-family: 'Roboto';">Application not Activated</h1>
                 </header>
 
-                <form style="margin: 0;" id="applicationActivationLockDefault">
+                <div style="margin: 0;" id="applicationActivationLockDefault">
                     <p style="color: #777">Please connect to Internet and Activate the Application.</p>
                     <a href="#" onclick="activateApplicationFromHomeScreen()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Activate</a>
-                </form>
+                </div>
 
-                <form style="margin: 0; display: none" id="applicationActivationLockActive">
+                <div style="margin: 0; display: none" id="applicationActivationLockActive">
                      
                      <div class="row">
                         <div class="col-lg-12">
@@ -130,7 +130,7 @@
 
                     <a href="#" onclick="goProceedToActivation()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Activate Now</a>
 
-                </form>
+                </div>
 
             </section>
         </div>
@@ -149,10 +149,10 @@
                     <h1 style="font-size: 28px; color: #edac0d; font-family: 'Roboto';">Licence Expired</h1>
                 </header>
 
-                <form style="margin: 0;">
+                <div style="margin: 0;">
                     <p style="color: #777">Renew the Licence to continue using the Application. Contact <b>support@accelerate.net.in</b> for assistance.</p>
                     <a href="#" onclick="applyLicenceTerms()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Refresh</a>
-                </form>
+                </div>
             </section>
         </div>
     </div> 
@@ -172,17 +172,16 @@
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
 
-                        <li class="dropdown user user-menu">
-
-                            <a href="#" onclick="selectSessionWindow()" style="font-size: 18px; font-weight: 300;">
+                        <li class="dropdown user user-menu" tabindex="-1">
+                            <a tabindex="-1" href="#" onclick="selectSessionWindow()" style="font-size: 18px; font-weight: 300;">
                               <span id="currentSessionDisplay" style="display: block; position: relative; top: -6px;">Unknown Session</span>
                               <time style="display: block; position: absolute; font-size: 12px; font-weight: initial; bottom: 4px; text-transform: uppercase;" id="currentSessionDisplayTime"></time>
                             </a>
                         </li>
 
-                        <li style="width: 165px !important; text-align: center" onclick="checkLogin()"><a href="#" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;"><tag id="globalServerConnectionStatus">...</tag></a></li>
+                        <li style="width: 165px !important; text-align: center" onclick="checkLogin()" tabindex="-1"><a tabindex="-1" href="#" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;"><tag id="globalServerConnectionStatus">...</tag></a></li>
 
-                        <li class="noHover" style="width: 165px !important"><a href="#" class="noHover" style="padding: 0">
+                        <li class="noHover" style="width: 165px !important" tabindex="-1"><a tabindex="-1" href="#" class="noHover" style="padding: 0">
 
                           <div style="display: inline-block; position: relative; top: 5px; left: 5px">
                               <div class="hero-circle">
@@ -197,10 +196,10 @@
 
                         </a></li>
                         
-                        <li class="noHover"><a href="#" class="noHover" style="padding: 15px 30px; font-size: 18px; "><i class="fa fa-laptop"></i> <tag id="thisSystemName" style="padding-left: 5px;"></tag></a></li>
+                        <li class="noHover" tabindex="-1"><a tabindex="-1" href="#" class="noHover" style="padding: 15px 30px; font-size: 18px; "><i class="fa fa-laptop"></i> <tag id="thisSystemName" style="padding-left: 5px;"></tag></a></li>
                         
-                        <li class="dropdown user user-menu">
-                            <a href="#" onclick="selectStewardWindow()" id="currentUserProfileDisplay" style="font-size: 18px; font-weight: 400;">
+                        <li class="dropdown user user-menu" tabindex="-1">
+                            <a tabindex="-1" href="#" onclick="selectStewardWindow()" id="currentUserProfileDisplay" style="font-size: 18px; font-weight: 400;">
                                 <img src="images/default_user.png" class="user-image" alt="Avatar" />
                                 <span>Profile Not Selected</span>
                             </a>
@@ -340,7 +339,6 @@
              </div>
           </div>
 
-
         <!-- SESSION MODAL -->
         <div id="sessionModalHome" class="modal">
              <div class="modal-dialog" style="width: 27em !important;">
@@ -446,7 +444,6 @@
                   <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #f30d0d">Cancellation Details
                   </h1>
                   <div class="row" style="padding: 5px 25px;">
-                      <form>
                          <div class="row">
                             <div class="col-lg-12">
                                <div class="form-group">
@@ -485,7 +482,6 @@
                             </div>
                            </div>
 
-                      </form>
                   </div>
             </div>
             <div class="modal-footer" id="billCancellationsReasonModalActions">                
@@ -506,7 +502,6 @@
                   <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #f59d13">Refund Details
                   </h1>
                   <div class="row" style="padding: 5px 25px;">
-                      <form>
                          <div class="row">
                             <div class="col-lg-12">
                                <div class="form-group">
@@ -548,8 +543,6 @@
                                </div>
                             </div>
                            </div>
-
-                      </form>
                   </div>
             </div>
             <div class="modal-footer" id="billRefundReasonModalActions">                
@@ -590,7 +583,7 @@
                   <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #f30d0d">Cancellation Details
                   </h1>
                   <div class="row" style="padding: 5px 25px;">
-                      <form>
+                      
                          <div class="row">
                             <div class="col-lg-12">
                                <div class="form-group">
@@ -613,7 +606,6 @@
                             </div>
                           </div>
 
-                      </form>
                   </div>
             </div>
             <div class="modal-footer" id="orderCancellationsReasonModalActions">                

@@ -280,12 +280,12 @@ input[type=number]::-webkit-outer-spin-button {
 
 .chosenModeButton {
     width: 100%;
-    background: #40739e;
+    background: #5c8392;
     color: #FFF;
     padding: 6px 12px;
     border-radius: 4px;
     font-size: 14px;
-    border: 1px solid #487eb0;
+    border: 1px solid #5c8392;
     cursor: pointer;
     font-weight: 400;
     text-transform: none;
@@ -3397,6 +3397,8 @@ position: absolute;
 
 .paymentModeOption.selectSplitPayment{
       border: 2px solid #1abc9c !important;
+      background: #1abc9c !important;
+      color: #FFF !important;
 }
 
 .paymentModeOption.active{
@@ -4616,13 +4618,137 @@ input:checked + .slider:before {
 
 
 
+.modeSelectionIcon{
+  background: none;
+  opacity: 0;
+  font-size: 14px;
+  color: #FFF;
+  position: absolute;
+  right: 10px;
+  top: 16px;
+}
+
+.selectedMode .modeSelectionIcon{
+    opacity: 1 !important;
+}
+
+.billModalSelect{
+  position: relative; display: none; width: 100%; 
+  box-shadow: #90a6b1 3px 3px 6px 0px;
+}
+
+.billModeListedButton{
+    position: relative;
+    width: 100%;
+    display: block;
+    background: #1abc9c;
+    color: #FFF !important;
+    text-align: left;
+    padding: 8px 35px 8px 8px;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid #14987e !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.modeSelectionBrief{
+  display: block;
+  font-size: 10px;
+  color: #beefd2;
+  letter-spacing: 1px;
+}
+
+.selectedMode, .billModeListedButton:hover{
+  background: #14987e !important;
+}
+
+
+.skin-yellow .billModeListedButton,
+.skin-yellow-light .billModeListedButton
+{
+  background: #f1b454;
+  border-color: #e09c2f !important;
+}
+
+.skin-blue .billModeListedButton,
+.skin-blue-light .billModeListedButton
+{
+  background: #3c8dbc;
+  border-color: #40739e !important;
+}
+
+.skin-red .billModeListedButton,
+.skin-red-light .billModeListedButton
+{
+  background: #f16453;
+  border-color: #d24837 !important;
+}
+
+.skin-purple .billModeListedButton,
+.skin-purple-light .billModeListedButton
+{
+  background: #726eb7;
+  border-color: #59559e !important;
+}
+
+
+
+.skin-yellow .modeSelectionBrief,
+.skin-yellow-light .modeSelectionBrief{
+  color: #fde6b9;
+}
+
+.skin-blue .modeSelectionBrief,
+.skin-blue-light .modeSelectionBrief{
+  color: #b9e4fd;
+}
+
+.skin-red .modeSelectionBrief,
+.skin-red-light .modeSelectionBrief{
+  color: #fdcab9;
+}
+
+.skin-purple .modeSelectionBrief,
+.skin-purple-light .modeSelectionBrief{
+  color: #afacec;
+}
 
 
 
 
+.skin-yellow .selectedMode,
+.skin-yellow-light .selectedMode,
+.skin-yellow .billModeListedButton:hover,
+.skin-yellow-light .billModeListedButton:hover
+{
+  background: #e09c2f !important;
+}
 
+.skin-blue .selectedMode,
+.skin-blue-light .selectedMode,
+.skin-blue .billModeListedButton:hover,
+.skin-blue-light .billModeListedButton:hover
+{
+  background: #40739e !important;
+}
 
+.skin-red .selectedMode,
+.skin-red-light .selectedMode,
+.skin-red .billModeListedButton:hover,
+.skin-red-light .billModeListedButton:hover
+{
+  background: #d24837 !important;
+}
 
+.skin-purple .selectedMode,
+.skin-purple-light .selectedMode,
+.skin-purple .billModeListedButton:hover,
+.skin-purple-light .billModeListedButton:hover
+{
+  background: #59559e !important;
+}
 
 
 

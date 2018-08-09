@@ -268,7 +268,13 @@ function deleteItem(item, isCustom, variant){
 
         }
 
-    window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    if(cart_products.length == 0){
+    	window.localStorage.zaitoon_cart = '';
+    }
+    else{
+    	window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    }
+    
     renderCart()
 
 }
@@ -372,7 +378,7 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 
 	var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
 	
-	var selectedBillingModeName = document.getElementById("customer_form_data_mode").value;
+	var selectedBillingModeName = $('#customer_form_data_mode').attr("selected-mode");
 	var selectedBillingModeInfo = '';
 
 	var n = 0;
@@ -694,11 +700,11 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 	if(itemDeleteTest == 'DELETED'){
 		hasUnsavedChanges = true;
-		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center"><i class="fa fa-exclamation-circle"></i> Removed some items</td></tr>' + temp;
+		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center; cursor: pointer"><i class="fa fa-exclamation-circle"></i> Removed some items</td></tr>' + temp;
 	}
 	else if(itemDeleteTest == 'DELETED_ALL'){
 		hasUnsavedChanges = true;
-		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center"><i class="fa fa-exclamation-circle"></i> Removed all items</td></tr>' + temp;
+		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center; cursor: pointer;"><i class="fa fa-exclamation-circle"></i> Removed all items</td></tr>' + temp;
 	}
 
 	
@@ -1973,6 +1979,94 @@ function hideClearCartModal(){
 }
 
 
+function openBillingModeSelector(content){
+
+	var billingModes = JSON.parse(decodeURI(content));
+	document.getElementById("billingModesModalHome").style.display = "block";
+
+	var renderContent = '';
+	var n = 0;
+	while(billingModes[n]){
+		renderContent += '<button class="billModeListedButton easySelectTool_chooseBillingMode" onclick="changeCustomerInfo(\'mode\', \''+billingModes[n].name+'\')">'+billingModes[n].name+'<span class="modeSelectionBrief">'+billingModes[n].type+'</span><tag class="modeSelectionIcon"><i class="fa fa-check"></i></tag></button>';
+		n++;
+	}
+
+	document.getElementById("billingModesModalHomeContent").innerHTML = '<div id="billingModesModalList">'+renderContent+'</div>';
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+
+          var li = $('#billingModesModalList .easySelectTool_chooseBillingMode');
+          var liSelected = li.eq(0).addClass('selectedMode');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#billingModesModalList').is(':visible')) {
+
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
+
+					if(liSelected){
+					    liSelected.removeClass('selectedMode');
+					   	next = liSelected.prev();
+						if(next.length > 0){
+							liSelected = next.addClass('selectedMode');
+						}else{
+							liSelected = li.last().addClass('selectedMode');
+						}
+					}else{
+						liSelected = li.last().addClass('selectedMode');
+					}                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+					if(liSelected){
+						liSelected.removeClass('selectedMode');
+						next = liSelected.next();
+						if(next.length > 0){
+							liSelected = next.addClass('selectedMode');
+						}else{
+							liSelected = li.eq(0).addClass('selectedMode');
+						}
+					}else{
+						liSelected = li.eq(0).addClass('selectedMode');
+					}
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("billingModesModalHome").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#billingModesModalList .easySelectTool_chooseBillingMode").each(function(){
+                      if($(this).hasClass("selectedMode")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
+            }
+          });
+
+}
+
+function hideBillingModeSelector(){
+	document.getElementById("billingModesModalHome").style.display = "none";
+}
+
+
+
+
 /*customer info*/
 function renderCustomerInfo(){
 
@@ -2151,7 +2245,7 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 	          	
 				/*Billing modes not set or not rendering*/
 				if(jQuery.isEmptyObject(billingModesInfo)){
-					document.getElementById("orderCustomerInfo").innerHTML = '<p style="text-align: center; color: #dd4b39;">Billing Modes not set. <tag class="extrasSelButton" onclick="renderPage(\'bill-settings\', \'Bill Settings\'); openBillSettings(\'billingModes\')">Adding Billing Modes</tag> to continue</p>';
+					document.getElementById("orderCustomerInfo").innerHTML = '<p style="text-align: left; margin: 10px 0; color: #dd4b39;">Billing Modes not set.<br><tag class="extrasSelButton" onclick="renderPage(\'bill-settings\', \'Bill Settings\'); openBillSettings(\'billingModes\')">Adding Billing Modes</tag> to continue</p>';
 					showToast('Warning: Billing Modes are not set', '#e67e22');
 					return '';
 				}
@@ -2168,34 +2262,18 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 				}
 				else{
 
-					var billingModesListRenderer = '';
 					var n = 0;
 					var currentModeIndex = 0;
 					while(billingModesInfo[n]){
-
 						if(billingModesInfo[n].name == customerInfo.mode){
-							billingModesListRenderer += '<a href="#" class="currentActiveMode" onclick="changeCustomerInfo(\'mode\', \''+billingModesInfo[n].name+'\')"><p class="chosenModeDropdownModeName">'+billingModesInfo[n].name+' <i class="fa fa-check-circle"></i>'+
-															'<tag class="chosenModeDropdownMinimumBill">'+(billingModesInfo[n].minimumBill > 0 ? 'Min <i class="fa fa-inr"></i>'+billingModesInfo[n].minimumBill : '')+'</tag></p>'+
-															'<p class="chosenModeDropdownBrief"><b class="modeTypeLabel">'+billingModesInfo[n].type+'</b></p>'+
-													   	'</a>';
 							currentModeIndex = n;
+							break;
 						}
-						else{
-							billingModesListRenderer += '<a href="#" onclick="changeCustomerInfo(\'mode\', \''+billingModesInfo[n].name+'\')"><p class="chosenModeDropdownModeName">'+billingModesInfo[n].name+
-															'<tag class="chosenModeDropdownMinimumBill">'+(billingModesInfo[n].minimumBill > 0 ? 'Min <i class="fa fa-inr"></i>'+billingModesInfo[n].minimumBill : '')+'</tag></p>'+
-															'<p class="chosenModeDropdownBrief"><b class="modeTypeLabel">'+billingModesInfo[n].type+'</b></p>'+
-													   	'</a>';
-						}
-
 						n++;
 					}
 					
-					var billingModesList = 	'<div class="chosenModeDropdown">'+
-											    '<div class="chosenModeButton" value="'+billingModesInfo[currentModeIndex].name+'" id="customer_form_data_mode">'+billingModesInfo[currentModeIndex].name+'</div>'+
-											    '<div class="chosenModeDropdown-content" style="display: none" id="modeListingDropdown"><div class="chosenModeDropdownArea" id="modeListingDropdownArea">'+billingModesListRenderer+'</div>'+
-											    '</div>'+
-											'</div>';
-
+					var billingModesList = 	'<tag selected-mode="\''+billingModesInfo[currentModeIndex].name+'\'" onclick="openBillingModeSelector(\''+(encodeURI(JSON.stringify(billingModesInfo)))+'\')" id="customer_form_data_mode" class="btn chosenModeButton" style="color: #FFF; width: 100%; text-overflow: ellipsis; overflow: hidden; text-align: left">'+billingModesInfo[currentModeIndex].name+'</tag>';
+					
 
 					var selectMappedAddressButton = '';
 					var tempModeType = customerInfo.modeType;
@@ -2464,20 +2542,25 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 
 function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList){
 
+
+					var modalTemplate = ''+
+					        '<div id="billingModesModalHome" class="modal billModalSelect">'+
+					             '<div class="modal-dialog" style="width: 100%; margin: 0">'+
+					                '<div class="modal-content" id="billingModesModalHomeContent">'+
+					                '</div>'+
+					             '</div>'+
+					        '</div>';
+
+					        
+
 					if(isEditingKOT){ //Editing KOT
 					
-					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px"> '+
+					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px; margin-bottom: 6px; position: relative"> '+
 			                                 '<div class="col-xs-8" style="padding: 0; padding-right: 2px">'+
-			                                    '<div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<div class="input-group" style="width:100%;">'+
-			                                       		 '<label class="cartCustomerLabel">Order Type<tag id="orderTypeDisplay" style="color: #40739e; font-size: 10px; font-weight: bold; padding-left: 3px;">'+customerInfo.modeType+'</tag></label>'+
-			                                             '<input type="text" value="'+customerInfo.mode+'" id="customer_form_data_mode" class="form-control kb-text" disabled/>'+
-			                                       '</div>'+
-			                                       '<div style="clear:both;"></div>'+
-			                                    '</div>'+
+			                                    '<label class="cartCustomerLabel">Order Type<tag id="orderTypeDisplay" style="color: #40739e; font-size: 10px; font-weight: bold; padding-left: 3px;">'+customerInfo.modeType+'</tag></label>'+
+			                                    '<input type="text" value="'+customerInfo.mode+'" selected-mode="'+customerInfo.mode+'" id="customer_form_data_mode" style="border-radius: 4px !important; height: 33px;" class="form-control kb-text" disabled/>'+
 			                                ' </div>'+
-			                                 '<div class="col-xs-4" style="padding: 0; padding-left: 2px">'+selectMappedAddressButton+
-			                                 '</div> '+                       
+			                                 '<div class="col-xs-4" style="padding: 0; padding-left: 2px">'+selectMappedAddressButton+'</div> '+                       
 			                           '</div>'+
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
@@ -2499,17 +2582,13 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 					}
 					else{ //New Order
 
-					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px"> '+
+					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px; margin-bottom: 6px; position: relative"> '+
 			                                 '<div class="col-xs-8" style="padding: 0; padding-right: 2px">'+
-			                                    '<div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<div class="input-group" style="width:100%;">'+
-			                                       		 '<label class="cartCustomerLabel">Order Type</label><tag id="orderTypeDisplay" style="color: #40739e; font-weight: bold; padding-left: 3px; font-size: 10px">'+customerInfo.modeType+'</tag>'+billingModesList+
-			                                       '</div>'+
-			                                       '<div style="clear:both;"></div>'+
-			                                    '</div>'+
-			                                ' </div>'+
-			                                 '<div class="col-xs-4" style="padding: 0; padding-left: 2px">'+selectMappedAddressButton+
-			                                 '</div> '+                       
+			                                       '<label class="cartCustomerLabel">Order Type</label><tag id="orderTypeDisplay" style="color: #40739e; font-weight: bold; padding-left: 3px; font-size: 10px">'+customerInfo.modeType+'</tag>'+
+			                                       billingModesList+
+			                                 '</div>'+
+			                                 '<div class="col-xs-4" style="padding: 0; padding-left: 2px">'+selectMappedAddressButton+'</div>'+  
+			                                 '<div class="blue-box" style="width: 90%; position: absolute; top: 60px;">'+modalTemplate+'</div>'+                     
 			                           '</div>'+
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
@@ -2531,84 +2610,14 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			        }	
 
 
-			        document.getElementById("customer_form_data_mode").value = customerInfo.mode;
-
-
-					//Key Actions to Select from dropdown
-					$('#customer_form_data_mode').on('click', function(event) {
-
-						var x = document.getElementById("modeListingDropdown");
-
-						if(x.style.display == 'none'){
-							x.style.display = 'block';
-						}
-						else{
-							x.style.display = 'none';
-						}
-
-						$("#modeListingDropdownArea a").removeClass("selected");
-
-						var liSelected = undefined;
-						var li = $('#modeListingDropdownArea a');
-
-						$(document).keyup(function(e) {
-							
-						    if (e.which === 40 || e.which === 38) {
-						        
-						        // If the Up-Arrow or Down-Arrow is pressed  
-							    if(e.which === 40){
-
-							        if(liSelected){
-							            liSelected.removeClass('selected');
-							            next = liSelected.next();
-							            if(next.length > 0){
-							                liSelected = next.addClass('selected');
-							            }else{
-							                liSelected = li.eq(0).addClass('selected');
-							            }
-							        }else{
-							            liSelected = li.eq(0).addClass('selected');
-							        }
-							    }else if(e.which === 38){
-							        if(liSelected){
-							            liSelected.removeClass('selected');
-							            next = liSelected.prev();
-							            if(next.length > 0){
-							                liSelected = next.addClass('selected');
-							            }else{
-							                liSelected = li.last().addClass('selected');
-							            }
-							        }else{
-							            liSelected = li.last().addClass('selected');
-							        }
-							    }
-
-
-						    }
-						    else if (e.which === 13) {
-						        
-						        //If the Enter Key is pressed 
-						        $("#modeListingDropdownArea a").each(function(){
-							        if($(this).hasClass("selected")){
-							        	$(this).click();
-							        	$('#customer_form_data_mobile').focus();
-							        }
-							    });
-						    }					   			    
-						});
-					});
-
-					$('#customer_form_data_mode').on('mouseout', function(event){
-						$(document).off('keyup');
-					});
-
+			        $('#customer_form_data_mode').attr("selected-mode", customerInfo.mode);
 		
 			        /*First dropdown item as default*/ /*TWEAK*/
-			        if(customerInfo.mode == ""){
-			        	$("#customer_form_data_mode").val($("#customer_form_data_mode option:first").val());
-			        	customerInfo.modeType = billingModesInfo[0].type;
-			        	customerInfo.mode = billingModesInfo[0].name;
-			        }
+			        // if(customerInfo.mode == ""){
+			        // 	$("#customer_form_data_mode").val($("#customer_form_data_mode option:first").val());
+			        // 	customerInfo.modeType = billingModesInfo[0].type;
+			        // 	customerInfo.mode = billingModesInfo[0].name;
+			        // }
 
 			        window.localStorage.customerData = JSON.stringify(customerInfo);
 
@@ -2844,6 +2853,8 @@ function changeCustomerInfo(type, optionalValue){
 					}
 					n++;
 				}
+
+				hideBillingModeSelector();
 
 				window.localStorage.customerData = JSON.stringify(customerInfo);
 				renderCart();
@@ -3913,7 +3924,7 @@ function generateNewKOT(){
 
 	var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
 	
-	var selectedBillingModeName = document.getElementById("customer_form_data_mode").value;
+	var selectedBillingModeName = $('#customer_form_data_mode').attr("selected-mode");
 	var selectedBillingModeInfo = '';
 	
 	var n = 0;
@@ -4650,6 +4661,8 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 	renderCart();
 	renderCustomerInfo();
 	renderTables();
+
+	$('#add_item_by_search').focus();
 }
 
 
