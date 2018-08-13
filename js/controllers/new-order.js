@@ -4993,94 +4993,398 @@ function pickTableForNewOrder(currentTableID){
 				        if(data.docs.length > 0){
 				          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
 
-				              var tableSections = data.docs[0].value;
-				              tableSections.sort(); //alphabetical sorting 
+				            var tableSections = data.docs[0].value;
+				            
+							document.getElementById("pickTableForNewOrderModal").style.display = 'block';	
+							$('#tableEasyInputBox').focus();
+							$('#tableEasyInputBox').select();     
+							
+							var renderSectionArea = '';
+							var renderTableArea = ''
 
 
-							              var renderSectionArea = '';
+									//First Iteration
+								    $.each(tableSections, function(key_1, sectionName) {
+								    	renderTableArea = '';
+								    	$.each(tables, function(key_2, mytable) {
 
-							              var n = 0;
-							              while(tableSections[n]){
-							        
-							              	var renderTableArea = ''
-							              	for(var i = 0; i<tables.length; i++){
-							              		if(tables[i].type == tableSections[n]){
+												if(mytable.type == sectionName){
 
-							              			if(tables[i].status != 0){ /*Occuppied*/
-														if(tables[i].status == 1){
-							              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
-																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
-																				        	'</tag>';	
-														}	
-														else if(tables[i].status == 2){
-															renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable'+smallTableFlag+'">'+
-																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
-																				        	'</tag>';	
-														}								
-														else if(tables[i].status == 5){
-															if(currentTableID != '' && currentTableID == tables[i].table){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
-																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
-																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+								              			if(mytable.status != 0){ /*Occuppied*/
+															if(mytable.status == 1){
+								              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
 																					        	'</tag>';	
 															}	
-															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
-																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
-																					            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+															else if(mytable.status == 2){
+																renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
 																					        	'</tag>';	
+															}								
+															else if(mytable.status == 5){
+																if(currentTableID != '' && currentTableID == mytable.table){
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+																						        	'</tag>';	
+																}	
+																else{
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						        	'</tag>';	
+																}
+
+															}									
+															else{
+								              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';											
 															}
 
-														}									
-														else{
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
-																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
-																				        	'</tag>';											
-														}
+
+								              			}
+								              			else{
+
+								              				if(currentTableID != '' && currentTableID == mytable.table){
+								              					renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="tableTileBlue'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'" style="color: #FFF !important">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'" style="color: #FFF !important">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF !important"><i class="fa fa-check"></i></tag>'+
+																					        	'</tag>';
+															}	
+															else{
+																renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
+																					        	'</tag>';
+															}							        	              				
+								              			}
+								              		
+							              		}							           
+
+								    	 });
 
 
-							              			}
-							              			else{
-
-							              				if(currentTableID != '' && currentTableID == tables[i].table){
-							              					renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="tableTileBlue'+smallTableFlag+'">'+
-																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
-																				        	'</tag>';
-														}	
-														else{
-															renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="tableTileGreen'+smallTableFlag+'">'+
-																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
-																				        	'</tag>';
-														}							        	              				
-							              			}
-
-							              		}
-							              	}
-
-							              	renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
-																	   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
+								        renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
+																	   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+sectionName+'</h1>'+
 																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
 																	    '</div>'+
 																	'</div>'
 
-							              	n++;
-							              }
+
+
+								    });
+
+								    $('#pickTableForNewOrderModalContent').html(renderSectionArea);
+
+
+
+
+
+
+
+							// SEARCH FOR TABLES
+
+							var easyActionTool = $('#tableEasyInputBox').keyup(function(e) {
+								if(e.which == 13){
+
+									var isClicked = false;
+									
+									$("#pickTableForNewOrderModalContent .temporaryTableSelection").each(function(){
+							            $(this).click();
+							            e.preventDefault(); 
+							            isClicked = true;
+							            easyActionTool.unbind();
+							        });
+
+							        if(!isClicked){ //Hide
+							        	showToast('Warning! No free table picked', '#e67e22');
+							        }
+								}
+								else if(e.which == 27){
+									pickTableForNewOrderHide();
+									easyActionTool.unbind();
+								}
+							    else{
+
+								    var searchField = $(this).val();
+
+								    renderSectionArea = '';
+								    renderTableArea = '';
+
+								    var atleastOneTableSelected = false;
+
+								    $.each(tableSections, function(key_1, sectionName) {
+								    	renderTableArea = '';
+								    	$.each(tables, function(key_2, mytable) {
+
+
+									     		var shortlistFlag = false;
+
+												if(mytable.type == sectionName){
+
+													if(searchField == ' '){ /* TWEAK to remove first Space */
+														$('#tableEasyInputBox').val('');
+														searchField = '';
+													}
+
+													shortlistFlag = (mytable.table.toUpperCase() == searchField.toUpperCase()) ? true : false;
+													
+													if(shortlistFlag){
+														atleastOneTableSelected = true;
+													}
+
+													if(searchField != ''){ //Searched Case
+								              			if(mytable.status != 0){ /*Occuppied*/
+															if(mytable.status == 1){
+								              					renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';	
+															}	
+															else if(mytable.status == 2){
+																renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileYellowDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
+																					        	'</tag>';	
+															}								
+															else if(mytable.status == 5){
+																if(currentTableID != '' && currentTableID == mytable.table){
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+									              													'<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
+																						            '<tag class="tableTitle'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important"><i class="fa fa-check"></i></tag>'+
+																						        	'</tag>';	
+																}	
+																else{
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						        	'</tag>';	
+																}
+
+															}									
+															else{
+								              				renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';											
+															}
+
+
+								              			}
+								              			else{
+
+								              				if(currentTableID != '' && currentTableID == mytable.table){
+								              					renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileBlue'+smallTableFlag+'">'+
+																					            '<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
+																					            '<tag class="tableTitle'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important"><i class="fa fa-check"></i></tag>'+
+																					        	'</tag>';
+															}	
+															else{
+																renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileGreen'+smallTableFlag+'">'+
+																					            '<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
+																					        	'</tag>';
+															}							        	              				
+								              			}													
+													} //Not searched!
+													else{
+								              			if(mytable.status != 0){ /*Occuppied*/
+															if(mytable.status == 1){
+								              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';	
+															}	
+															else if(mytable.status == 2){
+																renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
+																					        	'</tag>';	
+															}								
+															else if(mytable.status == 5){
+																if(currentTableID != '' && currentTableID == mytable.table){
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+																						        	'</tag>';	
+																}	
+																else{
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						        	'</tag>';	
+																}
+
+															}									
+															else{
+								              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';											
+															}
+
+
+								              			}
+								              			else{
+
+								              				if(currentTableID != '' && currentTableID == mytable.table){
+								              					renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="tableTileBlue'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'" style="color: #FFF !important">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'" style="color: #FFF !important">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF !important"><i class="fa fa-check"></i></tag>'+
+																					        	'</tag>';
+															}	
+															else{
+																renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
+																					        	'</tag>';
+															}							        	              				
+								              			}
+								              		}
+
+							              		}							           
+
+								    	 });
+
+
+										if(searchField != '' && atleastOneTableSelected){
+											$('#tableEasyInputBoxStatus').html('');
+										}
+										else if(searchField != '' && !atleastOneTableSelected){
+											$('#tableEasyInputBoxStatus').html('<i class="fa fa-exclamation-circle" style="color: #e74c3c" title="Unknown Table Number"></i>');
+										}
+										else if(searchField == ''){
+											 $('#tableEasyInputBoxStatus').html('');
+										}
+
+
+								        renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
+																	   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+sectionName+'</h1>'+
+																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
+																	    '</div>'+
+																	'</div>'
+
+
+								    });
+
+								    $('#pickTableForNewOrderModalContent').html(renderSectionArea);
+								}
+							});   
+
+
+							       //        var renderSectionArea = '';
+
+							       //        var n = 0;
+							       //        while(tableSections[n]){
+							        
+							       //        	var renderTableArea = ''
+							       //        	for(var i = 0; i<tables.length; i++){
+							       //        		if(tables[i].type == tableSections[n]){
+
+							       //        			if(tables[i].status != 0){ /*Occuppied*/
+														// if(tables[i].status == 1){
+							       //        					renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableTileRedDisable'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+														// 						        	'</tag>';	
+														// }	
+														// else if(tables[i].status == 2){
+														// 	renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableTileYellowDisable'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
+														// 						        	'</tag>';	
+														// }								
+														// else if(tables[i].status == 5){
+														// 	if(currentTableID != '' && currentTableID == tables[i].table){
+								      //         				renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
+														// 							            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 							            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+														// 							            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+														// 							        	'</tag>';	
+														// 	}	
+														// 	else{
+								      //         				renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
+														// 							            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 							            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+														// 							            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+														// 							        	'</tag>';	
+														// 	}
+
+														// }									
+														// else{
+							       //        				renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableTileRedDisable'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+														// 						        	'</tag>';											
+														// }
+
+
+							       //        			}
+							       //        			else{
+
+							       //        				if(currentTableID != '' && currentTableID == tables[i].table){
+							       //        					renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="easyActionTool_tablesListed tableTileBlue'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+														// 						        	'</tag>';
+														// }	
+														// else{
+														// 	renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="easyActionTool_tablesListed tableTileGreen'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
+														// 						        	'</tag>';
+														// }							        	              				
+							       //        			}
+
+							       //        		}
+							       //        	}
+
+							       //        	renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
+														// 			   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
+														// 			   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
+														// 			    '</div>'+
+														// 			'</div>'
+
+							       //        	n++;
+							       //        }
 							              
-							              document.getElementById("pickTableForNewOrderModalContent").innerHTML = renderSectionArea;		            	
-							              document.getElementById("pickTableForNewOrderModal").style.display = 'block';	
-							            
+							       //        document.getElementById("pickTableForNewOrderModalContent").innerHTML = renderSectionArea;		            	
+
+
 				          }
 				          else{
 				            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -5163,6 +5467,23 @@ function pickAddressForNewOrder(encodedCurrentAddress){
 		}
 
 
+
+          var easyActionTool = $(document).on('keydown',  function (e) {
+            console.log('[Delivery Address] Am secretly running... ')
+            if($('#pickAddressForNewOrderModal').is(':visible')) {
+                 switch(e.which){
+                  case 27:{ // Escape (Close)
+                    pickAddressForNewOrderHide();
+                    easyActionTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+                    $('#pickAddressForNewOrderConfirmButton').click();
+                    break;
+                  }
+                 }
+            }
+          });
 
 
 }
@@ -5408,6 +5729,16 @@ function saveNewDeliveryAddress(newAddressAssignedID){
 	//quick validation
 	if(address.name == '' && address.contact == '' && address.flatNo == '' && address.flatName == '' && address.landmark == '' && address.area == ''){
 		showToast('Warning: All fields in Delivery Address is empty', '#e67e22');
+		return '';
+	}
+
+	if(address.contact == ''){
+		showToast('Warning: Please add the Mobile Number', '#e67e22');
+		return '';
+	}
+
+	if(address.flatNo == '' || address.flatName == ''){
+		showToast('Warning: Flat/House Number and Name required', '#e67e22');
 		return '';
 	}
 

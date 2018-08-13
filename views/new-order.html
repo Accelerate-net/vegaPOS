@@ -208,7 +208,12 @@
          <div class="modal-content">
             <div class="modal-header">
                <button class="btn btn-default" onclick="pickDummyTableForNewOrder()" style="float: right;">Assign Dummy</button>
-               <h4 class="modal-title" style="font-size: 21px; font-weight: 400">Choose a Table</h4>
+               <h4 class="modal-title" style="font-size: 21px; font-weight: 400">
+                  Choose a Table
+                  <input class="tableSearchInputModal" id="tableEasyInputBox" type="text">
+                  <tag class="tableSearchStatusModal" id="tableEasyInputBoxStatus"></tag>
+               </h4>
+
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow: scroll; padding-top: 0" id="pickTableForNewOrderModalContent">
             </div>
@@ -267,7 +272,7 @@
             </div>
             <div class="modal-footer">
                <button type="button" class="btn btn-default" onclick="pickAddressForNewOrderHide()" style="float: left">Cancel</button>
-               <button type="button" class="btn btn-success" onclick="saveNewDeliveryAddress()" style="float: right">Set Address</button>
+               <button type="button" class="btn btn-success" id="pickAddressForNewOrderConfirmButton" onclick="saveNewDeliveryAddress()" style="float: right">Set Address</button>
             </div>
          </div>
       </div>
