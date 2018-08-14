@@ -2150,10 +2150,12 @@ function renderSpotlightPreview(type, encodedData){
       console.log('Render Preview... [Menu]')
       var info = JSON.parse(decodeURI(encodedData));
       if(info.isAvailable){
-        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img src="data/photos/menu/'+info.code+'.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Available</div>'; 
+        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Available</div>'; 
+        if(info.isPhoto){renderItemImageFromServer(info.code);}
       }
       else{
-        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img src="data/photos/menu/'+info.code+'.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Out of Stock</div>'; 
+        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Out of Stock</div>'; 
+        if(info.isPhoto){renderItemImageFromServer(info.code);}
       }
 
       renderTemplate += '<div style="padding: 0 25px; font-family: sans-serif; font-size: 14px; color: #83838a;">'+(info.vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; display: inline-block; margin-top: -1px;">' : '')+(info.vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; display: inline-block; margin-top: -1px;">' : '')+(info.ingredients && info.ingredients != [] ? ' Contains <b>'+((info.ingredients.toString()).replace(/,/g , ", "))+'</b>' : '')+'</div>';
@@ -2190,6 +2192,27 @@ function hideSpotlight(){
   document.getElementById("spotlightSearchTool").style.display = "none";
 }
 
+function renderItemImageFromServer(itemCode){
+
+        itemCode = parseInt(itemCode);
+
+        $.ajax({
+            type: 'GET',
+            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/'+itemCode,
+            timeout: 10000,
+            success: function(serverData) {
+              if(serverData.data != ''){
+                $('#spotlight_menu_item_'+itemCode).attr("src", serverData.data);
+              }
+              else{
+                $('#spotlight_menu_item_'+itemCode).attr("src", 'images/common/download_failed.jpg');
+              }
+            },
+            error: function(data){
+              $('#spotlight_menu_item_'+itemCode).attr("src", 'images/common/download_failed.jpg');
+            }
+        });    
+}
 
 function showSpotlight(){
 

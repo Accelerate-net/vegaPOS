@@ -416,6 +416,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                   }
                   case 13:{ // Enter (Confirm)
                     $('#billButtonAction_generate').click();
+                    e.preventDefault();
                     easyActionsTool.unbind();
                     break;
                   }
@@ -2483,6 +2484,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                           }
                           else{
                             $('#paymentOptionsListRenderConfirm').click();
+                            e.preventDefault();
                             easySelectTool.unbind();
                           }  
 

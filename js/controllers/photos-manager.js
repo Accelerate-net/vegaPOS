@@ -2,7 +2,6 @@
 /* read categories */
 function fetchAllCategoriesPhotos(){
 
-
     var requestData = {
       "selector"  :{ 
                     "identifierTag": "ZAITOON_MENU_CATEGORIES" 
@@ -88,7 +87,8 @@ function openSubMenuPhotos(subtype){
 						for(var j=0; j<mastermenu[i].items.length; j++){
 							var temp = encodeURI(JSON.stringify(mastermenu[i].items[j]));
 							if(mastermenu[i].items[j].isPhoto){
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="openPhotoOptions(\''+mastermenu[i].items[j].name+'\', \''+mastermenu[i].items[j].code+'\', \'PHOTO_AVAILABLE\', \''+subtype+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img" style="background: none !important;"><img src="data/photos/menu/'+mastermenu[i].items[j].code+'.jpg" alt="'+mastermenu[i].items[j].name+'" style="width: 110px; height: 110px;"></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<button onclick="openPhotoOptions(\''+mastermenu[i].items[j].name+'\', \''+mastermenu[i].items[j].code+'\', \'PHOTO_AVAILABLE\', \''+subtype+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img" style="background: none !important;"><img id="menu_item_'+mastermenu[i].items[j].code+'" src="images/common/download_in_progress.jpg" alt="'+mastermenu[i].items[j].name+'" style="width: 110px; height: 110px;"></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								loadImageFromServer(mastermenu[i].items[j].code);
 							}
 							else{
 								itemsInSubMenu = itemsInSubMenu + '<button onclick="openPhotoOptions(\''+mastermenu[i].items[j].name+'\', \''+mastermenu[i].items[j].code+'\', \'PHOTO_NOT_AVAILABLE\', \''+subtype+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img"><div id="itemImage">'+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
@@ -128,11 +128,37 @@ function openSubMenuPhotos(subtype){
 }
 
 
+
+function loadImageFromServer(itemCode){
+
+		itemCode = parseInt(itemCode);
+
+        $.ajax({
+            type: 'GET',
+            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/'+itemCode,
+            timeout: 10000,
+            success: function(serverData) {
+              if(serverData.data != ''){
+              	$('#menu_item_'+itemCode).attr("src", serverData.data);
+              }
+              else{
+              	$('#menu_item_'+itemCode).attr("src", 'images/common/download_failed.jpg');
+              }
+            },
+            error: function(data){
+            	$('#menu_item_'+itemCode).attr("src", 'images/common/download_failed.jpg');
+            }
+        });     
+}
+
+
+
+
 function openPhotoOptions(name, item, type, category){
 	if(type == 'PHOTO_AVAILABLE'){ /* Photo Already Uploaded */
 		document.getElementById("photoOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+name+'</b></h1>'+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="loadPhotoCropper(\''+item+'\', \''+name+'\', \''+category+'\', 1)"><i class="fa fa-image" style=""></i><tag style="padding-left: 15px">Change Photo</tag></button> '+
-                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeItemPhoto(\''+item+'\', \''+category+'\')"><i class="fa fa-ban" style="color: #FFF"></i><tag style="padding-left: 15px">Remove Photo</tag></button> '+ 
+                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeItemPhoto(\''+item+'\', \''+name+'\', \''+category+'\')"><i class="fa fa-ban" style="color: #FFF"></i><tag style="padding-left: 15px">Remove Photo</tag></button> '+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hidePhotoOptions()">Close</button> ';
 	}
 	else if(type == 'PHOTO_NOT_AVAILABLE'){ /* No photo */
@@ -149,16 +175,6 @@ function hidePhotoOptions(){
 }
 
 
-function removeItemPhoto(item, category){
-
-    if(fs.existsSync('./data/photos/menu/'+item+'.jpg')) {
-	    fs.unlinkSync('./data/photos/menu/'+item+'.jpg')
-	}
-
-	changePhotoFlagInMenu(item, 5, category);
-	hidePhotoOptions();
-	openSubMenuPhotos(category);
-}
 
 //Photo Cropper
 function loadPhotoCropper(code, name, category, changeFlag){
@@ -213,7 +229,7 @@ function loadPhotoCropper(code, name, category, changeFlag){
 	        canvasData = cropper.getCroppedCanvas({
 				  width: 180,
 				  height: 180,
-				  fillColor: '#fff',
+				  fillColor: '#f5f5f5',
 				  imageSmoothingEnabled: false,
 				  imageSmoothingQuality: 'high',
 				});
@@ -223,29 +239,162 @@ function loadPhotoCropper(code, name, category, changeFlag){
 	        var newFile = canvasData.toDataURL();
 	        cropper.destroy();
 
-	        var data = newFile.replace(/^data:image\/\w+;base64,/, "");
-			var buf = new Buffer(data, 'base64');
-			fs.writeFile('./data/photos/menu/'+code+'.jpg', buf, (err) => {
-              if(err){
-				showToast('Oops! The photo was not uploaded.', '#e74c3c');
-              }
-              else{
-              	showToast('Photo saved Successfully', '#27ae60');
-              	changePhotoFlagInMenu(code, changeFlag, category);
-              	hidePhotoCropper();
-              }
-              	 
-           });
-
-
+			if(changeFlag == 1){ //Image already exists, replace.
+				replaceImageOnServer(code, name, category, newFile);
+			}
+			else if(changeFlag == 0){
+				pushImageToServer(code, name, category, newFile);
+			}
 		});
-
 }
+
+
+function pushImageToServer(itemCode, itemName, category, encodedData){
+
+	          var imageObject = {}; 
+	          imageObject._id = itemCode;
+	          imageObject.code = parseInt(itemCode);
+	          imageObject.category = category;
+	          imageObject.data = encodedData;
+
+	          //Post to local Server
+	          $.ajax({
+	            type: 'POST',
+	            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/',
+	            data: JSON.stringify(imageObject),
+	            contentType: "application/json",
+	            dataType: 'json',
+	            timeout: 10000,
+	            success: function(data) {
+	              	if(data.ok){
+	              		showToast('Image for <b>'+itemName+'</b> saved Successfully', '#27ae60');
+	              	
+	              		changePhotoFlagInMenu(itemCode, 0, category);
+              			hidePhotoCropper();
+	              	}
+	              	else{
+	              		showToast('Warning: Image was not uploaded for <b>'+itemName+'</b>. Try again.', '#e67e22');
+	              	}
+	            },
+	            error: function(data){   
+	            console.log(data)     
+	              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	            }
+	          });  
+			  //End - post to Server 	
+}
+
+function replaceImageOnServer(itemCode, itemName, category, encodedData){
+
+	itemCode = parseInt(itemCode);
+
+    var requestData = { "selector" :{ "code": itemCode }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          	var imageFile = data.docs[0];
+          	imageFile.data = encodedData;
+
+          		/*Save changes in Image Data*/
+
+                //Update
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_menu_images/'+(imageFile._id)+'/',
+                  data: JSON.stringify(imageFile),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Image of <b>'+itemName+'</b> updated', '#27ae60');
+                      changePhotoFlagInMenu(itemCode, 1, category);
+              		  hidePhotoCropper();
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Image. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                }); 
+
+        }
+        else{
+          showToast('Not Found Error: No Image found to update. Please contact Accelerate Support.', '#e74c3c');
+          pushImageToServer(itemCode.toString(), itemName, category, encodedData);
+        }       
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu Images data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 	
+}
+
 
 function hidePhotoCropper(){
 	document.getElementById("uploadedItemImageContainer").style.display = 'none';
 	document.getElementById("photoCropperModal").style.display = 'none';
 }
+
+
+
+function removeItemPhoto(itemCode, itemName, category){
+
+                  itemCode = parseInt(itemCode);
+
+                  var requestData = { "selector" :{ "code": itemCode }, "fields" : ["_id", "_rev"] }
+
+                  $.ajax({
+                    type: 'POST',
+                    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/_find',
+                    data: JSON.stringify(requestData),
+                    contentType: "application/json",
+                    dataType: 'json',
+                    timeout: 10000,
+                    success: function(data) {
+                      if(data.docs.length > 0){
+
+                        //Proceed to Delete
+                        $.ajax({
+                          type: 'DELETE',
+                          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/'+data.docs[0]._id+'?rev='+data.docs[0]._rev,
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+
+                          	showToast('Image of <b>'+itemName+'</b> deleted', '#27ae60');
+
+							changePhotoFlagInMenu(itemCode, 5, category);
+							hidePhotoOptions();
+							openSubMenuPhotos(category);
+                          },
+                          error: function(data) {
+                            showToast('Server Warning: Unable to modify Menu Images data. Please contact Accelerate Support.', '#e67e22');
+                          }
+                        }); 
+
+                      }
+                      else{
+                        changePhotoFlagInMenu(itemCode, 5, category);
+                      	hidePhotoOptions();
+						openSubMenuPhotos(category);
+                      }
+                    },
+                    error: function(data) {
+                      showToast('Server Warning: Unable to modify Menu Images data. Please contact Accelerate Support.', '#e67e22');
+                    }
+
+                  });
+}
+
+
 
 function changePhotoFlagInMenu(code, changeFlag, optionalCategory){
 
@@ -324,7 +473,6 @@ function changePhotoFlagInMenu(code, changeFlag, optionalCategory){
 					}					
 				}
 
-		          
 	          }
 	          else{
 	            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -333,11 +481,9 @@ function changePhotoFlagInMenu(code, changeFlag, optionalCategory){
 	        else{
 	          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
 	        }
-
 	      },
 	      error: function(data) {
 	        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
 	      }
-
 	    });  
 }

@@ -959,11 +959,9 @@ function punchOnlineOrderToKOT(encodedOrder){
 
 	window.localStorage.zaitoon_cart = JSON.stringify(cart);
 	window.localStorage.customerData = JSON.stringify(customerInfo);
+
+	renderPage('new-order', 'Punch Order');
 }
-
-
-
-
 
 
 /*Steward Selection*/
