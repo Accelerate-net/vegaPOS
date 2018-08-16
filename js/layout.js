@@ -3014,4 +3014,161 @@ function easyCopyToClipboard(element) {
 }
 
 
+
+
+// ADMIN USER SETTINGS
+function enableAdminUser(){
+
+  var userAdminInfo = window.localStorage.userAdminData ? JSON.parse(window.localStorage.userAdminData): {};
+  
+  if(jQuery.isEmptyObject(userAdminInfo)){
+    userAdminInfo.name = "";
+    userAdminInfo.mobile = "";
+  }
+
+
+  if(userAdminInfo.name == ''){ //Not logged in
+    document.getElementById("adminUserModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
+                                   '<header>'+
+                                      '<span class="avatarTransparent"><img src="images/common/passcode_lock.png" id="adminUserLockIcon"></span>'+
+                                      '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login as <b>Sahad</b></h1>'+
+                                      '<hr style="margin-bottom: 15px; margin-top: 5px;">'+
+                                      '<p style="font-size: 12px; letter-spacing: 4px; color: #959595;">ENTER PASSCODE</p>'+
+                                   '</header>'+
+                                   '<form style="margin: 0">'+
+                                    '<div class="row" style="margin: 15px 0">'+
+                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextPasscode(event, this, \'2\')" maxlength="1" type="password" id="adminUserPasscode_1" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
+                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextPasscode(event, this, \'3\')" maxlength="1" type="password" id="adminUserPasscode_2" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
+                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextPasscode(event, this, \'4\')" maxlength="1" type="password" id="adminUserPasscode_3" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
+                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="processPasscodeAndLogin(event, this)" maxlength="1" type="password" id="adminUserPasscode_4" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+                     
+                                    '</div>'+
+                                   '</form>'+
+                                '</section>';
+
+    document.getElementById("adminUserModalHome").style.display = 'block';
+    $("#adminUserPasscode_1").focus();
+    $("#adminUserPasscode_1").select();
+  }
+  else{ //logged in
+
+    document.getElementById("adminUserModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
+                                   '<header>'+
+                                      '<span class="avatar"><img src="images/common/passcode_lock.png" alt=""></span>'+
+                                      '<h1 style="font-size: 24px; margin-bottom: 0; color: #3e5b6b; font-family: \'Roboto\';">'+userAdminInfo.branch+'</h1>'+
+                                      '<p style="font-size: 14px; color: #72767d;">Logged In as <b>'+userAdminInfo.name+'</b></p>'+
+                                   '</header>'+
+                                   '<form style="margin: 15px 0">'+
+                                    '<button type="button" onclick="doHomeLogout()" class="btn btn-danger loginWindowButton">Logout Now</button>'+
+                                    '<button type="button" onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
+                                   '</form>'+
+                                '</section>';
+
+    document.getElementById("adminUserModalHome").style.display = 'block';
+  }
+}
+
+function jumpToNextPasscode(event, element, next_id){
+
+  if($('#adminUserPasscode_1').hasClass('redInputError')){
+    clearErrorOnInput();
+  }
+  
+  if(event.which == 8){ //Backspace
+
+    if($(element).val() == ''){
+
+      var prev_id = next_id - 2;
+      if(prev_id < 1){
+        prev_id = 1;
+      }
+
+      $('#adminUserPasscode_'+prev_id).focus();
+      $('#adminUserPasscode_'+prev_id).select();
+    }
+
+    return '';
+
+  }
+  
+  if($(element).val() != ''){
+    $('#adminUserPasscode_'+next_id).focus();
+    $('#adminUserPasscode_'+next_id).select();
+  }  
+}
+
+function processPasscodeAndLogin(event, element){
+
+  if($('#adminUserPasscode_1').hasClass('redInputError')){
+    clearErrorOnInput();
+  }
+
+  if(event.which == 8){ //Backspace
+
+    if($(element).val() == ''){
+      $('#adminUserPasscode_3').focus();
+      $('#adminUserPasscode_3').select();
+    }
+
+    return '';
+  }
+
+  validateAndLoginAdminUser();
+
+}
+
+
+function validateAndLoginAdminUser(){
+  
+  //Validate
+  var n = 1;
+  var textCompiled = '';
+  while(n <= 4){
+    if($('#adminUserPasscode_'+n).val() == ''){
+      $('#adminUserPasscode_'+n).focus();
+      $('#adminUserPasscode_'+n).select(); 
+      return '';  
+    }
+    else{
+      textCompiled = textCompiled + $('#adminUserPasscode_'+n).val();
+    }
+    n++;
+  }
+
+
+  textCompiled = parseInt(textCompiled);
+  if(textCompiled == 1001){
+    enableAdminUserHideWindow();
+  }
+  else{
+    //Failed Case
+    $('#adminUserLockIcon').addClass('bounceIn');
+    $('#adminUserPasscode_1').addClass('redInputError');
+    $('#adminUserPasscode_2').addClass('redInputError');
+    $('#adminUserPasscode_3').addClass('redInputError');
+    $('#adminUserPasscode_4').addClass('redInputError');
+    setTimeout(function(){
+      $('#adminUserLockIcon').removeClass('bounceIn');
+    }, 1000);  
+
+    playNotificationSound('DISABLE');
+  }
+
+}
+
+
+function clearErrorOnInput(){
+  $('#adminUserPasscode_1').removeClass('redInputError');
+  $('#adminUserPasscode_2').removeClass('redInputError');
+  $('#adminUserPasscode_3').removeClass('redInputError');
+  $('#adminUserPasscode_4').removeClass('redInputError');
+}
+
+
+
+function enableAdminUserHideWindow(){
+  document.getElementById("adminUserModalHome").style.display = 'none';
+}
+
+enableAdminUser();
+
   

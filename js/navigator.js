@@ -112,5 +112,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('photos-manager', 'Punch Order');
+renderPage('user-settings', 'Punch Order');
 

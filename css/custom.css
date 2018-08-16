@@ -3037,6 +3037,61 @@ ol ol {
         background: #c8cccf;
       }
 
+
+
+    #main .avatarTransparent {
+      position: relative;
+      display: block;
+      margin-bottom: 1.5em;
+    }
+
+      #main .avatarTransparent img {
+        display: block;
+        margin: 0 auto;
+        border-radius: 100%;
+        box-shadow: 0 0 0 1.5em #ffffff;
+        border: none;
+      }
+
+      #main .avatarTransparent:before {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 50%;
+        left: -3em;
+        width: calc(100% + 6em);
+        height: 1px;
+        z-index: -1;
+        background: none;
+      }
+
+
+.adminUserPasscodeInput{
+  border: 1px solid #f3f3f3; 
+  text-align: center; font-size: 21px; height: 40px;  
+  font-weight: 300; text-transform: uppercase;
+}
+
+.adminUserWindowButton{
+    width: 50%;
+    height: 40px;
+    border-radius: 0;
+    outline: none;
+    border: none;
+    margin: 0 !important;
+}
+
+.adminUserWindowButtonProceed{
+    border-radius: 0;
+    width: 50%;
+    height: 40px;
+    outline: none;
+    float: right;
+    border: none;
+    margin: 0 !important;
+}
+
+
 .loginWindowInput{
   border: none; border-bottom: 1px solid #f3f3f3; 
   text-align: center; font-size: 16px; height: 40px;  
@@ -5083,5 +5138,119 @@ input:checked + .slider:before {
 .tableSearchStatusModal{
 
 }
+
+
+
+
+
+
+
+@-webkit-keyframes bounceIn {
+  from,
+  20%,
+  40%,
+  60%,
+  80%,
+  to {
+    -webkit-animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(0.3, 0.3, 0.3);
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  20% {
+    -webkit-transform: scale3d(1.1, 1.1, 1.1);
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+
+  40% {
+    -webkit-transform: scale3d(0.9, 0.9, 0.9);
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+
+  60% {
+    opacity: 1;
+    -webkit-transform: scale3d(1.03, 1.03, 1.03);
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+
+  80% {
+    -webkit-transform: scale3d(0.97, 0.97, 0.97);
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+
+  to {
+    opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+@keyframes bounceIn {
+  from,
+  20%,
+  40%,
+  60%,
+  80%,
+  to {
+    -webkit-animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+    animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+
+  0% {
+    opacity: 0;
+    -webkit-transform: scale3d(0.3, 0.3, 0.3);
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  20% {
+    -webkit-transform: scale3d(1.1, 1.1, 1.1);
+    transform: scale3d(1.1, 1.1, 1.1);
+  }
+
+  40% {
+    -webkit-transform: scale3d(0.9, 0.9, 0.9);
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+
+  60% {
+    opacity: 1;
+    -webkit-transform: scale3d(1.03, 1.03, 1.03);
+    transform: scale3d(1.03, 1.03, 1.03);
+  }
+
+  80% {
+    -webkit-transform: scale3d(0.97, 0.97, 0.97);
+    transform: scale3d(0.97, 0.97, 0.97);
+  }
+
+  to {
+    opacity: 1;
+    -webkit-transform: scale3d(1, 1, 1);
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+.bounceIn {
+  -webkit-animation-duration: 0.75s;
+  animation-duration: 0.75s;
+  -webkit-animation-name: bounceIn;
+  animation-name: bounceIn;
+}
+
+
+.redInputError,
+.redInputError:focus,
+.redInputError:active,
+.redInputError:hover{
+  border-color: #f71b00 !important;
+}
+
+
+
 
 

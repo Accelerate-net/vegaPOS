@@ -3692,6 +3692,11 @@ function generateEditedKOT(){
 
 function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject){
 
+
+
+	console.log(compareObject)
+	return '';
+	
     var requestData = { "selector" :{ "KOTNumber": kotID }}
 
     $.ajax({

@@ -95,18 +95,34 @@ function hideNewMode(){
 	document.getElementById("openNewModeButton").style.display = "block";
 }
 
+function openNewOrderSource(){
+	document.getElementById("newOrderSourceArea").style.display = "block";
+  $("#add_new_source_name").focus();
+	document.getElementById("openNewOrderSourceButton").style.display = "none";
+}
+
+function hideNewOrderSource(){
+	
+	document.getElementById("newOrderSourceArea").style.display = "none";
+	document.getElementById("openNewOrderSourceButton").style.display = "block";
+
+}
+
+
+
 function openNewPaymentMode(){
-	document.getElementById("newPaymentModeArea").style.display = "block";
+  document.getElementById("newPaymentModeArea").style.display = "block";
   $("#add_new_payment_name").focus();
-	document.getElementById("openNewPaymentModeButton").style.display = "none";
+  document.getElementById("openNewPaymentModeButton").style.display = "none";
 }
 
 function hideNewPaymentMode(){
-	
-	document.getElementById("newPaymentModeArea").style.display = "none";
-	document.getElementById("openNewPaymentModeButton").style.display = "block";
+  
+  document.getElementById("newPaymentModeArea").style.display = "none";
+  document.getElementById("openNewPaymentModeButton").style.display = "block";
 
 }
+
 
 
 function openNewDiscountType(){
@@ -129,9 +145,12 @@ function openBillSettings(id){
 	/*Tweak - Hide all */
 	$( "#detailsDisplayBillSettings" ).children().css( "display", "none" );
 	$( "#detailsNewBillSettings" ).children().css( "display", "none" );
+
 	document.getElementById("openNewPaymentModeButton").style.display = "block";
 	document.getElementById("openNewModeButton").style.display = "block";
 	document.getElementById("openNewBillButton").style.display = "block";
+  document.getElementById("openNewOrderSourceButton").style.display = "block";
+  document.getElementById("openNewDiscountButton").style.display = "block";
 
 	document.getElementById(id).style.display = "block";
 
@@ -151,7 +170,11 @@ function openBillSettings(id){
 		case "paymentModes":{
 			fetchAllPaymentModes();
 			break;
-		}		
+		}	
+    case "orderSources":{
+      fetchAllOrderSources();
+      break;
+    } 	
     case "discountTypes":{
       fetchAllDiscountTypes();
       break;
@@ -1273,6 +1296,274 @@ function deletePaymentMode(modeName) {
 
     cancelSettingsDeleteConfirmation()
 }
+
+
+
+// ORDER SOURCES
+
+
+/* read payment modes */
+function fetchAllOrderSources(){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_ORDER_SOURCES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_ORDER_SOURCES'){
+
+              var modes = data.docs[0].value;
+              modes.sort(); //alphabetical sorting 
+              var modesTag = '';
+
+
+              for (var i=0; i<modes.length; i++){
+                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+modes[i].code+'</td> '+(modes[i].code == 'SYSTEM' || modes[i].code == 'ONLINE' ? '<td> <i class="fa fa-lock" style="color: #90d899"></i> </td>' : '<td onclick="deleteOrderSourceConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td>')+'</tr>';
+              }
+
+              if(!modesTag)
+                document.getElementById("orderSourcesTable").innerHTML = '<p style="color: #bdc3c7">No Order Sources added yet.</p>';
+              else
+                document.getElementById("orderSourcesTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Payment Mode</th> <th style="text-align: left">Code</th> <th style="text-align: left"></th> </tr> </thead>'+
+                                        '<tbody>'+modesTag+'</tbody>';
+
+          }
+          else{
+            showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
+}
+
+
+
+
+/* add new payment mode */
+function addOrderSource(optionalName, optionalCode) {  
+
+  var paramObj = {};
+
+  if(!optionalName || optionalName == ''){
+    paramObj.name = document.getElementById("add_new_source_name").value;
+  }
+  else{
+    paramObj.name = optionalName;
+  }
+
+  if(!optionalCode || optionalCode == ''){
+    paramObj.code = document.getElementById("add_new_source_code").value;
+  }
+  else{
+    paramObj.code = optionalCode;
+  }
+
+
+  if(paramObj.name == ''){
+    showToast('Warning: Please set a name', '#e67e22');
+    return '';
+  }
+  else if(paramObj.code == ''){
+    showToast('Warning: Please set a code', '#e67e22');
+    return '';
+  }
+
+  // if(paramObj.code == ''){
+  //   showToast('Warning: Reserved Keyword. Please set different a code', '#e67e22');
+  //   return '';
+  // }
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_ORDER_SOURCES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_ORDER_SOURCES'){
+
+             var orderSourcesList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<orderSourcesList.length; i++) {
+               if (orderSourcesList[i].name == paramObj.name || orderSourcesList[i].code == paramObj.code){
+                  flag = 1;
+                  break;
+               }
+             }
+
+             if(flag == 1){
+               showToast('Warning: Order Source already exists.', '#e67e22');
+             }
+             else{
+
+                orderSourcesList.push(paramObj);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_ORDER_SOURCES",
+                  "value": orderSourcesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_ORDER_SOURCES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      fetchAllOrderSources(); //refresh the list
+                      hideNewOrderSource();
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+
+             }
+                
+          }
+          else{
+            showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+function deleteOrderSourceConfirm(name){
+  openSettingsDeleteConfirmation(name, 'deleteOrderSource');
+}
+
+
+/* delete a payment mode */
+function deleteOrderSource(modeName) {  
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_ORDER_SOURCES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_ORDER_SOURCES'){
+
+               var modesList = data.docs[0].value;
+
+               var memory_code = '';
+
+               for (var i=0; i<modesList.length; i++) {  
+                 if (modesList[i].name == modeName){
+                    memory_code = modesList[i].code;
+                    modesList.splice(i,1);
+                    break;
+                 }
+               }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_ORDER_SOURCES",
+                  "value": modesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_ORDER_SOURCES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    /* on successful delete */
+                    fetchAllPaymentModes();
+
+                    showUndo('Deleted', 'addOrderSource(\''+modeName+'\', \''+memory_code+'\')');
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
+    cancelSettingsDeleteConfirmation()
+}
+
+
+
+
+
+
+
 
 
 

@@ -14,6 +14,7 @@
                         <div class="billSettingsOption" onclick="openBillSettings('billLayout')"> Bill Layout<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openBillSettings('billingModes')"> Billing Modes <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openBillSettings('discountTypes')"> Discount Types <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openBillSettings('orderSources')"> Order Sources <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openBillSettings('paymentModes')"> Payment Modes <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openBillSettings('billingExtras')"> Taxes & Other Extras <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         
@@ -62,6 +63,25 @@
                     </div>
                 </div>
 
+                <!-- Order Sources -->
+                <div class="box box-primary" style="display: none" id="orderSources">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order Sources</h3>
+                           <button class="btn btn-success btn-sm" id="openNewOrderSourceButton" onclick="openNewOrderSource()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table id="orderSourcesTable" class="table">
+
+                            </table>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
                 <!-- Payment Modes -->
                 <div class="box box-primary" style="display: none" id="paymentModes">
                     <div class="box-body">
@@ -79,6 +99,7 @@
                         <div class="clearfix"></div>
                     </div>
                 </div>
+
 
                 <!-- Billing Modes -->
                 <div class="box box-primary" style="display: none" id="billingModes">
@@ -132,7 +153,7 @@
                               <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add New Discount Type</h3>
                            </div>
                            <div class="col-lg-12">
-                              <form>
+
                                  <div class="form-group">
                                     <label>Name</label> <input type="text" value="" class="form-control tip" id="add_new_discount_name" required="required" />
                                  </div>                                 
@@ -150,18 +171,50 @@
                                  </div>
 
                                  <div class="form-group">
-                                    <input style="float: right" onclick="addDiscountType()" value="Add Type" class="btn btn-primary" />
+                                    <button style="float: right" onclick="addDiscountType()" class="btn btn-primary">Add Type</button>
 
                                     <button type="button" class="btn btn-default" onclick="hideNewDiscountType()" >Cancel</button>
-
-
                                  </div>
-                              </form>
+
                            </div>
                            <div class="clearfix"></div>
                         </div>
                     </div>
                 </div>
+
+
+
+               <!-- Order Sources : Actions -->
+                <div style="display: none" id="newOrderSourceArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add New Order Source</h3>
+                           </div>
+                           <div class="col-lg-12">
+                                 <div class="form-group">
+                                    <label for="first_name">Source Name</label> <input type="text" value="" class="form-control tip" id="add_new_source_name" required="required" />
+                                 </div>                                 
+ 
+                                <div class="form-group">
+                                    <label for="first_name">Code</label> <input type="text" value="" class="form-control tip" id="add_new_source_code" required="required" />
+                                 </div>                                 
+
+
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addOrderSource()" class="btn btn-primary">Add</button>
+
+                                    <button type="button" class="btn btn-default" onclick="hideNewOrderSource()" >Cancel</button>
+                                 </div>
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+
 
                <!-- Payment Modes : Actions -->
                 <div style="display: none" id="newPaymentModeArea">
@@ -171,7 +224,7 @@
                               <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add New Payment Mode</h3>
                            </div>
                            <div class="col-lg-12">
-                              <form>
+
                                  <div class="form-group">
                                     <label for="first_name">Name</label> <input type="text" value="" class="form-control tip" id="add_new_payment_name" required="required" />
                                  </div>                                 
@@ -183,18 +236,19 @@
 
 
                                  <div class="form-group">
-                                    <input style="float: right" onclick="addPaymentMode()" value="Add Mode" class="btn btn-primary" />
+                                    <button style="float: right" onclick="addPaymentMode()" class="btn btn-primary">Add Mode</button>
 
                                     <button type="button" class="btn btn-default" onclick="hideNewPaymentMode()" >Cancel</button>
 
 
                                  </div>
-                              </form>
+                              
                            </div>
                            <div class="clearfix"></div>
                         </div>
                     </div>
                 </div>
+
 
 
                 <!-- Billing Modes : Actions -->
@@ -205,7 +259,7 @@
                               <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add New Billing Mode</h3>
                            </div>
                            <div class="col-lg-12">
-                              <form>
+
                                  <div class="form-group">
                                     <label for="first_name">Name</label> <input type="text" value="" class="form-control tip" id="add_new_mode_name" required="required" />
                                  </div>                                 
@@ -239,13 +293,13 @@
                                  </div>     
 
                                  <div class="form-group">
-                                    <input style="float: right" onclick="addMode()" value="Add Mode" class="btn btn-primary" />
+                                    <button style="float: right" onclick="addMode()" class="btn btn-primary">Add Mode</button>
 
                                     <button type="button" class="btn btn-default" onclick="hideNewMode()" >Cancel</button>
 
 
                                  </div>
-                              </form>
+
                            </div>
                            <div class="clearfix"></div>
                         </div>
@@ -261,7 +315,7 @@
                               <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add Billing Parameter</h3>
                            </div>
                            <div class="col-lg-12">
-                              <form>
+
                                  <div class="form-group">
                                     <label for="first_name">Name</label> <input type="text" value="" class="form-control tip" id="add_new_param_name" required="required" />
                                  </div>                                 
@@ -286,13 +340,12 @@
                                  </div>
 
                                  <div class="form-group">
-                                    <input style="float: right" onclick="addParameter()" value="Add Parameter" class="btn btn-primary" />
+                                    <button style="float: right" onclick="addParameter()" class="btn btn-primary">Add Parameter</button>
 
                                     <button type="button" class="btn btn-default" onclick="hideNewBill()" >Cancel</button>
 
 
                                  </div>
-                              </form>
                            </div>
                            <div class="clearfix"></div>
                         </div>
