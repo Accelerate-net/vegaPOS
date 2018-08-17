@@ -72,6 +72,25 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
   Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
 */
 
+          // LOGGED IN USER INFO
+
+          var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+          if(jQuery.isEmptyObject(loggedInStaffInfo)){
+            loggedInStaffInfo.name = "";
+            loggedInStaffInfo.code = "";
+            loggedInStaffInfo.role = "";
+          }
+
+          //either profile not chosen, or not an admin
+          var isUserAnAdmin = false
+          if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+            isUserAnAdmin = true;
+          }
+
+
+
+
           document.getElementById("billPreviewContentTitle").innerHTML = kotfile.orderDetails.modeType == 'DINE' ? 'Table <b>'+kotfile.table+'</b> <tag style="float: right">#'+kotfile.KOTNumber+'</tag>' : kotfile.orderDetails.mode+'<tag style="float: right">#'+kotfile.KOTNumber+'</tag>';
 
           var itemList = '';
@@ -330,8 +349,17 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
 
 
 
+          var billActionOptions = ''+
+                '                    <div class="col-sm-4">'+
+                '                        <h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">Options</h1>'+discountButtonPart+couponButtonPart+customExtrasButtonPart+rewardsButtonPart+noCostButtonPart+
+                '                        <div class="">'+
+                '                          <button class="btn btn-default tableOptionsButton breakWord" onclick="renderPage(\'seating-status\'); hideBillPreviewModal();">Merge Bills</button>'+
+                '                        </div>'+
+                '                    </div>';
+
 
           document.getElementById("billPreviewContent").innerHTML = '<div class="row">'+
+                (isUserAnAdmin ? '' : '<div class="col-sm-2"></div>')+
                 '                    <div class="col-sm-8">'+
                 '                        <h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">Bill Preview</h1>'+
                 '                        <table class="table table-striped table-condensed table-hover list-table" style="margin:0px; z-index: 2;">'+
@@ -381,13 +409,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 '                              </tr>'+
                 '                           </tbody>'+
                 '                        </table>                        '+
-                '                    </div>'+
-                '                    <div class="col-sm-4">'+
-                '                        <h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">Options</h1>'+discountButtonPart+couponButtonPart+customExtrasButtonPart+rewardsButtonPart+noCostButtonPart+
-                '                        <div class="">'+
-                '                          <button class="btn btn-default tableOptionsButton breakWord" onclick="renderPage(\'seating-status\'); hideBillPreviewModal();">Merge Bills</button>'+
-                '                        </div>'+
-                '                    </div>'+
+                '                    </div>'+ (isUserAnAdmin ? billActionOptions : '') +
                 '                </div>';
 
           document.getElementById("billPreviewContentActions").innerHTML = '<button id="billButtonAction_generate" class="btn btn-success tableOptionsButton breakWord" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Generate Bill</button>'+

@@ -24,6 +24,126 @@ function timedUpdate () {
 timedUpdate();
 
 
+// Render SIDE NAVIGATION bar
+function renderSideNavigation(){
+
+   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+  
+    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+      loggedInStaffInfo.name = "";
+      loggedInStaffInfo.code = "";
+      loggedInStaffInfo.role = "";
+    }
+
+    //either profile not chosen, or not an admin
+    if(loggedInStaffInfo.code == '' || loggedInStaffInfo.role != 'ADMIN'){ 
+        document.getElementById("sidemenuNavigationBar").innerHTML = ''+
+                    '<li onclick="renderPage(\'new-order\', \'Punch Order\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_punching.png" width="32px">'+
+                          '<span class="navSideName">Punch Order</span>'+
+                        '</a>'+
+                    '</li>'+
+                    '<li onclick="renderPage(\'live-orders\', \'Live Orders\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_live.png" width="32px">'+
+                          '<span class="navSideName">Live Orders</span>'+
+                        '</a>'+
+                    '</li>'+
+                    '<li onclick="renderPage(\'seating-status\', \'Seating Status\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_seating.png" width="32px">'+
+                          '<span class="navSideName">Seating Status</span>'+
+                        '</a>'+
+                    '</li>'+
+                    '<li onclick="renderPage(\'settled-bills\', \'Generated Bills\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_bills.png" width="32px">'+
+                          '<span class="navSideName">Generated Bills</span>'+
+                        '</a>'+
+                    '</li>';  
+      }
+      else{ 
+        document.getElementById("sidemenuNavigationBar").innerHTML = ''+
+                    '<li onclick="renderPage(\'new-order\', \'Punch Order\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_punching.png" width="32px">'+
+                          '<span class="navSideName">Punch Order</span>'+
+                        '</a>'+
+                    '</li>'+
+                    '<li onclick="renderPage(\'live-orders\', \'Live Orders\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_live.png" width="32px">'+
+                          '<span class="navSideName">Live Orders</span>'+
+                        '</a>'+
+                    '</li>'+
+                    '<li onclick="renderPage(\'seating-status\', \'Seating Status\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_seating.png" width="32px">'+
+                          '<span class="navSideName">Seating Status</span>'+
+                        '</a>'+
+                    '</li>'+                  
+                    '<li onclick="renderPage(\'online-orders\', \'Online Orders\')">'+
+                        '<a href="#">'+
+                          '<tag class="onlineOrderCountLabel" style="display: none" id="onlineOrderCounter">'+'</tag>'+
+                          '<img src="images/navigation/navigate_online.png" width="32px">'+
+                          '<span class="navSideName">Online Orders</span>'+
+                        '</a>'+
+                    '</li>'+
+                    '<li onclick="renderPage(\'reward-points\', \'Reward Points\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_rewards.png" width="32px">'+
+                          '<span class="navSideName">Reward Points</span>'+
+                        '</a>'+
+                    '</li>'+
+                    '<li onclick="renderPage(\'settled-bills\', \'Generated Bills\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_bills.png" width="32px">'+
+                          '<span class="navSideName">Generated Bills</span>'+
+                        '</a>'+
+                    '</li>'+
+                     '<li id="sidebarTools" class="treeview mm_products" onclick="activateSidebarElement(\'sidebarTools\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_tools.png" width="32px">'+
+                          '<span class="navSideName">Tools</span>'+
+                        '</a>'+
+                        '<ul class="treeview-menu">'+
+                            '<li onclick="renderPage(\'cancelled-bills\', \'Cancelled Orders\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Cancelled Orders</a></li>'+
+                            '<li onclick="renderPage(\'manage-menu\', \'Manage Menu\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Manage Menu</a></li>'+
+                            '<li onclick="renderPage(\'photos-manager\', \'Photos Manager\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Photos Manager</a></li>'+
+                            '<li onclick="renderPage(\'sales-summary\', \'Sales Summary\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Sales Summary</a></li>'+
+                        '</ul>'+
+                    '</li>'+
+                    '<li id="sidebarSettings" class="treeview mm_products" onclick="activateSidebarElement(\'sidebarSettings\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_settings.png" width="32px">'+
+                          '<span class="navSideName">Settings</span>'+
+                        '</a>'+
+                        '<ul class="treeview-menu">'+
+                            '<li onclick="renderPage(\'app-data\', \'App Data\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>App Data</a></li>'+
+                            '<li onclick="renderPage(\'bill-settings\', \'Billing Settings\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Billing Settings</a></li>'+ 
+                            '<li onclick="renderPage(\'printer-settings\', \'Configure Printers\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Configure Printers</a></li>'+
+                            '<li onclick="renderPage(\'system-settings\', \'System Settings\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>System Settings</a></li>'+
+                            '<li onclick="renderPage(\'table-layout\', \'Table Layout\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Table Layout</a></li>'+
+                            '<li onclick="renderPage(\'user-settings\', \'Users Settings\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Users Settings</a></li>'+
+                        '</ul>'+
+                    '</li>';  
+      }
+}
+
+renderSideNavigation();
+
+
 
 /* Apply LICENCE */
 function applyLicenceTerms(){
@@ -994,7 +1114,7 @@ function autoSessionSwitchChecker(){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
 
@@ -1318,36 +1438,57 @@ function cancelLoginWindow(){
 
 function getOnlineOrdersCount() {
 
-  //Refresh Badge Counts
-  var admin_data = {};
-  admin_data.token = window.localStorage.loggedInAdmin;  
-  admin_data.status = 1;
-  
-  $.ajax({
-    type: 'POST',
-    url: 'https://www.zaitoon.online/services/fetchorders.php',
-    data: JSON.stringify(admin_data),
-    contentType: "application/json",
-    dataType: 'json',
-    timeout: 10000,
-    success: function(netdata) {
-      if(netdata.status){
-                    if(netdata.count != 0){
-                      document.getElementById('onlineOrderCounter').style.display = 'inline-block';
-                      document.getElementById('onlineOrderCounter').innerHTML = netdata.count;
-                    }
-                    else{
-                      document.getElementById('onlineOrderCounter').style.display = 'none';
-                    }
-      }
-      else{
-        document.getElementById('onlineOrderCounter').style.display = 'none';
-      }
-    },
-    error: function(data){
-      document.getElementById('onlineOrderCounter').style.display = 'none';
-    }
-  });
+  // LOGGED IN USER INFO
+
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+
+
+
+  if(isUserAnAdmin){
+    
+      //Refresh Badge Counts
+      var admin_data = {};
+      admin_data.token = window.localStorage.loggedInAdmin;  
+      admin_data.status = 1;
+      
+      $.ajax({
+        type: 'POST',
+        url: 'https://www.zaitoon.online/services/fetchorders.php',
+        data: JSON.stringify(admin_data),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(netdata) {
+          if(netdata.status){
+                        if(netdata.count != 0){
+                          document.getElementById('onlineOrderCounter').style.display = 'inline-block';
+                          document.getElementById('onlineOrderCounter').innerHTML = netdata.count;
+                        }
+                        else{
+                          document.getElementById('onlineOrderCounter').style.display = 'none';
+                        }
+          }
+          else{
+            document.getElementById('onlineOrderCounter').style.display = 'none';
+          }
+        },
+        error: function(data){
+          document.getElementById('onlineOrderCounter').style.display = 'none';
+        }
+      });
+  }
 
 
   var t = setTimeout(function() {
@@ -1496,20 +1637,50 @@ function lockScreen(){
 }
 
 
-function switchProfile(name, code){
+function switchProfile(encodedProfile){
+
+   var userProfile = JSON.parse(decodeURI(encodedProfile));
 
    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
   
     if(jQuery.isEmptyObject(loggedInStaffInfo)){
       loggedInStaffInfo.name = "";
       loggedInStaffInfo.code = "";
+      loggedInStaffInfo.role = "";
+    }
+
+    if(loggedInStaffInfo.code == userProfile.code){ //Same as already logged in profile
+      selectStewardWindowClose(); //Skip
+      return '';
+    }
+
+    if(userProfile.role != 'STEWARD'){
+      //Ask for Admin Password
+      enableAdminUser(userProfile);
+      selectStewardWindowClose();
+      return '';
+    }
+    else{
+      //Do nothing
     }
  
-    loggedInStaffInfo.name = name;
-    loggedInStaffInfo.code = code;
+    loggedInStaffInfo.name = userProfile.name;
+    loggedInStaffInfo.code = userProfile.code;
+    loggedInStaffInfo.role = userProfile.role;
 
     window.localStorage.loggedInStaffData = JSON.stringify(loggedInStaffInfo);
+
+    // What to do after setting Profile?
     renderCurrentUserDisplay();
+    renderSideNavigation();
+
+    if(currentRunningPage != ''){
+      renderPage(currentRunningPage);
+    }
+    else{ //render default page
+      renderPage('new-order', 'Punch Order');
+    }
+
     selectStewardWindowClose();
 
     $("#customer_form_data_mobile").focus();
@@ -1524,8 +1695,6 @@ function selectStewardWindow(){
     loggedInStaffInfo.name = "";
     loggedInStaffInfo.code = "";
   }
-
-
 
     var requestData = {
       "selector"  :{ 
@@ -1557,30 +1726,35 @@ function selectStewardWindow(){
               var renderContent = '';
               var isRendered = false;
               var currentUserFound = false;
+              var renderCount = 0;
+
               while(users[n]){
 
                 isRendered = false;
 
-                if(n == 0){
-                  isRendered = true;
-                  renderContent = '<tag onclick="selectStewardWindowClose()" class="stewardWindowClose" id="stewardWindowCloseButton">X</tag> <div class="row" style="margin: 0">';
-                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
-                }
-                else if(n == 1){
-                  isRendered = true;
-                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
-                  renderContent += '</div>';
-                }
-                else if(n > 1 && n%2 == 0){
-                  renderContent += '<div class="row" style="margin: 4px 0 0 0">';
-                }
+                if(users[n].role == 'STEWARD' || users[n].role == 'ADMIN'){ //Show only Stewards and Admins
+                  if(renderCount == 0){
+                    isRendered = true;
+                    renderContent = '<tag onclick="selectStewardWindowClose()" class="stewardWindowClose" id="stewardWindowCloseButton">X</tag> <div class="row" style="margin: 0">';
+                    renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchProfile(\''+encodeURI(JSON.stringify(users[n]))+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+                  }
+                  else if(renderCount == 1){
+                    isRendered = true;
+                    renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchProfile(\''+encodeURI(JSON.stringify(users[n]))+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+                    renderContent += '</div>';
+                  }
+                  else if(renderCount > 1 && renderCount%2 == 0){
+                    renderContent += '<div class="row" style="margin: 4px 0 0 0">';
+                  }
 
-                if(!isRendered){
-                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchProfile(\''+users[n].name+'\', \''+users[n].code+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
-                }
+                  if(!isRendered){
+                    renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="switchProfile(\''+encodeURI(JSON.stringify(users[n]))+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
+                  }
 
-                if(n > 1 && n%2 == 1){
-                  renderContent += '</div>';
+                  if(renderCount > 1 && renderCount%2 == 1){
+                    renderContent += '</div>';
+                  }
+                  renderCount++;
                 }
 
                 //Find Current User
@@ -1622,7 +1796,7 @@ function selectStewardWindow(){
                 console.log('Am secretly running...')
                 if($('#stewardModalHome').is(':visible')) {
 
-                  console.log(e.which)
+                     e.preventDefault();
 
                      switch(e.which){
                       case 37:{ //  < Left Arrow
@@ -3017,17 +3191,9 @@ function easyCopyToClipboard(element) {
 
 
 // ADMIN USER SETTINGS
-function enableAdminUser(){
+function enableAdminUser(profileUser){
 
-  var userAdminInfo = window.localStorage.userAdminData ? JSON.parse(window.localStorage.userAdminData): {};
-  
-  if(jQuery.isEmptyObject(userAdminInfo)){
-    userAdminInfo.name = "";
-    userAdminInfo.mobile = "";
-  }
-
-
-  if(userAdminInfo.name == ''){ //Not logged in
+  if(profileUser.name != '' && profileUser.code != ''){
     document.getElementById("adminUserModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                    '<header>'+
                                       '<span class="avatarTransparent"><img src="images/common/passcode_lock.png" id="adminUserLockIcon"></span>'+
@@ -3040,31 +3206,18 @@ function enableAdminUser(){
                                         '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextPasscode(event, this, \'2\')" maxlength="1" type="password" id="adminUserPasscode_1" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
                                         '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextPasscode(event, this, \'3\')" maxlength="1" type="password" id="adminUserPasscode_2" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
                                         '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextPasscode(event, this, \'4\')" maxlength="1" type="password" id="adminUserPasscode_3" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
-                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="processPasscodeAndLogin(event, this)" maxlength="1" type="password" id="adminUserPasscode_4" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+                     
+                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="processPasscodeAndLogin(event, this, \''+profileUser.code+'\')" maxlength="1" type="password" id="adminUserPasscode_4" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+                     
                                     '</div>'+
                                    '</form>'+
                                 '</section>';
 
     document.getElementById("adminUserModalHome").style.display = 'block';
     $("#adminUserPasscode_1").focus();
-    $("#adminUserPasscode_1").select();
+    $("#adminUserPasscode_1").select(); 
   }
-  else{ //logged in
-
-    document.getElementById("adminUserModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
-                                   '<header>'+
-                                      '<span class="avatar"><img src="images/common/passcode_lock.png" alt=""></span>'+
-                                      '<h1 style="font-size: 24px; margin-bottom: 0; color: #3e5b6b; font-family: \'Roboto\';">'+userAdminInfo.branch+'</h1>'+
-                                      '<p style="font-size: 14px; color: #72767d;">Logged In as <b>'+userAdminInfo.name+'</b></p>'+
-                                   '</header>'+
-                                   '<form style="margin: 15px 0">'+
-                                    '<button type="button" onclick="doHomeLogout()" class="btn btn-danger loginWindowButton">Logout Now</button>'+
-                                    '<button type="button" onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
-                                   '</form>'+
-                                '</section>';
-
-    document.getElementById("adminUserModalHome").style.display = 'block';
-  }
+  else{
+    showToast('Error: Unknown User. Please contact Accelerate Support.', '#e74c3c');
+  } 
 }
 
 function jumpToNextPasscode(event, element, next_id){
@@ -3096,7 +3249,12 @@ function jumpToNextPasscode(event, element, next_id){
   }  
 }
 
-function processPasscodeAndLogin(event, element){
+function processPasscodeAndLogin(event, element, userCode){
+
+  if(userCode == ''){
+    showToast('Warning: User not found', '#e67e22');
+    return '';
+  }
 
   if($('#adminUserPasscode_1').hasClass('redInputError')){
     clearErrorOnInput();
@@ -3112,16 +3270,16 @@ function processPasscodeAndLogin(event, element){
     return '';
   }
 
-  validateAndLoginAdminUser();
+  validateAndLoginAdminUser(userCode);
 
 }
 
 
-function validateAndLoginAdminUser(){
+function validateAndLoginAdminUser(userCode){
   
   //Validate
   var n = 1;
-  var textCompiled = '';
+  var enteredPasscode = '';
   while(n <= 4){
     if($('#adminUserPasscode_'+n).val() == ''){
       $('#adminUserPasscode_'+n).focus();
@@ -3129,30 +3287,111 @@ function validateAndLoginAdminUser(){
       return '';  
     }
     else{
-      textCompiled = textCompiled + $('#adminUserPasscode_'+n).val();
+      enteredPasscode = enteredPasscode + $('#adminUserPasscode_'+n).val();
     }
     n++;
   }
 
+    enteredPasscode = parseInt(enteredPasscode);
 
-  textCompiled = parseInt(textCompiled);
-  if(textCompiled == 1001){
-    enableAdminUserHideWindow();
-  }
-  else{
-    //Failed Case
-    $('#adminUserLockIcon').addClass('bounceIn');
-    $('#adminUserPasscode_1').addClass('redInputError');
-    $('#adminUserPasscode_2').addClass('redInputError');
-    $('#adminUserPasscode_3').addClass('redInputError');
-    $('#adminUserPasscode_4').addClass('redInputError');
-    setTimeout(function(){
-      $('#adminUserLockIcon').removeClass('bounceIn');
-    }, 1000);  
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-    playNotificationSound('DISABLE');
-  }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
 
+              var users = data.docs[0].value; 
+
+              if(users.length == 0){
+                showToast('Warning: No User registered yet.', '#e67e22');
+                return '';
+              }
+
+              var n = 0;
+              while(users[n]){
+                if(userCode == users[n].code){
+
+                  if(enteredPasscode == users[n].password){
+                    proceedToSetAdminUser(users[n]);
+                    enableAdminUserHideWindow();
+                  }
+                  else{
+                    //Failed Case
+                    $('#adminUserLockIcon').addClass('bounceIn');
+                    $('#adminUserPasscode_1').addClass('redInputError');
+                    $('#adminUserPasscode_2').addClass('redInputError');
+                    $('#adminUserPasscode_3').addClass('redInputError');
+                    $('#adminUserPasscode_4').addClass('redInputError');
+                    setTimeout(function(){
+                      $('#adminUserLockIcon').removeClass('bounceIn');
+                    }, 1000);  
+
+                    playNotificationSound('DISABLE');
+                  }
+
+                  break;
+                }
+                n++;
+              }
+          }
+          else{
+            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+function proceedToSetAdminUser(userProfile){
+
+   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+  
+    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+      loggedInStaffInfo.name = "";
+      loggedInStaffInfo.code = "";
+      loggedInStaffInfo.role = "";
+    }
+
+    loggedInStaffInfo.name = userProfile.name;
+    loggedInStaffInfo.code = userProfile.code;
+    loggedInStaffInfo.role = userProfile.role;
+
+    window.localStorage.loggedInStaffData = JSON.stringify(loggedInStaffInfo);
+    
+    // What to do after setting Profile?
+    renderCurrentUserDisplay();
+    renderSideNavigation();
+
+    if(currentRunningPage != ''){
+      renderPage(currentRunningPage);
+    }
+    else{ //render default page
+      renderPage('new-order', 'Punch Order');
+    }
+    
+    selectStewardWindowClose();
+
+    $("#customer_form_data_mobile").focus();
 }
 
 
@@ -3163,12 +3402,14 @@ function clearErrorOnInput(){
   $('#adminUserPasscode_4').removeClass('redInputError');
 }
 
-
-
 function enableAdminUserHideWindow(){
   document.getElementById("adminUserModalHome").style.display = 'none';
 }
 
-enableAdminUser();
+
+
+
+
+
 
   

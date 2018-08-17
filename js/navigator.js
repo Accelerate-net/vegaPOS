@@ -89,7 +89,76 @@ function fetchInitFunctions(pageReference){
 function renderPage(pageReference, title){
 
 	if(!title || title == ''){
-		title = 'POS';
+
+		switch (pageReference){
+			case 'new-order':{
+				title = 'Punch Order';
+				break;
+			}
+			case 'live-orders':{
+				title = 'Live Orders';
+				break;
+			}
+			case 'online-orders':{
+				title = 'Online Orders';
+				break;
+			}
+			case 'settled-bills':{
+				title = 'Generated Bills';
+				break;
+			}	
+			case 'cancelled-bills':{
+				title = 'Cancelled Orders';
+				break;
+			}			
+			case 'seating-status':{
+				title = 'Seating Status';
+				break;
+			}
+			case 'reward-points':{
+				title = 'Reward Points';
+				break;
+			}				
+			case 'sales-summary':{
+				title = 'Sales Summary';
+				break;
+			}
+			case 'manage-menu':{
+				title = 'Manage Menu';
+				break;
+			}	
+			case 'photos-manager':{
+				title = 'Photos Manager';
+				break;
+			}			
+			case 'table-layout':{
+				title = 'Table Layout';
+				break;
+			}
+			case 'bill-settings':{
+				title = 'Billing Settings';
+				break;
+			}				
+			case 'user-settings':{
+				title = 'User Settings';
+				break;
+			}	
+			case 'printer-settings':{
+				title = 'Configure Printers';
+				break;
+			}	
+			case 'app-data':{
+				title = 'App Data';
+				break;
+			}
+			case 'system-settings':{
+				title = 'System Settings';
+				break;
+			}
+			default:{
+				title = 'POS';
+			}
+		}
 	}
 
 	const links = document.querySelectorAll('link[for="'+pageReference+'"]')
@@ -112,5 +181,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('user-settings', 'Punch Order');
+renderPage('settled-bills', 'Punch Order');
 

@@ -2232,6 +2232,25 @@ function viewDeliveryAddressFromBillHide() {
 
 function openSelectedBill(encodedBill, type){
 
+  // LOGGED IN USER INFO
+
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+
+
+
+
 	var bill = JSON.parse(decodeURI(encodedBill));
 
 	if(type == 'PENDING'){
@@ -2320,7 +2339,10 @@ function openSelectedBill(encodedBill, type){
 
 
         //Submenu options
-        var subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+        var subOptions = '';
+
+        if(isUserAnAdmin){
+        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
                                   '<div class="floaty-btn small" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
@@ -2341,6 +2363,21 @@ function openSelectedBill(encodedBill, type){
                                     '</li>'+     
                                   '</ul>'+
                                 '</div>';
+        }
+        else{
+        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+                                  '<div class="floaty-btn small" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
+                                    '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
+										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
+    									'<path d="M0-.75h24v24H0z" fill="none"/>'+
+                                    '</svg>'+
+                                    '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
+                                      '<i class="fa fa-check"></i>'+
+                                    '</tag>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Settle Bill</span>'+
+                                  '</div>'+
+                                '</div>';        	
+        }
 
 
 
@@ -2536,7 +2573,10 @@ function openSelectedBill(encodedBill, type){
         }
 
         //Submenu options
-        var subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+        var subOptions = '';
+
+        if(isUserAnAdmin){
+        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
                                   '<div class="floaty-btn small" style="box-shadow: none;" onclick="printDuplicateBill(\''+bill.billNumber+'\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
@@ -2563,6 +2603,10 @@ function openSelectedBill(encodedBill, type){
                                     '</li>'+     
                                   '</ul>'+
                                 '</div>';
+        }
+        else{
+        	subOptions = '';        	
+        }
 
 
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+

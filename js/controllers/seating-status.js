@@ -39,23 +39,61 @@ function hideReservedSeatOptions(){
 
 function openOccuppiedSeatOptions(tableInfo){
 
+
+  // LOGGED IN USER INFO
+
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+
+
+
+
 	var tableData = JSON.parse(decodeURI(tableInfo));
 
 	if(tableData.status == 1){ /* Not Billed */
-		document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
+
+    if(isUserAnAdmin){
+		  document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="moveKOTForEditing(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button> '+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\', \'SEATING_STATUS\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button> '+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="mergeDifferentBills(\''+tableData.table+'\')"><i class="fa fa-compress" style=""></i><tag style="padding-left: 15px">Merge Orders</tag></button> '+
                   '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelThisKOT(\''+tableData.KOT+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+ 
                   '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeTableMappingWarning(\''+tableData.table+'\')"><i class="fa fa-warning" style="color: yellow"></i><tag style="padding-left: 15px">Remove Mapping</tag></button>'+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
-	}
+	  }
+    else{
+      document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="moveKOTForEditing(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\', \'SEATING_STATUS\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button> '+
+                  '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
+    }
+
+  }
 	else if(tableData.status == 2){ /* Billed */
-		document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
+
+    if(isUserAnAdmin){
+		  document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="settlePrintedBill(\''+tableData.KOT+'\')"><i class="fa fa-credit-card" style=""></i><tag style="padding-left: 15px">Settle Bill</tag></button> '+ 
                   '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeTableMappingWarning(\''+tableData.table+'\')"><i class="fa fa-warning" style="color: yellow"></i><tag style="padding-left: 15px">Remove Mapping</tag></button>'+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
-	}
+	  }
+    else{
+      document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
+                  '<button class="btn btn-success tableOptionsButtonBig" onclick="settlePrintedBill(\''+tableData.KOT+'\')"><i class="fa fa-credit-card" style=""></i><tag style="padding-left: 15px">Settle Bill</tag></button> '+
+                  '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
+    }
+  }
 
 	document.getElementById("occuppiedSeatOptionsModal").style.display ='block';
 }
