@@ -11,9 +11,27 @@ let currentRunningPage = '';
 */
 
 function fetchInitFunctions(pageReference){
+	
+  currentRunningPage = pageReference;
 
-	currentRunningPage = pageReference;
 
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+
+
+  if(isUserAnAdmin){
 	switch (pageReference){
 		case 'new-order':{
 			triggerRightPanelDisplay();
@@ -83,6 +101,33 @@ function fetchInitFunctions(pageReference){
 			break;
 		}
 	}
+  }
+  else{ // NON - ADMIN PAGES ONLY
+	switch (pageReference){
+		case 'new-order':{
+			triggerRightPanelDisplay();
+			renderCustomerInfo();
+			initMenuSuggestion();
+			initOrderPunch();
+			break;
+		}
+		case 'live-orders':{
+			renderAllKOTs();
+			break;
+		}
+		case 'settled-bills':{
+			loadAllPendingSettlementBills('EXTERNAL');
+			break;
+		}		
+		case 'seating-status':{
+			preloadTableStatus();
+			break;
+		}
+		default:{ //If page not authorised to access, go to HOME (punch order page)
+			renderPage('new-order', 'Punch Order');
+		}
+	}
+  } //End - else
 }
 
 

@@ -857,7 +857,7 @@ function loadAllCancelledUnbilled(optionalSource){
 		      while(resultsList[n]){
 
 		      	var bill = resultsList[n].doc;
-		      	console.log(bill)
+		      	
 				resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
 				                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 				                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
