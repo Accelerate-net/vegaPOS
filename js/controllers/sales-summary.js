@@ -232,10 +232,18 @@ function renderGraph_SalesSummary(graphData){
                     	display:false
                 	}
 	            }]
-	        }
+	        },
+	        animation: {
+                onComplete: convertGraph
+            }
 	    }
 	});	
+
+	function convertGraph(){
+		console.log(myChart.toBase64Image())
+	}
 }
+
 
 function openDetailedByMode(selectedBillingMode, fromDate, toDate){
 	//given this mode of billing, render the payments made via different modes
@@ -1767,4 +1775,132 @@ function fetchRefundSummaryCallback(index, modes, fromDate, toDate, grandSum, gr
 				    }
 				  });  
 }
+
+
+
+// Single Click Report
+
+function fetchSingleClickReport(){
+
+
+	$( "#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("singleClickReport_RenderArea").style.display = "block";
+
+	//Initialise animation contents
+	document.getElementById("singleClickReport_RenderContent").innerHTML = ''+
+                                      '<center><div class="reportDemo">'+
+                                          '<svg class="progress" width="120"> <circle class="progress__meter" cx="60" cy="60" r="54" stroke-width="12" /> <circle class="progress__value" cx="60" cy="60" r="54" stroke-width="12" /> </svg>'+
+                                          '<tag class="reportPercentage" id="reportPercentageArea"><span id="reportPercentageFigure">0</span><span style="font-size: 60%">%</span></tag>'+
+                                          '<p class="generatingText">Generating Report</p>'+
+                                      '</div>'+
+                                      '<div id="postReportActions" style="display: none">'+
+                                        '<p style="font-size: 26px; color: #777; font-weight: 300; margin-top: -15px">Your Report is Ready!</p>'+
+                                        '<button style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-download"></i> Download</button>'+
+                                        '<button style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-print"></i> Print</button>'+
+                                        '<button class="btn btn-success btn-sm"><i class="fa fa-envelope"></i> Email</button>'+
+                                      '</div></center>';	
+
+    
+    //Initialise animation
+	var progressValue = document.querySelector('.progress__value');
+	var RADIUS = 54;
+	var CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+
+	function runReportAnimation(value){
+
+		if(value > 100){
+		 	value = 100;
+		}
+
+	    var progress = value / 100;
+	    var dashoffset = CIRCUMFERENCE * (1 - progress);
+	    progressValue.style.strokeDashoffset = dashoffset;
+	    document.getElementById("reportPercentageFigure").innerHTML = value;
+
+	    //When it is 100%
+	    if(value == 100){
+	    	setTimeout(function(){
+	    		document.getElementById("reportPercentageArea").innerHTML = '<img src="images/common/report_ready.png" class="staryDoneIcon">';
+	    		$('#reportPercentageArea').addClass('zoomIn');
+	    		$('.progress__value').css("stroke", "#FFF");
+	    		$('.progress__meter').css("stroke", "#FFF");
+	    		$('.generatingText').css("display", "none");
+	    		$('#postReportActions').css("display", "block");
+
+	    		playNotificationSound('DONE');
+	    	}, 10);
+	    }
+	
+		progressValue.style.strokeDasharray = CIRCUMFERENCE;		
+	}
+
+	runReportAnimation(0);
+
+
+
+
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : '01-01-2018'; //Since the launch of Vega POS
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+	var completeReportInfo = [];
+	var completeErrorList = []; //In case any API call causes Error
+
+
+
+
+var uniter = 1;
+function tester () {
+	uniter += 1;
+	runReportAnimation(uniter, progressValue, RADIUS, CIRCUMFERENCE);
+  
+  setTimeout(tester, 20);
+}
+
+
+setTimeout(tester, 1000);
+
+
+
+	//Step 1: Total Paid Amount
+	
+	$.ajax({
+	    type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		timeout: 10000,
+		success: function(data) {
+
+			var temp_totalOrders = 0;
+			var temp_totalPaid = 0;
+
+			if(data.rows.length > 0){
+				temp_totalOrders = data.rows[0].value.count;
+				temp_totalPaid = data.rows[0].value.sum;
+			}
+
+			completeReportInfo.push({
+					"name": "Total Paid Amount",
+					"value": temp_totalPaid,
+					"count": temp_totalOrders,
+					"split": []
+			});
+
+			//Step 2: Total Charges collected
+			console.log(completeReportInfo)
+
+		},
+		error: function(data){
+
+		}
+	});  
+
+
+}
+
 

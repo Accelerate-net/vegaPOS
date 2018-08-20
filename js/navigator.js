@@ -226,5 +226,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('settled-bills', 'Punch Order');
+renderPage('sales-summary', 'Punch Order');
 

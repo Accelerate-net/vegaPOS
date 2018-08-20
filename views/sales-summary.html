@@ -23,7 +23,13 @@
 
                                <div class="row" style="margin-top: 25px">
                                   <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchOverAllTurnOver()"><i class="fa fa-file-text-o" style="padding-right: 10px"></i> Overall Summary</button>
+                                <button class="btn-warning btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSingleClickReport()"><i class="fa fa-file-text-o" style="padding-right: 10px"></i> Overall Report</button>
+                                  </div>
+                               </div>
+
+                               <div class="row" style="margin-top: 10px">
+                                  <div class="col-sm-12">
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchOverAllTurnOver()"><i class="fa fa-file-text-o" style="padding-right: 10px"></i> Sales Summary</button>
                                   </div>
                                </div>
 
@@ -159,10 +165,24 @@
                      </div>
 
 
+
+                     <div class="box box-primary" id="singleClickReport_RenderArea" style="display: none; min-height: 270px; padding-top: 30px;">
+                        <div class="box-body">
+
+                            <div class="row" style="margin: 0">
+                                <div class="col-sm-12" id="singleClickReport_RenderContent">
+
+                                </div>
+                            </div>
+
+                        </div>
+                     </div>
+
+
                      <div class="box box-primary" id="summaryRenderArea_turnOver" style="display: none">
                         <div class="box-body">
                            <div class="box-header" style="padding: 10px 0px">
-                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Overall Summary</h3>
+                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Sales Summary</h3>
                            </div>
 
 
