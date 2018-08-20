@@ -10,3 +10,5 @@ Notes:
 7. Show only Stewards or Admins also (preference settings)
 8. User Selection pop up on default screen (idle screen)
 9. Auto logout of ADMIN PREVILAGE if idle more than 5 mins
+10. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
+11. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings.

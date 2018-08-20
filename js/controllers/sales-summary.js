@@ -240,7 +240,7 @@ function renderGraph_SalesSummary(graphData){
 	});	
 
 	function convertGraph(){
-		console.log(myChart.toBase64Image())
+		//console.log(myChart.toBase64Image())
 	}
 }
 
@@ -820,7 +820,7 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 				    		temp_sum = data.rows[0].value.sum;
 				    	}
 
-				    		//Now check in split payments
+				    		//Now check in custom extras
 					    	$.ajax({
 								type: 'GET',
 								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
@@ -908,7 +908,7 @@ function fetchOverAllTurnOverCallback(index, modes, fromDate, toDate, netSalesWo
 				    	}
 				    	
 
-				    		//Now check in split payments
+				    		//Now check in custom extras
 					    	$.ajax({
 								type: 'GET',
 								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
@@ -1092,8 +1092,8 @@ function renderTipsReceived(fromDate, toDate, netSalesWorth, graphData){
 				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Tips Received</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 			}
 
-			//Step 6: Summarize Totals
-			renderSummaryFinal(netSalesWorth, graphData);
+			//Step 6: Total Refunds Issued
+			renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData);
 
 		},
 		error: function(data){
@@ -1103,7 +1103,76 @@ function renderTipsReceived(fromDate, toDate, netSalesWorth, graphData){
 }
 
 
+
 //Step 6
+function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
+
+
+		//Refunded but NOT cancelled
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_refundCount = 0;
+				var temp_refundSum = 0;
+
+				if(data.rows.length > 0){
+					temp_refundCount = data.rows[0].value.count;
+					temp_refundSum = data.rows[0].value.sum;
+				}
+
+
+				//Cancelled and Refunded Orders
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+					timeout: 10000,
+					success: function(seconddata) {
+
+						if(seconddata.rows.length > 0){
+							temp_refundCount += seconddata.rows[0].value.count;
+							temp_refundSum += seconddata.rows[0].value.sum;
+						}
+
+						netSalesWorth += temp_refundSum;
+
+
+						if(temp_refundSum > 0){
+							graphData.push({
+								"name": 'Refunds',
+								"value": temp_refundSum
+							})
+						}		
+
+						//time to render...
+						if(temp_refundCount > 0){
+							document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_refundCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_refundSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+						}
+						else{
+							document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+						}
+
+						//Step 7: Summarize Totals
+						renderSummaryFinal(netSalesWorth, graphData);
+
+					},
+					error: function(data){
+
+					}
+				});  
+
+
+			},
+			error: function(data){
+
+			}
+		});  		
+}
+
+
+//Step 7
 function renderSummaryFinal(netSalesWorth, graphData){
 
 	if(netSalesWorth > 0){
@@ -1828,6 +1897,9 @@ function fetchSingleClickReport(){
 	    		$('#postReportActions').css("display", "block");
 
 	    		playNotificationSound('DONE');
+
+	    		//test
+	    		singleClickTotalPaid();
 	    	}, 10);
 	    }
 	
@@ -1850,8 +1922,13 @@ function fetchSingleClickReport(){
 	toDate = getSummaryStandardDate(toDate);
 
 	var completeReportInfo = [];
+	var netSalesWorth = 0;
+	var reportInfoExtras = [];
 	var completeErrorList = []; //In case any API call causes Error
-
+	var detailedListByBillingMode = []; //Billing mode wise
+	var detailedListByPaymentMode = []; //Payment mode wise
+	var weeklyProgressThisWeek = []; //This Week sales
+	var weeklyProgressLastWeek = []; //Last Week sales
 
 
 
@@ -1869,36 +1946,1119 @@ setTimeout(tester, 1000);
 
 
 	//Step 1: Total Paid Amount
-	
-	$.ajax({
-	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
-		timeout: 10000,
-		success: function(data) {
+	function singleClickTotalPaid(){
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
 
-			var temp_totalOrders = 0;
-			var temp_totalPaid = 0;
+				var temp_totalOrders = 0;
+				var temp_totalPaid = 0;
 
-			if(data.rows.length > 0){
-				temp_totalOrders = data.rows[0].value.count;
-				temp_totalPaid = data.rows[0].value.sum;
+				if(data.rows.length > 0){
+					temp_totalOrders = data.rows[0].value.count;
+					temp_totalPaid = data.rows[0].value.sum;
+				}
+
+				completeReportInfo.push({
+						"name": "Total Paid Amount",
+						"value": temp_totalPaid,
+						"count": temp_totalOrders,
+						"split": []
+				});
+
+				netSalesWorth = temp_totalPaid;
+
+				//Step 2:
+				singleClickExtraCharges();
+
+			},
+			error: function(data){
+
+			}
+		});  
+	}	
+
+
+	//Step 2: 
+	function singleClickExtraCharges(){
+
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+
+		          	var modes = data.docs[0].value;
+		          	modes.sort(); //alphabetical sorting 
+
+		          	if(modes.length == 0){
+				        completeErrorList.push({
+				        	"step": 2,
+							"error": "No billing parameters found"
+						});
+		          	}
+		          	else{
+
+		          	  //For a given BILLING PARAMETER, the total Sales in the given DATE RANGE
+					  $.ajax({
+					    type: 'GET',
+					    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+					    timeout: 10000,
+					    success: function(data) {
+					    	
+					    	var temp_count = 0;
+					    	var temp_sum = 0;
+
+					    	if(data.rows.length > 0){
+					    		temp_count = data.rows[0].value.count;
+					    		temp_sum = data.rows[0].value.sum;
+					    	}
+
+					    		//Now check in custom extras
+						    	$.ajax({
+									type: 'GET',
+									url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+									timeout: 10000,
+									success: function(data) {
+
+										if(data.rows.length > 0){
+										    temp_count += data.rows[0].value.count;
+										    temp_sum += data.rows[0].value.sum;
+										}
+
+										netSalesWorth -= temp_sum;
+
+										reportInfoExtras.push({
+												"name": modes[0].name,
+												"value": temp_sum
+										});
+
+								    	//Check if next mode exists...
+								    	if(modes[1]){
+								    		singleClickExtraChargesCallback(1, modes);
+								    	}
+								    	else{
+								    		//Step 3: Total Discount offered
+								    		singleClickDiscountsOffered();
+								    	}
+
+									},
+									error: function(data){
+
+									}
+								}); 
+
+
+					    },
+					    error: function(data){
+
+					    }
+					  });  
+					} //else - modes
+	          }
+	          else{
+	            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });	
+	}
+
+
+	//Step 2 - Callback
+	function singleClickExtraChargesCallback(index, modes){
+
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
+
+				    	if(data.rows.length > 0){
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
+				    	}
+				    	
+
+				    		//Now check in custom extras
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+									netSalesWorth -= temp_sum;
+
+
+									reportInfoExtras.push({
+										"name": modes[index].name,
+										"value": temp_sum
+									});
+
+							    	//Check if next mode exists...
+							    	if(modes[index+1]){
+							    		singleClickExtraChargesCallback(index+1, modes);
+							    	}
+							    	else{
+							    		//Step 3: Total Discount offered
+							    		singleClickDiscountsOffered();
+							    	}
+
+								},
+								error: function(data){
+
+								}
+							}); 
+				    },
+				    error: function(data){
+
+				    }
+				  }); 
+
+	}	//End step 2 callback
+
+
+	//Step 3: Discounts Offered
+	function singleClickDiscountsOffered(){
+
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_discountedOrdersCount = 0;
+				var temp_discountedOrdersSum = 0;
+
+				if(data.rows.length > 0){
+					temp_discountedOrdersCount = data.rows[0].value.count;
+					temp_discountedOrdersSum = data.rows[0].value.sum;
+				}
+
+				netSalesWorth += temp_discountedOrdersSum;
+
+				completeReportInfo.push({
+						"name": "Discounts",
+						"value": temp_discountedOrdersSum,
+						"count": temp_discountedOrdersCount
+				});	
+
+				//Step 4: Total Round Off made
+				singleClickRoundOffsMade();
+
+			},
+			error: function(data){
+
+			}
+		});  			
+	}
+
+
+
+	//Step 4: RoundOffs made
+	function singleClickRoundOffsMade(){
+
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_roundOffCount = 0;
+				var temp_roundOffSum = 0;
+
+				if(data.rows.length > 0){
+					temp_roundOffCount = data.rows[0].value.count;
+					temp_roundOffSum = data.rows[0].value.sum;
+				}
+				
+				netSalesWorth += temp_roundOffSum;
+
+				completeReportInfo.push({
+						"name": "Round Off",
+						"value": temp_roundOffSum,
+						"count": temp_roundOffCount
+				});	
+
+				//Step 5: Total Tips received
+				singleClickTipsReceived();
+
+			},
+			error: function(data){
+
+			}
+		});  	
+	}
+
+
+
+	//Step 5: Total Tips Received
+	function singleClickTipsReceived(){
+
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_tipsCount = 0;
+				var temp_tipsSum = 0;
+
+				if(data.rows.length > 0){
+					temp_tipsCount = data.rows[0].value.count;
+					temp_tipsSum = data.rows[0].value.sum;
+				}
+
+				netSalesWorth -= temp_tipsSum;
+
+
+				completeReportInfo.push({
+						"name": "Tips",
+						"value": temp_tipsSum,
+						"count": temp_tipsCount
+				});	
+
+				//Step 6: Refunds Issued
+				singleClickRefundsIssued();
+
+			},
+			error: function(data){
+
+			}
+		});  		
+	}
+
+
+	//Step 6: Total Refunds Issued
+	function singleClickRefundsIssued(){
+
+		//Refunded but NOT cancelled
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_refundCount = 0;
+				var temp_refundSum = 0;
+
+				if(data.rows.length > 0){
+					temp_refundCount = data.rows[0].value.count;
+					temp_refundSum = data.rows[0].value.sum;
+				}
+
+
+				//Cancelled and Refunded Orders
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+					timeout: 10000,
+					success: function(seconddata) {
+
+						if(seconddata.rows.length > 0){
+							temp_refundCount += seconddata.rows[0].value.count;
+							temp_refundSum += seconddata.rows[0].value.sum;
+						}
+
+						netSalesWorth += temp_refundSum;
+
+						completeReportInfo.push({
+								"name": "Refunds Issued",
+								"value": temp_refundSum,
+								"count": temp_refundCount
+						});	
+
+						//Step 7: Render everything 
+						singleClickSummaryFinal();
+
+					},
+					error: function(data){
+
+					}
+				});  
+
+
+			},
+			error: function(data){
+
+			}
+		});  		
+	}
+
+
+	//Step 7 : Render 
+	function singleClickSummaryFinal(){
+		console.log(completeReportInfo)
+
+		//Step 8: Detailed by Billing Modes
+		singleClickDetailedByModes();
+	}
+
+
+	//Step 8: Details by Billing Modes
+	function singleClickDetailedByModes(){
+
+		//Preload Billing Parameters
+	    var requestParamData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestParamData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+
+		          	var billingExtras = data.docs[0].value;
+
+		          	if(billingExtras.length == 0){
+		          		completeErrorList.push({
+							"step": 8,
+							"error": "No billing parameters found"
+						});
+						return '';
+		          	}
+		          	else{
+
+
+					    var requestData = {
+					      "selector"  :{ 
+					                    "identifierTag": "ZAITOON_BILLING_MODES" 
+					                  },
+					      "fields"    : ["identifierTag", "value"]
+					    }
+
+					    $.ajax({
+					      type: 'POST',
+					      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+					      data: JSON.stringify(requestData),
+					      contentType: "application/json",
+					      dataType: 'json',
+					      timeout: 10000,
+					      success: function(data) {
+					        if(data.docs.length > 0){
+					          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+
+					              	var modes = data.docs[0].value;
+
+						          	if(modes.length == 0){
+						          		completeErrorList.push({
+								        	"step": 8,
+											"error": "No billing modes found"
+										});
+						          		return '';
+						          	}
+						          	else{
+
+							          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
+										$.ajax({
+										    type: 'GET',
+										    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+										    timeout: 10000,
+										    success: function(data) {
+
+										    	var preserved_sum = 0;
+										    	var preserved_count = 0;
+										    	if(data.rows.length > 0){
+										    		preserved_sum = data.rows[0].value.sum;
+										    		preserved_count = data.rows[0].value.count;
+										    	}
+
+										    	//Extras in this given Billing Mode
+										    	var splitExtrasInGivenMode = [];
+
+										    	if(billingExtras[0]){
+										    		preProcessBillingSplits(0, billingExtras, splitExtrasInGivenMode)
+										    	}
+
+										    	function preProcessBillingSplits(splitIndex, paramsList, formedSplitList){
+
+
+										          	//For a given Billing Mode, amount split by billing params
+													$.ajax({
+													    type: 'GET',
+													    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+													    timeout: 10000,
+													    success: function(data) {
+													    	
+													    	var temp_count = 0;
+													    	var temp_sum = 0;
+
+													    	if(data.rows.length > 0){
+													    		temp_count = data.rows[0].value.count;
+													    		temp_sum = data.rows[0].value.sum;
+													    	}
+
+													    		//Now check in custom extras also
+														    	$.ajax({
+																	type: 'GET',
+																	url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+																	timeout: 10000,
+																	success: function(data) {
+
+																		if(data.rows.length > 0){
+																		    temp_count += data.rows[0].value.count;
+																		    temp_sum += data.rows[0].value.sum;
+																		}
+
+
+																		//Finally, push it
+															    		splitExtrasInGivenMode.push({
+															    			"name": paramsList[splitIndex].name,
+															    			"value": temp_sum,
+															    			"count": temp_count
+															    		});
+
+															    		//Check if next exists in params list:
+															    		if(paramsList[splitIndex + 1]){
+															    			preProcessBillingSplits(splitIndex + 1, paramsList, splitExtrasInGivenMode);
+															    		}
+															    		else{ 	//Proceed to next BILLING MODE
+															    			
+																		    	detailedListByBillingMode.push({
+																				    "name": modes[0].name,
+																				   	"value": preserved_sum,
+																				   	"count": preserved_count,
+																				   	"split": splitExtrasInGivenMode
+																				})
+
+																		    	//Check if next exits in BILLING_MODES
+																		    	if(modes[1]){
+																		    		singleClickDetailedByModesCallback(1, modes, paramsList);
+																		    	}
+																		    	else{
+																		    		singleClickDetailedByPayment();
+																		    	}															    			
+
+															    		}
+
+																	},
+																	error: function(data){
+
+																	}
+																}); 
+
+
+													    },
+													    error: function(data){
+
+													    }
+													
+													});  
+										    	} //end - pre process
+
+
+
+
+
+										    },
+										    error: function(data){
+										    	
+										    }
+										});  
+									} //else - mode
+					          }
+					        }
+					      }
+
+					    });
+
+
+		          	}
+	          }
+	          else{
+	            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });	
+
+	}
+
+
+	//Step 8 : Callback
+	function singleClickDetailedByModesCallback(index, modes, paramsList){
+
+							          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
+										$.ajax({
+										    type: 'GET',
+										    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+										    timeout: 10000,
+										    success: function(data) {
+
+										    	var preserved_sum = 0;
+										    	var preserved_count = 0;
+										    	if(data.rows.length > 0){
+										    		preserved_sum = data.rows[0].value.sum;
+										    		preserved_count = data.rows[0].value.count;
+										    	}
+
+										    	//Extras in this given Billing Mode
+										    	var splitExtrasInGivenMode = [];
+
+										    	if(paramsList[0]){
+										    		preProcessBillingSplits(0, paramsList, splitExtrasInGivenMode)
+										    	}
+
+										    	function preProcessBillingSplits(splitIndex, paramsList, formedSplitList){
+
+										          	//For a given Billing Mode, amount split by billing params
+													$.ajax({
+													    type: 'GET',
+													    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+													    timeout: 10000,
+													    success: function(data) {
+													    	
+													    	var temp_count = 0;
+													    	var temp_sum = 0;
+
+													    	if(data.rows.length > 0){
+													    		temp_count = data.rows[0].value.count;
+													    		temp_sum = data.rows[0].value.sum;
+													    	}
+
+													    		//Now check in custom extras also
+														    	$.ajax({
+																	type: 'GET',
+																	url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+																	timeout: 10000,
+																	success: function(data) {
+
+																		if(data.rows.length > 0){
+																		    temp_count += data.rows[0].value.count;
+																		    temp_sum += data.rows[0].value.sum;
+																		}
+
+
+																		//Finally, push it
+															    		splitExtrasInGivenMode.push({
+															    			"name": paramsList[splitIndex].name,
+															    			"value": temp_sum,
+															    			"count": temp_count
+															    		});
+
+															    		//Check if next exists in params list:
+															    		if(paramsList[splitIndex + 1]){
+															    			preProcessBillingSplits(splitIndex + 1, paramsList, splitExtrasInGivenMode);
+															    		}
+															    		else{ 	//Proceed to next BILLING MODE
+															    			
+																		    	detailedListByBillingMode.push({
+																				    "name": modes[index].name,
+																				   	"value": preserved_sum,
+																				   	"count": preserved_count,
+																				   	"split": splitExtrasInGivenMode
+																				})
+
+																		    	//Check if next exits in BILLING_MODES
+																		    	if(modes[index+1]){
+																		    		singleClickDetailedByModesCallback(index+1, modes, paramsList);
+																		    	}
+																		    	else{
+																		    		singleClickDetailedByPayment();
+																		    	}															    			
+
+															    		}
+
+																	},
+																	error: function(data){
+
+																	}
+																}); 
+
+
+													    },
+													    error: function(data){
+
+													    }
+													
+													});  
+										    	} //end - pre process
+
+
+										    },
+										    error: function(data){
+										    	
+										    }
+										});  
+
+	}
+
+	//Step 9: Details by Payment types
+	function singleClickDetailedByPayment(){
+
+		var paymentGraphData = [];
+
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+
+	              	var modes = data.docs[0].value;
+
+	              	if(modes.length == 0){
+		          		completeErrorList.push({
+							"step": 0,
+							"error": "No payment modes found"
+						});
+						return '';
+		          	}
+		          	else{
+						
+						  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
+
+						  $.ajax({
+						    type: 'GET',
+						    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+						    timeout: 10000,
+						    success: function(data) {
+						    	
+						    	var temp_count = 0;
+						    	var temp_sum = 0;
+
+						    	if(data.rows.length > 0){
+						    		temp_count = data.rows[0].value.count;
+						    		temp_sum = data.rows[0].value.sum;
+						    	}
+
+						    		//Now check in split payments
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_count += data.rows[0].value.count;
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+								    		if(temp_sum > 0){
+								    			paymentGraphData.push({
+										    		"name": modes[0].name,
+										    		"value": temp_sum
+										    	})
+								    		}	
+
+								    		detailedListByPaymentMode.push({
+								    			"name": modes[0].name,
+								    			"value": temp_sum,
+								    			"count": temp_count
+								    		});									
+
+
+									    	//Check if next mode exists...
+									    	if(modes[1]){
+									    		singleClickDetailedByPaymentCallback(1, modes, paymentGraphData);
+									    	}
+									    	else{
+									    		//Step 10: Weekly Progress
+									    		singleClickWeeklyProgress();
+									    	}
+
+										},
+										error: function(data){
+
+										}
+									}); 
+
+
+						    },
+						    error: function(data){
+						    	document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+						    }
+						  }); 
+					} 
+
+	          }
+	          else{
+	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });
+	}
+
+	//Step 9: Callback
+	function singleClickDetailedByPaymentCallback(index, modes, paymentGraphData){
+
+						  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
+
+						  $.ajax({
+						    type: 'GET',
+						    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+						    timeout: 10000,
+						    success: function(data) {
+						    	
+						    	var temp_count = 0;
+						    	var temp_sum = 0;
+
+						    	if(data.rows.length > 0){
+						    		temp_count = data.rows[0].value.count;
+						    		temp_sum = data.rows[0].value.sum;
+						    	}
+
+						    		//Now check in split payments
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_count += data.rows[0].value.count;
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+								    		if(temp_sum > 0){
+								    			paymentGraphData.push({
+										    		"name": modes[index].name,
+										    		"value": temp_sum
+										    	})
+								    		}	
+
+								    		detailedListByPaymentMode.push({
+								    			"name": modes[index].name,
+								    			"value": temp_sum,
+								    			"count": temp_count
+								    		});									
+
+
+									    	//Check if next mode exists...
+									    	if(modes[index+1]){
+									    		singleClickDetailedByPaymentCallback(index+1, modes, paymentGraphData);
+									    	}
+									    	else{
+									    		//Step 10: Weekly Progress
+									    		singleClickWeeklyProgress();
+									    	}
+
+										},
+										error: function(data){
+
+										}
+									}); 
+							},
+					      	error: function(data) {
+					        	
+					      	}
+					    });
+	}
+
+	//Step 10: Weekly Progress
+	function singleClickWeeklyProgress(){
+		
+		/*
+			Note: Rough figure only, refunds not included.
+		*/
+
+		var lastWeek_start = moment().subtract(13, 'days').format('YYYYMMDD');
+		var lastWeek_end = moment().subtract(7, 'days').format('YYYYMMDD');
+
+		var thisWeek_start = moment().subtract(6, 'days').format('YYYYMMDD');
+		var thisWeek_end = moment().format('YYYYMMDD');
+
+		var weekDays = 7;
+		var currentIndex = 1;
+
+		calculateSalesByDate(currentIndex, lastWeek_start)
+
+		function calculateSalesByDate(index, mydate){
+
+			$.ajax({
+			    type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+mydate+'"]&endkey=["'+mydate+'"]',
+				timeout: 10000,
+				success: function(data) {
+
+					var temp_totalOrders = 0;
+					var temp_totalPaid = 0;
+					var fancyDay = moment(mydate, 'YYYYMMDD').format('ddd');
+					var fancyDate = moment(mydate, 'YYYYMMDD').format('MMM D');
+
+					if(data.rows.length > 0){
+						temp_totalOrders = data.rows[0].value.count;
+						temp_totalPaid = data.rows[0].value.sum;
+					}
+
+					if(index <= 7){
+						weeklyProgressThisWeek.push({
+							"name": fancyDay+' ('+fancyDate+')',
+							"value": temp_totalPaid
+						});
+					}
+					else if(index <= 14){
+						weeklyProgressLastWeek.push({
+							"name": fancyDay+' ('+fancyDate+')',
+							"value": temp_totalPaid
+						});
+					}
+
+
+					//Next iterations
+					if(index < 14){
+						var nextDate = moment().subtract((13 - index), 'days').format('YYYYMMDD');
+						calculateSalesByDate(index+1, nextDate);
+					}
+					else{
+						singleClickWeeklyProgressRender();
+					}
+
+				},
+				error: function(data){
+					document.getElementById("summaryRender_turnOver").innerHTML = '<p style="margin: 0 0 25px 0; font-size: 18px; color: #949494; font-weight: 300; text-align: center">Something went wrong!</p>';
+				}
+			});  
+		}
+
+	}
+
+	//Step 10: Render Weekly Graph
+	function singleClickWeeklyProgressRender(){
+
+		console.log(weeklyProgressThisWeek)
+		console.log(weeklyProgressLastWeek)
+
+		var requestType = 'EMAIL';
+
+		if(requestType == 'REPORT'){
+
+			var graph_labels = [];
+			var graph_data = [];
+
+			var graph_border = ["rgba(0, 0, 0, 1)"];
+			var graph_border_last = ["rgba(144, 144, 144, 1)"];
+
+			//This Weeks data
+			var n = 0;
+			while(weeklyProgressThisWeek[n]){
+				graph_labels.push(weeklyProgressThisWeek[n].name);
+				graph_data.push(parseInt(weeklyProgressThisWeek[n].value));
+
+				n++;
 			}
 
-			completeReportInfo.push({
-					"name": "Total Paid Amount",
-					"value": temp_totalPaid,
-					"count": temp_totalOrders,
-					"split": []
-			});
 
-			//Step 2: Total Charges collected
-			console.log(completeReportInfo)
+			//Last Weeks (exclude labels)
+			var graph_data_last = [];
+			var k = 0;
+			while(weeklyProgressLastWeek[k]){
+				graph_data_last.push(parseInt(weeklyProgressLastWeek[k].value));
+				
+				k++;
+			}
 
-		},
-		error: function(data){
+			var ctx = document.getElementById("weeklyTrendLineChart").getContext('2d');
+			var myChart = new Chart(ctx, {
+			    type: 'line',
+			    data: {
+			        labels: graph_labels,
+			        datasets: [{
+			            label: 'This Week',
+			            data: graph_data,
+			            fill: false,
+			            borderColor: graph_border,
+			            borderWidth: 2
+			            
+			        },{
+			            label: 'Last Week',
+			            data: graph_data_last,
+			            fill: false,
+			            borderColor: graph_border_last,
+			            borderWidth: 2,
+			            borderDash: [10,5]
+			        }]
+			    },
+			    options: {	    	
+			        scales: {
+			            yAxes: [{
+			            	display:true,
+			                ticks: {
+			                    beginAtZero:true,
+			                    display: true
+			                },
+			                gridLines: {
+		                    	display:true
+		                	}
+			            }],
+			            xAxes: [{
+			            	display:true,
+			                ticks: {
+			                    beginAtZero:true,
+			                    display: true
+			                },
+			                gridLines: {
+		                    	display:false
+		                	}
+			            }]
+			        },
+			        animation: {
+		                onComplete: convertGraph
+		            }
+			    }
+			});	
+
+			function convertGraph(){
+				//console.log(myChart.toBase64Image())
+			}
+		}
+		else if(requestType == "EMAIL"){ //Colorfull Graph!
+
+			var graph_labels = [];
+			var graph_data = [];
+
+			var graph_background = ["rgba(103, 210, 131, 0.2)"];
+			var graph_background_last = ["rgba(255, 177, 0, 0.2)"];
+
+			var graph_border = ["rgba(103, 210, 131, 1)"];
+			var graph_border_last = ["rgba(255, 177, 0, 1)"];
+
+			//This Weeks data
+			var n = 0;
+			while(weeklyProgressThisWeek[n]){
+				graph_labels.push(weeklyProgressThisWeek[n].name);
+				graph_data.push(parseInt(weeklyProgressThisWeek[n].value));
+
+				n++;
+			}
+
+
+			//Last Weeks (exclude labels)
+			var graph_data_last = [];
+			var k = 0;
+			while(weeklyProgressLastWeek[k]){
+				graph_data_last.push(parseInt(weeklyProgressLastWeek[k].value));
+				
+				k++;
+			}
+
+			var ctx = document.getElementById("weeklyTrendLineChart").getContext('2d');
+			var myChart = new Chart(ctx, {
+			    type: 'line',
+			    data: {
+			        labels: graph_labels,
+			        datasets: [{
+			            label: 'This Week',
+			            data: graph_data,
+			            borderColor: graph_border,
+			            backgroundColor: graph_background,
+			            borderWidth: 2
+			            
+			        },{
+			            label: 'Last Week',
+			            data: graph_data_last,
+			            backgroundColor: graph_background_last,
+			            borderColor: graph_border_last,
+			            borderWidth: 2,
+			            borderDash: [10,5]
+			        }]
+			    },
+			    options: {	    	
+			        scales: {
+			            yAxes: [{
+			            	display:true,
+			                ticks: {
+			                    beginAtZero:true,
+			                    display: true
+			                },
+			                gridLines: {
+		                    	display:true
+		                	}
+			            }],
+			            xAxes: [{
+			            	display:true,
+			                ticks: {
+			                    beginAtZero:true,
+			                    display: true
+			                },
+			                gridLines: {
+		                    	display:false
+		                	}
+			            }]
+			        },
+			        animation: {
+		                onComplete: convertGraph
+		            }
+			    }
+			});	
+
+			function convertGraph(){
+				//console.log(myChart.toBase64Image())
+			}
 
 		}
-	});  
+
+	}
 
 
 }

@@ -81,6 +81,14 @@
             margin-top: 30px;
          }
 
+         .summaryTableSection table {
+            border-collapse: collapse;
+         }
+         .summaryTableSection td {
+            border-bottom: 1px solid #c8c8c8;
+         }
+
+
          .tableQuickHeader{
                 min-height: 40px;
                 background: #f2f2f2;
@@ -94,11 +102,11 @@
          }
          
          .tableQuickBrief{
-            border-bottom: 1px solid #c8c8c8; padding: 10px; font-size: 16px;
+            padding: 10px; font-size: 16px;
          }
 
          .tableQuickAmount{
-            border-bottom: 1px solid #c8c8c8; padding: 10px; font-size: 18px; text-align: right;
+            padding: 10px; font-size: 18px; text-align: right;
          }
 
          .tableQuickAmount .price{
@@ -114,12 +122,20 @@
                 width: 30%;
                 display: inline-block;
                 text-align: center;
-                position: absolute;
-                top: 15%;
+                float: right;
+                margin-top: 30px;
          }
 
          .tableGraph_Table{
             padding: 10px; width: 65%; display: inline-block
+         }
+
+         .weeklyGraph{
+             text-align: center;
+             padding: 25px;
+             border: 1px solid #f2f2f2;
+             margin: 0;
+             border-top: none;
          }
 
 
@@ -127,7 +143,8 @@
          .footerNote{
             text-align: center;
             font-size: 12px;
-            color: gray;
+            color: #595959;
+            margin: 0;
          }
 
       </style>
@@ -186,11 +203,20 @@
                <h1 class="factsBoxFigure">249</h1>
                <p class="factsBoxBrief">Bills</p>
             </div>
-
          </div>
+
+
 
       </div>
 
+   <div class="summaryTableSection">
+      <div class="tableQuickHeader">
+         <h1 class="tableQuickHeaderText">Weekly Sales Performance</h1>
+      </div>
+      <div class="weeklyGraph">
+            <img src="../images/test2.png" style="max-width: 80%">
+      </div>
+   </div>
 
 
    <div class="summaryTableSection">
@@ -256,6 +282,10 @@
 
       <div class="tableGraphRow">
 
+         <div class="tableGraph_Graph">
+            <img src="../images/test1.png">
+         </div>
+
          <div class="tableGraph_Table">
             <table style="width: 100%">
                <col style="width: 70%">
@@ -299,16 +329,15 @@
             </table>
          </div>
 
-         <div class="tableGraph_Graph">
-            <img src="../images/test1.png">
-         </div>
-
    </div>
 
    </div>
 
 
+   <div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">
       <p class="footerNote">care@zaitoon.online | www.zaitoon.online</p>
+   </div>
+
    </body>
 </html>
 
