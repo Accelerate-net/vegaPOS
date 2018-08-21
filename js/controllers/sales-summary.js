@@ -1847,7 +1847,9 @@ function fetchRefundSummaryCallback(index, modes, fromDate, toDate, grandSum, gr
 
 
 
-// Single Click Report
+/**************************************
+ 	SINGLE CLICK REPORT GENERATOR
+***************************************/
 
 function fetchSingleClickReport(){
 
@@ -1868,6 +1870,8 @@ function fetchSingleClickReport(){
                                         '<button style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-print"></i> Print</button>'+
                                         '<button class="btn btn-success btn-sm"><i class="fa fa-envelope"></i> Email</button>'+
                                       '</div></center>';	
+
+    document.getElementById("singleClickReport_ErrorContent").style.display = 'none';
 
     
     //Initialise animation
@@ -1897,17 +1901,27 @@ function fetchSingleClickReport(){
 	    		$('#postReportActions').css("display", "block");
 
 	    		playNotificationSound('DONE');
-
-	    		//test
-	    		singleClickTotalPaid();
 	    	}, 10);
 	    }
 	
 		progressValue.style.strokeDasharray = CIRCUMFERENCE;		
 	}
 
-	runReportAnimation(0);
+	function stopReportAnimation(optionalSource){		
+		if(optionalSource == 'ERROR'){
+	    		document.getElementById("reportPercentageArea").innerHTML = '<img src="images/common/error_triangle.png" class="staryDoneIcon">';
+	    		$('#reportPercentageArea').addClass('animateShake');
+	    		$('.progress__value').css("stroke", "#FFF");
+	    		$('.progress__meter').css("stroke", "#FFF");
+	    		$('.generatingText').css("display", "none");
+	    		$('#postReportActions').css("display", "none");
 
+	    		playNotificationSound('DISABLE');
+		}
+		else{
+
+		}
+	}
 
 
 
@@ -1931,18 +1945,9 @@ function fetchSingleClickReport(){
 	var weeklyProgressLastWeek = []; //Last Week sales
 
 
-
-var uniter = 1;
-function tester () {
-	uniter += 1;
-	runReportAnimation(uniter, progressValue, RADIUS, CIRCUMFERENCE);
-  
-  setTimeout(tester, 20);
-}
-
-
-setTimeout(tester, 1000);
-
+	//Starting point
+	runReportAnimation(0);
+	setTimeout(singleClickTotalPaid, 1000);
 
 
 	//Step 1: Total Paid Amount
@@ -1975,7 +1980,13 @@ setTimeout(tester, 1000);
 
 			},
 			error: function(data){
-
+				completeErrorList.push({
+				    "step": 1,
+					"error": "Failed to load net sales figure. Report can not be generated."
+				});
+				stopReportAnimation('ERROR');
+				singleClickLoadErrors();
+				return '';
 			}
 		});  
 	}	
@@ -1983,6 +1994,8 @@ setTimeout(tester, 1000);
 
 	//Step 2: 
 	function singleClickExtraCharges(){
+
+		runReportAnimation(5); //of Step 1 which takes 5 units
 
 	    var requestData = {
 	      "selector"  :{ 
@@ -2007,10 +2020,14 @@ setTimeout(tester, 1000);
 		          	modes.sort(); //alphabetical sorting 
 
 		          	if(modes.length == 0){
-				        completeErrorList.push({
-				        	"step": 2,
-							"error": "No billing parameters found"
+						completeErrorList.push({
+						    "step": 2,
+							"error": "Failed to read applied charges"
 						});
+
+						//Skip and go to next step
+						singleClickDiscountsOffered(); 
+						return '';
 		          	}
 		          	else{
 
@@ -2059,29 +2076,62 @@ setTimeout(tester, 1000);
 
 									},
 									error: function(data){
+										completeErrorList.push({
+										    "step": 2,
+											"error": "Failed to read applied charges"
+										});
 
+										//Skip and go to next step
+										singleClickDiscountsOffered(); 
+										return '';
 									}
 								}); 
 
-
 					    },
 					    error: function(data){
+							completeErrorList.push({
+							    "step": 2,
+								"error": "Failed to read applied charges"
+							});	
 
+							//Skip and go to next step
+							singleClickDiscountsOffered(); 
+							return '';	    	
 					    }
 					  });  
 					} //else - modes
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+				completeErrorList.push({
+				    "step": 2,
+					"error": "Failed to read applied charges"
+				});
+
+				//Skip and go to next step
+				singleClickDiscountsOffered(); 
+				return '';
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+				completeErrorList.push({
+				    "step": 2,
+					"error": "Failed to read applied charges"
+				});
+
+				//Skip and go to next step
+				singleClickDiscountsOffered(); 
+				return '';
 	        }
-	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+				completeErrorList.push({
+				    "step": 2,
+					"error": "Failed to read applied charges"
+				});
+
+				//Skip and go to next step
+				singleClickDiscountsOffered(); 
+				return '';
 	      }
 
 	    });	
@@ -2137,12 +2187,26 @@ setTimeout(tester, 1000);
 
 								},
 								error: function(data){
+									completeErrorList.push({
+									    "step": 2,
+										"error": "Failed to read applied charges"
+									});
 
+									//Skip and go to next step
+									singleClickDiscountsOffered(); 
+									return '';
 								}
 							}); 
 				    },
 				    error: function(data){
+						completeErrorList.push({
+						    "step": 2,
+							"error": "Failed to read applied charges"
+						});
 
+						//Skip and go to next step
+						singleClickDiscountsOffered(); 
+						return '';
 				    }
 				  }); 
 
@@ -2151,6 +2215,8 @@ setTimeout(tester, 1000);
 
 	//Step 3: Discounts Offered
 	function singleClickDiscountsOffered(){
+
+		runReportAnimation(15); //of Step 2 which takes 10 units
 
 		$.ajax({
 		    type: 'GET',
@@ -2179,7 +2245,14 @@ setTimeout(tester, 1000);
 
 			},
 			error: function(data){
+				completeErrorList.push({
+				    "step": 3,
+					"error": "Failed to read discounts offered"
+				});				
 
+				//Skip and go to next step
+				singleClickRoundOffsMade(); 
+				return '';
 			}
 		});  			
 	}
@@ -2188,6 +2261,8 @@ setTimeout(tester, 1000);
 
 	//Step 4: RoundOffs made
 	function singleClickRoundOffsMade(){
+
+		runReportAnimation(20); //of Step 3 which takes 5 units
 
 		$.ajax({
 		    type: 'GET',
@@ -2216,7 +2291,14 @@ setTimeout(tester, 1000);
 
 			},
 			error: function(data){
+				completeErrorList.push({
+				    "step": 4,
+					"error": "Failed to read round-off amount"
+				});				
 
+				//Skip and go to next step
+				singleClickTipsReceived(); 
+				return '';
 			}
 		});  	
 	}
@@ -2225,6 +2307,8 @@ setTimeout(tester, 1000);
 
 	//Step 5: Total Tips Received
 	function singleClickTipsReceived(){
+
+		runReportAnimation(25); //of Step 4 which takes 5 units
 
 		$.ajax({
 		    type: 'GET',
@@ -2254,7 +2338,14 @@ setTimeout(tester, 1000);
 
 			},
 			error: function(data){
+				completeErrorList.push({
+				    "step": 5,
+					"error": "Failed to read tips received"
+				});				
 
+				//Skip and go to next step
+				singleClickRefundsIssued(); 
+				return '';
 			}
 		});  		
 	}
@@ -2262,6 +2353,8 @@ setTimeout(tester, 1000);
 
 	//Step 6: Total Refunds Issued
 	function singleClickRefundsIssued(){
+
+		runReportAnimation(30); //of Step 5 which takes 5 units
 
 		//Refunded but NOT cancelled
 		$.ajax({
@@ -2304,14 +2397,28 @@ setTimeout(tester, 1000);
 
 					},
 					error: function(data){
+						completeErrorList.push({
+						    "step": 6,
+							"error": "Failed to read refunds issued"
+						});				
 
+						//Skip and go to next step
+						singleClickSummaryFinal(); 
+						return '';
 					}
 				});  
 
 
 			},
 			error: function(data){
+				completeErrorList.push({
+				    "step": 6,
+					"error": "Failed to read refunds issued"
+				});				
 
+				//Skip and go to next step
+				singleClickSummaryFinal(); 
+				return '';
 			}
 		});  		
 	}
@@ -2319,7 +2426,15 @@ setTimeout(tester, 1000);
 
 	//Step 7 : Render 
 	function singleClickSummaryFinal(){
-		console.log(completeReportInfo)
+
+		/*
+			Intermediate validation pit-stop:
+			Ensure if all the data so far is good to render the
+			final report, in the final step.
+
+			If it fails at this step, terminate the process here
+			and kill the progress status animation
+		*/
 
 		//Step 8: Detailed by Billing Modes
 		singleClickDetailedByModes();
@@ -2328,6 +2443,8 @@ setTimeout(tester, 1000);
 
 	//Step 8: Details by Billing Modes
 	function singleClickDetailedByModes(){
+
+		runReportAnimation(40); //of Step 6 which takes 10 units
 
 		//Preload Billing Parameters
 	    var requestParamData = {
@@ -2352,10 +2469,13 @@ setTimeout(tester, 1000);
 		          	var billingExtras = data.docs[0].value;
 
 		          	if(billingExtras.length == 0){
-		          		completeErrorList.push({
-							"step": 8,
-							"error": "No billing parameters found"
-						});
+						completeErrorList.push({
+						    "step": 8,
+							"error": "Failed to calculate sales by different billing modes"
+						});				
+
+						//Skip and go to next step
+						singleClickDetailedByPayment(); 
 						return '';
 		          	}
 		          	else{
@@ -2382,11 +2502,14 @@ setTimeout(tester, 1000);
 					              	var modes = data.docs[0].value;
 
 						          	if(modes.length == 0){
-						          		completeErrorList.push({
-								        	"step": 8,
-											"error": "No billing modes found"
-										});
-						          		return '';
+										completeErrorList.push({
+										    "step": 8,
+											"error": "Failed to calculate sales by different billing modes"
+										});				
+
+										//Skip and go to next step
+										singleClickDetailedByPayment(); 
+										return '';
 						          	}
 						          	else{
 
@@ -2441,7 +2564,6 @@ setTimeout(tester, 1000);
 																		    temp_sum += data.rows[0].value.sum;
 																		}
 
-
 																		//Finally, push it
 															    		splitExtrasInGivenMode.push({
 															    			"name": paramsList[splitIndex].name,
@@ -2474,14 +2596,28 @@ setTimeout(tester, 1000);
 
 																	},
 																	error: function(data){
+																		completeErrorList.push({
+																		    "step": 8,
+																			"error": "Failed to calculate sales by different billing modes"
+																		});				
 
+																		//Skip and go to next step
+																		singleClickDetailedByPayment(); 
+																		return '';
 																	}
 																}); 
 
 
 													    },
 													    error: function(data){
+															completeErrorList.push({
+															    "step": 8,
+																"error": "Failed to calculate sales by different billing modes"
+															});				
 
+															//Skip and go to next step
+															singleClickDetailedByPayment(); 
+															return '';
 													    }
 													
 													});  
@@ -2493,30 +2629,67 @@ setTimeout(tester, 1000);
 
 										    },
 										    error: function(data){
-										    	
+												completeErrorList.push({
+												    "step": 8,
+													"error": "Failed to calculate sales by different billing modes"
+												});				
+
+												//Skip and go to next step
+												singleClickDetailedByPayment(); 
+												return '';										    	
 										    }
 										});  
 									} //else - mode
 					          }
 					        }
-					      }
+					      },
+					      error: function(data){
+								completeErrorList.push({
+								    "step": 8,
+									"error": "Failed to calculate sales by different billing modes"
+								});				
 
+								//Skip and go to next step
+								singleClickDetailedByPayment(); 
+								return '';
+					      }
 					    });
 
 
 		          	}
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+				completeErrorList.push({
+				    "step": 8,
+					"error": "Failed to calculate sales by different billing modes"
+				});				
+
+				//Skip and go to next step
+				singleClickDetailedByPayment(); 
+				return '';
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+				completeErrorList.push({
+				    "step": 8,
+					"error": "Failed to calculate sales by different billing modes"
+				});				
+
+				//Skip and go to next step
+				singleClickDetailedByPayment(); 
+				return '';
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+				completeErrorList.push({
+				    "step": 8,
+					"error": "Failed to calculate sales by different billing modes"
+				});				
+
+				//Skip and go to next step
+				singleClickDetailedByPayment(); 
+				return '';
 	      }
 
 	    });	
@@ -2610,14 +2783,28 @@ setTimeout(tester, 1000);
 
 																	},
 																	error: function(data){
+																		completeErrorList.push({
+																		    "step": 8,
+																			"error": "Failed to calculate sales by different billing modes"
+																		});				
 
+																		//Skip and go to next step
+																		singleClickDetailedByPayment(); 
+																		return '';
 																	}
 																}); 
 
 
 													    },
 													    error: function(data){
+															completeErrorList.push({
+															    "step": 8,
+																"error": "Failed to calculate sales by different billing modes"
+															});				
 
+															//Skip and go to next step
+															singleClickDetailedByPayment(); 
+															return '';
 													    }
 													
 													});  
@@ -2626,7 +2813,14 @@ setTimeout(tester, 1000);
 
 										    },
 										    error: function(data){
-										    	
+												completeErrorList.push({
+												    "step": 8,
+													"error": "Failed to calculate sales by different billing modes"
+												});				
+
+												//Skip and go to next step
+												singleClickDetailedByPayment(); 
+												return '';										    	
 										    }
 										});  
 
@@ -2634,6 +2828,8 @@ setTimeout(tester, 1000);
 
 	//Step 9: Details by Payment types
 	function singleClickDetailedByPayment(){
+
+		runReportAnimation(65); //of Step 8 which takes 25 units
 
 		var paymentGraphData = [];
 
@@ -2659,10 +2855,13 @@ setTimeout(tester, 1000);
 	              	var modes = data.docs[0].value;
 
 	              	if(modes.length == 0){
-		          		completeErrorList.push({
-							"step": 0,
-							"error": "No payment modes found"
-						});
+						completeErrorList.push({
+						    "step": 9,
+							"error": "Failed to calculate sales by different payment modes"
+						});				
+
+						//Skip and go to next step
+						singleClickWeeklyProgress(); 
 						return '';
 		          	}
 		          	else{
@@ -2720,30 +2919,64 @@ setTimeout(tester, 1000);
 
 										},
 										error: function(data){
+											completeErrorList.push({
+											    "step": 9,
+												"error": "Failed to calculate sales by different payment modes"
+											});				
 
+											//Skip and go to next step
+											singleClickWeeklyProgress(); 
+											return '';
 										}
 									}); 
 
 
 						    },
 						    error: function(data){
-						    	document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+								completeErrorList.push({
+								    "step": 9,
+									"error": "Failed to calculate sales by different payment modes"
+								});				
+
+								//Skip and go to next step
+								singleClickWeeklyProgress(); 
+								return '';
 						    }
 						  }); 
 					} 
 
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+				completeErrorList.push({
+				    "step": 9,
+					"error": "Failed to calculate sales by different payment modes"
+				});				
+
+				//Skip and go to next step
+				singleClickWeeklyProgress(); 
+				return '';
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+				completeErrorList.push({
+				    "step": 9,
+					"error": "Failed to calculate sales by different payment modes"
+				});				
+
+				//Skip and go to next step
+				singleClickWeeklyProgress(); 
+				return '';
 	        }
-	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+				completeErrorList.push({
+				    "step": 9,
+					"error": "Failed to calculate sales by different payment modes"
+				});				
+
+				//Skip and go to next step
+				singleClickWeeklyProgress(); 
+				return '';
 	      }
 
 	    });
@@ -2805,18 +3038,34 @@ setTimeout(tester, 1000);
 
 										},
 										error: function(data){
+											completeErrorList.push({
+											    "step": 9,
+												"error": "Failed to calculate sales by different payment modes"
+											});				
 
+											//Skip and go to next step
+											singleClickWeeklyProgress(); 
+											return '';
 										}
 									}); 
 							},
 					      	error: function(data) {
-					        	
+								completeErrorList.push({
+								    "step": 9,
+									"error": "Failed to calculate sales by different payment modes"
+								});				
+
+								//Skip and go to next step
+								singleClickWeeklyProgress(); 
+								return '';					        	
 					      	}
 					    });
 	}
 
 	//Step 10: Weekly Progress
 	function singleClickWeeklyProgress(){
+
+		runReportAnimation(75); //of Step 9 which takes 10 units
 		
 		/*
 			Note: Rough figure only, refunds not included.
@@ -2834,6 +3083,8 @@ setTimeout(tester, 1000);
 		calculateSalesByDate(currentIndex, lastWeek_start)
 
 		function calculateSalesByDate(index, mydate){
+
+			runReportAnimation(74 + index);
 
 			$.ajax({
 			    type: 'GET',
@@ -2871,23 +3122,25 @@ setTimeout(tester, 1000);
 						calculateSalesByDate(index+1, nextDate);
 					}
 					else{
-						singleClickWeeklyProgressRender();
+						singleClickWeeklyFinalReportRender();
 					}
 
 				},
 				error: function(data){
-					document.getElementById("summaryRender_turnOver").innerHTML = '<p style="margin: 0 0 25px 0; font-size: 18px; color: #949494; font-weight: 300; text-align: center">Something went wrong!</p>';
+					
 				}
 			});  
 		}
 
 	}
 
-	//Step 10: Render Weekly Graph
-	function singleClickWeeklyProgressRender(){
+	//Step 11: Render Weekly Graph
+	function singleClickWeeklyFinalReportRender(){
 
-		console.log(weeklyProgressThisWeek)
-		console.log(weeklyProgressLastWeek)
+		runReportAnimation(90); //of Step 10 which takes 14 units
+
+		//console.log(weeklyProgressThisWeek)
+		//console.log(weeklyProgressLastWeek)
 
 		var requestType = 'EMAIL';
 
@@ -3054,10 +3307,27 @@ setTimeout(tester, 1000);
 
 			function convertGraph(){
 				//console.log(myChart.toBase64Image())
+				runReportAnimation(100); //of Step 10
+				singleClickLoadErrors()
 			}
 
 		}
 
+	}
+
+	function singleClickLoadErrors(){
+		//Display if any errors
+		if(completeErrorList.length > 0){
+			var renderError = '<b style="color: #ff5050">Report might contain Errors</b><br><i style="color: #ffb836; font-size: 80%">The following errors occured while generating the Report and it might show incorrect figures. Try again.</i><br><br>';
+			var n = 0;
+			while(completeErrorList[n]){
+				renderError += 'E'+completeErrorList[n].step+': '+completeErrorList[n].error+'<br>';
+				n++;
+			}
+
+			document.getElementById("singleClickReport_ErrorContent").style.display = 'block';
+			document.getElementById("singleClickReport_ErrorContent").innerHTML = renderError;
+		}
 	}
 
 
