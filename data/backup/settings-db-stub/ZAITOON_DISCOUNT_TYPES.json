@@ -1,0 +1,12 @@
+{
+  "_id": "ZAITOON_DISCOUNT_TYPES",
+  "_rev": "9-c125891be0264350bc7e6bf8ef8defa8",
+  "identifierTag": "ZAITOON_DISCOUNT_TYPES",
+  "value": [
+    {
+      "name": "Zaitoon App",
+      "maxDiscountUnit": "PERCENTAGE",
+      "maxDiscountValue": 200
+    }
+  ]
+}

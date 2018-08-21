@@ -1,0 +1,14 @@
+
+Notes:
+1.A Item Change (Chicken --> Mutton Biryani)
+1.B Item wise table shift.
+2. Spotlight (Customers pending)
+3. Create QR Code and create link on cloud server
+4. User Access (Biller, Admin, Super Admin)
+5. Add Order Source to Bill (add to Filter Invoices and Cancelled Invoices also)
+6. Report Generation (Daily report mailing - set email id in preferences)
+7. Show only Stewards or Admins also (preference settings)
+8. User Selection pop up on default screen (idle screen)
+9. Auto logout of ADMIN PREVILAGE if idle more than 5 mins
+10. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
+11. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings.

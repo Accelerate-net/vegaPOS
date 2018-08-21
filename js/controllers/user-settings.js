@@ -30,40 +30,64 @@ function hideNewUser(){
 
 function fetchAllUsersInfo(){
 
-
-    if(fs.existsSync('./data/static/userprofiles.json')) {
-        fs.readFile('./data/static/userprofiles.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read User Profiles. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-
-        if(data == ''){ data = '[]'; }
-
-        var users = JSON.parse(data);
-        users.sort(); //alphabetical sorting 
-
-        var n = 0;
-        var userRenderContent = '';
-        while(users[n]){
-        	userRenderContent = userRenderContent + '<tr role="row" class="odd">'+
-        					'<td>#'+(n+1)+'</td> <td>'+users[n].name+'</td>'+
-        					'<td>'+(users[n].role == 'ADMIN'? 'Admin': 'Staff')+'</td>'+
-        					'<td>'+users[n].code+'</td>'+
-        					'<td onclick="openDeleteUserConsent(\''+users[n].code+'\', \''+users[n].name+'\')"> <i style="cursor: pointer" class="fa fa-trash-o"></i> </td> </tr>';
-        	n++;
-        }
-
-        document.getElementById("allUsersRenderArea").innerHTML = userRenderContent;
-
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
     }
-    });
-      } else {
-        showToast('System Error: Unable to read User Profiles. Please contact Accelerate Support.', '#e74c3c');
-      } 
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+
+		        var users = data.docs[0].value;
+		        users.sort(); //alphabetical sorting 
+
+		        var n = 0;
+		        var userRenderContent = '';
+		        while(users[n]){
+		        	userRenderContent = userRenderContent + '<tr role="row" class="odd">'+
+		        					'<td>#'+(n+1)+'</td> <td>'+users[n].name+'</td>'+
+		        					'<td>'+(users[n].role == 'ADMIN'? 'Admin': 'Staff')+'</td>'+
+		        					'<td>'+users[n].code+'</td>'+
+		        					'<td onclick="openDeleteUserConsent(\''+users[n].code+'\', \''+users[n].name+'\')"> <i style="cursor: pointer" class="fa fa-trash-o"></i> </td> </tr>';
+		        	n++;
+		        }
+
+		        if(userRenderContent == ''){
+		        	document.getElementById("allUsersRenderArea").innerHTML = '<p style="margin: 10px 0 0 0; color: #bdc3c7">No Registered Users found</p>';
+		        }
+		        else{
+		        	document.getElementById("allUsersRenderArea").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Name</th> <th style="text-align: left">Role</th> <th style="text-align: left">Phone</th> <th style="text-align: left"></th> </tr> </thead> <tbody>'+userRenderContent+'</tbody>';
+          		}
+          }
+          else{
+            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
 
 }
 
 function addNewUserProfile(){
+
 	var role = document.getElementById("user_profile_new_user_role").value;
 	var name = document.getElementById("user_profile_new_user_name").value;
 	var mobile = document.getElementById("user_profile_new_user_mobile").value;
@@ -85,102 +109,162 @@ function addNewUserProfile(){
 	}
 
 
-    if(fs.existsSync('./data/static/userprofiles.json')) {
-        fs.readFile('./data/static/userprofiles.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read User Profiles. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-
-	         if(data==""){
-	            var obj = []
-	            obj.push(newObj); //add some data
-	            json = JSON.stringify(obj);
-	            fs.writeFile('./data/static/userprofiles.json', json, 'utf8', (err) => {
-	              if(err){
-	                  showToast('System Error: Unable to save User Profiles data. Please contact Accelerate Support.', '#e74c3c');
-	              }
-	              else{
-	                fetchAllUsersInfo(); //refresh the list
-	                hideNewUser();
-	              }
-	            });
-	         }
-	         else{
-	             var flag=0;
-	             if(data == ''){ data = '[]'; }
-	             var obj = JSON.parse(data);
-	             for (var i=0; i<obj.length; i++) {
-	               if (obj[i].code == newObj.code){
-	                  flag=1;
-	                  break;
-	               }
-	             }
-	             if(flag==1){
-	               showToast('Warning: Some user has already been registered with the mobile number. Please choose a different name.', '#e67e22');
-	             }
-	             else{
-	                obj.push(newObj);
-	                json = JSON.stringify(obj);
-	                fs.writeFile('./data/static/userprofiles.json', json, 'utf8', (err) => {
-	                     if(err){
-	                        showToast('System Error: Unable to save User Profiles data. Please contact Accelerate Support.', '#e74c3c');
-	                    }
-			            else{
-
-			                fetchAllUsersInfo(); //refresh the list
-	                		hideNewUser();
-			              	
-			              }
-	                  });  
-	             } 
-	         }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
     }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+      	console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+
+             var staffList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<staffList.length; i++) {
+               if (staffList[i].code == mobile){
+                  flag = 1;
+                  break;
+               }
+             }
+
+             if(flag == 1){
+               showToast('Warning: Mobile Number already registered. Please add a different mobile.', '#e67e22');
+             }
+             else{
+
+                staffList.push(newObj);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_STAFF_PROFILES",
+                  "value": staffList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_STAFF_PROFILES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+
+			            fetchAllUsersInfo(); //refresh the list
+	                	hideNewUser();
+                  
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to update Users data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+
+             }
+                
+          }
+          else{
+            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
     });
-      } else {
-        showToast('System Error: Unable to read User Profiles. Please contact Accelerate Support.', '#e74c3c');
-      } 
 
 }
 
 
 function deleteUserFromUserProfile(code, name){
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/userprofiles.json')) {
-       fs.readFile('./data/static/userprofiles.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read User Profiles data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-       	
-       	if(data == ''){ data = '[]'; }
-       
-       	var obj = JSON.parse(data); //now it an object
-       
-	       for (var i=0; i<obj.length; i++) {  
-	         if (obj[i].code == code){
-	            obj.splice(i,1);
-	            break;
-	         }
-	       }
 
-	       var newjson = JSON.stringify(obj);
-	       fs.writeFile('./data/static/userprofiles.json', newjson, 'utf8', (err) => {
-	         if(err){
-	            showToast('System Error: Unable to make changes in User Profiles data. Please contact Accelerate Support.', '#e74c3c');
-	          
-	          }else{
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+
+               var staffList = data.docs[0].value;
+
+               for (var i=0; i<staffList.length; i++) {  
+                 if (staffList[i].code == code){
+                    staffList.splice(i,1);
+                    break;
+                 }
+               }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_STAFF_PROFILES",
+                  "value": staffList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_STAFF_PROFILES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
 					showToast(name+' has been removed successfully', '#27ae60');
 					fetchAllUsersInfo();
 					hideDeleteUserConsent();
 
 					removeFromCurrentUser(code);
-	          }
-	       }); 
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
       }
-  });
-   } else {
-      showToast('System Error: Unable to modify User Profiles data. Please contact Accelerate Support.', '#e74c3c');
-   }
+
+    });  
+
 }
 
 

@@ -3,15 +3,20 @@
 
 <head>
     <meta charset="UTF-8">
-    <title id="clientName">Jafry's Kitchen</title>
+    <title id="clientName">Zaitoon</title>
 
 
     <link href="css/styles.css" rel="stylesheet" type="text/css" />
     <link href="css/custom.css" rel="stylesheet" type="text/css" />
 
+    <!-- Spotlight -->
+    <link href="css/spotlight.min.css" rel="stylesheet" type="text/css" />
+
     <!-- Library CSS -->
     <link rel="stylesheet" href="lib/keyboard/keyboard.css" />
     <link type="text/css" href="lib/cropper/cropper.css" rel="stylesheet">
+    <link rel="stylesheet" href="lib/jquery/jquery-ui.css">
+
 
 
     <!-- Link all the VIEW files here -->
@@ -19,6 +24,7 @@
     <link rel="import" for="live-orders" href="views/live-orders.html">
     <link rel="import" for="online-orders" href="views/online-orders.html">
     <link rel="import" for="settled-bills" href="views/settled-bills.html">
+    <link rel="import" for="cancelled-bills" href="views/cancelled-bills.html">
     <link rel="import" for="seating-status" href="views/seating-status.html">
     <link rel="import" for="reward-points" href="views/reward-points.html">
     <link rel="import" for="sales-summary" href="views/sales-summary.html">
@@ -27,6 +33,7 @@
     <link rel="import" for="table-layout" href="views/table-layout.html">
     <link rel="import" for="bill-settings" href="views/bill-settings.html">
     <link rel="import" for="user-settings" href="views/user-settings.html">
+    <link rel="import" for="printer-settings" href="views/printer-settings.html">
     <link rel="import" for="app-data" href="views/app-data.html">
     <link rel="import" for="system-settings" href="views/system-settings.html">
 
@@ -65,16 +72,15 @@
                     <h1 style="font-size: 32px; color: #948f92; font-family: 'Roboto';">Locked</h1>
                 </header>
 
-                <form style="margin: 0">
+                <div style="margin: 0">
                     <div class="field">
                         <input type="password" id="lockScreePasscode" maxlength="4" class="lockScreenInput" placeholder="Passcode">
                     </div>
                     <a href="#" onclick="recoveryLogin()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Got locked out?</a>
-                </form>
+                </div>
             </section>
         </div>
     </div> 
-
 
 
     <!-- SERVER CONNECTION FAILURE : SCREEN LOCK -->
@@ -86,22 +92,77 @@
                     <h1 style="font-size: 28px; color: #c20016; font-family: 'Roboto';">Server Not Connected</h1>
                 </header>
 
-                <form style="margin: 0">
+                <div style="margin: 0">
                     <p style="color: #777">Please switch on the Server and/or check the connection to it.</p>
                     <a href="#" onclick="testLocalServerConnection(1)" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Retry?</a>
                     <tag style="display: block; font-size: 80%" id="refreshServerCheckCounter">-</tag>
-                </form>
+                </div>
             </section>
         </div>
     </div> 
 
 
 
+
+    <!-- APPLICATION ACTIVATION : SCREEN LOCK -->
+    <div id="applicationActivationLock" style="display: none">
+        <div id="wrapper">
+            <section id="mainLock" style="padding: 35px 44px 20px 44px">
+                <header>
+                    <span class=""><img src="images/common/application_not_activated.png" alt=""></span>
+                    <h1 style="font-size: 28px; color: #edac0d; font-family: 'Roboto';">Application not Activated</h1>
+                </header>
+
+                <div style="margin: 0;" id="applicationActivationLockDefault">
+                    <p style="color: #777">Please connect to Internet and Activate the Application.</p>
+                    <a href="#" onclick="activateApplicationFromHomeScreen()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Activate</a>
+                </div>
+
+                <div style="margin: 0; display: none" id="applicationActivationLockActive">
+                     
+                     <div class="row">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Enter Code" style="border: none; font-size: 21px; border-bottom: 1px solid #c9c9c9; padding: 10px 0; height: 45px; margin-top: 15px; text-align: center; text-transform: uppercase; letter-spacing: 5px; font-weight: bold; color: black;" class="form-control tip" id="activation_code_home_entered"/>
+                           </div>
+                        </div>
+                     </div>
+
+                    <a href="#" onclick="goProceedToActivation()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Activate Now</a>
+
+                </div>
+
+            </section>
+        </div>
+    </div> 
+
+
+
+
+
+    <!-- APPLICATION ACTIVATION : SCREEN LOCK -->
+    <div id="applicationExpireLock" style="display: none">
+        <div id="wrapper">
+            <section id="mainLock" style="padding: 35px 44px 20px 44px">
+                <header>
+                    <span class=""><img src="images/common/application_expired.png" alt=""></span>
+                    <h1 style="font-size: 28px; color: #edac0d; font-family: 'Roboto';">Licence Expired</h1>
+                </header>
+
+                <div style="margin: 0;">
+                    <p style="color: #777">Renew the Licence to continue using the Application. Contact <b>support@accelerate.net.in</b> for assistance.</p>
+                    <a href="#" onclick="applyLicenceTerms()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Refresh</a>
+                </div>
+            </section>
+        </div>
+    </div> 
+
+
         <div class="wrapper rtl rtl-inv">
         <header class="main-header">
             <a href="#" class="logo" onclick="activateSidebar()">
             <span class="logo-mini"><i class="fa fa-bars"></i></span>
-            <span class="logo-lg">Jafry's Kitchen</span>
+            <span class="logo-lg"><img src="brand/logo_main_bright.png" style="margin-bottom: 3px" height="45px"></span>
             </a>
             <nav class="navbar navbar-static-top" role="navigation">
                 <page class="commonPageName">
@@ -111,21 +172,34 @@
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
 
-                        <li class="dropdown user user-menu">
-
-                            <a href="#" onclick="selectSessionWindow()" style="font-size: 18px; font-weight: 400;">
-                                <i class="fa fa-history"></i>Session: <span id="currentSessionDisplay">Not Set</span>
+                        <li class="dropdown user user-menu" tabindex="-1">
+                            <a tabindex="-1" href="#" onclick="selectSessionWindow()" style="font-size: 18px; font-weight: 300;">
+                              <span id="currentSessionDisplay" style="display: block; position: relative; top: -6px;">Unknown Session</span>
+                              <time style="display: block; position: absolute; font-size: 12px; font-weight: initial; bottom: 4px; text-transform: uppercase;" id="currentSessionDisplayTime"></time>
                             </a>
                         </li>
 
-                        <li style="width: 165px !important; text-align: center" onclick="checkLogin()"><a href="#"><tag id="globalServerConnectionStatus">...</tag></a></li>
+                        <li style="width: 165px !important; text-align: center" onclick="checkLogin()" tabindex="-1"><a tabindex="-1" href="#" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;"><tag id="globalServerConnectionStatus">...</tag></a></li>
 
-                        <li class="noHover"><a href="#" class="noHover" style="padding: 13.5px 30px"><tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 300"></tag></a></li>
+                        <li class="noHover" style="width: 165px !important" tabindex="-1"><a tabindex="-1" href="#" class="noHover" style="padding: 0">
 
-                        <li class="noHover"><a href="#" class="noHover" style="padding: 15px 30px; font-size: 18px; "><i class="fa fa-laptop"></i> <tag id="thisSystemName" style="padding-left: 5px;"></tag></a></li>
+                          <div style="display: inline-block; position: relative; top: 5px; left: 5px">
+                              <div class="hero-circle">
+                                <div class="hero-face">
+                                  <div id="hour" class="hero-hour"></div>
+                                  <div id="minute" class="hero-minute"></div>
+                                  <div id="second" class="hero-second"></div>
+                                </div>
+                              </div>
+                          </div>
+                          <tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 300; position: relative; top: -8px; left: 8px;"></tag>
+
+                        </a></li>
                         
-                        <li class="dropdown user user-menu">
-                            <a href="#" onclick="selectStewardWindow()" id="currentUserProfileDisplay" style="font-size: 18px; font-weight: 400;">
+                        <li class="noHover" tabindex="-1"><a tabindex="-1" href="#" class="noHover" style="padding: 15px 30px; font-size: 18px; "><i class="fa fa-laptop"></i> <tag id="thisSystemName" style="padding-left: 5px;"></tag></a></li>
+                        
+                        <li class="dropdown user user-menu" tabindex="-1">
+                            <a tabindex="-1" href="#" onclick="selectStewardWindow()" id="currentUserProfileDisplay" style="font-size: 18px; font-weight: 400;">
                                 <img src="images/default_user.png" class="user-image" alt="Avatar" />
                                 <span>Profile Not Selected</span>
                             </a>
@@ -137,64 +211,10 @@
 
         <aside class="main-sidebar" style="position: fixed">
             <section class="sidebar">
-                <ul class="sidebar-menu">
-                    <li onclick="renderPage('new-order', 'New Order')">
-                        <a href="#"><i class="fa fa-plus"></i> <span>New Order</span></a>
-                  </li>
-                    <li onclick="renderPage('live-orders', 'Live Orders')">
-                     <a href="#"><i class="fa fa-retweet"></i> <span>Live Orders</span></a>
-                  </li>
-                    <li onclick="renderPage('seating-status', 'Seating Status')">
-                        <a href="#"><i class="fa fa-th"></i> <span>Seating Status</span></a></li>                  
-                    <li onclick="renderPage('online-orders', 'Online Orders')">
-                     <a href="#"><i class="fa fa-globe"></i> <span>Online Orders</span></a></li>
+                <ul class="sidebar-menu" id="sidemenuNavigationBar">
 
-                    <li onclick="renderPage('reward-points', 'Reward Points')">
-                        <a href="#"><i class="fa fa-gift"></i> <span>Reward Points</span></a></li>
-                    <li onclick="renderPage('settled-bills', 'Generated Bills')">
-                     <a href="#"><i class="fa fa-check"></i> <span>Generated Bills</span></a></li>
-
-                     <li id="sidebarTools" class="treeview mm_products" onclick="activateSidebarElement('sidebarTools')">
-                        <a href="#">
-                            <i class="fa fa-wrench"></i>
-                            <span>Tools</span>
-                            <i class="fa fa-angle-right pull-right"></i>
-                            </a>
-                        <ul class="treeview-menu">
-                            <li onclick="renderPage('manage-menu', 'Manage Menu')">
-                                <a href="#"><i class="fa fa-circle-o"></i> Manage Menu</a></li>
-                         <li onclick="renderPage('photos-manager', 'Photos Manager')">
-                                <a href="#"><i class="fa fa-circle-o"></i> Photos Manager</a></li>
-
-                            <li onclick="renderPage('sales-summary', 'Sales Summary')">
-                                <a href="#"><i class="fa fa-circle-o"></i> Sales Summary</a></li>
-                            
-                        </ul>
-                    </li>
-                    <li id="sidebarSettings" class="treeview mm_products" onclick="activateSidebarElement('sidebarSettings')">
-                        <a href="#">
-                            <i class="fa fa-cog"></i>
-                            <span>Settings</span>
-                            <i class="fa fa-angle-right pull-right"></i>
-                        </a>
-                        <ul class="treeview-menu">
-                            <li onclick="renderPage('app-data', 'App Data')">
-                                <a href="#"><i class="fa fa-circle-o"></i> App Data</a></li>
-
-                            <li onclick="renderPage('bill-settings', 'Billing Settings')">
-                                <a href="#"><i class="fa fa-circle-o"></i> Billing Settings</a></li>                            
-                            <li onclick="renderPage('table-layout', 'Table Layout')">
-                                <a href="#"><i class="fa fa-circle-o"></i> Table Layout</a></li>
-
-                            <li onclick="renderPage('system-settings', 'System Settings')">
-                                <a href="#"><i class="fa fa-circle-o"></i> System Settings</a></li>
-
-
-                            <li onclick="renderPage('user-settings', 'Users Settings')">
-                                <a href="#"><i class="fa fa-circle-o"></i> Users Settings</a></li>                                
-                        </ul>
-                    </li>
                 </ul>
+                <tag id="dummyQRCodeHolder" style="display: none"></tag>
             </section>
 
         </aside>
@@ -216,7 +236,26 @@
             </span>
         </div>   
 
-        
+    
+
+        <!-- ADMIN USER MODAL -->
+        <div id="adminUserModalHome" class="modal" style="z-index: 2500 !important">
+             <div class="modal-dialog" style="top: 20%; width: 27em !important;">
+                <!-- Modal content-->
+                <div class="modal-content" style="border-radius: 4px;">
+
+                    <div class="" id="adminUserModalHomeContent"></div>
+
+                    <div class="modal-footer" style="border: none; padding: 0;">
+                        <button onclick="validateAndLoginAdminUser()" class="btn btn-success adminUserWindowButtonProceed">Proceed</button>
+                        <button onclick="enableAdminUserHideWindow()" class="btn btn-default adminUserWindowButton">Cancel</button>
+                    </div>
+                </div>
+             </div>
+        </div>
+
+
+
         <!-- LOGIN MODAL -->
         <div id="loginModalHome" class="modal" style="z-index: 2500 !important">
              <div class="modal-dialog" style="top: 20%; width: 27em !important;">
@@ -225,7 +264,7 @@
 
                 </div>
              </div>
-          </div>
+        </div>
 
 
         <!-- STEWARDS MODAL -->
@@ -237,7 +276,6 @@
                 </div>
              </div>
           </div>
-
 
         <!-- SESSION MODAL -->
         <div id="sessionModalHome" class="modal">
@@ -268,15 +306,53 @@
           </div>
 
 
+    <!-- 
+
+        ** SPOTLIGHT SEARCH **
+        
+        Core Features enables quick search though,
+            1. Tables (Live Status), 
+            2. Orders (both Dine and Parcels) against their order numbers, 
+            3. Menu Item (to easily find the price and change any details)
+    -->
+
+        <div class="ng-spotlight ng-spotlight-overlay" style="display: none;" id="spotlightSearchTool">
+
+           <div class="ng-spotlight-searchbar">
+              <div class="ng-spotlight-icon" style="font-size: 17px; color: grey">
+                 <i class="fa fa-search"></i>
+              </div>
+              <input class="ng-spotlight-input" id="spotlightSearchKey" type="text" placeholder="Spotlight Search" onblur="this.focus()">
+              <div class="ng-spotlight-input-after" style="display: none" id="noResultSpotlight">— No Results</div>
+              <div class="ng-spotlight-results-icon mySpotlightLogo">
+              </div>
+           </div>
+
+           <!-- If results found -->
+           <div class="ng-spotlight-results-panel" style="display: none" id="spotlightRenderPanel">
+              <div class="ng-spotlight-results-list" id="spotlightResultsRenderArea">
+              </div>
+              <div class="ng-spotlight-results-detail">
+                 <spotlight-details>
+                    <div class="ng-spotlight-results-detail-default" style="padding-top: 55px;" id="spotlightPreview">
+                    </div>
+                 </spotlight-details>
+              </div>
+           </div>
+
+        </div>
+
+
+
 
 
     <!-- BILLING RELATED MODALS -->
 
     <!-- Modal -->
       <div id="billPreviewModal" class="modal">
-         <div class="modal-dialog" style="top: 10%">
+         <div class="modal-dialog" style="top: 25px">
             <div class="modal-header cartTitleRow">
-              <h1 style="font-size: 24px; margin: 0; text-align: center;" id="billPreviewContentTitle">Bill Preview</h1>
+              <h1 style="font-size: 24px; margin: 0; text-align: left;" id="billPreviewContentTitle">Bill Preview</h1>
             </div>
             <!-- Modal content-->
             <div class="modal-content">
@@ -293,6 +369,190 @@
             </div>
          </div>
       </div>  
+
+
+
+   <!-- Modal -->
+   <div id="billCancellationsReasonModal" class="modal">
+      <div class="modal-dialog" style="top: 20%">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 420px; overflow: scroll;">
+                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #f30d0d">Cancellation Details
+                  </h1>
+                  <div class="row" style="padding: 5px 25px;">
+                         <div class="row">
+                            <div class="col-lg-12">
+                               <div class="form-group">
+                                  <label>Reason</label>
+                                  <select id="bill_cancel_why_reason" class="form-control">
+                                    
+                                  </select>
+                               </div>
+                               <div class="form-group">
+                                  <label>Comments</label>
+                                  <input type="text" value="" placeholder="Any Comments?" class="form-control tip" id="bill_cancel_why_comments" />
+                               </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-lg-4">
+                               <div class="form-group" id="refundCancelOrderBar" style="display: none">
+
+                               </div>
+                            </div>
+                            <div class="col-lg-4">
+                               <div class="form-group" id="refundCancelOrderAmountBar" style="display: none">
+                                  <label>Refund Amount</label>
+                                  <input type="number" value="" placeholder="Any Comments?" class="form-control tip" id="bill_cancel_why_refundamount"/>
+                               </div>
+                            </div>
+                            <div class="col-lg-4">
+                               <div class="form-group" id="refundCancelOrderModeBar" style="display: none">
+                                  <label>Refund Method</label>
+                                  <select id="bill_cancel_why_refundmode" class="form-control">
+                                    <option value="ORIGINAL">Original Payment Mode</option>
+                                    <option value="CASH">Cash</option>
+                                  </select>
+                               </div>
+                            </div>
+                           </div>
+
+                  </div>
+            </div>
+            <div class="modal-footer" id="billCancellationsReasonModalActions">                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+   <!-- Modal -->
+   <div id="billRefundReasonModal" class="modal">
+      <div class="modal-dialog" style="top: 20%">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 420px; overflow: scroll;">
+                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #f59d13">Refund Details
+                  </h1>
+                  <div class="row" style="padding: 5px 25px;">
+                         <div class="row">
+                            <div class="col-lg-12">
+                               <div class="form-group">
+                                  <label>Reason</label>
+                                  <select id="bill_refund_why_reason" class="form-control">
+                                    
+                                  </select>
+                               </div>
+                               <div class="form-group">
+                                  <label>Comments</label>
+                                  <input type="text" value="" placeholder="Any Comments?" class="form-control tip" id="bill_refund_why_comments" />
+                               </div>
+                            </div>
+                          </div>
+
+                          <div class="row">
+                            <div class="col-lg-4">
+                               <div class="form-group">
+                                <label>Refund Status</label> 
+                                    <select id="bill_refund_why_isrefund" class="form-control"> 
+                                        <option value="2">Partial Refund</option> 
+                                        <option value="3">Full Refund</option> 
+                                    </select>
+                               </div>
+                            </div>
+                            <div class="col-lg-4">
+                               <div class="form-group">
+                                  <label>Refund Amount</label>
+                                  <input type="number" value="" class="form-control tip" id="bill_refund_why_refundamount"/>
+                               </div>
+                            </div>
+                            <div class="col-lg-4">
+                               <div class="form-group">
+                                  <label>Refund Method</label>
+                                  <select id="bill_refund_why_refundmode" class="form-control">
+                                    <option value="ORIGINAL">Original Payment Mode</option>
+                                    <option value="CASH">Cash</option>
+                                  </select>
+                               </div>
+                            </div>
+                           </div>
+                  </div>
+            </div>
+            <div class="modal-footer" id="billRefundReasonModalActions">                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+   <!-- Modal -->
+   <div id="sessionSwapWarning" class="modal">
+      <div class="modal-dialog" style="top: 20%">
+         <!-- Modal content-->
+         <div class="modal-content" style="border-radius: 10px;">
+
+            <div class="modal-header" style="background: #16a085; border-top-left-radius: 10px; border-top-right-radius: 10px;">
+              <h1 style="font-size: 18px; font-weight: 600; margin: 0; text-align: left; color: #fff">Switch Session</h1>
+            </div>
+            <div class="modal-body" style="max-height: 420px; overflow: scroll;">
+              <p id="sessionSwapWarningContent" style="margin: 10px 0; font-size: 16px; line-height: 1.5em; font-weight: 500; color: #16a085;">Test</p>
+            </div>
+            <div class="modal-footer" id="sessionSwapWarningActions">                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+   <!-- Modal -->
+   <div id="orderCancellationsReasonModal" class="modal">
+      <div class="modal-dialog" style="top: 20%">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 420px; overflow: scroll;">
+                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #f30d0d">Cancellation Details
+                  </h1>
+                  <div class="row" style="padding: 5px 25px;">
+                      
+                         <div class="row">
+                            <div class="col-lg-12">
+                               <div class="form-group">
+                                  <label>Reason</label>
+                                  <select id="order_cancel_why_reason" class="form-control">
+                                    
+                                  </select>
+                               </div>
+                               <div class="form-group">
+                                  <label>Food Preparation Status</label>
+                                  <select id="order_cancel_food_status" class="form-control">
+                                    <option value="0">No Food Prepared</option>
+                                    <option value="1" selected>Prepared Food is Wasted</option>
+                                  </select>
+                               </div>                               
+                               <div class="form-group">
+                                  <label>Comments</label>
+                                  <input type="text" value="" placeholder="Any Comments?" class="form-control tip" id="order_cancel_why_comments" />
+                               </div>
+                            </div>
+                          </div>
+
+                  </div>
+            </div>
+            <div class="modal-footer" id="orderCancellationsReasonModalActions">                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
 
     <!-- Modal -->
       <div id="billSettlementDetailsModal" class="modal" style="display: none">
@@ -318,9 +578,7 @@
                </div>
             </div>
          </div>
-      </div>    
-
-
+      </div>  
 
     </div>
 
@@ -337,6 +595,8 @@
     <script src="lib/cropper/cropper.js"></script>
     <script src="lib/Chart.bundle.min.js"></script>
     <script src="lib/mousetrap.min.js"></script>
+    <!--<script src="lib/qrcode/jquery.qrcode.min.js"></script> -->
+    <script src="lib/qrcode/customqr.js"></script>
 
     <!-- Common Functions : Can be called from any page-->
     <script type="text/javascript" src="js/sound.js"></script>
@@ -358,6 +618,7 @@
     <script type="text/javascript" src="js/controllers/live-orders.js"></script>
     <script type="text/javascript" src="js/controllers/online-orders.js"></script>
     <script type="text/javascript" src="js/controllers/settled-bills.js"></script>
+    <script type="text/javascript" src="js/controllers/cancelled-bills.js"></script>
     <script type="text/javascript" src="js/controllers/seating-status.js"></script>
     <script type="text/javascript" src="js/controllers/reward-points.js"></script>
     <script type="text/javascript" src="js/controllers/sales-summary.js"></script>
@@ -366,6 +627,7 @@
     <script type="text/javascript" src="js/controllers/table-layout.js"></script>
     <script type="text/javascript" src="js/controllers/bill-settings.js"></script>
     <script type="text/javascript" src="js/controllers/user-settings.js"></script>
+    <script type="text/javascript" src="js/controllers/printer-settings.js"></script>
     <script type="text/javascript" src="js/controllers/app-data.js"></script>
     <script type="text/javascript" src="js/controllers/system-settings.js"></script>
 

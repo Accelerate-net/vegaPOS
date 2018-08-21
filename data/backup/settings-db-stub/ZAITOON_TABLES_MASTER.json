@@ -1,0 +1,97 @@
+{
+  "_id": "ZAITOON_TABLES_MASTER",
+  "_rev": "660-14707ddde8e75d97e328b1b741499ca4",
+  "identifierTag": "ZAITOON_TABLES_MASTER",
+  "value": [
+    {
+      "table": "1",
+      "capacity": 4,
+      "type": "Dining Hall",
+      "status": 0,
+      "assigned": "",
+      "KOT": "",
+      "lastUpdate": "1727"
+    },
+    {
+      "table": "2",
+      "capacity": 4,
+      "type": "Dining Hall",
+      "status": 0,
+      "assigned": "",
+      "KOT": "",
+      "lastUpdate": "0521"
+    },
+    {
+      "table": "3",
+      "capacity": 4,
+      "type": "Dining Hall",
+      "status": 0,
+      "KOT": "",
+      "lastUpdate": "1914",
+      "assigned": ""
+    },
+    {
+      "table": "4",
+      "capacity": 6,
+      "type": "Dining Hall",
+      "status": 0,
+      "assigned": "",
+      "KOT": "",
+      "lastUpdate": "1919"
+    },
+    {
+      "table": "5",
+      "capacity": 6,
+      "type": "Dining Hall",
+      "assigned": "",
+      "KOT": "",
+      "status": 0,
+      "lastUpdate": "1921"
+    },
+    {
+      "table": "6",
+      "capacity": 4,
+      "type": "Dining Hall",
+      "assigned": "",
+      "KOT": "",
+      "status": 0,
+      "lastUpdate": "0446"
+    },
+    {
+      "table": "7",
+      "capacity": 2,
+      "type": "Dining Hall",
+      "assigned": "",
+      "KOT": "",
+      "status": 0,
+      "lastUpdate": ""
+    },
+    {
+      "table": "8",
+      "capacity": 2,
+      "type": "Dining Hall",
+      "status": 0,
+      "KOT": "",
+      "lastUpdate": "",
+      "assigned": ""
+    },
+    {
+      "table": "9",
+      "capacity": 2,
+      "type": "Dining Hall",
+      "status": 0,
+      "assigned": "",
+      "KOT": "",
+      "lastUpdate": ""
+    },
+    {
+      "table": "10",
+      "capacity": 6,
+      "type": "Dining Hall",
+      "status": 0,
+      "KOT": "",
+      "lastUpdate": "1546",
+      "assigned": ""
+    }
+  ]
+}

@@ -1,20 +1,4 @@
-/* Key Watcher using MousetrapJS */
-Mousetrap.bind('4', function() { console.log('4'); });
-
-    //Open Address or Table Window
-    Mousetrap.bind(['command+a', 'ctrl+a'], function() {
-        $("#triggerClick_TableAddressButton").click();
-
-        // return false to prevent default browser behavior
-        // and stop event from bubbling
-        return false;
-    })
-
-    //Pending Saved Orders
-    Mousetrap.bind(['command+h', 'ctrl+h'], function() {
-        $("#triggerClick_SavedOrdersButton").click();
-        return false;
-    })
+	
 
 
 //Trigger Right Panel 
@@ -61,13 +45,13 @@ function saveToCart(productToAdd){
 
 
       if(flag != -1){
-          cart_products[flag].qty +=1;
+         	cart_products[flag].qty +=1;
       }
       else{
-      		cart_products.push({"name": productToAdd.name, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "variant": productToAdd.variant, "code": productToAdd.code, "qty": 1});
+      		cart_products.push({"name": productToAdd.name, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1});
       }
 
-		window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+	  window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
 }
 
 function additemtocart(encodedItem, optionalSource){
@@ -76,13 +60,41 @@ function additemtocart(encodedItem, optionalSource){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 			return '';
 		}
 	}
 
 	var productToAdd = JSON.parse(decodeURI(encodedItem));
+
+	if(!productToAdd.isAvailable){
+		showToast('Out of Stock: <b>'+productToAdd.name+'</b> is not available', '#48929B');
+		return '';
+	}
+
+	//Allergy Check
+	var allergicIngredients = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
+	if(allergicIngredients.length > 0){
+
+		if(productToAdd.ingredients && productToAdd.ingredients.length > 0){
+			var a = 0;
+			var allergyIngredientDetected = false;
+			while(allergicIngredients[a] && !allergyIngredientDetected){
+				
+				for(var i = 0; i < productToAdd.ingredients.length; i++){
+					if(allergicIngredients[a] == productToAdd.ingredients[i]){
+						showToast('Ingredient Filter Warning: '+productToAdd.name+' contains <b>'+ allergicIngredients[a] + '</b>', '#48929B');
+						allergyIngredientDetected = true;
+						break;
+					}
+				}
+
+				a++;
+			}			
+		}
+	}
+
 	
 	if(productToAdd.isCustom){
 		//Pop up
@@ -90,14 +102,86 @@ function additemtocart(encodedItem, optionalSource){
 		var i = 0;
 		var optionList = '';
 		while(productToAdd.customOptions[i]){
-			optionList = optionList + '<li onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.code+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\')">'+
-										'<a>'+productToAdd.customOptions[i].customName+' <tag style="float: right"><i class="fa fa-inr"></i> '+productToAdd.customOptions[i].customPrice+'</tag></a>'+
+			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.code+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\')">'+
+										'<a>'+productToAdd.customOptions[i].customName+'<tag class="spotlightCustomItemTick"><i class="fa fa-check"></i></tag> <tag style="float: right"><i class="fa fa-inr"></i>'+productToAdd.customOptions[i].customPrice+'</tag></a>'+
 									  '</li>';
 			i++;
 		}
 		document.getElementById("customiseItemModal").style.display ='block';
 		document.getElementById("customiseItemTitle").innerHTML = "Choice of <b>"+productToAdd.name+"</b>";
 		document.getElementById("customOptionsList").innerHTML = '<ol class="rectangle-list">'+optionList+'</ol>';
+
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+          var li = $('#customOptionsList .easySelectTool_customItem');
+          var liSelected = li.eq(0).addClass('selectCustomItem');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#customOptionsList').is(':visible')) {
+
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
+
+					if(liSelected){
+					    liSelected.removeClass('selectCustomItem');
+					   	next = liSelected.prev();
+						if(next.length > 0){
+							liSelected = next.addClass('selectCustomItem');
+						}else{
+							liSelected = li.last().addClass('selectCustomItem');
+						}
+					}else{
+						liSelected = li.last().addClass('selectCustomItem');
+					}                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+					if(liSelected){
+						liSelected.removeClass('selectCustomItem');
+						next = liSelected.next();
+						if(next.length > 0){
+							liSelected = next.addClass('selectCustomItem');
+						}else{
+							liSelected = li.eq(0).addClass('selectCustomItem');
+						}
+					}else{
+						liSelected = li.eq(0).addClass('selectCustomItem');
+					}
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("customiseItemModal").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#customOptionsList .easySelectTool_customItem").each(function(){
+                      if($(this).hasClass("selectCustomItem")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                               
+                    
+                    break;
+                  }
+                 }
+            }
+          });
+
+
+
+
+
 	}
 	else if(!productToAdd.isCustom){
 		saveToCart(productToAdd)
@@ -112,7 +196,9 @@ function additemtocart(encodedItem, optionalSource){
 	$("#add_item_by_search").focus();
 }
 
-function addCustomToCart(name, code, price, variant, optionalSource){
+function addCustomToCart(name, code, price, variant, optionalSource, encodedIngredients){
+
+		var ingredientsTemp = encodedIngredients && encodedIngredients != '' ? JSON.parse(decodeURI(encodedIngredients)) : '';
 
 		var productToAdd = {};
 		productToAdd.name = name;
@@ -120,6 +206,7 @@ function addCustomToCart(name, code, price, variant, optionalSource){
 		productToAdd.price = price;
 		productToAdd.variant = variant;
 		productToAdd.isCustom = true;
+		productToAdd.ingredients = ingredientsTemp;
 
 		saveToCart(productToAdd)
 		document.getElementById("customiseItemModal").style.display ='none'
@@ -143,7 +230,7 @@ function deleteItem(item, isCustom, variant){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 			return '';
 		}
@@ -181,7 +268,13 @@ function deleteItem(item, isCustom, variant){
 
         }
 
-    window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    if(cart_products.length == 0){
+    	window.localStorage.zaitoon_cart = '';
+    }
+    else{
+    	window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    }
+    
     renderCart()
 
 }
@@ -222,7 +315,7 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 			return '';
 		}
@@ -285,7 +378,7 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 
 	var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
 	
-	var selectedBillingModeName = document.getElementById("customer_form_data_mode").value;
+	var selectedBillingModeName = $('#customer_form_data_mode').attr("selected-mode");
 	var selectedBillingModeInfo = '';
 
 	var n = 0;
@@ -297,38 +390,72 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 		n++;
 	}
 
-		if(fs.existsSync('./data/static/billingparameters.json')) {
-	      fs.readFile('./data/static/billingparameters.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-
-	    		if(data == ''){ data = '[]'; }
-
-	          	var params = JSON.parse(data);
-
-	          	var selectedModeExtrasList = selectedBillingModeInfo.extras ? (selectedBillingModeInfo.extras).split(",") : [];
-	          	var cartExtrasList = [];
-
-	          	var n = 0;
-	          	var m = 0;
-	          	while(selectedModeExtrasList[n]){
-	          		m = 0;
-	          		while(params[m]){	  
-	          			if(selectedModeExtrasList[n] == params[m].name)        			
-	          				cartExtrasList.push(params[m]);
-	          			m++;
-	          		}
-	          		n++;
-	          	}
-
-	          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, optionalFocusKey)	          	
-
+	//Caution: BILLING MODE not found
+	if(!selectedBillingModeInfo || selectedBillingModeInfo == ''){
+		showToast('Error: Unknown Billing Mode. Check if mode <b>'+selectedBillingModeName+'</b> exists', '#e74c3c');
+		selectedBillingModeInfo = {
+			"name": "Unknown",
+			"extras": [],
+			"isDiscountable": false,
+			"maxDiscount": 0,
+			"type": "ERROR"
 		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+	}
+
+
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+
+	              	var params = data.docs[0].value;
+		          	var selectedModeExtrasList = selectedBillingModeInfo.extras;
+		          	var cartExtrasList = [];
+		          	var n = 0, m = 0;
+		          	while(selectedModeExtrasList[n]){
+		          		m = 0;
+		          		while(params[m]){	  
+		          			if(selectedModeExtrasList[n].name == params[m].name)  
+		          			{
+		          				params[m].value = parseFloat(selectedModeExtrasList[n].value);      			
+		          				cartExtrasList.push(params[m]);
+		          			}
+		          			m++;
+		          		}
+		          		n++;
+		          	}
+
+		          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, optionalFocusKey);	          	
+
+	          }
+	          else{
+	            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });
 
 }
 
@@ -346,7 +473,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			disableQuantityChange = true;
 			//to prevent changes
 		}
@@ -377,6 +504,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	var temp = '';
 	var totqty = 0;
 	var tot = 0;
+	var totPackaged = 0;
 	var grandPayableSum = 0;
 
 	var hasUnsavedChanges = false;
@@ -422,32 +550,146 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 			totqty = totqty + cart_products[i].qty
 			tot = tot + (cart_products[i].price*cart_products[i].qty)
+
+			if(cart_products[i].isPackaged){
+				totPackaged += (cart_products[i].price*cart_products[i].qty);
+			}
+
 			var itemrem = cart_products[i].code;
 
 			if(cart_products[i].isCustom){
 				variantName = ' ('+cart_products[i].variant+')';
 			}
 
-			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
-				'<td style="vertical-align: middle">'+
-					'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
-				'</td>'+
-				'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
-			i++
+
+				var allergyIngredientDetected = false;
+
+
+				//Allergy Check
+				var allergicIngredients = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
+				if(allergicIngredients.length > 0){
+					if(cart_products[i].ingredients && cart_products[i].ingredients.length > 0){
+						
+						var itemContainsAllergicIngredient = false;
+
+						var a = 0;
+						while(allergicIngredients[a] && !itemContainsAllergicIngredient){
+							
+							for(var c = 0; c < cart_products[i].ingredients.length; c++){
+								if(allergicIngredients[a] == cart_products[i].ingredients[c]){
+									itemContainsAllergicIngredient = true;
+									allergyIngredientDetected = true;
+									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+											'<td style="vertical-align: middle">'+
+											'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+											'</td>'+
+											'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
+													
+									break;
+								}
+							}
+
+							if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+									'<td style="vertical-align: middle">'+
+									'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+									'</td>'+
+									'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
+								
+							}
+
+							a++;
+						}			
+					}
+					else{
+						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+							'<td style="vertical-align: middle">'+
+							'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+							'</td>'+
+							'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
+						
+					}
+				}
+				else{
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+						'<td style="vertical-align: middle">'+
+						'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+						'</td>'+
+						'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
+				
+				}	
+			
+				/*
+				if(i == cart_products.length - 1){
+					if(allergyIngredientDetected){
+						showToast('<i class="fa fa-ban"></i> Ingredient Filter Warning: Certain items in this order contains allergic ingredients', '#48929B');
+					}
+				}
+				*/
+
+			i++	
 		}
 	}
 	else{ //New Order
+
+		var allergyIngredientDetected = false;
+
 		while(i < cart_products.length){
 			variantName = '';
 			totqty = totqty + cart_products[i].qty
 			tot = tot + (cart_products[i].price*cart_products[i].qty)
 			var itemrem = cart_products[i].code;
 
+			if(cart_products[i].isPackaged){
+				totPackaged += (cart_products[i].price*cart_products[i].qty);
+			}
+
 			if(cart_products[i].isCustom){
 				variantName = ' ('+cart_products[i].variant+')';
 			}
 
-			temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
+			//Allergy Check
+			var allergicIngredients = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
+			if(allergicIngredients.length > 0){
+				if(cart_products[i].ingredients && cart_products[i].ingredients.length > 0){
+					
+					var itemContainsAllergicIngredient = false;
+
+					var a = 0;
+					while(allergicIngredients[a] && !itemContainsAllergicIngredient){
+						
+						for(var c = 0; c < cart_products[i].ingredients.length; c++){
+							if(allergicIngredients[a] == cart_products[i].ingredients[c]){
+								itemContainsAllergicIngredient = true;
+								allergyIngredientDetected = true;
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+								break;
+							}
+						}
+
+						if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
+							temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+						}
+
+						a++;
+					}			
+				}
+				else{
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+				}
+			}
+			else{
+				temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+			}
+
+			/*
+			if(i == cart_products.length - 1){
+				if(allergyIngredientDetected){
+					showToast('<i class="fa fa-ban"></i> Ingredient Filter Warning: Certain items in this order contains allergic ingredients', '#48929B');
+				}
+			}
+			*/
+
 			i++
 		}
 	}
@@ -458,11 +700,11 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 	if(itemDeleteTest == 'DELETED'){
 		hasUnsavedChanges = true;
-		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center"><i class="fa fa-exclamation-circle"></i> Removed some items</td></tr>' + temp;
+		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center; cursor: pointer"><i class="fa fa-exclamation-circle"></i> Removed some items</td></tr>' + temp;
 	}
 	else if(itemDeleteTest == 'DELETED_ALL'){
 		hasUnsavedChanges = true;
-		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center"><i class="fa fa-exclamation-circle"></i> Removed all items</td></tr>' + temp;
+		temp = '<tr class="success" onclick="quickViewRemovedItems()"><td colspan="5" style="color: #e74c3c; text-align: center; cursor: pointer;"><i class="fa fa-exclamation-circle"></i> Removed all items</td></tr>' + temp;
 	}
 
 	
@@ -481,6 +723,14 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 			NOT w.r.t the modeType (VERY IMPORTANT).
 		>>	Calculations w.r.t the modeType is done only while punching new order for display purposes.
 		>>	Once KOT is punched, everything is w.r.t the data inside the KOT JSON!
+	*/
+
+
+	/*
+		NOTE: Do not apply tax or other extras
+		marked with 'excludePackagedFoods' = true on items
+		like Pepsi etc. which is marked with 'isPackaged' = true.
+		These are sold at MRP. Packaging Charges, Delivery charges etc. not applicable.
 	*/
 
           var otherChargesSum = 0;        
@@ -507,14 +757,28 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
           		}
 
           		var tempExtraTotal = 0;
-          		if(selectedModeExtras[k].value != 0){
-          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
-          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
-          			}
-          			else if(selectedModeExtras[k].unit == 'FIXED'){
-          				tempExtraTotal = selectedModeExtras[k].value;
-          			}
+          		if(selectedModeExtras[k].isPackagedExcluded){
+
+		          		if(selectedModeExtras[k].value != 0){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = (selectedModeExtras[k].value * (tot - totPackaged))/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}
+		          		}
           		}
+          		else{
+		          		if(selectedModeExtras[k].value != 0){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}
+		          		}          			
+          		}
+
 
           		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
 
@@ -530,7 +794,19 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 		//Calculate Discount and Custom Extra
 
-		discountValue = calculableOriginalKOT.discount.amount ? calculableOriginalKOT.discount.amount : 0;
+		if(calculableOriginalKOT.discount.value && calculableOriginalKOT.discount.value != 0){
+
+			if(calculableOriginalKOT.discount.unit == 'PERCENTAGE'){
+				discountValue = calculableOriginalKOT.discount.value * tot/100;
+			}
+			else{
+				discountValue = calculableOriginalKOT.discount.value;
+			}
+		}
+
+		discountValue = Math.round(discountValue * 100) / 100;
+
+
 
 		if(calculableOriginalKOT.customExtras.value && calculableOriginalKOT.customExtras.value != 0){
 	
@@ -541,21 +817,27 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				otherCustomChargesValue = calculableOriginalKOT.customExtras.value;
 			}
 		}
+
 		otherCustomChargesValue = Math.round(otherCustomChargesValue * 100) / 100;
 
 		 
           if(otherChargerRenderCount%2 == 0){
-          	otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : 'Rs.'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td></tr>'+
-          				'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td>'+
+          	otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td></tr>'+
+          				'<tr class="info"><td width="35%" class="cartSummaryRow">'+( discountValue != 0 ? 'Discounts ('+(calculableOriginalKOT.discount.unit == 'PERCENTAGE'? calculableOriginalKOT.discount.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.discount.value)+') ' : 'Discounts' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td>'+
           				'<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
           }
           else{
-          	otherCharges = otherCharges + '</tr> <tr class="info"><td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : 'Rs.'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td>'+
-          					'<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td></tr>';
+          	otherCharges = otherCharges + '</tr> <tr class="info"><td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td>'+
+          					'<td width="35%" class="cartSummaryRow">'+( discountValue != 0 ? 'Discounts ('+(calculableOriginalKOT.discount.unit == 'PERCENTAGE'? calculableOriginalKOT.discount.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.discount.value)+') ' : 'Discounts' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td></tr>';
           }
     }
     else{ //Not editing, new order being punched - Discount, other charges can not be applied at this stage -> both equals to 0
-          
+
+    	  /* Unsaved changes flag - applicable for Editing Orders only */
+		  window.localStorage.hasUnsavedChangesFlag = 0;
+		  //document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+
           if(selectedModeExtras.length > 0){
 
           	for(var k = 0; k < selectedModeExtras.length; k++){
@@ -564,13 +846,27 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
           		}
 
           		var tempExtraTotal = 0;
-          		if(selectedModeExtras[k].value != 0){
-          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
-          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
-          			}
-          			else if(selectedModeExtras[k].unit == 'FIXED'){
-          				tempExtraTotal = selectedModeExtras[k].value;
-          			}
+          		if(selectedModeExtras[k].excludePackagedFoods){
+
+		          		if(selectedModeExtras[k].value != 0){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = (selectedModeExtras[k].value * (tot - totPackaged))/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}
+		          		}
+          		}
+          		else{
+
+		          		if(selectedModeExtras[k].value != 0){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}
+		          		}          			
           		}
 
           		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
@@ -588,13 +884,10 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 
           if(otherChargerRenderCount%2 == 0){
-          	otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">Other Charges</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td></tr>'+
-          				'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>'+
-          				'<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
+          	otherCharges = otherCharges + '<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
           }
           else{
-          	otherCharges = otherCharges + '</tr> <tr class="info"><td width="35%" class="cartSummaryRow">Other Charges</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>'+
-          					'<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td></tr>';
+          	otherCharges = otherCharges + '</tr>';
           }
     }
 
@@ -618,13 +911,34 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
     					'   <tbody>'+ 
                         '      <tr class="success cartSumRow">'+
                         '         <td colspan="2" class="cartSumRow" style="font-weight: 400 !important; font-size: 16px;">'+
-                        '            Total Payable'+
+                        '            Grand Total'+
                         '         </td>'+
                         '         <td class="text-right cartSumRow" colspan="2" ><span id="total-payable"><i class="fa fa-inr"></i>'+grandPayableSum+'</span></td>'+
                         '      </tr>'+ 
     					'   </tbody>'+
                         '</table>';
 
+/*
+	DISPLAY ACTIONS
+*/
+
+
+
+  // LOGGED IN USER INFO
+
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
 
 
 
@@ -633,18 +947,28 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 
 	var editingKOTContent = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 
- 	//EDIT - Actions     
- 	if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'TOKEN'){
+ 	//EDIT - Actions   
+ 	if(!selectedBillingModeInfo || selectedBillingModeInfo == '' || selectedBillingModeInfo.name == 'Unknown'){
+ 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
+	                        '<div class="col-xs-12" style="padding: 0">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()" id="triggerClick_HideCartButton" >Close</button>'+
+	                           '</div>'+
+	                        '</div>'+
+	                     '</div>';
+ 		return '';
+ 	}
+
+ 	if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'TOKEN' || selectedBillingModeInfo.type == 'DELIVERY'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelKOT()">Cancel</button>'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
+	                           	  (isUserAnAdmin ? '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 	                           '</div>'+
 	                        '</div>'+ 		
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print Bill</button>'+
+	                              '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                     '</div>';
@@ -652,11 +976,17 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
  	else if(selectedBillingModeInfo.type == 'DINE'){
 
  		if(hasUnsavedChanges){
+
+ 			/* Set unsaved changes flag */
+ 			window.localStorage.hasUnsavedChangesFlag = 1;
+ 			document.getElementById("leftdiv").style.borderColor = "#e74c3c";
+ 			
+
+
 			document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelKOT()">Cancel</button>'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
+	                              (isUserAnAdmin ? '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -666,50 +996,67 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	                        '</div>'+
 	                        '<div class="col-xs-4" style="padding: 0">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()">Print Changed KOT</button>'+
+	                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
 	                           '</div>'+
 	                        '</div>'+                           
 	                     '</div>';
  		}
  		else{
+
+ 			/* Set unsaved changes flag */
+ 			window.localStorage.hasUnsavedChangesFlag = 0;
+ 			document.getElementById("leftdiv").style.borderColor = "#FFF";
+
 	 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelKOT()">Cancel</button>'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentEditingOrder()">Hide</button>'+
+	                              (isUserAnAdmin ? '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;">Print Bill</button>'+
+	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
 	                        '</div>'+                            
 	                     '</div>';
  		}
  	}  		
 }
 else{
- 	//NEW ORDER - Actions    
+ 	//NEW ORDER - Actions 
+
+ 	if(!selectedBillingModeInfo || selectedBillingModeInfo == '' || selectedBillingModeInfo.name == 'Unknown'){
+ 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
+	                        '<div class="col-xs-12" style="padding: 0">'+
+	                           '<div class="btn-group-vertical btn-block">'+
+	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()" id="triggerClick_HideCartButton" >Close</button>'+
+	                           '</div>'+
+	                        '</div>'+
+	                     '</div>';
+
+ 		return '';
+ 	}
+
  	if(selectedBillingModeInfo.type == 'TOKEN'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #bdc3c7 !important" class="btn bg-purple btn-block btn-flat" onclick="clearCurrentOrder()">Close</button>'+
+                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #bdc3c7 !important" class="btn bg-purple btn-block btn-flat" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button type="button" class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
                         '</div>'+
                      '</div>';
  	}   
- 	else if(selectedBillingModeInfo.type == 'PARCEL'){
+ 	else if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'DELIVERY'){
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Hold</button>'+
-                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()">Close</button>'+
+                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
+                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button type="button" class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
                         '</div>'+
                      '</div>';
  	}
@@ -717,13 +1064,13 @@ else{
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Hold</button>'+
-                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()">Close</button>'+
+                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
+                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()">Print KOT</button>'+
+                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print KOT</button>'+
                            '</div>'+
                         '</div>'+                    
                      '</div>';
@@ -735,6 +1082,62 @@ else{
 		/* cuurently used for quantity up and down operation only!  --> ADD MORE */
 		$('#'+optionalFocusKey).focus();
 	}
+}
+
+
+
+function startFreshOrder(){
+
+	//to remove cart info, customer info
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+
+	customerInfo.name = "";
+	customerInfo.mobile ="";
+	customerInfo.count = "";
+	customerInfo.mappedAddress = "";
+	customerInfo.reference = "";
+	customerInfo.isOnline = false;
+
+
+		var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
+		
+		if(billing_modes.length == 0){
+			showToast('Warning: There are no billing modes created.', '#e67e22');
+		}
+		else{
+
+			var n = 0;
+			while(billing_modes[n]){
+				if(billing_modes[n].type == 'DINE'){
+					customerInfo.mode = billing_modes[n].name;
+					customerInfo.modeType = 'DINE';
+					break;
+				}
+
+				if(n == billing_modes.length - 1){ //No dine modes ==> Set first in the list be default
+					customerInfo.mode = billing_modes[0].name;
+					customerInfo.modeType = billing_modes[0].type;
+				}
+
+				n++;
+			}	
+
+		}
+
+	window.localStorage.customerData = JSON.stringify(customerInfo);
+	window.localStorage.zaitoon_cart = '';
+	window.localStorage.edit_KOT_originalCopy = '';
+	window.localStorage.userAutoFound = '';
+	window.localStorage.userDetailsAutoFound = '';
+
+	window.localStorage.specialRequests_comments = '';
+	window.localStorage.allergicIngredientsData = '[]';
+
+	window.localStorage.hasUnsavedChangesFlag = 0;
+ 	document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+	renderCustomerInfo();
+	renderTables();
 }
 
 function undoChangesInKOT(){
@@ -1034,13 +1437,11 @@ function checkIfItemDeleted(){
 
 */
 
-function cancelKOT(){
-	//cancel the original_KOT in local storage
-}
 
 function clearCurrentOrder(){
 	clearAllMetaData();
 	renderCustomerInfo();
+	renderTables();
 }
 
 function addHoldOrderToCurrent(encodedItem, id){
@@ -1054,31 +1455,79 @@ function addHoldOrderToCurrent(encodedItem, id){
 		return '';
 	}
 
-	
-	var holding_orders = window.localStorage.holdingOrdersData ? JSON.parse(window.localStorage.holdingOrdersData): [];
-	holding_orders.splice(id,1);
 
-	window.localStorage.holdingOrdersData = JSON.stringify(holding_orders);
-	showToast('Order has been moved off the Hold List', '#27ae60');
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+
+				var holding_orders = data.docs[0].value;
+				holding_orders.splice(id,1);
+
+				showToast('Order loaded from the Saved Orders', '#27ae60');
+
+				var order = JSON.parse(decodeURI(encodedItem));
+				window.localStorage.customerData = JSON.stringify(order.customerDetails);
+				window.localStorage.zaitoon_cart = JSON.stringify(order.cartDetails);
+
+				//Remove from Table mapping (if already added)
+				if(order.customerDetails.modeType == 'DINE' && order.customerDetails.mappedAddress != ''){
+					removeTableFromReserveList(order.customerDetails.mappedAddress)
+				}
 
 
-	var order = JSON.parse(decodeURI(encodedItem));
-	window.localStorage.customerData = JSON.stringify(order.customerDetails);
-	window.localStorage.zaitoon_cart = JSON.stringify(order.cartDetails);
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_SAVED_ORDERS",
+                      "value": holding_orders
+                    }
 
-	//Remove from Table mapping (if already added)
-	if(order.customerDetails.modeType == 'DINE' && order.customerDetails.mappedAddress != ''){
-			removeTableFromReserveList(order.customerDetails.mappedAddress)
-	}
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_ORDERS/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+						renderCustomerInfo();
+						renderTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });     
 
-
-	renderCustomerInfo();
+          }
+          else{
+            showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });
 }
 
 function confirmHoldOverWritingModal(encodedItem, id){
 	document.getElementById("overWriteHoldOrderModal").style.display = 'block';
 	document.getElementById("overWriteHoldOrderModalActions").innerHTML = '<button type="button" class="btn btn-default" onclick="confirmHoldOverWritingModalHide()" style="float: left">Cancel</button>'+
-                  						'<button type="button" class="btn btn-danger" onclick="openHeldOrderConfirm(\''+encodedItem+'\', \''+id+'\')">Open Held Order</button>';
+                  						'<button type="button" class="btn btn-danger" onclick="openHeldOrderConfirm(\''+encodedItem+'\', \''+id+'\')">Open Saved Order</button>';
 }
 
 function confirmHoldOverWritingModalHide(){
@@ -1125,62 +1574,247 @@ function addToHoldKOT(){
 
 		var time = getCurrentTime('TIME');
 
-		var holding_orders = window.localStorage.holdingOrdersData ? JSON.parse(window.localStorage.holdingOrdersData): [];
+	    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
 
-		var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData): [];
-		var product_cart = window.localStorage.zaitoon_cart ? JSON.parse(window.localStorage.zaitoon_cart): [];
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
 
-		if(customerInfo.length == 0){
-			showToast('Oops! The Customer Details missing.', '#e67e22');
-			return '';
-		}
-		else if(product_cart.length == 0){
-			showToast('Oops! The Order Cart is empty!', '#e67e22');
-			return '';
-		}
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
 
-		var new_holding_order = {};
-		new_holding_order.customerDetails = customerInfo;
-		new_holding_order.cartDetails = product_cart;
-		new_holding_order.timestamp = time;
+					var holding_orders = data.docs[0].value;
 
-		holding_orders.push(new_holding_order);
-		window.localStorage.holdingOrdersData = JSON.stringify(holding_orders);
+					var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData): [];
+					var product_cart = window.localStorage.zaitoon_cart ? JSON.parse(window.localStorage.zaitoon_cart): [];
 
-		//Mark the table as 'Reserved' if added to hold list
-		if(customerInfo.modeType == 'DINE' && customerInfo.mappedAddress != ''){
-			addTableToReserveList(customerInfo.mappedAddress, 'Hold Order')
-		}
+					if(customerInfo.length == 0){
+						showToast('Oops! The Customer Details missing.', '#e67e22');
+						return '';
+					}
+					else if(product_cart.length == 0){
+						showToast('Oops! The Order Cart is empty!', '#e67e22');
+						return '';
+					}
 
-		clearAllMetaData();
-		renderCustomerInfo();
+					var new_holding_order = {};
+					new_holding_order.customerDetails = customerInfo;
+					new_holding_order.cartDetails = product_cart;
+					new_holding_order.timestamp = time;
 
-		showToast('The Order has been moved to Hold List', '#27ae60');
+
+						holding_orders.push(new_holding_order);
+
+	                    //Update
+	                    var updateData = {
+	                      "_rev": data.docs[0]._rev,
+	                      "identifierTag": "ZAITOON_SAVED_ORDERS",
+	                      "value": holding_orders
+	                    }
+
+	                    $.ajax({
+	                      type: 'PUT',
+	                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_ORDERS/',
+	                      data: JSON.stringify(updateData),
+	                      contentType: "application/json",
+	                      dataType: 'json',
+	                      timeout: 10000,
+	                      success: function(data) {
+							clearAllMetaData();
+							renderCustomerInfo();
+	                      },
+	                      error: function(data) {
+	                        showToast('System Error: Unable to update Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+	                      }
+	                    });     
+
+
+					//Mark the table as 'Reserved' if added to hold list
+					if(customerInfo.modeType == 'DINE' && customerInfo.mappedAddress != ''){
+						addTableToReserveList(customerInfo.mappedAddress, 'Hold Order');
+					}
+
+					showToast('The Order has been moved to Saved List', '#27ae60');
+	          }
+	          else{
+	            showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+	    });
 	}	
 }
 
 function removeAllHoldOrders(){
-	window.localStorage.holdingOrdersData = '';
-	renderCustomerInfo();
+
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+
+					var holding_orders = []
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_SAVED_ORDERS",
+                      "value": holding_orders
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_ORDERS/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                      	renderCustomerInfo();
+                      	clearSavedOrderMappingFromTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });     
+
+          }
+          else{
+            showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Saved Orders data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Saved Orders data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });
 }
 
 
 
+function clearSavedOrderMappingFromTables(){
+	//removes all the "Saved Mapping" from Tables.
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+	          		var tableMapping = data.docs[0].value;
+
+
+		          	for(var i=0; i<tableMapping.length; i++){
+		          		if(tableMapping[i].status == 5 && tableMapping[i].assigned == 'Hold Order'){
+
+		          			tableMapping[i].assigned = "";
+		          			tableMapping[i].KOT = "";
+		          			tableMapping[i].status = 0;
+		          			tableMapping[i].lastUpdate = "";
+		          		}
+		          	}
+
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        renderTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });  	          
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
+}
+
 
 function addTableToReserveList(tableID, optionalComments){
 
-		var comments = optionalComments;
+	var comments = optionalComments;
 
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	       
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-	          var isUpdated = false;
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
+	          var tableMapping = data.docs[0].value;
 	          var timestamp = getCurrentTime('TIME');
 
 	          for(var i=0; i<tableMapping.length; i++){
@@ -1194,35 +1828,74 @@ function addTableToReserveList(tableID, optionalComments){
 	          		tableMapping[i].KOT = "";
 	          		tableMapping[i].status = 5;
 	          		tableMapping[i].lastUpdate = timestamp;
-
-	          		isUpdated = true;
-
+	          		
 	          		break;
 	          	}
 	          }
 
-	          if(!isUpdated){
-	          	tableMapping.push({ "table": tableID, "assigned": comments, "KOT": "", "status": 5, "lastUpdate": timestamp });
-		      }
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		       }); 
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        renderTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
 
-		}
-		});
-	    }
+                    });  	          
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 
 function removeTableFromReserveList(tableID){
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	       
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+	          var tableMapping = data.docs[0].value;
 
 	          for(var i=0; i<tableMapping.length; i++){
 	          	if(tableMapping[i].table == tableID){
@@ -1231,20 +1904,54 @@ function removeTableFromReserveList(tableID){
 	          			return '';
 	          		}
 
-	          		tableMapping.splice(i,1);
+	          		tableMapping[i].status = 0;
+	          		tableMapping[i].assigned = "";
+	          		tableMapping[i].lastUpdate = "";
+	          		tableMapping[i].KOT = "";
 
 	          		break;
 	          	}
 	          }
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		         
-		       }); 
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
 
-		}
-		});
-	    }
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        renderTables();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });  	          
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 
@@ -1257,7 +1964,7 @@ function clearCart(){
 		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 				return '';
 			}
@@ -1274,7 +1981,7 @@ function clearCartConsent(){
 		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 				return '';
 			}
@@ -1288,8 +1995,129 @@ function hideClearCartModal(){
 }
 
 
+function openBillingModeSelector(content){
+
+	var billingModes = JSON.parse(decodeURI(content));
+	document.getElementById("billingModesModalHome").style.display = "block";
+
+	var renderContent = '';
+	var n = 0;
+	while(billingModes[n]){
+		renderContent += '<button class="billModeListedButton easySelectTool_chooseBillingMode" onclick="changeCustomerInfo(\'mode\', \''+billingModes[n].name+'\')">'+billingModes[n].name+'<span class="modeSelectionBrief">'+billingModes[n].type+'</span><tag class="modeSelectionIcon"><i class="fa fa-check"></i></tag></button>';
+		n++;
+	}
+
+	document.getElementById("billingModesModalHomeContent").innerHTML = '<div id="billingModesModalList">'+renderContent+'</div>';
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+
+          var li = $('#billingModesModalList .easySelectTool_chooseBillingMode');
+          var liSelected = li.eq(0).addClass('selectedMode');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#billingModesModalList').is(':visible')) {
+
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
+
+					if(liSelected){
+					    liSelected.removeClass('selectedMode');
+					   	next = liSelected.prev();
+						if(next.length > 0){
+							liSelected = next.addClass('selectedMode');
+						}else{
+							liSelected = li.last().addClass('selectedMode');
+						}
+					}else{
+						liSelected = li.last().addClass('selectedMode');
+					}                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+					if(liSelected){
+						liSelected.removeClass('selectedMode');
+						next = liSelected.next();
+						if(next.length > 0){
+							liSelected = next.addClass('selectedMode');
+						}else{
+							liSelected = li.eq(0).addClass('selectedMode');
+						}
+					}else{
+						liSelected = li.eq(0).addClass('selectedMode');
+					}
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("billingModesModalHome").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#billingModesModalList .easySelectTool_chooseBillingMode").each(function(){
+                      if($(this).hasClass("selectedMode")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
+            }
+          });
+
+}
+
+function hideBillingModeSelector(){
+	document.getElementById("billingModesModalHome").style.display = "none";
+}
+
+
+
+
 /*customer info*/
 function renderCustomerInfo(){
+
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+
+				var holding_orders = data.docs[0].value;
+				renderCustomerInfoBeforeProcess(holding_orders);  
+          }
+          else{
+            renderCustomerInfoBeforeProcess([]);  
+          }
+        }
+        else{
+        	renderCustomerInfoBeforeProcess([]);    
+        }
+      },
+      error: function(data) {
+      	renderCustomerInfoBeforeProcess([]);  
+      }
+    });
+}
+
+function renderCustomerInfoBeforeProcess(holding_orders){
 
 	var addressOptionsAvailable = false;
 	var addressObj; 
@@ -1311,19 +2139,26 @@ function renderCustomerInfo(){
 
 	//Check if New Order / Editing KOT
 	var isEditingKOT = false;
+
+	//Check if Special Requests added
+	var isSpecialRequests = false;
+	if((window.localStorage.allergicIngredientsData && window.localStorage.allergicIngredientsData != '[]' && window.localStorage.allergicIngredientsData != '') || (window.localStorage.specialRequests_comments && window.localStorage.specialRequests_comments != '')){
+		isSpecialRequests = true;
+	}
+
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 		isEditingKOT = true;
 		var kotCopy = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : {};
-		document.getElementById("ongoingOrderTitle").innerHTML = '<tag class="cartCustomerLabel" style="display: block; color: #dd4b39;">Running Order</tag><tag class="blink_me">#'+kotCopy.KOTNumber+'</tag>'+( kotCopy.orderDetails.modeType == 'DINE'? '<tag style="float: right; font-weight: 300;"><tag style="text-transform: none; font-size: 80%">Table</tag> <b>'+kotCopy.table+'</b></tag>' : '');
+		
+		document.getElementById("ongoingOrderTitle").innerHTML = '<tag class="cartCustomerLabel blink_me" style="display: block; color: #FFF; font-weight: bold !important; position: fixed; margin-top: -8px;">Running Order</tag><tag>#'+kotCopy.KOTNumber+'<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="'+(isSpecialRequests ? 'specialRequestsButtonActive' : 'specialRequestsButton')+'"><i class="fa fa-bell-o swing"></i></tag></tag></tag>'+( kotCopy.orderDetails.modeType == 'DINE'? '<tag style="float: right; font-weight: 300;"><tag style="text-transform: none; font-size: 80%">Table</tag> <b class="blink_me">'+kotCopy.table+'</b></tag>' : '');
 	}
 	else{
 
-		//Check if any order in Hold List
-		if(window.localStorage.holdingOrdersData && window.localStorage.holdingOrdersData != ''){
-			
-			var holding_orders = window.localStorage.holdingOrdersData ? JSON.parse(window.localStorage.holdingOrdersData): [];
-			
 
+
+		//Check if any order in Hold List
+		if(holding_orders.length > 0){
+			
 			var n = 0;
 			var holdListRender = '';
 			while(holding_orders[n]){
@@ -1348,7 +2183,7 @@ function renderCustomerInfo(){
 
 						}
 					}
-					else if(holding_orders[n].customerDetails.modeType =='PARCEL'){
+					else if(holding_orders[n].customerDetails.modeType =='PARCEL' || holding_orders[n].customerDetails.modeType =='DELIVERY'){
 						if(holding_orders[n].customerDetails.mappedAddress == ''){
 							displayAddress = '<tag style="font-weight: 400">'+holding_orders[n].customerDetails.mode+'</tag>';
 						}
@@ -1358,8 +2193,7 @@ function renderCustomerInfo(){
 						}
 					}
 				
-
-				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+displayAddress+
+				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+(holding_orders[n].customerDetails.modeType == 'DINE' ? 'Table '+(holding_orders[n].customerDetails.mappedAddress ? '#'+holding_orders[n].customerDetails.mappedAddress : 'Unknown') : holding_orders[n].customerDetails.modeType+(holding_orders[n].customerDetails.name != '' ? ' <tag style="font-weight: 300; font-size: 90%">('+holding_orders[n].customerDetails.name+')</tag>' : '')  )+
 									'<tag class="holdTimeAgo">'+getFormattedTime(holding_orders[n].timestamp)+' ago</tag></p>'+
 									'<p class="holdItemsBrief">'+itemList+'</p>'+
 								  '</a>';
@@ -1367,57 +2201,67 @@ function renderCustomerInfo(){
 			}
 
 			if(holding_orders.length != 0){
-				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'+
+				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="'+(isSpecialRequests ? 'specialRequestsButtonActive' : 'specialRequestsButton')+'"><i class="fa fa-bell-o swing"></i></tag></tag>'+
 													        '<div id="triggerClick_SavedOrdersButton" class="holddropdown">'+
-											                 	'<div class="holddropbtn">'+n+' '+(n == 1? 'Saved Order': 'Saved Orders')+'</div>'+
+											                 	'<div class="holddropbtn"><tag class="fa fa-cloud-download" style="color: #d2d6de; padding-right: 5px"></tag><b>'+n+'</b> '+(n == 1? 'Saved Order': 'Saved Orders')+'</div>'+
 											                 	'<div class="holddropdown-content"><div class="holdContentArea">'+holdListRender+'</div>'+
 											                 	'<div class="holdCancelButton" onclick="removeAllHoldOrders()">Remove All</div>'+
 											                 	'</div>'+
 											               	'</div>';
 			}
 			else{
-				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'
+				document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="'+(isSpecialRequests ? 'specialRequestsButtonActive' : 'specialRequestsButton')+'"><i class="fa fa-bell-o swing"></i></tag></tag>'
 			}
 		}
 		else{
-			document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>'
+			document.getElementById("ongoingOrderTitle").innerHTML = 'New Order<tag onclick="openSpecialRequestModal()" class="specialRequestsHolder"><tag class="'+(isSpecialRequests ? 'specialRequestsButtonActive' : 'specialRequestsButton')+'"><i class="fa fa-bell-o swing"></i></tag></tag>'
 		}
 	}
 
 	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
-	var billingModesInfo = {};
+	var billingModesInfo = [];
 
 
 	if(jQuery.isEmptyObject(customerInfo)){
 		customerInfo.name = "";
 		customerInfo.mobile = "";
+		customerInfo.count = "";
 		customerInfo.mode = "";
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
+		customerInfo.isOnline = false;
 	}
 
 
 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-		if(fs.existsSync('./data/static/billingmodes.json')) {
-	      fs.readFile('./data/static/billingmodes.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to load Billing Modes. Please contact Accelerate Support.', '#e74c3c');
-	    	renderCart();
-	    } else {
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
 
-	    		if(data == ''){ data = '[]'; }
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
 
-	          	billingModesInfo = JSON.parse(data);
+	          	billingModesInfo = data.docs[0].value;
 	          	billingModesInfo.sort(); //alphabetical sorting 
 
-
-	          	window.localStorage.billingModesData = data; /*For cart rendering purpose*/
+	          	window.localStorage.billingModesData = JSON.stringify(billingModesInfo); /*For cart rendering purpose*/
 	          	
 				/*Billing modes not set or not rendering*/
 				if(jQuery.isEmptyObject(billingModesInfo)){
-					document.getElementById("orderCustomerInfo").innerHTML = '<p style="text-align: center; color: #dd4b39;">Billing Modes not set. <tag class="extrasSelButton" onclick="renderPage(\'bill-settings\', \'Bill Settings\'); openBillSettings(\'billingModes\')">Adding Billing Modes</tag> to continue</p>';
+					document.getElementById("orderCustomerInfo").innerHTML = '<p style="text-align: left; margin: 10px 0; color: #dd4b39;">Billing Modes not set.<br><tag class="extrasSelButton" onclick="renderPage(\'bill-settings\', \'Bill Settings\'); openBillSettings(\'billingModes\')">Adding Billing Modes</tag> to continue</p>';
 					showToast('Warning: Billing Modes are not set', '#e67e22');
 					return '';
 				}
@@ -1425,41 +2269,27 @@ function renderCustomerInfo(){
 				if(jQuery.isEmptyObject(customerInfo)){
 					customerInfo.name = "";
 					customerInfo.mobile = "";
+					customerInfo.count = "";
 					customerInfo.mode = "";
 					customerInfo.modeType = "";
 					customerInfo.mappedAddress = "";
 					customerInfo.reference = "";
+					customerInfo.isOnline = false;
 				}
 				else{
 
-					var billingModesListRenderer = '';
 					var n = 0;
 					var currentModeIndex = 0;
 					while(billingModesInfo[n]){
-
 						if(billingModesInfo[n].name == customerInfo.mode){
-							billingModesListRenderer += '<a href="#" class="currentActiveMode" onclick="changeCustomerInfo(\'mode\', \''+billingModesInfo[n].name+'\')"><p class="chosenModeDropdownModeName">'+billingModesInfo[n].name+' <i class="fa fa-check-circle"></i>'+
-															'<tag class="chosenModeDropdownMinimumBill">'+(billingModesInfo[n].minimumBill > 0 ? 'Min <i class="fa fa-inr"></i>'+billingModesInfo[n].minimumBill : '')+'</tag></p>'+
-															'<p class="chosenModeDropdownBrief"><b class="modeTypeLabel">'+billingModesInfo[n].type+'</b></p>'+
-													   	'</a>';
 							currentModeIndex = n;
+							break;
 						}
-						else{
-							billingModesListRenderer += '<a href="#" onclick="changeCustomerInfo(\'mode\', \''+billingModesInfo[n].name+'\')"><p class="chosenModeDropdownModeName">'+billingModesInfo[n].name+
-															'<tag class="chosenModeDropdownMinimumBill">'+(billingModesInfo[n].minimumBill > 0 ? 'Min <i class="fa fa-inr"></i>'+billingModesInfo[n].minimumBill : '')+'</tag></p>'+
-															'<p class="chosenModeDropdownBrief"><b class="modeTypeLabel">'+billingModesInfo[n].type+'</b></p>'+
-													   	'</a>';
-						}
-
 						n++;
 					}
 					
-					var billingModesList = 	'<div class="chosenModeDropdown">'+
-											    '<div class="chosenModeButton" value="'+billingModesInfo[currentModeIndex].name+'" id="customer_form_data_mode">'+billingModesInfo[currentModeIndex].name+'</div>'+
-											    '<div class="chosenModeDropdown-content" style="display: none" id="modeListingDropdown"><div class="chosenModeDropdownArea" id="modeListingDropdownArea">'+billingModesListRenderer+'</div>'+
-											    '</div>'+
-											'</div>';
-
+					var billingModesList = 	'<tag selected-mode="\''+billingModesInfo[currentModeIndex].name+'\'" onclick="openBillingModeSelector(\''+(encodeURI(JSON.stringify(billingModesInfo)))+'\')" id="customer_form_data_mode" class="btn chosenModeButton" style="color: #FFF; width: 100%; text-overflow: ellipsis; overflow: hidden; text-align: left">'+billingModesInfo[currentModeIndex].name+'</tag>';
+					
 
 					var selectMappedAddressButton = '';
 					var tempModeType = customerInfo.modeType;
@@ -1470,7 +2300,7 @@ function renderCustomerInfo(){
 
 					//Ask for MappedAddress value
 					if(!isEditingKOT){
-						if(tempModeType == 'PARCEL'){ //ask for address
+						if(tempModeType == 'DELIVERY'){ //ask for address
 
 							if(addressOptionsAvailable){
 									selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
@@ -1486,7 +2316,10 @@ function renderCustomerInfo(){
 										selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
 									}								
 							}
-
+			 			}
+						else if(tempModeType == 'PARCEL'){ //ask for address
+							
+							selectMappedAddressButton = '<label class="cartCustomerLabel">Mode</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Parcel</tag>';
 						}
 						else if(tempModeType == 'DINE'){ //ask for table
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-danger" style="width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickTableForNewOrder()">Select Table</tag>';
@@ -1496,22 +2329,106 @@ function renderCustomerInfo(){
 							}
 						}					
 						else if(tempModeType == 'TOKEN'){ //assign token
-							var tempToken = window.localStorage.lastPrintedToken;
-							if(!tempToken || tempToken == ''){
-								tempToken = 1;
-							}
-							customerInfo.mappedAddress = tempToken;
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
-						}
-					}
-					else{
+							
+							var isTokenValid = true;
+							var isTokenAutoChanged = false;
 
-						if(tempModeType == 'PARCEL'){ //ask for address
+							if(window.localStorage.claimedTokenNumberTimestamp && window.localStorage.claimedTokenNumberTimestamp != ''){
+								
+								var currentTime = new Date();
+								var recordedTime = new Date(window.localStorage.claimedTokenNumberTimestamp);
+
+								if(currentTime - recordedTime > 300000){ //Old Token, reclaim for new Token
+									isTokenValid = false;
+									isTokenAutoChanged = true;
+								}
+								else{
+									isTokenValid = true;
+								}
+							}
+							else{
+								isTokenValid = false;
+							}
+
+							if(isTokenValid && window.localStorage.claimedTokenNumber && window.localStorage.claimedTokenNumber != ''){
+								customerInfo.mappedAddress = parseInt(window.localStorage.claimedTokenNumber);
+								selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+								renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							}
+							else{ //Claim a Token from Server
+
+							    var requestData = {
+							      "selector"  :{ 
+							                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+							                  },
+							      "fields"    : ["_rev", "identifierTag", "value"]
+							    }
+
+							    $.ajax({
+							      type: 'POST',
+							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+							      data: JSON.stringify(requestData),
+							      contentType: "application/json",
+							      dataType: 'json',
+							      timeout: 10000,
+							      success: function(data) {
+							        if(data.docs.length > 0){
+							          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+
+							            var tempToken = parseInt(data.docs[0].value);
+
+										if(!tempToken || tempToken == ''){
+											tempToken = 1;
+										}
+
+
+										if(!isTokenValid && isTokenAutoChanged){
+											showToast('Warning: Token Number has been adjusted to the latest Count', '#e67e22');
+										}
+
+										//Save the Claimed Token locally
+										window.localStorage.claimedTokenNumber = tempToken;
+										window.localStorage.claimedTokenNumberTimestamp = new Date();
+
+										//Update next token on Server
+										updateTokenCountOnServer(tempToken+1, data.docs[0]._rev);
+
+										customerInfo.mappedAddress = tempToken;
+										selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+
+										renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							          }
+							          else{
+							            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+							          }
+							        }
+							        else{
+							          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+							        }
+
+							      },
+							      error: function(data) {
+							        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+							      }
+
+							    });
+
+							}
+
+							
+						}
+					} //Not Editing
+					else{ //Editing
+
+						if(tempModeType == 'DELIVERY'){ //ask for address
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag></tag>';
 							
 							if(customerInfo.mappedAddress && customerInfo.mappedAddress != ''){
 								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
 							}
+						}
+						else if(tempModeType == 'PARCEL'){ //ask for address
+							selectMappedAddressButton = '<label class="cartCustomerLabel">Mode</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Parcel</tag>';
 						}
 						else if(tempModeType == 'DINE'){ //ask for table
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag class="btn btn-danger disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Not Set</tag>';
@@ -1521,182 +2438,254 @@ function renderCustomerInfo(){
 							}
 						}					
 						else if(tempModeType == 'TOKEN'){ //assign token
-							var tempToken = window.localStorage.lastPrintedToken;
-							if(!tempToken || tempToken == ''){
-								tempToken = 1;
-							}
-							customerInfo.mappedAddress = tempToken;
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
-						}						
-					}	
 
+							var isTokenValid = true;
+							var isTokenAutoChanged = false;
+
+							if(window.localStorage.claimedTokenNumberTimestamp && window.localStorage.claimedTokenNumberTimestamp != ''){
+								
+								var currentTime = new Date();
+								var recordedTime = new Date(window.localStorage.claimedTokenNumberTimestamp);
+
+								if(currentTime - recordedTime > 300000){ //Old Token, reclaim for new Token
+									isTokenValid = false;
+									isTokenAutoChanged = true;
+								}
+								else{
+									isTokenValid = true;
+								}
+							}
+							else{
+								isTokenValid = false;
+							}
+
+
+							if(isTokenValid && window.localStorage.claimedTokenNumber && window.localStorage.claimedTokenNumber != ''){
+								customerInfo.mappedAddress = parseInt(window.localStorage.claimedTokenNumber);
+								selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+								renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							}
+							else{ //Claim a Token from Server
+
+							    var requestData = {
+							      "selector"  :{ 
+							                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+							                  },
+							      "fields"    : ["_rev", "identifierTag", "value"]
+							    }
+
+							    $.ajax({
+							      type: 'POST',
+							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+							      data: JSON.stringify(requestData),
+							      contentType: "application/json",
+							      dataType: 'json',
+							      timeout: 10000,
+							      success: function(data) {
+							        if(data.docs.length > 0){
+							          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+
+							            var tempToken = parseInt(data.docs[0].value);
+
+										if(!tempToken || tempToken == ''){
+											tempToken = 1;
+										}
+
+										if(!isTokenValid && isTokenAutoChanged){
+											showToast('Warning: Token Number has been adjusted to the latest Count', '#e67e22');
+										}
+
+										//Save the Claimed Token locally
+										window.localStorage.claimedTokenNumber = tempToken;
+										window.localStorage.claimedTokenNumberTimestamp = new Date();
+
+										//Update next token on Server
+										updateTokenCountOnServer(tempToken+1, data.docs[0]._rev);
+
+										customerInfo.mappedAddress = tempToken;
+										selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
+							          	
+							          	renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							         
+							          }
+							          else{
+							            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+							          }
+							        }
+							        else{
+							          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+							        }
+
+							      },
+							      error: function(data) {
+							        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+							      }
+
+							    });
+							}
+
+						}						
+					} //Editing	
+
+					if(tempModeType != 'TOKEN'){ /* TWEAK */
+						renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+					}
+					//Note: Because Token involves a network call delay.
+
+				}
+          }
+          else{
+            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          	renderCart();
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          renderCart();
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+      	renderCart();
+      }
+
+    });
+
+}
+
+
+
+function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList){
+
+
+					var modalTemplate = ''+
+					        '<div id="billingModesModalHome" class="modal billModalSelect">'+
+					             '<div class="modal-dialog" style="width: 100%; margin: 0">'+
+					                '<div class="modal-content" id="billingModesModalHomeContent">'+
+					                '</div>'+
+					             '</div>'+
+					        '</div>';
+
+					        
 
 					if(isEditingKOT){ //Editing KOT
 					
-					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px"> '+
+					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px; margin-bottom: 6px; position: relative"> '+
 			                                 '<div class="col-xs-8" style="padding: 0; padding-right: 2px">'+
-			                                    '<div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<div class="input-group" style="width:100%;">'+
-			                                       		 '<label class="cartCustomerLabel">Order Type</label>'+
-			                                             '<input type="text" value="'+customerInfo.mode+'" id="customer_form_data_mode" class="form-control kb-text" disabled/>'+
-			                                       '</div>'+
-			                                       '<div style="clear:both;"></div>'+
-			                                    '</div>'+
+			                                    '<label class="cartCustomerLabel">Order Type<tag id="orderTypeDisplay" style="color: #40739e; font-size: 10px; font-weight: bold; padding-left: 3px;">'+customerInfo.modeType+'</tag></label>'+
+			                                    '<input type="text" value="'+customerInfo.mode+'" selected-mode="'+customerInfo.mode+'" id="customer_form_data_mode" style="border-radius: 4px !important; height: 33px;" class="form-control kb-text" disabled/>'+
 			                                ' </div>'+
-			                                 '<div class="col-xs-4" style="padding: 0; padding-left: 2px">'+selectMappedAddressButton+
-			                                 '</div> '+                       
+			                                 '<div class="col-xs-4" style="padding: 0; padding-left: 2px">'+selectMappedAddressButton+'</div> '+                       
 			                           '</div>'+
 			                           '<div class="row" style="padding: 0 15px">'+
-			                                 '<div class="col-xs-6" style="padding: 0; padding-right: 2px">'+
+			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+      			                           
-			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
+			                                 '<div class="col-xs-5" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<input type="text" onchange="changeCustomerInfo(\'name\')" value="'+customerInfo.name+'" id="customer_form_data_name" class="form-control kb-text" placeholder="Guest Name" />'+
+			                                    '</div>'+
+			                                 '</div>'+ 
+			                                 '<div class="col-xs-2" style="padding: 0; padding-left: 2px">'+
+			                                    '<div class="form-group" style="margin-bottom:5px;">'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
 			                                    '</div>'+
 			                                 '</div>'+               
 			                           '</div>';
 					}
 					else{ //New Order
 
-					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px"> '+
+					document.getElementById("orderCustomerInfo").innerHTML = '<div class="row" style="padding: 0 15px; margin-bottom: 6px; position: relative"> '+
 			                                 '<div class="col-xs-8" style="padding: 0; padding-right: 2px">'+
-			                                    '<div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<div class="input-group" style="width:100%;">'+
-			                                       		 '<label class="cartCustomerLabel">Order Type</label>'+billingModesList+
-			                                       '</div>'+
-			                                       '<div style="clear:both;"></div>'+
-			                                    '</div>'+
-			                                ' </div>'+
-			                                 '<div class="col-xs-4" style="padding: 0; padding-left: 2px">'+selectMappedAddressButton+
-			                                 '</div> '+                       
+			                                       '<label class="cartCustomerLabel">Order Type</label><tag id="orderTypeDisplay" style="color: #40739e; font-weight: bold; padding-left: 3px; font-size: 10px">'+customerInfo.modeType+'</tag>'+
+			                                       billingModesList+
+			                                 '</div>'+
+			                                 '<div class="col-xs-4" style="padding: 0; padding-left: 2px">'+selectMappedAddressButton+'</div>'+  
+			                                 '<div class="blue-box" style="width: 90%; position: absolute; top: 60px;">'+modalTemplate+'</div>'+                     
 			                           '</div>'+
 			                           '<div class="row" style="padding: 0 15px">'+
-			                                 '<div class="col-xs-6" style="padding: 0; padding-right: 2px">'+
+			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+    			                           
-			                                 '<div class="col-xs-6" style="padding: 0; padding-left: 2px">'+
+			                                 '<div class="col-xs-5" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
 			                                       '<input type="text" onchange="changeCustomerInfo(\'name\')" value="'+customerInfo.name+'" id="customer_form_data_name" class="form-control kb-text" placeholder="Guest Name" />'+
+			                                    '</div>'+
+			                                 '</div>'+ 
+			                                 '<div class="col-xs-2" style="padding: 0; padding-left: 2px">'+
+			                                    '<div class="form-group" style="margin-bottom:5px;">'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
 			                                    '</div>'+
 			                                 '</div>'+                 
 			                           '</div>';
 			        }	
 
 
-			        document.getElementById("customer_form_data_mode").value = customerInfo.mode;
-
-
-					//Key Actions to Select from dropdown
-					
-					
-					$('#customer_form_data_mode').on('click', function(event) {
-
-						var x = document.getElementById("modeListingDropdown");
-
-						if(x.style.display == 'none'){
-							x.style.display = 'block';
-						}
-						else{
-							x.style.display = 'none';
-						}
-
-						$("#modeListingDropdownArea a").removeClass("selected");
-
-						var liSelected = undefined;
-						var li = $('#modeListingDropdownArea a');
-
-						$(document).keyup(function(e) {
-							
-						    if (e.which === 40 || e.which === 38) {
-						        
-						        // If the Up-Arrow or Down-Arrow is pressed  
-							    if(e.which === 40){
-
-							        if(liSelected){
-							            liSelected.removeClass('selected');
-							            next = liSelected.next();
-							            if(next.length > 0){
-							                liSelected = next.addClass('selected');
-							            }else{
-							                liSelected = li.eq(0).addClass('selected');
-							            }
-							        }else{
-							            liSelected = li.eq(0).addClass('selected');
-							        }
-							    }else if(e.which === 38){
-							        if(liSelected){
-							            liSelected.removeClass('selected');
-							            next = liSelected.prev();
-							            if(next.length > 0){
-							                liSelected = next.addClass('selected');
-							            }else{
-							                liSelected = li.last().addClass('selected');
-							            }
-							        }else{
-							            liSelected = li.last().addClass('selected');
-							        }
-							    }
-
-
-						    }
-						    else if (e.which === 13) {
-						        
-						        //If the Enter Key is pressed 
-						        $("#modeListingDropdownArea a").each(function(){
-							        if($(this).hasClass("selected")){
-							        	$(this).click();
-							        	$('#customer_form_data_mobile').focus();
-							        }
-							    });
-						    }					   			    
-						});
-					});
-
-					$('#customer_form_data_mode').on('mouseout', function(event){
-						$(document).off('keyup');
-					});
-
+			        $('#customer_form_data_mode').attr("selected-mode", customerInfo.mode);
 		
-
-
 			        /*First dropdown item as default*/ /*TWEAK*/
-			        if(customerInfo.mode == ""){
-			        	$("#customer_form_data_mode").val($("#customer_form_data_mode option:first").val());
-			        	customerInfo.modeType = billingModesInfo[0].type;
-			        	customerInfo.mode = billingModesInfo[0].name;
-			        }
+			        // if(customerInfo.mode == ""){
+			        // 	$("#customer_form_data_mode").val($("#customer_form_data_mode option:first").val());
+			        // 	customerInfo.modeType = billingModesInfo[0].type;
+			        // 	customerInfo.mode = billingModesInfo[0].name;
+			        // }
 
 			        window.localStorage.customerData = JSON.stringify(customerInfo);
 
 			        renderCart();
-			 
-				}
-		}
-		});
-	    }
-	    else{
-	    	showToast('System Error: Unable to load Billing Modes. Please contact Accelerate Support.', '#e74c3c');
-	    	renderCart();
-	    }	
-
 }
+
 
 function getFormattedAddress(addressObject){
 	var address = JSON.parse(addressObject);
 
 	if(address){
-		var addressString = address.name+' '+address.flatNo+' '+address.flatName+' '+address.landmark+' '+address.area+' ';
+		var addressString = address.flatNo+', '+address.flatName+' '+address.landmark+' '+address.area+' ';
 		return addressString;
 	}
 	else{
 		return '-';
 	}
 }
+
+function updateTokenCountOnServer(nextToken, revID){
+
+
+			                          //Update token number on server
+			                          var updateData = {
+			                            "_rev": revID,
+			                            "identifierTag": "ZAITOON_TOKEN_INDEX",
+			                            "value": nextToken
+			                          }
+
+			                          $.ajax({
+			                            type: 'PUT',
+			                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TOKEN_INDEX/',
+			                            data: JSON.stringify(updateData),
+			                            contentType: "application/json",
+			                            dataType: 'json',
+			                            timeout: 10000,
+			                            success: function(data) {
+			                              
+			                            },
+			                            error: function(data) {
+			                              showToast('System Error: Unable to update Token Index. Next Token Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+			                            }
+
+			                          });  
+}
+
+
+
+/*
+	CUSTOMER DETAILS MANAGEMENT
+*/
+
 
 function suggestCustomerInfoFromMobile(mode, inputElement){
 
@@ -1746,12 +2735,12 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 	      		savedAddressesEncoded = encodeURI(JSON.stringify(data.docs[0].savedAddresses));
 	      	
 	      		//set default address to 1st saved address
-		      	if(customerInfo.modeType == 'PARCEL' && data.docs[0].savedAddresses.length > 0){
+		      	if(customerInfo.modeType == 'DELIVERY' && data.docs[0].savedAddresses.length > 0){
 		      		customerInfo.mappedAddress = JSON.stringify(data.docs[0].savedAddresses[0]);   			
 	      		}
 	      	}
 	      	else{
-	      		if(customerInfo.modeType == 'PARCEL'){
+	      		if(customerInfo.modeType == 'DELIVERY'){
 		      		//set default address to null
 		      		customerInfo.mappedAddress = "";  			
 	      		}
@@ -1765,6 +2754,7 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 
 	      }
 	      else{ //USER NOT FOUND
+
 	      	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
 	      		//The previous search had found user and set address, name accordingly.
 	      		//So, reset those on this iteration
@@ -1778,7 +2768,7 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 	      		
 	      		customerInfo.mobile = mobileNumber;
 	      		
-	      		if(customerInfo.modeType == 'PARCEL'){
+	      		if(customerInfo.modeType == 'DELIVERY'){
 	      			customerInfo.mappedAddress = '';
 	      			document.getElementById("parcelAddressButtonWrap").innerHTML = '<tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag>';
 	      		}
@@ -1806,7 +2796,7 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 	      		
 	      		customerInfo.mobile = mobileNumber;
 	      		
-	      		if(customerInfo.modeType == 'PARCEL'){
+	      		if(customerInfo.modeType == 'DELIVERY'){
 	      			customerInfo.mappedAddress = '';
 	      			document.getElementById("parcelAddressButtonWrap").innerHTML = '<tag class="btn btn-danger" style=" width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickAddressForNewOrder()">Set Address</tag>';
 	      		}
@@ -1816,8 +2806,6 @@ function suggestCustomerInfoFromMobile(mode, inputElement){
 	    }
 	}
 }
-
-
 
 
 function changeCustomerInfo(type, optionalValue){
@@ -1838,10 +2826,12 @@ function changeCustomerInfo(type, optionalValue){
 	if(jQuery.isEmptyObject(customerInfo)){
 		customerInfo.name = "";
 		customerInfo.mobile = "";
+		customerInfo.count = "";
 		customerInfo.mode = "";
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
+		customerInfo.isOnline = false;
 	}
 
 		switch(type){
@@ -1851,6 +2841,10 @@ function changeCustomerInfo(type, optionalValue){
 			}
 			case "mobile":{
 				customerInfo.mobile = value;
+				break;
+			}	
+			case "count":{
+				customerInfo.count = value;
 				break;
 			}	
 			case "mode":{
@@ -1876,9 +2870,15 @@ function changeCustomerInfo(type, optionalValue){
 					n++;
 				}
 
+				hideBillingModeSelector();
+
 				window.localStorage.customerData = JSON.stringify(customerInfo);
 				renderCart();
 				renderCustomerInfo();
+				renderTables();
+
+				$("#add_item_by_search").focus();
+
 				return '';
 			}
 			case "reference":{
@@ -1898,9 +2898,11 @@ function setCustomerInfoTable(tableID){
 		customerInfo.name = "";
 		customerInfo.mobile = "";
 		customerInfo.mode = "";
+		customerInfo.count = "";
 		customerInfo.modeType = "";
 		customerInfo.mappedAddress = "";
 		customerInfo.reference = "";
+		customerInfo.isOnline = false
 	}
 
 	customerInfo.mappedAddress = tableID;
@@ -1919,7 +2921,17 @@ function setCustomerInfoTable(tableID){
 }
 
 
+
 function renderTables(){
+
+	//re-render right panel
+	if(window.localStorage.appCustomSettings_OrderPageRightPanelDisplay && window.localStorage.appCustomSettings_OrderPageRightPanelDisplay == 'TABLE'){
+		//Proceed
+	}
+	else{
+		return '';
+	}
+
 
 	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
 	if(customerInfo.modeType == 'DINE'){
@@ -1929,53 +2941,63 @@ function renderTables(){
 		currentTableID = '';
 	}
 
-	
 
-			//PRELOAD TABLE MAPPING
-		    if(fs.existsSync('./data/static/tablemapping.json')) {
-		        fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-		      if (err){
-		      	showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
-	    
-		      } else {
+	//To display Large (default) or Small Tables
+	var smallTableFlag = '';
 
-		          	if(data == ''){ data = '[]'; }
+ 
+	//PRELOAD TABLE MAPPING
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-		              var tableMapping = JSON.parse(data);
-		              tableMapping.sort(); //alphabetical sorting 
-		              window.localStorage.tableMappingData = JSON.stringify(tableMapping);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-		              	  //PRELOAD TABLES
-						  if(fs.existsSync('./data/static/tables.json')) {
-					        fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
-					      if (err){
-					          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-					      } else {
+              var tables = data.docs[0].value;
+              tables.sort();
 
-					          if(data == ''){ data = '[]'; }
+              if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
+              	smallTableFlag = ' mediumTile';
+              }
+              else if(tables.length > 50){
+              	smallTableFlag = ' smallTile';
+              }
+ 
 
-					              var tables = JSON.parse(data);
-					              tables.sort(); //alphabetical sorting 
+				    var requestData = {
+				      "selector"  :{ 
+				                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+				                  },
+				      "fields"    : ["_rev", "identifierTag", "value"]
+				    }
+
+				    $.ajax({
+				      type: 'POST',
+				      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+				      data: JSON.stringify(requestData),
+				      contentType: "application/json",
+				      dataType: 'json',
+				      timeout: 10000,
+				      success: function(data) {
+				        if(data.docs.length > 0){
+				          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+
+				              var tableSections = data.docs[0].value;
+				              tableSections.sort(); //alphabetical sorting 
 
 
-					             //PRELOAD TABLE SECTIONS
-							    if(fs.existsSync('./data/static/tablesections.json')) {
-							        fs.readFile('./data/static/tablesections.json', 'utf8', function readFileCallback(err, data){
-							      if (err){
-							          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-							      } else {
-
-							          if(data == ''){ data = '[]'; }
-
-							              var tableSections = JSON.parse(data);
-							              tableSections.sort(); //alphabetical sorting 
-
-							              
-
-							            if(0){
-
-							            }
-							            else{
 							              var renderSectionArea = '';
 
 							              var n = 0;
@@ -1985,38 +3007,43 @@ function renderTables(){
 							              	for(var i = 0; i<tables.length; i++){
 							              		if(tables[i].type == tableSections[n]){
 
-							              			var tableOccupancyData = getTableLiveStatus(tables[i].name);
-
-							              			if(tableOccupancyData){ /*Occuppied*/
-														if(tableOccupancyData.status == 1 || tableOccupancyData.status == 2){
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Running</tag>'+
-																				        	'</tag>';	
+							              			if(tables[i].status != 0){ /*Occuppied*/
+														if(tables[i].status == 1){
+								              				renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+'" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'MAPPED\')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Running')+'</tag>'+
+																					        	'</tag>';	
+														}
+														else if(tables[i].status == 2){
+															renderTableArea = renderTableArea + '<tag class="tableTileYellow'+smallTableFlag+'" style="cursor: pointer" onclick="preSettleBill(\''+tables[i].KOT+'\', \'ORDER_PUNCHING\')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Billed')+'</tag>'+
+																					        	'</tag>';	
 														}									
-														else if(tableOccupancyData.status == 5){
-															if(currentTableID != '' && currentTableID == tables[i].name){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
-																					            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+														else if(tables[i].status == 5){
+															if(currentTableID != '' && currentTableID == tables[i].table){
+								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\', \''+(tables[i].assigned != "" && tables[i].assigned != "Hold Order" ? tables[i].assigned : '')+'\', '+(tables[i].assigned != "" && tables[i].assigned == "Hold Order" ? 1 : 0)+')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																					        	'</tag>';	
 															}	
 															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
-																					            '<tag class="tableInfo">Reserved</tag>'+
+								              				renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\', \''+(tables[i].assigned != "" && tables[i].assigned != "Hold Order" ? tables[i].assigned : '')+'\', '+(tables[i].assigned != "" && tables[i].assigned == "Hold Order" ? 1 : 0)+')">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																					        	'</tag>';	
 															}
 
 														}									
 														else{
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'MAPPED\')">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Running</tag>'+
+							              				renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+'" style="cursor: pointer" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'MAPPED\')">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
 																				        	'</tag>';											
 														}
 
@@ -2024,18 +3051,18 @@ function renderTables(){
 							              			}
 							              			else{
 
-							              				if(currentTableID != '' && currentTableID == tables[i].name){
-							              					renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\')">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+							              				if(currentTableID != '' && currentTableID == tables[i].table){
+							              					renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\')">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																				        	'</tag>';
 														}	
 														else{
-															renderTableArea = renderTableArea + '<tag class="tableTileGreen" onclick="retrieveTableInfo(\''+tables[i].name+'\', \'FREE\')">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Free</tag>'+
+															renderTableArea = renderTableArea + '<tag class="tableTileGreen'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tables[i].table+'\', \'FREE\')">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
 																				        	'</tag>';
 														}							        	              				
 							              			}
@@ -2044,7 +3071,7 @@ function renderTables(){
 							              	}
 
 							              	renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
-																	   '<h1 class="seatingPlanHead" style="font-weight: 400; font-size: 18px; background: #f6f6f6; margin: 5px 5px; padding: 10px;">'+tableSections[n]+'</h1>'+
+																	   '<h1 class="seatingPlanHead'+smallTableFlag+'" style="font-weight: 400; font-size: 18px; background: #f6f6f6; margin: 5px 5px; padding: 10px;">'+tableSections[n]+'</h1>'+
 																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
 																	    '</div>'+
 																	'</div>'
@@ -2053,71 +3080,246 @@ function renderTables(){
 							              }
 							              
 							              document.getElementById("tableRenderPlane").innerHTML = renderSectionArea;
-							            }
-							    }
-							    });
-							      } else {
-							        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-							      } 
+   
+				          }
+				          else{
+				            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				          }
+				        }
+				        else{
+				          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				        }
 
-					    }
-					    });
-					      } else {
-					        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-					      } 
+				      },
+				      error: function(data) {
+				        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+				      }
 
+				    });
 
-		    }
-		    });
-		     }
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 
-function retrieveTableInfo(tableID, statusCode){
+function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSaveFlag){
+
+
+	/* warn if unsaved order (Not editing case) */
+	if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){
+	    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+	        showToast('Warning! There is an unsaved order being punched. Please complete it to continue.', '#e67e22');
+	        
+	       // document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
+	        //document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
+	          //                                      '<button type="button" class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
+	    	return '';
+	    }    
+	}
+	
 
 	if(statusCode == 'MAPPED'){
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
 
-	          for(var i=0; i<tableMapping.length; i++){
-	          	if(tableMapping[i].table == tableID){
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                  },
+		      "fields"    : ["_rev", "identifierTag", "value"]
+		    }
 
-	          		console.log(tableMapping[i])
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-	          	}
-	          }
+			          var tableMapping = data.docs[0].value;
+			          for(var i=0; i<tableMapping.length; i++){
+			          	if(tableMapping[i].table == tableID){
+			          		moveToEditKOT(tableMapping[i].KOT);
+			          	}
+			          }
+		                
+		          }
+		          else{
+		            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Table Mapping data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+		      },
+		      error: function(data) {
+		        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+		      }
+
+		    });
 	}
 	else if(statusCode == 'FREE'){
-		console.log('Free Table')
+		freshOrderOnTable(tableID, optionalCustomerName, optionalSaveFlag);
 	}
 }
+
+
+/*Add to edit KOT*/
+function moveToEditKOT(kotID){
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          	var kot = data.docs[0];
+
+		    if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+		        var alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+		        if(alreadyEditingKOT.KOTNumber == kot.KOTNumber)//if thats the same order, neglect.
+		        {
+		            //renderPage('new-order', 'Editing Order');
+		            renderCustomerInfo();
+					initOrderPunch();
+					renderTables();
+		            return '';
+		        }
+		        else{
+
+			    	//Editing order has unsaved changes
+			    	if(window.localStorage.hasUnsavedChangesFlag && window.localStorage.hasUnsavedChangesFlag == 1){
+				        showToast('Warning! There is already an active order being modified. Please complete it to continue.', '#e67e22');
+			    		return '';
+			    	}
+		        }
+		    }
+
+		    /*
+		    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+
+		    	showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
+			        
+			    document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
+			    document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
+			                                                '<button type="button" class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
+		    	return '';
+		    }    
+		    */
+
+		    overWriteCurrentRunningOrder(kot);
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
+}
+
+function overWriteCurrentRunningOrder(kot){
+
+    //var kot = JSON.parse(decodeURI(encodedKOT));
+
+
+    var customerInfo = {};
+    customerInfo.name = kot.customerName;
+    customerInfo.mobile = kot.customerMobile;
+    customerInfo.count = kot.guestCount;
+    customerInfo.mappedAddress = kot.table;
+    customerInfo.mode = kot.orderDetails.mode;
+    customerInfo.modeType = kot.orderDetails.modeType;
+    customerInfo.reference = kot.orderDetails.reference;
+    customerInfo.isOnline = kot.orderDetails.isOnline;
+
+
+    if(kot.specialRemarks && kot.specialRemarks != ''){
+    	window.localStorage.specialRequests_comments = kot.specialRemarks;
+    }
+    else{
+    	window.localStorage.specialRequests_comments = '';
+    }
+
+    if(kot.allergyInfo && kot.allergyInfo != []){
+    	window.localStorage.allergicIngredientsData = JSON.stringify(kot.allergyInfo);
+    }
+    else{
+    	window.localStorage.allergicIngredientsData = '';
+    }
+
+
+    //Pending new order will be removed off the cart.
+    window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
+    window.localStorage.customerData = JSON.stringify(customerInfo);
+
+    //window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+    window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
+
+
+    //renderPage('new-order', 'Running Order');
+    renderCustomerInfo();
+	initOrderPunch();
+	renderTables();
+}
+
+
+
+
 
 
 function renderCategoryTab(defaultTab){
 
-		if(fs.existsSync('./data/static/menuCategories.json')) {
-	      fs.readFile('./data/static/menuCategories.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Menu Categories data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	          	var categories = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+
+	          	var categories = data.docs[0].value;
 	          	categories.sort(); //alphabetical sorting 
 	          	var categoryTag = '';
-
 
 				for (var i=0; i<categories.length; i++){
 					if(categories[i] == defaultTab)
@@ -2151,42 +3353,59 @@ function renderCategoryTab(defaultTab){
 					dropTag = '<p style="color: #dd4b39; padding: 20px; text-align: center; font-size: 14px; margin-bottom: 0px;">Menu is not added yet.</p>';
 
 				document.getElementById("posSubMenuDropdown").innerHTML = dropTag;
-			
 
 
+          }
+          else{
+            showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu Category data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
-			
-				
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Menu Categories data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+    }); 
 }
+
+
 
 function renderMenu(subtype){
 
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	    	console.log(err)
-	        
-	    } else {
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
 
-	    /* PERSONALISATIONS */
-		var showPhotosFlag = window.localStorage.appCustomSettings_ImageDisplay == 'true' ? true: false;
+	          	var mastermenu = data.docs[0].value; 
 
+				/* PERSONALISATIONS */
+				var showPhotosFlag = window.localStorage.appCustomSettings_ImageDisplay == 'true' ? true: false;
 
-	          		var mastermenu = JSON.parse(data); 
+	          	var itemsInSubMenu = "";
 
-	          		var itemsInSubMenu = "";
+				if(!subtype){
+					subtype = mastermenu[0].category;
+				}
 
-					if(!subtype){
-						subtype = mastermenu[0].category;
-					}
-
-					renderCategoryTab(subtype);
+				renderCategoryTab(subtype);
 	         
 				for (var i=0; i<mastermenu.length; i++){
 
@@ -2195,10 +3414,11 @@ function renderMenu(subtype){
 						for(var j=0; j<mastermenu[i].items.length; j++){
 							var temp = encodeURI(JSON.stringify(mastermenu[i].items[j]));
 							if(mastermenu[i].items[j].isPhoto && showPhotosFlag){
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img" style="background: none !important;"><img src="data/photos/menu/'+mastermenu[i].items[j].code+'.jpg" alt="'+mastermenu[i].items[j].name+'" style="width: 110px; height: 110px;"></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\')" type="button" type="button" class="btn btn-both btn-flat product"><tag id="menu_image_holder_'+mastermenu[i].items[j].code+'"><div id="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></tag><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								fetchImageFromServer(mastermenu[i].items[j].code, mastermenu[i].items[j].vegFlag);
 							}
 							else{
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img"><div id="itemImage">'+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img"><div id="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
 							}
 						}
 						break;
@@ -2228,12 +3448,41 @@ function renderMenu(subtype){
 						document.getElementById('subMenuSelectionArea').setAttribute("style","height: 17vh !important; overflow: scroll !important");
 					}
 				}
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
-	
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });	
+}
+
+
+function fetchImageFromServer(itemCode, vegFlag){
+
+		itemCode = parseInt(itemCode);
+
+        $.ajax({
+            type: 'GET',
+            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/'+itemCode,
+            timeout: 10000,
+            success: function(serverData) {
+              if(serverData.data != ''){
+              	$('#menu_image_holder_'+itemCode).html('<span class="bg-img" style="background: none !important; position: relative"><img src="'+serverData.data+'" style="width: 110px; height: 110px;">'+(vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+'</span>');
+              }
+            },
+            error: function(data){
+            }
+        });     
 }
 
 
@@ -2453,10 +3702,175 @@ function generateEditedKOT(){
 		j++;
 	}
 
-	console.log('Change History:')
-	console.log(comparisonResult)
-
+	generateEditedKOTAfterProcess(originalData.KOTNumber, changed_cart_products, changedCustomerInfo, comparisonResult)
 }
+
+
+function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject){
+
+
+
+	console.log(compareObject)
+	return '';
+	
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          
+          var kot = data.docs[0];
+
+          //Updates the KOT
+          kot.customerMobile = changedCustomerInfo.mobile;
+          kot.customerName = changedCustomerInfo.name;
+          kot.guestCount = changedCustomerInfo.count;
+          kot.timeKOT = getCurrentTime('TIME');
+          kot.cart = newCart;
+
+          if(window.localStorage.specialRequests_comments && window.localStorage.specialRequests_comments != ''){
+          	kot.specialRemarks = window.localStorage.specialRequests_comments;
+          }
+
+          var allergyData = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
+          kot.allergyInfo = allergyData;
+
+
+
+			/* RECALCULATE New Figures*/
+			var subTotal = 0;
+			var packagedSubTotal = 0;
+
+			var n = 0;
+			while(kot.cart[n]){
+				subTotal = subTotal + kot.cart[n].qty * kot.cart[n].price;
+
+				if(kot.cart[n].isPackaged){
+					packagedSubTotal += kot.cart[n].qty * kot.cart[n].price;
+				}
+
+				n++;
+			}
+
+			/*Calculate Taxes and Other Charges*/
+	        var k = 0;
+	        if(kot.extras.length > 0){
+	          	for(k = 0; k < kot.extras.length; k++){
+
+	          		var tempExtraTotal = 0;
+
+	          		if(kot.extras[k].isPackagedExcluded){
+			          		if(kot.extras[k].value != 0){
+			          			if(kot.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = (kot.extras[k].value * (subTotal - packagedSubTotal))/100;
+			          			}
+			          			else if(kot.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = kot.extras[k].value;
+			          			}
+			          		}
+			        }
+			        else{
+			          		if(kot.extras[k].value != 0){
+			          			if(kot.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = kot.extras[k].value * subTotal/100;
+			          			}
+			          			else if(kot.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = kot.extras[k].value;
+			          			}
+			          		}			        	
+			        }
+
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		kot.extras[k] = {
+				 		"name": kot.extras[k].name,
+						"value": kot.extras[k].value,
+						"unit": kot.extras[k].unit,
+						"amount": tempExtraTotal,
+						"isPackagedExcluded": kot.extras[k].isPackagedExcluded
+	          		};
+	          	}
+	        }
+
+	        /*Calculate Discounts if Any*/     
+	        if(kot.discount){
+	          		var tempExtraTotal = 0;
+	          		if(kot.discount.value != 0){
+	          			if(kot.discount.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = kot.discount.value * subTotal/100;
+	          			}
+	          			else if(kot.discount.unit == 'FIXED'){
+	          				tempExtraTotal = kot.discount.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		kot.discount.amount = tempExtraTotal;
+	        }
+
+
+	        /*Calculate Custom Extras if Any*/     
+	        if(kot.customExtras){
+	          		var tempExtraTotal = 0;
+	          		if(kot.customExtras.value != 0){
+	          			if(kot.customExtras.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = kot.customExtras.value * subTotal/100;
+	          			}
+	          			else if(kot.customExtras.unit == 'FIXED'){
+	          				tempExtraTotal = kot.customExtras.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		kot.customExtras.amount = tempExtraTotal;
+	        }
+
+
+          	  //Update on Server
+              
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
+                  data: JSON.stringify(kot),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                  	  clearAllMetaData();
+                  	  renderCustomerInfo();
+                      sendKOTChangesToPrinter(kot, compareObject);
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });         
+
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    }); 
+}
+
+
+function sendKOTChangesToPrinter(kotObject, compareObject){
+
+	console.log(kotObject, compareObject)
+}
+
 
 /* to quick view what items got removed */
 function quickViewRemovedItems(){
@@ -2541,7 +3955,7 @@ function revertDelete(encodedItem){
 	var item = JSON.parse(decodeURI(encodedItem));
 
 	if(item.isCustom){
-		addCustomToCart(item.name, item.code, item.price, item.variant);
+		addCustomToCart(item.name, item.code, item.price, item.variant, '',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "");
 	}
 	else{
 		additemtocart(encodedItem);
@@ -2563,7 +3977,7 @@ function generateNewKOT(){
 
 	var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
 	
-	var selectedBillingModeName = document.getElementById("customer_form_data_mode").value;
+	var selectedBillingModeName = $('#customer_form_data_mode').attr("selected-mode");
 	var selectedBillingModeInfo = '';
 	
 	var n = 0;
@@ -2576,17 +3990,29 @@ function generateNewKOT(){
 	}
 
 
-		if(fs.existsSync('./data/static/billingparameters.json')) {
-	      fs.readFile('./data/static/billingparameters.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	          	var params = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
 
-	          	var selectedModeExtrasList = (selectedBillingModeInfo.extras).split(",");
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+
+	          	var params = data.docs[0].value;
+
+	          	var selectedModeExtrasList = selectedBillingModeInfo.extras;
 	          	var cartExtrasList = [];
 
 	          	var n = 0;
@@ -2594,35 +4020,172 @@ function generateNewKOT(){
 	          	while(selectedModeExtrasList[n]){
 	          		m = 0;
 	          		while(params[m]){	  
-	          			if(selectedModeExtrasList[n] == params[m].name)        			
-	          				cartExtrasList.push(params[m])
+	          			if(selectedModeExtrasList[n].name == params[m].name){  
+	          				params[m].value = parseFloat(selectedModeExtrasList[n].value);    			
+	          				cartExtrasList.push(params[m]);
+	          			}
 	          			
 	          			m++;
 	          		}
 	          		n++;
 	          	}
+	          	
+	          	generateKOTAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList)	
 
-	          	generateKOTAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList)	          	
+          }
+          else{
+            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+    });
+
+}
+
+
+
+//Save New Customer to Database
+
+function addCustomerToDatabase(customerData){
+
+	customerData._id = customerData.mobile;
+
+	//Post to local Server
+	$.ajax({
+	    type: 'POST',
+	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/',
+	    data: JSON.stringify(customerData),
+	    contentType: "application/json",
+	    dataType: 'json',
+	    timeout: 10000,
+	    success: function(data) {
+
+        },
+        error: function(data) {
+                	
+        }
+	});  
+
+}
+
+function updateCustomerAddressOnDatabase(mobile, newAddress){
+
+    var requestData = { "selector" :{ "_id": mobile }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          		var userData = data.docs[0];
+          		userData.savedAddresses.push(newAddress);
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_users/'+mobile+'/',
+                  data: JSON.stringify(userData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                  	console.log(data)
+                  },
+                  error: function(data) {
+                      
+                  }
+                }); 
+        }
+      },
+      error: function(data) {
+        
+      }
+
+    }); 
+}
+
+
+function removeCustomerAddressFromDatabase(mobile, addressID){
+
+    var requestData = { "selector" :{ "_id": mobile }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+          		var userData = data.docs[0];
+          		var n = 0;
+          		while(userData.savedAddresses[n]){
+          			if(userData.savedAddresses[n].id == addressID){
+          				userData.savedAddresses.splice(n, 1);
+          				break;
+          			}
+          			n++;
+          		}
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_users/'+mobile+'/',
+                  data: JSON.stringify(userData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                  	console.log(data)
+                  },
+                  error: function(data) {
+                      
+                  }
+                }); 
+        }
+      },
+      error: function(data) {
+        
+      }
+
+    }); 
 }
 
 
 function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras){
-	/*Process Figures*/
-	var subTotal = 0;
+		
+		/*Process Figures*/
+		var subTotal = 0;
+		var packagedSubTotal = 0;
 
-	var n = 0;
-	while(cart_products[n]){
-		subTotal = subTotal + cart_products[n].qty * cart_products[n].price;
-		n++;
-	}
+		var n = 0;
+		while(cart_products[n]){
+			subTotal = subTotal + cart_products[n].qty * cart_products[n].price;
+
+			if(cart_products[n].isPackaged){
+				packagedSubTotal = packagedSubTotal + cart_products[n].qty * cart_products[n].price;
+			}
+
+			n++;
+		}
 
 		  /*Calculate Taxes and Other Charges*/ 
+
+		  //Note: Skip tax and other extras (with isCompulsary no) on packaged food Pepsi ect. (marked with 'isPackaged' = true)
+
           var otherCharges = [];        
           var k = 0;
 
@@ -2630,13 +4193,26 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
           	for(k = 0; k < selectedModeExtras.length; k++){
 
           		var tempExtraTotal = 0;
+
           		if(selectedModeExtras[k].value != 0){
-          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
-          				tempExtraTotal = selectedModeExtras[k].value * subTotal/100;
+          			if(selectedModeExtras[k].excludePackagedFoods){
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = (selectedModeExtras[k].value * (subTotal-packagedSubTotal))/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}          				
           			}
-          			else if(selectedModeExtras[k].unit == 'FIXED'){
-          				tempExtraTotal = selectedModeExtras[k].value;
+          			else{
+		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+		          				tempExtraTotal = selectedModeExtras[k].value * subTotal/100;
+		          			}
+		          			else if(selectedModeExtras[k].unit == 'FIXED'){
+		          				tempExtraTotal = selectedModeExtras[k].value;
+		          			}                 				
           			}
+
+
           		}
 
           		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
@@ -2645,7 +4221,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 			 		"name": selectedModeExtras[k].name,
 					"value": selectedModeExtras[k].value,
 					"unit": selectedModeExtras[k].unit,
-					"amount": tempExtraTotal
+					"amount": tempExtraTotal,
+					"isPackagedExcluded": selectedModeExtras[k].excludePackagedFoods
           		})
           	}
           }
@@ -2659,9 +4236,35 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		return '';
 	}
 
-	if(customerInfo.mappedAddress == ''){
-		showToast('Table Number or Address missing', '#e74c3c');
+	if(customerInfo.mobile == '' && customerInfo.modeType == 'PARCEL'){
+		showToast('Please enter Customer Contact Number', '#e74c3c');
 		return '';
+	}
+
+	if(customerInfo.mappedAddress == '' && customerInfo.modeType != 'PARCEL'){
+		switch(customerInfo.modeType){
+			case "TOKEN":{
+				showToast('Token is not set', '#e74c3c');
+				return '';
+				break;
+			}
+			case "DELIVERY":{
+				showToast('Delivery Address not set', '#e74c3c');
+				return '';
+				break;
+			}
+			case "DINE":{
+				showToast('Table not selected', '#e74c3c');
+				return '';
+				break;
+			}
+			default:{
+				showToast('Table Number or Address missing', '#e74c3c');
+				return '';
+				break;
+			}
+		}
+		
 	}
 
 	/* customerInfo.json
@@ -2688,109 +4291,300 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	orderMetaInfo.mode = customerInfo.mode;
 	orderMetaInfo.modeType = customerInfo.modeType;
 	orderMetaInfo.reference = customerInfo.reference;
+	orderMetaInfo.isOnline = customerInfo.isOnline;
+
+	if(customerInfo.isOnline){
+		orderMetaInfo.onlineOrderDetails = customerInfo.onlineOrderDetails;
+	}
+
+
+	//User not found in DB ==> Add USER to DB
+	if(!window.localStorage.userAutoFound || window.localStorage.userAutoFound == ''){
+		
+		if(customerInfo.mobile != ''){
+
+			var customerObject = {
+				"name": customerInfo.name,
+				"mobile": customerInfo.mobile,
+				"savedAddresses": []
+			}
+
+
+			if(customerInfo.modeType == 'DELIVERY'){
+
+				var address = JSON.parse(decodeURI(customerInfo.mappedAddress));
+
+				customerObject.savedAddresses. push({
+				      "id": 1,
+				      "name": address.name,
+				      "flatNo": address.flatNo,
+				      "flatName": address.flatName,
+				      "landmark": address.landmark,
+				      "area": address.area,
+				      "contact": address.contact
+				    });
+			}
+
+			addCustomerToDatabase(customerObject);				
+		}
+	}
    
-      //Check if file exists
+    //Check for KOT index on Server
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_KOT_INDEX" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-      fs.readFile('./data/static/lastKOT.txt', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read order related data. Please contact Accelerate Support.', '#e74c3c');
-       } else{
-          var num = parseInt(data) + 1;
-          var kot = 'KOT' + num;
-         
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_KOT_INDEX'){
 
-          var today = getCurrentTime('DATE');
-          var time = getCurrentTime('TIME');
+	          var num = parseInt(data.docs[0].value) + 1;
+	          var kot = 'KOT' + num;
 
-          var obj = {}; 
-          obj.KOTNumber = kot;
-          obj.orderDetails = orderMetaInfo;
-          obj.table = customerInfo.mappedAddress;
-          obj.customerName = customerInfo.name;
-          obj.customerMobile = customerInfo.mobile; 
-          obj.stewardName = loggedInStaffInfo.name;
-          obj.stewardCode = loggedInStaffInfo.code;
-          obj.orderStatus = 1;
-          obj.date = today;
-          obj.timePunch = time;
-          obj.timeKOT = "";
-          obj.timeBill = "";
-          obj.timeSettle = "";
-          obj.cart = cart_products;
-          obj.specialRemarks = 'SPECIAL COMMENTS';
-          obj.extras = otherCharges,
-          obj.discount = {},
-          obj.customExtras = {}
+	          var memory_revID = data.docs[0]._rev;
+	         
+	          var today = getCurrentTime('DATE');
+	          var time = getCurrentTime('TIME');
 
-          var json = JSON.stringify(obj); //convert it back to json
-          var file = './data/KOT/'+kot+'.json';
-          fs.writeFile(file, json, 'utf8', (err) => {
-              if(err){
-				showToast('System Error: Unable to generate KOT. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{  
-              	
-              	//Send KOT for Printing
-              	//sendToPrinter(kot, 'KITCHEN')
+	          var specialRemarksInfo = window.localStorage.specialRequests_comments ? window.localStorage.specialRequests_comments : '';
+	          var allergyData = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData) : [];
 
-              	if(orderMetaInfo.modeType == 'DINE'){
-              		addToTableMapping(obj.table, kot, obj.customerName);
-              		showToast('#'+kot+' generated Successfully', '#27ae60');
+	          var obj = {}; 
+	          obj.KOTNumber = kot;
+	          obj.orderDetails = orderMetaInfo;
+	          obj.table = customerInfo.mappedAddress;
 
-              		
-              		clearAllMetaData();
-              		renderCustomerInfo();
-              		$("#add_item_by_search").focus();
-              	}
-              	else if(orderMetaInfo.modeType == 'TOKEN'){
-              		/*Increment Token Counter*/
-              		var tempToken = window.localStorage.lastPrintedToken;
-              		if(!tempToken || tempToken == ''){
-              			tempToken = 1;
-              		}
-              		showToast('#'+kot+' generated Successfully', '#27ae60');
-              		window.localStorage.lastPrintedToken = parseInt(tempToken) + 1;
- 					
- 					pushCurrentOrderAsEditKOT(encodeURI(json));
-              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
-              	}
-              	else if(orderMetaInfo.modeType == 'PARCEL'){
-              		showToast('#'+kot+' generated Successfully', '#27ae60');
-              		
-              		pushCurrentOrderAsEditKOT(encodeURI(json));
-              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
-              	}
-              }
-              	 
-           });
+	          obj.customerName = customerInfo.name;
+	          obj.customerMobile = customerInfo.mobile; 
+	          obj.guestCount = customerInfo.count && customerInfo.count != '' ? parseInt(customerInfo.count) : '';
 
-          fs.writeFile("./data/static/lastKOT.txt", num, 'utf8', (err) => {
-              if(err)
-                 showToast('System Error: Unable to modify order related data. Please contact Accelerate Support.', '#e74c3c');
-           });
-       }
-       });
+	          obj.machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+	          
+	          var sessionInfo = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData) : {};
+	          obj.sessionName = sessionInfo.name ? sessionInfo.name : '';
+
+	          obj.stewardName = loggedInStaffInfo.name;
+	          obj.stewardCode = loggedInStaffInfo.code;
+
+	          obj.date = today;
+	          obj.timePunch = time;
+	          obj.timeKOT = "";
+	          obj.timeBill = "";
+	          obj.timeSettle = "";
+
+	          obj.cart = cart_products;
+	          obj.specialRemarks = specialRemarksInfo;
+	          obj.allergyInfo = allergyData;
+
+	          obj.extras = otherCharges,
+	          obj.discount = {},
+	          obj.customExtras = {}
+
+
+	          //Post to local Server
+	          $.ajax({
+	            type: 'POST',
+	            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/',
+	            data: JSON.stringify(obj),
+	            contentType: "application/json",
+	            dataType: 'json',
+	            timeout: 10000,
+	            success: function(data) {
+	              if(data.ok){
+
+	              	//Send KOT for Printing
+	              	sendToPrinter(obj, 'KOT');
+
+	              	if(orderMetaInfo.modeType == 'DINE'){
+	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
+	              		showToast('#'+kot+' generated Successfully', '#27ae60');
+
+	              		
+	              		clearAllMetaData();
+	              		renderCustomerInfo();
+	              		$("#add_item_by_search").focus();
+	              	}
+	              	else if(orderMetaInfo.modeType == 'TOKEN'){
+
+	              		showToast('#'+kot+' generated Successfully', '#27ae60');
+
+	              		//Clear Token
+						window.localStorage.claimedTokenNumber = '';
+						window.localStorage.claimedTokenNumberTimestamp = '';	              		
+	 					
+	 					pushCurrentOrderAsEditKOT(obj);
+	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
+	              	}
+	              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
+	              		showToast('#'+kot+' generated Successfully', '#27ae60');
+	              		
+	              		//If an online order ==> Save Mapping
+	              		if(obj.orderDetails.isOnline){
+	              			saveOnlineOrderMapping(obj);
+	              			getOnlineOrdersCount();
+	              		}
+	              		
+
+	              		pushCurrentOrderAsEditKOT(obj);
+	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
+	              	}
+
+                          
+
+                    	  //Update KOT number on server
+
+                          var updateData = {
+                            "_rev": memory_revID,
+                            "identifierTag": "ZAITOON_KOT_INDEX",
+                            "value": num
+                          }
+
+                          $.ajax({
+                            type: 'PUT',
+                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_INDEX/',
+                            data: JSON.stringify(updateData),
+                            contentType: "application/json",
+                            dataType: 'json',
+                            timeout: 10000,
+                            success: function(data) {
+                              
+                            },
+                            error: function(data) {
+                              showToast('System Error: Unable to update KOT Index. Next KOT Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+                            }
+                          });
+
+
+	              }
+	              else{
+	                showToast('Warning: KOT was not Generated. Try again.', '#e67e22');
+	              }
+	            },
+	            error: function(data){           
+	              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	            }
+	          });  
+			  //End - post KOT to Server
+
+
+             
+          }
+          else{
+            showToast('Not Found Error: KOT Index data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: KOT Index data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOT Index. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+}
+
+
+function saveOnlineOrderMapping(orderObject){
+
+	var systemDate = getCurrentTime('DATE_DD-MM-YY');
+
+	//Pass the info to the Server Mapping
+    var objectData = {
+    	  "_id" : orderObject.orderDetails.onlineOrderDetails.orderSource+'_'+orderObject.orderDetails.reference,
+		  "onlineOrder": orderObject.orderDetails.reference,
+		  "source": orderObject.orderDetails.onlineOrderDetails.orderSource,
+		  "type": orderObject.orderDetails.modeType,
+		  "name": orderObject.customerName,
+		  "mobile": orderObject.customerMobile,
+		  "timeReceive": orderObject.orderDetails.onlineOrderDetails.onlineTime,
+		  "timePunch": orderObject.timePunch,
+		  "timeDispatch": "",
+		  "agentName": "",
+		  "agentNumber": "",
+		  "modeOfPayment": orderObject.orderDetails.onlineOrderDetails.paymentMode,
+		  "amount": orderObject.orderDetails.onlineOrderDetails.onlineAmount,
+		  "date": orderObject.orderDetails.onlineOrderDetails.onlineDate,
+		  "systemBill": orderObject.KOTNumber,
+		  "onlineStatus": 1,
+		  "systemStatus": 1,
+		  "systemDate": systemDate  
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/',
+      data: JSON.stringify(objectData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+      	if(data.ok){
+
+      	}
+      	else{
+      		showToast('System Error: Unable to modify Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+      	}
+        
+      },
+      error: function(data) {
+      	if(data.statusText == "Conflict"){
+      		showToast('Warning! This order (#'+orderObject.orderDetails.reference+') was already punched.', '#e67e22');
+      	}
+        else{
+        	showToast('System Error: Unable to update Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+      	}
+      }
+
+    }); 	
 }
 
 
 
 /*Add to edit KOT*/
-function pushCurrentOrderAsEditKOT(encodedKOT){
+function pushCurrentOrderAsEditKOT(kot){
     
-    var kot = JSON.parse(decodeURI(encodedKOT));
+    //var kot = JSON.parse(decodeURI(encodedKOT));
 
     var customerInfo = {};
     customerInfo.name = kot.customerName;
     customerInfo.mobile = kot.customerMobile;
+    customerInfo.count = kot.guestCount;
     customerInfo.mappedAddress = kot.table;
     customerInfo.mode = kot.orderDetails.mode;
     customerInfo.modeType = kot.orderDetails.modeType;
     customerInfo.reference = kot.orderDetails.reference;
+    customerInfo.isOnline = kot.orderDetails.isOnline;
+
+    if(kot.specialRemarks && kot.specialRemarks != ''){
+    	window.localStorage.specialRequests_comments = kot.specialRemarks;
+    }
+    else{
+    	window.localStorage.specialRequests_comments = '';
+    }
+
+    if(kot.allergyInfo && kot.allergyInfo != []){
+    	window.localStorage.allergicIngredientsData = JSON.stringify(kot.allergyInfo);
+    }
+    else{
+    	window.localStorage.allergicIngredientsData = '';
+    }
 
     //Pending new order will be removed off the cart.
     window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
-    window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
+    window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot); //decodeURI(encodedKOT);
 
     renderCustomerInfo();
 }
@@ -2801,17 +4595,201 @@ function clearAllMetaData(){
 
 	customerInfo.name = "";
 	customerInfo.mobile ="";
+	customerInfo.count = "";
 	customerInfo.mappedAddress = "";
 	customerInfo.reference = "";
+	customerInfo.isOnline = false;
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 	window.localStorage.zaitoon_cart = '';
+	window.localStorage.edit_KOT_originalCopy = '';
 	window.localStorage.userAutoFound = '';
 	window.localStorage.userDetailsAutoFound = '';
+
+	window.localStorage.specialRequests_comments = '';
+	window.localStorage.allergicIngredientsData = '[]';
+
+	window.localStorage.hasUnsavedChangesFlag = 0;
+ 	//document.getElementById("leftdiv").style.borderColor = "#FFF";
 }
 
-function addToTableMapping(tableID, kotID, assignedTo){
 
+function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
+
+
+	/* skip if in Editing Mode & has unsaved changes */
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != '' && window.localStorage.hasUnsavedChangesFlag == 1){
+		showToast('Warning: There are unsaved changes. Print the changed KOT to continue.', '#e67e22');
+		return '';
+	}
+
+
+	//to remove cart info, customer info
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+
+	/* skip if not DINE mode */
+	if(!customerInfo.modeType || customerInfo.modeType != 'DINE'){
+		var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
+		
+		if(billing_modes.length == 0){
+			showToast('Warning: There are no billing modes created.', '#e67e22');
+			return '';
+		}
+
+		var n = 0;
+		while(billing_modes[n]){
+			if(billing_modes[n].type == 'DINE'){
+				customerInfo.mode = billing_modes[n].name;
+				customerInfo.modeType = 'DINE';
+				
+				break;
+			}
+
+			if(billing_modes.length == n){
+				showToast('Warning: There are no billing modes of type Dine created.', '#e67e22');
+				return '';
+			}
+
+			n++;
+		}		
+	}
+
+	customerInfo.name = (optionalCustomerName && optionalCustomerName != '') ? optionalCustomerName : '';
+	customerInfo.mobile = "";
+	customerInfo.count = "";
+	customerInfo.mappedAddress = TableNumber;
+	customerInfo.reference = "";
+	customerInfo.isOnline = false;
+
+
+	window.localStorage.customerData = JSON.stringify(customerInfo);
+	window.localStorage.edit_KOT_originalCopy = '';
+
+	if(optionalSaveFlag && optionalSaveFlag == 1){
+		
+			/* fetch cart from saved */
+
+		    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+
+						var holding_orders = data.docs[0].value;
+
+						var n = 0;
+						while(holding_orders[n]){
+							if(holding_orders[n].customerDetails.mappedAddress == TableNumber){
+								addHoldOrderToCurrent(encodeURI(JSON.stringify(holding_orders[n])));
+								return '';
+							}
+							n++;
+						}
+
+		          }
+		        }		        
+		      }
+		    });	
+	}
+	else{
+		window.localStorage.zaitoon_cart = '';
+	}
+
+	window.localStorage.userAutoFound = '';
+	window.localStorage.userDetailsAutoFound = '';
+	window.localStorage.specialRequests_comments = '';
+	window.localStorage.allergicIngredientsData = '[]';
+
+
+	window.localStorage.hasUnsavedChangesFlag = 0;
+ 	//document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+	renderCart();
+	renderCustomerInfo();
+	renderTables();
+
+	$('#add_item_by_search').focus();
+}
+
+
+/* Make a new order against a Customer Data provided, start with Empty Cart */
+function freshOrderForCustomer(customerEncoded){
+
+	/* skip if in Editing Mode & has unsaved changes */
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != '' && window.localStorage.hasUnsavedChangesFlag == 1){
+		showToast('Warning: There are unsaved changes. Print the changed KOT to continue.', '#e67e22');
+		return '';
+	}
+
+	var newCustomerObj = JSON.parse(decodeURI(customerEncoded));
+
+	//to remove cart info, customer info
+	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+
+	/* skip if not DINE mode */
+	if(!customerInfo.modeType || customerInfo.modeType != 'DINE'){
+		var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
+		
+		if(billing_modes.length == 0){
+			showToast('Warning: There are no billing modes created.', '#e67e22');
+			return '';
+		}
+
+		var n = 0;
+		while(billing_modes[n]){
+			if(billing_modes[n].type == 'DINE'){
+				customerInfo.mode = billing_modes[n].name;
+				customerInfo.modeType = 'DINE';
+				
+				break;
+			}
+
+			if(billing_modes.length == n){
+				showToast('Warning: There are no billing modes of type Dine created.', '#e67e22');
+				return '';
+			}
+
+			n++;
+		}		
+	}
+
+	customerInfo.name = newCustomerObj.name;
+	customerInfo.mobile = newCustomerObj.mobile;
+	customerInfo.mappedAddress = "";
+	customerInfo.reference = "";
+	customerInfo.count = "";
+	customerInfo.isOnline = false;
+
+
+	window.localStorage.customerData = JSON.stringify(customerInfo);
+	window.localStorage.edit_KOT_originalCopy = '';
+
+	window.localStorage.zaitoon_cart = '';
+	
+	window.localStorage.userAutoFound = 1;
+	window.localStorage.userDetailsAutoFound = JSON.stringify(newCustomerObj);
+
+
+
+	window.localStorage.hasUnsavedChangesFlag = 0;
+ 	document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+	renderCart();
+	renderCustomerInfo();
+	renderTables();
+}
+
+
+
+
+function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 
           var today = new Date();
           var hour = today.getHours();
@@ -2825,219 +4803,661 @@ function addToTableMapping(tableID, kotID, assignedTo){
               mins = '0'+mins;
           }
 
-		if(fs.existsSync('./data/static/tablemapping.json')) {
-	      fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to map KOT and Table. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var tableMapping = JSON.parse(data); 
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                  },
+		      "fields"    : ["_rev", "identifierTag", "value"]
+		    }
 
-	          var isUpdated = false;
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-	          var timestamp = getCurrentTime('TIME');
+			          var tableMapping = data.docs[0].value;
+			          var timestamp = getCurrentTime('TIME');
 
-	          for(var i=0; i<tableMapping.length; i++){
-	          	if(tableMapping[i].table == tableID){
+			          for(var i=0; i<tableMapping.length; i++){
+			          	if(tableMapping[i].table == tableID){
 
-	          		isUpdated = true;
+			          		if(tableMapping[i].status != 0 && tableMapping[i].status != 5){
+								showToast('Warning: Table #'+tableID+' was not free. But Order is punched.', '#e67e22');
+			          		}
+			          		else{
+			          			tableMapping[i].status = 1;
+			          			tableMapping[i].assigned = assignedTo;
+			          			tableMapping[i].KOT = kotID;
+			          			tableMapping[i].lastUpdate = hour+''+mins;
+			          		}
+			          	}
+			          }
 
-	          		if(tableMapping[i].status != 0 && tableMapping[i].status != 5){
-						showToast('Warning: Table #'+tableID+' was not free. But Order is punched.', '#e67e22');
-	          		}
-	          		else{
-	          			tableMapping[i].status = 1;
-	          			tableMapping[i].assigned = assignedTo;
-	          			tableMapping[i].KOT = kotID;
-	          			tableMapping[i].lastUpdate = hour+''+mins;
-	          		}
+		                    //Update
+		                    var updateData = {
+		                      "_rev": data.docs[0]._rev,
+		                      "identifierTag": "ZAITOON_TABLES_MASTER",
+		                      "value": tableMapping
+		                    }
 
-	          	}
-	          }
+		                    $.ajax({
+		                      type: 'PUT',
+		                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+		                      data: JSON.stringify(updateData),
+		                      contentType: "application/json",
+		                      dataType: 'json',
+		                      timeout: 10000,
+		                      success: function(data) {
+		                        renderTables();
+		                      },
+		                      error: function(data) {
+		                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+		                      }
 
-	          if(!isUpdated){
-	          	tableMapping.push({ "table": tableID, "assigned": assignedTo, "KOT": kotID, "status": 1, "lastUpdate": timestamp });
+		                    });  	          
+
+		                
+		          }
+		          else{
+		            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+
+		      },
+		      error: function(data) {
+		        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
 		      }
 
-		       var newjson = JSON.stringify(tableMapping);
-		       fs.writeFile('./data/static/tablemapping.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to map KOT and Table. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		       }); 
-
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to map KOT and Table. Please contact Accelerate Support.', '#e74c3c');
-	    }
-
-
+		    });
 }
 
 
-function getTableLiveStatus(tableID){
-	/*returns table occupancy data*/
-	if(!window.localStorage.tableMappingData){
+
+function billTableMapping(tableID, billNumber, status, optionalPageRef){
+
+	if(status != 1 && status != 2 && status != 3){
+		showToast('Warning: Table #'+tableID+' was not mapped. But Bill is generated.', '#e67e22');
 		return '';
 	}
 
-	var tableMapData = JSON.parse(window.localStorage.tableMappingData);
+          var today = new Date();
+          var hour = today.getHours();
+          var mins = today.getMinutes();
 
-	var n = 0;
-	while(tableMapData[n]){
-		if(tableMapData[n].table == tableID){
-			return tableMapData[n];
-		}
-		n++;
-	}
+          if(hour<10) {
+              hour = '0'+hour;
+          } 
 
-	return '';
+          if(mins<10) {
+              mins = '0'+mins;
+          }
+
+
+
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                  },
+		      "fields"    : ["_rev", "identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+			          var tableMapping = data.docs[0].value;
+			          var timestamp = getCurrentTime('TIME');
+
+			          for(var i=0; i<tableMapping.length; i++){
+			          	if(tableMapping[i].table == tableID){
+			          		tableMapping[i].status = status;
+			          		tableMapping[i].KOT = billNumber;
+			          		tableMapping[i].lastUpdate = hour+''+mins;
+			          	}
+			          }
+
+		                    //Update
+		                    var updateData = {
+		                      "_rev": data.docs[0]._rev,
+		                      "identifierTag": "ZAITOON_TABLES_MASTER",
+		                      "value": tableMapping
+		                    }
+
+		                    $.ajax({
+		                      type: 'PUT',
+		                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+		                      data: JSON.stringify(updateData),
+		                      contentType: "application/json",
+		                      dataType: 'json',
+		                      timeout: 10000,
+		                      success: function(data) {
+		                      	if(optionalPageRef && optionalPageRef == 'ORDER_PUNCHING'){
+		                      		renderTables();
+		                      	}else if(optionalPageRef && optionalPageRef == 'SEATING_STATUS'){
+		                      		preloadTableStatus();
+		                      	}
+		                      	else if(optionalPageRef && optionalPageRef == 'LIVE_ORDERS'){
+		                      		renderAllKOTs();
+		                      	}
+
+		                        
+		                      },
+		                      error: function(data) {
+		                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+		                      }
+
+		                    });  
+		          }
+		          else{
+		            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+
+		      },
+		      error: function(data) {
+		        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+		      }
+
+		    });
 }
+
 
 function pickTableForNewOrder(currentTableID){
 
-			//PRELOAD TABLE MAPPING
-		    if(fs.existsSync('./data/static/tablemapping.json')) {
-		        fs.readFile('./data/static/tablemapping.json', 'utf8', function readFileCallback(err, data){
-		      if (err){
-		      } else {
+	//To display Large (default) or Small Tables
+	var smallTableFlag = '';
 
-		          	if(data == ''){ data = '[]'; }
+             
+	//PRELOAD TABLE MAPPING
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-		              var tableMapping = JSON.parse(data);
-		              tableMapping.sort(); //alphabetical sorting 
-		              window.localStorage.tableMappingData = JSON.stringify(tableMapping);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
-		              //PRELOAD TABLES
-		    
-						  if(fs.existsSync('./data/static/tables.json')) {
-					        fs.readFile('./data/static/tables.json', 'utf8', function readFileCallback(err, data){
-					      if (err){
-					          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-					      } else {
+              var tables = data.docs[0].value;
+              tables.sort();
+ 
+              if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
+              	smallTableFlag = ' mediumTile';
+              }
+              else if(tables.length > 50){
+              	smallTableFlag = ' smallTile';
+              }
 
-					          if(data == ''){ data = '[]'; }
+				    var requestData = {
+				      "selector"  :{ 
+				                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+				                  },
+				      "fields"    : ["_rev", "identifierTag", "value"]
+				    }
 
-					              var tables = JSON.parse(data);
-					              tables.sort(); //alphabetical sorting 
+				    $.ajax({
+				      type: 'POST',
+				      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+				      data: JSON.stringify(requestData),
+				      contentType: "application/json",
+				      dataType: 'json',
+				      timeout: 10000,
+				      success: function(data) {
+				        if(data.docs.length > 0){
+				          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+
+				            var tableSections = data.docs[0].value;
+				            
+							document.getElementById("pickTableForNewOrderModal").style.display = 'block';	
+							$('#tableEasyInputBox').focus();
+							$('#tableEasyInputBox').select();     
+							
+							var renderSectionArea = '';
+							var renderTableArea = ''
 
 
-					             //PRELOAD TABLE SECTIONS
-							    if(fs.existsSync('./data/static/tablesections.json')) {
-							        fs.readFile('./data/static/tablesections.json', 'utf8', function readFileCallback(err, data){
-							      if (err){
-							          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-							      } else {
+									//First Iteration
+								    $.each(tableSections, function(key_1, sectionName) {
+								    	renderTableArea = '';
+								    	$.each(tables, function(key_2, mytable) {
 
-							          if(data == ''){ data = '[]'; }
+												if(mytable.type == sectionName){
 
-							              var tableSections = JSON.parse(data);
-							              tableSections.sort(); //alphabetical sorting 
-
-							              
-
-							            if(0){
-
-							            	
-							              
-							            }
-							            else{
-							              var renderSectionArea = '';
-
-							              var n = 0;
-							              while(tableSections[n]){
-							        
-							              	var renderTableArea = ''
-							              	for(var i = 0; i<tables.length; i++){
-							              		if(tables[i].type == tableSections[n]){
-
-							              			var tableOccupancyData = getTableLiveStatus(tables[i].name);
-
-							              			if(tableOccupancyData){ /*Occuppied*/
-														if(tableOccupancyData.status == 1 || tableOccupancyData.status == 2){
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Occuppied</tag>'+
-																				        	'</tag>';	
-														}									
-														else if(tableOccupancyData.status == 5){
-															if(currentTableID != '' && currentTableID == tables[i].name){
-								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue" onclick="setCustomerInfoTable(\''+tables[i].name+'\')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
-																					            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+								              			if(mytable.status != 0){ /*Occuppied*/
+															if(mytable.status == 1){
+								              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
 																					        	'</tag>';	
 															}	
-															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableReserved" onclick="setCustomerInfoTable(\''+tables[i].name+'\')">'+
-																					            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																					            '<tag class="tableCapacity">'+(tableOccupancyData.assigned != ""? "For "+tableOccupancyData.assigned : "-")+'</tag>'+
-																					            '<tag class="tableInfo">Reserved</tag>'+
+															else if(mytable.status == 2){
+																renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
 																					        	'</tag>';	
+															}								
+															else if(mytable.status == 5){
+																if(currentTableID != '' && currentTableID == mytable.table){
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+																						        	'</tag>';	
+																}	
+																else{
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						        	'</tag>';	
+																}
+
+															}									
+															else{
+								              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';											
 															}
 
-														}									
-														else{
-							              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Occuppied</tag>'+
-																				        	'</tag>';											
-														}
+
+								              			}
+								              			else{
+
+								              				if(currentTableID != '' && currentTableID == mytable.table){
+								              					renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="tableTileBlue'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'" style="color: #FFF !important">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'" style="color: #FFF !important">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF !important"><i class="fa fa-check"></i></tag>'+
+																					        	'</tag>';
+															}	
+															else{
+																renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
+																					        	'</tag>';
+															}							        	              				
+								              			}
+								              		
+							              		}							           
+
+								    	 });
 
 
-							              			}
-							              			else{
-
-							              				if(currentTableID != '' && currentTableID == tables[i].name){
-							              					renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].name+'\')" class="tableTileBlue">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
-																				        	'</tag>';
-														}	
-														else{
-															renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].name+'\')" class="tableTileGreen">'+
-																				            '<tag class="tableTitle">'+tables[i].name+'</tag>'+
-																				            '<tag class="tableCapacity">'+tables[i].capacity+' Seater</tag>'+
-																				            '<tag class="tableInfo">Free</tag>'+
-																				        	'</tag>';
-														}							        	              				
-							              			}
-
-							              		}
-							              	}
-
-							              	renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
-																	   '<h1 class="seatingPlanHead">'+tableSections[n]+'</h1>'+
+								        renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
+																	   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+sectionName+'</h1>'+
 																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
 																	    '</div>'+
 																	'</div>'
 
-							              	n++;
-							              }
+
+
+								    });
+
+								    $('#pickTableForNewOrderModalContent').html(renderSectionArea);
+
+
+
+
+
+
+
+							// SEARCH FOR TABLES
+
+							var easyActionTool = $('#tableEasyInputBox').keyup(function(e) {
+								if(e.which == 13){
+
+									var isClicked = false;
+									
+									$("#pickTableForNewOrderModalContent .temporaryTableSelection").each(function(){
+							            $(this).click();
+							            e.preventDefault(); 
+							            isClicked = true;
+							            easyActionTool.unbind();
+							        });
+
+							        if(!isClicked){ //Hide
+							        	showToast('Warning! No free table picked', '#e67e22');
+							        }
+								}
+								else if(e.which == 27){
+									pickTableForNewOrderHide();
+									easyActionTool.unbind();
+								}
+							    else{
+
+								    var searchField = $(this).val();
+
+								    renderSectionArea = '';
+								    renderTableArea = '';
+
+								    var atleastOneTableSelected = false;
+
+								    $.each(tableSections, function(key_1, sectionName) {
+								    	renderTableArea = '';
+								    	$.each(tables, function(key_2, mytable) {
+
+
+									     		var shortlistFlag = false;
+
+												if(mytable.type == sectionName){
+
+													if(searchField == ' '){ /* TWEAK to remove first Space */
+														$('#tableEasyInputBox').val('');
+														searchField = '';
+													}
+
+													shortlistFlag = (mytable.table.toUpperCase() == searchField.toUpperCase()) ? true : false;
+													
+													if(shortlistFlag){
+														atleastOneTableSelected = true;
+													}
+
+													if(searchField != ''){ //Searched Case
+								              			if(mytable.status != 0){ /*Occuppied*/
+															if(mytable.status == 1){
+								              					renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';	
+															}	
+															else if(mytable.status == 2){
+																renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileYellowDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
+																					        	'</tag>';	
+															}								
+															else if(mytable.status == 5){
+																if(currentTableID != '' && currentTableID == mytable.table){
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+									              													'<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
+																						            '<tag class="tableTitle'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important"><i class="fa fa-check"></i></tag>'+
+																						        	'</tag>';	
+																}	
+																else{
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						        	'</tag>';	
+																}
+
+															}									
+															else{
+								              				renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';											
+															}
+
+
+								              			}
+								              			else{
+
+								              				if(currentTableID != '' && currentTableID == mytable.table){
+								              					renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileBlue'+smallTableFlag+'">'+
+																					            '<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
+																					            '<tag class="tableTitle'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important"><i class="fa fa-check"></i></tag>'+
+																					        	'</tag>';
+															}	
+															else{
+																renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileGreen'+smallTableFlag+'">'+
+																					            '<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
+																					        	'</tag>';
+															}							        	              				
+								              			}													
+													} //Not searched!
+													else{
+								              			if(mytable.status != 0){ /*Occuppied*/
+															if(mytable.status == 1){
+								              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';	
+															}	
+															else if(mytable.status == 2){
+																renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
+																					        	'</tag>';	
+															}								
+															else if(mytable.status == 5){
+																if(currentTableID != '' && currentTableID == mytable.table){
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+																						        	'</tag>';	
+																}	
+																else{
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						        	'</tag>';	
+																}
+
+															}									
+															else{
+								              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+																					        	'</tag>';											
+															}
+
+
+								              			}
+								              			else{
+
+								              				if(currentTableID != '' && currentTableID == mytable.table){
+								              					renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="tableTileBlue'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'" style="color: #FFF !important">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'" style="color: #FFF !important">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF !important"><i class="fa fa-check"></i></tag>'+
+																					        	'</tag>';
+															}	
+															else{
+																renderTableArea = renderTableArea + '<tag style="position: relative" onclick="setCustomerInfoTable(\''+mytable.table+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
+																					        	'</tag>';
+															}							        	              				
+								              			}
+								              		}
+
+							              		}							           
+
+								    	 });
+
+
+										if(searchField != '' && atleastOneTableSelected){
+											$('#tableEasyInputBoxStatus').html('');
+										}
+										else if(searchField != '' && !atleastOneTableSelected){
+											$('#tableEasyInputBoxStatus').html('<i class="fa fa-exclamation-circle" style="color: #e74c3c" title="Unknown Table Number"></i>');
+										}
+										else if(searchField == ''){
+											 $('#tableEasyInputBoxStatus').html('');
+										}
+
+
+								        renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
+																	   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+sectionName+'</h1>'+
+																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
+																	    '</div>'+
+																	'</div>'
+
+
+								    });
+
+								    $('#pickTableForNewOrderModalContent').html(renderSectionArea);
+								}
+							});   
+
+
+							       //        var renderSectionArea = '';
+
+							       //        var n = 0;
+							       //        while(tableSections[n]){
+							        
+							       //        	var renderTableArea = ''
+							       //        	for(var i = 0; i<tables.length; i++){
+							       //        		if(tables[i].type == tableSections[n]){
+
+							       //        			if(tables[i].status != 0){ /*Occuppied*/
+														// if(tables[i].status == 1){
+							       //        					renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableTileRedDisable'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+														// 						        	'</tag>';	
+														// }	
+														// else if(tables[i].status == 2){
+														// 	renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableTileYellowDisable'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
+														// 						        	'</tag>';	
+														// }								
+														// else if(tables[i].status == 5){
+														// 	if(currentTableID != '' && currentTableID == tables[i].table){
+								      //         				renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
+														// 							            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 							            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+														// 							            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+														// 							        	'</tag>';	
+														// 	}	
+														// 	else{
+								      //         				renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+tables[i].table+'\')">'+
+														// 							            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 							            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+														// 							            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+														// 							        	'</tag>';	
+														// 	}
+
+														// }									
+														// else{
+							       //        				renderTableArea = renderTableArea + '<tag class="easyActionTool_tablesListed tableTileRedDisable'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+														// 						        	'</tag>';											
+														// }
+
+
+							       //        			}
+							       //        			else{
+
+							       //        				if(currentTableID != '' && currentTableID == tables[i].table){
+							       //        					renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="easyActionTool_tablesListed tableTileBlue'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+														// 						        	'</tag>';
+														// }	
+														// else{
+														// 	renderTableArea = renderTableArea + '<tag onclick="setCustomerInfoTable(\''+tables[i].table+'\')" class="easyActionTool_tablesListed tableTileGreen'+smallTableFlag+'">'+
+														// 						            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+														// 						            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+														// 						            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
+														// 						        	'</tag>';
+														// }							        	              				
+							       //        			}
+
+							       //        		}
+							       //        	}
+
+							       //        	renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
+														// 			   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
+														// 			   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
+														// 			    '</div>'+
+														// 			'</div>'
+
+							       //        	n++;
+							       //        }
 							              
-							              document.getElementById("pickTableForNewOrderModalContent").innerHTML = renderSectionArea;		            	
-							              document.getElementById("pickTableForNewOrderModal").style.display = 'block';	
-							            }
-							    }
-							    });
-							      } else {
-							        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-							      } 
-
-					    }
-					    });
-					      } else {
-					        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-					      } 
+							       //        document.getElementById("pickTableForNewOrderModalContent").innerHTML = renderSectionArea;		            	
 
 
-		    }
-		    });
-		     }
+				          }
+				          else{
+				            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				          }
+				        }
+				        else{
+				          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				        }
+
+				      },
+				      error: function(data) {
+				        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+				      }
+
+				    });
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
 }
 
 function pickDummyTableForNewOrder(){
@@ -3088,6 +5508,23 @@ function pickAddressForNewOrder(encodedCurrentAddress){
 		}
 
 
+
+          var easyActionTool = $(document).on('keydown',  function (e) {
+            console.log('[Delivery Address] Am secretly running... ')
+            if($('#pickAddressForNewOrderModal').is(':visible')) {
+                 switch(e.which){
+                  case 27:{ // Escape (Close)
+                    pickAddressForNewOrderHide();
+                    easyActionTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+                    $('#pickAddressForNewOrderConfirmButton').click();
+                    break;
+                  }
+                 }
+            }
+          });
 
 
 }
@@ -3191,6 +5628,8 @@ function deleteThisSavedAddress(mobile, addressID){
 	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){//update the server as well
 		chooseAddressFromSavedList();
 		console.log('******** REMINDER: UPDATE SERVER')
+		removeCustomerAddressFromDatabase(mobile, addressID);
+
 
 		//Undo delete
 		var encodedAddress = encodeURI(JSON.stringify(memoriseAddressForRecovery));
@@ -3244,9 +5683,8 @@ function saveNewDeliveryAddressAutoRecovery(encodedAddress){
 	var address = JSON.parse(decodeURI(encodedAddress));
 
 	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
-		//update the server as well
-		console.log('******** REMINDER: UPDATE SERVER')
-	
+		
+		
 
 		//modify user auto found details
 		var backup_userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
@@ -3262,6 +5700,10 @@ function saveNewDeliveryAddressAutoRecovery(encodedAddress){
 			
 			window.localStorage.userDetailsAutoFound = JSON.stringify(backup_userInfoAutoFound);
 		}
+
+		//update the server as well
+		console.log('******** REMINDER: UPDATE SERVER')
+		updateCustomerAddressOnDatabase(backup_userInfoAutoFound.mobile, address);
 
 	}
 
@@ -3291,7 +5733,6 @@ function saveNewDeliveryAddress(newAddressAssignedID){
 		}
 	}
 	
-
 
 	var address = {};
 
@@ -3323,7 +5764,6 @@ function saveNewDeliveryAddress(newAddressAssignedID){
 		address.flatName = document.getElementById("add_new_deliveryAddress_flatName").value;
 		address.landmark = document.getElementById("add_new_deliveryAddress_landmark").value;
 		address.area = document.getElementById("add_new_deliveryAddress_area").value;
-
 	}
 
 
@@ -3333,12 +5773,23 @@ function saveNewDeliveryAddress(newAddressAssignedID){
 		return '';
 	}
 
+	if(address.contact == ''){
+		showToast('Warning: Please add the Mobile Number', '#e67e22');
+		return '';
+	}
+
+	if(address.flatNo == '' || address.flatName == ''){
+		showToast('Warning: Flat/House Number and Name required', '#e67e22');
+		return '';
+	}
+
 
 	if(window.localStorage.userAutoFound && window.localStorage.userAutoFound == 1){
 		//User found --> Update address to the Server
 		//update the server as well
+		
 		console.log('******** REMINDER: UPDATE SERVER')
-	
+		updateCustomerAddressOnDatabase(userInfoAutoFound.mobile, address);
 
 		//modify user auto found details
 		var backup_userInfoAutoFound = window.localStorage.userDetailsAutoFound ? JSON.parse(window.localStorage.userDetailsAutoFound) : {};
@@ -3374,14 +5825,52 @@ function pickAddressForNewOrderHide(){
 
 /*Set Token No.*/
 function setTokenManually(){
-	var lastToken = window.localStorage.lastPrintedToken;
 
-	if(!lastToken || lastToken == ''){
-		lastToken = 1;
-	}
+						    var requestData = {
+						      "selector"  :{ 
+						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                  },
+						      "fields"    : ["_rev", "identifierTag", "value"]
+						    }
 
-	document.getElementById("next_token_value_set").value = lastToken;
-	document.getElementById("setTokenOptionsModal").style.display = 'block';
+						    $.ajax({
+						      type: 'POST',
+						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      data: JSON.stringify(requestData),
+						      contentType: "application/json",
+						      dataType: 'json',
+						      timeout: 10000,
+						      success: function(data) {
+						        if(data.docs.length > 0){
+						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+
+						            var lastToken = parseInt(data.docs[0].value);
+
+									if(!lastToken || lastToken == ''){
+										lastToken = 1;
+									}
+
+									document.getElementById("next_token_value_set").value = lastToken;
+									document.getElementById("setTokenOptionsModal").style.display = 'block';
+
+									$("#next_token_value_set").focus();
+    								$("#next_token_value_set").select();
+
+						          }
+						          else{
+						            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						          }
+						        }
+						        else{
+						          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						        }
+
+						      },
+						      error: function(data) {
+						        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+						      }
+
+						    });
 }
 
 function setTokenManuallyHide(){
@@ -3389,66 +5878,137 @@ function setTokenManuallyHide(){
 }
 
 function setTokenManuallySave(){
-	var lastToken = window.localStorage.lastPrintedToken;
-
-	if(!lastToken || lastToken == ''){
-		lastToken = 1;
-	}
-
-	var token = document.getElementById("next_token_value_set").value;
-
-	if(token == ''){
-		token = 1;
-	}
-	else if(lastToken == token){
-		//do nothing
-	}
-	else{
-		//save new token
-		window.localStorage.lastPrintedToken = token;
-	}
 
 
+						    var requestData = {
+						      "selector"  :{ 
+						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                  },
+						      "fields"    : ["_rev", "identifierTag", "value"]
+						    }
 
+						    $.ajax({
+						      type: 'POST',
+						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      data: JSON.stringify(requestData),
+						      contentType: "application/json",
+						      dataType: 'json',
+						      timeout: 10000,
+						      success: function(data) {
+						        if(data.docs.length > 0){
+						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
 
-	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
-	
-	if(jQuery.isEmptyObject(customerInfo)){
-		customerInfo.name = "";
-		customerInfo.mobile = "";
-		customerInfo.mode = "";
-		customerInfo.modeType = "";
-		customerInfo.mappedAddress = "";
-		customerInfo.reference = "";
-	}
+									var token = document.getElementById("next_token_value_set").value;
 
-	customerInfo.mappedAddress = token;
+									if(token == ''){
+										token = 1;
+									}
 
-	window.localStorage.customerData = JSON.stringify(customerInfo);
+									token = parseInt(token);
+									updateTokenCountOnServer(token+1, data.docs[0]._rev);
 
-	setTokenManuallyHide();
-	renderCustomerInfo();
+									window.localStorage.claimedTokenNumber = token;
+									window.localStorage.claimedTokenNumberTimestamp = new Date();
+									
+									//After setting the Token
+									var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+									
+									if(jQuery.isEmptyObject(customerInfo)){
+										customerInfo.name = "";
+										customerInfo.mobile = "";
+										customerInfo.count = "";
+										customerInfo.mode = "";
+										customerInfo.modeType = "";
+										customerInfo.mappedAddress = "";
+										customerInfo.reference = "";
+										customerInfo.isOnline = false;
+									}
+
+									customerInfo.mappedAddress = token;
+
+									window.localStorage.customerData = JSON.stringify(customerInfo);
+
+									setTokenManuallyHide();
+									renderCustomerInfo();
+
+						          }
+						          else{
+						            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						          }
+						        }
+						        else{
+						          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						        }
+
+						      },
+						      error: function(data) {
+						        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+						      }
+
+						    });
+
 }
 
 function restartTokenManuallySave(){
-	window.localStorage.lastPrintedToken = 1;
 
+						    var requestData = {
+						      "selector"  :{ 
+						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                  },
+						      "fields"    : ["_rev", "identifierTag", "value"]
+						    }
 
-	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
-	
-	if(jQuery.isEmptyObject(customerInfo)){
-		customerInfo.name = "";
-		customerInfo.mobile = "";
-		customerInfo.mode = "";
-		customerInfo.modeType = "";
-		customerInfo.mappedAddress = "";
-		customerInfo.reference = "";
-	}
+						    $.ajax({
+						      type: 'POST',
+						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      data: JSON.stringify(requestData),
+						      contentType: "application/json",
+						      dataType: 'json',
+						      timeout: 10000,
+						      success: function(data) {
+						        if(data.docs.length > 0){
+						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
 
-	customerInfo.mappedAddress = 1;
+											updateTokenCountOnServer(2, data.docs[0]._rev);
 
-	setTokenManuallyHide();
-	renderCustomerInfo();
+											window.localStorage.claimedTokenNumber = 1;
+											window.localStorage.claimedTokenNumberTimestamp = new Date();
+									
+											//After setting the Token
+											var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
+											
+											if(jQuery.isEmptyObject(customerInfo)){
+												customerInfo.name = "";
+												customerInfo.mobile = "";
+												customerInfo.count = "";
+												customerInfo.mode = "";
+												customerInfo.modeType = "";
+												customerInfo.mappedAddress = "";
+												customerInfo.reference = "";
+												customerInfo.isOnline = false;
+											}
+
+											customerInfo.mappedAddress = 1;
+
+											setTokenManuallyHide();
+											renderCustomerInfo();
+
+						          }
+						          else{
+						            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						          }
+						        }
+						        else{
+						          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
+						        }
+
+						      },
+						      error: function(data) {
+						        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
+						      }
+
+						    });
+
 }
 
 
@@ -3460,7 +6020,7 @@ function addCommentToItem(itemCode, variant){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN'){
+		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
 			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
 			return '';
 		}
@@ -3492,7 +6052,14 @@ function addCommentToItem(itemCode, variant){
 	}
 
 	window.localStorage.zaitoon_cart = JSON.stringify(cart_products);
-	showToast('Comment saved successfully', '#27ae60');
+
+	if(text != ''){
+		showToast('Comment saved successfully', '#27ae60');
+	}
+	else{
+		showToast('Comment removed', '#27ae60');
+	}
+
 	hideItemWiseCommentModal();
 	renderCart();
 
@@ -3544,29 +6111,55 @@ function openItemWiseCommentModal(itemCode, variant){
 			}			
 		}
 
-		if(fs.existsSync('./data/static/savedcomments.json')) {
-	      fs.readFile('./data/static/savedcomments.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
-
-	          	var modes = JSON.parse(data);
-	          	modes.sort(); //alphabetical sorting 
-	          	var modesTag = '';
-
-				for (var i=0; i<modes.length; i++){
-					modesTag = modesTag + '<button type="button" style="margin: 0 5px 5px 0" class="btn btn-outline" onclick="addFromSuggestions(\''+modes[i]+'\')">'+modes[i]+'</button>';
-        		}
-
-				if(!modesTag)
-					document.getElementById("savedCommentsSuggestions").innerHTML = '';
-				else
-					document.getElementById("savedCommentsSuggestions").innerHTML = modesTag;
-		}
-		});
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_SAVED_COMMENTS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
 	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_COMMENTS'){
+
+		            var modes = data.docs[0].value;
+		            modes.sort(); //alphabetical sorting 
+		            var modesTag = '';
+
+					for (var i=0; i<modes.length; i++){
+						modesTag = modesTag + '<button type="button" style="margin: 0 5px 5px 0" class="btn btn-outline" onclick="addFromSuggestions(\''+modes[i]+'\')">'+modes[i]+'</button>';
+	        		}
+
+					if(!modesTag)
+						document.getElementById("savedCommentsSuggestions").innerHTML = '';
+					else
+						document.getElementById("savedCommentsSuggestions").innerHTML = modesTag;
+
+	          }
+	          else{
+	            showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Saved Comments data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });  
+
+
 
 
 	    document.getElementById("itemWiseCommentsModal").style.display = 'block';
@@ -3574,19 +6167,45 @@ function openItemWiseCommentModal(itemCode, variant){
 	    document.getElementById("itemWiseCommentsModalActions").innerHTML = '<button type="button" class="btn btn-default" onclick="hideItemWiseCommentModal()" style="float: left">Cancel</button>'+
                									'<button id="itemWiseCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="addCommentToItem(\''+itemCode+'\', \''+variant+'\')" style="float: right">Save Comment</button>';
 
-        $("#add_item_wise_comment").focus();
 
-        var duplicateClick = false;
-        $('#add_item_wise_comment').keyup(function(e) {
-			if (e.which === 13) {
-				if(duplicateClick){
-					$('#itemWiseCommentsModalActions_SAVE').click();
-				}
-				else{
-					duplicateClick = true;
-				}
-			}
-        });
+		//Esc --> Hide
+		//Enter --> Submit
+
+          /*
+            Actions Tool - Modal
+          */
+          var duplicateClick = false;
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#itemWiseCommentsModal').is(':visible')) {
+
+                 switch(e.which){
+                  case 27:{ // Escape (Close)
+                    document.getElementById("customiseItemModal").style.display ='none';
+                    easyActionsTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    if(duplicateClick){
+                    	$('#itemWiseCommentsModalActions_SAVE').click();
+                    	easyActionsTool.unbind();
+                    }
+                    else{
+                    	duplicateClick = true;
+                    }
+                    break;
+                  }
+                  default:{
+                  	duplicateClick = false;
+                  }
+                }
+            }
+          });
+
+
+        $("#add_item_wise_comment").focus();
+        $("#add_item_wise_comment").select();
 }
 
 function addFromSuggestions(suggestion){
@@ -3602,19 +6221,31 @@ function hideItemWiseCommentModal(){
 
 function openSpecialRequestModal(){
 
-		var allergicIngredientsList = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData): [];
+	var allergicIngredientsList = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData): [];
 
-		if(fs.existsSync('./data/static/cookingingredients.json')) {
-	      fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	          	var ingredientsList = JSON.parse(data);
-	          	ingredientsList.sort(); //alphabetical sorting 
-	          	var allergicTag = '';
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
+
+              var ingredientsList = data.docs[0].value;
+              ingredientsList.sort(); //alphabetical sorting 
+              var allergicTag = '';
+
 
 	          	if(allergicIngredientsList.length > 0){ //there are already some allergic ingredients set
 					for (var i=0; i<ingredientsList.length; i++){
@@ -3622,12 +6253,12 @@ function openSpecialRequestModal(){
 						var n = 0;
 						while(allergicIngredientsList[n]){
 							if(allergicIngredientsList[n] == ingredientsList[i]){
-								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i]+'" class="btn btn-outline ingredientButton activeIngredient" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
+								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'" class="btn btn-outline ingredientButton activeIngredient" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
 								break;
 							}
 
 							if(n == allergicIngredientsList.length-1){ //last iteration
-								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i]+'" class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
+								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'" class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
 							}
 
 							n++;
@@ -3636,7 +6267,7 @@ function openSpecialRequestModal(){
 	        	}
 	        	else{ 
 					for (var i=0; i<ingredientsList.length; i++){
-						allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i]+'"  class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')">'+ingredientsList[i]+'</button>';
+						allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'"  class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
 	        		}
 	        	}
         		
@@ -3646,16 +6277,37 @@ function openSpecialRequestModal(){
 				else{
 					document.getElementById("specialRequestsAllergicSuggestions").innerHTML = allergicTag;
 				}
-		}
-		});
-	    }
 
+          }
+          else{
+            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
 
 
 	document.getElementById("specialRequestsModal").style.display = 'block';
 	document.getElementById("specialRequestsModalActions").innerHTML = ''+
-		'<button type="button" class="btn btn-default" onclick="hideSpecialRequestModal()" style="float: left">Cancel</button>'+
-        '<button id="specialRequestCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="saveSpecialRequest()" style="float: right">Save Request</button>';	
+		'<button type="button" class="btn btn-danger" onclick="clearSpecialRequestModal()" style="float: left">Clear</button>'+
+        '<button id="specialRequestCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="saveSpecialRequest()" style="float: right">Set and Proceed</button>';	
+
+	if(window.localStorage.specialRequests_comments && window.localStorage.specialRequests_comments != ''){
+		$('#specialRequests_comments').val(window.localStorage.specialRequests_comments);
+		$('#specialRequests_comments').focus();
+		$('#specialRequests_comments').select();
+	}
+	else{
+		$('#specialRequests_comments').focus();
+	}
 
     
     //Enter to save
@@ -3676,17 +6328,36 @@ function hideSpecialRequestModal(){
 	document.getElementById("specialRequestsModal").style.display = 'none';
 }
 
-function saveSpecialRequest(){
+function clearSpecialRequestModal(){
+	document.getElementById("specialRequestsModal").style.display = 'none';
+	window.localStorage.specialRequests_comments = '';
+	window.localStorage.allergicIngredientsData = '[]';
+	renderCustomerInfo();
+}
 
+function saveSpecialRequest(){
+	var comments = document.getElementById("specialRequests_comments").value;
+	if(comments && comments!= ''){
+		window.localStorage.specialRequests_comments = comments;
+	}	
+	else{
+		window.localStorage.specialRequests_comments = '';
+	}
+
+	hideSpecialRequestModal();
+	renderCustomerInfo();
 }
 
 function alterAllergicIngredientsList(ingredientName){
+
+	$('#specialRequests_comments').focus();
 
 	var allergicIngredientsList = window.localStorage.allergicIngredientsData ? JSON.parse(window.localStorage.allergicIngredientsData): [];
 	
 	if(allergicIngredientsList.length == 0){
 		allergicIngredientsList.push(ingredientName); //Add it
-		$('#ing_'+ingredientName).addClass('activeIngredient');
+		var className = ingredientName.replace(/\s/g,'');
+		$('#ing_'+className).addClass('activeIngredient');
 		window.localStorage.allergicIngredientsData = JSON.stringify(allergicIngredientsList);
 		return '';
 	}
@@ -3699,7 +6370,8 @@ function alterAllergicIngredientsList(ingredientName){
 			allergicIngredientsList.splice(n,1);
 			window.localStorage.allergicIngredientsData = JSON.stringify(allergicIngredientsList);
 
-			$('#ing_'+ingredientName).removeClass('activeIngredient');
+			var className = ingredientName.replace(/\s/g,'');
+			$('#ing_'+className).removeClass('activeIngredient');
 
 			break;
 		}
@@ -3707,7 +6379,8 @@ function alterAllergicIngredientsList(ingredientName){
 		if(n == allergicIngredientsList.length-1){ //last iteration
 			//Not present --> Add it 
 			allergicIngredientsList.push(ingredientName);
-			$('#ing_'+ingredientName).addClass('activeIngredient');
+			var className = ingredientName.replace(/\s/g,'');
+			$('#ing_'+className).addClass('activeIngredient');
 
 			window.localStorage.allergicIngredientsData = JSON.stringify(allergicIngredientsList);
 			break;
@@ -3739,21 +6412,37 @@ function initOrderPunch(){
 /*Auto Suggetion - MENU*/
 function initMenuSuggestion(){
 
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	    	return '';
-	        
-	    } else {
-	          	
-	          	var mastermenu = JSON.parse(data);
 
-				    /*Select on Arrow Up/Down */
-					var li = $('#searchResultsRenderArea li');
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-					var liSelected = undefined;
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+	          	var mastermenu = data.docs[0].value; 
+
+				/*Select on Arrow Up/Down */
+				var li = $('#searchResultsRenderArea li');
+				var liSelected = undefined;
 
 				$('#add_item_by_search').keyup(function(e) {
+
+					if($('#customOptionsList').is(':visible')){ // **TWEAK**
+						//Do not navigate when the custom item choose modal is shown
+						return '';
+					}
 
 				    if (e.which === 40 || e.which === 38) {
 				        /*
@@ -3775,6 +6464,11 @@ function initMenuSuggestion(){
 					            liSelected = li.eq(0).addClass('selected');
 					        }
 					    }else if(e.which === 38){
+
+					    	/* TWEAK */
+					    	$('#add_item_by_search').focus().val($('#add_item_by_search').val());
+
+
 					        if(liSelected){
 					            liSelected.removeClass('selected');
 					            next = liSelected.prev();
@@ -3825,7 +6519,11 @@ function initMenuSuggestion(){
 					    	count = 0;
 					    	$.each(subMenu.items, function(key_2, items) {
 
-						        if ((items.name.search(regex) != -1)) {
+					    		if(!items.shortCode){
+					    			items.shortCode = '';
+					    		}
+
+						        if ((items.name.search(regex) != -1) || (items.price.search(regex) != -1) || (items.shortCode.search(regex) != -1)) {
 						        	tabIndex = -1;
 						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')</li>'
 						            count++;
@@ -3848,16 +6546,18 @@ function initMenuSuggestion(){
 					    //Refresh dropdown list
 					    li = $('#searchResultsRenderArea li');
 					}
+				});   
+          }
+        }
+      }
 
-				});
-
-
-
-
-		}
-		});
-	    } else {
-	      return '';
-	    }		
-
+    });
 }
+
+
+
+
+
+
+
+

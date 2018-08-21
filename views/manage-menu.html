@@ -62,7 +62,6 @@
                            </div>
                         </div>
                      </div>
-                     
                   </form>
                </div>
                <div class="modal-footer">
@@ -76,7 +75,7 @@
 
       <!-- Modal -->
       <div id="newMenuItemModal" class="modal">
-         <div class="modal-dialog" style="top: 20%">
+         <div class="modal-dialog" style="top: 15%">
             <!-- Modal content-->
             <div class="modal-content">
                <div class="modal-header defaultModalColoredHeader">
@@ -89,6 +88,23 @@
                </div>
                <div class="modal-body" style="max-height: 420px; overflow: scroll">
                   <form id="newItemArea">
+                     <div class="row">
+                        <div class="col-lg-4">
+                           <div class="form-group">
+                              <label for="new_item_name">Item Code</label> <input type="number" class="form-control tip" id="new_item_manual_code" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-8">
+                           <div class="form-group">
+                              <label for="new_item_price">Type</label>
+                              <div style="display: block" id="newItemTypeOptions"> 
+                                 <button onclick="triggerItemType(this)" veg-flag="0" class="btn btn-default foodTypeButton active">Not Set</button>
+                                 <button onclick="triggerItemType(this)" veg-flag="1" class="btn btn-default foodTypeButton"><img src="images/common/food_veg.png">Vegetarian</button>
+                                 <button onclick="triggerItemType(this)" veg-flag="2" class="btn btn-default foodTypeButton"><img src="images/common/food_nonveg.png">Non-Vegetarian</button>
+                              </div>
+                           </div>
+                        </div>                        
+                     </div>
                      <div class="row">
                         <div class="col-lg-8">
                            <div class="form-group">
@@ -119,10 +135,21 @@
             <!-- More Options -->
             <div class="modal-content" id="moreOptionsArea" style="width: 300px; position: absolute; right: -310px; top: 0px; display: none; max-height: 460px; padding: 0; overflow: scroll">
                      <div class="modal-header defaultModalColoredHeader">
-                        <h2 class="posCartSubHead" style="margin-top: 5px;">More Options</h2>
+                        <h2 class="posCartSubHead" style="margin-top: 5px; color: #FFF;">More Options</h2>
                      </div>  
                
                      <div class="row" style="margin: 0; padding: 10px">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Packaged Item</label>
+                              <p style="font-size: 11px; color: #a29a9a; margin-top: -5px;">Packaged Items are the items sold at MRP rate inclusive of taxes and container charges</p>
+                              <!-- Rounded switch -->
+                              <label class="switch" style="position: absolute; top: 0; right: 15px;">
+                                <input type="checkbox" id="packagedItemFlag">
+                                <span class="slider round"></span>
+                              </label>
+                           </div>
+                        </div>
                         <div class="col-lg-12">
                            <div class="form-group">
                               <label>Custom Short Code</label> <input type="text" value="" class="form-control tip" id="more_options_customCode" required="required" />
@@ -161,8 +188,10 @@
                   <h4 class="modal-title" id="editItemPriceModalTitle">Edit Item</h4>
                </div>
                <div class="modal-body" style="max-height: 420px; overflow: scroll">
-                  <form id="editItemCodeSecret"></form> 
-                  <form id="editItemArea"></form>  
+
+                  <tag id="editItemCodeSecret"></tag> 
+                  <tag id="topEditItemArea"></tag>
+                  <tag id="editItemArea"></tag>  
                   <div id="extraChoicesArea"></div>
 
                   <button type="button" style="float: left; background: none; display: none" class="btn btn-sm  btn-default" id="removeExtraChoiceButton" onclick="removeExtraChoice()">Clear Choices</button>           
@@ -176,10 +205,21 @@
             <!-- More Options for Edit -->
             <div class="modal-content" id="edit_moreOptionsArea" style="width: 300px; position: absolute; right: -310px; top: 0px; display: none; max-height: 460px; padding: 0; overflow: scroll">
                   <div class="modal-header defaultModalColoredHeader">
-                     <h2 class="posCartSubHead" style="margin-top: 5px;">More Options</h2>
+                     <h2 class="posCartSubHead" style="margin-top: 5px; color: #FFF">More Options</h2>
                   </div>               
                
                      <div class="row" style="margin: 0; padding: 10px">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Packaged Item</label>
+                              <p style="font-size: 11px; color: #a29a9a; margin-top: -5px;">Packaged Items are the items sold at MRP rate inclusive of taxes and container charges</p>
+                              <!-- Rounded switch -->
+                              <label class="switch" style="position: absolute; top: 0; right: 15px;">
+                                <input type="checkbox" id="packagedItemFlagEdit">
+                                <span class="slider round"></span>
+                              </label>
+                           </div>
+                        </div>                        
                         <div class="col-lg-12">
                            <div class="form-group">
                               <label>Custom Short Code</label> <input type="text" value="" class="form-control tip" id="edit_more_options_customCode" required="required" />

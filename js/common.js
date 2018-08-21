@@ -2,11 +2,7 @@
   SERVER DETAILS
 */
 
-var COMMON_LOCAL_SERVER_IP = 'http://127.0.0.1:5984/';
-
-
-
-
+var COMMON_LOCAL_SERVER_IP = 'http://admin:admin@127.0.0.1:5984/';
 
 
 
@@ -41,15 +37,22 @@ function getFormattedTime(time){
 }
 
 function getFancyTime(time){
-  return moment(time, 'hhmm').format('hh:mm A')
+  var fancy = moment(time, 'hhmm').format('hh:mm A');
+  return fancy == 'Invalid date' ? '--:--' : fancy;
 }
 
 
 function getSummaryStandardDate(date){
   //convert YYYY-MM-DD to YYYY-MM-DD
-  return moment(date, 'YYYY-MM-DD').format('YYYYMMDD')
+  return moment(date, 'DD-MM-YYYY').format('YYYYMMDD')
 }
 
+
+
+function getSuperFancyDate(date){
+  //convert DD-MM-YYYY to DD MM, YYYY
+  return moment(date, 'DD-MM-YYYY').format('Do MMMM, YYYY')
+}
 
 //Returns today, and current time
 function getCurrentTime(type){
@@ -92,6 +95,9 @@ function getCurrentTime(type){
     if(type == 'DATE_DDMMYY')
       return dd+mm+yyyy;
 
+    if(type == 'DATE_DD-MM-YY')
+      return dd+'-'+mm+'-'+yyyy;
+
     if(type == 'DATE_YYYY-MM-DD')
       return yyyy+'-'+mm+'-'+dd;
 
@@ -99,8 +105,6 @@ function getCurrentTime(type){
       return yyyy+mm+dd;
 	 
 }
-
-
 
 function random_rgba_color_set() {
 
@@ -117,6 +121,7 @@ function random_rgba_color_set() {
 //Returns first letters of the 2 words in the string
 function getImageCode(text){
 	text = text.replace(/[^a-zA-Z ]/g, "");
+  text = text.toUpperCase();
 	var words = text.split(' ');
 
 	if(words.length > 1){
@@ -205,8 +210,10 @@ function showLoading(time, text){
       clearInterval(loadingLapsedInterval);
       document.getElementById("generalLoadingModal").style.display = 'none';
     }
+
     startCount--;
     document.getElementById("generalLoaderCount").innerHTML = startCount;
+    console.log('Am Secretly running...')
   }, 1000); 
 
 }

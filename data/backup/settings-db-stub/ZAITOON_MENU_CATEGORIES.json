@@ -1,0 +1,28 @@
+{
+  "_id": "ZAITOON_MENU_CATEGORIES",
+  "_rev": "11-d5e9e6962c578dca8210541dc8a8b4e6",
+  "identifierTag": "ZAITOON_MENU_CATEGORIES",
+  "value": [
+    "Ice Creams",
+    "Burgers and Frankies",
+    "Chicken Main Course",
+    "Indian Breads",
+    "Egg Main Course",
+    "Vegetarian Main Course",
+    "Tandoor Starters",
+    "Noodles",
+    "Fried Rices",
+    "Chicken Starters",
+    "Soups",
+    "Vegetarian Dry",
+    "Sea Food Starters",
+    "Faloodas",
+    "Grills & Barbeques",
+    "Hummus & Salads",
+    "Soft Drinks",
+    "Milk Shakes",
+    "Fresh Juices",
+    "Rices and Pulaos",
+    "Buffets and Set Menus"
+  ]
+}

@@ -11,90 +11,557 @@ function openSystemSettings(id){
       renderPersonalisations();
       break;
     } 
+    case "systemOptions":{
+      renderSystemOptions();
+      break;
+    } 
+    case "configureSystem":{
+      renderConfigureSystem();
+      break;
+    } 
     case "keyboardShortcuts":{
- 
+      renderCurrentKeys();
       break;
     } 
     case "systemSecurity":{
       renderSecurityOptions();
       break;
-    }  
-    case "resetOptions":{
- 
-      break;
-    }            
+    }          
 	}
 }
+
+
+
+
+/*read system configuration data*/
+function renderConfigureSystem(){
+
+    var licenseRequest = window.localStorage.accelerate_licence_number ? window.localStorage.accelerate_licence_number : '';
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+
+              var machinesList = data.docs[0].value;
+              var machineData = '';
+
+              var n = 0;
+              while(machinesList[n]){
+                if(machinesList[n].licence == licenseRequest){
+                  machineData = machinesList[n];
+                  break;
+                }
+                n++;
+              }
+
+              //Machine Registered Already
+              if(machineData != ''){
+
+                document.getElementById("configureSystemActivationWarning").style.display = 'none';
+                document.getElementById("configureSystemDetailsRender").style.display = 'table';
+
+                $('#system_configure_license_number').val(machineData.licence);
+                $('#edit_main_system_name').val(machineData.machineCustomName);
+
+                if(machineData.isActive){
+                  if(machineData.isTrial){
+                    $('#system_configure_license_expiry').val('Trial expires on '+machineData.dateExpire);
+                  }
+                  else{
+                    $('#system_configure_license_expiry').val('Valid till '+machineData.dateExpire);
+                  }
+                }
+                else{
+                  if(machineData.isTrial){
+                    $('#system_configure_license_expiry').val('Trial expired '+machineData.dateExpire);
+                  }
+                  else{
+                    $('#system_configure_license_expiry').val('Inactive');
+                  }
+                }
+
+                $('#system_configure_license_issued').val(machineData.dateInstall);
+                $('#system_configure_license_uid').val(machineData.machineUID);
+                
+              }
+              else{ //Machine not Activated yet.
+                document.getElementById("configureSystemActivationWarning").style.display = 'block';
+                document.getElementById("configureSystemDetailsRender").style.display = 'none';
+              }
+          }
+          else{
+            showToast('Not Found Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Configured Systems data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });  
+}
+
+
+function openActivationModal(){
+  document.getElementById("applicationActivationModal").style.display = 'block';
+  $('#activation_code_entered').focus();
+}
+
+function openActivationModalHide(){
+  document.getElementById("applicationActivationModal").style.display = 'none';
+}
+
+function proceedToActivation(){
+
+  var activation_code = document.getElementById("activation_code_entered").value;
+
+  if(activation_code == ''){
+    showToast('Warning! Enter Activation Code', '#e67e22');
+    return '';
+  }
+
+      activation_code = activation_code.toUpperCase();
+
+      var admin_data = {
+        "code": activation_code,
+        "secret": "ACCELERATE_VEGA"
+      }
+
+
+      showLoading(10000, 'Activating Application');
+
+      $.ajax({
+        type: 'POST',
+        url: 'https://www.zaitoon.online/services/posactivateapplication.php',
+        data: JSON.stringify(admin_data),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+
+          hideLoading();
+
+          if(data.status){
+            pushLicenseToLocaServer(data.response);
+          }
+          else{
+            if(data.errorCode == 404){
+              showToast(data.error, '#e74c3c');
+              return '';
+            }
+          }
+        },
+        error: function(data){
+          hideLoading();
+          showToast('Failed to reach Activation Server. Please check your connection.', '#e74c3c');
+          return '';
+        }
+      });     
+}
+
+
+function pushLicenseToLocaServer(licenceObject){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+
+             var machinesList = data.docs[0].value;
+
+             for (var i=0; i<machinesList.length; i++) {
+               if(machinesList[i].licence == licenceObject.licence){
+                  showToast('Activation Error: Licence already used. Please contact Accelerate Support.', '#e74c3c');
+                  return '';
+               }
+             }
+
+
+                machinesList.push(licenceObject);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_CONFIGURED_MACHINES",
+                  "value": machinesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_MACHINES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('Activation Successful', '#27ae60');
+                      openActivationModalHide();
+
+                      window.localStorage.accelerate_licence_number = licenceObject.licence;
+                      window.localStorage.accelerate_licence_machineUID = licenceObject.machineUID;
+                      renderConfigureSystem();
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update System Configurations data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });  
+          }
+          else{
+            showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read System Configurations data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+
+/*read system options data*/
+function renderSystemOptions(){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SYSTEM_OPTIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SYSTEM_OPTIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              //Preload Billing Modes data
+              var requestData = {
+                "selector"  :{ 
+                              "identifierTag": "ZAITOON_BILLING_MODES" 
+                            },
+                "fields"    : ["identifierTag", "value"]
+              }
+
+              $.ajax({
+                type: 'POST',
+                url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+                dataType: 'json',
+                timeout: 10000,
+                success: function(data) {
+                  console.log(data)
+                  if(data.docs.length > 0){
+                    if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+
+                        var modes = data.docs[0].value;
+                        modes.sort(); //alphabetical sorting 
+
+                        renderSystemOptionsAfterProcess(settingsList, modes);
+
+                    }
+                    else{
+                      renderSystemOptionsAfterProcess(settingsList, []);
+                    }
+                  }
+                  else{
+                    renderSystemOptionsAfterProcess(settingsList, []);
+                  }
+                  
+                },
+                error: function(data) {
+                  renderSystemOptionsAfterProcess(settingsList, []);
+                }
+
+              });
+
+
+          }
+          else{
+            showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read System Options data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
+
+function renderSystemOptionsAfterProcess(settingsList, billingModes){
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+                    var isOnlineOrdersEnabled = false;
+
+                    //Render
+                    for (var i=0; i<params.length; i++){
+
+                      switch(params[i].name){
+                        case "notifications": {
+                          document.getElementById("systemOptionNotification").value = params[i].value
+                          break;
+                        }
+                        case "onlineOrders": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionOnlineOrders").value = params[i].value;
+                            isOnlineOrdersEnabled = true;
+                          }
+                          else{
+                            document.getElementById("systemOptionOnlineOrders").value = 'NO';
+                            isOnlineOrdersEnabled = false;
+                          }
+                          break;
+                        }
+                        case "defaultPrepaidName": {
+                          if(isOnlineOrdersEnabled){
+                            document.getElementById("systemOptionOnlineOrders_prepaidTag").style.display = 'table-row';
+                            document.getElementById("systemOptionOnlineOrders_prepaid_keyword").value = params[i].value;
+                          }  
+                          else{
+                            document.getElementById("systemOptionOnlineOrders_prepaidTag").style.display = 'none';
+                            document.getElementById("systemOptionOnlineOrders_prepaid_keyword").value = params[i].value;
+                          }  
+                          break;
+                        }
+                        case "defaultDeliveryMode": {
+                          if(isOnlineOrdersEnabled){
+
+                            //Render Modes
+                            var n = 0;
+                            var defaultTemplate = '<option value="NONE">Not Set</option>';
+                            var atleastOneFound = false;
+                            while(billingModes[n]){
+                              if(billingModes[n].type == 'DELIVERY'){
+                                defaultTemplate += '<option value="'+billingModes[n].name+'" '+(params[i].value == billingModes[n].name ? 'selected' : '')+'>'+billingModes[n].name+'</option>';
+                                atleastOneFound = true;
+                              }
+                              n++;
+                            }
+
+                            document.getElementById("systemOptionOnlineOrders_default_delivery").style.display = 'table-row';
+                            document.getElementById("systemOptionOnlineOrder_Default_Delivery").innerHTML = atleastOneFound ? defaultTemplate : '<option value="NONE" selected>Not Set</option>';
+
+                          }  
+                          else{
+                            document.getElementById("systemOptionOnlineOrders_default_delivery").style.display = 'none';
+                          }  
+                          break;
+                        }
+                        case "defaultTakeawayMode": {
+                          if(isOnlineOrdersEnabled){
+
+                            //Render Modes
+                            var n = 0;
+                            var defaultTemplate = '<option value="NONE">Not Set</option>';
+                            var atleastOneFound = false;
+                            while(billingModes[n]){
+                              if(billingModes[n].type == 'PARCEL'){
+                                defaultTemplate += '<option value="'+billingModes[n].name+'" '+(params[i].value == billingModes[n].name ? 'selected' : '')+'>'+billingModes[n].name+'</option>';
+                                atleastOneFound = true;
+                              }
+                              n++;
+                            }
+
+                            document.getElementById("systemOptionOnlineOrders_default_takeaway").style.display = 'table-row';
+                            document.getElementById("systemOptionOnlineOrder_Default_Takeaway").innerHTML = atleastOneFound ? defaultTemplate : '<option value="NONE" selected>Not Set</option>';
+                            
+                          }  
+                          else{
+                            document.getElementById("systemOptionOnlineOrders_default_takeaway").style.display = 'none';
+                          }  
+                          break;
+                        }
+                        case "defaultDineMode": {
+
+                            //Render Modes
+                            var n = 0;
+                            var defaultTemplate = '<option value="NONE">Not Set</option>';
+                            var atleastOneFound = false;
+                            while(billingModes[n]){
+                              if(billingModes[n].type == 'DINE'){
+                                defaultTemplate += '<option value="'+billingModes[n].name+'" '+(params[i].value == billingModes[n].name ? 'selected' : '')+'>'+billingModes[n].name+'</option>';
+                                atleastOneFound = true;
+                              }
+                              n++;
+                            }
+
+                            document.getElementById("systemOptionDefaultDineMode").innerHTML = atleastOneFound ? defaultTemplate : '<option value="NONE" selected>Not Set</option>';
+                            break;
+                        }
+
+                      }
+                
+                    } //end FOR (Render)
+
+                  break;
+                }  
+              } //end - FOR
+}
+
 
 
 /*read personalisation data*/
 function renderPersonalisations(){
 
-    if(fs.existsSync('./data/static/personalisations.json')) {
-        fs.readFile('./data/static/personalisations.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-
-          if(data == ''){ data = '[]'; }
-
-              var params = JSON.parse(data);
-
-          var isScreenIdleEnabled = false;
-
-          //Render
-          for (var i=0; i<params.length; i++){
-            if(params[i].name == "theme"){
-              /*TWEAK*/
-              var themeName = params[i].value;
-              themeName = themeName.replace(/skin-/g,"");
-              themeName = themeName.replace(/-/g," ");
-              if((themeName.split(" ")).length == 1){
-                themeName = themeName+' Dark';
-              }
-
-              document.getElementById("title_"+params[i].value).innerHTML = themeName+'<tag class="selectThemeTitleDefaulted"> <i style="color: #2ecc71" class="fa fa-check-circle"></i></tag>';
-            }
-            else if(params[i].name == "menuImages"){
-              document.getElementById("personalisationEditImage").value = params[i].value;
-            }
-            else if(params[i].name == "punchingRightScreen"){
-              document.getElementById("personalisationRightDisplayChoice").value = params[i].value;
-            }
-            else if(params[i].name == "virtualKeyboard"){
-              document.getElementById("personalisationEditKeyboard").value = 0; //params[i].value;
-            }
-            else if(params[i].name == "systemName"){
-              document.getElementById("edit_main_system_name").value = params[i].value;
-            }
-            else if(params[i].name == "screenLockOptions"){
-              if(params[i].value == 'SCREENSAVER' || params[i].value == 'LOCKSCREEN'){
-                document.getElementById("personalisationInactiveScreen").value = params[i].value;
-                isScreenIdleEnabled = true;
-              }
-              else{
-                document.getElementById("personalisationInactiveScreen").value = 'NONE';
-                isScreenIdleEnabled = false;
-              }
-              
-            }
-            else if(params[i].name == "screenLockDuration"){
-              if(isScreenIdleEnabled){
-                document.getElementById("personalisationInactiveScreen_TimeOptions").style.display = 'table-row';
-                document.getElementById("personalisationIdleDuration").value = params[i].value;
-              }  
-              else{
-                document.getElementById("personalisationInactiveScreen_TimeOptions").style.display = 'none';
-                document.getElementById("personalisationIdleDuration").value = params[i].value;
-              }    
-            }                        
-          }
-
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PERSONALISATIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
     }
-    });
-      } else {
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+                    var isScreenIdleEnabled = false;
+
+                    //Render
+                    for (var i=0; i<params.length; i++){
+                      if(params[i].name == "theme"){
+                        /*TWEAK*/
+                        var themeName = params[i].value;
+                        themeName = themeName.replace(/skin-/g,"");
+                        themeName = themeName.replace(/-/g," ");
+                        if((themeName.split(" ")).length == 1){
+                          themeName = themeName+' Dark';
+                        }
+
+                        document.getElementById("title_"+params[i].value).innerHTML = themeName+'<tag class="selectThemeTitleDefaulted"> <i style="color: #2ecc71" class="fa fa-check-circle"></i></tag>';
+                      }
+                      else if(params[i].name == "menuImages"){
+                        document.getElementById("personalisationEditImage").value = params[i].value;
+                      }
+                      else if(params[i].name == "punchingRightScreen"){
+                        document.getElementById("personalisationRightDisplayChoice").value = params[i].value;
+                      }
+                      else if(params[i].name == "virtualKeyboard"){
+                        document.getElementById("personalisationEditKeyboard").value = 0; //params[i].value;
+                      }
+                      else if(params[i].name == "systemName"){
+                        document.getElementById("edit_main_system_name").value = params[i].value;
+                      }
+                      else if(params[i].name == "screenLockOptions"){
+                        if(params[i].value == 'SCREENSAVER' || params[i].value == 'LOCKSCREEN'){
+                          document.getElementById("personalisationInactiveScreen").value = params[i].value;
+                          isScreenIdleEnabled = true;
+                        }
+                        else{
+                          document.getElementById("personalisationInactiveScreen").value = 'NONE';
+                          isScreenIdleEnabled = false;
+                        }
+                        
+                      }
+                      else if(params[i].name == "screenLockDuration"){
+                        if(isScreenIdleEnabled){
+                          document.getElementById("personalisationInactiveScreen_TimeOptions").style.display = 'table-row';
+                          document.getElementById("personalisationIdleDuration").value = params[i].value;
+                        }  
+                        else{
+                          document.getElementById("personalisationInactiveScreen_TimeOptions").style.display = 'none';
+                          document.getElementById("personalisationIdleDuration").value = params[i].value;
+                        }    
+                      }                        
+                    } //end FOR (Render)
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
         showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-      }   
+      }
+
+    });  
+
 }
 
 
@@ -102,76 +569,249 @@ function renderPersonalisations(){
 /*read security data*/
 function renderSecurityOptions(){
 
-    if(fs.existsSync('./data/static/personalisations.json')) {
-        fs.readFile('./data/static/personalisations.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Security Information. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-
-          if(data == ''){ data = '[]'; }
-
-              var params = JSON.parse(data);
-
- 
-          //Render
-          for (var i=0; i<params.length; i++){         
-            if(params[i].name == "securityPasscodeProtection"){
-              document.getElementById("securityPasscodeProtection").value = params[i].value;
-              if(document.getElementById("securityPasscodeProtection").value == 'YES'){
-                document.getElementById("passcodeActionsArea").style.display = 'table-row';
-              }
-              else{
-                document.getElementById("passcodeActionsArea").style.display = 'none';
-              }
-            }                      
-          }
-
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PERSONALISATIONS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
     }
-    });
-      } else {
-        showToast('System Error: Unable to read Security Information. Please contact Accelerate Support.', '#e74c3c');
-      }   
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+
+                    //Render
+                    for (var i=0; i<params.length; i++){         
+                      if(params[i].name == "securityPasscodeProtection"){
+                        document.getElementById("securityPasscodeProtection").value = params[i].value;
+                        if(document.getElementById("securityPasscodeProtection").value == 'YES'){
+                          document.getElementById("passcodeActionsArea").style.display = 'table-row';
+                        }
+                        else{
+                          document.getElementById("passcodeActionsArea").style.display = 'none';
+                        }
+                      }                      
+                    } //end FOR (Render)
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Security Information data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Security Information data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Security Information data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
 }
 
+
+function changeSystemOptionsFile(type, changedValue){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SYSTEM_OPTIONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SYSTEM_OPTIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    for (var i=0; i<settingsList[n].data.length; i++){
+                      if(settingsList[n].data[i].name == type){
+                        
+                        settingsList[n].data[i].value = changedValue;
+
+
+                        //Update
+                        var updateData = {
+                          "_rev": data.docs[0]._rev,
+                          "identifierTag": "ZAITOON_SYSTEM_OPTIONS",
+                          "value": settingsList
+                        }
+
+                        $.ajax({
+                          type: 'PUT',
+                          url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SYSTEM_OPTIONS/',
+                          data: JSON.stringify(updateData),
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+
+                              renderSystemOptions();
+
+                          },
+                          error: function(data) {
+                            showToast('System Error: Unable to update System Options data. Please contact Accelerate Support.', '#e74c3c');
+                          }
+
+                        });  
+
+                        break;
+                      }
+                    }
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read System Options data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+ 
+}
 
 
 function changePersonalisationFile(type, changedValue){
 
-    if(fs.existsSync('./data/static/personalisations.json')) {
-        fs.readFile('./data/static/personalisations.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to modify Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
-
-          if(data == ''){ data = '[]'; }
-
-              var params = JSON.parse(data);
-
-
-                  for (var i=0; i<params.length; i++){
-                    if(params[i].name == type){
-                      params[i].value = changedValue;
-                      break;
-                    }
-                  }
-
-           var newjson = JSON.stringify(params);
-           fs.writeFile('./data/static/personalisations.json', newjson, 'utf8', (err) => {
-             if(err){
-                showToast('System Error: Unable to save Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-               }
-               else{
-                renderPersonalisations();
-                renderSecurityOptions();
-               }
-           }); 
-
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_PERSONALISATIONS" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
     }
-    });
-      } else {
-        showToast('System Error: Unable to modify Personalisations data. Please contact Accelerate Support.', '#e74c3c');
-      }   
- 
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    for (var i=0; i<settingsList[n].data.length; i++){
+                      if(settingsList[n].data[i].name == type){
+                        
+                        settingsList[n].data[i].value = changedValue;
+
+
+                        //Update
+                        var updateData = {
+                          "_rev": data.docs[0]._rev,
+                          "identifierTag": "ZAITOON_PERSONALISATIONS",
+                          "value": settingsList
+                        }
+
+                        $.ajax({
+                          type: 'PUT',
+                          url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_PERSONALISATIONS/',
+                          data: JSON.stringify(updateData),
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+
+                              renderPersonalisations();
+                              renderSecurityOptions();
+
+                          },
+                          error: function(data) {
+                            console.log(data)
+                            showToast('System Error: Unable to update Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+                          }
+
+                        });  
+
+                        break;
+                      }
+                    }
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
 }
 
 /*actions*/
@@ -278,11 +918,96 @@ function changeSystemName(){
     return '';
   }
 
+  if(newValue == 'Nameless Machine'){
+    showToast('Warning: System Name can not be set as Nameless Machine', '#e67e22');
+    return '';  
+  }
+
   document.getElementById("thisSystemName").innerHTML = newValue;
   window.localStorage.appCustomSettings_SystemName = newValue;
-  changePersonalisationFile('systemName', newValue);
+  changeConfiguredMachineName(newValue);
 }
 
+function changeConfiguredMachineName(newValue){
+
+    var licenseRequest = window.localStorage.accelerate_licence_number ? window.localStorage.accelerate_licence_number : '';
+
+    if(licenseRequest == ''){
+      showToast('System Error: Licence Number not found. Please contact Accelerate Support.', '#e74c3c');
+      return '';
+    }
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+
+              var machinesList = data.docs[0].value;
+
+              var n = 0;
+              while(machinesList[n]){
+                if(machinesList[n].licence == licenseRequest){
+                  machinesList[n].machineCustomName = newValue;
+                  break;
+                }
+
+                n++;
+              }
+
+
+                        //Update
+                        var updateData = {
+                          "_rev": data.docs[0]._rev,
+                          "identifierTag": "ZAITOON_CONFIGURED_MACHINES",
+                          "value": machinesList
+                        }
+
+                        $.ajax({
+                          type: 'PUT',
+                          url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_MACHINES/',
+                          data: JSON.stringify(updateData),
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+
+                          },
+                          error: function(data) {
+                            showToast('System Error: Unable to update Configured Systems data. Please contact Accelerate Support.', '#e74c3c');
+                          }
+
+                        });  
+
+          }
+          else{
+            showToast('Not Found Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Configured Systems data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
 
 
 function changePersonalisationIdleDuration(){
@@ -549,142 +1274,474 @@ function performRecoveryResetLogin(){
 
 
 
-/*RESET OPTIONS*/
+/* System Options */
 
-function masterResetConfirm(){
-  document.getElementById("masterResetConfirmModal").style.display = 'block';
+function changeSystemOptionOnlineOrders(){
+  var optName = document.getElementById("systemOptionOnlineOrders").value == 'YES'? true: false;
+
+  //Update
+  window.localStorage.systemOptionsSettings_OnlineOrders = optName;
+  changeSystemOptionsFile("onlineOrders", document.getElementById("systemOptionOnlineOrders").value);
 }
 
-function masterResetConfirmHide(){
-  document.getElementById("masterResetConfirmModal").style.display = 'none';
+function changeSystemOptionNotification(){
+  var optName = document.getElementById("systemOptionNotification").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_notifications = optName;
+  changeSystemOptionsFile("notifications", optName);
+}
+
+function changeSystemOptionDefaultDineMode(){
+  var optName = document.getElementById("systemOptionDefaultDineMode").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_defaultDineMode = optName;
+  changeSystemOptionsFile("defaultDineMode", optName); 
+}
+
+function systemOptionPrepaidKeyword(){
+  var optName = document.getElementById("systemOptionOnlineOrders_prepaid_keyword").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_defaultPrepaidName = optName;
+  changeSystemOptionsFile("defaultPrepaidName", optName); 
 }
 
 
-function masterResetAction(){
+function systemOptionOnlineOrderDefaultDelivery(){
+  var optName = document.getElementById("systemOptionOnlineOrder_Default_Delivery").value;
 
-  masterResetConfirmHide();
-  document.getElementById("fullScreenLoader").style.display = 'block';
+  //Update
+  window.localStorage.systemOptionsSettings_defaultDeliveryMode = optName;
+  changeSystemOptionsFile("defaultDeliveryMode", optName); 
+}
 
-  //test unit
-  var resetLinks = [{
-                    "name": "Billing Modes",
-                    "url": "./data/static/test.json",
-                    "type": "json"
-                  }, {
-                    "name": "Billing Parameters",
-                    "url": "./data/static/test.json",
-                    "type": "json"
-                  }];
 
-/* Production unit: 
+function systemOptionOnlineOrderDefaultTakeaway(){
+  var optName = document.getElementById("systemOptionOnlineOrder_Default_Takeaway").value;
 
-  var resetLinks = [{
-                    "name": "Billing Modes",
-                    "url": "./data/static/billingmodes.json",
-                    "type": "json"
-                  }, {
-                    "name": "Billing Parameters",
-                    "url": "./data/static/billingparameters.json",
-                    "type": "json"
-                  }, {
-                    "name": "Cooking Ingredients",
-                    "url": "./data/static/cookingingredients.json",
-                    "type": "json"
-                  }, {
-                    "name": "Dine Sessions",
-                    "url": "./data/static/dinesessions.json",
-                    "type": "json"
-                  }, {
-                    "name": "Discount Types",
-                    "url": "./data/static/discounttypes.json",
-                    "type": "json"
-                  }, {
-                    "name": "Master Menu",
-                    "url": "./data/static/mastermenu.json",
-                    "type": "json"
-                  }, {
-                    "name": "Menu Categories",
-                    "url": "./data/static/menuCategories.json",
-                    "type": "json"
-                  }, {
-                    "name": "Payment Modes",
-                    "url": "./data/static/paymentmodes.json",
-                    "type": "json"
-                  }, {
-                    "name": "Personalisations",
-                    "url": "./data/static/personalisations.json",
-                    "type": "json"
-                  }, {
-                    "name": "Saved Comments",
-                    "url": "./data/static/savedcomments.json",
-                    "type": "json"
-                  }, {
-                    "name": "Tables",
-                    "url": "./data/static/tables.json",
-                    "type": "json"
-                  }, {
-                    "name": "Table Mapping",
-                    "url": "./data/static/tablemapping.json",
-                    "type": "json"
-                  }, {
-                    "name": "Table Sections",
-                    "url": "./data/static/tablesections.json",
-                    "type": "json"
-                  }, {
-                    "name": "User Profiles",
-                    "url": "./data/static/userprofiles.json",
-                    "type": "json"
-                  }, {
-                    "name": "KOT Number Count",
-                    "url": "./data/static/lastKOT.txt",
-                    "type": "counter"
-                  }, {
-                    "name": "Tables",
-                    "url": "./data/static/tables.json",
-                    "type": "json"
-                  }, {
-                    "name": "Tables",
-                    "url": "./data/static/tables.json",
-                    "type": "json"
-                  }];
+  //Update
+  window.localStorage.systemOptionsSettings_defaultTakeawayMode = optName;
+  changeSystemOptionsFile("defaultTakeawayMode", optName); 
+}
 
+
+
+
+
+// CUSTOM KEYSBOARD SHORTCUTS 
+
+function renderCurrentKeys(){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SHORTCUT_KEYS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              var renderContent = '';
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    var params = settingsList[n].data;
+                    //Render
+                    for (var i=0; i<params.length; i++){
+
+                      var key_selected = (params[i].value).split('+'); 
+
+                      renderContent += '<div class="row" style="margin-top: 5px">'+
+                                          '<div class="col-sm-8">'+
+                                             '<p style="color: #000; font-weight: 500; margin: 0; padding: 5px 0;">'+params[i].name+'</p>'+
+                                          '</div>'+
+                                          '<div class="col-sm-4">'+
+                                             (params[i].value != '' ? '<tag class="removeShortCutIcon" onclick="unsetShortcutKey(\''+params[i].name+'\')"><i class="fa fa-minus-circle"></i></tag>' : '')+
+                                             '<button class="btn btn-sm btn-default" onclick="openKeySelectionModal(\''+params[i].name+'\', \''+key_selected[0]+'\', \''+(key_selected[1] ? key_selected[1] : '')+'\')" style="width: 100%; font-weight: bold; text-transform: uppercase">'+(key_selected[0] && key_selected[0] != '' ? key_selected[0]+(key_selected[1] ? ' + '+key_selected[1] : '') : '<tag style="font-style: italic; text-transform: initial; color: #5d5d5d; font-weight: initial;">Not Set</tag>')+'</button>'+
+                                          '</div>'+
+                                      '</div>';
+                    } //end FOR (Render)
+
+                    document.getElementById("shortCutsRenderPlane").innerHTML = renderContent;
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Shortcut Keys data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+function openKeySelectionModal(brief, key_one, key_two){
+
+  document.getElementById("selectShortKeysModal").style.display = 'block'; 
+  document.getElementById("selectShortKeysModalBrief").innerHTML = 'Select the short keys to <b>'+brief+'</b>'; 
+  document.getElementById("selectShortKeysModalActions").innerHTML = '<button class="btn btn-default" style="width: 30%; border: none; border-radius: 0" onclick="selectShortKeysModalHide()" style="float: left">Cancel</button>'+
+                                                '<button style="width: 70%; border: none; border-radius: 0; margin: 0; float: right;" class="btn btn-success" onclick="saveShortKeySelection(\''+brief+'\')">Save</button>'; 
+
+   $("#wholeKeyboard .keySelectionDetector").each(function(){
+      if($(this).attr("key-value") == key_one || $(this).attr("key-value") == key_two){
+        $(this).addClass('active');
+      }
+      else{
+        $(this).removeClass('active');
+      }
+  });  
+
+
+}
+
+function selectShortKeysModalHide(){
+  document.getElementById("selectShortKeysModal").style.display = 'none';
+}
+
+
+function saveShortKeySelection(brief){
+
+  var selectedNormalKey = '';
+  var selectedTriggerKey = '';
+
+
+  $("#wholeKeyboard .keySelectionDetector").each(function(){
+      if($(this).hasClass("active")){
+        if($(this).attr("key-value") == 'ctrl' || $(this).attr("key-value") == 'shift' || $(this).attr("key-value") == 'alt'){
+          selectedTriggerKey = $(this).attr("key-value");
+        }
+        else{
+          selectedNormalKey = $(this).attr("key-value");
+        }
+      }
+  });  
+
+  //Check if Criteria has been followed
+  if(selectedNormalKey == '' && selectedTriggerKey == ''){
+    showToast('Error: Select atleast one key', '#e74c3c');
+    return '';
+  }
+
+  if(selectedNormalKey == '' && selectedTriggerKey != ''){
+    showToast('Error: Select atleast one key other than Shift or Ctrl or Alt', '#e74c3c');
+    return '';
+  }
+
+
+  var reservedKeysData = [{ "name": "Select all text", "value": "ctrl+a" }, { "name": "Copy selected text", "value": "ctrl+c" }, { "name": "Cut currently selected text", "value": "ctrl+x" }, { "name": "Paste clipboard text", "value": "ctrl+v" } ];
+  
+  for (var i=0; i<reservedKeysData.length; i++){
+
+      var key_selected = (reservedKeysData[i].value).split('+'); 
+
+      if(selectedTriggerKey != ''){
+          if((key_selected[0] == selectedTriggerKey && key_selected[1] == selectedNormalKey) || (key_selected[1] == selectedTriggerKey && key_selected[0] == selectedNormalKey)){
+              showToast('Error: It is a System Reserved key. Choose a different Key.', '#e74c3c');
+              return '';
+          }
+      }
+      else{
+          if((key_selected[0] == selectedNormalKey) && key_selected.length == 1){
+              showToast('Error: It is a System Reserved key. Choose a different Key.', '#e74c3c');
+              return '';
+          }
+      }
+  }
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SHORTCUT_KEYS" 
+                  }
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              var replaceIndex = -1;
+
+              for(var n=0; n<settingsList.length; n++){
+
+                if(settingsList[n].systemName == machineName){
+
+                    //inner FOR
+                    for (var i=0; i<settingsList[n].data.length; i++){
+
+                      var key_selected = (settingsList[n].data[i].value).split('+'); 
+
+                      if(selectedTriggerKey != ''){
+                        if((key_selected[0] == selectedTriggerKey && key_selected[1] == selectedNormalKey) || (key_selected[1] == selectedTriggerKey && key_selected[0] == selectedNormalKey)){
+                          showToast('Error: Shortcut Key already exists. Choose a different Key.', '#e74c3c');
+                          return '';
+                        }
+                      }
+                      else{
+                        if((key_selected[0] == selectedNormalKey) && key_selected.length == 1){
+                          showToast('Error: Shortcut Key already exists. Choose a different Key.', '#e74c3c');
+                          return '';
+                        }
+                      }
+
+                      //Find the index at which the key has to be set
+                      if(settingsList[n].data[i].name == brief){
+                        replaceIndex = i;
+                      }
+
+                      if((i == settingsList[n].data.length - 1) && replaceIndex > -1){ //last iteration and replace index is found
+                        settingsList[n].data[replaceIndex].value = selectedTriggerKey != '' ? selectedTriggerKey+'+'+selectedNormalKey : selectedNormalKey;
+                        selectShortKeysModalHide();
+                        saveToShortcutData(settingsList, data.docs[0]._rev);
+                      }
+                    } //end inner FOR
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Shortcut Keys data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
+
+function saveToShortcutData(settingsList, rev){
+
+                    //Update
+                    var updateData = {
+                      "_rev": rev,
+                      "identifierTag": "ZAITOON_SHORTCUT_KEYS",
+                      "value": settingsList
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SHORTCUT_KEYS/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        renderCurrentKeys();
+                        applyShortcuts();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Shortcut Keys data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });     
+}
+
+function unsetShortcutKey(brief){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_SHORTCUT_KEYS" 
+                  }
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              var replaceIndex = -1;
+
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+
+                    for (var i=0; i<settingsList[n].data.length; i++){
+                      if(settingsList[n].data[i].name == brief){
+                        settingsList[n].data[i].value = '';
+                        break;
+                      }
+                    }
+
+                    saveToShortcutData(settingsList, data.docs[0]._rev);
+
+                  break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Shortcut Keys data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Shortcut Keys data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
+
+function recordShortKey(element){
+
+  //Criterias
+  /*
+    > Max 2 Keys
+    > Either Single Key from F1 - F12 or A - Z
+    > Or a combination of one key and Shift/Ctrl/Alt
+    > Shift or Ctrl or Alt => Only one at a time
   */
 
+  //Pre check : Max of 2 keys at a time.
+  var selectedKeysCount = 0;
+  var hasCtrlShiftAltSelected = false;
+  var hasNormalKeySelected = false;
 
-  //DELETE MENU IMAGES !
+
+  $("#wholeKeyboard .keySelectionDetector").each(function(){
+      if($(this).hasClass("active")){
+        if($(this).attr("key-value") == 'ctrl' || $(this).attr("key-value") == 'shift' || $(this).attr("key-value") == 'alt'){
+          hasCtrlShiftAltSelected = true;
+        }
+        else{
+          hasNormalKeySelected = true;
+        }
+        selectedKeysCount++;
+      }
+  });  
+
+  if(element.classList.contains("active")){
+    element.classList.remove("active")
+  }
+  else{
+    if(selectedKeysCount < 2){
+      if($(element).attr("key-value") == 'ctrl' || $(element).attr("key-value") == 'shift' || $(element).attr("key-value") == 'alt'){
+        if(hasCtrlShiftAltSelected){
+          showToast('Warning: Shift or Ctrl or Alt - Use only one at a time', '#e67e22');
+          return '';
+        }
+        else{
+          element.classList.add("active");
+        }
+      }
+      else{ //Any Normal Key
+        if(hasNormalKeySelected){
+          showToast('Warning: Use Shift or Ctrl or Alt if you want', '#e67e22');
+          return '';
+        }
+        else{
+          element.classList.add("active");
+        }        
+      }
+      
+    }
+    else{
+      showToast('Warning: Maximum of 2 keys can be selected', '#e67e22');
+      return '';
+    }
+  }
+} 
+
+
+function openDefaultKeys(){
+  document.getElementById("systemReservedShortCutsModal").style.display = 'block';
+
+  var dataSet = [{ "name": "Select all text", "value": "ctrl+a" }, { "name": "Copy selected text", "value": "ctrl+c" }, { "name": "Cut currently selected text", "value": "ctrl+x" }, { "name": "Paste clipboard text", "value": "ctrl+v" } ];
+
+  var renderContent = '';
 
   var n = 0;
-  var actualCount = 1;
-  while(resetLinks[n]){
+  while(dataSet[n]){
 
-       var content;
-       if(resetLinks[n].type == 'json'){
-        content = JSON.stringify([]);
-        }else if(resetLinks[n].type == 'counter'){
-          content = 1;
-        }else{
-          content = '';
-        }
-       fs.writeFile(resetLinks[n].url, content, 'utf8', (err) => {
-         if(err){
-            showToast('System Reset failed!', 'red');
-            document.getElementById("fullScreenLoader").style.display = 'none';
-            return '';
-         }
+    var key_selected = (dataSet[n].value).split('+'); 
 
-         if(actualCount == resetLinks.length){
-          resetFinished();
-         }
-
-         actualCount++;
-
-       }); 
+    renderContent += '<div class="row" style="margin-top: 5px">'+
+                       '<div class="col-sm-8"> <p style="color: #000; font-weight: 500; margin: 0; padding: 5px 0;">'+dataSet[n].name+'</p> </div>'+
+                       '<div class="col-sm-4"> <button class="btn btn-sm btn-default" style="width: 100%; font-weight: bold; text-transform: uppercase" disabled>'+(key_selected[0] && key_selected[0] != '' ? key_selected[0]+(key_selected[1] ? ' + '+key_selected[1] : '') : '<tag style="font-style: italic; text-transform: initial; color: #5d5d5d; font-weight: initial;">Not Set</tag>')+'</button> </div>'+
+                    '</div>'
     n++;
   }
-  
+
+  document.getElementById("renderAreaSystemShorts").innerHTML = renderContent;
 }
 
-function resetFinished(){
-  showToast('System Reset Completed!', 'green');
-  document.getElementById("fullScreenLoader").style.display = 'none';  
+
+function systemReservedShortCutsModalHide(){
+  document.getElementById("systemReservedShortCutsModal").style.display = 'none'; 
 }
+
+
+
+
+
+
+
+
+
+

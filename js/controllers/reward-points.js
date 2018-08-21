@@ -8,9 +8,9 @@ function hideLoginModal(){
 
 
 function openCouponRedeemModal(data){
-	document.getElementById("couponRedeemConfirmation").innerHTML = '<p style="font-size: 18px; font-weight: bold; padding-left: 5px; color: #1abc9c;">'+data.brief+'</p>'+
-							'<table class="table" style="margin: 0"> <tbody> <tr> <td style="border-top: none">Issued To</td> <td style="border-top: none;">'+data.issuedTo+'</td> </tr>'+
-							'<tr> <td>Total Value</td> <td style="font-size: 21px; font-weight: bold; color: #1abc9c"><i class="fa fa-inr"></i>'+data.totalValue+'</td> </tr><tr> <td>Minimum Bill Amount</td> <td><i class="fa fa-inr"></i>'+data.minBill+'</td> </tr> <tr> <td style="color: #e74c3c">Expiry Date</td> <td style="color: #e74c3c">'+data.expiry+'</td> </tr>'+
+	document.getElementById("couponRedeemConfirmation").innerHTML = '<p style="font-size: 18px; font-weight: bold; padding-left: 5px; color: #1abc9c;"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+data.brief+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>'+
+							'<table class="table" style="margin: 0"> <tbody> <tr> <td style="border-top: none">Issued To</td> <td style="border-top: none;"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+data.issuedTo+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></td> </tr>'+
+							'<tr> <td>Total Value</td> <td style="font-size: 21px; font-weight: bold; color: #1abc9c"><i class="fa fa-inr"></i><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+data.totalValue+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></td> </tr><tr> <td>Minimum Bill Amount</td> <td><i class="fa fa-inr"></i>'+data.minBill+'</td> </tr> <tr> <td style="color: #e74c3c">Expiry Date</td> <td style="color: #e74c3c">'+data.expiry+'</td> </tr>'+
 							'</tbody> </table> <p style="color: gray; padding-left: 8px; margin: 0; padding-top: 15px">Issued by '+data.issuedAdmin+' at '+data.issuedOutlet+' on '+data.issuedDate+'</p>';
 	document.getElementById("couponRedeemModal").style.display = "block";
 }
@@ -22,7 +22,6 @@ function hideCouponRedeemModal(){
 
 /*to redeem coupon entered*/
 function processRedeemCoupon(){
-	alert('Code to be Written!')
 	hideCouponRedeemModal();
 }
 
@@ -120,6 +119,7 @@ function searchRequest(){
 	/*clear previous search*/
 	document.getElementById("renderAreaUserInfo").innerHTML = "";
 	document.getElementById("renderAreaUserStats").innerHTML = "";
+	document.getElementById("errorRenderArea").innerHTML = '';
 
 
 	var user = document.getElementById("rewardsSearchInput").value;
@@ -204,21 +204,15 @@ function loadMoreOrders(user, nextID){
 
 function renderHistory(data, userID){
 
-	var redeemButton = '<button class="btn btn-success rewardsButton">Redeem Points</button>';
-	if(data.points < 50){
-		redeemButton = '<button class="btn btn-success rewardsButton" disabled>Redeem Points</button>'+
-		'<p style="color: #7f8c8d; margin-top: 5px; text-align: center"><i class="fa fa-warning"></i> Minimum 50 active points required to Redeem</p>';
-	}
 
-document.getElementById("renderAreaUserInfo").innerHTML = '<div class="box box-primary">'+
+	document.getElementById("renderAreaUserInfo").innerHTML = '<div class="box box-primary">'+
                     '<div class="box-body" style="padding: 30px 10px 30px 10px; text-align: center">'+
                         '<img src="data/photos/users/default_customer.png">'+
                         '<h1 style="font-size: 24px; font-weight: 400">'+data.response.name+'</h1>'+
-                        '<p style="margin: 0; color: #3498db">'+data.response.mobile+'</p>'+
-                        '<p style="margin: 0; color: #7f8c8d">'+data.response.email+'</p>'+   
+                        '<p style="margin: 0; color: #3498db"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+data.response.mobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>'+
+                        '<p style="margin: 0; color: #7f8c8d"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+data.response.email+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>'+   
                     '</div>'+
-                '</div>'+redeemButton
-
+                '</div>';
 
 
 	var tableList = '';
@@ -232,12 +226,17 @@ document.getElementById("renderAreaUserInfo").innerHTML = '<div class="box box-p
 			n++;
 		}
 
+		
+		if(!data.list[i].type){
+			data.list[i].type = '';
+		}
+
 		tableList = tableList +     '<tr>'+
 	                                    '<td>'+(i+1)+'</td>'+
-	                                    '<td>'+data.list[i].date+'</td>'+
-	                                    '<td>'+itemsList+'</td>'+
-	                                    '<td><i class="fa fa-inr"></i> '+data.list[i].cart.cartTotal+'</td>'+
-	                                    '<td>'+data.list[i].cart.cartPoints+'</td>'+
+	                                    '<td>'+data.list[i].date+'<tag style="display: block; font-size: 11px; color: #dc2e6f">'+data.list[i].type+' at <b>'+data.list[i].outlet+'</b></tag></td>'+
+	                                    '<td style="font-size: 85%">'+itemsList+'</td>'+
+	                                    '<td style="text-align: center"><i class="fa fa-inr"></i>'+data.list[i].cart.cartTotal+'</td>'+
+	                                    '<td style="text-align: center">'+(data.list[i].cart.cartPoints ? '<b style="color: #ffb328">'+data.list[i].cart.cartPoints+'</b>' : '-')+'</td>'+
 	                                '</tr>';
 	    i++;                            
 	}
@@ -256,7 +255,7 @@ document.getElementById("renderAreaUserStats").innerHTML = '<div>'+
                     '<div class="col-xs-4">'+
                         '<div class="box box-primary">'+
                             '<div class="box-body">'+
-                                '<div class="rewardsCount">'+data.volume+'<i class="fa fa-inr rewardsRs"></i></div>'+
+                                '<div class="rewardsCount">'+data.volume+'<i class="fa fa-inr rewardsRs" style="font-size: 50% !important; position: relative; top: -10px; padding-left: 5px;"></i></div>'+
                                 '<div class="rewardsName">TOTAL SPENT</div>'+
                             '</div>'+
                         '</div>'+
@@ -278,20 +277,20 @@ document.getElementById("renderAreaUserStats").innerHTML = '<div>'+
                         '</div>'+
                         '<div class="table-responsive">'+
                             '<table class="table" style="margin: 0">'+
-                            	'<col width="5%"><col width="15%"><col width="50%"><col width="15%"><col width="15%">'+
+                            	'<col width="5%"><col width="25%"><col width="40%"><col width="15%"><col width="15%">'+
                                 '<thead style="background: #f4f4f4;">'+
                                     '<tr>'+
                                         '<th style="text-align: left">#</th>'+
                                         '<th style="text-align: left">Date</th>'+
                                         '<th style="text-align: left">Summary</th>'+
-                                        '<th style="text-align: left">Amount</th>'+
-                                        '<th style="text-align: left">Points</th>'+
+                                        '<th style="text-align: center">Amount</th>'+
+                                        '<th style="text-align: center">Points</th>'+
                                     '</tr>'+
                                 '</thead>'+
                             '</table>'+
                             '<div style="height: 40vh !important; overflow: scroll">'+
                             '<table class="table" style="margin: 0">'+
-                            	'<col width="5%"><col width="15%"><col width="50%"><col width="15%"><col width="15%">'+
+                            	'<col width="5%"><col width="25%"><col width="40%"><col width="15%"><col width="15%">'+
                                 '<tbody id="allHistoryOrders">'+tableList+'</tbody>'+
                             '</table>'+
                             '</div>'+
@@ -322,13 +321,18 @@ function appendToHistory(data, currentKey, user){
 			n++;
 		}
 
+		if(!data.list[i].type){
+			data.list[i].type = '';
+		}
+
 		tableList = tableList +     '<tr>'+
 	                                    '<td>'+((currentKey*5)+i+1)+'</td>'+
-	                                    '<td>'+data.list[i].date+'</td>'+
-	                                    '<td>'+itemsList+'</td>'+
-	                                    '<td><i class="fa fa-inr"></i> '+data.list[i].cart.cartTotal+'</td>'+
-	                                    '<td>'+data.list[i].cart.cartPoints+'</td>'+
+	                                    '<td>'+data.list[i].date+'<tag style="display: block; font-size: 11px; color: #dc2e6f">'+data.list[i].type+' at <b>'+data.list[i].outlet+'</b></tag></td>'+
+	                                    '<td style="font-size: 85%">'+itemsList+'</td>'+
+	                                    '<td style="text-align: center"><i class="fa fa-inr"></i>'+data.list[i].cart.cartTotal+'</td>'+
+	                                    '<td style="text-align: center">'+(data.list[i].cart.cartPoints ? '<b style="color: #ffb328">'+data.list[i].cart.cartPoints+'</b>' : '-')+'</td>'+
 	                                '</tr>';
+
 	    i++;                            
 	}
 

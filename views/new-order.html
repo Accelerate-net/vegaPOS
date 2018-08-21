@@ -1,20 +1,30 @@
 <template class="task-template">
         
-   <div class="row">
-      <div class="col-sm-4">
+   <div class="row" style="position: relative; top: -5px;">
+      <div class="col-sm-4" style="padding: 0 0 0 10px">
 
-         <div id="pos">
-            <form>
-            
-               <div class="well well-sm punchPOS" id="leftdiv" style="padding: 2px 2px 8px 2px; margin-bottom: 5px;">
-                  <div id="lefttop" style="margin-bottom:5px;">
+               <div class="posCartHeader">
+                     <h1 class="posCartHead" style="margin: 0" id="ongoingOrderTitle">
+                              New Order
+                        <tag class="specialRequestsHolder" onclick="openSpecialRequestModal()"><tag class="specialRequestsButtonActive"><i class="fa fa-comment-o"></i></tag></tag>
+                     </h1> 
+               </div>   
 
-                        <h1 class="posCartHead" id="ongoingOrderTitle">
-                           New Order<tag class="specialRequestsHolder" onclick="openSpecialRequestModal()"><tag class="specialRequestsButton"><i class="fa fa-plus"></i></tag></tag>
-                        </h1>
+               <div class="well well-sm punchPOS" id="leftdiv" style="padding: 0 2px 8px 2px; margin-bottom: 5px;">
+
+                  <div id="lefttop" style="margin-bottom: 5px;">
+
+
+<!-- 
+                           <h1 class="posCartHead" id="ongoingOrderTitle">
+                              New Order<tag class="specialRequestsHolder" onclick="openSpecialRequestModal()"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>
+                           </h1>
+ -->
+                       
+                     
                         <hr style="margin: 0">
 
-                        <h2 class="posCartSubHead" style="margin-top: 12px">Customer Details</h2>
+                        <h2 class="posCartSubHead" style="margin-top: 8px; margin-bottom: 0">Customer Details</h2>
                         <div style="padding: 0 6px" id="orderCustomerInfo"></div>
 
                         <h2 class="posCartSubHead" style="margin-top: 8px">Order Cart</h2>
@@ -61,18 +71,11 @@
                      </div>
                   </div>
 
-
                </div>
-            </form>
-                  
+            
+         
+            <div id="cartActionButtons" class="col-xs-12 text-center"> </div>
 
-                  <div id="cartActionButtons" class="col-xs-12 text-center">
-
-                  </div>
-
-
-
-         </div>
 
 
       </div>
@@ -100,9 +103,9 @@
 
 
 
-         <div class="contents menuListingPOS" style="display: none" id="fullRightPanelTable">
+         <div class="contents menuListingPOS" style="overflow: auto !important; display: none" id="fullRightPanelTable">
             <h1 class="punchMenuTableTitle">Current Table Status</h1>
-            <div id="tableRenderPlane">
+            <div id="tableRenderPlane" style="overflow: scroll !important">
                <p class="renderDelayText" style="text-align: center">Auch! Rendering Table Status is unusually taking time. Could be a System Error.</p>
             </div>
          </div>
@@ -139,7 +142,7 @@
             <div class="modal-content">
                <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Warning!</h1> </div>
                <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 30px 15px">
-                <p style="font-size: 16px; margin: 0; color: #e74c3c;">You are loading an order from the <b>Hold List</b>. This would over-write the current order which has unsaved changes. <br><br>Are you sure want to open this Held Order?</p>
+                <p style="font-size: 16px; margin: 0; color: #e74c3c;">You are loading an order from the <b>Saved Orders List</b>. This would over-write the current order which has unsaved changes. <br><br>Are you sure want to open this Saved Order?</p>
                </div>
                <div class="modal-footer" id="overWriteHoldOrderModalActions">
 
@@ -174,7 +177,6 @@
    </div>
 
 
-
    <!-- Modal -->
    <div id="undoDeleteModal" class="modal">
       <div class="modal-dialog" style="top: 20%">
@@ -188,7 +190,7 @@
                <div class="row">
                   <div class="col-lg-12" id="deleteItemsListing">
                   </div>
-                  <p style="margin: 15px 15px 0 16px; color: #16a085;">New KOT is yet to be printed. Click on the items to undo deletion and add them back.</p>
+                  <p style="margin: 25px 15px 0 16px; color: #16a085;"><br>New KOT is yet to be printed. Click on the items to undo deletion and add them back.</p>
                </div>
             </div>
             <div class="modal-footer">
@@ -206,7 +208,12 @@
          <div class="modal-content">
             <div class="modal-header">
                <button class="btn btn-default" onclick="pickDummyTableForNewOrder()" style="float: right;">Assign Dummy</button>
-               <h4 class="modal-title" style="font-size: 21px; font-weight: 400">Choose a Table</h4>
+               <h4 class="modal-title" style="font-size: 21px; font-weight: 400">
+                  Choose a Table
+                  <input class="tableSearchInputModal" id="tableEasyInputBox" type="text">
+                  <tag class="tableSearchStatusModal" id="tableEasyInputBoxStatus"></tag>
+               </h4>
+
             </div>
             <div class="modal-body" style="max-height: 70vh; overflow: scroll; padding-top: 0" id="pickTableForNewOrderModalContent">
             </div>
@@ -265,7 +272,7 @@
             </div>
             <div class="modal-footer">
                <button type="button" class="btn btn-default" onclick="pickAddressForNewOrderHide()" style="float: left">Cancel</button>
-               <button type="button" class="btn btn-success" onclick="saveNewDeliveryAddress()" style="float: right">Set Address</button>
+               <button type="button" class="btn btn-success" id="pickAddressForNewOrderConfirmButton" onclick="saveNewDeliveryAddress()" style="float: right">Set Address</button>
             </div>
          </div>
       </div>
@@ -374,13 +381,14 @@
                      <div class="row">
                         <div class="col-lg-12">
                                  <div class="form-group">
-                                    <label style="margin: 0 0 10px 0; font-size: 21px; font-weight: 300;">Special Requests for this Order</label>
-                                    <input type="text" value="" class="form-control tip" id="specialRequests_comments" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px;" placeholder="Add any Special Request?" required="required" />
+                                    <label style="margin: 0 0 10px 0; font-size: 21px; font-weight: 400; font-family: sans-serif;">Special Requests for this Order</label>
+                                    <hr style="margin-top: 0">
+                                    <input type="text" value="" class="form-control tip" id="specialRequests_comments" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px; margin: 30px 0 20px 0" placeholder="Add any Special Request?" required="required" />
                                  </div>                                 
                         </div>
                      </div>
 
-                     <p style="margin: 0; font-size: 14px; font-weight: 400; margin-bottom: 5px; color: #969696;">Suggestions: Avoid Allergic Ingredients</p>
+                     <p style="margin: 0; font-size: 11px; font-weight: bold; margin-bottom: 5px; color: #969696; text-transform: uppercase; letter-spacing: 1px;">Avoid Allergic Ingredients</p>
                      <div id="specialRequestsAllergicSuggestions"></div>
 
 
@@ -403,8 +411,8 @@
                      <div class="row">
                         <div class="col-lg-12">
                                  <div class="form-group">
-                                    <label style="margin: 0 0 10px 0; font-size: 21px; font-weight: 300;">Token Counter</label>
-                                    <input type="text" value="" class="form-control tip" id="next_token_value_set" style="border: none; border-bottom: 1px solid; font-size: 36px; letter-spacing: 5px; height: 60px; font-weight: bold; padding: 10px 3px;" required="required" />
+                                    <label style="margin: 0 0 10px 0; font-size: 28px; font-weight: 300;">Next <b>Token Number</b> will be</label>
+                                    <input type="number" value="" class="form-control tip" id="next_token_value_set" style="border: none; border-bottom: 1px solid; font-size: 36px; letter-spacing: 5px; height: 60px; font-weight: bold; padding: 10px 3px;" required="required" />
                                  </div>                                 
                         </div>
                      </div>

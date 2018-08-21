@@ -9319,11 +9319,13 @@ a:active,a:focus,a:hover{
 .sidebar-menu>li{
     position:relative;
     margin:0;
-    padding:0
+    padding:0;
+    min-height: 60px;
 }
 .sidebar-menu>li>a{
-    padding:12px 5px 12px 15px;
-    display:block
+    padding:14px 6px;
+    display:block;
+    height: 60px;
 }
 .sidebar-menu>li>a>.fa,.sidebar-menu>li>a>.glyphicon,.sidebar-menu>li>a>.ion{
     width:20px
@@ -9365,7 +9367,7 @@ a:active,a:focus,a:hover{
     margin:0
 }
 .sidebar-menu .treeview-menu>li>a{
-    padding:5px 5px 5px 15px;
+    padding: 12px 5px 12px 15px; /*5px 5px 5px 15px;*/
     display:block;
     font-size:14px
 }
@@ -9391,13 +9393,16 @@ a:active,a:focus,a:hover{
         z-index:850
     }
     .sidebar-mini.sidebar-collapse .sidebar-menu>li{
-        position:relative
+        position:relative;
+        height: 60px;
     }
     .sidebar-mini.sidebar-collapse .sidebar-menu>li>a{
-        margin-right:0
+        margin-right:0;
+
     }
     .sidebar-mini.sidebar-collapse .sidebar-menu>li>a>span{
-        border-top-right-radius:4px
+        border-top-right-radius:4px;
+        height: 60px;
     }
     .sidebar-mini.sidebar-collapse .sidebar-menu>li:not(.treeview)>a>span{
         border-bottom-right-radius:4px
@@ -9411,16 +9416,17 @@ a:active,a:focus,a:hover{
         display:block!important;
         position:absolute;
         width:180px;
-        left:50px
+        left:50px;
     }
     .sidebar-mini.sidebar-collapse .sidebar-menu>li:hover>a>span{
         top:0;
+        height: 60px;
         margin-left:-3px;
-        padding:12px 5px 12px 20px;
+        padding:20px 5px 12px 20px;
         background-color:inherit
     }
     .sidebar-mini.sidebar-collapse .sidebar-menu>li:hover>.treeview-menu{
-        top:44px;
+        top:60px;
         margin-left:0
     }
     .sidebar-mini.sidebar-collapse .main-sidebar .user-panel>.info,.sidebar-mini.sidebar-collapse .sidebar-form,.sidebar-mini.sidebar-collapse .sidebar-menu li.header,.sidebar-mini.sidebar-collapse .sidebar-menu>li>.treeview-menu,.sidebar-mini.sidebar-collapse .sidebar-menu>li>a>.pull-right,.sidebar-mini.sidebar-collapse .sidebar-menu>li>a>span{

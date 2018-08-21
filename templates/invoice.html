@@ -162,6 +162,21 @@
       </style>
    </head>
    <body>
+
+
+   <script>
+        const ipcRenderer = require("electron").ipcRenderer;
+
+        ipcRenderer.on("printPDF", (event, content) => {
+            document.body.innerHTML = content;
+            console.log('hi', content)
+            ipcRenderer.send("readyToPrintPDF");
+        });
+
+    </script>
+
+
+
       <div id="logo">
       </div>
       <div class="invoiceHeader">
@@ -290,3 +305,4 @@
       <p class="addressContact"> 7299939974 | care@zaitoon.online | www.zaitoon.online</p>
    </body>
 </html>
+

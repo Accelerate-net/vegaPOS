@@ -1,5 +1,5 @@
  <template class="task-template">
-    <div id="fullSeatingRenderArea" style="margin-bottom: 110px"></div>
+    <div id="fullSeatingRenderArea" style="margin-bottom: 40px; padding: 10px 40px;"></div>
     <div class="confirmationConsentArea" id="confirmationRenderArea">
 
     </div>
@@ -44,6 +44,21 @@
       </div>
 
 
+        <!-- MODAL -->
+        <div id="seating_overWriteCurrentOrderModal" class="modal">
+             <div class="modal-dialog" style="top: 20%;">
+        <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow: scroll">
+                  <p style="font-size: 16px; margin: 0; color: #e74c3c;">There is a new order being punched. Please complete it to continue.<br><br>Or, Proceed if you are sure about over writing it to edit this order?</p>
+                 </div>
+                 <div class="modal-footer" id="seating_overWriteCurrentOrderModalConsent">
+                 </div>
+
+              </div>
+             </div>
+          </div>
+
+
 
       <!-- Modal -->
       <div id="addToReservedConsentModal" class="modal">
@@ -74,6 +89,23 @@
             </div>
          </div>
       </div>
+
+
+      <!-- Modal -->
+      <div id="mappingDeleteConfirmation" class="modal">
+         <div class="modal-dialog" style="top: 20%">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;"><i class="fa fa-warning" style="color: yellow"></i> Confirm Action</h1> </div>
+               <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 30px 15px">
+                <p style="font-size: 16px; margin: 0; color: #e74c3c;" id="mappingDeleteConfirmationText"></P>
+               </div>
+               <div class="modal-footer" style="border: none; padding-top: 0" id="mappingDeleteConfirmationConsent">
+               </div>
+            </div>
+         </div>
+      </div>
+
 
 
 </template>

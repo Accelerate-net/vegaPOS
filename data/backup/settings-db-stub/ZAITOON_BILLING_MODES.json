@@ -1,0 +1,95 @@
+{
+  "_id": "ZAITOON_BILLING_MODES",
+  "_rev": "40-e699907588f9a3501cd8caa8ed45b829",
+  "identifierTag": "ZAITOON_BILLING_MODES",
+  "value": [
+    {
+      "name": "Takeaway - Zatioon App",
+      "isDiscountable": true,
+      "type": "PARCEL",
+      "maxDiscount": 2000,
+      "extras": [
+        {
+          "name": "SGST",
+          "value": "2.50"
+        },
+        {
+          "name": "CGST",
+          "value": "2.50"
+        },
+        {
+          "name": "Parcel Charges",
+          "value": "3.00"
+        }
+      ]
+    },
+    {
+      "name": "Dine In",
+      "isDiscountable": true,
+      "type": "DINE",
+      "maxDiscount": 2000,
+      "extras": [
+        {
+          "name": "SGST",
+          "value": "2.50"
+        },
+        {
+          "name": "CGST",
+          "value": "2.50"
+        }
+      ]
+    },
+    {
+      "name": "Counter IITM",
+      "isDiscountable": true,
+      "type": "TOKEN",
+      "maxDiscount": 2000,
+      "extras": [
+        {
+          "name": "Service Charges",
+          "value": "10.00"
+        }
+      ]
+    },
+    {
+      "name": "Dine In - AC",
+      "isDiscountable": true,
+      "type": "DINE",
+      "maxDiscount": 2000,
+      "extras": [
+        {
+          "name": "SGST",
+          "value": "4.00"
+        },
+        {
+          "name": "Service Charges",
+          "value": "10.00"
+        },
+        {
+          "name": "Container Charges",
+          "value": "5.00"
+        }
+      ]
+    },
+    {
+      "name": "Delivery - Zatioon App",
+      "isDiscountable": true,
+      "type": "DELIVERY",
+      "maxDiscount": 2000,
+      "extras": [
+        {
+          "name": "CGST",
+          "value": "2.50"
+        },
+        {
+          "name": "SGST",
+          "value": "2.50"
+        },
+        {
+          "name": "Parcel Charges",
+          "value": "7.00"
+        }
+      ]
+    }
+  ]
+}

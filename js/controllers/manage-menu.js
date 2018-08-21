@@ -48,15 +48,26 @@ sync();
 /* read categories */
 function fetchAllCategories(){
 
-		if(fs.existsSync('./data/static/menuCategories.json')) {
-	      fs.readFile('./data/static/menuCategories.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Category data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
 
-	    		if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-	          	var categories = JSON.parse(data);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+
+	          	var categories = data.docs[0].value;
 	          	categories.sort(); //alphabetical sorting 
 	          	var categoryTag = '';
 
@@ -69,27 +80,51 @@ function fetchAllCategories(){
 			
 
 				document.getElementById("categoryArea").innerHTML = categoryTag;
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Category data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
+
+          }
+          else{
+            showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu Category data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
 }
 
 
 /* mark an item unavailable */
 function markAvailability(code){
-		
-		/* Just invert the item availability status here*/
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
 
-				if(data == ''){ data = '[]'; }
-	          
-	          	var mastermenu = JSON.parse(data); 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+	          	var mastermenu = data.docs[0].value;
+	          	mastermenu.sort(); //alphabetical sorting 
+
+				
 				for (var i=0; i<mastermenu.length; i++){
 					for(var j=0; j<mastermenu[i].items.length; j++){
 
@@ -106,30 +141,55 @@ function markAvailability(code){
 								document.getElementById("item_avail_"+code).style.background = "#e74c3c";		
 							}
 
-					       var newjson = JSON.stringify(mastermenu);
-					       fs.writeFile('./data/static/mastermenu.json', newjson, 'utf8', (err) => {
-					         if(err){
-					            showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-					         }
-					         else{
-					         	return '';
-					         }
-					       }); 
+
+			                //Update
+			                var updateData = {
+			                  "_rev": data.docs[0]._rev,
+			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "value": mastermenu
+			                }
+
+			                $.ajax({
+			                  type: 'PUT',
+			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  data: JSON.stringify(updateData),
+			                  contentType: "application/json",
+			                  dataType: 'json',
+			                  timeout: 10000,
+			                  success: function(data) {
+			                  	return '';
+			                  },
+			                  error: function(data) {
+			                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+			                  }
+
+			                });  
+
+			                break;
 
 						}
 				
 					}					
 				}
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
-	    }	
 
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
-
+    }); 
 
 }
+
 
 /*edit price of the item*/
 function editItemPrice(encodedItem, inCateogry){
@@ -149,10 +209,12 @@ function editItemPrice(encodedItem, inCateogry){
                   												   '<button type="button" onclick="reviewItemPrice(\''+inCateogry+'\')" class="btn btn-success">Save</button>';
 
     //Check if More Options already added
-    if((item.cookingTime && item.cookingTime != '') || (item.ingredients && item.ingredients.length > 0) || (item.shortCode && item.shortCode != '')){
+    if((item.cookingTime && item.cookingTime != '') || (item.ingredients && item.ingredients.length > 0) || (item.shortCode && item.shortCode != '') || item.isPackaged){
 
     	document.getElementById("edit_moreOptionsArea").style.display = 'block';
     	
+    	document.getElementById("packagedItemFlagEdit").checked = item.isPackaged;
+
     	if(item.shortCode && item.shortCode != ''){
     		document.getElementById("edit_more_options_customCode").value = item.shortCode;
     	}
@@ -234,7 +296,29 @@ function editItemPrice(encodedItem, inCateogry){
 	                     '<div id="existingChoices"></div>';
 	}
 
+
+	topEditContent = '<div class="row">'+
+                        '<div class="col-lg-4">'+
+                           '<div class="form-group">'+
+                              '<label for="new_item_name">Item Code</label> <input type="number" value="'+item.code+'" class="form-control tip" id="edit_item_manual_code" disabled/>'+
+                           '</div>'+
+                        '</div>'+
+                        '<div class="col-lg-8">'+
+                           '<div class="form-group">'+
+                              '<label for="new_item_price">Type</label>'+
+                              '<div style="display: block" id="newItemTypeOptions">'+
+                                 '<button onclick="triggerItemType(this)" veg-flag="0" class="btn btn-default foodTypeButton '+(!item.vegFlag || item.vegFlag == 0 ? 'active' : '')+'">Not Set</button>'+
+                                 '<button onclick="triggerItemType(this)" veg-flag="1" class="btn btn-default foodTypeButton '+(item.vegFlag == 1 ? 'active' : '')+'"><img src="images/common/food_veg.png">Vegetarian</button>'+
+                                 '<button onclick="triggerItemType(this)" veg-flag="2" class="btn btn-default foodTypeButton '+(item.vegFlag == 2 ? 'active' : '')+'"><img src="images/common/food_nonveg.png">Non-Vegetarian</button>'+
+                              '</div>'
+                           '</div>'
+                        '</div>'                        
+                     '</div>'
+
+
+	document.getElementById("topEditItemArea").innerHTML = topEditContent;
 	document.getElementById("editItemArea").innerHTML = editContent;
+
 	$("#item_main_name").focus();
 	document.getElementById("editItemCodeSecret").innerHTML = '<input type="hidden" id="item_main_code_secret" value="'+item.code+'"/>';
 
@@ -306,20 +390,46 @@ function removeExtraChoice(){
 
 
 
+function getVegIcon(flag){
 
+	if(!flag || flag == undefined){
+		return '<tag style="display: inline-block; width: 12px"></tag>';
+	}
+
+	if(flag == 1){ //Veg
+		return '<img style="width: 12px; position: relative; top: -2px; left: -5px;" src="images/common/food_veg.png">';
+	}
+	else if(flag == 2){ //Non Veg
+		return '<img style="width: 12px; position: relative; top: -2px; left: -5px;" src="images/common/food_nonveg.png">';
+	}
+	else{
+		return '<tag style="display: inline-block; width: 12px"></tag>';
+	}
+}
 
 
 function openSubMenu(menuCategory){	
 
 	//read menu
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    		if(data == ''){ data = '[]'; }
-	          var mastermenu = JSON.parse(data); 
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+	          var mastermenu = data.docs[0].value;
 	          var itemsInCategory = "";
 	          var availabilityTag = "";
 
@@ -340,7 +450,7 @@ function openSubMenu(menuCategory){
 							}
 
 							itemsInCategory = itemsInCategory + '<tr>'+
-							                                       '<td class="deleteItemWrap">'+mastermenu[i].items[j].name+'<tag class="deleteItemIcon" onclick="deleteItemFromMenu(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-minus-circle"></i></tag></td>'+
+							                                       '<td class="deleteItemWrap" style="padding-left: 25px">'+getVegIcon(mastermenu[i].items[j].vegFlag)+mastermenu[i].items[j].name+'<tag class="deleteItemIcon" onclick="deleteItemFromMenu(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-minus-circle"></i></tag></td>'+
 							                                       '<td><button class="btn btn-sm itemPriceTag" onclick="editItemPrice(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-inr"></i>'+mastermenu[i].items[j].price+'</button></td>'+
 							                                       '<td>'+availabilityTag+'</td>'+
 							                                    '</tr>';
@@ -411,32 +521,53 @@ function openSubMenu(menuCategory){
                 	itemsInCategory = '<p style="color: #bdc3c7">No items found in '+menuCategory+'</p>';
 				
 				document.getElementById("menuRenderContent").innerHTML = itemsInCategory;
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
-	    }		
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
 
 	//menuRenderArea
 	document.getElementById("menuDetailsArea").style.display = "block";
 }
+
+
 
 function deleteItemFromMenu(encodedItem, categoryName){
 
 	var item = JSON.parse(decodeURI(encodedItem));
 
     /*to find the latest item code*/
-    if (fs.existsSync('./data/static/mastermenu.json')) {
-        fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data) {
-            if (err) {
-                showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
-            } else {
-                if (data == '') {
-                    data = '[]';
-                }
-                var mastermenu = JSON.parse(data);
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-                console.log(mastermenu)
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+	          	var mastermenu = data.docs[0].value;
 
                 var n = 0;
                 while(mastermenu[n]){
@@ -446,7 +577,7 @@ function deleteItemFromMenu(encodedItem, categoryName){
 						while(mastermenu[n].items[m]){
 							if(mastermenu[n].items[m].code == item.code){
 								mastermenu[n].items.splice(m,1);
-								deleteItemFromMenuAfterProcess(encodedItem, categoryName, mastermenu);
+								deleteItemFromMenuAfterProcess(encodedItem, categoryName, mastermenu, data.docs[0]._rev);
 								break;
 							}
 							m++;
@@ -457,32 +588,53 @@ function deleteItemFromMenu(encodedItem, categoryName){
                 	n++;
                 }
 
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
-            }
-
-        });
-
-    } else {
-        showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
-    }
+    });  
 
 }
 
-function deleteItemFromMenuAfterProcess(encodedItem, categoryName, newMenuObj){
+
+
+function deleteItemFromMenuAfterProcess(encodedItem, categoryName, newMenuObj, revID){
 
 	   var item = JSON.parse(decodeURI(encodedItem));
-       
-       var newjson = JSON.stringify(newMenuObj);
-       fs.writeFile('./data/static/mastermenu.json', newjson, 'utf8', (err) => {
-         if(err){
-            showToast('System Error: Unable to make changes in Categories data. Please contact Accelerate Support.', '#e74c3c');
-         }
-         else{
-         	openSubMenu(categoryName);
-         	showUndo('<b>'+item.name+'</b> was deleted', 'saveEncodedItemToFile(\''+categoryName+'\', \''+encodedItem+'\')');
-         }
-          
-       }); 
+ 
+			                //Update
+			                var updateData = {
+			                  "_rev": revID,
+			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "value": newMenuObj
+			                }
+
+			                $.ajax({
+			                  type: 'PUT',
+			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  data: JSON.stringify(updateData),
+			                  contentType: "application/json",
+			                  dataType: 'json',
+			                  timeout: 10000,
+			                  success: function(data) {
+			                  	openSubMenu(categoryName);
+						        showUndo('<b>'+item.name+'</b> was deleted', 'saveEncodedItemToFile(\''+categoryName+'\', \''+encodedItem+'\')');
+						      },
+			                  error: function(data) {
+			                    showToast('System Error: Unable to make changes in Menu data. Please contact Accelerate Support.', '#e74c3c');
+         					  }
+
+			                });  
 	
 }
 
@@ -553,18 +705,28 @@ function addMoreOptions(optionalSource){
 	}
 
 
-    if(fs.existsSync('./data/static/cookingingredients.json')) {
-        fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
 
-          if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-              var modes = JSON.parse(data);
-              modes.sort(); //alphabetical sorting 
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
 
-              var modesTag = '';
+              	var modes = data.docs[0].value;
+              	modes.sort(); //alphabetical sorting 
+              	var modesTag = '';
 
 		        for (var i=0; i<modes.length; i++){
 		          modesTag = modesTag + '<tag class="extrasSelButton" onclick="addIngredientToInput(\''+modes[i]+'\', \'ingredient_'+i+'\')" id="ingredient_'+i+'">'+modes[i]+'</tag>';
@@ -576,11 +738,24 @@ function addMoreOptions(optionalSource){
 		        else{            
 		            document.getElementById("ingredientsList").innerHTML = 'Ingredients List: '+modesTag;
 		        }
-    }
-    });
-      } else {
+
+          }
+          else{
+            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
         showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-      } 
+      }
+
+    });  
+
+
 
 }
 
@@ -621,19 +796,28 @@ function edit_addMoreOptions(optionalSource){
 	}
 
 
-    if(fs.existsSync('./data/static/cookingingredients.json')) {
-        fs.readFile('./data/static/cookingingredients.json', 'utf8', function readFileCallback(err, data){
-      if (err){
-          showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-      } else {
 
-          if(data == ''){ data = '[]'; }
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
 
-              var modes = JSON.parse(data);
-              modes.sort(); //alphabetical sorting 
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
 
-
-              var modesTag = '';
+              	var modes = data.docs[0].value;
+              	modes.sort(); //alphabetical sorting 
+              	var modesTag = '';
 
 		        for (var i=0; i<modes.length; i++){
 		          modesTag = modesTag + '<tag class="extrasSelButton" onclick="edit_addIngredientToInput(\''+modes[i]+'\', \'edit_ingredient_'+i+'\')" id="edit_ingredient_'+i+'">'+modes[i]+'</tag>';
@@ -645,12 +829,22 @@ function edit_addMoreOptions(optionalSource){
 		        else{            
 		            document.getElementById("edit_ingredientsList").innerHTML = 'Ingredients List: '+modesTag;
 		        }
-    }
-    });
-      } else {
-        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
-      } 
 
+          }
+          else{
+            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
 }
 
 function edit_addIngredientToInput(name, id){
@@ -789,15 +983,26 @@ function validateMenuItem(item){
 function saveItemToFile(category, item, editFlag) {
 
     /*to find the latest item code*/
-    if (fs.existsSync('./data/static/mastermenu.json')) {
-        fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data) {
-            if (err) {
-                showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
-            } else {
-                if (data == '') {
-                    data = '[]';
-                }
-                var mastermenu = JSON.parse(data);
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+             	var mastermenu = data.docs[0].value;
                 var lastKey = 0; //To generate the item code
 
                 if (!editFlag) {
@@ -811,13 +1016,6 @@ function saveItemToFile(category, item, editFlag) {
 
                     item.code = parseInt(lastKey) + 1;
                 }
-
-
-
-                //Proceed to Save
-
-                /*begin save*/
-
 
                 /*beautify item price if Custom item*/
                 if (item.isCustom) {
@@ -849,140 +1047,185 @@ function saveItemToFile(category, item, editFlag) {
                 }
 
 
-                if (fs.existsSync('./data/static/mastermenu.json')) {
-                    fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data) {
+                //PROCEED TO SAVE
 
-                        if (err) {
-                            showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
-                        } else {
-                            if (data == "") {
-                                var obj = []
-                                var menuitem = []
-                                menuitem.push(item)
-                                obj.push({
-                                    "category": category,
-                                    "items": menuitem
-                                }); //add some data
+                /*begin save*/
+                if(mastermenu == []){
+                	//Menu is completely empty
 
-                                json = JSON.stringify(obj); //convert it back to json
-                                fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                                    if (err) {
-                                        showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                                    } else {
-                                        showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+                	var newItemsList = [];
+                	newItemsList.push(item);
 
-                                    }
-
-                                });
-                            } else {
-                                var flag = 0; //Category exists or not
-                                if (data == '') {
-                                    data = '[]';
-                                }
-                                var obj = JSON.parse(data); //now it an object
-
-                                for (var i = 0; i < obj.length; i++) {
-                                    if (obj[i].category == category) {
-                                        flag = 1;
-                                        break;
-                                    }
-                                }
-                                if (flag == 1) { //category exists
-                                    var dupflag = 0;
-   
-                                    for (var j = 0; j < obj[i].items.length; j++) {
-                                        if (obj[i].items[j].code == item.code) {
-                                            dupflag = 1;
-                                            break;
-                                        }
-                                    }
-
-                                    if (dupflag == 1) {
-                                        if (editFlag) { //Found
-                                        	
-                                            obj[i].items[j] = item
-                                            json = JSON.stringify(obj); //convert it back to json
-                                            fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                                                if (err) {
-                                                    showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                                                } else {
-                                                    showToast(item.name + ' is added to the Menu.', '#27ae60');
-                                                    openSubMenu(category);
-                                                }
-
-                                            });
-                                        } else {
-                                            showToast('Warning: Item Code already exists. Please choose a different code.', '#e67e22');
-                                        }
-
-                                    } else {
-                                    	obj[i].items[j] = item;
-                                        var json = JSON.stringify(obj); //convert it back to json
-                                       
-                                        fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                                        	
-                                            if (err) {
-                                                showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                                            } else {
-                                            	
-                                                showToast(item.name + ' is added to the Menu.', '#27ae60');
-                                                openSubMenu(category);
-                                            }
-
-                                        });
-                                    }
-
-                                } else { //no category found -> create one and then save
-                                    var menuitem = []
-                                    menuitem.push(item)
-
-                                    obj.push({
-                                        "category": category,
-                                        "items": menuitem
-                                    }); //add some data
-                                    json = JSON.stringify(obj); //convert it back to json
-                                    fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                                        if (err) {
-                                            showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                                        } else {
-                                            showToast(item.name + ' is added to the Menu.', '#27ae60');
-                                            openSubMenu(category);
-                                        }
-                                    });
-                                }
-
-                            }
-
-                        }
+                	mastermenu.push({
+                		"category": category,
+                        "items": newItemsList
                     });
-                } else {
-                    //var itemjson = JSON.stringify(item);
-                    var menuitem = []
-                    menuitem.push(item)
-                    obj.push({
-                        "category": category,
-                        "items": menuitem
-                    });
-                    var json = JSON.stringify(obj);
-                    fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                        if (err) {
-                            showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                        } else {
-                            showToast(item.name + ' is added to the Menu.', '#27ae60');
-                            openSubMenu(category);
-                        }
-                    });
+
+	                //Update
+	                var updateData = {
+	                  "_rev": data.docs[0]._rev,
+	                  "identifierTag": "ZAITOON_MASTER_MENU",
+	                  "value": mastermenu
+	                }
+
+	                $.ajax({
+	                  type: 'PUT',
+	                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+	                  data: JSON.stringify(updateData),
+	                  contentType: "application/json",
+	                  dataType: 'json',
+	                  timeout: 10000,
+	                  success: function(data) {
+	                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+	                  	openSubMenu(category);
+	                  },
+	                  error: function(data) {
+	                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+	                  }
+
+	                });  
+
                 }
+                else{
+                	//Check if Category Exists or not
+                	var categoryExists = false;
+                    for (var i = 0; i < mastermenu.length; i++) {
+                        if (mastermenu[i].category == category) {
+                           	categoryExists = true;
+                            break;
+                        }
+                    }
 
-                /* end of save*/
+                    if(categoryExists){ //Add to EXISTING Category
+                    	var isItemDuplicate = false;
 
-            }
+                        for (var j = 0; j < mastermenu[i].items.length; j++) {
+                            if (mastermenu[i].items[j].code == item.code) {
+                                isItemDuplicate = true;
+                                break;
+                            }
+                        }
 
-        });
+                        if(isItemDuplicate){ 
+                            
+                            if(editFlag){ //Editing, so no issue with duplicate code
+	                            mastermenu[i].items[j] = item;
 
-    } else {
-        showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
-    }
+				                //Update
+				                var updateData = {
+				                  "_rev": data.docs[0]._rev,
+				                  "identifierTag": "ZAITOON_MASTER_MENU",
+				                  "value": mastermenu
+				                }
+
+				                $.ajax({
+				                  type: 'PUT',
+				                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+				                  data: JSON.stringify(updateData),
+				                  contentType: "application/json",
+				                  dataType: 'json',
+				                  timeout: 10000,
+				                  success: function(data) {
+				                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+				                  	openSubMenu(category);
+				                  },
+				                  error: function(data) {
+				                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+				                  }
+
+				                });
+				            }  
+				            else{
+	                        	showToast('Warning: Item Code already exists. Please choose a different code.', '#e67e22');
+	                            return '';
+	                        }
+                        }
+                        
+
+
+                        //Completely a New Item 
+                        if(!isItemDuplicate){
+                            
+                            mastermenu[i].items[j] = item;
+                     	
+                     		//Update
+			                var updateData = {
+			                  "_rev": data.docs[0]._rev,
+			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "value": mastermenu
+			                }
+
+			                $.ajax({
+			                  type: 'PUT',
+			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  data: JSON.stringify(updateData),
+			                  contentType: "application/json",
+			                  dataType: 'json',
+			                  timeout: 10000,
+			                  success: function(data) {
+			                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+			                  	openSubMenu(category);
+			                  },
+			                  error: function(data) {
+			                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+			                  }
+
+			                });  
+                        }
+                    }
+                    else{ //Add NEW Category
+
+	                	var newItemsList = [];
+	                	newItemsList.push(item);
+
+	                	mastermenu.push({
+	                		"category": category,
+	                        "items": newItemsList
+	                    });
+
+		                //Update
+		                var updateData = {
+		                  "_rev": data.docs[0]._rev,
+		                  "identifierTag": "ZAITOON_MASTER_MENU",
+		                  "value": mastermenu
+		                }
+
+		                $.ajax({
+		                  type: 'PUT',
+		                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+		                  data: JSON.stringify(updateData),
+		                  contentType: "application/json",
+		                  dataType: 'json',
+		                  timeout: 10000,
+		                  success: function(data) {
+		                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+		                  	openSubMenu(category);
+		                  },
+		                  error: function(data) {
+		                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+		                  }
+
+		                });  	                    
+                    }
+                }
+				/* end of save */ 
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
 }
 
 
@@ -991,38 +1234,26 @@ function saveItemToFile(category, item, editFlag) {
 function saveEncodedItemToFile(category, encodedItem) { //Custom function for Undo Delete
 
 	var item = JSON.parse(decodeURI(encodedItem));
-	var editFlag = false;
 
-    /*to find the latest item code*/
-    if (fs.existsSync('./data/static/mastermenu.json')) {
-        fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data) {
-            if (err) {
-                showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
-            } else {
-                if (data == '') {
-                    data = '[]';
-                }
-                var mastermenu = JSON.parse(data);
-                var lastKey = 0; //To generate the item code
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-                if (!editFlag) {
-                    for (var i = 0; i < mastermenu.length; i++) {
-                        for (var j = 0; j < mastermenu[i].items.length; j++) {
-                            if (mastermenu[i].items[j].code > lastKey) {
-                                lastKey = mastermenu[i].items[j].code;
-                            }
-                        }
-                    }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
 
-                    item.code = parseInt(lastKey) + 1;
-                }
-
-
-
-                //Proceed to Save
-
-                /*begin save*/
-
+             	var mastermenu = data.docs[0].value;
 
                 /*beautify item price if Custom item*/
                 if (item.isCustom) {
@@ -1054,140 +1285,186 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
                 }
 
 
-                if (fs.existsSync('./data/static/mastermenu.json')) {
-                    fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data) {
 
-                        if (err) {
-                            showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
-                        } else {
-                            if (data == "") {
-                                var obj = []
-                                var menuitem = []
-                                menuitem.push(item)
-                                obj.push({
-                                    "category": category,
-                                    "items": menuitem
-                                }); //add some data
+                //PROCEED TO SAVE
 
-                                json = JSON.stringify(obj); //convert it back to json
-                                fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                                    if (err) {
-                                        showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                                    } else {
-                                        showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+                /*begin save*/
+                if(mastermenu == []){
+                	//Menu is completely empty
 
-                                    }
+                	var newItemsList = [];
+                	newItemsList.push(item);
 
-                                });
-                            } else {
-                                var flag = 0; //Category exists or not
-                                if (data == '') {
-                                    data = '[]';
-                                }
-                                var obj = JSON.parse(data); //now it an object
-
-                                for (var i = 0; i < obj.length; i++) {
-                                    if (obj[i].category == category) {
-                                        flag = 1;
-                                        break;
-                                    }
-                                }
-                                if (flag == 1) { //category exists
-                                    var dupflag = 0;
-   
-                                    for (var j = 0; j < obj[i].items.length; j++) {
-                                        if (obj[i].items[j].code == item.code) {
-                                            dupflag = 1;
-                                            break;
-                                        }
-                                    }
-
-                                    if (dupflag == 1) {
-                                        if (editFlag) { //Found
-                                        	
-                                            obj[i].items[j] = item
-                                            json = JSON.stringify(obj); //convert it back to json
-                                            fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                                                if (err) {
-                                                    showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                                                } else {
-                                                    showToast(item.name + ' is added to the Menu.', '#27ae60');
-                                                    openSubMenu(category);
-                                                }
-
-                                            });
-                                        } else {
-                                            showToast('Warning: Item Code already exists. Please choose a different code.', '#e67e22');
-                                        }
-
-                                    } else {
-                                    	obj[i].items[j] = item;
-                                        var json = JSON.stringify(obj); //convert it back to json
-                                       
-                                        fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                                        	
-                                            if (err) {
-                                                showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                                            } else {
-                                            	
-                                                showToast(item.name + ' is added to the Menu.', '#27ae60');
-                                                openSubMenu(category);
-                                            }
-
-                                        });
-                                    }
-
-                                } else { //no category found -> create one and then save
-                                    var menuitem = []
-                                    menuitem.push(item)
-
-                                    obj.push({
-                                        "category": category,
-                                        "items": menuitem
-                                    }); //add some data
-                                    json = JSON.stringify(obj); //convert it back to json
-                                    fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                                        if (err) {
-                                            showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                                        } else {
-                                            showToast(item.name + ' is added to the Menu.', '#27ae60');
-                                            openSubMenu(category);
-                                        }
-                                    });
-                                }
-
-                            }
-
-                        }
+                	mastermenu.push({
+                		"category": category,
+                        "items": newItemsList
                     });
-                } else {
-                    //var itemjson = JSON.stringify(item);
-                    var menuitem = []
-                    menuitem.push(item)
-                    obj.push({
-                        "category": category,
-                        "items": menuitem
-                    });
-                    var json = JSON.stringify(obj);
-                    fs.writeFile('./data/static/mastermenu.json', json, 'utf8', (err) => {
-                        if (err) {
-                            showToast('System Error: Unable to save Menu data. Please contact Accelerate Support.', '#e74c3c');
-                        } else {
-                            showToast(item.name + ' is added to the Menu.', '#27ae60');
-                            openSubMenu(category);
-                        }
-                    });
+
+	                //Update
+	                var updateData = {
+	                  "_rev": data.docs[0]._rev,
+	                  "identifierTag": "ZAITOON_MASTER_MENU",
+	                  "value": mastermenu
+	                }
+
+	                $.ajax({
+	                  type: 'PUT',
+	                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+	                  data: JSON.stringify(updateData),
+	                  contentType: "application/json",
+	                  dataType: 'json',
+	                  timeout: 10000,
+	                  success: function(data) {
+	                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+	                  	openSubMenu(category);
+	                  },
+	                  error: function(data) {
+	                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+	                  }
+
+	                });  
+
                 }
+                else{
+                	//Check if Category Exists or not
+                	var categoryExists = false;
+                    for (var i = 0; i < mastermenu.length; i++) {
+                        if (mastermenu[i].category == category) {
+                           	categoryExists = true;
+                            break;
+                        }
+                    }
 
-                /* end of save*/
+                    if(categoryExists){ //Add to EXISTING Category
+                    	var isItemDuplicate = false;
 
-            }
+                        for (var j = 0; j < mastermenu[i].items.length; j++) {
+                            if (mastermenu[i].items[j].code == item.code) {
+                                isItemDuplicate = true;
+                                break;
+                            }
+                        }
 
-        });
+                        if(isItemDuplicate){ 
+                            
+                            if(editFlag){ //Editing, so no issue with duplicate code
+	                            mastermenu[i].items[j] = item;
 
-    } else {
-        showToast('System Error: Failed to read Menu data. Could not create an Item Code. Please contact Accelerate Support.', '#e74c3c');
-    }
+				                //Update
+				                var updateData = {
+				                  "_rev": data.docs[0]._rev,
+				                  "identifierTag": "ZAITOON_MASTER_MENU",
+				                  "value": mastermenu
+				                }
+
+				                $.ajax({
+				                  type: 'PUT',
+				                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+				                  data: JSON.stringify(updateData),
+				                  contentType: "application/json",
+				                  dataType: 'json',
+				                  timeout: 10000,
+				                  success: function(data) {
+				                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+				                  	openSubMenu(category);
+				                  },
+				                  error: function(data) {
+				                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+				                  }
+
+				                });
+				            }  
+				            else{
+	                        	showToast('Warning: Item Code already exists. Please choose a different code.', '#e67e22');
+	                            return '';
+	                        }
+                        }
+                        
+
+
+                        //Completely a New Item 
+                        if(!isItemDuplicate){
+                            
+                            mastermenu[i].items[j] = item;
+                     	
+                     		//Update
+			                var updateData = {
+			                  "_rev": data.docs[0]._rev,
+			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "value": mastermenu
+			                }
+
+			                $.ajax({
+			                  type: 'PUT',
+			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  data: JSON.stringify(updateData),
+			                  contentType: "application/json",
+			                  dataType: 'json',
+			                  timeout: 10000,
+			                  success: function(data) {
+			                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+			                  	openSubMenu(category);
+			                  },
+			                  error: function(data) {
+			                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+			                  }
+
+			                });  
+                        }
+                    }
+                    else{ //Add NEW Category
+
+	                	var newItemsList = [];
+	                	newItemsList.push(item);
+
+	                	mastermenu.push({
+	                		"category": category,
+	                        "items": newItemsList
+	                    });
+
+		                //Update
+		                var updateData = {
+		                  "_rev": data.docs[0]._rev,
+		                  "identifierTag": "ZAITOON_MASTER_MENU",
+		                  "value": mastermenu
+		                }
+
+		                $.ajax({
+		                  type: 'PUT',
+		                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+		                  data: JSON.stringify(updateData),
+		                  contentType: "application/json",
+		                  dataType: 'json',
+		                  timeout: 10000,
+		                  success: function(data) {
+		                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+		                  	openSubMenu(category);
+		                  },
+		                  error: function(data) {
+		                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+		                  }
+
+		                });  	                    
+                    }
+                }
+				/* end of save */ 
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
 }
 
 
@@ -1195,22 +1472,46 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 
 
 function readNewItem(category){
+
 	var item = {};
 	item.name = document.getElementById("new_item_name").value;
 	item.price = document.getElementById("new_item_price").value;
 	item.isCustom = document.getElementById("new_item_choice_count").value > 0 ? true: false;
 
-	if(document.getElementById("more_options_customCode") && document.getElementById("more_options_customCode").value != ''){
-		item.shortCode = document.getElementById("more_options_customCode").value;
-	}
+	//0 - Unknown, 1 - Veg, 2 - Non Veg
+	item.vegFlag = 0;
+    $("#newItemTypeOptions .foodTypeButton").each(function(){
+        if($(this).hasClass("active")){
+            item.vegFlag = $(this).attr("veg-flag");
+        }
+    });
 
-	if(document.getElementById("more_options_cookingTime") && document.getElementById("more_options_cookingTime").value != ''){
-		item.cookingTime = parseInt(document.getElementById("more_options_cookingTime").value);
-	}
 
-	if(document.getElementById("more_options_ingredients") && document.getElementById("more_options_ingredients").value != ''){
-		 var tempList = document.getElementById("more_options_ingredients").value;
-		 item.ingredients = tempList.split(',');
+    item.code = document.getElementById("new_item_manual_code").value != '' ? document.getElementById("new_item_manual_code").value : '';
+
+    //Consider More Options
+    if($('#moreOptionsArea').is(':visible')) {
+
+	    item.isPackaged = document.getElementById("packagedItemFlag").checked;
+
+		if(document.getElementById("more_options_customCode") && document.getElementById("more_options_customCode").value != ''){
+			item.shortCode = document.getElementById("more_options_customCode").value;
+		}
+
+		if(document.getElementById("more_options_cookingTime") && document.getElementById("more_options_cookingTime").value != ''){
+			item.cookingTime = parseInt(document.getElementById("more_options_cookingTime").value);
+		}
+
+		if(document.getElementById("more_options_ingredients") && document.getElementById("more_options_ingredients").value != ''){
+			 var tempList = document.getElementById("more_options_ingredients").value;
+			 item.ingredients = tempList.split(',');
+		}
+	}
+	else{
+		item.isPackaged = false;
+		item.shortCode = '';
+		item.cookingTime = '';
+		item.ingredients = [];
 	}
 
 	if(item.isCustom){
@@ -1223,6 +1524,7 @@ function readNewItem(category){
 
 		item.customOptions = custom;		
 	}
+
 
 	/* VALIDATE BEFORE ADDING TO DATA FILE */
 	var response = validateMenuItem(item);
@@ -1244,6 +1546,16 @@ function reviewItemPrice(category){
 	item.price = document.getElementById("item_main_price").value;
 	item.code = document.getElementById("item_main_code_secret").value;
 
+
+	//0 - Unknown, 1 - Veg, 2 - Non Veg
+	item.vegFlag = 0;
+    $("#newItemTypeOptions .foodTypeButton").each(function(){
+        if($(this).hasClass("active")){
+            item.vegFlag = $(this).attr("veg-flag");
+        }
+    });
+
+
 	//if more options is removed
 	if(document.getElementById("edit_moreOptionsArea").style.display == 'none'){
 		if(item.shortCode){
@@ -1255,9 +1567,15 @@ function reviewItemPrice(category){
 		if(item.ingredients){
 			delete item.ingredients;
 		}
+		if(item.isPackaged){
+			delete item.isPackaged;
+		}
 	}
 	else{
 		//other cases
+
+		item.isPackaged = document.getElementById("packagedItemFlagEdit").checked;
+
 		if(document.getElementById("edit_more_options_customCode") && document.getElementById("edit_more_options_customCode").value != ''){
 			item.shortCode = document.getElementById("edit_more_options_customCode").value;
 		}
@@ -1301,8 +1619,6 @@ function reviewItemPrice(category){
 	/* VALIDATE BEFORE ADDING TO DATA FILE */
 	var response = validateMenuItem(item);
 
-	console.log(item)
-
 	if(response.status){
 		item.isAvailable = true;
 		saveItemToFile(category, item, true);
@@ -1325,90 +1641,112 @@ function addCategory() {
 	}
 
 
-      //Check if file exists
-      if(fs.existsSync('./data/static/menuCategories.json')) {
-         fs.readFile('./data/static/menuCategories.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Categories data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-         if(data==""){
-            obj = []
-            obj.push(name); //add some data
-            json = JSON.stringify(obj);
-            fs.writeFile('./data/static/menuCategories.json', json, 'utf8', (err) => {
-                if(err){
-                  showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-              }
-              else{
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-                fetchAllCategories(); //refresh the list
-                hideNewMenuCategory();
-                openSubMenu(name);
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
 
-              }
-            });
-         }
-         else{
-             flag=0;
-             if(data == ''){ data = '[]'; }
-             obj = JSON.parse(data);
-             for (var i=0; i<obj.length; i++) {
-               if (obj[i] == name){
-                  flag=1;
+             var categoryList = data.docs[0].value;
+             var flag = 0;
+
+             for (var i=0; i<categoryList.length; i++) {
+               if (categoryList[i] == name){
+                  flag = 1;
                   break;
                }
              }
-             if(flag==1){
+
+
+             if(flag == 1){
                showToast('Warning: Category already exists. Please choose a different name.', '#e67e22');
              }
              else{
-                obj.push(name);
-                json = JSON.stringify(obj);
-                fs.writeFile('./data/static/menuCategories.json', json, 'utf8', (err) => {
-                     if(err){
-                        showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-                    }
-		            else{
 
-		                fetchAllCategories(); //refresh the list
-		                hideNewMenuCategory();
-		                openSubMenu(name);
-		              	
-		              }
-                  });  
+                categoryList.push(name);
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_MENU_CATEGORIES",
+                  "value": categoryList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MENU_CATEGORIES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+
+	                fetchAllCategories(); //refresh the list
+	                hideNewMenuCategory();
+	                openSubMenu(name);
+
+                  },
+                  error: function(data) {
+                    console.log(data)
+                    showToast('System Error: Unable to update Categories data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
 
              }
-                 
-         }
-          
-   }});
-      } else {
-         obj.push(name);
-         fs.writeFile('./data/static/menuCategories.json', obj, 'utf8', (err) => {
-            if(err){
-               showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-           }
-           else{
- 		                fetchAllCategories(); //refresh the list
-		                hideNewMenuCategory();
-		                openSubMenu(name);          	
-           }
-         });
+                
+          }
+          else{
+            showToast('Not Found Error: Categories data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Categories data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Categories data. Please contact Accelerate Support.', '#e74c3c');
       }
-  
+
+    });    
 }
 
 
 /* delete items in a given category */
 function deleteCategoryFromMaster(menuCategory){
 
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Categories data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var mastermenu = JSON.parse(data); 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+	          	var mastermenu = data.docs[0].value; 
 				for (var i=0; i<mastermenu.length; i++){
 
 					if(menuCategory == mastermenu[i].category){
@@ -1418,20 +1756,46 @@ function deleteCategoryFromMaster(menuCategory){
 
 				}
 		       
-		       var newjson = JSON.stringify(mastermenu);
-		       fs.writeFile('./data/static/mastermenu.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-		         }
-		         fetchAllCategories();
-		       }); 
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-	    }
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_MASTER_MENU",
+                  "value": mastermenu
+                }
 
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    fetchAllCategories();
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Menu data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
 }
 
 
@@ -1440,39 +1804,84 @@ function deleteCategory(name) {
 
 	/* delete from cateogry list and delete all the entries from master menu as well */
 
-   //Check if file exists
-   if(fs.existsSync('./data/static/menuCategories.json')) {
-       fs.readFile('./data/static/menuCategories.json', 'utf8', function readFileCallback(err, data){
-       if (err){
-           showToast('System Error: Unable to read Categories data. Please contact Accelerate Support.', '#e74c3c');
-       } else {
-       	if(data == ''){ data = '[]'; }
-       var obj = JSON.parse(data); //now it an object
 
-       for (var i=0; i<obj.length; i++) {  
-         if (obj[i] == name){
-            obj.splice(i,1);
-            break;
-         }
-       }
-       var newjson = JSON.stringify(obj);
-       fs.writeFile('./data/static/menuCategories.json', newjson, 'utf8', (err) => {
-         if(err)
-            showToast('System Error: Unable to make changes in Categories data. Please contact Accelerate Support.', '#e74c3c');
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
 
-          deleteCategoryFromMaster(name);
-       }); 
-      }});
-   } else {
-      showToast('System Error: Unable to modify Categories data. Please contact Accelerate Support.', '#e74c3c');
-   }
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
 
-   /* on successful delete */
-   document.getElementById("menuDetailsArea").style.display = "none";
-   document.getElementById("categoryDeleteConfirmation").style.display = 'none';
-   //location.reload();
+               var categoryList = data.docs[0].value;
+
+               for (var i=0; i<categoryList.length; i++) {  
+                 if (categoryList[i] == name){
+                    categoryList.splice(i,1);
+                    break;
+                 }
+               }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_MENU_CATEGORIES",
+                  "value": categoryList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MENU_CATEGORIES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+	                   /* on successful delete */
+	                   deleteCategoryFromMaster(name);
+
+					   /* on successful delete */
+					   document.getElementById("menuDetailsArea").style.display = "none";
+					   document.getElementById("categoryDeleteConfirmation").style.display = 'none';
+					   //location.reload();
+
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Categories data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Categories data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Categories data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Categories data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
 
 }
+
+
+
 
 function openDeleteConfirmation(type){
 	document.getElementById("deleteConfirmationConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="cancelDeleteConfirmation()" style="float: left">Cancel</button>'+
@@ -1488,14 +1897,28 @@ function cancelDeleteConfirmation(){
 
 /*edit category name alone */
 function renameCategoryFromMaster(current, newName){
-		
-		if(fs.existsSync('./data/static/mastermenu.json')) {
-	      fs.readFile('./data/static/mastermenu.json', 'utf8', function readFileCallback(err, data){
-	    if (err){
-	        showToast('System Error: Unable to read Categories data. Please contact Accelerate Support.', '#e74c3c');
-	    } else {
-	    	if(data == ''){ data = '[]'; }
-	          var mastermenu = JSON.parse(data); 
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+               var mastermenu = data.docs[0].value;
+
 				for (var i=0; i<mastermenu.length; i++){
 
 					if(current == mastermenu[i].category){
@@ -1505,23 +1928,48 @@ function renameCategoryFromMaster(current, newName){
 
 				}
 		       
-		       var newjson = JSON.stringify(mastermenu);
-		       fs.writeFile('./data/static/mastermenu.json', newjson, 'utf8', (err) => {
-		         if(err){
-		            showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-		           }
-		           else{
-		           	fetchAllCategories();
-		        	openSubMenu(newName);
-		        	}
-		       }); 
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_MASTER_MENU",
+                  "value": mastermenu
+                }
 
-		}
-		});
-	    } else {
-	      showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-	    }
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    fetchAllCategories();
+		        	openSubMenu(newName);
+                  },
+                  error: function(data) {
+                    showToast('System Error: Unable to make changes in Menu data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
 }
+
 
 function saveNewCategoryName(currentName){
 
@@ -1533,46 +1981,83 @@ function saveNewCategoryName(currentName){
 	}
 
 	if(currentName != newName){ /* replace category name*/
-		   //Check if file exists
-		   if(fs.existsSync('./data/static/menuCategories.json')) {
-		       fs.readFile('./data/static/menuCategories.json', 'utf8', function readFileCallback(err, data){
-		       if (err){
-		           showToast('System Error: Unable to read Categories data. Please contact Accelerate Support.', '#e74c3c');
-		       } else {
-		       	if(data == ''){ data = '[]'; }
-		       var obj = JSON.parse(data); //now it an object
-		       var locatedPointer = '';
 
-		       for (var i=0; i<obj.length; i++) { 
-		       	 /*check if new name exists*/
-		       	 if(obj[i] == newName){
-		       	 	showToast('Warning: Name already exists. Please choose a different name.', '#e67e22');
-		       	 	return '';
-		       	 }
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+		                  },
+		      "fields"    : ["_rev", "identifierTag", "value"]
+		    }
 
-		       	 /*find the match for name change*/ 
-		         if (obj[i] == currentName && locatedPointer == ''){
-		         	locatedPointer = i;
-		         }
-		       }
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
 
-		       //Change name to new name
-		       obj[locatedPointer] = newName;
+		             var categoryList = data.docs[0].value;
+		             var locatedPointer = '';
 
-		       var newjson = JSON.stringify(obj);
-		       fs.writeFile('./data/static/menuCategories.json', newjson, 'utf8', (err) => {
-		         if(err){
+		       		 for (var i=0; i<categoryList.length; i++) { 
+				       	 /*check if new name exists*/
+				       	 if(categoryList[i] == newName){
+				       	 	showToast('Warning: Name already exists. Please choose a different name.', '#e67e22');
+				       	 	return '';
+				       	 }
 
+				       	 /*find the match for name change*/ 
+				         if (categoryList[i] == currentName && locatedPointer == ''){
+				         	locatedPointer = i;
+				         }
+		       		 }
 
-		            showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-		        }else{
-		          	renameCategoryFromMaster(currentName, newName);
+				       	//Change name to new name
+				       	categoryList[locatedPointer] = newName;
+
+		                //Update
+		                var updateData = {
+		                  "_rev": data.docs[0]._rev,
+		                  "identifierTag": "ZAITOON_MENU_CATEGORIES",
+		                  "value": categoryList
+		                }
+
+		                $.ajax({
+		                  type: 'PUT',
+		                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MENU_CATEGORIES/',
+		                  data: JSON.stringify(updateData),
+		                  contentType: "application/json",
+		                  dataType: 'json',
+		                  timeout: 10000,
+		                  success: function(data) {
+			                renameCategoryFromMaster(currentName, newName);
+		                  },
+		                  error: function(data) {
+		                    showToast('System Error: Unable to update Categories data. Please contact Accelerate Support.', '#e74c3c');
+		                  }
+
+		                });  
+  
 		          }
-		       }); 
-		      }});
-		   } else {
-		      showToast('System Error: Unable to save Categories data. Please contact Accelerate Support.', '#e74c3c');
-		   }
+		          else{
+		            showToast('Not Found Error: Categories data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          showToast('Not Found Error: Categories data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+
+		      },
+		      error: function(data) {
+		        showToast('System Error: Unable to read Categories data. Please contact Accelerate Support.', '#e74c3c');
+		      }
+
+		    });   
+
 	}
 
 	document.getElementById("categoryEditNameConfirmation").style.display = 'none';
@@ -1602,5 +2087,19 @@ function hideEditCategoryName(){
 }
 
 //showToast('Hello from Abhijith', 'blue');
+
+
+/* Veg / Non Veg types */
+
+function triggerItemType(element){
+	$("#newItemTypeOptions .foodTypeButton").each(function(){
+        if($(this).hasClass("active")){
+            $(this).removeClass("active");
+        }
+    });
+
+	$(element).addClass('active');    
+}
+
 
 
