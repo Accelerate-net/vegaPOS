@@ -1,5 +1,23 @@
 const ipc = require('electron').ipcRenderer;
 
+/* 
+   GENERATE PDF REPORTS
+*/
+
+function generatePDFReport(html_template, report_title){
+   ipc.send("generatePDFReportA4", html_template, report_title);
+}
+
+function printPDFReport(html_template){
+   ipc.send("printSmallReport", html_template);
+}
+
+
+
+/*
+   PRINT BILLS
+*/
+
 function sendToPrinter(orderObject, type, optionalRequest){
 
  return '';
@@ -457,8 +475,6 @@ var html_template = ''+
                '</td>'+
             '</tr>'+
          '</table>'+
-
-
 
       '</div>'+
       '<div class="KOTContent">'+
