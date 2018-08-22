@@ -1866,9 +1866,9 @@ function fetchSingleClickReport(){
                                       '</div>'+
                                       '<div id="postReportActions" style="display: none">'+
                                         '<p style="font-size: 26px; color: #777; font-weight: 300; margin-top: -15px">Your Report is Ready!</p>'+
-                                        '<button style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-download"></i> Download</button>'+
-                                        '<button style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-print"></i> Print</button>'+
-                                        '<button class="btn btn-success btn-sm"><i class="fa fa-envelope"></i> Email</button>'+
+                                        '<button data-hold="" id="reportActionButtonDownload" onclick="reportActionDownload()" style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-download"></i> Download</button>'+
+                                        '<button data-hold="" id="reportActionButtonPrint" onclick="reportActionPrint()" style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-print"></i> Print</button>'+
+                                        '<button data-hold="" id="reportActionButtonEmail" onclick="reportActionEmail()" class="btn btn-success btn-sm"><i class="fa fa-envelope"></i> Email</button>'+
                                       '</div></center>';	
 
     document.getElementById("singleClickReport_ErrorContent").style.display = 'none';
@@ -2236,6 +2236,7 @@ function fetchSingleClickReport(){
 
 				completeReportInfo.push({
 						"name": "Discounts",
+						"type": "NEGATIVE",
 						"value": temp_discountedOrdersSum,
 						"count": temp_discountedOrdersCount
 				});	
@@ -2282,6 +2283,7 @@ function fetchSingleClickReport(){
 
 				completeReportInfo.push({
 						"name": "Round Off",
+						"type": "NEGATIVE",
 						"value": temp_roundOffSum,
 						"count": temp_roundOffCount
 				});	
@@ -2329,6 +2331,7 @@ function fetchSingleClickReport(){
 
 				completeReportInfo.push({
 						"name": "Tips",
+						"type": "POSITIVE",
 						"value": temp_tipsSum,
 						"count": temp_tipsCount
 				});	
@@ -2388,6 +2391,7 @@ function fetchSingleClickReport(){
 
 						completeReportInfo.push({
 								"name": "Refunds Issued",
+								"type": "NEGATIVE",
 								"value": temp_refundSum,
 								"count": temp_refundCount
 						});	
@@ -3122,12 +3126,19 @@ function fetchSingleClickReport(){
 						calculateSalesByDate(index+1, nextDate);
 					}
 					else{
-						singleClickWeeklyFinalReportRender();
+						singleClickWeeklyWeeklyGraphRenderer();
 					}
 
 				},
 				error: function(data){
-					
+					completeErrorList.push({
+					    "step": 9,
+						"error": "Failed to calculate sales by different payment modes"
+					});				
+
+					//Skip and go to next step
+					singleClickWeeklyWeeklyGraphRenderer(); 
+					return '';						
 				}
 			});  
 		}
@@ -3135,7 +3146,7 @@ function fetchSingleClickReport(){
 	}
 
 	//Step 11: Render Weekly Graph
-	function singleClickWeeklyFinalReportRender(){
+	function singleClickWeeklyWeeklyGraphRenderer(){
 
 		runReportAnimation(90); //of Step 10 which takes 14 units
 
@@ -3306,14 +3317,192 @@ function fetchSingleClickReport(){
 			});	
 
 			function convertGraph(){
-				//console.log(myChart.toBase64Image())
-				runReportAnimation(100); //of Step 10
+				var temp_graph = myChart.toBase64Image();
+				singleClickWeeklyFinalReportRender(temp_graph);
 				singleClickLoadErrors()
 			}
 
 		}
-
 	}
+
+	//Step 12: Final Render Stage
+	function singleClickWeeklyFinalReportRender(graphImage){
+		runReportAnimation(100); //of Step 11 which completed the data processing
+
+
+		var reportInfo_branch = 'IIT Madras';
+		var reportInfo_admin = 'Sahadudheen';
+		var reportInfo_time = '03:01 AM, 28-08-2018';
+		var reportInfo_address = 'Zaitoon Multicuisine 1, Vantage Building, Mahatma Gandhi Road, Subramaniam Colony, Adyar, Chennai - 41';
+
+
+		var graphRenderSectionContent = '';
+		var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
+
+		var reportInfo_title = 'Sales Report of <b>'+fancy_from_date+'</b>';
+		if(fromDate != toDate){
+			fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
+			var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
+
+			reportInfo_title = 'Sales Report from <b>'+fancy_from_date+' from '+fancy_to_date+'</b>';
+		}
+    else{ //Render graph only if report is for a day
+
+      if(graphImage){
+        graphRenderSectionContent = ''+
+          '<div class="summaryTableSectionHolder">'+
+          '<div class="summaryTableSection">'+
+             '<div class="tableQuickHeader">'+
+                '<h1 class="tableQuickHeaderText">WEEKLY SALES PERFORMANCE</h1>'+
+             '</div>'+
+             '<div class="weeklyGraph">'+
+                '<img src="'+graphImage+'" style="max-width: 80%">'+
+             '</div>'+
+          '</div>'+
+          '</div>';
+      }
+    }
+
+
+    //Quick Summary Content
+    var quickSummaryRendererContent = '';
+
+    var a = 0;
+    while(reportInfoExtras[a]){
+      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+reportInfoExtras[a].name+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(reportInfoExtras[a].value).toFixed(2)+'</td></tr>';
+      a++;
+    }
+
+    //PENDING --> TOTAL CALCULATED ROUND OFFFFF
+    console.log('PENDING API --> TOTAL CALCULATED ROUND OFFFFF')
+    console.log('PENDING API --> TOTAL GUESTS VISITED')
+
+    var b = 1; //first one contains total paid
+    while(completeReportInfo[b]){
+      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[b].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[b].type == 'NEGATIVE' && completeReportInfo[b].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[b].value).toFixed(2)+'</td></tr>';
+      b++;
+    }
+
+
+    //Sales by Billing Modes Content
+    var salesByBillingModeRenderContent = '';
+    var c = 0;
+    var billSharePercentage = 0;
+    while(detailedListByBillingMode[c]){
+      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
+      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+      c++;
+    }
+
+    var salesByBillingModeRenderContentFinal = '';
+    if(salesByBillingModeRenderContent != ''){
+      salesByBillingModeRenderContentFinal = ''+
+        '<div class="summaryTableSectionHolder">'+
+        '<div class="summaryTableSection">'+
+           '<div class="tableQuickHeader">'+
+              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
+           '</div>'+
+           '<div class="tableQuick">'+
+              '<table style="width: 100%">'+
+                 '<col style="width: 70%">'+
+                 '<col style="width: 30%">'+
+                 salesByBillingModeRenderContent+
+              '</table>'+
+           '</div>'+
+        '</div>'+
+        '</div>';
+    }
+
+
+    //Sales by Payment Types Content
+    var salesByPaymentTypeRenderContent = '';
+    var d = 0;
+    var paymentSharePercentage = 0;
+    while(detailedListByPaymentMode[d]){
+      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
+      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+      d++;
+    }
+
+    var salesByPaymentTypeRenderContentFinal = '';
+    if(salesByPaymentTypeRenderContent != ''){
+      salesByPaymentTypeRenderContentFinal = ''+
+        '<div class="summaryTableSectionHolder">'+
+        '<div class="summaryTableSection">'+
+           '<div class="tableQuickHeader">'+
+              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
+           '</div>'+
+           '<div class="tableQuick">'+
+              '<table style="width: 100%">'+
+                 '<col style="width: 70%">'+
+                 '<col style="width: 30%">'+
+                 salesByPaymentTypeRenderContent+
+              '</table>'+
+           '</div>'+
+        '</div>'+
+        '</div>';
+    }
+
+
+
+
+    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://zaitoon.online/pos/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px 25px;text-align:center}.factsBox{margin-right: 5px; width:20%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:30%;display:inline-block;text-align:center;float:right;margin-top:30px}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:65%;display:inline-block}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+    
+
+    var finalReport_emailContent = '<html>'+cssData+
+	    '<body>'+
+	      '<div class="mainHeader">'+
+	         '<div class="headerLeftBox">'+
+	            '<div id="logo">'+
+	               '<img src="https://zaitoon.online/pos/email_logo.png">'+
+	            '</div>'+
+	            '<p class="headerAddress">'+reportInfo_address+'</p>'+
+	         '</div>'+
+	         '<div class="headerRightBox">'+
+	            '<h1 class="headerBranch">'+reportInfo_branch+'</h1>'+
+	            '<p class="headerAdmin">'+reportInfo_admin+'</p>'+
+	            '<p class="headerTimestamp">'+reportInfo_time+'</p>'+
+	         '</div>'+
+	      '</div>'+
+	      '<div class="introFacts">'+
+	         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
+	         '<div class="factsArea">'+
+	            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
+	            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netSalesWorth).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
+	            '<div class="factsBox"><h1 class="factsBoxFigure">#####</h1><p class="factsBoxBrief">Guests</p></div>'+ 
+	            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
+	         '</div>'+
+	      '</div>'+graphRenderSectionContent+
+	      '<div class="summaryTableSectionHolder">'+
+	        '<div class="summaryTableSection">'+
+	           '<div class="tableQuickHeader">'+
+	              '<h1 class="tableQuickHeaderText">Quick Summary</h1>'+
+	           '</div>'+
+	           '<div class="tableQuick">'+
+	              '<table style="width: 100%">'+
+	                 '<col style="width: 70%">'+
+	                 '<col style="width: 30%">'+
+	                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales Worth</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
+	                 quickSummaryRendererContent+
+	                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value).toFixed(2)+'</td></tr>'+
+	              '</table>'+
+	           '</div>'+
+	        '</div>'+
+	      '</div>'+
+	      salesByBillingModeRenderContentFinal+
+	      salesByPaymentTypeRenderContentFinal+
+	      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
+	         '<p class="footerNote">care@zaitoon.online | www.zaitoon.online | support@accelerate.net.in</p>'+
+	      '</div>'+
+	    '</body>'+
+	    '<html>';
+
+
+		var finalContent_EncodedEmail = encodeURI(finalReport_emailContent);
+		$('#reportActionButtonEmail').attr('data-hold', finalContent_EncodedEmail);
+	}	
+
+
 
 	function singleClickLoadErrors(){
 		//Display if any errors
@@ -3329,8 +3518,48 @@ function fetchSingleClickReport(){
 			document.getElementById("singleClickReport_ErrorContent").innerHTML = renderError;
 		}
 	}
-
-
 }
 
+
+
+//REPORT ACTIONS:
+
+function reportActionEmail(){
+	var mailContentEncoded = $('#reportActionButtonEmail').attr('data-hold');
+	var mailContent = decodeURI(mailContentEncoded);
+
+	var data = {
+		"token": window.localStorage.loggedInAdmin,
+		"name": "Abhijith",
+		"email": "abhijithcs1993@gmail.com",
+		"title": "IIT Madras - Sales",
+		"content": mailContent
+	}
+
+	showLoading(10000, 'Sending Mail...');
+
+	$.ajax({
+		type: 'POST',
+		url: 'https://www.zaitoon.online/services/possendreportasemail.php',
+		data: JSON.stringify(data),
+		contentType: "application/json",
+		dataType: 'json',
+		timeout: 10000,
+		success: function(data) {
+			hideLoading();
+			if(data.status){
+				showToast('The Report has been mailed', '#27ae60');
+			}
+			else
+			{
+				showToast(data.error, '#e74c3c');
+			}
+		},
+		error: function(data){
+			hideLoading();
+			showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+		}
+	});	
+
+}
 
