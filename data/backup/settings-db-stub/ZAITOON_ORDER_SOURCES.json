@@ -1,0 +1,18 @@
+{
+  "_id": "ZAITOON_ORDER_SOURCES",
+  "identifierTag": "ZAITOON_ORDER_SOURCES",
+  "value": [
+    {
+      "name": "System",
+      "code": "SYSTEM"
+    },
+    {
+      "name": "Swiggy",
+      "code": "SWIGGY"
+    },
+    {
+      "name": "Online",
+      "code": "ONLINE"
+    }
+  ]
+}

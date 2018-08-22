@@ -1,6 +1,5 @@
 {
   "_id": "_design/invoice-filters",
-  "_rev": "45-8444728cdb9c3eed746d90fdc4818b49",
   "views": {
     "filterbymobile": {
       "map": "function (doc) {\n  if(doc.customerMobile && doc.date){\n    emit([doc.customerMobile, doc.date], doc);\n  }\n}"

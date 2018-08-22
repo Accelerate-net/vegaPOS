@@ -1,6 +1,5 @@
 {
   "_id": "_design/invoice-summary",
-  "_rev": "72-58ff22ba1e433c8b212e28d08cb69828",
   "views": {
     "sumbybillingmode": {
       "reduce": "_stats",
@@ -48,6 +47,18 @@
     },
     "sumbybillingandpaymentmodes_multiple": {
       "map": "function (doc) {\n  if(doc.paymentMode == 'MULTIPLE' && doc.dateStamp && doc.orderDetails.mode){\n    var n = 0;\n    while(doc.paymentSplits[n]){\n      emit([doc.orderDetails.mode, doc.paymentSplits[n].code, doc.dateStamp], doc.paymentSplits[n].amount);\n      n++;\n    }\n    \n  }\n}\n\n",
+      "reduce": "_stats"
+    },
+    "sumbyrefundmodes_splitbyextras": {
+      "map": "function (doc) {\n  if(doc.extras[0].name && doc.orderDetails.mode && doc.dateStamp){\n    var n = 0;\n    while(doc.extras[n]){\n      emit([doc.orderDetails.mode, doc.extras[n].name, doc.dateStamp], doc.extras[n].amount);\n      n++;\n    }\n  }  \n}",
+      "reduce": "_stats"
+    },
+    "sumbyrefundmodes_splitbycustomextras": {
+      "map": "function (doc) {\n  if(doc.customExtras.type && doc.orderDetails.mode && doc.dateStamp){\n    emit([doc.orderDetails.mode, doc.customExtras.type, doc.dateStamp], doc.customExtras.amount);\n  }  \n}",
+      "reduce": "_stats"
+    },
+    "totalguests": {
+      "map": "function (doc) {\n  if(doc.guestCount && doc.dateStamp){\n     emit([doc.dateStamp], doc.guestCount);\n  }\n}\n",
       "reduce": "_stats"
     }
   },
