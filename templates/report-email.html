@@ -162,22 +162,7 @@
    </head>
    <body>
 
-
-   <script>
-        const ipcRenderer = require("electron").ipcRenderer;
-
-        ipcRenderer.on("printPDF", (event, content) => {
-            document.body.innerHTML = content;
-            console.log('hi', content)
-            ipcRenderer.send("readyToPrintPDF");
-        });
-
-    </script>
-
-
-
-      
-
+    
       <div class="mainHeader">
          <div class="headerLeftBox">
             <div id="logo">

@@ -9,7 +9,6 @@
       	}
 
          #logo{
-	         background: url(../data/photos/brand/invoice-logo.png) no-repeat left center;
 	         min-height: 60px; 
 	         width: 100%;
 	         background-color: none;
@@ -151,25 +150,11 @@
    </head>
    <body>
 
-
-   <script>
-        const ipcRenderer = require("electron").ipcRenderer;
-
-        ipcRenderer.on("printPDF", (event, content) => {
-            document.body.innerHTML = content;
-            console.log('hi', content)
-            ipcRenderer.send("readyToPrintPDF");
-        });
-
-    </script>
-
-
-
-      
-
       <div class="mainHeader">
          <div class="headerLeftBox">
-            <div id="logo"></div>
+            <div id="logo">
+               <img src="../data/photos/brand/invoice-logo.png">
+            </div>
             <p class="headerAddress">Zaitoon Multicuisine 1, Vantage Building, Mahatma Gandhi Road, Subramaniam Colony, Adyar, Chennai - 41</p>
          </div>
          <div class="headerRightBox">
@@ -185,12 +170,12 @@
          
          <div class="factsArea">
             <div class="factsBox">
-               <h1 class="factsBoxFigure">134123.00<tag class="factsPrice">INR</tag></h1>
+               <h1 class="factsBoxFigure">134123.00<span class="factsPrice">INR</span></h1>
                <p class="factsBoxBrief">Gross Sales</p>
             </div>
 
             <div class="factsBox">
-               <h1 class="factsBoxFigure">131013.00<tag class="factsPrice">INR</tag></h1>
+               <h1 class="factsBoxFigure">131013.00<span class="factsPrice">INR</span></h1>
                <p class="factsBoxBrief">Net Sales</p>
             </div>
 
@@ -231,39 +216,39 @@
             <col style="width: 30%">
             <tr>
                <td class="tableQuickBrief" style="font-weight: bold;">Net Sales Worth</td>
-               <td class="tableQuickAmount" style="font-weight: bold;"><tag class="price">Rs.</tag>120249</td>
+               <td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>120249</td>
             </tr>
             <tr>
                <td class="tableQuickBrief">Total Tips Received</td>
-               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>540</td>
+               <td class="tableQuickAmount">+ <span class="price">Rs.</span>540</td>
             </tr>
             <tr>
                <td class="tableQuickBrief">Total Round Off Amount</td>
-               <td class="tableQuickAmount">- <tag class="price">Rs.</tag>241</td>
+               <td class="tableQuickAmount">- <span class="price">Rs.</span>241</td>
             </tr>
             <tr>
                <td class="tableQuickBrief">Total Discounts Offered</td>
-               <td class="tableQuickAmount">- <tag class="price">Rs.</tag>3402</td>
+               <td class="tableQuickAmount">- <span class="price">Rs.</span>3402</td>
             </tr>
             <tr>
                <td class="tableQuickBrief">SGST</td>
-               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>12001</td>
+               <td class="tableQuickAmount">+ <span class="price">Rs.</span>12001</td>
             </tr>
             <tr>
                <td class="tableQuickBrief">CGST</td>
-               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>12001</td>
+               <td class="tableQuickAmount">+ <span class="price">Rs.</span>12001</td>
             </tr>
             <tr>
                <td class="tableQuickBrief">Service Charges</td>
-               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>6738</td>
+               <td class="tableQuickAmount">+ <span class="price">Rs.</span>6738</td>
             </tr>
             <tr>
                <td class="tableQuickBrief">Container Charges</td>
-               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>2429</td>
+               <td class="tableQuickAmount">+ <span class="price">Rs.</span>2429</td>
             </tr>
             <tr>
                <td class="tableQuickBrief" style="background: #f2f2f2; font-size: 120%; font-weight: bold;">Gross Sales</td>
-               <td class="tableQuickAmount" style="background: #f2f2f2; font-size: 120%; font-weight: bold;">+ <tag class="price">Rs.</tag>25895</td>
+               <td class="tableQuickAmount" style="background: #f2f2f2; font-size: 120%; font-weight: bold;">+ <span class="price">Rs.</span>25895</td>
             </tr>
          </table>
       </div>
@@ -292,39 +277,39 @@
                <col style="width: 30%">
                <tr>
                   <td class="tableQuickBrief" style="font-weight: bold;">Net Sales Worth</td>
-                  <td class="tableQuickAmount" style="font-weight: bold;"><tag class="price">Rs.</tag>120249</td>
+                  <td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>120249</td>
                </tr>
                <tr>
                   <td class="tableQuickBrief">Total Tips Received</td>
-                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>540</td>
+                  <td class="tableQuickAmount">+ <span class="price">Rs.</span>540</td>
                </tr>
                <tr>
                   <td class="tableQuickBrief">Total Round Off Amount</td>
-                  <td class="tableQuickAmount">- <tag class="price">Rs.</tag>241</td>
+                  <td class="tableQuickAmount">- <span class="price">Rs.</span>241</td>
                </tr>
                <tr>
                   <td class="tableQuickBrief">Total Discounts Offered</td>
-                  <td class="tableQuickAmount">- <tag class="price">Rs.</tag>3402</td>
+                  <td class="tableQuickAmount">- <span class="price">Rs.</span>3402</td>
                </tr>
                <tr>
                   <td class="tableQuickBrief">SGST</td>
-                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>12001</td>
+                  <td class="tableQuickAmount">+ <span class="price">Rs.</span>12001</td>
                </tr>
                <tr>
                   <td class="tableQuickBrief">CGST</td>
-                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>12001</td>
+                  <td class="tableQuickAmount">+ <span class="price">Rs.</span>12001</td>
                </tr>
                <tr>
                   <td class="tableQuickBrief">Service Charges</td>
-                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>6738</td>
+                  <td class="tableQuickAmount">+ <span class="price">Rs.</span>6738</td>
                </tr>
                <tr>
                   <td class="tableQuickBrief">Container Charges</td>
-                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>2429</td>
+                  <td class="tableQuickAmount">+ <span class="price">Rs.</span>2429</td>
                </tr>
                <tr>
                   <td class="tableQuickBrief" style="background: #f2f2f2; font-size: 120%; font-weight: bold;">Gross Sales</td>
-                  <td class="tableQuickAmount" style="background: #f2f2f2; font-size: 120%; font-weight: bold;">+ <tag class="price">Rs.</tag>25895</td>
+                  <td class="tableQuickAmount" style="background: #f2f2f2; font-size: 120%; font-weight: bold;">+ <span class="price">Rs.</span>25895</td>
                </tr>
             </table>
          </div>

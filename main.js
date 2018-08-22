@@ -230,3 +230,99 @@ ipc.on("readyToPrintPDF", (event) => {
     // workerWindow.webContents.print(pageSettingsSilent);
 });
 
+
+
+/* PDF Report Generator */
+ipc.on('generatePDFReportA4', function(event, html_content, report_title){
+
+  if(!html_content || html_content == ''){
+    console.log('Error: No Content to Print');
+    return '';
+  }
+
+  var pageSettings = {
+    'marginsType': 1, //No Margin
+    'printBackground': true
+  }
+
+
+  const pdfPath = path.join(os.tmpdir(), report_title+'.pdf')
+  const win = new BrowserWindow({width: 800, height: 600});
+  win.hide();
+  win.loadURL("data:text/html;charset=utf-8," + encodeURI(html_content));
+
+  win.webContents.on('did-finish-load', () => {
+      win.webContents.printToPDF(pageSettings, (error, data) => {
+      
+        if(error){
+          return ''
+        }
+        else{
+          fs.writeFile(pdfPath, data, function(error){
+            if(error){
+              return '';
+            }
+            else{
+                shell.openExternal('file://'+pdfPath);
+                win.close();
+                win == null;
+            }
+          })
+        }
+
+      })
+  })
+
+});
+
+
+
+
+
+/* PDF Report Printer */
+ipc.on('printSmallReport', function(event, html_content){
+
+  if(!html_content || html_content == ''){
+    console.log('Error: No Content to Print');
+    return '';
+  }
+
+    var pageSettingsSilent = {
+      'marginsType': 1, //No Margin
+      'printBackground': true, 
+      'pageSize': {
+        "height": 297000,
+        "width": 72000
+      },
+      'silent': true
+    }
+
+  const pdfPath = path.join(os.tmpdir(), 'print.pdf')
+  const win = new BrowserWindow({width: 800, height: 600});
+  win.hide();
+  win.loadURL("data:text/html;charset=utf-8," + encodeURI(html_content));
+
+  win.webContents.on('did-finish-load', () => {
+      win.webContents.printToPDF(pageSettingsSilent, (error, data) => {
+      
+        if(error){
+          return ''
+        }
+        else{
+          fs.writeFile(pdfPath, data, function(error){
+            if(error){
+              return '';
+            }
+            else{
+                shell.openExternal('file://'+pdfPath);
+                win.close();
+                win == null;
+            }
+          })
+        }
+
+      })
+  })
+
+});
+
