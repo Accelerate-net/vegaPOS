@@ -39,7 +39,7 @@ function generateBillFromKOT(kotID, optionalPageRef){
             console.log('KOT not updated on server.. please update me ***')
             kotfile.customerName = customerInfo.name;
             kotfile.customerMobile = customerInfo.mobile;
-            kotfile.guestCount = customerInfo.count ? customerInfo.count : '';
+            kotfile.guestCount = customerInfo.count ? parseInt(customerInfo.count) : '';
 
             generateBillSuccessCallback('CHANGE_CUSTOMERINFO', optionalPageRef, kotfile); 
           }

@@ -1868,7 +1868,7 @@ function fetchSingleClickReport(){
                                         '<p style="font-size: 26px; color: #777; font-weight: 300; margin-top: -15px">Your Report is Ready!</p>'+
                                         '<button data-hold="" id="reportActionButtonDownload" onclick="reportActionDownload()" style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-download"></i> Download</button>'+
                                         '<button data-hold="" id="reportActionButtonPrint" onclick="reportActionPrint()" style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-print"></i> Print</button>'+
-                                        '<button data-hold="" id="reportActionButtonEmail" onclick="reportActionEmail()" class="btn btn-success btn-sm"><i class="fa fa-envelope"></i> Email</button>'+
+                                        '<button data-hold="" text-hold="" id="reportActionButtonEmail" onclick="reportActionEmail()" class="btn btn-success btn-sm"><i class="fa fa-envelope"></i> Email</button>'+
                                       '</div></center>';	
 
     document.getElementById("singleClickReport_ErrorContent").style.display = 'none';
@@ -1937,6 +1937,7 @@ function fetchSingleClickReport(){
 
 	var completeReportInfo = [];
 	var netSalesWorth = 0;
+	var netGuestsCount = '###';
 	var reportInfoExtras = [];
 	var completeErrorList = []; //In case any API call causes Error
 	var detailedListByBillingMode = []; //Billing mode wise
@@ -1975,8 +1976,8 @@ function fetchSingleClickReport(){
 
 				netSalesWorth = temp_totalPaid;
 
-				//Step 2:
-				singleClickExtraCharges();
+				//Step 1-2:
+				singleClickTotalGuests();
 
 			},
 			error: function(data){
@@ -1992,10 +1993,40 @@ function fetchSingleClickReport(){
 	}	
 
 
+	//Step 1-2: Total Number of Guests
+	function singleClickTotalGuests(){
+
+		runReportAnimation(3); //of Step 1 which takes 3 units
+
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/totalguests?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				if(data.rows.length > 0){
+					netGuestsCount = data.rows[0].value.sum;
+				}
+
+				//Step 2:
+				singleClickExtraCharges();
+
+			},
+			error: function(data){
+				completeErrorList.push({
+				    "step": 1.2,
+					"error": "Failed to sum up the number of guests"
+				});
+				return '';
+			}
+		});  
+	}		
+
+
 	//Step 2: 
 	function singleClickExtraCharges(){
 
-		runReportAnimation(5); //of Step 1 which takes 5 units
+		runReportAnimation(5); //of Step 1-2 which takes 2 units
 
 	    var requestData = {
 	      "selector"  :{ 
@@ -3336,32 +3367,48 @@ function fetchSingleClickReport(){
 		var reportInfo_address = 'Zaitoon Multicuisine 1, Vantage Building, Mahatma Gandhi Road, Subramaniam Colony, Adyar, Chennai - 41';
 
 
+		if(graphImage && graphImage != ''){
+			window.localStorage.graphImageData = graphImage;
+		}
+		else{
+			window.localStorage.graphImageData = '';
+		}
+
+
 		var graphRenderSectionContent = '';
 		var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
 
 		var reportInfo_title = 'Sales Report of <b>'+fancy_from_date+'</b>';
+		var temp_report_title = 'Sales Report of '+fancy_from_date;
 		if(fromDate != toDate){
 			fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
 			var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
 
-			reportInfo_title = 'Sales Report from <b>'+fancy_from_date+' from '+fancy_to_date+'</b>';
+			reportInfo_title = 'Sales Report from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
+			temp_report_title = 'Sales Report from '+fancy_from_date+' to '+fancy_to_date;
 		}
-    else{ //Render graph only if report is for a day
+	    else{ //Render graph only if report is for a day
 
-      if(graphImage){
-        graphRenderSectionContent = ''+
-          '<div class="summaryTableSectionHolder">'+
-          '<div class="summaryTableSection">'+
-             '<div class="tableQuickHeader">'+
-                '<h1 class="tableQuickHeaderText">WEEKLY SALES PERFORMANCE</h1>'+
-             '</div>'+
-             '<div class="weeklyGraph">'+
-                '<img src="'+graphImage+'" style="max-width: 80%">'+
-             '</div>'+
-          '</div>'+
-          '</div>';
-      }
-    }
+	      if(graphImage){
+
+	      	var temp_image_name = reportInfo_branch+'_'+fromDate;
+	      	temp_image_name = temp_image_name.replace(/\s/g,'');
+
+	        graphRenderSectionContent = ''+
+	          '<div class="summaryTableSectionHolder">'+
+	          '<div class="summaryTableSection">'+
+	             '<div class="tableQuickHeader">'+
+	                '<h1 class="tableQuickHeaderText">WEEKLY SALES TREND</h1>'+
+	             '</div>'+
+	             '<div class="weeklyGraph">'+
+	                '<img src="https://zaitoon.online/pos/report_trend_images_repo/'+temp_image_name+'.png" style="max-width: 90%">'+
+	             '</div>'+
+	          '</div>'+
+	          '</div>';
+	      }
+	    }
+
+	    var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
 
 
     //Quick Summary Content
@@ -3469,7 +3516,7 @@ function fetchSingleClickReport(){
 	         '<div class="factsArea">'+
 	            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
 	            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netSalesWorth).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
-	            '<div class="factsBox"><h1 class="factsBoxFigure">#####</h1><p class="factsBoxBrief">Guests</p></div>'+ 
+	            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
 	            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
 	         '</div>'+
 	      '</div>'+graphRenderSectionContent+
@@ -3500,6 +3547,14 @@ function fetchSingleClickReport(){
 
 		var finalContent_EncodedEmail = encodeURI(finalReport_emailContent);
 		$('#reportActionButtonEmail').attr('data-hold', finalContent_EncodedEmail);
+
+		var myFinalCollectionText = {
+			"reportTitle" : fancy_report_title_name,
+			"imageName": reportInfo_branch+'_'+fromDate
+		}
+
+		var finalContent_EncodedText = encodeURI(JSON.stringify(myFinalCollectionText));
+		$('#reportActionButtonEmail').attr('text-hold', finalContent_EncodedText);
 	}	
 
 
@@ -3528,15 +3583,24 @@ function reportActionEmail(){
 	var mailContentEncoded = $('#reportActionButtonEmail').attr('data-hold');
 	var mailContent = decodeURI(mailContentEncoded);
 
+	var textContentEncoded = $('#reportActionButtonEmail').attr('text-hold');
+	var textContent = JSON.parse(decodeURI(textContentEncoded));
+
+	var graphImage = window.localStorage.graphImageData ? window.localStorage.graphImageData : '';
+
+	var temp_image_name = (textContent.imageName).replace(/\s/g,'');
+
 	var data = {
 		"token": window.localStorage.loggedInAdmin,
 		"name": "Abhijith",
 		"email": "abhijithcs1993@gmail.com",
-		"title": "IIT Madras - Sales",
-		"content": mailContent
+		"title": textContent.reportTitle,
+		"content": mailContent,
+		"image": graphImage,
+		"imageName": temp_image_name
 	}
 
-	showLoading(10000, 'Sending Mail...');
+	showLoading(10000, 'Mailing Report...');
 
 	$.ajax({
 		type: 'POST',
