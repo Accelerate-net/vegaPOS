@@ -1,6 +1,5 @@
 {
   "_id": "_design/bill-filters",
-  "_rev": "13-d69d5dfa66fcc060297907180c468b8e",
   "views": {
     "filterbydiscount": {
       "map": "function (doc) {\n  if(doc.date){\n    if(doc.discount.amount){\n      emit(['discounted', doc.date], doc);\n    }\n    else{\n      emit(['nondiscounted', doc.date], doc);\n    }\n  }\n}"

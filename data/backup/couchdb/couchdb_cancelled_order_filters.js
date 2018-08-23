@@ -1,6 +1,5 @@
 {
   "_id": "_design/order-filters",
-  "_rev": "3-34090e994d91240608e8f3ffd5b50178",
   "views": {
     "filterbymachine": {
       "map": "function (doc) {\n  if(doc.machineName && doc.date){\n    emit([doc.machineName, doc.date], doc);\n  }\n}"
