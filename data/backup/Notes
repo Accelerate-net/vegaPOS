@@ -2,6 +2,10 @@
 Notes:
 1.A Item Change (Chicken --> Mutton Biryani)
 12. add more details to report download (number of discount orders, calculated round off)
+15. CRITICAL BUG: Default Admin User (auto create) need.
+16. CRITICAL BUG: Remove mouse trap while entering password etc.
+17. Offline Google Fonts
+18. Sample TEST print on CONFIGURED PRITNERS
 
 Moved to Version 2:
 1.B Item wise table shift.
@@ -16,3 +20,4 @@ Moved to Version 2:
 10. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
 11. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings.
 13. Black and White A4 Print - Reports 
+14. Optimise menu Image rendering 
