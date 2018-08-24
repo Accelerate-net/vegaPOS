@@ -12,6 +12,26 @@ function printPDFReport(html_template){
    ipc.send("printSmallReport", html_template);
 }
 
+function getPrinterList(optionalRequest){
+   window.localStorage.connectedPrintersList = '';
+   ipc.send("getMeAllPrinters", optionalRequest);
+}   
+
+ipc.on('all-printers-list', function (event, listOfPrinters, optionalRequest) {
+
+   if(listOfPrinters.length > 0){
+      window.localStorage.connectedPrintersList = JSON.stringify(listOfPrinters);
+   }
+   else{
+      window.localStorage.connectedPrintersList = '';
+   }
+
+   if(optionalRequest == 'REFRESH'){
+      showToast('Printers list refreshed successfully', '#27ae60');
+      openNewPrinterReRender();
+   }
+
+});
 
 
 /*

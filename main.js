@@ -105,7 +105,8 @@ function createWindow () {
 
 
 
-
+//To retrieve printers list
+let printerWindowContent = null;
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -187,8 +188,6 @@ app.on('activate', function () {
 })
 
 
-
-
 /* Printer Processes */
 
 // retransmit it to workerWindow
@@ -226,10 +225,16 @@ ipc.on("readyToPrintPDF", (event) => {
         })
     })
 
-
     // workerWindow.webContents.print(pageSettingsSilent);
 });
 
+
+/* Get Printers List */
+ipc.on('getMeAllPrinters', function(event, optionalRequest){
+  printerWindowContent = workerWindow.webContents;
+  var printerList = printerWindowContent.getPrinters();
+  mainWindow.webContents.send('all-printers-list', printerList, optionalRequest);
+});
 
 
 /* PDF Report Generator */
