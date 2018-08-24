@@ -4368,11 +4368,11 @@ position: absolute;
 }
 
 .myListedPrinterActions{
-    font-size: 12px;
+    font-size: 10px;
     font-weight: 600;
     color: #16a085;
     text-align: center;
-    text-overflow:ellipsis; overflow:hidden; white-space:nowrap;
+    margin: 5px 0 0 0;
 }
 
 

@@ -205,6 +205,7 @@ function applyLicenceTerms(){
                   applyBillLayout();
                   applyShortcuts();
                   autoSessionSwitchChecker();
+                  applyConfiguredPrinters();
 
                   //If Online enabled
                   if(machinesList[n].isOnlineEnabled){
@@ -247,6 +248,169 @@ function applyLicenceTerms(){
 }
 
 applyLicenceTerms();
+
+
+/* apply configured printers */
+function applyConfiguredPrinters(){
+  var printersList = window.localStorage.connectedPrintersList ? JSON.parse(window.localStorage.connectedPrintersList) : [];
+
+  var list_bills = [];
+  var list_bills_duplicate = [];
+  var list_kot = [];
+  var list_report = [];
+  var list_view = [];
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_PRINTERS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_PRINTERS'){
+
+            var printersList = data.docs[0].value;
+
+            var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+            if(!machineName || machineName == ''){
+                machineName = 'Any';
+            }
+
+              var printers = [];
+
+              for(var i=0; i<printersList.length; i++){
+                if(printersList[i].systemName == machineName){
+                  printers = printersList[i].data;
+                  break;
+                }
+              }
+
+
+              //Sort Printers
+              var n = 0;
+              while(printers[n]){
+
+                for(var p = 0; p < printers[n].actions.length; p++){
+                  switch(printers[n].actions[p]){
+                    case "KOT":{
+                      list_kot.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      'marginsType': 1, //No Margin
+                                      'printBackground': true, 
+                                      'pageSize': {
+                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
+                                        "width": printers[n].width
+                                      },
+                                      'silent': true
+                                    }
+                      });
+                      break;
+                    }
+                    case "BILL":{
+                      list_bills.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      'marginsType': 1, //No Margin
+                                      'printBackground': true, 
+                                      'pageSize': {
+                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
+                                        "width": printers[n].width
+                                      },
+                                      'silent': true
+                                    }
+                      });
+                      break;
+                    }
+                    case "DUPLICATE_BILL":{
+                      list_bills_duplicate.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      'marginsType': 1, //No Margin
+                                      'printBackground': true, 
+                                      'pageSize': {
+                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
+                                        "width": printers[n].width
+                                      },
+                                      'silent': true
+                                    }
+                      });
+                      break;
+                    }
+                    case "REPORT":{
+                      list_report.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      'marginsType': 1, //No Margin
+                                      'printBackground': true, 
+                                      'pageSize': {
+                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
+                                        "width": printers[n].width
+                                      },
+                                      'silent': true
+                                    }
+                      });
+                      break;
+                    }
+                    case "VIEW":{
+                      list_report.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      'marginsType': 1, //No Margin
+                                      'printBackground': true, 
+                                      'pageSize': {
+                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
+                                        "width": printers[n].width
+                                      },
+                                      'silent': true
+                                    }
+                      });
+                      break;
+                    }
+                  }
+                }
+                n++;
+              }
+
+              var printersMasterList = [
+                {"type": "KOT", "list": list_kot},
+                {"type": "BILL", "list": list_bills},
+                {"type": "BILL DUPLICATE", "list": list_bills_duplicate},
+                {"type": "REPORT", "list": list_report},
+                {"type": "VIEW", "list": list_view}
+              ];
+
+              window.localStorage.configuredPrintersData = JSON.stringify(printersMasterList);
+
+          }
+          else{
+            showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+applyConfiguredPrinters();
+
 
 
 /* Easy Activation */

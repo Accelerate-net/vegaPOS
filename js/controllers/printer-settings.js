@@ -202,6 +202,8 @@ function addNewPrinterProfile(){
 		return '';
 	}
 
+  newObj.actions = newObj.actions.split(',');
+
 
     var requestData = {
       "selector"  :{ 
@@ -241,10 +243,10 @@ function addNewPrinterProfile(){
                 }
               }
 
-              if(printers.length == 0){
-                showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
-                return '';
-              }
+              // if(printers.length == 0){
+              //   showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+              //   return '';
+              // }
 
              var flag = 0;
 
@@ -309,6 +311,7 @@ function addNewPrinterProfile(){
 
       },
       error: function(data) {
+        console.log(data)
         showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
       }
 
