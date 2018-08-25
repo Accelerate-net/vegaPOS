@@ -306,13 +306,13 @@ function applyConfiguredPrinters(){
                       list_kot.push({
                         "target" : printers[n].type,
                         "settings": {
-                                      'marginsType': 1, //No Margin
-                                      'printBackground': true, 
-                                      'pageSize': {
-                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
-                                        "width": printers[n].width
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
                                       },
-                                      'silent': true
+                                      "silent": true
                                     }
                       });
                       break;
@@ -321,13 +321,13 @@ function applyConfiguredPrinters(){
                       list_bills.push({
                         "target" : printers[n].type,
                         "settings": {
-                                      'marginsType': 1, //No Margin
-                                      'printBackground': true, 
-                                      'pageSize': {
-                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
-                                        "width": printers[n].width
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
                                       },
-                                      'silent': true
+                                      "silent": true
                                     }
                       });
                       break;
@@ -336,13 +336,13 @@ function applyConfiguredPrinters(){
                       list_bills_duplicate.push({
                         "target" : printers[n].type,
                         "settings": {
-                                      'marginsType': 1, //No Margin
-                                      'printBackground': true, 
-                                      'pageSize': {
-                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
-                                        "width": printers[n].width
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
                                       },
-                                      'silent': true
+                                      "silent": true
                                     }
                       });
                       break;
@@ -351,13 +351,13 @@ function applyConfiguredPrinters(){
                       list_report.push({
                         "target" : printers[n].type,
                         "settings": {
-                                      'marginsType': 1, //No Margin
-                                      'printBackground': true, 
-                                      'pageSize': {
-                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
-                                        "width": printers[n].width
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
                                       },
-                                      'silent': true
+                                      "silent": true
                                     }
                       });
                       break;
@@ -366,13 +366,13 @@ function applyConfiguredPrinters(){
                       list_report.push({
                         "target" : printers[n].type,
                         "settings": {
-                                      'marginsType': 1, //No Margin
-                                      'printBackground': true, 
-                                      'pageSize': {
-                                        "height": printers[n].height > 0 ? printers[n].height : 297000,
-                                        "width": printers[n].width
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
                                       },
-                                      'silent': true
+                                      "silent": true
                                     }
                       });
                       break;
@@ -385,7 +385,7 @@ function applyConfiguredPrinters(){
               var printersMasterList = [
                 {"type": "KOT", "list": list_kot},
                 {"type": "BILL", "list": list_bills},
-                {"type": "BILL DUPLICATE", "list": list_bills_duplicate},
+                {"type": "DUPLICATE_BILL", "list": list_bills_duplicate},
                 {"type": "REPORT", "list": list_report},
                 {"type": "VIEW", "list": list_view}
               ];
@@ -409,7 +409,7 @@ function applyConfiguredPrinters(){
     });  
 }
 
-applyConfiguredPrinters();
+
 
 
 

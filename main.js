@@ -43,7 +43,7 @@ function createWindow () {
 
 
 
-    workerWindow = new BrowserWindow();
+    workerWindow = new BrowserWindow({show : false});
     workerWindow.loadURL("file://" + __dirname + "/templates/print-template.html");
     // workerWindow.hide();
     workerWindow.webContents.openDevTools();
@@ -192,28 +192,32 @@ app.on('activate', function () {
 /* Printer Processes */
 
 // retransmit it to workerWindow
-ipc.on("printPDF", (event, content) => {
+ipc.on("printBillDocument", (event, content, printer_list) => {
 
     if(!workerWindow){
       alert('Error CLOSED.')
       return '';
     }
-    workerWindow.webContents.send("printPDF", content);
+    workerWindow.webContents.send("printBillDocument", content, printer_list);
 });
 
 // when worker window is ready
-ipc.on("readyToPrintPDF", (event) => {
+ipc.on("readyToPrintBillDocument", (event, printer_list) => {
+
     const pdfPath = path.join(os.tmpdir(), 'print.pdf');
 
-    var pageSettingsSilent = {
-      'marginsType': 1, //No Margin
-      'printBackground': true, 
-      'pageSize': {
-        "height": 297000,
-        "width": 72000
-      },
-      'silent': true
-    }
+    // var pageSettingsSilent = {
+    //   'marginsType': 1, //No Margin
+    //   'printBackground': true, 
+    //   'pageSize': {
+    //     "height": 297000,
+    //     "width": 72000
+    //   },
+    //   'silent': true
+    // }
+
+
+    var pageSettingsSilent = printer_list[0].settings;
 
     workerWindow.webContents.printToPDF(pageSettingsSilent, function (error, data) {
         if (error) throw error
@@ -253,7 +257,7 @@ ipc.on('generatePDFReportA4', function(event, html_content, report_title){
 
 
   const pdfPath = path.join(os.tmpdir(), report_title+'.pdf')
-  const win = new BrowserWindow({width: 800, height: 600});
+  const win = new BrowserWindow({show : false, width: 800, height: 600});
   win.hide();
   win.loadURL("data:text/html;charset=utf-8," + encodeURI(html_content));
 
@@ -286,25 +290,33 @@ ipc.on('generatePDFReportA4', function(event, html_content, report_title){
 
 
 /* PDF Report Printer */
-ipc.on('printSmallReport', function(event, html_content){
+ipc.on('printSmallReport', function(event, html_content, selected_printers){
 
   if(!html_content || html_content == ''){
     console.log('Error: No Content to Print');
     return '';
   }
 
-    var pageSettingsSilent = {
-      'marginsType': 1, //No Margin
-      'printBackground': true, 
-      'pageSize': {
-        "height": 297000,
-        "width": 72000
-      },
-      'silent': true
-    }
+    // var pageSettingsSilent = {
+    //   'marginsType': 1, //No Margin
+    //   'printBackground': true, 
+    //   'pageSize': {
+    //     "height": 297000,
+    //     "width": 72000
+    //   },
+    //   'silent': true
+    // }
+
+  var pageSettingsSilent = selected_printers[0].settings;
+
+  if(!pageSettingsSilent || pageSettingsSilent == [] || pageSettingsSilent == null){
+    alert('Print Error: No printers found.');
+    return '';
+  }
+
 
   const pdfPath = path.join(os.tmpdir(), 'print.pdf')
-  const win = new BrowserWindow({width: 800, height: 600});
+  const win = new BrowserWindow({show : false, width: 800, height: 600});
   win.hide();
   win.loadURL("data:text/html;charset=utf-8," + encodeURI(html_content));
 

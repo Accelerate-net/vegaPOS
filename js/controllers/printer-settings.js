@@ -81,7 +81,9 @@ function resetActionsList(){
     document.getElementById("printer_profile_new_printer_actions").value = '';
     document.getElementById("actionsResetButton").style.display = 'none';
     document.getElementById('allActionsList').innerHTML = 'Actions List: <tag class="extrasSelButton" onclick="addToActionsList(\'KOT\', \'printer_action_0\')" id="printer_action_0">Print KOT</tag> <tag class="extrasSelButton" onclick="addToActionsList(\'BILL\', \'printer_action_1\')" id="printer_action_1">Print Bill</tag>'+
-                                    '<tag class="extrasSelButton" onclick="addToActionsList(\'DUPLICATE_BILL\', \'printer_action_2\')" id="printer_action_2">Print Duplicate Bill</tag>';
+                                    '<tag class="extrasSelButton" onclick="addToActionsList(\'DUPLICATE_BILL\', \'printer_action_2\')" id="printer_action_2">Print Duplicate Bill</tag>'+
+                                    '<tag class="extrasSelButton" onclick="addToActionsList(\'REPORT\', \'printer_action_3\')" id="printer_action_3">Print Reports</tag>'+
+                                    '<tag class="extrasSelButton" onclick="addToActionsList(\'VIEW\', \'printer_action_4\')" id="printer_action_4">Print View</tag>';
 }
 
 function fetchAllPrintersInfo(){
@@ -177,8 +179,8 @@ function addNewPrinterProfile(){
 	var newObj = {};
 	newObj.name = name;
 	newObj.type = type;
-  newObj.height = pheight;
-  newObj.width = pwidth;
+  newObj.height = parseInt(pheight);
+  newObj.width = parseInt(pwidth);
   newObj.actions = actions;
 
 
@@ -290,6 +292,7 @@ function addNewPrinterProfile(){
 
 			                fetchAllPrintersInfo(); //refresh the list
 	                	  hideNewPrinter();
+                      applyConfiguredPrinters();
                   
                   },
                   error: function(data) {
@@ -397,6 +400,7 @@ function deletePrinterProfile(name){
             					showToast('Printer <b>'+name+'</b> has been removed successfully', '#27ae60');
             					fetchAllPrintersInfo();
             					hideDeletePrinterConsent();
+                      applyConfiguredPrinters();
                   },
                   error: function(data) {
                     showToast('System Error: Unable to make changes in Configured Printers data. Please contact Accelerate Support.', '#e74c3c');

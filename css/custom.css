@@ -4373,6 +4373,9 @@ position: absolute;
     color: #16a085;
     text-align: center;
     margin: 5px 0 0 0;
+    line-height: 1.5em;
+    height: 3em;
+    overflow: hidden;
 }
 
 

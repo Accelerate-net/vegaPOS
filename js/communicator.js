@@ -9,7 +9,31 @@ function generatePDFReport(html_template, report_title){
 }
 
 function printPDFReport(html_template){
-   ipc.send("printSmallReport", html_template);
+
+    var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+    if(allActivePrinters.length == 0){
+      showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+      return '';
+    }
+
+     var selected_printers = null;
+     var b = 0;
+     while(allActivePrinters[b]){
+      if(allActivePrinters[b].type == 'REPORT'){
+         selected_printers = allActivePrinters[b].list;
+         break;
+      }
+      b++;
+     }
+
+     if(selected_printers && selected_printers.length > 0){
+      ipc.send("printSmallReport", html_template, selected_printers);
+     }
+     else{
+      showToast('Print Error: Print failed. No printer configured to print Reports.', '#e74c3c');   
+      return '';
+     }
 }
 
 function getPrinterList(optionalRequest){
@@ -40,7 +64,13 @@ ipc.on('all-printers-list', function (event, listOfPrinters, optionalRequest) {
 
 function sendToPrinter(orderObject, type, optionalRequest){
 
- return '';
+return '';
+ var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+ if(allActivePrinters.length == 0){
+   showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+   return '';
+ }
 
 	/*
 		type - Either KOT or BILL
@@ -547,8 +577,24 @@ var html_template = ''+
 
 
   //ipc.send('print-to-pdf', html_template);
+  var selected_printers = null;
+  var b = 0;
+  while(allActivePrinters[b]){
+   if(allActivePrinters[b].type == type){
+      selected_printers = allActivePrinters[b].list;
+      break;
+   }
+   b++;
+  }
 
-  ipc.send("printPDF", html_template);
+  if(selected_printers && selected_printers.length > 0){
+   ipc.send("printBillDocument", html_template, selected_printers);
+  }
+  else{
+   showToast('Print Error: Print failed. No printer configured for '+type, '#e74c3c');   
+   return '';
+  }
+
 }
 
 
