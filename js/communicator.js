@@ -64,7 +64,8 @@ ipc.on('all-printers-list', function (event, listOfPrinters, optionalRequest) {
 
 function sendToPrinter(orderObject, type, optionalRequest){
 
-return '';
+   return '';
+
  var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
  if(allActivePrinters.length == 0){
@@ -73,7 +74,7 @@ return '';
  }
 
 	/*
-		type - Either KOT or BILL
+		type - Either KOT or EDIT_KOT or BILL
 		optionalRequest - 'DUPLICATE' in case of Duplicate Printing
 	*/	
 
@@ -576,11 +577,419 @@ var html_template = ''+
 }
 
 
+
+
+
+
+/*
+   PRINTING EDITED KOT
+*/
+
+
+
+if(type == 'EDIT_KOT'){
+
+//Render Items
+var total_items = 0;
+var total_quantity = 0;
+
+var itemsList = '';
+var n = 0;
+while(orderObject.cart[n]){
+
+   itemsList +='<tr>'+
+                  '<td>'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  '</td>'+
+                  '<td style="text-align: right">'+
+                     '<p>'+
+                        '<tag class="itemQuantity">'+orderObject.cart[n].qty+'</tag>'+
+                     '</p>'+
+                  '</td>'+
+               '</tr>'
+
+            /* Editing Cases
+            '<tr>'+
+               '<td>Malabar Chicken Biriyani'+
+                  '<comments class="itemOldComments">add extra raita</comments>'+
+                  '<newcomments class="itemComments">add extra spicy raita</newcomments>'+
+               '</td>'+
+               '<td style="text-align: right">'+
+                  '<p>'+
+                     '<tag class="itemQuantity">2</tag>'+
+                  '</p>'+
+               '</td>'+
+            '</tr>'+
+            '<tr>'+
+               '<td>Barbeque Spicy (Single)</td>'+
+               '<td style="text-align: right">'+
+                  '<p>'+
+                     '<tag class="itemOldQuantity">1</tag>'+
+                     '<tag class="itemQuantity">2</tag>'+
+                  '</p>'+
+            '</td>'+
+            '</tr>'+
+
+            */
+
+   total_quantity += orderObject.cart[n].qty;
+
+   n++;
+}
+
+total_items = n;
+
+
+var html_template = ''+
+      '<div id="logo">'+
+        '<center><img src=\''+data_custom_header_image+'\'/></center>'+
+      '</div>'+
+      '<div class="KOTHeader">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="serviceType" style="'+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? 'display: none' : '' )+'">'+(orderObject.orderDetails.modeType == 'DINE' ? 'ON TABLE' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'SELF SERVICE' : ''))+'</tag>'+
+                     '<tag class="serviceType" style="padding: 0; font-size: 10px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? '' : 'display: none' )+'"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">'+(orderObject.orderDetails.modeType == 'PARCEL' ? 'PARCEL' : (orderObject.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : ''))+'</tag>'+(orderObject.orderDetails.reference != ''  ? '<tag style="display: block; padding: 2px;">#'+orderObject.orderDetails.reference+'</tag>' : '<tag style="display: block; padding: 2px;">'+orderObject.customerName+'</tag>')+'</tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+               '<td style="vertical-align: top; '+(orderObject.orderDetails.modeType == 'DINE' || orderObject.orderDetails.modeType == 'TOKEN' ? '' : 'display: none')+'">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Table No' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Token No' : ''))+'</tag>'+
+                     '<tag class="tokenNumber">'+orderObject.table+'</tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+         
+      '</div>'+
+
+      '<div class="KOTNumberArea">'+
+
+         '<table style="width: 100%">'+
+            '<col style="width: 60%">'+
+            '<col style="width: 40%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+               '<p>'+
+                  '<tag class="subLabel">KOT NO</tag>'+
+                  '<tag class="KOTNumber">'+orderObject.KOTNumber+'</tag>'+
+               '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">TIME STAMP</tag>'+
+                     '<tag class="timeStamp">'+getFancyTime(orderObject.timePunch)+'<time class="timeDisplay">'+orderObject.date+'</time></tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+
+      '</div>'+
+      '<div class="KOTContent">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 85%">'+
+            '<col style="width: 15%">'+ itemsList +
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSummary">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 80%">'+
+            '<col style="width: 20%">'+
+            '<tr>'+
+               '<td>Number of Items</td>'+
+               '<td style="text-align: right;">'+total_items+'</td>'+
+            '</tr>'+
+            '<tr>'+
+               '<td>Total Quantity</td>'+
+               '<td style="text-align: right;">'+total_quantity+'</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSpecialComments" style="'+(orderObject.specialRemarks != '' ? '' : 'display: none')+'">'+
+       '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag class="subLabel">SPECIAL COMMENTS</tag>'+
+                        '<tag class="commentsSubText">'+orderObject.specialRemarks+'</tag>'+
+                     '</p>'+  
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSpecialComments" style="'+(orderObject.allergyInfo.length > 0 ? '' : 'display: none')+'">'+
+       '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag class="subLabel">ALLERGY WARNING</tag>'+
+                        '<tag class="commentsSubText">'+((orderObject.allergyInfo).toString())+'</tag>'+
+                     '</p>'+  
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>';
+}
+
   //ipc.send('print-to-pdf', html_template);
   var selected_printers = null;
   var b = 0;
   while(allActivePrinters[b]){
    if(allActivePrinters[b].type == type){
+      selected_printers = allActivePrinters[b].list;
+      break;
+   }
+   b++;
+  }
+
+  if(selected_printers && selected_printers.length > 0){
+   ipc.send("printBillDocument", html_template, selected_printers);
+  }
+  else{
+   showToast('Print Error: Print failed. No printer configured for '+type, '#e74c3c');   
+   return '';
+  }
+
+}
+
+
+
+
+function sendKOTChangesToPrinter(orderObject, compareObject){
+console.log(compareObject)
+ var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+ if(allActivePrinters.length == 0){
+   showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+   return '';
+ }
+
+//Fixed data
+
+var data_custom_header_image = window.localStorage.bill_custom_header_image ? window.localStorage.bill_custom_header_image : '';
+
+var data_custom_top_right_name = window.localStorage.bill_custom_top_right_name ? window.localStorage.bill_custom_top_right_name : '';
+var data_custom_top_right_value = window.localStorage.bill_custom_top_right_value ? window.localStorage.bill_custom_top_right_value : '';
+
+var data_custom_bottom_pay_heading = window.localStorage.bill_custom_bottom_pay_heading ? window.localStorage.bill_custom_bottom_pay_heading : '';
+var data_custom_bottom_pay_brief = window.localStorage.bill_custom_bottom_pay_brief ? window.localStorage.bill_custom_bottom_pay_brief : '';
+var data_custom_bottom_pay_url = ""; //Auto generate Payment Link
+
+var data_custom_footer_comments = window.localStorage.bill_custom_footer_comments ? window.localStorage.bill_custom_footer_comments : '';
+
+var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
+var data_custom_footer_contact = window.localStorage.bill_custom_footer_contact ? window.localStorage.bill_custom_footer_contact : '';
+
+/*
+   PRINTING EDITED KOT
+*/
+
+
+//Render Items
+var total_items = 0;
+var total_quantity = 0;
+
+var itemsList = '';
+var n = 0;
+while(compareObject[n]){ 
+
+   if(compareObject[n].change == 'QUANTITY_INCREASE'){
+      itemsList +='<tr>'+
+                     '<td>'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
+                     '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">MORE QUANTITY</span></span>'+
+                     '</td>'+
+                     '<td style="text-align: right">'+
+                        '<p>'+
+                           '<tag class="itemOldQuantity">'+compareObject[n].oldValue+'</tag>'+
+                           '<tag class="itemQuantity">+ '+(compareObject[n].qty - compareObject[n].oldValue)+'</tag>'+
+                        '</p>'+
+                     '</td>'+
+                  '</tr>'
+   }
+   else if(compareObject[n].change == 'QUANTITY_DECREASE'){
+      itemsList +='<tr>'+
+                     '<td>'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
+                     '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">LESS QUANTITY</span></span>'+
+                     '</td>'+
+                     '<td style="text-align: right">'+
+                        '<p>'+
+                           '<tag class="itemOldQuantity">'+compareObject[n].oldValue+'</tag>'+
+                           '<tag class="itemQuantity">- '+(compareObject[n].oldValue - compareObject[n].qty)+'</tag>'+
+                        '</p>'+
+                     '</td>'+
+                  '</tr>'
+   }
+   else if(compareObject[n].change == 'ITEM_DELETED'){
+      itemsList +='<tr>'+
+                     '<td>'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">ITEM CANCELLED</span></span>'+
+                     '</td>'+
+                     '<td style="text-align: right">'+
+                        '<p>'+
+                           '<tag class="itemOldQuantity">'+compareObject[n].qty+'</tag>'+
+                        '</p>'+
+                     '</td>'+
+                  '</tr>'
+   }
+   else if(compareObject[n].change == 'NEW_ITEM'){
+      itemsList +='<tr>'+
+                     '<td>'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
+                     '</td>'+
+                     '<td style="text-align: right">'+
+                        '<p>'+
+                           '<tag class="itemQuantity">'+compareObject[n].qty+'</tag>'+
+                        '</p>'+
+                     '</td>'+
+                  '</tr>'
+   }
+
+
+            /* Editing Cases
+            '<tr>'+
+               '<td>Malabar Chicken Biriyani'+
+                  '<comments class="itemOldComments">add extra raita</comments>'+
+                  '<newcomments class="itemComments">add extra spicy raita</newcomments>'+
+               '</td>'+
+               '<td style="text-align: right">'+
+                  '<p>'+
+                     '<tag class="itemQuantity">2</tag>'+
+                  '</p>'+
+               '</td>'+
+            '</tr>'+
+            '<tr>'+
+               '<td>Barbeque Spicy (Single)</td>'+
+               '<td style="text-align: right">'+
+                  '<p>'+
+                     '<tag class="itemOldQuantity">1</tag>'+
+                     '<tag class="itemQuantity">2</tag>'+
+                  '</p>'+
+            '</td>'+
+            '</tr>'+
+
+            */
+
+   total_quantity += compareObject[n].qty;
+
+   n++;
+}
+
+total_items = n;
+
+var html_template = ''+
+      '<div id="logo">'+
+        '<center><img src=\''+data_custom_header_image+'\'/></center>'+
+      '</div>'+
+      '<div class="KOTHeader">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="serviceType" style="'+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? 'display: none' : '' )+'">'+(orderObject.orderDetails.modeType == 'DINE' ? 'ON TABLE' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'SELF SERVICE' : ''))+'</tag>'+
+                     '<tag class="serviceType" style="padding: 0; font-size: 10px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? '' : 'display: none' )+'"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">'+(orderObject.orderDetails.modeType == 'PARCEL' ? 'PARCEL' : (orderObject.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : ''))+'</tag>'+(orderObject.orderDetails.reference != ''  ? '<tag style="display: block; padding: 2px;">#'+orderObject.orderDetails.reference+'</tag>' : '<tag style="display: block; padding: 2px;">'+orderObject.customerName+'</tag>')+'</tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+               '<td style="vertical-align: top; '+(orderObject.orderDetails.modeType == 'DINE' || orderObject.orderDetails.modeType == 'TOKEN' ? '' : 'display: none')+'">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Table No' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Token No' : ''))+'</tag>'+
+                     '<tag class="tokenNumber">'+orderObject.table+'</tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+         
+      '</div>'+
+
+      '<div class="KOTNumberArea">'+
+
+         '<table style="width: 100%">'+
+            '<col style="width: 60%">'+
+            '<col style="width: 40%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+               '<p>'+
+                  '<tag class="subLabel">KOT NO</tag>'+
+                  '<tag class="KOTNumber">'+orderObject.KOTNumber+'</tag>'+
+               '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">TIME STAMP</tag>'+
+                     '<tag class="timeStamp">'+getFancyTime(orderObject.timePunch)+'<time class="timeDisplay">'+orderObject.date+'</time></tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+
+      '</div>'+
+      '<div class="KOTContent">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 85%">'+
+            '<col style="width: 15%">'+ itemsList +
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSpecialComments" style="'+(orderObject.specialRemarks != '' ? '' : 'display: none')+'">'+
+       '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag class="subLabel">SPECIAL COMMENTS</tag>'+
+                        '<tag class="commentsSubText">'+orderObject.specialRemarks+'</tag>'+
+                     '</p>'+  
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSpecialComments" style="'+(orderObject.allergyInfo.length > 0 ? '' : 'display: none')+'">'+
+       '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag class="subLabel">ALLERGY WARNING</tag>'+
+                        '<tag class="commentsSubText">'+((orderObject.allergyInfo).toString())+'</tag>'+
+                     '</p>'+  
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>';
+
+
+  //ipc.send('print-to-pdf', html_template);
+  var selected_printers = null;
+  var b = 0;
+  while(allActivePrinters[b]){
+   if(allActivePrinters[b].type == 'KOT'){
       selected_printers = allActivePrinters[b].list;
       break;
    }

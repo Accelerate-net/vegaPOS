@@ -3894,11 +3894,6 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 }
 
 
-function sendKOTChangesToPrinter(kotObject, compareObject){
-	console.log(kotObject, compareObject)
-}
-
-
 /* to quick view what items got removed */
 function quickViewRemovedItems(){
 
