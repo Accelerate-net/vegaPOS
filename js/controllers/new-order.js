@@ -68,7 +68,7 @@ function additemtocart(encodedItem, optionalSource){
 
 	var productToAdd = JSON.parse(decodeURI(encodedItem));
 
-	if(!productToAdd.isAvailable){
+	if(!productToAdd.isAvailable && optionalSource != 'DELETE_REVERSAL'){
 		showToast('Out of Stock: <b>'+productToAdd.name+'</b> is not available', '#48929B');
 		return '';
 	}
@@ -3581,65 +3581,77 @@ function generateEditedKOT(){
 	var original_cart_products = originalData.cart;
 
 	//Search for changes in the existing items
-	var n = 0;
-	while(original_cart_products[n]){
-		
+	checkForItemChanges(original_cart_products[0], 0);
+
+	function checkForItemChanges(checkingItem, index){
 		//Find each item in original cart in the changed cart
 		var itemFound = false;
 		for(var i = 0; i < changed_cart_products.length; i++){
 			
 			//same item found, check for its quantity and report changes
-			if(!original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code)){
+			if(!checkingItem.isCustom && (checkingItem.code == changed_cart_products[i].code)){
 				
 				itemFound = true;
 
 				//Change in Quantity
-				if(changed_cart_products[i].qty > original_cart_products[n].qty){ //qty increased
-					//console.log(.name+' x '+changed_cart_products[n].qty+' ('+(changed_cart_products[n].qty-original_cart_products[i].qty)+' More)');
+				if(changed_cart_products[i].qty > checkingItem.qty){ //qty increased
+					//console.log(checkingItem.name+' x '+changed_cart_products[i].qty+' ('+(changed_cart_products[i].qty-checkingItem.qty)+' More)');
 					
-					var tempItem = changed_cart_products[n];
+					var tempItem = changed_cart_products[i];
 					tempItem.change = "QUANTITY_INCREASE";
-					tempItem.oldValue = original_cart_products[n].qty;
+					tempItem.oldValue = checkingItem.qty;
+					if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
+						tempItem.newComments = changed_cart_products[i].comments;
+					}
 					comparisonResult.push(tempItem);
 				}
-				else if(changed_cart_products[i].qty < original_cart_products[n].qty){ //qty decreased
-					//console.log(changed_cart_products[n].name+' x '+changed_cart_products[n].qty+' ('+(original_cart_products[n].qty-changed_cart_products[i].qty)+' Less)');
+				else if(changed_cart_products[i].qty < checkingItem.qty){ //qty decreased
+					//console.log(changed_cart_products[i].name+' x '+changed_cart_products[i].qty+' ('+(checkingItem.qty-changed_cart_products[i].qty)+' Less)');
 					
-					var tempItem = changed_cart_products[n];
+					var tempItem = changed_cart_products[i];
 					tempItem.change = "QUANTITY_DECREASE";
-					tempItem.oldValue = original_cart_products[n].qty;
+					tempItem.oldValue = checkingItem.qty;
+					if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
+						tempItem.newComments = changed_cart_products[i].comments;
+					}
 					comparisonResult.push(tempItem);
 				}
 				else{ //same qty
-					//console.log(original_cart_products[n].name+' x '+original_cart_products[n].qty);
+					//console.log(checkingItem.name+' x '+checkingItem.qty);
 				}
 
 				break;
 				
 			}
-			else if(original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code) && (original_cart_products[n].variant == changed_cart_products[i].variant)){
+			else if(checkingItem.isCustom && (checkingItem.code == changed_cart_products[i].code) && (checkingItem.variant == changed_cart_products[i].variant)){
 				
 				itemFound = true;
 
 				//Change in Quantity
-				if(changed_cart_products[i].qty > original_cart_products[n].qty){ //qty increased
-					//console.log(.name+' x '+changed_cart_products[n].qty+' ('+(changed_cart_products[n].qty-original_cart_products[i].qty)+' More)');
+				if(changed_cart_products[i].qty > checkingItem.qty){ //qty increased
+					//console.log(checkingItem.name+' x '+changed_cart_products[i].qty+' ('+(changed_cart_products[n].qty-original_cart_products[i].qty)+' More)');
 					
-					var tempItem = changed_cart_products[n];
+					var tempItem = changed_cart_products[i];
 					tempItem.change = "QUANTITY_INCREASE";
-					tempItem.oldValue = original_cart_products[n].qty;
+					tempItem.oldValue = checkingItem.qty;
+					if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
+						tempItem.newComments = changed_cart_products[i].comments;
+					}
 					comparisonResult.push(tempItem);
 				}
-				else if(changed_cart_products[i].qty < original_cart_products[n].qty){ //qty decreased
-					//console.log(changed_cart_products[n].name+' x '+changed_cart_products[n].qty+' ('+(original_cart_products[n].qty-changed_cart_products[i].qty)+' Less)');
+				else if(changed_cart_products[i].qty < checkingItem.qty){ //qty decreased
+					//console.log(changed_cart_products[i].name+' x '+changed_cart_products[i].qty+' ('+(checkingItem.qty-changed_cart_products[i].qty)+' Less)');
 					
-					var tempItem = changed_cart_products[n];
+					var tempItem = changed_cart_products[i];
 					tempItem.change = "QUANTITY_DECREASE";
-					tempItem.oldValue = original_cart_products[n].qty;
+					tempItem.oldValue = checkingItem.qty;
+					if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
+						tempItem.newComments = changed_cart_products[i].comments;
+					}
 					comparisonResult.push(tempItem);
 				}
 				else{ //same qty
-					//console.log(original_cart_products[n].name+' x '+original_cart_products[n].qty);
+					//console.log(checkingItem.name+' x '+checkingItem.qty);
 				}
 
 				break;
@@ -3649,69 +3661,85 @@ function generateEditedKOT(){
 			//Last iteration to find the item
 			if(i == changed_cart_products.length-1){
 				if(!itemFound){ //Item Deleted
-					if(original_cart_products[n].isCustom){
-						//console.log(original_cart_products[n].name+' - '+original_cart_products[n].variant+' x 0 (Deleted)');
+					if(checkingItem.isCustom){
+						//console.log(checkingItem.name+' - '+checkingItem.variant+' x 0 (Deleted)');
 						
-						var tempItem = original_cart_products[n];
+						var tempItem = checkingItem;
 						tempItem.change = "ITEM_DELETED";
 						tempItem.oldValue = "";
+						if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
+							tempItem.newComments = changed_cart_products[i].comments;
+						}
 						comparisonResult.push(tempItem);
 					}
 					else{
-						//console.log(original_cart_products[n].name+' x 0 (Deleted)');
+						//console.log(checkingItem.name+' x 0 (Deleted)');
 						
-						var tempItem = original_cart_products[n];
+						var tempItem = checkingItem;
 						tempItem.change = "ITEM_DELETED";
 						tempItem.oldValue = "";
+						if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
+							tempItem.newComments = changed_cart_products[i].comments;
+						}
 						comparisonResult.push(tempItem);
 					}
 				}
 			}
-		} 
+		}
 
-		n++;
-	}
+		if(original_cart_products[index+1]){
+			checkForItemChanges(original_cart_products[index+1], index+1);
+		}
+		else{
+			checkForNewItems();
+		}
+
+	} //end - function
 
 
 	//Search for new additions to the Cart
-	var j = 0;
-	while(changed_cart_products[j]){
+	function checkForNewItems(){
+		var j = 0;
+		while(changed_cart_products[j]){
 
-		for(var m = 0; m < original_cart_products.length; m++){
-			//check if item is found, not found implies New Item!
-			if(!changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code)){
-				//Item Found
-				break;
-			}
-			else if(changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code) && (changed_cart_products[j].variant == original_cart_products[m].variant)){
-				//Item Found
-				break;
+			for(var m = 0; m < original_cart_products.length; m++){
+				//check if item is found, not found implies New Item!
+				if(!changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code)){
+					//Item Found
+					break;
+				}
+				else if(changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code) && (changed_cart_products[j].variant == original_cart_products[m].variant)){
+					//Item Found
+					break;
+				}
+
+				//Last iteration to find the item
+				if(m == original_cart_products.length-1){
+					//console.log(changed_cart_products[j].name+' x '+changed_cart_products[j].qty+' (New)');
+					
+					var tempItem = changed_cart_products[j];
+					tempItem.change = "NEW_ITEM";
+					tempItem.oldValue = "";
+					if(changed_cart_products[j].comments != ''){
+						tempItem.newComments = changed_cart_products[j].comments;
+					}
+					comparisonResult.push(tempItem);
+				}
 			}
 
-			//Last iteration to find the item
-			if(m == original_cart_products.length-1){
-				//console.log(changed_cart_products[j].name+' x '+changed_cart_products[j].qty+' (New)');
-				
-				var tempItem = changed_cart_products[j];
-				tempItem.change = "NEW_ITEM";
-				tempItem.oldValue = "";
-				comparisonResult.push(tempItem);
-			}
-		} 
+			//last iteration
+			if(j == changed_cart_products.length - 1){
+				generateEditedKOTAfterProcess(originalData.KOTNumber, changed_cart_products, changedCustomerInfo, comparisonResult)
+			} 
 
-		j++;
+			j++;
+		}
 	}
 
-	generateEditedKOTAfterProcess(originalData.KOTNumber, changed_cart_products, changedCustomerInfo, comparisonResult)
 }
 
 
 function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject){
-
-
-
-	console.log(compareObject)
-	return '';
 	
     var requestData = { "selector" :{ "KOTNumber": kotID }}
 
@@ -3867,7 +3895,6 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 
 
 function sendKOTChangesToPrinter(kotObject, compareObject){
-
 	console.log(kotObject, compareObject)
 }
 
@@ -3958,7 +3985,7 @@ function revertDelete(encodedItem){
 		addCustomToCart(item.name, item.code, item.price, item.variant, '',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "");
 	}
 	else{
-		additemtocart(encodedItem);
+		additemtocart(encodedItem, 'DELETE_REVERSAL');
 	}
 	
 	quickViewRemovedItems();
