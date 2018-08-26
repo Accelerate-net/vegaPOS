@@ -1206,8 +1206,8 @@ function recoveryPasscodeLogin(){
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Username" type="text" id="loginReset_server_username" value="" class="form-control loginWindowInput"> </div> </div>'+
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Password" type="password" id="loginReset_server_password" value="" class="form-control loginWindowInput"> </div> </div>'+                     
                                     '</div>'+
-                                    '<button type="button" onclick="performRecoveryResetLogin()" class="btn btn-success loginWindowButton">Login</button>'+
-                                    '<button type="button" onclick="cancelLoginResetWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
+                                    '<button  onclick="performRecoveryResetLogin()" class="btn btn-success loginWindowButton">Login</button>'+
+                                    '<button  onclick="cancelLoginResetWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
                                    '</form>'+
                                 '</section>';
 

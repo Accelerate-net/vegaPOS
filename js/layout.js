@@ -1425,8 +1425,8 @@ function checkLogin(){
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Username" type="text" id="loginHome_server_username" value="" class="form-control loginWindowInput"> </div> </div>'+
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Password" type="password" id="loginHome_server_password" value="" class="form-control loginWindowInput"> </div> </div>'+                     
                                     '</div>'+
-                                    '<button type="button" onclick="doHomeLogin()" class="btn btn-success loginWindowButton">Login</button>'+
-                                    '<button type="button" onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
+                                    '<button  onclick="doHomeLogin()" class="btn btn-success loginWindowButton">Login</button>'+
+                                    '<button  onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
                                    '</form>'+
                                 '</section>';
 
@@ -1442,8 +1442,8 @@ function checkLogin(){
                                       '<p style="font-size: 14px; color: #72767d;">Logged In as <b>'+loggedInAdminInfo.name+'</b></p>'+
                                    '</header>'+
                                    '<form style="margin: 15px 0">'+
-                                    '<button type="button" onclick="doHomeLogout()" class="btn btn-danger loginWindowButton">Logout Now</button>'+
-                                    '<button type="button" onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
+                                    '<button  onclick="doHomeLogout()" class="btn btn-danger loginWindowButton">Logout Now</button>'+
+                                    '<button  onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
                                    '</form>'+
                                 '</section>';
 
@@ -1466,8 +1466,8 @@ function recoveryLogin(){
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Username" type="text" id="loginHome_server_username" value="" class="form-control loginWindowInput"> </div> </div>'+
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Password" type="password" id="loginHome_server_password" value="" class="form-control loginWindowInput"> </div> </div>'+                     
                                     '</div>'+
-                                    '<button type="button" onclick="performRecoveryLogin()" class="btn btn-success loginWindowButton">Login</button>'+
-                                    '<button type="button" onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
+                                    '<button  onclick="performRecoveryLogin()" class="btn btn-success loginWindowButton">Login</button>'+
+                                    '<button  onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
                                    '</form>'+
                                 '</section>';
 

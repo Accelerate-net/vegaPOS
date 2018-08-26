@@ -579,7 +579,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 								if(allergicIngredients[a] == cart_products[i].ingredients[c]){
 									itemContainsAllergicIngredient = true;
 									allergyIngredientDetected = true;
-									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 											'<td style="vertical-align: middle">'+
 											'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 											'</td>'+
@@ -590,7 +590,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 							}
 
 							if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
-								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 									'<td style="vertical-align: middle">'+
 									'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 									'</td>'+
@@ -602,7 +602,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 						}			
 					}
 					else{
-						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 							'<td style="vertical-align: middle">'+
 							'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 							'</td>'+
@@ -611,7 +611,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 					}
 				}
 				else{
-					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 						'<td style="vertical-align: middle">'+
 						'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 						'</td>'+
@@ -662,24 +662,24 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 							if(allergicIngredients[a] == cart_products[i].ingredients[c]){
 								itemContainsAllergicIngredient = true;
 								allergyIngredientDetected = true;
-								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 								break;
 							}
 						}
 
 						if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
-							temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+							temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 						}
 
 						a++;
 					}			
 				}
 				else{
-					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 				}
 			}
 			else{
-				temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button type="button" class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+				temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 			}
 
 			/*
@@ -952,7 +952,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
 	                        '<div class="col-xs-12" style="padding: 0">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()" id="triggerClick_HideCartButton" >Close</button>'+
+	                              '<button class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()" id="triggerClick_HideCartButton" >Close</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                     '</div>';
@@ -963,12 +963,12 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                           	  (isUserAnAdmin ? '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+	                           	  (isUserAnAdmin ? '<button style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 	                           '</div>'+
 	                        '</div>'+ 		
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
+	                              '<button class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                     '</div>';
@@ -986,17 +986,17 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 			document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              (isUserAnAdmin ? '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+	                              (isUserAnAdmin ? '<button  style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
+	                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-4" style="padding: 0">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+	                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
 	                           '</div>'+
 	                        '</div>'+                           
 	                     '</div>';
@@ -1010,11 +1010,11 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 	                        '<div class="col-xs-4" style="padding: 0;">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              (isUserAnAdmin ? '<button type="button" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+	                              (isUserAnAdmin ? '<button  style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 	                           '</div>'+
 	                        '</div>'+
 	                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-	                           '<button type="button" class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
+	                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
 	                        '</div>'+                            
 	                     '</div>';
  		}
@@ -1027,7 +1027,7 @@ else{
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+	
 	                        '<div class="col-xs-12" style="padding: 0">'+
 	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()" id="triggerClick_HideCartButton" >Close</button>'+
+	                              '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height:40px;" onclick="startFreshOrder()" id="triggerClick_HideCartButton" >Close</button>'+
 	                           '</div>'+
 	                        '</div>'+
 	                     '</div>';
@@ -1039,11 +1039,11 @@ else{
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #bdc3c7 !important" class="btn bg-purple btn-block btn-flat" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
+                              '<button  style="margin-bottom: 4px; height:71px; background: #bdc3c7 !important" class="btn bg-purple btn-block btn-flat" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button type="button" class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
                         '</div>'+
                      '</div>';
  	}   
@@ -1051,12 +1051,12 @@ else{
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
-                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
+                              '<button  style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
+                              '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button type="button" class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
                         '</div>'+
                      '</div>';
  	}
@@ -1064,13 +1064,13 @@ else{
  		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
-                              '<button type="button" class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
+                              '<button  style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" onclick="addToHoldKOT()">Save</button>'+
+                              '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" onclick="clearCurrentOrder()" id="triggerClick_HideCartButton" >Close</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print KOT</button>'+
+                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print KOT</button>'+
                            '</div>'+
                         '</div>'+                    
                      '</div>';
@@ -1421,17 +1421,17 @@ function checkIfItemDeleted(){
 					'<div class="row">'+
                         '<div class="col-xs-4" style="padding: 0;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" id="suspend">Hold</button>'+
-                              '<button type="button" class="btn btn-danger btn-block btn-flat" id="reset">Cancel</button>'+
+                              '<button  style="margin-bottom: 4px" class="btn btn-warning btn-block btn-flat" id="suspend">Hold</button>'+
+                              '<button  class="btn btn-danger btn-block btn-flat" id="reset">Cancel</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-4" style="padding: 0 4px;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button type="button" style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()">Print KOT</button>'+
+                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()">Print KOT</button>'+
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-4" style="padding: 0;">'+
-                           '<button type="button" class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;">Print Bill</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;">Print Bill</button>'+
                         '</div>'+
                      '</div>';
 
@@ -1526,8 +1526,8 @@ function addHoldOrderToCurrent(encodedItem, id){
 
 function confirmHoldOverWritingModal(encodedItem, id){
 	document.getElementById("overWriteHoldOrderModal").style.display = 'block';
-	document.getElementById("overWriteHoldOrderModalActions").innerHTML = '<button type="button" class="btn btn-default" onclick="confirmHoldOverWritingModalHide()" style="float: left">Cancel</button>'+
-                  						'<button type="button" class="btn btn-danger" onclick="openHeldOrderConfirm(\''+encodedItem+'\', \''+id+'\')">Open Saved Order</button>';
+	document.getElementById("overWriteHoldOrderModalActions").innerHTML = '<button  class="btn btn-default" onclick="confirmHoldOverWritingModalHide()" style="float: left">Cancel</button>'+
+                  						'<button  class="btn btn-danger" onclick="openHeldOrderConfirm(\''+encodedItem+'\', \''+id+'\')">Open Saved Order</button>';
 }
 
 function confirmHoldOverWritingModalHide(){
@@ -3125,8 +3125,8 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 	        showToast('Warning! There is an unsaved order being punched. Please complete it to continue.', '#e67e22');
 	        
 	       // document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
-	        //document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
-	          //                                      '<button type="button" class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
+	        //document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button  class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
+	          //                                      '<button  class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
 	    	return '';
 	    }    
 	}
@@ -3225,8 +3225,8 @@ function moveToEditKOT(kotID){
 		    	showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
 			        
 			    document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
-			    document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
-			                                                '<button type="button" class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
+			    document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button  class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
+			                                                '<button  class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
 		    	return '';
 		    }    
 		    */
@@ -3324,10 +3324,10 @@ function renderCategoryTab(defaultTab){
 				for (var i=0; i<categories.length; i++){
 					if(categories[i] == defaultTab)
 					{
-						categoryTag = categoryTag + '<button type="button" class="btn btn-outline-sub activeCatTab" onclick="renderMenu(\''+categories[i]+'\')">'+categories[i]+'</button>'
+						categoryTag = categoryTag + '<button  class="btn btn-outline-sub activeCatTab" onclick="renderMenu(\''+categories[i]+'\')">'+categories[i]+'</button>'
 					}	
 					else{
-						categoryTag = categoryTag + '<button type="button" class="btn btn-outline-sub" onclick="renderMenu(\''+categories[i]+'\')">'+categories[i]+'</button>'
+						categoryTag = categoryTag + '<button  class="btn btn-outline-sub" onclick="renderMenu(\''+categories[i]+'\')">'+categories[i]+'</button>'
 					}
 				}
 
@@ -6157,7 +6157,7 @@ function openItemWiseCommentModal(itemCode, variant){
 		            var modesTag = '';
 
 					for (var i=0; i<modes.length; i++){
-						modesTag = modesTag + '<button type="button" style="margin: 0 5px 5px 0" class="btn btn-outline" onclick="addFromSuggestions(\''+modes[i]+'\')">'+modes[i]+'</button>';
+						modesTag = modesTag + '<button  style="margin: 0 5px 5px 0" class="btn btn-outline" onclick="addFromSuggestions(\''+modes[i]+'\')">'+modes[i]+'</button>';
 	        		}
 
 					if(!modesTag)
@@ -6186,7 +6186,7 @@ function openItemWiseCommentModal(itemCode, variant){
 
 	    document.getElementById("itemWiseCommentsModal").style.display = 'block';
 	    document.getElementById("itemWiseCommentsModalTitle").innerHTML = "Comments for <b>"+itemTitle+"</b>"+variantTitle;
-	    document.getElementById("itemWiseCommentsModalActions").innerHTML = '<button type="button" class="btn btn-default" onclick="hideItemWiseCommentModal()" style="float: left">Cancel</button>'+
+	    document.getElementById("itemWiseCommentsModalActions").innerHTML = '<button  class="btn btn-default" onclick="hideItemWiseCommentModal()" style="float: left">Cancel</button>'+
                									'<button id="itemWiseCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="addCommentToItem(\''+itemCode+'\', \''+variant+'\')" style="float: right">Save Comment</button>';
 
 
@@ -6275,12 +6275,12 @@ function openSpecialRequestModal(){
 						var n = 0;
 						while(allergicIngredientsList[n]){
 							if(allergicIngredientsList[n] == ingredientsList[i]){
-								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'" class="btn btn-outline ingredientButton activeIngredient" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
+								allergicTag = allergicTag + '<button  style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'" class="btn btn-outline ingredientButton activeIngredient" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
 								break;
 							}
 
 							if(n == allergicIngredientsList.length-1){ //last iteration
-								allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'" class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
+								allergicTag = allergicTag + '<button  style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'" class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
 							}
 
 							n++;
@@ -6289,7 +6289,7 @@ function openSpecialRequestModal(){
 	        	}
 	        	else{ 
 					for (var i=0; i<ingredientsList.length; i++){
-						allergicTag = allergicTag + '<button type="button" style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'"  class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
+						allergicTag = allergicTag + '<button  style="margin: 0 5px 5px 0" id="ing_'+ingredientsList[i].replace(/\s/g,'')+'"  class="btn btn-outline ingredientButton" onclick="alterAllergicIngredientsList(\''+ingredientsList[i]+'\')"><tag class="activeIngredientButtonIcon"><i class="fa fa-ban"></i></tag>'+ingredientsList[i]+'</button>';
 	        		}
 	        	}
         		
@@ -6319,7 +6319,7 @@ function openSpecialRequestModal(){
 
 	document.getElementById("specialRequestsModal").style.display = 'block';
 	document.getElementById("specialRequestsModalActions").innerHTML = ''+
-		'<button type="button" class="btn btn-danger" onclick="clearSpecialRequestModal()" style="float: left">Clear</button>'+
+		'<button  class="btn btn-danger" onclick="clearSpecialRequestModal()" style="float: left">Clear</button>'+
         '<button id="specialRequestCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="saveSpecialRequest()" style="float: right">Set and Proceed</button>';	
 
 	if(window.localStorage.specialRequests_comments && window.localStorage.specialRequests_comments != ''){

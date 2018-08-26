@@ -6,7 +6,7 @@ Notes:
 16. CRITICAL BUG: Remove mouse trap while entering password etc.
 17. Offline Google Fonts
 18. Sample TEST print on CONFIGURED PRITNERS
-19. CRITICAL BUG: DUPLICATION in BILLS!!!
+19. CRITICAL BUG: DUPLICATION in BILLS!!! (Double ENTER issues)
 
 Moved to Version 2:
 1.B Item wise table shift.

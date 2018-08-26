@@ -184,8 +184,8 @@ function openBillSettings(id){
 
 
 function openSettingsDeleteConfirmation(type, functionName){
-	document.getElementById("settingsDeleteConfirmationConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="cancelSettingsDeleteConfirmation()" style="float: left">Cancel</button>'+
-                  							'<button type="button" class="btn btn-danger" onclick="'+functionName+'(\''+type+'\')">Delete</button>';
+	document.getElementById("settingsDeleteConfirmationConsent").innerHTML = '<button class="btn btn-default" onclick="cancelSettingsDeleteConfirmation()" style="float: left">Cancel</button>'+
+                  							'<button class="btn btn-danger" onclick="'+functionName+'(\''+type+'\')">Delete</button>';
 
 	document.getElementById("settingsDeleteConfirmationText").innerHTML = 'Are you sure want to delete <b>'+type+'</b>?';
 	document.getElementById("settingsDeleteConfirmation").style.display = 'block';

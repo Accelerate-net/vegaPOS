@@ -205,8 +205,8 @@ function editItemPrice(encodedItem, inCateogry){
 
 	document.getElementById("editMenuItemPriceModal").style.display = "block";
 	document.getElementById("editItemPriceModalTitle").innerHTML = 'Edit <b>'+item.name+'</b>';
-	document.getElementById("editPriceModalActions").innerHTML = '<button type="button" class="btn btn-default" onclick="hideEditMenuItemPrice()" style="float: left">Cancel</button>'+
-                  												   '<button type="button" onclick="reviewItemPrice(\''+inCateogry+'\')" class="btn btn-success">Save</button>';
+	document.getElementById("editPriceModalActions").innerHTML = '<button class="btn btn-default" onclick="hideEditMenuItemPrice()" style="float: left">Cancel</button>'+
+                  												   '<button onclick="reviewItemPrice(\''+inCateogry+'\')" class="btn btn-success">Save</button>';
 
     //Check if More Options already added
     if((item.cookingTime && item.cookingTime != '') || (item.ingredients && item.ingredients.length > 0) || (item.shortCode && item.shortCode != '') || item.isPackaged){
@@ -238,14 +238,14 @@ function editItemPrice(encodedItem, inCateogry){
     		edit_addMoreOptions('RELOAD');
     	}
 
-		document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button>';
+		document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button>';
     }
     else{
     	document.getElementById("edit_moreOptionsArea").style.display = 'none';
     	document.getElementById("edit_more_options_customCode").value = '';
     	document.getElementById("edit_more_options_cookingTime").value = '';
     	document.getElementById("edit_more_options_ingredients").value = '';
-    	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>';
+    	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>';
     }
 	
 	if(item.isCustom){
@@ -671,15 +671,15 @@ function openNewMenuItem(category){
 
 	if(category){
 		document.getElementById("newItemModalTitle").innerHTML = "Add New <b>"+category+"</b>";
-		document.getElementById("newItemModalActions").innerHTML = '<button type="button" class="btn btn-default" onclick="hideNewMenuItem()" style="float: left">Cancel</button>'+
-                  								'<button type="button" onclick="readNewItem(\''+category+'\')" class="btn btn-success">Add</button>';
+		document.getElementById("newItemModalActions").innerHTML = '<button class="btn btn-default" onclick="hideNewMenuItem()" style="float: left">Cancel</button>'+
+                  								'<button onclick="readNewItem(\''+category+'\')" class="btn btn-success">Add</button>';
 	}
 		
 	document.getElementById("new_item_name").value = '';  
-
+	document.getElementById("new_item_manual_code").value = '';
 	document.getElementById("new_item_price").value = '';
 	document.getElementById("newMenuItemModal").style.display = "block";
-	$("#new_item_name").focus();
+	$("#new_item_manual_code").focus();
 }
 
 function hideNewMenuItem(){	
@@ -689,7 +689,7 @@ function hideNewMenuItem(){
 /*view more options*/
 function addMoreOptions(optionalSource){
 
-	document.getElementById("moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="removeMoreOptions()">Remove Options</button>';
+	document.getElementById("moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="removeMoreOptions()">Remove Options</button>';
 	
 	document.getElementById("moreOptionsArea").style.display = 'block';
 
@@ -777,7 +777,7 @@ function addIngredientToInput(name, id){
 /*view more options - EDIT */
 function edit_addMoreOptions(optionalSource){
 
-	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button>';
+	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button>';
 
 	document.getElementById("edit_moreOptionsArea").style.display = 'block';
 
@@ -868,13 +868,13 @@ function edit_addIngredientToInput(name, id){
 function removeMoreOptions(){
 	document.getElementById("ingredientsResetButton").style.display = 'none';
 	document.getElementById("moreOptionsArea").style.display = 'none';
-	document.getElementById("moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default" onclick="addMoreOptions()">More Options</button>';
+	document.getElementById("moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default" onclick="addMoreOptions()">More Options</button>';
 }
 
 function edit_removeMoreOptions(){
 	document.getElementById("edit_ingredientsResetButton").style.display = 'none';
 	document.getElementById("edit_moreOptionsArea").style.display = 'none';
-	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button type="button" style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>';	
+	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>';	
 }
 
 /* add new choice*/
@@ -937,7 +937,11 @@ function validateMenuItem(item){
 
 	var error = '';
 
-	if(item.name == ''){
+	if(item.code == '' || isNaN(item.code)){
+		error = 'Item Code has to be a valid number.';
+		return {'status': false, 'error': error}
+	}
+	else if(item.name == ''){
 		error = 'Item Name can not be empty.';
 		return {'status': false, 'error': error}
 	}
@@ -1003,19 +1007,6 @@ function saveItemToFile(category, item, editFlag) {
           if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
 
              	var mastermenu = data.docs[0].value;
-                var lastKey = 0; //To generate the item code
-
-                if (!editFlag) {
-                    for (var i = 0; i < mastermenu.length; i++) {
-                        for (var j = 0; j < mastermenu[i].items.length; j++) {
-                            if (mastermenu[i].items[j].code > lastKey) {
-                                lastKey = mastermenu[i].items[j].code;
-                            }
-                        }
-                    }
-
-                    item.code = parseInt(lastKey) + 1;
-                }
 
                 /*beautify item price if Custom item*/
                 if (item.isCustom) {
@@ -1881,8 +1872,8 @@ function deleteCategory(name) {
 
 
 function openDeleteConfirmation(type){
-	document.getElementById("deleteConfirmationConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="cancelDeleteConfirmation()" style="float: left">Cancel</button>'+
-                  							'<button type="button" class="btn btn-danger" onclick="deleteCategory(\''+type+'\')">Delete</button>';
+	document.getElementById("deleteConfirmationConsent").innerHTML = '<button class="btn btn-default" onclick="cancelDeleteConfirmation()" style="float: left">Cancel</button>'+
+                  							'<button class="btn btn-danger" onclick="deleteCategory(\''+type+'\')">Delete</button>';
 
 	document.getElementById("deleteConfirmationText").innerHTML = 'All the items in the <b>'+type+'</b> category will also be deleted. Are you sure want to delete this category?';
 	document.getElementById("categoryDeleteConfirmation").style.display = 'block';
@@ -2062,8 +2053,8 @@ function saveNewCategoryName(currentName){
 
 
 function openEditCategoryName(current){
-	document.getElementById("editCategoryNameConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="hideEditCategoryName()" style="float: left">Cancel</button>'+
-                  							'<button type="button" onclick="saveNewCategoryName(\''+current+'\')" class="btn btn-success">Save</button>';
+	document.getElementById("editCategoryNameConsent").innerHTML = '<button class="btn btn-default" onclick="hideEditCategoryName()" style="float: left">Cancel</button>'+
+                  							'<button onclick="saveNewCategoryName(\''+current+'\')" class="btn btn-success">Save</button>';
 	
 	document.getElementById("editCategoryNameArea").innerHTML = '<div class="row">'+
 	                        '<div class="col-lg-12">'+

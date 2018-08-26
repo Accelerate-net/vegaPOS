@@ -2321,10 +2321,10 @@ function settleBillAndPush(encodedBill, optionalPageRef){
               document.getElementById("billSettlementSplitDetailsContent").innerHTML = "";
 
               document.getElementById("billSettlementPreviewContentActions").innerHTML = '<div class="col-sm-4" style="padding: 0">'+
-                                                               '<button type="button" id="paymentOptionsListRenderClose" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Not Now</button>'+
+                                                               '<button id="paymentOptionsListRenderClose" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Not Now</button>'+
                                                             '</div>'+
                                                             '<div class="col-sm-8" style="padding: 0">'+
-                                                                '<button type="button" class="btn btn-success" id="paymentOptionsListRenderConfirm" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Confirm</button>'+
+                                                                '<button class="btn btn-success" id="paymentOptionsListRenderConfirm" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Confirm</button>'+
                                                             '</div>';
 
 

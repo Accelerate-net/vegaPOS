@@ -426,8 +426,8 @@ function pushToEditKOT(kotID){
               showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
               
               document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
-              document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Close</button>'+
-                                                      '<button type="button" class="btn btn-danger" onclick="overWriteCurrentOrderConsent(\''+(encodeURI(JSON.stringify(kot)))+'\')">Proceed to Over Write</button>';
+              document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Close</button>'+
+                                                      '<button class="btn btn-danger" onclick="overWriteCurrentOrderConsent(\''+(encodeURI(JSON.stringify(kot)))+'\')">Proceed to Over Write</button>';
           
               return '';
           }    

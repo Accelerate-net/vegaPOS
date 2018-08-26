@@ -3,8 +3,8 @@
 function openDeletePrinterConsent(name){
 
 	document.getElementById("deletePrinterConsentModalText").innerHTML = 'Are you sure want to remove the Printer <b>'+name+'</b> from the list?';
-	document.getElementById("deletePrinterConsentModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="hideDeletePrinterConsent()" style="float: left">Cancel</button>'+
-                  							'<button type="button" class="btn btn-danger" onclick="deletePrinterProfile(\''+name+'\')">Delete</button>';
+	document.getElementById("deletePrinterConsentModalConsent").innerHTML = '<button  class="btn btn-default" onclick="hideDeletePrinterConsent()" style="float: left">Cancel</button>'+
+                  							'<button  class="btn btn-danger" onclick="deletePrinterProfile(\''+name+'\')">Delete</button>';
 	
 	document.getElementById("deletePrinterConsentModal").style.display = "block";
 
