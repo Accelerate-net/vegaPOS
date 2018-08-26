@@ -1019,31 +1019,28 @@ function saveItemToFile(category, item, editFlag) {
 
                 /*beautify item price if Custom item*/
                 if (item.isCustom) {
-                    var min = 0;
+                    var min = 0;  //Index of min and max values.
                     var max = 0;
-                    var i = 0;
-                    while (item.customOptions[i]) {
-                        if (i == 0) {
-                            min = item.customOptions[i].customPrice;
+                    var g = 0;
+                    while (item.customOptions[g]) {
+                        if (parseInt(item.customOptions[g].customPrice) > parseInt(item.customOptions[max].customPrice)) {
+                            max = g;
+                        }
+                        if (parseInt(item.customOptions[min].customPrice) > parseInt(item.customOptions[g].customPrice)) {
+                            min = g;
                         }
 
-                        if (max < item.customOptions[i].customPrice) {
-                            max = item.customOptions[i].customPrice;
+                        //Last iteration
+                        if(g == item.customOptions.length - 1){
+                        	if (item.customOptions[min].customPrice != item.customOptions[max].customPrice) {
+		                        item.price = item.customOptions[min].customPrice + '-' + item.customOptions[max].customPrice;
+		                    } else {
+		                        item.price = item.customOptions[max].customPrice;
+		                    }
                         }
 
-                        if (min > item.customOptions[i].customPrice) {
-                            min = item.customOptions[i].customPrice;
-                        }
-
-                        i++;
+                        g++;
                     }
-
-                    if (min < max) {
-                        item.price = min + '-' + max;
-                    } else {
-                        item.price = max;
-                    }
-
                 }
 
 
@@ -1076,7 +1073,7 @@ function saveItemToFile(category, item, editFlag) {
 	                  dataType: 'json',
 	                  timeout: 10000,
 	                  success: function(data) {
-	                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+	                  	showToast('Success! <b>'+ item.name +'</b> is added to the Menu.', '#27ae60');
 	                  	openSubMenu(category);
 	                  },
 	                  error: function(data) {
@@ -1126,7 +1123,7 @@ function saveItemToFile(category, item, editFlag) {
 				                  dataType: 'json',
 				                  timeout: 10000,
 				                  success: function(data) {
-				                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+				                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
 				                  	openSubMenu(category);
 				                  },
 				                  error: function(data) {
@@ -1163,7 +1160,7 @@ function saveItemToFile(category, item, editFlag) {
 			                  dataType: 'json',
 			                  timeout: 10000,
 			                  success: function(data) {
-			                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+			                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
 			                  	openSubMenu(category);
 			                  },
 			                  error: function(data) {
@@ -1198,7 +1195,7 @@ function saveItemToFile(category, item, editFlag) {
 		                  dataType: 'json',
 		                  timeout: 10000,
 		                  success: function(data) {
-		                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+		                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
 		                  	openSubMenu(category);
 		                  },
 		                  error: function(data) {
@@ -1315,7 +1312,7 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 	                  dataType: 'json',
 	                  timeout: 10000,
 	                  success: function(data) {
-	                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+	                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
 	                  	openSubMenu(category);
 	                  },
 	                  error: function(data) {
@@ -1365,7 +1362,7 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 				                  dataType: 'json',
 				                  timeout: 10000,
 				                  success: function(data) {
-				                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+				                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
 				                  	openSubMenu(category);
 				                  },
 				                  error: function(data) {
@@ -1402,7 +1399,7 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 			                  dataType: 'json',
 			                  timeout: 10000,
 			                  success: function(data) {
-			                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+			                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
 			                  	openSubMenu(category);
 			                  },
 			                  error: function(data) {
@@ -1437,7 +1434,7 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 		                  dataType: 'json',
 		                  timeout: 10000,
 		                  success: function(data) {
-		                  	showToast('Success! ' + item.name + ' is added to the Menu.', '#27ae60');
+		                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
 		                  	openSubMenu(category);
 		                  },
 		                  error: function(data) {
