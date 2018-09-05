@@ -1625,7 +1625,7 @@ function getOnlineOrdersCount() {
       //Refresh Badge Counts
       var admin_data = {};
       admin_data.token = window.localStorage.loggedInAdmin;  
-      admin_data.status = 1;
+      admin_data.status = 0;
       
       $.ajax({
         type: 'POST',

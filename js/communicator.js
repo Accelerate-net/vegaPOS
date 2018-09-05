@@ -264,7 +264,7 @@ else if(orderObject.orderDetails.modeType == 'PARCEL'){
       billHeaderRender = userInfo +                
                   '<td style="vertical-align: top">'+
                      '<p style=" text-align: right; float: right">'+
-                        '<tag class="serviceType">'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? 'PREPAID' : 'CASH')+'</tag>'+
+                        '<tag class="serviceType">CASH</tag>'+
                         '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
                         '<tag class="tokenNumber" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">'+orderObject.orderDetails.reference+'</tag>'+
                         '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
@@ -428,12 +428,12 @@ var n = 0;
 while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
-                  '<td>'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+
+                  '<td><span style="font-size:18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
                   (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
                   '</td>'+
                   '<td style="text-align: right">'+
                      '<p>'+
-                        '<tag class="itemQuantity">'+orderObject.cart[n].qty+'</tag>'+
+                        '<tag class="itemQuantity" style="font-size:18px">'+orderObject.cart[n].qty+'</tag>'+
                      '</p>'+
                   '</td>'+
                '</tr>'
@@ -471,9 +471,6 @@ total_items = n;
 
 
 var html_template = ''+
-      '<div id="logo">'+
-        '<center><img src=\''+data_custom_header_image+'\'/></center>'+
-      '</div>'+
       '<div class="KOTHeader">'+
          '<table style="width: 100%">'+
             '<col style="width: 33%">'+

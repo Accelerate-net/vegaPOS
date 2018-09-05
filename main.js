@@ -219,19 +219,23 @@ ipc.on("readyToPrintBillDocument", (event, printer_list) => {
 
     var pageSettingsSilent = printer_list[0].settings;
 
-    workerWindow.webContents.printToPDF(pageSettingsSilent, function (error, data) {
-        if (error) throw error
-        fs.writeFile(pdfPath, data, function (error) {
-            if (error) {
-                throw error
-            }
-            shell.openItem(pdfPath)
-            event.sender.send('wrote-pdf', pdfPath)
-        })
-    })
+    // workerWindow.webContents.printToPDF(pageSettingsSilent, function (error, data) {
+    //     if (error) throw error
+    //     fs.writeFile(pdfPath, data, function (error) {
+    //         if (error) {
+    //             throw error
+    //         }
+    //         shell.openItem(pdfPath)
+    //         event.sender.send('wrote-pdf', pdfPath)
+    //     })
+    // })
 
-    // workerWindow.webContents.print(pageSettingsSilent);
+    workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
+        if (error) throw error
+    })
 });
+
+
 
 
 /* Get Printers List */
@@ -262,6 +266,7 @@ ipc.on('generatePDFReportA4', function(event, html_content, report_title){
   win.loadURL("data:text/html;charset=utf-8," + encodeURI(html_content));
 
   win.webContents.on('did-finish-load', () => {
+
       win.webContents.printToPDF(pageSettings, (error, data) => {
       
         if(error){
@@ -314,32 +319,37 @@ ipc.on('printSmallReport', function(event, html_content, selected_printers){
     return '';
   }
 
-
-  const pdfPath = path.join(os.tmpdir(), 'print.pdf')
+  //const pdfPath = path.join(os.tmpdir(), 'print.pdf')
   const win = new BrowserWindow({show : false, width: 800, height: 600});
   win.hide();
   win.loadURL("data:text/html;charset=utf-8," + encodeURI(html_content));
 
   win.webContents.on('did-finish-load', () => {
-      win.webContents.printToPDF(pageSettingsSilent, (error, data) => {
-      
-        if(error){
-          return ''
-        }
-        else{
-          fs.writeFile(pdfPath, data, function(error){
-            if(error){
-              return '';
-            }
-            else{
-                shell.openExternal('file://'+pdfPath);
-                win.close();
-                win == null;
-            }
-          })
-        }
 
-      })
+    win.webContents.print(pageSettingsSilent,  function (error, data) {
+        if (error) throw error
+    })
+
+      // win.webContents.printToPDF(pageSettingsSilent, (error, data) => {
+      
+      //   if(error){
+      //     return ''
+      //   }
+      //   else{
+      //     fs.writeFile(pdfPath, data, function(error){
+      //       if(error){
+      //         return '';
+      //       }
+      //       else{
+      //           shell.openExternal('file://'+pdfPath);
+      //           win.close();
+      //           win == null;
+      //       }
+      //     })
+      //   }
+      // })
+
+      
   })
 
 });
