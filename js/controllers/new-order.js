@@ -60,9 +60,14 @@ function additemtocart(encodedItem, optionalSource){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
-			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
-			return '';
+		if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+
+		}
+		else{
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
+				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+				return '';
+			}			
 		}
 	}
 
@@ -229,11 +234,18 @@ function deleteItem(item, isCustom, variant){
 	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
-		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
-			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
-			return '';
+
+		if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+
 		}
+		else{
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
+				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+				return '';
+			}		
+		}
+
+		
 	}
 
 
@@ -315,10 +327,17 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
-			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
-			return '';
+
+		if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+
 		}
+		else{
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
+				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+				return '';
+			}	
+		}
+
 	}
 
 
@@ -472,11 +491,20 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	var disableQuantityChange = false;
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
-		
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
-			disableQuantityChange = true;
-			//to prevent changes
-		}
+
+
+			if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+
+			}
+			else{
+				if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
+					disableQuantityChange = true;
+					//to prevent changes
+				}
+			}
+
+
+
 	}
 
 
@@ -1541,7 +1569,7 @@ function openHeldOrderConfirm(encodedItem, id){
 	window.localStorage.zaitoon_cart = '';
 	window.localStorage.customerData = '';
 
-	addHoldOrderToCurrent(encodedItem);
+	addHoldOrderToCurrent(encodedItem, id);
 
 	confirmHoldOverWritingModalHide();
 
@@ -1589,6 +1617,7 @@ function addToHoldKOT(){
 	          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
 
 					var holding_orders = data.docs[0].value;
+					console.log('Current:', holding_orders)
 
 					var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData): [];
 					var product_cart = window.localStorage.zaitoon_cart ? JSON.parse(window.localStorage.zaitoon_cart): [];
@@ -1607,8 +1636,9 @@ function addToHoldKOT(){
 					new_holding_order.cartDetails = product_cart;
 					new_holding_order.timestamp = time;
 
-
 						holding_orders.push(new_holding_order);
+
+						console.log('Updated:', holding_orders)
 
 	                    //Update
 	                    var updateData = {
@@ -1963,11 +1993,18 @@ function clearCart(){
 		//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
 		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
-			
-			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
-				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
-				return '';
+
+			if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+
 			}
+			else{
+				if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
+					showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+					return '';
+				}
+			}
+
+			
 		}
 
 		window.localStorage.zaitoon_cart = "";
@@ -1981,10 +2018,16 @@ function clearCartConsent(){
 		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
-				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
-				return '';
+			if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+
 			}
+			else{
+				if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
+					showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+					return '';
+				}
+			}			
+
 		}
 
 		document.getElementById("clearCartConsentModal").style.display = "block";
@@ -2193,7 +2236,7 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 						}
 					}
 				
-				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\')"><p class="holdTableName">'+(holding_orders[n].customerDetails.modeType == 'DINE' ? 'Table '+(holding_orders[n].customerDetails.mappedAddress ? '#'+holding_orders[n].customerDetails.mappedAddress : 'Unknown') : holding_orders[n].customerDetails.modeType+(holding_orders[n].customerDetails.name != '' ? ' <tag style="font-weight: 300; font-size: 90%">('+holding_orders[n].customerDetails.name+')</tag>' : '')  )+
+				holdListRender += '<a href="#" onclick="addHoldOrderToCurrent(\''+encodeURI(JSON.stringify(holding_orders[n]))+'\', '+n+')"><p class="holdTableName">'+(holding_orders[n].customerDetails.modeType == 'DINE' ? 'Table '+(holding_orders[n].customerDetails.mappedAddress ? '#'+holding_orders[n].customerDetails.mappedAddress : 'Unknown') : holding_orders[n].customerDetails.modeType+(holding_orders[n].customerDetails.name != '' ? ' <tag style="font-weight: 300; font-size: 90%">('+holding_orders[n].customerDetails.name+')</tag>' : '')  )+
 									'<tag class="holdTimeAgo">'+getFormattedTime(holding_orders[n].timestamp)+' ago</tag></p>'+
 									'<p class="holdItemsBrief">'+itemList+'</p>'+
 								  '</a>';
@@ -3016,7 +3059,7 @@ function renderTables(){
 																					        	'</tag>';	
 														}
 														else if(tables[i].status == 2){
-															renderTableArea = renderTableArea + '<tag class="tableTileYellow'+smallTableFlag+'" style="cursor: pointer" onclick="preSettleBill(\''+tables[i].KOT+'\', \'ORDER_PUNCHING\')">'+
+															renderTableArea = renderTableArea + '<tag class="tableTileYellow'+smallTableFlag+'" style="cursor: pointer" onclick="pickTableForNewOrderHide(); preSettleBill(\''+tables[i].KOT+'\', \'ORDER_PUNCHING\')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">'+(currentTableID != '' && currentTableID == tables[i].table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Billed')+'</tag>'+
@@ -3118,7 +3161,6 @@ function renderTables(){
 
 function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSaveFlag){
 
-
 	/* warn if unsaved order (Not editing case) */
 	if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){
 	    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
@@ -3179,6 +3221,67 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 		freshOrderOnTable(tableID, optionalCustomerName, optionalSaveFlag);
 	}
 }
+
+
+
+function retrieveTableInfoForNewOrder(tableID){
+
+	/* warn if unsaved order (Not editing case) */
+	if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){
+	    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+	        showToast('Warning! There is an unsaved order being punched. Please complete it to continue.', '#e67e22');
+	        
+	       // document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
+	        //document.getElementById("overWriteCurrentOrderModalConsent").innerHTML = '<button  class="btn btn-default" onclick="overWriteCurrentOrderModalClose()" style="float: left">Cancel and Complete the New Order</button>'+
+	          //                                      '<button  class="btn btn-danger" onclick="overWriteCurrentOrder(\''+encodedKOT+'\')">Proceed to Over Write</button>';
+	    	return '';
+	    }    
+	}
+	
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                  },
+		      "fields"    : ["_rev", "identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+			          var tableMapping = data.docs[0].value;
+			          for(var i=0; i<tableMapping.length; i++){
+			          	if(tableMapping[i].table == tableID){
+			          		moveToEditKOT(tableMapping[i].KOT);
+			          	}
+			          }
+		                
+
+		              pickTableForNewOrderHide();
+		          }
+		          else{
+		            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+
+		      },
+		      error: function(data) {
+		        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+		      }
+
+		    });
+}
+
 
 
 /*Add to edit KOT*/
@@ -4638,13 +4741,11 @@ function clearAllMetaData(){
 
 function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 
-
 	/* skip if in Editing Mode & has unsaved changes */
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != '' && window.localStorage.hasUnsavedChangesFlag == 1){
 		showToast('Warning: There are unsaved changes. Print the changed KOT to continue.', '#e67e22');
 		return '';
 	}
-
 
 	//to remove cart info, customer info
 	var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
@@ -4683,7 +4784,6 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 	customerInfo.reference = "";
 	customerInfo.isOnline = false;
 
-
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 	window.localStorage.edit_KOT_originalCopy = '';
 
@@ -4708,8 +4808,14 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 
 						var n = 0;
 						while(holding_orders[n]){
+
 							if(holding_orders[n].customerDetails.mappedAddress == TableNumber){
-								addHoldOrderToCurrent(encodeURI(JSON.stringify(holding_orders[n])));
+								
+								window.localStorage.edit_KOT_originalCopy = '';
+								window.localStorage.zaitoon_cart = '';
+								window.localStorage.customerData = '';
+
+								addHoldOrderToCurrent(encodeURI(JSON.stringify(holding_orders[n])), n);
 								return '';
 							}
 							n++;
@@ -4721,23 +4827,24 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 		    });	
 	}
 	else{
+
 		window.localStorage.zaitoon_cart = '';
+	
+		window.localStorage.userAutoFound = '';
+		window.localStorage.userDetailsAutoFound = '';
+		window.localStorage.specialRequests_comments = '';
+		window.localStorage.allergicIngredientsData = '[]';
+
+
+		window.localStorage.hasUnsavedChangesFlag = 0;
+	 	//document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+		renderCart();
+		renderCustomerInfo();
+		renderTables();
+
+		$('#add_item_by_search').focus();
 	}
-
-	window.localStorage.userAutoFound = '';
-	window.localStorage.userDetailsAutoFound = '';
-	window.localStorage.specialRequests_comments = '';
-	window.localStorage.allergicIngredientsData = '[]';
-
-
-	window.localStorage.hasUnsavedChangesFlag = 0;
- 	//document.getElementById("leftdiv").style.borderColor = "#FFF";
-
-	renderCart();
-	renderCustomerInfo();
-	renderTables();
-
-	$('#add_item_by_search').focus();
 }
 
 
@@ -5075,14 +5182,14 @@ function pickTableForNewOrder(currentTableID){
 
 								              			if(mytable.status != 0){ /*Occuppied*/
 															if(mytable.status == 1){
-								              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+								              					renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+'" onclick="retrieveTableInfoForNewOrder(\''+mytable.table+'\')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
 																					        	'</tag>';	
 															}	
 															else if(mytable.status == 2){
-																renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable'+smallTableFlag+'">'+
+																renderTableArea = renderTableArea + '<tag onclick="pickTableForNewOrderHide(); preSettleBill(\''+mytable.KOT+'\', \'ORDER_PUNCHING\')" class="tableTileYellow'+smallTableFlag+'">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
@@ -5092,21 +5199,21 @@ function pickTableForNewOrder(currentTableID){
 																if(currentTableID != '' && currentTableID == mytable.table){
 									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? (mytable.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.assigned) : "-")+'</tag>'+
 																						            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																						        	'</tag>';	
 																}	
 																else{
-									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="pickTableForNewOrderHide(); retrieveTableInfo(\''+mytable.table+'\', \'FREE\', \''+(mytable.assigned != "" && mytable.assigned != "Hold Order" ? mytable.assigned : '')+'\', '+(mytable.assigned != "" && mytable.assigned == "Hold Order" ? 1 : 0)+')">'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? (mytable.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.assigned) : "-")+'</tag>'+
 																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																						        	'</tag>';	
 																}
 
 															}									
 															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+								              				renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+'" onclick="retrieveTableInfoForNewOrder(\''+mytable.table+'\')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
@@ -5210,14 +5317,14 @@ function pickTableForNewOrder(currentTableID){
 													if(searchField != ''){ //Searched Case
 								              			if(mytable.status != 0){ /*Occuppied*/
 															if(mytable.status == 1){
-								              					renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileRedDisable'+smallTableFlag+'">'+
+								              					renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileRed'+smallTableFlag+'" onclick="retrieveTableInfoForNewOrder(\''+mytable.table+'\')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
 																					        	'</tag>';	
 															}	
 															else if(mytable.status == 2){
-																renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileYellowDisable'+smallTableFlag+'">'+
+																renderTableArea = renderTableArea + '<tag onclick="pickTableForNewOrderHide(); preSettleBill(\''+mytable.KOT+'\', \'ORDER_PUNCHING\')" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileYellow'+smallTableFlag+'">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
@@ -5228,22 +5335,22 @@ function pickTableForNewOrder(currentTableID){
 									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
 									              													'<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
 																						            '<tag class="tableTitle'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+mytable.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important">'+(mytable.assigned != ""? (mytable.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.assigned) : "-")+'</tag>'+
 																						            '<tag class="tableInfo'+smallTableFlag+'" style="color: '+(shortlistFlag ? '#FFF' : '#2775a9')+' !important"><i class="fa fa-check"></i></tag>'+
 																						        	'</tag>';	
 																}	
 																else{
-									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableReserved'+smallTableFlag+'" onclick="pickTableForNewOrderHide(); retrieveTableInfo(\''+mytable.table+'\', \'FREE\', \''+(mytable.assigned != "" && mytable.assigned != "Hold Order" ? mytable.assigned : '')+'\', '+(mytable.assigned != "" && mytable.assigned == "Hold Order" ? 1 : 0)+')">'+
 																						            '<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != "" ? (mytable.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.assigned) : "-")+'</tag>'+
 																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																						        	'</tag>';	
 																}
 
 															}									
 															else{
-								              				renderTableArea = renderTableArea + '<tag class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileRedDisable'+smallTableFlag+'">'+
+								              				renderTableArea = renderTableArea + '<tag onclick="retrieveTableInfoForNewOrder(\''+mytable.table+'\')" class="'+(shortlistFlag ? '' : 'temporaryTableNotFiltered')+' tableTileRed'+smallTableFlag+'">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
@@ -5275,14 +5382,14 @@ function pickTableForNewOrder(currentTableID){
 													else{
 								              			if(mytable.status != 0){ /*Occuppied*/
 															if(mytable.status == 1){
-								              					renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+								              					renderTableArea = renderTableArea + '<tag onclick="retrieveTableInfoForNewOrder(\''+mytable.table+'\')" class="tableTileRed'+smallTableFlag+'">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
 																					        	'</tag>';	
 															}	
 															else if(mytable.status == 2){
-																renderTableArea = renderTableArea + '<tag class="tableTileYellowDisable'+smallTableFlag+'">'+
+																renderTableArea = renderTableArea + '<tag onclick="pickTableForNewOrderHide(); preSettleBill(\''+mytable.KOT+'\', \'ORDER_PUNCHING\')" class="tableTileYellow'+smallTableFlag+'">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Billed</tag>'+
@@ -5292,21 +5399,21 @@ function pickTableForNewOrder(currentTableID){
 																if(currentTableID != '' && currentTableID == mytable.table){
 									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableTileBlue'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? (mytable.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.assigned) : "-")+'</tag>'+
 																						            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																						        	'</tag>';	
 																}	
 																else{
-									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="setCustomerInfoTable(\''+mytable.table+'\')">'+
+									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="pickTableForNewOrderHide(); retrieveTableInfo(\''+mytable.table+'\', \'FREE\', \''+(mytable.assigned != "" && mytable.assigned != "Hold Order" ? mytable.assigned : '')+'\', '+(mytable.assigned != "" && mytable.assigned == "Hold Order" ? 1 : 0)+')">'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? "For "+mytable.assigned : "-")+'</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.assigned != ""? (mytable.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.assigned) : "-")+'</tag>'+
 																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																						        	'</tag>';	
 																}
 
 															}									
 															else{
-								              				renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+								              				renderTableArea = renderTableArea + '<tag onclick="retrieveTableInfoForNewOrder(\''+mytable.table+'\')" class="tableTileRed'+smallTableFlag+'">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.table+'</tag>'+
 																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.capacity+' Seater</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
@@ -6042,10 +6149,17 @@ function addCommentToItem(itemCode, variant){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-		if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
-			showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
-			return '';
-		}
+			if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+
+			}
+			else{
+				if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
+					showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+					return '';
+				}
+			}	
+
+
 	}
 
 

@@ -5086,7 +5086,7 @@ input:checked + .slider:before {
 }
 
 .temporaryTableSelection{
-  border-bottom: 2px solid #24a25a !important;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.3) !important;
 }
 
 .currentTableSelectionCaretIcon{
