@@ -20,7 +20,7 @@ function renderOnlineOrders(){
 
 
 	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Pending Orders</h3>'+
-																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderOnlineOrders()">Refresh</button>';
+																'<button class="btn btn-success btn-sm" id="triggerClick_refreshOnlineButton_Pending" style="float: right" onclick="renderOnlineOrders()">Refresh</button>';
 
 	document.getElementById("orderInfo").innerHTML = '';
 	document.getElementById("onlineOrders").innerHTML = '';
@@ -111,7 +111,7 @@ function renderLiveOnlineOrders(){
 	$("#onlineOrders_completed").removeClass("billTypeSelectionBox");
 
 	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Confirmed Orders</h3>'+
-																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderLiveOnlineOrders()">Refresh</button>';
+																'<button class="btn btn-success btn-sm" style="float: right" id="triggerClick_refreshOnlineButton_Live" onclick="renderLiveOnlineOrders()">Refresh</button>';
 
 
 	document.getElementById("orderInfo").innerHTML = '';
@@ -195,7 +195,7 @@ function renderCompletedOnlineOrders(){
 	if(filterDateApplied == ''){
 		filterDateApplied = todayDate;
 		document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Today\'s Completed Orders<tag class="onlineOrderDateSelection" onclick="openFilterDateOnlineOrders()"><i class="fa fa-calendar"></i></tag></h3>'+
-																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderCompletedOnlineOrders()">Refresh</button>';
+																'<button class="btn btn-success btn-sm" style="float: right" id="triggerClick_refreshOnlineButton_Completed" onclick="renderCompletedOnlineOrders()">Refresh</button>';
 	}
 	else{
 		document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Completed Orders on <input type="text" class="onlineOrderDateSelectionOnDate" id="onlineOrderDateSelectionOnDateValue" value="'+filterDateApplied+'" onchange="applyFilterDateOnlineOrders()"><tag class="onlineOrderDateSelection" onclick="undoFilterDateOnlineOrders()"><i class="fa fa-undo"></i></tag></h3>';
@@ -539,6 +539,8 @@ function fetchOrderDetails(orderID){
 function renderSystemOrderDisplay(orderObj, mappingObject){
 
 			document.getElementById("renderOnlineOrderArea").style.display = 'block';
+			document.getElementById("responseActionsBar").innerHTML = '';
+
 			$("#onlineOrders>tr.onlineOrderListingBorder").removeClass("onlineOrderListingBorder");
 			$("#onlineLiveListing_"+orderObj.orderDetails.reference).addClass("onlineOrderListingBorder");
 
@@ -707,23 +709,104 @@ function dispatchOnlineOrder(encodedMapping){
 
 function markReadyOnlineOrder(encodedMapping){
 	var mappingObject = JSON.parse(decodeURI(encodedMapping));
+
+
+	//Send request to CLOUD SERVER
+	sendConfirmationResponseToCloud(mappingObject.onlineOrder)
+
+	function sendConfirmationResponseToCloud(orderID){
+
+      var data = {
+        "token": window.localStorage.loggedInAdmin,
+        "id": orderID,
+        "agent": ""
+      }
+
+      showLoading(10000, 'Updating Order Status');
+
+      $.ajax({
+        type: 'POST',
+        url: 'https://www.zaitoon.online/services/posdispatchorder.php',
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+
+          hideLoading();
+
+          if(data.status){
+            readyOrderAfterProcess();
+          }
+          else{
+            showToast('Cloud Server Error: ' + data.error, '#e74c3c');
+            return '';
+          }
+        },
+        error: function(data){
+          hideLoading();
+          showToast('Failed to reach Cloud Server. Please check your connection.', '#e74c3c');
+          return '';
+        }
+      });    		
+	}
+
+	function readyOrderAfterProcess(){		
+		updateOnlineOrdersMappingDispatch(mappingObject._id, "", "");
+	 	selectDeliveryBoyWindowClose();
+	}	
 }
 
 function dispatchOnlineOrderAfterProcess(encodedMapping, agentCode, agentName){
-	console.log('DISPATCHING....', agentCode)
-	//Send request to CLOUD SERVER
-	
-
-
 
 	var mappingObject = JSON.parse(decodeURI(encodedMapping));
-	console.log(mappingObject);
 
+	//Send request to CLOUD SERVER
+	sendConfirmationResponseToCloud(mappingObject.onlineOrder, agentCode)
 
-	updateSystemBillAgent(mappingObject.systemBill, agentCode, agentName, mappingObject.systemStatus);
-	updateOnlineOrdersMappingDispatch(mappingObject._id, agentName, agentCode);
+	function sendConfirmationResponseToCloud(orderID, agentCode){
 
- 	selectDeliveryBoyWindowClose();
+      var data = {
+        "token": window.localStorage.loggedInAdmin,
+        "id": orderID,
+        "agent": agentCode
+      }
+
+      showLoading(10000, 'Dispatching Order');
+
+      $.ajax({
+        type: 'POST',
+        url: 'https://www.zaitoon.online/services/posdispatchorder.php',
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+
+          hideLoading();
+
+          if(data.status){
+            dispatchAfterProcess();
+          }
+          else{
+            showToast('Cloud Server Error: ' + data.error, '#e74c3c');
+            return '';
+          }
+        },
+        error: function(data){
+          hideLoading();
+          showToast('Failed to reach Cloud Server. Please check your connection.', '#e74c3c');
+          return '';
+        }
+      });    		
+	}
+
+	function dispatchAfterProcess(){		
+		updateSystemBillAgent(mappingObject.systemBill, agentCode, agentName, mappingObject.systemStatus);
+		updateOnlineOrdersMappingDispatch(mappingObject._id, agentName, agentCode);
+
+	 	selectDeliveryBoyWindowClose();
+	}	
 }
 
 function updateOnlineOrdersMappingDispatch(id, name, code){
@@ -756,7 +839,11 @@ function updateOnlineOrdersMappingDispatch(id, name, code){
 		                  dataType: 'json',
 		                  timeout: 10000,
 		                  success: function(data) {
-		                      showToast('Delivery agent <b>'+name+'</b> assigned', '#27ae60');
+		                  	  if(name && name != '')
+		                      	showToast('Delivery agent <b>'+name+'</b> assigned', '#27ae60');
+		                      else
+		                      	showToast('Order Status updated', '#27ae60');
+
 		                      renderLiveOnlineOrders();
 		                  },
 		                  error: function(data) {
@@ -955,12 +1042,54 @@ function punchOnlineOrderToKOT(encodedOrder){
 	     
 	}
 
-	window.localStorage.specialRequests_comments = (order.comments && order.comments != '' ? order.comments : '');
 
-	window.localStorage.zaitoon_cart = JSON.stringify(cart);
-	window.localStorage.customerData = JSON.stringify(customerInfo);
+	//Confirm Online (Update Cloud Server)
+	sendConfirmationResponseToCloud(order.orderID);
 
-	renderPage('new-order', 'Punch Order');
+	function sendConfirmationResponseToCloud(orderID){
+
+      var data = {
+        "token": window.localStorage.loggedInAdmin,
+        "id": orderID
+      }
+
+      showLoading(10000, 'Confirming Order');
+
+      $.ajax({
+        type: 'POST',
+        url: 'https://www.zaitoon.online/services/posconfirmorder.php',
+        data: JSON.stringify(data),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+
+          hideLoading();
+
+          if(data.status){
+            proceedToPunchOrder();
+          }
+          else{
+            showToast('Cloud Server Error: ' + data.error, '#e74c3c');
+            return '';
+          }
+        },
+        error: function(data){
+          hideLoading();
+          showToast('Failed to reach Cloud Server. Please check your connection.', '#e74c3c');
+          return '';
+        }
+      });    		
+	}
+
+	function proceedToPunchOrder(){
+		window.localStorage.specialRequests_comments = (order.comments && order.comments != '' ? order.comments : '');
+
+		window.localStorage.zaitoon_cart = JSON.stringify(cart);
+		window.localStorage.customerData = JSON.stringify(customerInfo);
+
+		renderPage('new-order', 'Punch Order');
+	}
 }
 
 
@@ -989,7 +1118,7 @@ function selectDeliveryBoyWindow(encodedMapping){
               users.sort(); //alphabetical sorting 
 
               if(users.length == 0){
-                showToast('Warning: No User registered yet.', '#e67e22');
+                showToast('Warning: No Staff registered yet.', '#e67e22');
                 return '';
               }
 

@@ -184,6 +184,7 @@ function applyLicenceTerms(){
                   document.getElementById("applicationExpireLock").style.display = 'none';
 
                   window.localStorage.accelerate_licence_number = machinesList[n].licence;
+                  window.localStorage.accelerate_licence_branch = machinesList[n].branch;
                   window.localStorage.accelerate_licence_machineUID = machinesList[n].machineUID;
                   window.localStorage.appCustomSettings_SystemName = machinesList[n].machineCustomName;
                   window.localStorage.accelerate_licence_online_enabled = machinesList[n].isOnlineEnabled ? 1 : 0;
@@ -863,137 +864,164 @@ function initialiseKeyboardShortcuts(){
 
         case "Show Spotlight Search":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                showSpotlight();
-                return false;
-            })
+            showSpotlight();
+            return false;
+          })
 
           break;
         }
-        case "Punch Item":{
+        case "Select Billing Mode":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#add_item_by_search").focus();
-                return false;
-            })
+            if(currentRunningPage == 'new-order'){
+              $('#customer_form_data_mode').click();
+            }
+            
+            return false;
+          })
 
           break;
         }
-        case "Change Quantity":{
+        case "Set Table/Address":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
+            $("#triggerClick_TableAddressButton").click();
+            return false;
+          })
 
           break;
         }
-        case "Delete Item":{
+        case "Focus Guest Details":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
+            $('#customer_form_data_mobile').focus().val($('#customer_form_data_mobile').val());
+            return false;
+          })
 
           break;
         }
-        case "Print Items View":{
+        case "Focus Item Search":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
+            $('#add_item_by_search').focus().val($('#add_item_by_search').val());
+            return false;
+          })
+
+          break;
+        }
+        case "Set Special Comments":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_SpecialRequestsButton").click();
+            return false;
+          })
+
+          break;
+        }
+        case "Save Current Order":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_saveOrderButton").click();
+            return false;
+          })
+
+          break;
+        }
+        case "Close Order":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_closeOrderButton").click();
+            return false;
+          })
+
+          break;
+        }
+        case "Cancel Order":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_cancelOrderButton").click();
+            return false;
+          })
 
           break;
         }
         case "Print KOT":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_PrintKOTButton").click();
-                return false;
-            })
+            $("#triggerClick_PrintKOTButton").click();
+            return false;
+          })
           break;
         }
         case "Print Bill":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_PrintBillButton").click();
-                return false;
-            })
+            $("#triggerClick_PrintBillButton").click();
+            return false;
+          })
           break;
         }
-        case "Close Preview":{
+        case "Print Duplicate Bill":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_HideCartButton").click();
-                return false;
-            })
-
+            $("#triggerClick_PrintDuplicateBillButton").click();
+            return false;
+          })
           break;
         }
-        case "Shift Table":{
+        case "Settle Bill":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
-
+            $("#triggerClick_settleBillButton").click();
+            return false;
+          })
           break;
         }
-        case "Recent Printed Bills":{
+        case "Assign Delivery Agent":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
-
+            $("#triggerClick_AssignAgentButton").click();
+            return false;
+          })
           break;
         }
-        case "Cancel Bill":{
-          Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
-
-          break;
-        } 
         case "Issue Refund":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
-
-          break;
-        } 
-        case "Table View":{
-          Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_TableAddressButton").click();
-                return false;
-            })
-
+            $("#triggerClick_IssueRefundButton").click();
+            return false;
+          })
           break;
         }
-        case "Go to Settings":{
+        case "Cancel Invoice":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_TableAddressButton").click();
-                return false;
-            })
-
+            $("#triggerClick_CancelInvoiceButton").click();
+            return false;
+          })
           break;
         }
         case "Refresh Application":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_TableAddressButton").click();
-                return false;
-            })
-
+            renderPage('new-order', 'Punch Order');
+            return false;
+          })
           break;
         }
-        case "Change Billing Mode":{
+        case "Refresh Online Orders":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                if(currentRunningPage == 'new-order'){
-                  $('#customer_form_data_mode').click();
-                }
-                return false;
-            })
 
+            if($('#onlineOrders_incoming').hasClass('billTypeSelectionBox')){
+              $("#triggerClick_refreshOnlineButton_Pending").click();
+            }
+            else if($('#onlineOrders_live').hasClass('billTypeSelectionBox')){
+              $("#triggerClick_refreshOnlineButton_Live").click();
+            }
+            else if($('#onlineOrders_completed').hasClass('billTypeSelectionBox')){
+              $("#triggerClick_refreshOnlineButton_Completed").click();
+            }
+            
+            return false;
+          })
+          break;
+        }
+        case "Go to All Bills":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            renderPage('settled-bills', 'Generated Bills');
+            return false;
+          })
           break;
         }
         case "Switch User":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#currentUserProfileDisplay").click();
-                return false;
-            })
+            $("#currentUserProfileDisplay").click();
+            return false;
+          })
 
           break;
         }
@@ -1161,7 +1189,7 @@ $(function () {
 function pingServer(){
 
       var admin_data = {
-        "token": window.localStorage.loggedInAdmin,
+        "token": window.localStorage.loggedInAdmin
       }
 
       $.ajax({
@@ -1672,7 +1700,7 @@ function getOnlineOrdersCount() {
 
   var t = setTimeout(function() {
     getOnlineOrdersCount()
-  }, 60000); 
+  }, 30000); 
 }
 
 
@@ -2503,11 +2531,11 @@ function renderSpotlightPreview(type, encodedData){
       console.log('Render Preview... [Menu]')
       var info = JSON.parse(decodeURI(encodedData));
       if(info.isAvailable){
-        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Available</div>'; 
+        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div id="spotlight_menu_current_item_displayed" onclick="markSpotlightMenuItemAvailability(\''+info.code+'\')" class="spotlightItemAvailable">Available</div>'; 
         if(info.isPhoto){renderItemImageFromServer(info.code);}
       }
       else{
-        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Out of Stock</div>'; 
+        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div id="spotlight_menu_current_item_displayed" onclick="markSpotlightMenuItemAvailability(\''+info.code+'\')" class="spotlightItemNOTAvailable">Out of Stock</div>'; 
         if(info.isPhoto){renderItemImageFromServer(info.code);}
       }
 
@@ -3588,6 +3616,111 @@ function enableAdminUserHideWindow(){
 
 
 
+/*
+  Spotlight Render Preview Options:
+*/
+
+//MENU
+
+//To mark item availability and un-availability
+function markSpotlightMenuItemAvailability(code, type){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+              var mastermenu = data.docs[0].value;
+              mastermenu.sort(); //alphabetical sorting 
+
+              var remember_name = '';
+              var isItemFound = false;
+
+        
+              for (var i=0; i<mastermenu.length && !isItemFound; i++){
+                for(var j=0; j<mastermenu[i].items.length && !isItemFound; j++){
+
+                  if(mastermenu[i].items[j].code == code){
+
+                    isItemFound = true;
+
+                    mastermenu[i].items[j].isAvailable = !mastermenu[i].items[j].isAvailable;
+
+                    remember_name = mastermenu[i].items[j].name;
+
+                    if(document.getElementById("spotlight_menu_current_item_displayed").innerHTML != 'Available'){
+                      document.getElementById("spotlight_menu_current_item_displayed").innerHTML = 'Available';
+                      $('#spotlight_menu_current_item_displayed').removeClass('spotlightItemNOTAvailable');
+                      $('#spotlight_menu_current_item_displayed').addClass('spotlightItemAvailable');
+                    }
+                    else{
+                      document.getElementById("spotlight_menu_current_item_displayed").innerHTML = 'Out of Stock';
+                      $('#spotlight_menu_current_item_displayed').removeClass('spotlightItemAvailable');
+                      $('#spotlight_menu_current_item_displayed').addClass('spotlightItemNOTAvailable');
+                    }
+
+                            //Update
+                            var updateData = {
+                              "_rev": data.docs[0]._rev,
+                              "identifierTag": "ZAITOON_MASTER_MENU",
+                              "value": mastermenu
+                            }
+
+                            $.ajax({
+                              type: 'PUT',
+                              url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+                              data: JSON.stringify(updateData),
+                              contentType: "application/json",
+                              dataType: 'json',
+                              timeout: 10000,
+                              success: function(data) {
+                                hideSpotlight();
+                                showToast('Availability'+(remember_name != '' ? ' of <b>'+remember_name+'</b> ' : ' ')+'has been updated', '#48929B');
+                                initMenuSuggestion();
+                                return '';
+                              },
+                              error: function(data) {
+                                showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+                              }
+
+                            });    
+
+                            break;
+                  }
+              
+                }         
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
+}
 
 
 

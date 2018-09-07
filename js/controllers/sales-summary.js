@@ -4371,8 +4371,8 @@ function reportActionEmail(){
 
 	var data = {
 		"token": window.localStorage.loggedInAdmin,
-		"name": "Abhijith",
-		"email": "abhijithcs1993@gmail.com",
+		"name": "Sahad",
+		"email": "sahadudheen.mp@gmail.com",
 		"title": textContent.reportTitle,
 		"content": mailContent,
 		"image": graphImage,

@@ -54,7 +54,7 @@
                   <h4 class="modal-title">New Category</h4>
                </div>
                <div class="modal-body" style="max-height: 420px; overflow: scroll">
-                  <form>
+
                      <div class="row">
                         <div class="col-lg-12">
                            <div class="form-group">
@@ -62,7 +62,7 @@
                            </div>
                         </div>
                      </div>
-                  </form>
+
                </div>
                <div class="modal-footer">
                   <button  class="btn btn-default" onclick="hideNewMenuCategory()" style="float: left">Cancel</button>
@@ -87,7 +87,7 @@
                   <h4 class="modal-title" id="newItemModalTitle">New Item</h4>
                </div>
                <div class="modal-body" style="max-height: 420px; overflow: scroll">
-                  <form id="newItemArea">
+                  <div id="newItemArea">
                      <div class="row">
                         <div class="col-lg-4">
                            <div class="form-group">
@@ -120,7 +120,7 @@
                      <input type="hidden" id="new_item_choice_count" value="0"/>
                      <div id="newItemChoicesArea"></div>
                      
-                  </form>  
+                  </div>  
                   <button  style="float: left; background: none; display: none" class="btn btn-sm  btn-default" id="removeChoiceButton" onclick="removeChoice()">Clear Choices</button>           
                   <button  style="float: right" class="btn btn-sm btn-default" id="addChoiceButton" onclick="addChoice()">Add Choice</button>
 
@@ -254,7 +254,7 @@
                   <h4 class="modal-title">Edit Category Name</h4>
                </div>
                <div class="modal-body" style="max-height: 420px; overflow: scroll">
-                  <form id="editCategoryNameArea"></form>               
+                  <div id="editCategoryNameArea"></div>               
                </div>
                <div class="modal-footer" id="editCategoryNameConsent">
                </div>
