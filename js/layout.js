@@ -1188,7 +1188,7 @@ $(function () {
 function pingServer(){
 
       var admin_data = {
-        "token": window.localStorage.loggedInAdmin,
+        "token": window.localStorage.loggedInAdmin
       }
 
       $.ajax({
@@ -1699,7 +1699,7 @@ function getOnlineOrdersCount() {
 
   var t = setTimeout(function() {
     getOnlineOrdersCount()
-  }, 60000); 
+  }, 30000); 
 }
 
 
