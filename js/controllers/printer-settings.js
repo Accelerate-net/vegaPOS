@@ -3,8 +3,8 @@
 function openDeletePrinterConsent(name){
 
 	document.getElementById("deletePrinterConsentModalText").innerHTML = 'Are you sure want to remove the Printer <b>'+name+'</b> from the list?';
-	document.getElementById("deletePrinterConsentModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="hideDeletePrinterConsent()" style="float: left">Cancel</button>'+
-                  							'<button type="button" class="btn btn-danger" onclick="deletePrinterProfile(\''+name+'\')">Delete</button>';
+	document.getElementById("deletePrinterConsentModalConsent").innerHTML = '<button  class="btn btn-default" onclick="hideDeletePrinterConsent()" style="float: left">Cancel</button>'+
+                  							'<button  class="btn btn-danger" onclick="deletePrinterProfile(\''+name+'\')">Delete</button>';
 	
 	document.getElementById("deletePrinterConsentModal").style.display = "block";
 
@@ -15,10 +15,46 @@ function hideDeletePrinterConsent(){
 } 
 
 
+function openNewPrinterReRender(){
+  var printersList = window.localStorage.connectedPrintersList ? JSON.parse(window.localStorage.connectedPrintersList) : [];
+  console.log(printersList)
+  if(printersList.length == 0){
+    showToast('Error: No printers and drivers found install on this machine.', '#e74c3c');
+    return '';
+  }
+
+  var n = 0;
+  var printerRender = '';
+  while(printersList[n]){
+    printerRender += '<option value="'+printersList[n].name+'">'+printersList[n].description+'</option>';
+    n++;
+  }
+
+  document.getElementById("printer_profile_new_printer_type").innerHTML = printerRender;
+}
+
+
 function openNewPrinter(){
+  
+  var printersList = window.localStorage.connectedPrintersList ? JSON.parse(window.localStorage.connectedPrintersList) : [];
+
+  if(printersList.length == 0){
+    showToast('Error: No printers and drivers found install on this machine.', '#e74c3c');
+    return '';
+  }
+
 	document.getElementById("newPrinterArea").style.display = "block";
 	$("#user_profile_new_user_name").focus();
 	document.getElementById("openNewPrinterButton").style.display = "none";
+
+  var n = 0;
+  var printerRender = '';
+  while(printersList[n]){
+    printerRender += '<option value="'+printersList[n].name+'">'+printersList[n].description+'</option>';
+    n++;
+  }
+
+  document.getElementById("printer_profile_new_printer_type").innerHTML = printerRender;
 }
 
 function hideNewPrinter(){
@@ -45,11 +81,15 @@ function resetActionsList(){
     document.getElementById("printer_profile_new_printer_actions").value = '';
     document.getElementById("actionsResetButton").style.display = 'none';
     document.getElementById('allActionsList').innerHTML = 'Actions List: <tag class="extrasSelButton" onclick="addToActionsList(\'KOT\', \'printer_action_0\')" id="printer_action_0">Print KOT</tag> <tag class="extrasSelButton" onclick="addToActionsList(\'BILL\', \'printer_action_1\')" id="printer_action_1">Print Bill</tag>'+
-                                    '<tag class="extrasSelButton" onclick="addToActionsList(\'DUPLICATE_BILL\', \'printer_action_2\')" id="printer_action_2">Print Duplicate Bill</tag>';
+                                    '<tag class="extrasSelButton" onclick="addToActionsList(\'DUPLICATE_BILL\', \'printer_action_2\')" id="printer_action_2">Print Duplicate Bill</tag>'+
+                                    '<tag class="extrasSelButton" onclick="addToActionsList(\'REPORT\', \'printer_action_3\')" id="printer_action_3">Print Reports</tag>'+
+                                    '<tag class="extrasSelButton" onclick="addToActionsList(\'VIEW\', \'printer_action_4\')" id="printer_action_4">Print View</tag>';
 }
 
-
 function fetchAllPrintersInfo(){
+
+    //Update Connected Printers List
+    getPrinterList();
 
     var requestData = {
       "selector"  :{ 
@@ -95,7 +135,7 @@ function fetchAllPrintersInfo(){
                                                  '<center><img src="images/common/printer.png" style="width: 64px; height: 64px;"></center>'+
                                                  '<tag class="myListedPrinterDelete" onclick="openDeletePrinterConsent(\''+printers[n].name+'\')"><i class="fa fa-trash-o"></i></tag>'+
                                                  '<h1 class="myListedPrinterHead">'+printers[n].name+'</h1>'+
-                                                 '<p class="myListedPrinterAddress">'+printers[n].address+'</p>'+
+                                                 '<p class="myListedPrinterAddress">'+printers[n].type+'</p>'+
                                                  '<p class="myListedPrinterPaper">'+(printers[n].width ? printers[n].width+' mm' : 'Auto')+' x '+(printers[n].height ? printers[n].height+' mm' : 'Auto')+'</p>'+
                                                  '<p class="myListedPrinterActions"><tag style="font-weight: 400">Prints</tag> '+targetActions+'</p>'+
                                            '</div>';
@@ -131,7 +171,6 @@ function addNewPrinterProfile(){
 
 	var type = document.getElementById("printer_profile_new_printer_type").value;
 	var name = document.getElementById("printer_profile_new_printer_name").value;
-	var address = document.getElementById("printer_profile_new_printer_address").value;
   var pwidth = document.getElementById("printer_profile_new_printer_paperwidth").value;
   var pheight = document.getElementById("printer_profile_new_printer_paperheight").value;
   var actions = document.getElementById("printer_profile_new_printer_actions").value;
@@ -140,14 +179,13 @@ function addNewPrinterProfile(){
 	var newObj = {};
 	newObj.name = name;
 	newObj.type = type;
-	newObj.address = address;
-  newObj.height = pheight;
-  newObj.width = pwidth;
+  newObj.height = parseInt(pheight);
+  newObj.width = parseInt(pwidth);
   newObj.actions = actions;
 
 
-	if(type == '' || name == ''){
-		showToast('Warning: Set a name and printer type', '#e67e22');
+	if(name == ''){
+		showToast('Warning: Set a name to easily identify the printer (Eg. Kitchen KOT)', '#e67e22');
 		return '';
 	}
 
@@ -156,8 +194,8 @@ function addNewPrinterProfile(){
     return '';
   }
 
-  if(type == 'NETWORK' && address == ''){
-    showToast('Warning: Please set Printer IP as the Address', '#e67e22');
+  if(type == ''){
+    showToast('Warning: Please select a Printer', '#e67e22');
     return '';
   }
 
@@ -165,6 +203,8 @@ function addNewPrinterProfile(){
 		showToast('Warning: Invalid paper with', '#e67e22');
 		return '';
 	}
+
+  newObj.actions = newObj.actions.split(',');
 
 
     var requestData = {
@@ -205,10 +245,10 @@ function addNewPrinterProfile(){
                 }
               }
 
-              if(printers.length == 0){
-                showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
-                return '';
-              }
+              // if(printers.length == 0){
+              //   showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+              //   return '';
+              // }
 
              var flag = 0;
 
@@ -217,17 +257,17 @@ function addNewPrinterProfile(){
                   flag = 1;
                   break;
                }
-               else if(printers[i].address == address){
+               else if(printers[i].type == type){
                   flag = 2;
                   break;
                }
              }
 
              if(flag == 1){
-               showToast('Warning: Printer Name already registered. Please set a different name.', '#e67e22');
+               showToast('Warning: Printer Name already taken. Please set a different name.', '#e67e22');
              }
              else if(flag == 2){
-               showToast('Warning: Address already registered. Please set a different Printer Address.', '#e67e22');
+               showToast('Warning: Printer is already registered. Please choose a different Printer.', '#e67e22');
              }
              else{
 
@@ -252,6 +292,7 @@ function addNewPrinterProfile(){
 
 			                fetchAllPrintersInfo(); //refresh the list
 	                	  hideNewPrinter();
+                      applyConfiguredPrinters();
                   
                   },
                   error: function(data) {
@@ -273,6 +314,7 @@ function addNewPrinterProfile(){
 
       },
       error: function(data) {
+        console.log(data)
         showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
       }
 
@@ -358,6 +400,7 @@ function deletePrinterProfile(name){
             					showToast('Printer <b>'+name+'</b> has been removed successfully', '#27ae60');
             					fetchAllPrintersInfo();
             					hideDeletePrinterConsent();
+                      applyConfiguredPrinters();
                   },
                   error: function(data) {
                     showToast('System Error: Unable to make changes in Configured Printers data. Please contact Accelerate Support.', '#e74c3c');

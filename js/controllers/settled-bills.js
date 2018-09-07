@@ -2780,10 +2780,10 @@ function openFilterModalBills(optionalRoute){
 	document.getElementById("searchFilterModal").style.display = 'block';
 
 	if(optionalRoute == 'PENDING'){
-		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchInitialize(\'PENDING\')" style="float: right">Proceed</button>';
+		document.getElementById("actionButtonSearch").innerHTML = '<button  class="btn btn-success" onclick="filterSearchInitialize(\'PENDING\')" style="float: right">Proceed</button>';
 	}
 	else if(optionalRoute == 'SETTLED'){
-		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchInitialize(\'SETTLED\')" style="float: right">Proceed</button>';
+		document.getElementById("actionButtonSearch").innerHTML = '<button  class="btn btn-success" onclick="filterSearchInitialize(\'SETTLED\')" style="float: right">Proceed</button>';
 	}
 
 

@@ -144,7 +144,6 @@ function renderSideNavigation(){
 renderSideNavigation();
 
 
-
 /* Apply LICENCE */
 function applyLicenceTerms(){
 
@@ -205,6 +204,7 @@ function applyLicenceTerms(){
                   applyBillLayout();
                   applyShortcuts();
                   autoSessionSwitchChecker();
+                  applyConfiguredPrinters();
 
                   //If Online enabled
                   if(machinesList[n].isOnlineEnabled){
@@ -247,6 +247,173 @@ function applyLicenceTerms(){
 }
 
 applyLicenceTerms();
+
+function removeWelcomeScreen(){
+  document.getElementById("welcomeScreenLock").style.display = 'none';
+}
+
+
+/* apply configured printers */
+function applyConfiguredPrinters(){
+  var printersList = window.localStorage.connectedPrintersList ? JSON.parse(window.localStorage.connectedPrintersList) : [];
+
+  var list_bills = [];
+  var list_bills_duplicate = [];
+  var list_kot = [];
+  var list_report = [];
+  var list_view = [];
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_CONFIGURED_PRINTERS" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_PRINTERS'){
+
+            var printersList = data.docs[0].value;
+
+            var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+            if(!machineName || machineName == ''){
+                machineName = 'Any';
+            }
+
+              var printers = [];
+
+              for(var i=0; i<printersList.length; i++){
+                if(printersList[i].systemName == machineName){
+                  printers = printersList[i].data;
+                  break;
+                }
+              }
+
+
+              //Sort Printers
+              var n = 0;
+              while(printers[n]){
+
+                for(var p = 0; p < printers[n].actions.length; p++){
+                  switch(printers[n].actions[p]){
+                    case "KOT":{
+                      list_kot.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
+                                      },
+                                      "silent": true
+                                    }
+                      });
+                      break;
+                    }
+                    case "BILL":{
+                      list_bills.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
+                                      },
+                                      "silent": true
+                                    }
+                      });
+                      break;
+                    }
+                    case "DUPLICATE_BILL":{
+                      list_bills_duplicate.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
+                                      },
+                                      "silent": true
+                                    }
+                      });
+                      break;
+                    }
+                    case "REPORT":{
+                      list_report.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
+                                      },
+                                      "silent": true
+                                    }
+                      });
+                      break;
+                    }
+                    case "VIEW":{
+                      list_report.push({
+                        "target" : printers[n].type,
+                        "settings": {
+                                      "marginsType": 1, //No Margin
+                                      "printBackground": true, 
+                                      "pageSize": {
+                                        "height": printers[n].height > 0 ? printers[n].height * 1000 : 891000,
+                                        "width": printers[n].width * 1000
+                                      },
+                                      "silent": true
+                                    }
+                      });
+                      break;
+                    }
+                  }
+                }
+                n++;
+              }
+
+              var printersMasterList = [
+                {"type": "KOT", "list": list_kot},
+                {"type": "BILL", "list": list_bills},
+                {"type": "DUPLICATE_BILL", "list": list_bills_duplicate},
+                {"type": "REPORT", "list": list_report},
+                {"type": "VIEW", "list": list_view}
+              ];
+
+              window.localStorage.configuredPrintersData = JSON.stringify(printersMasterList);
+
+          }
+          else{
+            showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+
 
 
 /* Easy Activation */
@@ -497,18 +664,31 @@ function applyPersonalisations(){
                 }
               }
 
+
+              //REMOVE WELCOME SCREEN
+              setTimeout(function() { removeWelcomeScreen(); }, 300);
+              
           }
           else{
             showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+            
+            //REMOVE WELCOME SCREEN
+            setTimeout(function() { removeWelcomeScreen(); }, 300);
           }
         }
         else{
           showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+          
+          //REMOVE WELCOME SCREEN
+          setTimeout(function() { removeWelcomeScreen(); }, 300);        
         }
         
       },
       error: function(data) {
         showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+
+        //REMOVE WELCOME SCREEN
+        setTimeout(function() { removeWelcomeScreen(); }, 300);
       }
 
     });  
@@ -823,7 +1003,6 @@ function initialiseKeyboardShortcuts(){
     n++;
   }
 
-  console.log('recording...')
 }
 
 
@@ -1261,8 +1440,8 @@ function checkLogin(){
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Username" type="text" id="loginHome_server_username" value="" class="form-control loginWindowInput"> </div> </div>'+
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Password" type="password" id="loginHome_server_password" value="" class="form-control loginWindowInput"> </div> </div>'+                     
                                     '</div>'+
-                                    '<button type="button" onclick="doHomeLogin()" class="btn btn-success loginWindowButton">Login</button>'+
-                                    '<button type="button" onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
+                                    '<button  onclick="doHomeLogin()" class="btn btn-success loginWindowButton">Login</button>'+
+                                    '<button  onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
                                    '</form>'+
                                 '</section>';
 
@@ -1278,8 +1457,8 @@ function checkLogin(){
                                       '<p style="font-size: 14px; color: #72767d;">Logged In as <b>'+loggedInAdminInfo.name+'</b></p>'+
                                    '</header>'+
                                    '<form style="margin: 15px 0">'+
-                                    '<button type="button" onclick="doHomeLogout()" class="btn btn-danger loginWindowButton">Logout Now</button>'+
-                                    '<button type="button" onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
+                                    '<button  onclick="doHomeLogout()" class="btn btn-danger loginWindowButton">Logout Now</button>'+
+                                    '<button  onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
                                    '</form>'+
                                 '</section>';
 
@@ -1302,8 +1481,8 @@ function recoveryLogin(){
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Username" type="text" id="loginHome_server_username" value="" class="form-control loginWindowInput"> </div> </div>'+
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Password" type="password" id="loginHome_server_password" value="" class="form-control loginWindowInput"> </div> </div>'+                     
                                     '</div>'+
-                                    '<button type="button" onclick="performRecoveryLogin()" class="btn btn-success loginWindowButton">Login</button>'+
-                                    '<button type="button" onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
+                                    '<button  onclick="performRecoveryLogin()" class="btn btn-success loginWindowButton">Login</button>'+
+                                    '<button  onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
                                    '</form>'+
                                 '</section>';
 
@@ -1461,7 +1640,7 @@ function getOnlineOrdersCount() {
       //Refresh Badge Counts
       var admin_data = {};
       admin_data.token = window.localStorage.loggedInAdmin;  
-      admin_data.status = 1;
+      admin_data.status = 0;
       
       $.ajax({
         type: 'POST',

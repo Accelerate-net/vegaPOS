@@ -3,8 +3,8 @@
 function openDeleteUserConsent(code, name){
 
 	document.getElementById("deleteUserConsentModalText").innerHTML = 'Are you sure want to remove <b>'+name+'</b> from the list?';
-	document.getElementById("deleteUserConsentModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="hideDeleteUserConsent()" style="float: left">Cancel</button>'+
-                  							'<button type="button" class="btn btn-danger" onclick="deleteUserFromUserProfile(\''+code+'\', \''+name+'\')">Delete</button>';
+	document.getElementById("deleteUserConsentModalConsent").innerHTML = '<button  class="btn btn-default" onclick="hideDeleteUserConsent()" style="float: left">Cancel</button>'+
+                  							'<button  class="btn btn-danger" onclick="deleteUserFromUserProfile(\''+code+'\', \''+name+'\')">Delete</button>';
 	
 	document.getElementById("deleteUserConsentModal").style.display = "block";
 

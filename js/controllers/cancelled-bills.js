@@ -2224,10 +2224,10 @@ function openFilterModal(optionalRoute){
 	document.getElementById("searchFilterModal").style.display = 'block';
 
 	if(optionalRoute == 'UNBILLED'){
-		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchCancelledInitialize(\'UNBILLED\')" style="float: right">Proceed</button>';
+		document.getElementById("actionButtonSearch").innerHTML = '<button class="btn btn-success" onclick="filterSearchCancelledInitialize(\'UNBILLED\')" style="float: right">Proceed</button>';
 	}
 	else if(optionalRoute == 'CANCELLED'){
-		document.getElementById("actionButtonSearch").innerHTML = '<button type="button" class="btn btn-success" onclick="filterSearchCancelledInitialize(\'CANCELLED\')" style="float: right">Proceed</button>';
+		document.getElementById("actionButtonSearch").innerHTML = '<button class="btn btn-success" onclick="filterSearchCancelledInitialize(\'CANCELLED\')" style="float: right">Proceed</button>';
 	}
 
 

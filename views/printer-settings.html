@@ -24,29 +24,23 @@
                               <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Add New Printer</h3>
                            </div>
                            <div class="col-lg-12">
-                              <form action="" method="post" accept-charset="utf-8">
+                              <form>
 
                                  <div class="form-group">
                                     <label for="first_name">Printer Name</label> <input type="text" value="" class="form-control tip" id="printer_profile_new_printer_name" required="required" />
                                  </div>
 
                                  <div class="form-group">
-                                    <label for="group">Type of Printer</label> 
+                                    <label for="group">Choose Printer<span style="font-weight: 400; margin-left: 5px; color: #b1b4b9; text-decoration: underline; cursor: pointer; font-size: 80%; text-transform: uppercase;" onclick="getPrinterList('REFRESH')">Refresh</span></label> 
                                     <select id="printer_profile_new_printer_type" class="form-control input-tip select2" style="width:100%;">
-                                       <option value="NETWORK">Network Printer</option>
-                                       <option value="SYSTEM">System Printer</option>
                                     </select>
-                                 </div>
-
-                                 <div class="form-group">
-                                       <label for="first_name">Address</label> <input type="text" value="" class="form-control tip" id="printer_profile_new_printer_address" required="required" />
                                  </div>
 
                                  <div class="form-group">
                                        <label for="first_name">Paper Width (in mm)</label> <input type="text" value="" class="form-control tip" id="printer_profile_new_printer_paperwidth" required="required" />
                                  </div>
                                  <div class="form-group">
-                                       <label for="first_name">Paper Height (in mm)</label> <input type="text" value="" class="form-control tip" id="printer_profile_new_printer_paperheight" required="required" />
+                                       <label for="first_name">Paper Height (in mm)<i style="font-size: 70%; font-weight: 300; margin-left: 5px; color: gray">optional</i></label> <input type="text" value="" class="form-control tip" id="printer_profile_new_printer_paperheight" required="required" />
                                  </div>
 
                                  <div class="form-group">
@@ -54,13 +48,15 @@
                                     <p style="font-size: 14px; padding: 0; color: #168c9a; margin: 5px 0" id="allActionsList">Actions List: 
                                        <tag class="extrasSelButton" onclick="addToActionsList('KOT', 'printer_action_0')" id="printer_action_0">Print KOT</tag>
                                        <tag class="extrasSelButton" onclick="addToActionsList('BILL', 'printer_action_1')" id="printer_action_1">Print Bill</tag>
-                                       <tag class="extrasSelButton" onclick="addToActionsList('DUPLICATE BILL', 'printer_action_2')" id="printer_action_2">Print Duplicate Bill</tag>
+                                       <tag class="extrasSelButton" onclick="addToActionsList('DUPLICATE_BILL', 'printer_action_2')" id="printer_action_2">Print Duplicate Bill</tag>
+                                       <tag class="extrasSelButton" onclick="addToActionsList('REPORT', 'printer_action_3')" id="printer_action_3">Print Reports</tag>
+                                       <tag class="extrasSelButton" onclick="addToActionsList('VIEW', 'printer_action_4')" id="printer_action_4">Print View</tag>
                                  </div>
                               
                                  <div class="form-group">
                                     
-                                    <button type="button" class="btn btn-default" onclick="hideNewPrinter()" >Cancel</button>
-                                    <button type="button" style="float: right" class="btn btn-primary" onclick="addNewPrinterProfile()" >Add Printer</button>
+                                    <button  class="btn btn-default" onclick="hideNewPrinter()" >Cancel</button>
+                                    <button  style="float: right" class="btn btn-primary" onclick="addNewPrinterProfile()" >Add Printer</button>
 
                                  </div>
                               </form>

@@ -292,9 +292,9 @@ p {
 
    <script>
         const ipcRenderer = require("electron").ipcRenderer;
-        ipcRenderer.on("printPDF", (event, html_content) => {
+        ipcRenderer.on("printBillDocument", (event, html_content, printer_list) => {
             document.body.innerHTML = html_content;
-            ipcRenderer.send("readyToPrintPDF");
+            ipcRenderer.send("readyToPrintBillDocument", printer_list);
         });
    </script>
 

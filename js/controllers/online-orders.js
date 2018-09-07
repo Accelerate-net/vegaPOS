@@ -31,7 +31,7 @@ function renderOnlineOrders(){
 
 	var data = {
 		"token": window.localStorage.loggedInAdmin,
-		"status": 1
+		"status": 0
 	}
 
 	var items = '';

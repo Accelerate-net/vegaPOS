@@ -155,8 +155,8 @@ function fetchAllTableSections(){
 
 
 function openTableDeleteConfirmation(type, functionName, warning){
-  document.getElementById("tableDeleteConfirmationConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="cancelTableDeleteConfirmation()" style="float: left">Cancel</button>'+
-                                '<button type="button" class="btn btn-danger" onclick="'+functionName+'(\''+type+'\')">Delete</button>';
+  document.getElementById("tableDeleteConfirmationConsent").innerHTML = '<button  class="btn btn-default" onclick="cancelTableDeleteConfirmation()" style="float: left">Cancel</button>'+
+                                '<button  class="btn btn-danger" onclick="'+functionName+'(\''+type+'\')">Delete</button>';
 
   document.getElementById("tableDeleteConfirmationText").innerHTML = (warning ? warning+' ' : '' )+'Are you sure want to delete <b>'+type+'</b>?';
   document.getElementById("tableDeleteConfirmation").style.display = 'block';

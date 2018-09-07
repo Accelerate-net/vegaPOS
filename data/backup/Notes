@@ -6,6 +6,9 @@ Notes:
 16. CRITICAL BUG: Remove mouse trap while entering password etc.
 17. Offline Google Fonts
 18. Sample TEST print on CONFIGURED PRITNERS
+19. CRITICAL BUG: DUPLICATION in BILLS!!! (Double ENTER issues)
+20. appOtherPreferences_cancellationAllowed (Allow Cancellation after billing)
+21. Email preference for Reports
 
 Moved to Version 2:
 1.B Item wise table shift.
@@ -21,3 +24,33 @@ Moved to Version 2:
 11. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings.
 13. Black and White A4 Print - Reports 
 14. Optimise menu Image rendering 
+
+
+
+Short Cuts:
+
+Select Mode
+Set Delivery Address
+Focus on Guest details
+Focus on Item Search
+Set Overall Comments
+Delete Item (which is highlighted)
+
+Save Order
+Clear Order
+Cancel Order
+Print KOT
+Print Bill
+Print Duplicate Bill
+Print View
+
+Go to All Bills
+Refresh App
+Refresh Online Orders
+
+Cancel Order
+Cancel Invoice
+Issue Refund
+
+
+

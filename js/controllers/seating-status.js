@@ -118,8 +118,8 @@ function removeTableMappingWarning(tableNumber){
   document.getElementById("mappingDeleteConfirmation").style.display = 'block';
   document.getElementById("mappingDeleteConfirmationText").innerHTML = 'You are removing the Order Mapping on <b>Table #'+tableNumber+'</b>. Order will not get affected, only the mapping will be erased. Are you sure want to continue?'
 
-  document.getElementById("mappingDeleteConfirmationConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="removeTableMappingWarningHide()" style="float: left">Close</button>'+
-                                '<button type="button" class="btn btn-danger" onclick="removeTableMapping(\''+tableNumber+'\')">Proceed to Remove</button>';
+  document.getElementById("mappingDeleteConfirmationConsent").innerHTML = '<button  class="btn btn-default" onclick="removeTableMappingWarningHide()" style="float: left">Close</button>'+
+                                '<button  class="btn btn-danger" onclick="removeTableMapping(\''+tableNumber+'\')">Proceed to Remove</button>';
 
 }
 
@@ -487,7 +487,7 @@ function addToReserveListConsent(tableID){
 	hideFreeSeatOptions();
 	
 	document.getElementById("addToReservedConsentModal").style.display = 'block';
-	document.getElementById("addToReserveListConsentButton").innerHTML = '<button type="button" onclick="addToReserveList(\''+tableID+'\')" class="btn btn-success">Proceed and Reserve</button>';
+	document.getElementById("addToReserveListConsentButton").innerHTML = '<button  onclick="addToReserveList(\''+tableID+'\')" class="btn btn-success">Proceed and Reserve</button>';
 	document.getElementById("addToReserveListConsentTitle").innerHTML = "Reserve Table #"+tableID;
 	document.getElementById("reserve_table_in_the_name_of").value = '';
 
@@ -706,8 +706,8 @@ function moveKOTForEditing(kotID){
               showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
               
               document.getElementById("seating_overWriteCurrentOrderModal").style.display = 'block';
-              document.getElementById("seating_overWriteCurrentOrderModalConsent").innerHTML = '<button type="button" class="btn btn-default" onclick="seating_overWriteCurrentOrderModalClose()" style="float: left">Close</button>'+
-                                                      '<button type="button" class="btn btn-danger" onclick="seating_overWriteCurrentOrderConsent(\''+(encodeURI(JSON.stringify(kot)))+'\')">Proceed to Over Write</button>';
+              document.getElementById("seating_overWriteCurrentOrderModalConsent").innerHTML = '<button  class="btn btn-default" onclick="seating_overWriteCurrentOrderModalClose()" style="float: left">Close</button>'+
+                                                      '<button  class="btn btn-danger" onclick="seating_overWriteCurrentOrderConsent(\''+(encodeURI(JSON.stringify(kot)))+'\')">Proceed to Over Write</button>';
               return '';
           }    
 
