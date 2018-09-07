@@ -19,8 +19,7 @@ function generateBillFromKOT(kotID, optionalPageRef){
   } 
 
 
-  /*Read mentioned KOT - kotID*/
-
+    /*Read mentioned KOT - kotID*/
     var requestData = { "selector" :{ "KOTNumber": kotID }}
 
     $.ajax({
@@ -2021,12 +2020,23 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
           }
 
 
-          /*Save NEW BILL*/
+            /*Save NEW BILL*/
 
             //Remove _rev and _id (KOT File Scraps!)
             var newBillFile = kotfile;
             delete newBillFile._id;
             delete newBillFile._rev
+
+
+            //Set _id from Branch mentioned in Licence
+            var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+            if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+              showToast('Invalid Licence Error: Bill can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              return '';
+            }
+
+            kotfile._id = accelerate_licencee_branch+'_BILL_'+billNumber;
+
 
             //Post to local Server
             $.ajax({
@@ -2902,6 +2912,17 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
     var finalInvoice = bill;
     delete finalInvoice._id;
     delete finalInvoice._rev
+
+
+          //Set _id from Branch mentioned in Licence
+          var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+          if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+            showToast('Invalid Licence Error: Final Invoice can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+            return '';
+          }
+
+          finalInvoice._id = accelerate_licencee_branch+'_INVOICE_'+bill.billNumber;
+
 
           //Post to local Server
           $.ajax({

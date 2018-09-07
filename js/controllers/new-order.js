@@ -4518,9 +4518,18 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          obj.specialRemarks = specialRemarksInfo;
 	          obj.allergyInfo = allergyData;
 
-	          obj.extras = otherCharges,
-	          obj.discount = {},
-	          obj.customExtras = {}
+	          obj.extras = otherCharges;
+	          obj.discount = {};
+	          obj.customExtras = {};
+
+	          //Set _id from Branch mentioned in Licence
+	          var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+	          if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+	          	showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	          	return '';
+	          }
+
+	          obj._id = accelerate_licencee_branch+'_KOT_'+kot;
 
 
 	          //Post to local Server

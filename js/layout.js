@@ -184,6 +184,7 @@ function applyLicenceTerms(){
                   document.getElementById("applicationExpireLock").style.display = 'none';
 
                   window.localStorage.accelerate_licence_number = machinesList[n].licence;
+                  window.localStorage.accelerate_licence_branch = machinesList[n].branch;
                   window.localStorage.accelerate_licence_machineUID = machinesList[n].machineUID;
                   window.localStorage.appCustomSettings_SystemName = machinesList[n].machineCustomName;
                   window.localStorage.accelerate_licence_online_enabled = machinesList[n].isOnlineEnabled ? 1 : 0;
