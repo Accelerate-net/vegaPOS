@@ -5451,7 +5451,36 @@ input:checked + .slider:before {
   animation-name: fadeInDown;
 }
 
+.spotlightItemAvailable{
+  font-family: sans-serif; 
+  font-size: 18px; color: #26b764;
+  border: 1px solid transparent;
+  display: inline-block;
+  padding: 0 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 110px;
+}
 
+.spotlightItemAvailable:hover, .spotlightItemAvailable:focus, .spotlightItemAvailable:active{
+  border: 1px solid #26b764;
+}
+
+
+.spotlightItemNOTAvailable{
+  font-family: sans-serif; 
+  font-size: 18px; color: #e74c3c;
+  border: 1px solid transparent;
+  display: inline-block;
+  padding: 0 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+.spotlightItemNOTAvailable:hover, .spotlightItemNOTAvailable:focus, .spotlightItemNOTAvailable:active{
+  border: 1px solid #e74c3c;
+}
 
 
 

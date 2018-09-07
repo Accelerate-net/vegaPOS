@@ -2530,11 +2530,11 @@ function renderSpotlightPreview(type, encodedData){
       console.log('Render Preview... [Menu]')
       var info = JSON.parse(decodeURI(encodedData));
       if(info.isAvailable){
-        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Available</div>'; 
+        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div id="spotlight_menu_current_item_displayed" onclick="markSpotlightMenuItemAvailability(\''+info.code+'\')" class="spotlightItemAvailable">Available</div>'; 
         if(info.isPhoto){renderItemImageFromServer(info.code);}
       }
       else{
-        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #e74c3c;">Out of Stock</div>'; 
+        renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+'</div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div id="spotlight_menu_current_item_displayed" onclick="markSpotlightMenuItemAvailability(\''+info.code+'\')" class="spotlightItemNOTAvailable">Out of Stock</div>'; 
         if(info.isPhoto){renderItemImageFromServer(info.code);}
       }
 
@@ -3615,6 +3615,111 @@ function enableAdminUserHideWindow(){
 
 
 
+/*
+  Spotlight Render Preview Options:
+*/
+
+//MENU
+
+//To mark item availability and un-availability
+function markSpotlightMenuItemAvailability(code, type){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+              var mastermenu = data.docs[0].value;
+              mastermenu.sort(); //alphabetical sorting 
+
+              var remember_name = '';
+              var isItemFound = false;
+
+        
+              for (var i=0; i<mastermenu.length && !isItemFound; i++){
+                for(var j=0; j<mastermenu[i].items.length && !isItemFound; j++){
+
+                  if(mastermenu[i].items[j].code == code){
+
+                    isItemFound = true;
+
+                    mastermenu[i].items[j].isAvailable = !mastermenu[i].items[j].isAvailable;
+
+                    remember_name = mastermenu[i].items[j].name;
+
+                    if(document.getElementById("spotlight_menu_current_item_displayed").innerHTML != 'Available'){
+                      document.getElementById("spotlight_menu_current_item_displayed").innerHTML = 'Available';
+                      $('#spotlight_menu_current_item_displayed').removeClass('spotlightItemNOTAvailable');
+                      $('#spotlight_menu_current_item_displayed').addClass('spotlightItemAvailable');
+                    }
+                    else{
+                      document.getElementById("spotlight_menu_current_item_displayed").innerHTML = 'Out of Stock';
+                      $('#spotlight_menu_current_item_displayed').removeClass('spotlightItemAvailable');
+                      $('#spotlight_menu_current_item_displayed').addClass('spotlightItemNOTAvailable');
+                    }
+
+                            //Update
+                            var updateData = {
+                              "_rev": data.docs[0]._rev,
+                              "identifierTag": "ZAITOON_MASTER_MENU",
+                              "value": mastermenu
+                            }
+
+                            $.ajax({
+                              type: 'PUT',
+                              url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+                              data: JSON.stringify(updateData),
+                              contentType: "application/json",
+                              dataType: 'json',
+                              timeout: 10000,
+                              success: function(data) {
+                                hideSpotlight();
+                                showToast('Availability'+(remember_name != '' ? ' of <b>'+remember_name+'</b> ' : ' ')+'has been updated', '#48929B');
+                                initMenuSuggestion();
+                                return '';
+                              },
+                              error: function(data) {
+                                showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+                              }
+
+                            });    
+
+                            break;
+                  }
+              
+                }         
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
+}
 
 
 

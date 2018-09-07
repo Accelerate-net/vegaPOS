@@ -6829,7 +6829,7 @@ function initMenuSuggestion(){
 
 						        if ((items.name.search(regex) != -1) || (items.price.search(regex) != -1) || (items.shortCode.search(regex) != -1)) {
 						        	tabIndex = -1;
-						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')</li>'
+						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
 						            count++;
 						            tabIndex++;
 						        }
