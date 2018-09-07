@@ -144,7 +144,6 @@ function renderSideNavigation(){
 renderSideNavigation();
 
 
-
 /* Apply LICENCE */
 function applyLicenceTerms(){
 
@@ -248,6 +247,10 @@ function applyLicenceTerms(){
 }
 
 applyLicenceTerms();
+
+function removeWelcomeScreen(){
+  document.getElementById("welcomeScreenLock").style.display = 'none';
+}
 
 
 /* apply configured printers */
@@ -661,18 +664,31 @@ function applyPersonalisations(){
                 }
               }
 
+
+              //REMOVE WELCOME SCREEN
+              setTimeout(function() { removeWelcomeScreen(); }, 300);
+              
           }
           else{
             showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+            
+            //REMOVE WELCOME SCREEN
+            setTimeout(function() { removeWelcomeScreen(); }, 300);
           }
         }
         else{
           showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+          
+          //REMOVE WELCOME SCREEN
+          setTimeout(function() { removeWelcomeScreen(); }, 300);        
         }
         
       },
       error: function(data) {
         showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+
+        //REMOVE WELCOME SCREEN
+        setTimeout(function() { removeWelcomeScreen(); }, 300);
       }
 
     });  
@@ -987,7 +1003,6 @@ function initialiseKeyboardShortcuts(){
     n++;
   }
 
-  console.log('recording...')
 }
 
 

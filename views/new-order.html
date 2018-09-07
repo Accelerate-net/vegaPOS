@@ -231,12 +231,16 @@
          <!-- Modal content-->
          <div class="modal-content">
 
-            <div class="modal-body" style="max-height: 420px; overflow: scroll;" id="pickAddressForNewOrderModalContent">
-                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px">Delivery Address
-                     <button class="btn btn-default btn-sm" onclick="clearDefaultDeliveryAddressContents()" style="float: right; margin-right: 25px;">Reset</button>
+            <div class="modal-header" style="background: #1abc9c; color: #FFF">
+                  <h1 style="margin: 0; font-size: 21px; font-weight: 400; padding-left: 10px">Delivery Address
                   </h1>
 
-                     <div class="row" style="padding: 5px 30px 20px 15px;">
+                  <button  class="btn btn-default" onclick="clearDefaultDeliveryAddressContents()" style="position: absolute; right: 10px; top: 10px;">Reset</button>
+            </div>
+
+            <div class="modal-body" style="max-height: 420px; width: 100%; overflow: scroll;" id="pickAddressForNewOrderModalContent">
+
+                     <div class="row" style="padding: 5px 15px;">
                         <div class="col-sm-12">
                            <div class="form-group">
                               <input type="text" value="" placeholder="Recepient Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_name" required="required" />
@@ -287,10 +291,15 @@
          <!-- Modal content-->
          <div class="modal-content">
 
-            <div class="modal-body" style="max-height: 420px; overflow: scroll;" id="pickAddressForNewOrderModalContent">
-                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px">Saved Delivery Addressess
-                  <button class="btn btn-success btn-sm" id="addNewSavedDeliveryAddressButton" onclick="openNewSavedDeliveryAddressArea()" style="float: right">Add New</button>
+            <div class="modal-header" style="background: #1abc9c; color: #FFF">
+                  <h1 style="margin: 0; font-size: 21px; font-weight: 400; padding-left: 10px">Saved Delivery Addressess
                   </h1>
+
+                  <button class="btn btn-default" id="addNewSavedDeliveryAddressButton" onclick="openNewSavedDeliveryAddressArea()" style="position: absolute; right: 10px; top: 10px;">Add New</button>
+            </div>
+
+            <div class="modal-body" style="max-height: 420px; overflow: scroll;" id="pickAddressForNewOrderModalContent">
+
                      <div class="row" style="margin: 0" id="areaForSavedAddressRender">
 
                      </div>
@@ -346,13 +355,19 @@
       <div class="modal-dialog" style="top: 20%">
          <!-- Modal content-->
          <div class="modal-content">
+            <div class="modal-header" style="padding: 10px 15px; background: #1abc9c;">
+               <label style="margin: 0; font-size: 21px; color: #FFF; font-weight: 400; font-family: sans-serif;" id="itemWiseCommentsModalTitle">Comments</label>
+            </div>
+
             <div class="modal-body" style="max-height: 420px; overflow: scroll;" id="pickAddressForNewOrderModalContent">
 
-                     <div class="row">
+                     <div class="row" style="margin-bottom: 20px">
                         <div class="col-lg-12">
                                  <div class="form-group">
-                                    <label style="margin: 0 0 10px 0; font-size: 21px; font-weight: 300;" id="itemWiseCommentsModalTitle"></label>
-                                    <input type="text" value="" class="form-control tip" id="add_item_wise_comment" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px;" placeholder="Add any Comment" required="required" />
+                                    <input type="text" value="" class="form-control tip" id="add_item_wise_comment" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px;" placeholder="Add any Comment"/>
+                                    
+                                    <div id="commentSuggestionsRenderArea" class="searchResultsHolder"></div>
+
                                  </div>                                 
                         </div>
                      </div>
@@ -376,13 +391,15 @@
       <div class="modal-dialog" style="top: 20%">
          <!-- Modal content-->
          <div class="modal-content">
+            <div class="modal-header" style="padding: 10px 15px; background: #1abc9c;">
+               <label style="margin: 0; font-size: 21px; color: #FFF; font-weight: 400; font-family: sans-serif;">Special Requests for this Order</label>
+            </div>
+
             <div class="modal-body" style="max-height: 420px; overflow: scroll;">
 
-                     <div class="row">
+                     <div class="row" style="margin-bottom: 20px;">
                         <div class="col-lg-12">
                                  <div class="form-group">
-                                    <label style="margin: 0 0 10px 0; font-size: 21px; font-weight: 400; font-family: sans-serif;">Special Requests for this Order</label>
-                                    <hr style="margin-top: 0">
                                     <input type="text" value="" class="form-control tip" id="specialRequests_comments" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px; margin: 30px 0 20px 0" placeholder="Add any Special Request?" required="required" />
                                  </div>                                 
                         </div>
