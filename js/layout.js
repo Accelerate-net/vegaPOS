@@ -863,137 +863,157 @@ function initialiseKeyboardShortcuts(){
 
         case "Show Spotlight Search":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                showSpotlight();
-                return false;
-            })
+            showSpotlight();
+            return false;
+          })
 
           break;
         }
-        case "Punch Item":{
+        case "Select Billing Mode":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#add_item_by_search").focus();
-                return false;
-            })
+            if(currentRunningPage == 'new-order'){
+              $('#customer_form_data_mode').click();
+            }
+            
+            return false;
+          })
 
           break;
         }
-        case "Change Quantity":{
+        case "Set Table/Address":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
+            $("#triggerClick_TableAddressButton").click();
+            return false;
+          })
 
           break;
         }
-        case "Delete Item":{
+        case "Focus Guest Details":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
+            $('#customer_form_data_mobile').focus().val($('#customer_form_data_mobile').val());
+            return false;
+          })
 
           break;
         }
-        case "Print Items View":{
+        case "Focus Item Search":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
+            $('#add_item_by_search').focus().val($('#add_item_by_search').val());
+            return false;
+          })
+
+          break;
+        }
+        case "Set Special Comments":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_SpecialRequestsButton").click();
+            return false;
+          })
+
+          break;
+        }
+        case "Save Current Order":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_saveOrderButton").click();
+            return false;
+          })
+
+          break;
+        }
+        case "Close Order":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_closeOrderButton").click();
+            return false;
+          })
+
+          break;
+        }
+        case "Cancel Order":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_cancelOrderButton").click();
+            return false;
+          })
 
           break;
         }
         case "Print KOT":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_PrintKOTButton").click();
-                return false;
-            })
+            $("#triggerClick_PrintKOTButton").click();
+            return false;
+          })
           break;
         }
         case "Print Bill":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_PrintBillButton").click();
-                return false;
-            })
+            $("#triggerClick_PrintBillButton").click();
+            return false;
+          })
           break;
         }
-        case "Close Preview":{
+        case "Print Duplicate Bill":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_HideCartButton").click();
-                return false;
-            })
-
+            $("#triggerClick_PrintDuplicateBillButton").click();
+            return false;
+          })
           break;
         }
-        case "Shift Table":{
+        case "Assign Delivery Agent":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
-
+            $("#triggerClick_AssignAgentButton").click();
+            return false;
+          })
           break;
         }
-        case "Recent Printed Bills":{
-          Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
-
-          break;
-        }
-        case "Cancel Bill":{
-          Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
-
-          break;
-        } 
         case "Issue Refund":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                
-                return false;
-            })
-
-          break;
-        } 
-        case "Table View":{
-          Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_TableAddressButton").click();
-                return false;
-            })
-
+            $("#triggerClick_IssueRefundButton").click();
+            return false;
+          })
           break;
         }
-        case "Go to Settings":{
+        case "Cancel Invoice":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_TableAddressButton").click();
-                return false;
-            })
-
+            $("#triggerClick_CancelInvoiceButton").click();
+            return false;
+          })
           break;
         }
         case "Refresh Application":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#triggerClick_TableAddressButton").click();
-                return false;
-            })
-
+            renderPage('new-order', 'Punch Order');
+            return false;
+          })
           break;
         }
-        case "Change Billing Mode":{
+        case "Refresh Online Orders":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                if(currentRunningPage == 'new-order'){
-                  $('#customer_form_data_mode').click();
-                }
-                return false;
-            })
 
+            if($('#onlineOrders_incoming').hasClass('billTypeSelectionBox')){
+              $("#triggerClick_refreshOnlineButton_Pending").click();
+            }
+            else if($('#onlineOrders_live').hasClass('billTypeSelectionBox')){
+              $("#triggerClick_refreshOnlineButton_Live").click();
+            }
+            else if($('#onlineOrders_completed').hasClass('billTypeSelectionBox')){
+              $("#triggerClick_refreshOnlineButton_Completed").click();
+            }
+            
+            return false;
+          })
+          break;
+        }
+        case "Go to All Bills":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            renderPage('settled-bills', 'Generated Bills');
+            return false;
+          })
           break;
         }
         case "Switch User":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-                $("#currentUserProfileDisplay").click();
-                return false;
-            })
+            $("#currentUserProfileDisplay").click();
+            return false;
+          })
 
           break;
         }

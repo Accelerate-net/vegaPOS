@@ -2315,7 +2315,7 @@ function openSelectedBill(encodedBill, type){
 
 		if(bill.orderDetails.modeType == 'DELIVERY'){
 			if(jQuery.isEmptyObject(bill.deliveryDetails)){
-					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS\')">'+
+					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" id="triggerClick_AssignAgentButton" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS\')">'+
 			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
 			                                        '<i class="fa fa-truck"></i>'+
 			                                      '</tag>'+
@@ -2324,7 +2324,7 @@ function openSelectedBill(encodedBill, type){
 			}
 			else{
 				if(bill.deliveryDetails.name == '' && bill.deliveryDetails.mobile == ''){
-					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS\')">'+
+					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" id="triggerClick_AssignAgentButton" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS\')">'+
 			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
 			                                        '<i class="fa fa-truck"></i>'+
 			                                      '</tag>'+
@@ -2550,7 +2550,7 @@ function openSelectedBill(encodedBill, type){
 		
 		if(bill.orderDetails.modeType == 'DELIVERY'){
 			if(jQuery.isEmptyObject(bill.deliveryDetails)){
-					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS_SETTLED\')">'+
+					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" id="triggerClick_AssignAgentButton" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS_SETTLED\')">'+
 			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
 			                                        '<i class="fa fa-truck"></i>'+
 			                                      '</tag>'+
@@ -2559,7 +2559,7 @@ function openSelectedBill(encodedBill, type){
 			}
 			else{
 				if(bill.deliveryDetails.name == '' && bill.deliveryDetails.mobile == ''){
-					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS_SETTLED\')">'+
+					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" id="triggerClick_AssignAgentButton" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS_SETTLED\')">'+
 			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
 			                                        '<i class="fa fa-truck"></i>'+
 			                                      '</tag>'+
@@ -2577,7 +2577,7 @@ function openSelectedBill(encodedBill, type){
 
         if(isUserAnAdmin){
         	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
-                                  '<div class="floaty-btn small" style="box-shadow: none;" onclick="printDuplicateBill(\''+bill.billNumber+'\')">'+
+                                  '<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+bill.billNumber+'\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
     									'<path d="M0-.75h24v24H0z" fill="none"/>'+
@@ -2589,13 +2589,13 @@ function openSelectedBill(encodedBill, type){
                                   '</div>'+
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
                                     deliveryOrderSubOption+
-                                    '<li class="floaty-list-item floaty-list-item--yellow" onclick="initiateRefundSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
+                                    '<li class="floaty-list-item floaty-list-item--yellow" id="triggerClick_IssueRefundButton" onclick="initiateRefundSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 0px; font-size: 26px;" class="absolute-center">'+
                                         '<i class="fa fa-inr"></i>'+
                                       '</tag>'+
                                       '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Issue Refund</span>'+
                                     '</li>'+
-                                    '<li class="floaty-list-item floaty-list-item--red" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
+                                    '<li class="floaty-list-item floaty-list-item--red" id="triggerClick_CancelInvoiceButton" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
                                         '<i class="fa fa-trash-o whiteWash"></i>'+
                                       '</tag>'+
@@ -3470,4 +3470,39 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
 
     });  
 }
+
+
+//Print Duplicate Bill
+function printDuplicateBill(billNumber){
+
+	billNumber = parseInt(billNumber);
+
+    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(firstdata) {
+
+        if(firstdata.docs.length > 0){
+          var bill = firstdata.docs[0];
+          sendToPrinter(bill, 'DUPLICATE_BILL');
+        }
+        else{
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(firstdata) {
+        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+
 

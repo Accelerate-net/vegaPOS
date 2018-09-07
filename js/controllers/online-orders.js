@@ -20,7 +20,7 @@ function renderOnlineOrders(){
 
 
 	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Pending Orders</h3>'+
-																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderOnlineOrders()">Refresh</button>';
+																'<button class="btn btn-success btn-sm" id="triggerClick_refreshOnlineButton_Pending" style="float: right" onclick="renderOnlineOrders()">Refresh</button>';
 
 	document.getElementById("orderInfo").innerHTML = '';
 	document.getElementById("onlineOrders").innerHTML = '';
@@ -111,7 +111,7 @@ function renderLiveOnlineOrders(){
 	$("#onlineOrders_completed").removeClass("billTypeSelectionBox");
 
 	document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Confirmed Orders</h3>'+
-																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderLiveOnlineOrders()">Refresh</button>';
+																'<button class="btn btn-success btn-sm" style="float: right" id="triggerClick_refreshOnlineButton_Live" onclick="renderLiveOnlineOrders()">Refresh</button>';
 
 
 	document.getElementById("orderInfo").innerHTML = '';
@@ -195,7 +195,7 @@ function renderCompletedOnlineOrders(){
 	if(filterDateApplied == ''){
 		filterDateApplied = todayDate;
 		document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Today\'s Completed Orders<tag class="onlineOrderDateSelection" onclick="openFilterDateOnlineOrders()"><i class="fa fa-calendar"></i></tag></h3>'+
-																'<button class="btn btn-success btn-sm" style="float: right" onclick="renderCompletedOnlineOrders()">Refresh</button>';
+																'<button class="btn btn-success btn-sm" style="float: right" id="triggerClick_refreshOnlineButton_Completed" onclick="renderCompletedOnlineOrders()">Refresh</button>';
 	}
 	else{
 		document.getElementById("summaryHeadingOnline").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Completed Orders on <input type="text" class="onlineOrderDateSelectionOnDate" id="onlineOrderDateSelectionOnDateValue" value="'+filterDateApplied+'" onchange="applyFilterDateOnlineOrders()"><tag class="onlineOrderDateSelection" onclick="undoFilterDateOnlineOrders()"><i class="fa fa-undo"></i></tag></h3>';

@@ -64,7 +64,7 @@ ipc.on('all-printers-list', function (event, listOfPrinters, optionalRequest) {
 
 function sendToPrinter(orderObject, type, optionalRequest){
 
-return '';
+ return '';
 
  var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
@@ -403,6 +403,308 @@ var html_template = ''+
       '<p class="addressText">'+data_custom_footer_address+'</p>'+
       '<p class="addressContact">'+data_custom_footer_contact+'</p>';
 }
+
+
+
+
+
+
+
+
+/*
+   PRINTING BILL
+*/
+
+if(type == 'DUPLICATE_BILL'){
+
+var $j = jQuery.noConflict();
+var qrcode = $j('#dummyQRCodeHolder').qrcode({width: 64, height: 64, text : "https://www.zaitoon.online" });
+
+
+//Render Items
+var sub_total = 0;
+
+var itemsList = '';
+var n = 0;
+while(orderObject.cart[n]){
+
+   itemsList +=   '<tr>'+
+                        '<td>'+(n+1)+'</td>'+
+                        '<td>'+orderObject.cart[n].name+(orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</td>'+
+                        '<td><rs class="rs">Rs.</rs>'+orderObject.cart[n].price+'</td>'+
+                        '<td>x '+orderObject.cart[n].qty+'</td>'+
+                        '<td style="text-align: right;"><rs class="rs">Rs.</rs>'+(orderObject.cart[n].price * orderObject.cart[n].qty)+'</td>'+
+                  '</tr>';
+
+   sub_total += orderObject.cart[n].price * orderObject.cart[n].qty;
+
+   n++;
+}
+
+
+//Render Extras
+var extras_sum = 0;
+
+var extrasList = '';
+var m = 0;
+while(orderObject.extras[m]){
+
+   extrasList +=  '<tr>'+
+                     '<td>'+orderObject.extras[m].name+' ('+(orderObject.extras[m].unit == 'PERCENTAGE'? orderObject.extras[m].value + '%': 'Rs.'+orderObject.extras[m].value)+')</td>'+
+                     '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+orderObject.extras[m].amount+'</td>'+
+                  '</tr>';
+
+   extras_sum += orderObject.extras[m].amount;
+
+   m++;
+}
+
+
+//Render Custom Extras
+var custom_extras_sum = 0;
+
+var customExtrasList = '';
+if(orderObject.customExtras.amount &&  orderObject.customExtras.amount != 0){
+
+   customExtrasList +=  '<tr>'+
+                           '<td>'+orderObject.customExtras.type+' ('+(orderObject.customExtras.unit == 'PERCENTAGE'? orderObject.customExtras.value + '%': 'Rs.'+orderObject.customExtras.value)+')</td>'+
+                           '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+orderObject.customExtras.amount+'</td>'+
+                        '</tr>';
+
+   custom_extras_sum = orderObject.customExtras.amount;
+}
+
+
+//Render Discounts
+var discount_sum = 0;
+
+var discountList = '';
+if(orderObject.discount.amount &&  orderObject.discount.amount != 0){
+
+   discountList +=   '<tr>'+
+                        '<td>Discount</td>'+
+                       '<td style="text-align: right;">'+'- <rs class="rs">Rs.</rs>'+orderObject.discount.amount+'</td>'+
+                     '</tr>';
+
+   discount_sum = orderObject.discount.amount;
+}
+
+
+//Render User Info
+var userInfo = '';
+var billHeaderRender = '';
+
+if(orderObject.orderDetails.modeType == 'DELIVERY'){
+
+   var deliveryAddress = JSON.parse(orderObject.table)
+
+   userInfo = '<td style="vertical-align: top">'+
+                  '<p>'+'<label class="subLabel">Delivery To</label>'+
+                     '<tag class="billingAddress">'+(deliveryAddress.name != '' ? deliveryAddress.name+'<br>' : '')+
+                     (deliveryAddress.flatNo != '' ? '#'+deliveryAddress.flatNo+',' : '' )+deliveryAddress.flatName+'<br>'+
+                     (deliveryAddress.landmark != '' ? deliveryAddress.landmark+',' : '' )+deliveryAddress.area+'<br>'+
+                     (deliveryAddress.contact != '' ? '<tag class="mobileNumber">Mob. <b>'+deliveryAddress.contact+'</b>' : '')+'</tag>'+
+                  '</p>'+
+               '</td>';
+
+   if(orderObject.orderDetails.isOnline){
+      billHeaderRender = userInfo +                
+                  '<td style="vertical-align: top">'+
+                     '<p style=" text-align: right; float: right">'+
+                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
+                        '<tag class="subLabel">Order No</tag>'+
+                        '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
+                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
+                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                     '</p>'+
+                     '<tag>'+'</tag>'+
+                  '</td>';
+   }
+   else{
+       billHeaderRender = userInfo +                
+                  '<td style="vertical-align: top">'+
+                     '<p style=" text-align: right; float: right">'+
+                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag><tag style="display: block; padding: 2px;">CASH</tag></tag>'+
+                        '<tag class="subLabel">Order No</tag>'+
+                        '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
+                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
+                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                     '</p>'+
+                     '<tag>'+'</tag>'+
+                  '</td>';     
+   }
+}
+else if(orderObject.orderDetails.modeType == 'PARCEL'){
+    userInfo = '<td style="vertical-align: top; position: relative">'+
+                  '<p>'+'<label class="subLabel">Billed To</label>'+
+                     '<tag class="billingAddress">'+
+                     (orderObject.customerName != '' ? orderObject.customerName+'<br>' : '')+
+                     (orderObject.customerMobile != '' ? '<tag class="mobileNumber">Mob. <b>'+orderObject.customerMobile+'</b>' : '')+ '</tag>'+
+                     '<tag class="serviceType" style="border-radius: 3px; font-size: 80%; display: inline-block; margin: 10px 0 0 0;">PARCEL</tag>'+
+                  '</p>'+
+               '</td>';  
+
+   if(orderObject.orderDetails.isOnline){
+      billHeaderRender = userInfo +                
+                  '<td style="vertical-align: top">'+
+                     '<p style=" text-align: right; float: right">'+
+                        '<tag class="serviceType">'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? 'PREPAID' : 'CASH')+'</tag>'+
+                        '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
+                        '<tag class="tokenNumber" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">'+orderObject.orderDetails.reference+'</tag>'+
+                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
+                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                     '</p>'+
+                     '<tag>'+'</tag>'+
+                  '</td>';  
+   }   
+   else{
+      billHeaderRender = userInfo +                
+                  '<td style="vertical-align: top">'+
+                     '<p style=" text-align: right; float: right">'+
+                        '<tag class="serviceType">CASH</tag>'+
+                        '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
+                        '<tag class="tokenNumber" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">'+orderObject.orderDetails.reference+'</tag>'+
+                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
+                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                     '</p>'+
+                     '<tag>'+'</tag>'+
+                  '</td>';  
+   }          
+}
+else{
+
+   if(orderObject.customerName != '' || orderObject.customerMobile != ''){
+       userInfo = '<td style="vertical-align: top; position: relative">'+
+                     '<p>'+'<label class="subLabel">Billed To</label>'+
+                        '<tag class="billingAddress">'+
+                        (orderObject.customerName != '' ? orderObject.customerName+'<br>' : '')+
+                        (orderObject.customerMobile != '' ? '<tag class="mobileNumber">Mob. <b>'+orderObject.customerMobile+'</b>' : '')+ '</tag>'+
+                        '<tag class="serviceType" style="margin: 5px 0 5px 0; position: absolute; bottom:0 ; border: none; font-size: 11px; text-align: left; padding: 0">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Dine' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Self Service' : 'Service'))+'</tag>'+
+                     '</p>'+
+                  '</td>';  
+
+       billHeaderRender = userInfo +                
+               '<td style="vertical-align: top">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Table No' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Token No' : ''))+'</tag>'+
+                     '<tag class="tokenNumber">'+(orderObject.orderDetails.modeType == 'DINE' ? orderObject.table : (orderObject.orderDetails.modeType == 'TOKEN' ? orderObject.table : '- - - -'))+'</tag>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
+                     '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>';                  
+   }
+   else{
+       billHeaderRender = ''+
+                  '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag class="subLabel">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Table No' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Token No' : ''))+'</tag>'+
+                        '<tag class="tokenNumber">'+(orderObject.orderDetails.modeType == 'DINE' ? orderObject.table : (orderObject.orderDetails.modeType == 'TOKEN' ? orderObject.table : '..'))+'</tag>'+                        
+                     '</p>'+
+                  '</td>'+                  
+                  '<td style="vertical-align: top">'+
+                     '<p style=" text-align: right; float: right">'+
+                        '<tag class="subLabel" style="margin: 0">'+data_custom_top_right_name+'</tag>'+
+                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
+                        '<tag class="serviceType" style="margin: 5px 0 0 0; border: none; font-size: 11px; text-align: right; padding: 0">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Dine' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Self Service' : 'Service'))+'</tag>'+
+                     '</p>'+
+                     '<tag>'+'</tag>'+
+                  '</td>';    
+   }
+
+}
+
+
+
+var html_template = ''+
+      '<div id="logo">'+
+        (data_custom_header_image != '' ? '<center><img src=\''+data_custom_header_image+'\'/></center>' : '<h1>Invoice</h1>')+
+      '</div>'+
+      '<div class="invoiceHeader">'+
+         '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0;">DUPLICATE INVOICE</div>'+
+         '<table style="width: 100%">'+
+            '<col style="width: 60%">'+
+            '<col style="width: 40%">'+
+            '<tr>'+ billHeaderRender +
+            '</tr>'+
+         '</table>'+     
+      '</div>'+
+      '<div class="invoiceNumberArea">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 60%">'+
+            '<col style="width: 40%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+            '<p>'+
+              '<tag class="subLabel">INVOICE NO</tag>'+
+              '<tag class="invoiceNumber">'+orderObject.billNumber+'</tag>'+
+            '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">INOVICE DATE</tag>'+
+                     '<tag class="timeStamp">'+orderObject.date+'<time class="timeDisplay">'+getFancyTime(orderObject.timeBill)+'</time></tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="invoiceContent">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 8%">'+
+            '<col style="width: 53%">'+
+            '<col style="width: 12%">'+
+            '<col style="width: 12%">'+
+            '<col style="width: 15%">'+ itemsList +
+         '</table>'+
+      '</div>'+
+      '<div class="invoiceCharges">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 80%">'+
+            '<col style="width: 20%">'+
+            '<tr>'+
+               '<td>Sub Total</td>'+
+               '<td style="text-align: right;"><rs class="rs">Rs.</rs>'+sub_total+'</td>'+
+            '</tr>'+ extrasList + customExtrasList + discountList +
+            '<tr>'+
+               '<td style="font-weight: bold; text-transform: uppercase">Total Payable</td>'+
+               '<td style="text-align: right; font-size: 21px; font-weight: bold"><rs class="rs">Rs.</rs>'+orderObject.payableAmount+'</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="invoicePaymentsLink" style="'+(showScanPay ? '' : 'display: none')+'">'+
+       '<table style="width: 100%">'+
+            '<col style="width: 60%">'+
+            '<col style="width: 30%">'+
+            '<tr>'+
+               '<td >'+
+                  '<p>'+
+                    '<tag class="paymentSubHead">'+data_custom_bottom_pay_heading+'</tag>'+
+                    '<tag class="paymentSubText">'+data_custom_bottom_pay_brief+'</tag>'+
+                  '</p>'+ 
+               '</td>'+
+               '<td style="float: right">'+
+                  '<div class="qrCode">'+qrcode+'</div>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="invoiceCustomText">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td>'+data_custom_footer_comments+'</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<p class="addressText">'+data_custom_footer_address+'</p>'+
+      '<p class="addressContact">'+data_custom_footer_contact+'</p>';
+}
+
+
+
+
 
 
 
