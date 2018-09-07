@@ -3119,7 +3119,7 @@ function initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentSta
   
   document.getElementById("billRefundReasonModal").style.display = 'block';
   document.getElementById("billRefundReasonModalActions").innerHTML = '<button class="btn btn-default" onclick="initiateRefundSettledBillHide()" style="float: left">Close</button>'+
-                  '<button class="btn btn-warning" onclick="processRefundSettledBill(\''+billNumber+'\', \''+optionalPageRef+'\')" style="float: right">Issue Refund</button>';
+                  '<button class="btn btn-warning" id="billRefundReasonConfirmButton" onclick="processRefundSettledBill(\''+billNumber+'\', \''+optionalPageRef+'\')" style="float: right">Issue Refund</button>';
 
   var n = 0;
   var reasonRender = '';
@@ -3135,6 +3135,26 @@ function initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentSta
   $('#bill_refund_why_comments').focus();
 
   document.getElementById("bill_refund_why_refundamount").value = totalPaid;
+
+
+
+          var easyActionTool = $(document).on('keydown',  function (e) {
+            console.log('[Bill Refund] Am secretly running... ')
+            if($('#billRefundReasonModal').is(':visible')) {
+                 switch(e.which){
+                  case 27:{ // Escape (Close)
+                    initiateRefundSettledBillHide();
+                    easyActionTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+                    $('#billRefundReasonConfirmButton').click();
+                    break;
+                  }
+                 }
+            }
+          });
+
 }
 
 function initiateRefundSettledBillHide(){
@@ -3308,7 +3328,7 @@ function initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentSta
   
   document.getElementById("billCancellationsReasonModal").style.display = 'block';
   document.getElementById("billCancellationsReasonModalActions").innerHTML = '<button class="btn btn-default" onclick="initiateCancelSettledBillHide()" style="float: left">Close</button>'+
-                  '<button class="btn btn-danger" onclick="processCancelSettledBill(\''+billNumber+'\', \''+optionalPageRef+'\')" style="float: right">Proceed to Cancel</button>';
+                  '<button class="btn btn-danger" id="billCancellationsReasonConfirmButton" onclick="processCancelSettledBill(\''+billNumber+'\', \''+optionalPageRef+'\')" style="float: right">Proceed to Cancel</button>';
 
   var n = 0;
   var reasonRender = '';
@@ -3333,6 +3353,27 @@ function initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentSta
 
   $('#bill_cancel_why_comments').val('');
   $('#bill_cancel_why_comments').focus();
+
+
+
+          var easyActionTool = $(document).on('keydown',  function (e) {
+            console.log('[Bill Cancellation] Am secretly running... ')
+            if($('#billCancellationsReasonModal').is(':visible')) {
+                 switch(e.which){
+                  case 27:{ // Escape (Close)
+                    initiateCancelSettledBillHide();
+                    easyActionTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+                    $('#billCancellationsReasonConfirmButton').click();
+                    break;
+                  }
+                 }
+            }
+          });
+
+
 }
 
 
@@ -3604,7 +3645,7 @@ function cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList){
 
   document.getElementById("orderCancellationsReasonModal").style.display = 'block';
   document.getElementById("orderCancellationsReasonModalActions").innerHTML = '<button class="btn btn-default" onclick="initiateCancelOrderHide()" style="float: left">Close</button>'+
-                  '<button class="btn btn-danger" onclick="processCancelRunningOrder(\''+kotID+'\', \''+optionalPageRef+'\')" style="float: right">Proceed to Cancel</button>';
+                  '<button class="btn btn-danger" id="orderCancellationsReasonConfirmButton" onclick="processCancelRunningOrder(\''+kotID+'\', \''+optionalPageRef+'\')" style="float: right">Proceed to Cancel</button>';
 
 
   var n = 0;
@@ -3618,6 +3659,25 @@ function cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList){
 
   $('#order_cancel_why_comments').val('');
   $('#order_cancel_why_comments').focus();  
+
+
+          var easyActionTool = $(document).on('keydown',  function (e) {
+            console.log('[Bill Refund] Am secretly running... ')
+            if($('#orderCancellationsReasonModal').is(':visible')) {
+                 switch(e.which){
+                  case 27:{ // Escape (Close)
+                    initiateCancelOrderHide();
+                    easyActionTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+                    $('#orderCancellationsReasonConfirmButton').click();
+                    break;
+                  }
+                 }
+            }
+          });
+
 }
 
 

@@ -957,6 +957,13 @@ function initialiseKeyboardShortcuts(){
           })
           break;
         }
+        case "Settle Bill":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_settleBillButton").click();
+            return false;
+          })
+          break;
+        }
         case "Assign Delivery Agent":{
           Mousetrap.bind([shortcutsData[n].value], function() {
             $("#triggerClick_AssignAgentButton").click();

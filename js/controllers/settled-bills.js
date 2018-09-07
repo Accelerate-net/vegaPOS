@@ -2343,7 +2343,7 @@ function openSelectedBill(encodedBill, type){
 
         if(isUserAnAdmin){
         	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
-                                  '<div class="floaty-btn small" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
+                                  '<div class="floaty-btn small" id="triggerClick_settleBillButton" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
     									'<path d="M0-.75h24v24H0z" fill="none"/>'+
@@ -2366,7 +2366,7 @@ function openSelectedBill(encodedBill, type){
         }
         else{
         	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
-                                  '<div class="floaty-btn small" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
+                                  '<div class="floaty-btn small" id="triggerClick_settleBillButton" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
     									'<path d="M0-.75h24v24H0z" fill="none"/>'+

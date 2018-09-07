@@ -26,7 +26,7 @@ function openNewPrinterReRender(){
   var n = 0;
   var printerRender = '';
   while(printersList[n]){
-    printerRender += '<option value="'+printersList[n].name+'">'+printersList[n].description+'</option>';
+    printerRender += '<option style="color: #000" value="'+printersList[n].name+'">'+printersList[n].description+'</option>';
     n++;
   }
 

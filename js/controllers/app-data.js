@@ -181,12 +181,8 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
     paramObj.endTime = optionalEnd;
   }
 
-
   paramObj.startTime = ((paramObj.startTime).toString()).replace (/:/g, "");
-  paramObj.startTime = parseFloat(paramObj.startTime);
-
   paramObj.endTime = ((paramObj.endTime).toString()).replace (/:/g, "");
-  paramObj.endTime = parseFloat(paramObj.endTime);
 	
 	if(paramObj.name == ''){
 		showToast('Warning: Please set a name.', '#e67e22');
