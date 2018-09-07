@@ -940,9 +940,6 @@ total_items = n;
 
 
 var html_template = ''+
-      '<div id="logo">'+
-        '<center><img src=\''+data_custom_header_image+'\'/></center>'+
-      '</div>'+
       '<div class="KOTHeader">'+
          '<table style="width: 100%">'+
             '<col style="width: 33%">'+
@@ -1193,9 +1190,6 @@ while(compareObject[n]){
 total_items = n;
 
 var html_template = ''+
-      '<div id="logo">'+
-        '<center><img src=\''+data_custom_header_image+'\'/></center>'+
-      '</div>'+
       '<div class="KOTHeader">'+
          '<table style="width: 100%">'+
             '<col style="width: 33%">'+
