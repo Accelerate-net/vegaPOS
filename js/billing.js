@@ -2330,11 +2330,14 @@ function settleBillAndPush(encodedBill, optionalPageRef){
 
               document.getElementById("billSettlementSplitDetailsContent").innerHTML = "";
 
-              document.getElementById("billSettlementPreviewContentActions").innerHTML = '<div class="col-sm-4" style="padding: 0">'+
-                                                               '<button id="paymentOptionsListRenderClose" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Not Now</button>'+
+              document.getElementById("billSettlementPreviewContentActions").innerHTML = '<div class="col-sm-3" style="padding: 0">'+
+                                                               '<button id="paymentOptionsListRenderClose" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Hide</button>'+
                                                             '</div>'+
-                                                            '<div class="col-sm-8" style="padding: 0">'+
-                                                                '<button class="btn btn-success" id="paymentOptionsListRenderConfirm" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Confirm</button>'+
+                                                            '<div class="col-sm-3" style="padding: 0">'+
+                                                                '<button class="btn btn-warning" id="paymentOptionsListRenderLater" onclick="settleBillAndPushLater(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Settle Later</button>'+
+                                                            '</div>'+
+                                                            '<div class="col-sm-6" style="padding: 0">'+
+                                                                '<button class="btn btn-success" id="paymentOptionsListRenderConfirm" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Settle Now</button>'+
                                                             '</div>';
 
 
@@ -3023,6 +3026,100 @@ console.log('To update AUTO SETTLE')
             }
           });    
 }
+
+
+
+
+//Settle bill later --> FREE THE TABLE for time sake.
+
+function settleBillAndPushLater(encodedBill, optionalPageRef){
+
+    var bill = JSON.parse(decodeURI(encodedBill));
+
+    if(bill.orderDetails.modeType == 'DINE'){
+
+        var tableNumber = bill.table;
+
+        var requestData = {
+          "selector"  :{ 
+                        "identifierTag": "ZAITOON_TABLES_MASTER" 
+                      },
+          "fields"    : ["_rev", "identifierTag", "value"]
+        }
+
+        $.ajax({
+          type: 'POST',
+          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+          data: JSON.stringify(requestData),
+          contentType: "application/json",
+          dataType: 'json',
+          timeout: 10000,
+          success: function(data) {
+            if(data.docs.length > 0){
+
+                if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+                  var tableMapping = data.docs[0].value;
+
+                  for(var i=0; i<tableMapping.length; i++){
+                    if(tableMapping[i].table == tableNumber){
+
+                      if(tableMapping[i].status == 0){
+                        return '';
+                      }
+
+                      tableMapping[i].assigned = "";
+                      tableMapping[i].KOT = "";
+                      tableMapping[i].status = 0;
+                      tableMapping[i].lastUpdate = "";
+                      
+                      break;
+                    }
+                  }
+
+                        //Update
+                        var updateData = {
+                          "_rev": data.docs[0]._rev,
+                          "identifierTag": "ZAITOON_TABLES_MASTER",
+                          "value": tableMapping
+                        }
+
+                        $.ajax({
+                          type: 'PUT',
+                          url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                          data: JSON.stringify(updateData),
+                          contentType: "application/json",
+                          dataType: 'json',
+                          timeout: 10000,
+                          success: function(data) {
+                            hideSettleBillAndPush();
+                            console.log(optionalPageRef)
+                            if(optionalPageRef == 'ORDER_PUNCHING'){
+                              triggerRightPanelDisplay();
+                            }
+                          }
+                        });             
+              }
+              else{
+                hideSettleBillAndPush()  
+              }
+            }
+            else{
+              hideSettleBillAndPush()  
+            }
+
+          },
+          error: function(data) {
+            hideSettleBillAndPush()
+          }
+
+        });      
+    }
+    else{ //Just hide the window for any other type of orders.
+      hideSettleBillAndPush();
+    }
+}
+
 
 
 

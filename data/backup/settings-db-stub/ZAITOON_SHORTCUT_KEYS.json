@@ -10,43 +10,59 @@
           "value": "ctrl+w"
         },
         {
-          "name": "Punch Item",
+          "name": "Select Billing Mode",
           "value": ""
         },
         {
-          "name": "Change Quantity",
+          "name": "Set Table/Address",
+          "value": "f1"
+        },
+        {
+          "name": "Focus Guest Details",
           "value": ""
         },
         {
-          "name": "Delete Item",
+          "name": "Focus Item Search",
           "value": ""
         },
         {
-          "name": "Print Items View",
+          "name": "Set Special Comments",
+          "value": ""
+        },
+        {
+          "name": "Save Current Order",
+          "value": "shift+h"
+        },
+        {
+          "name": "Close Order",
+          "value": ""
+        },
+        {
+          "name": "Cancel Order",
           "value": ""
         },
         {
           "name": "Print KOT",
-          "value": "ctrl+k"
+          "value": ""
+        },
+        {
+          "name": "Print Item View",
+          "value": ""
         },
         {
           "name": "Print Bill",
-          "value": "ctrl+p"
-        },
-        {
-          "name": "Close Preview",
-          "value": "ctrl+u"
-        },
-        {
-          "name": "Shift Table",
           "value": ""
         },
         {
-          "name": "Recent Printed Bills",
+          "name": "Print Duplicate Bill",
           "value": ""
         },
         {
-          "name": "Cancel Bill",
+          "name": "Settle Bill",
+          "value": "f3"
+        },
+        {
+          "name": "Assign Delivery Agent",
           "value": ""
         },
         {
@@ -54,16 +70,24 @@
           "value": ""
         },
         {
-          "name": "Table View",
-          "value": ""
-        },
-        {
-          "name": "Go to Settings",
+          "name": "Cancel Invoice",
           "value": ""
         },
         {
           "name": "Refresh Application",
-          "value": "ctrl+r"
+          "value": ""
+        },
+        {
+          "name": "Refresh Online Orders",
+          "value": ""
+        },
+        {
+          "name": "Go to All Bills",
+          "value": "f5"
+        },
+        {
+          "name": "Switch User",
+          "value": "shift+c"
         }
       ]
     },
@@ -72,63 +96,87 @@
       "data": [
         {
           "name": "Show Spotlight Search",
-          "value": "shift+s"
+          "value": "ctrl+w"
         },
         {
-          "name": "Punch Item",
-          "value": "ctrl+i"
-        },
-        {
-          "name": "Change Quantity",
-          "value": "shift+q"
-        },
-        {
-          "name": "Delete Item",
+          "name": "Select Billing Mode",
           "value": ""
         },
         {
-          "name": "Print Items View",
+          "name": "Set Table/Address",
+          "value": ""
+        },
+        {
+          "name": "Focus Guest Details",
+          "value": ""
+        },
+        {
+          "name": "Focus Item Search",
+          "value": ""
+        },
+        {
+          "name": "Set Special Comments",
+          "value": ""
+        },
+        {
+          "name": "Save Current Order",
+          "value": ""
+        },
+        {
+          "name": "Close Order",
+          "value": ""
+        },
+        {
+          "name": "Cancel Order",
           "value": ""
         },
         {
           "name": "Print KOT",
-          "value": "ctrl+k"
+          "value": ""
+        },
+        {
+          "name": "Print Item View",
+          "value": ""
         },
         {
           "name": "Print Bill",
-          "value": "ctrl+p"
-        },
-        {
-          "name": "Close Preview",
-          "value": "ctrl+u"
-        },
-        {
-          "name": "Shift Table",
           "value": ""
         },
         {
-          "name": "Recent Printed Bills",
+          "name": "Print Duplicate Bill",
           "value": ""
         },
         {
-          "name": "Cancel Bill",
-          "value": ""
+          "name": "Settle Bill",
+          "value": "f3"
+        },
+        {
+          "name": "Assign Delivery Agent",
+          "value": "f2"
         },
         {
           "name": "Issue Refund",
           "value": ""
         },
         {
-          "name": "Table View",
-          "value": ""
-        },
-        {
-          "name": "Go to Settings",
+          "name": "Cancel Invoice",
           "value": ""
         },
         {
           "name": "Refresh Application",
-          "value": "ctrl+r"
+          "value": ""
+        },
+        {
+          "name": "Refresh Online Orders",
+          "value": ""
+        },
+        {
+          "name": "Go to All Bills",
+          "value": ""
+        },
+        {
+          "name": "Switch User",
+          "value": "shift+c"
         }
       ]
     }

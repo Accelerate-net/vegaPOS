@@ -3169,8 +3169,6 @@ function showSpotlight(){
 
                                                       var tempData = encodeURI(JSON.stringify(spotItem));
 
-                                                      console.log(spotItem)
-
                                                       if(spotItem.status == 0){
                                                         itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
                                                       }
@@ -3647,6 +3645,8 @@ function markSpotlightMenuItemAvailability(code, type){
               mastermenu.sort(); //alphabetical sorting 
 
               var remember_name = '';
+              var remember_avail = 0;
+
               var isItemFound = false;
 
         
@@ -3660,6 +3660,7 @@ function markSpotlightMenuItemAvailability(code, type){
                     mastermenu[i].items[j].isAvailable = !mastermenu[i].items[j].isAvailable;
 
                     remember_name = mastermenu[i].items[j].name;
+                    remember_avail = mastermenu[i].items[j].isAvailable ? 1 : 0;
 
                     if(document.getElementById("spotlight_menu_current_item_displayed").innerHTML != 'Available'){
                       document.getElementById("spotlight_menu_current_item_displayed").innerHTML = 'Available';
@@ -3690,6 +3691,10 @@ function markSpotlightMenuItemAvailability(code, type){
                                 hideSpotlight();
                                 showToast('Availability'+(remember_name != '' ? ' of <b>'+remember_name+'</b> ' : ' ')+'has been updated', '#48929B');
                                 initMenuSuggestion();
+                                
+                                //Update online menu
+                                sendConfirmationResponseToCloud(code, remember_avail);
+
                                 return '';
                               },
                               error: function(data) {
@@ -3719,6 +3724,45 @@ function markSpotlightMenuItemAvailability(code, type){
       }
 
     }); 
+
+
+      //Send update to Cloud Server
+      function sendConfirmationResponseToCloud(id, status){
+
+          var data = {
+            "token": window.localStorage.loggedInAdmin,
+            "code": id,
+            "status": status
+          }
+
+          showLoading(10000, 'Updating Online Menu');
+
+          $.ajax({
+            type: 'POST',
+            url: 'https://www.zaitoon.online/services/itemstatus.php',
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            dataType: 'json',
+            timeout: 10000,
+            success: function(data) {
+
+              hideLoading();
+
+              if(data.status){
+
+              }
+              else{
+                console.log(data)
+                showToast('Cloud Server Warning: Online Menu not updated', '#e67e22');
+              }
+            },
+            error: function(data){
+              hideLoading();
+              showToast('Failed to reach Cloud Server. Please check your connection.', '#e74c3c');
+              return '';
+            }
+          });       
+      }
 
 }
 

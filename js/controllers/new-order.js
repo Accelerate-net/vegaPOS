@@ -229,6 +229,86 @@ function hideCustomiseItem(){
 	document.getElementById("customiseItemModal").style.display ='none';
 }
 
+
+/* Special Custom Item */
+//To be entered manually
+
+function addSpecialCustomItem(){
+	document.getElementById("newManualCustomItemModal").style.display ='block';
+	$('#add_new_manual_custom_name').val('');
+	$('#add_new_manual_custom_price').val(0);
+	$('#add_new_manual_custom_name').focus();
+
+
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#newManualCustomItemModal').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("newManualCustomItemModal").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
+
+}
+
+function addSpecialCustomItemHide(){
+	document.getElementById("newManualCustomItemModal").style.display ='none';	
+}
+
+function addManualCustomItem(){
+	var name = $('#add_new_manual_custom_name').val();
+	var price = $('#add_new_manual_custom_price').val();
+	price = parseInt(price);
+
+	if(name == ''){
+		showToast('Warning: Add a Custom Name', '#e67e22');
+		return '';
+	}
+
+	if(price == '' || price < 1){
+		showToast('Warning: Add a Custom Price greater than 1', '#e67e22');
+		return '';
+	}
+
+		var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		
+		var i = 0;
+		var top_manual_index = 0;
+		var isFirstManualItem = true;
+
+		while(i < cart_products.length){
+          if(cart_products[i].code < 100){
+
+          	if(cart_products[i].code > top_manual_index){
+          		top_manual_index = cart_products[i].code;
+          	}
+
+          }
+
+          i++;
+        }
+
+        top_manual_index++;
+
+
+		var productToAdd = {};
+		productToAdd.name = name;
+		productToAdd.code = top_manual_index;
+		productToAdd.price = price;
+		productToAdd.isCustom = false;
+		productToAdd.isPackaged = true;
+
+		saveToCart(productToAdd);
+
+		addSpecialCustomItemHide();
+		renderCart();
+}
+
+
+
 function deleteItem(item, isCustom, variant){
 
 	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
@@ -743,7 +823,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	}
 
 	
-	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Subtotal</th>  </tr>';
+	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Total</th>  </tr>';
 	document.getElementById("cartDetails").innerHTML = temp;
 	
 
@@ -994,66 +1074,119 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
  		return '';
  	}
 
- 	if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'TOKEN' || selectedBillingModeInfo.type == 'DELIVERY'){
- 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
-	                        '<div class="col-xs-4" style="padding: 0;">'+
-	                           '<div class="btn-group-vertical btn-block">'+
-	                           	  (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
-	                           '</div>'+
-	                        '</div>'+ 		
-	                        '<div class="col-xs-8" style="padding: 0 0 0 4px">'+
-	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
-	                           '</div>'+
-	                        '</div>'+
-	                     '</div>';
- 	}   
- 	else if(selectedBillingModeInfo.type == 'DINE'){
+ 	//If editing allowed?
+ 	var isEditingEnabled = false;
+ 	if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed != ''){
+ 		if(window.localStorage.appOtherPreferences_cancellationAllowed == 1)
+ 			isEditingEnabled = true;
+ 	}
 
- 		if(hasUnsavedChanges){
-
- 			/* Set unsaved changes flag */
- 			window.localStorage.hasUnsavedChangesFlag = 1;
- 			document.getElementById("leftdiv").style.borderColor = "#e74c3c";
- 			
-
-
-			document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
-	                        '<div class="col-xs-4" style="padding: 0;">'+
-	                           '<div class="btn-group-vertical btn-block">'+
-	                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
-	                           '</div>'+
-	                        '</div>'+
-	                        '<div class="col-xs-4" style="padding: 0 4px;">'+
-	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
-	                           '</div>'+
-	                        '</div>'+
-	                        '<div class="col-xs-4" style="padding: 0">'+
-	                           '<div class="btn-group-vertical btn-block">'+
-	                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
-	                           '</div>'+
-	                        '</div>'+                           
-	                     '</div>';
- 		}
- 		else{
-
- 			/* Set unsaved changes flag */
- 			window.localStorage.hasUnsavedChangesFlag = 0;
- 			document.getElementById("leftdiv").style.borderColor = "#FFF";
-
+ 	if(!isEditingEnabled){ //Editing NOT ALLOWED after KOT PRINTED
+	 	if(selectedBillingModeInfo.type == 'PARCEL' || selectedBillingModeInfo.type == 'TOKEN' || selectedBillingModeInfo.type == 'DELIVERY'){
 	 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
-	                        '<div class="col-xs-4" style="padding: 0;">'+
-	                           '<div class="btn-group-vertical btn-block">'+
-	                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
-	                           '</div>'+
-	                        '</div>'+
-	                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-	                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
-	                        '</div>'+                            
-	                     '</div>';
- 		}
- 	}  		
+		                        '<div class="col-xs-4" style="padding: 0;">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                           	  (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                           '</div>'+
+		                        '</div>'+ 		
+		                        '<div class="col-xs-8" style="padding: 0 0 0 4px">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              '<button class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
+		                           '</div>'+
+		                        '</div>'+
+		                     '</div>';
+	 	}   
+	 	else if(selectedBillingModeInfo.type == 'DINE'){
+
+	 		if(hasUnsavedChanges){
+
+	 			/* Set unsaved changes flag */
+	 			window.localStorage.hasUnsavedChangesFlag = 1;
+	 			document.getElementById("leftdiv").style.borderColor = "#e74c3c";
+	 			
+
+
+				document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
+		                        '<div class="col-xs-4" style="padding: 0;">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                           '</div>'+
+		                        '</div>'+
+		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
+		                           '</div>'+
+		                        '</div>'+
+		                        '<div class="col-xs-4" style="padding: 0">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+		                           '</div>'+
+		                        '</div>'+                           
+		                     '</div>';
+	 		}
+	 		else{
+
+	 			/* Set unsaved changes flag */
+	 			window.localStorage.hasUnsavedChangesFlag = 0;
+	 			document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+		 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
+		                        '<div class="col-xs-4" style="padding: 0;">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                           '</div>'+
+		                        '</div>'+
+		                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
+		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
+		                        '</div>'+                            
+		                     '</div>';
+	 		}
+	 	}  	
+	}
+	else{
+	 		if(hasUnsavedChanges){
+	 			/* Set unsaved changes flag */
+	 			window.localStorage.hasUnsavedChangesFlag = 1;
+	 			document.getElementById("leftdiv").style.borderColor = "#e74c3c";
+	 			
+
+
+				document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
+		                        '<div class="col-xs-4" style="padding: 0;">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                           '</div>'+
+		                        '</div>'+
+		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
+		                           '</div>'+
+		                        '</div>'+
+		                        '<div class="col-xs-4" style="padding: 0">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+		                           '</div>'+
+		                        '</div>'+                           
+		                     '</div>';
+	 		}
+	 		else{
+
+	 			/* Set unsaved changes flag */
+	 			window.localStorage.hasUnsavedChangesFlag = 0;
+	 			document.getElementById("leftdiv").style.borderColor = "#FFF";
+
+		 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
+		                        '<div class="col-xs-4" style="padding: 0;">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                           '</div>'+
+		                        '</div>'+
+		                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
+		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
+		                        '</div>'+                            
+		                     '</div>';
+	 		}
+	}	
 }
 else{
  	//NEW ORDER - Actions 

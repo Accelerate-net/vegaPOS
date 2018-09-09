@@ -230,9 +230,11 @@ ipc.on("readyToPrintBillDocument", (event, printer_list) => {
     //     })
     // })
 
-    workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
-        if (error) throw error
-    })
+    // workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
+    //     if (error) throw error
+    // })
+
+    workerWindow.webContents.print(pageSettingsSilent);
 });
 
 

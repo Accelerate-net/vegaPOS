@@ -124,6 +124,8 @@ function markAvailability(code){
 	          	var mastermenu = data.docs[0].value;
 	          	mastermenu.sort(); //alphabetical sorting 
 
+	          	var remember_avail = 0;
+
 				
 				for (var i=0; i<mastermenu.length; i++){
 					for(var j=0; j<mastermenu[i].items.length; j++){
@@ -132,6 +134,8 @@ function markAvailability(code){
 
 							mastermenu[i].items[j].isAvailable = !mastermenu[i].items[j].isAvailable;
 
+							remember_avail = mastermenu[i].items[j].isAvailable ? 1 : 0;
+							
 							if(document.getElementById("item_avail_"+code).innerHTML != 'Available'){
 								document.getElementById("item_avail_"+code).innerHTML = 'Available';
 								document.getElementById("item_avail_"+code).style.background = "#27ae60";	
@@ -157,6 +161,10 @@ function markAvailability(code){
 			                  dataType: 'json',
 			                  timeout: 10000,
 			                  success: function(data) {
+
+			                  	//Update online menu
+                                sendConfirmationResponseToCloud(code, remember_avail);
+
 			                  	return '';
 			                  },
 			                  error: function(data) {
@@ -187,6 +195,48 @@ function markAvailability(code){
       }
 
     }); 
+
+
+
+
+
+      //Send update to Cloud Server
+      function sendConfirmationResponseToCloud(id, status){
+
+          var data = {
+            "token": window.localStorage.loggedInAdmin,
+            "code": id,
+            "status": status
+          }
+
+          showLoading(10000, 'Updating Online Menu');
+
+          $.ajax({
+            type: 'POST',
+            url: 'https://www.zaitoon.online/services/itemstatus.php',
+            data: JSON.stringify(data),
+            contentType: "application/json",
+            dataType: 'json',
+            timeout: 10000,
+            success: function(data) {
+
+              hideLoading();
+
+              if(data.status){
+
+              }
+              else{
+                console.log(data)
+                showToast('Cloud Server Warning: Online Menu not updated', '#e67e22');
+              }
+            },
+            error: function(data){
+              hideLoading();
+              showToast('Failed to reach Cloud Server. Please check your connection.', '#e74c3c');
+              return '';
+            }
+          });       
+      }
 
 }
 
@@ -450,7 +500,7 @@ function openSubMenu(menuCategory){
 							}
 
 							itemsInCategory = itemsInCategory + '<tr>'+
-							                                       '<td class="deleteItemWrap" style="padding-left: 25px">'+getVegIcon(mastermenu[i].items[j].vegFlag)+mastermenu[i].items[j].name+'<tag class="deleteItemIcon" onclick="deleteItemFromMenu(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-minus-circle"></i></tag></td>'+
+							                                       '<td class="deleteItemWrap" style="padding-left: 25px">'+getVegIcon(mastermenu[i].items[j].vegFlag)+mastermenu[i].items[j].name+'<tag class="deleteItemIcon" onclick="deleteItemFromMenu(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-minus-circle"></i></tag><span style="display: block; font-size: 10px; color: #8a8a8a; letter-spacing: 1px; margin-left: 13px;">'+mastermenu[i].items[j].code+'</span></td>'+
 							                                       '<td><button class="btn btn-sm itemPriceTag" onclick="editItemPrice(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-inr"></i>'+mastermenu[i].items[j].price+'</button></td>'+
 							                                       '<td>'+availabilityTag+'</td>'+
 							                                    '</tr>';
@@ -486,6 +536,12 @@ function openSubMenu(menuCategory){
                                         '<path d="M5 17v2h14v-2H5zm4.5-4.2h5l.9 2.2h2.1L12.75 4h-1.5L6.5 15h2.1l.9-2.2zM12 5.98L13.87 11h-3.74L12 5.98z"/>'+
                                         '<path d="M0 0h24v24H0z" fill="none"/>'+
                                       '</svg>'+
+                                    '</li>'+
+                                    '<li class="floaty-list-item floaty-list-item--yellow" onclick="markAllItemsAvailability(\''+menuCategory+'\')">'+
+                                      '<span class="floaty-list-item-label">Mark Availability</span>'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 16px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
+                                      '<i class="fa fa-check"></i>'+
+                                    '</tag>'+
                                     '</li>'+
                                     '<li class="floaty-list-item floaty-list-item--red" onclick="openDeleteConfirmation(\''+menuCategory+'\')">'+
                                       '<span class="floaty-list-item-label">Delete '+menuCategory+'</span>'+
@@ -541,6 +597,205 @@ function openSubMenu(menuCategory){
 	//menuRenderArea
 	document.getElementById("menuDetailsArea").style.display = "block";
 }
+
+
+//To mark items availability -- batch process
+function markAllItemsAvailability(current){
+	document.getElementById("markAllItemsAvailabilityConsent").innerHTML = '<button class="btn btn-default" onclick="markAllItemsAvailabilityHide()" style="float: left">Cancel</button>'+
+                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_NOT_AVAIL\')" class="btn btn-danger" style="float: right">Mark All NOT Available</button>'+
+                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_AVAIL\')" class="btn btn-success">Mark All Available</button>';
+	
+	document.getElementById("markAllItemsAvailabilityContent").innerHTML = '<div class="row">'+
+	                        '<div class="col-lg-12">Please select an option to mark the availability of <b>'+current+'</b> items.'+
+	                        '</div>'+                  
+	                     '</div>';
+
+	document.getElementById("markAllItemsAvailabilityModal").style.display = 'block';
+
+	$("#edit_category_new_name").focus();
+	
+}
+
+function markAllItemsAvailabilityHide(){
+	document.getElementById("markAllItemsAvailabilityModal").style.display = 'none';
+}
+
+
+function markAvailabilityBatch(category, option){
+
+    /*to find the latest item code*/
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+	          	var mastermenu = data.docs[0].value;
+
+                var n = 0;
+                while(mastermenu[n]){
+                	if(mastermenu[n].category == category){
+						
+						var m = 0;
+						while(mastermenu[n].items[m]){
+
+							mastermenu[n].items[m].isAvailable = (option == 'ALL_AVAIL') ? true : false;
+
+							if(m == mastermenu[n].items.length - 1){
+								markAvailabilityBatchAfterProcess(mastermenu, category, data.docs[0]._rev);
+							}
+							m++;
+						}
+
+                		break;
+                	}
+                	n++;
+                }
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+function markAvailabilityBatchAfterProcess(menu, category, revID){
+
+			                //Update
+			                var updateData = {
+			                  "_rev": revID,
+			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "value": menu
+			                }
+
+			                $.ajax({
+			                  type: 'PUT',
+			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  data: JSON.stringify(updateData),
+			                  contentType: "application/json",
+			                  dataType: 'json',
+			                  timeout: 10000,
+			                  success: function(data) {
+			                  	markAllItemsAvailabilityHide();
+			                  	openSubMenu(category);
+						        showToast('Success! All <b>'+ category +'</b> items are updated.', '#27ae60');
+						      },
+			                  error: function(data) {
+			                    showToast('System Error: Unable to make changes in Menu data. Please contact Accelerate Support.', '#e74c3c');
+         					  }
+
+			                });  
+}
+
+
+
+function batchProcessMenuAllAvailable(){
+
+    /*to find the latest item code*/
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+	          	var mastermenu = data.docs[0].value;
+
+                var n = 0;
+                while(mastermenu[n]){
+
+						var m = 0;
+						while(mastermenu[n].items[m]){
+
+							mastermenu[n].items[m].isAvailable = true;
+
+							if(n == mastermenu.length - 1 && m == mastermenu[n].items.length - 1){
+								batchProcessMenuAllAvailableAfterProcess(mastermenu, data.docs[0]._rev);
+							}
+							m++;
+						}
+                	
+                	n++;
+                }
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  	
+}
+
+
+function batchProcessMenuAllAvailableAfterProcess(menu, revID){
+
+			                //Update
+			                var updateData = {
+			                  "_rev": revID,
+			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "value": menu
+			                }
+
+			                $.ajax({
+			                  type: 'PUT',
+			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  data: JSON.stringify(updateData),
+			                  contentType: "application/json",
+			                  dataType: 'json',
+			                  timeout: 10000,
+			                  success: function(data) {
+			                  	renderPage('manage-menu', 'Manage Menu');
+						        showToast('Success! All items are marked Available.', '#27ae60');
+						      },
+			                  error: function(data) {
+			                    showToast('System Error: Unable to make changes in Menu data. Please contact Accelerate Support.', '#e74c3c');
+         					  }
+
+			                });  
+}
+
 
 
 
