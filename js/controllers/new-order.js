@@ -229,6 +229,86 @@ function hideCustomiseItem(){
 	document.getElementById("customiseItemModal").style.display ='none';
 }
 
+
+/* Special Custom Item */
+//To be entered manually
+
+function addSpecialCustomItem(){
+	document.getElementById("newManualCustomItemModal").style.display ='block';
+	$('#add_new_manual_custom_name').val('');
+	$('#add_new_manual_custom_price').val(0);
+	$('#add_new_manual_custom_name').focus();
+
+
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#newManualCustomItemModal').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("newManualCustomItemModal").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
+
+}
+
+function addSpecialCustomItemHide(){
+	document.getElementById("newManualCustomItemModal").style.display ='none';	
+}
+
+function addManualCustomItem(){
+	var name = $('#add_new_manual_custom_name').val();
+	var price = $('#add_new_manual_custom_price').val();
+	price = parseInt(price);
+
+	if(name == ''){
+		showToast('Warning: Add a Custom Name', '#e67e22');
+		return '';
+	}
+
+	if(price == '' || price < 1){
+		showToast('Warning: Add a Custom Price greater than 1', '#e67e22');
+		return '';
+	}
+
+		var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		
+		var i = 0;
+		var top_manual_index = 0;
+		var isFirstManualItem = true;
+
+		while(i < cart_products.length){
+          if(cart_products[i].code < 100){
+
+          	if(cart_products[i].code > top_manual_index){
+          		top_manual_index = cart_products[i].code;
+          	}
+
+          }
+
+          i++;
+        }
+
+        top_manual_index++;
+
+
+		var productToAdd = {};
+		productToAdd.name = name;
+		productToAdd.code = top_manual_index;
+		productToAdd.price = price;
+		productToAdd.isCustom = false;
+		productToAdd.isPackaged = true;
+
+		saveToCart(productToAdd);
+
+		addSpecialCustomItemHide();
+		renderCart();
+}
+
+
+
 function deleteItem(item, isCustom, variant){
 
 	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
@@ -743,7 +823,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	}
 
 	
-	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Subtotal</th>  </tr>';
+	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Total</th>  </tr>';
 	document.getElementById("cartDetails").innerHTML = temp;
 	
 

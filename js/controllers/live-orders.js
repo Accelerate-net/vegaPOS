@@ -687,8 +687,6 @@ function transferKOTAfterProcess(tableNumber, kotID){
 
     var requestData = { "selector" :{ "KOTNumber": kotID }}
 
-    console.log('transfer', tableNumber, kotID)
-
     $.ajax({
       type: 'POST',
       url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',

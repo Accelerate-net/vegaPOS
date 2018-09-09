@@ -1703,6 +1703,10 @@ However, delay the fade out process for 2.5 seconds */
 .floaty-list-item--blue > svg {
   fill: #fff;
 }
+.floaty-list-item--yellow > svg {
+  fill: #fff;
+}
+
 .floaty-list-item-label {
   position: absolute;
   top: 8px;
@@ -3773,6 +3777,46 @@ position: absolute;
 .deleteItemWrap:hover .deleteItemIcon{
     background: none;
     opacity: 1;
+}
+
+
+.customMenuItem{
+  float: right;
+    margin-right: 5px;
+    letter-spacing: initial;
+    cursor: pointer;
+    color: #c6c6c6;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: none !important;
+}
+
+.customMenuItem:hover,
+.customMenuItem:active,
+.customMenuItem:focus{
+  color: #dd3976;
+}
+
+
+.markItemsBatchIcon{
+  width: 30px;
+  height: 30px;
+  opacity: 0;
+  padding: 7px;
+  color: #FFF;
+  cursor: pointer;
+  border-radius: 50%;
+  margin-left: 10px;
+  font-size: 16px;
+  display: inline-block;
+  position: absolute;
+  margin-top: -5px;
+}
+
+
+.markItemsBatchWrap:hover .markItemsBatchIcon{
+  background: #1abc9c;
+  opacity: 1;
 }
 
 

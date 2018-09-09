@@ -3169,8 +3169,6 @@ function showSpotlight(){
 
                                                       var tempData = encodeURI(JSON.stringify(spotItem));
 
-                                                      console.log(spotItem)
-
                                                       if(spotItem.status == 0){
                                                         itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
                                                       }
