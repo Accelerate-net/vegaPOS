@@ -283,30 +283,86 @@ function liveOrderOptionsNonDine(kotID){
 
           if(isUserAnAdmin){
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
-                        '<button class="btn btn-success tableOptionsButtonBig" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button>'+ 
-                        '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+  
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                        '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsNonDineClose()">Close</button>';
           }
           else{
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
-                        '<button class="btn btn-success tableOptionsButtonBig" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button>'+ 
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsNonDineClose()">Close</button>';
           }
 
 
           document.getElementById("liveOrderOptionsModal").style.display = 'block';
 
-          var easyActionsTool = $(document).on('keydown',  function (e) {
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+          var li = $('#liveOrderOptionsModalContent .easySelectTool_liveOrderOption');
+          var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
             console.log('Am secretly running...')
             if($('#liveOrderOptionsModal').is(':visible')) {
 
-                  if(e.which == 27){ // Escape (Close)
-                    document.getElementById("liveOrderOptionsModal").style.display ='none';
-                    easyActionsTool.unbind();
-                  }
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
 
+                    if(liSelected){
+                        liSelected.removeClass('selectOptionLiveOrder');
+                        next = liSelected.prev();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.last().addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.last().addClass('selectOptionLiveOrder');
+                    }                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+                    if(liSelected){
+                      liSelected.removeClass('selectOptionLiveOrder');
+                      next = liSelected.next();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                    }
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("liveOrderOptionsModal").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#liveOrderOptionsModal .easySelectTool_liveOrderOption").each(function(){
+                      if($(this).hasClass("selectOptionLiveOrder")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
             }
           });
+
+
+
 
         }
         else{
@@ -363,31 +419,83 @@ function liveOrderOptions(kotID){
 
           if(isUserAnAdmin){
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
-                        '<button class="btn btn-success tableOptionsButtonBig" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button>'+ 
-                        '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+  
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                        '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
           }
           else{
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
-                        '<button class="btn btn-success tableOptionsButtonBig" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button>'+
-                        '<button class="btn btn-success tableOptionsButtonBig" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button>'+
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
           }
 
           document.getElementById("liveOrderOptionsModal").style.display = 'block';
 
 
-          var easyActionsTool = $(document).on('keydown',  function (e) {
+          /*
+            EasySelect Tool (LISTS)
+          */
+          var li = $('#liveOrderOptionsModalContent .easySelectTool_liveOrderOption');
+          var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
             console.log('Am secretly running...')
             if($('#liveOrderOptionsModal').is(':visible')) {
 
-                  if(e.which == 27){ // Escape (Close)
-                    document.getElementById("liveOrderOptionsModal").style.display ='none';
-                    easyActionsTool.unbind();
-                  }
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
 
+                    if(liSelected){
+                        liSelected.removeClass('selectOptionLiveOrder');
+                        next = liSelected.prev();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.last().addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.last().addClass('selectOptionLiveOrder');
+                    }                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+                    if(liSelected){
+                      liSelected.removeClass('selectOptionLiveOrder');
+                      next = liSelected.next();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                    }
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("liveOrderOptionsModal").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#liveOrderOptionsModal .easySelectTool_liveOrderOption").each(function(){
+                      if($(this).hasClass("selectOptionLiveOrder")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
             }
           });
 
