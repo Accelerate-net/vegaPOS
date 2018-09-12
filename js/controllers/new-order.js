@@ -1,6 +1,4 @@
 	
-
-
 //Trigger Right Panel 
 function triggerRightPanelDisplay(){
 	//to show Menu

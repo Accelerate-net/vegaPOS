@@ -10,10 +10,76 @@ Table Status
 /*Open/Close Options*/
 function openFreeSeatOptions(tableID){
 	document.getElementById("freeSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableID+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="punchNewOrder(\''+tableID+'\')"><i class="fa fa-plus" style=""></i><tag style="padding-left: 15px">Punch New Order</tag></button>'+ 
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="addToReserveListConsent(\''+tableID+'\')"><i class="fa fa-male" style=""></i><tag style="padding-left: 15px">Reserve this Table</tag></button>'+  
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_freeSeatOption" onclick="punchNewOrder(\''+tableID+'\')"><i class="fa fa-plus" style=""></i><tag style="padding-left: 15px">Punch New Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_freeSeatOption" onclick="addToReserveListConsent(\''+tableID+'\')"><i class="fa fa-male" style=""></i><tag style="padding-left: 15px">Reserve this Table</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
                   '<button class="btn btn-default tableOptionsButton" onclick="hideFreeSeatOptions()">Close</button>';
 	document.getElementById("freeSeatOptionsModal").style.display ='block';
+
+
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+          var li = $('#freeSeatOptionsModalContent .easySelectTool_freeSeatOption');
+          var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#freeSeatOptionsModal').is(':visible')) {
+
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
+
+                    if(liSelected){
+                        liSelected.removeClass('selectOptionLiveOrder');
+                        next = liSelected.prev();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.last().addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.last().addClass('selectOptionLiveOrder');
+                    }                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+                    if(liSelected){
+                      liSelected.removeClass('selectOptionLiveOrder');
+                      next = liSelected.next();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                    }
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("freeSeatOptionsModal").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#freeSeatOptionsModal .easySelectTool_freeSeatOption").each(function(){
+                      if($(this).hasClass("selectOptionLiveOrder")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
+            }
+          });
 }
 
 function hideFreeSeatOptions(){
@@ -24,17 +90,81 @@ function hideFreeSeatOptions(){
 
 function openReservedSeatOptions(tableID, optionalCustomerName, optionalSaveFlag){
 	document.getElementById("reservedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Reserved Table <b>'+tableID+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="punchNewOrder(\''+tableID+'\', \''+optionalCustomerName+'\', '+optionalSaveFlag+')"><i class="fa fa-plus" style=""></i><tag style="padding-left: 15px">Punch New Order</tag></button>'+ 
-                  '<button class="btn btn-primary tableOptionsButtonBig" onclick="removeFromReserveList(\''+tableID+'\')"><i class="fa fa-check-square-o" style=""></i><tag style="padding-left: 15px">Free this Table</tag></button>'+  
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_reservedSeatOption" onclick="punchNewOrder(\''+tableID+'\', \''+optionalCustomerName+'\', '+optionalSaveFlag+')"><i class="fa fa-plus" style=""></i><tag style="padding-left: 15px">Punch New Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                  '<button class="btn btn-primary tableOptionsButtonBig easySelectTool_reservedSeatOption" onclick="removeFromReserveList(\''+tableID+'\')"><i class="fa fa-check-square-o" style=""></i><tag style="padding-left: 15px">Free this Table</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
                   '<button class="btn btn-default tableOptionsButton" onclick="hideReservedSeatOptions()">Close</button>';
 	document.getElementById("reservedSeatOptionsModal").style.display ='block';
+
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+          var li = $('#reservedSeatOptionsModalContent .easySelectTool_reservedSeatOption');
+          var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#reservedSeatOptionsModal').is(':visible')) {
+
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
+
+                    if(liSelected){
+                        liSelected.removeClass('selectOptionLiveOrder');
+                        next = liSelected.prev();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.last().addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.last().addClass('selectOptionLiveOrder');
+                    }                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+                    if(liSelected){
+                      liSelected.removeClass('selectOptionLiveOrder');
+                      next = liSelected.next();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                    }
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("reservedSeatOptionsModal").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#reservedSeatOptionsModal .easySelectTool_reservedSeatOption").each(function(){
+                      if($(this).hasClass("selectOptionLiveOrder")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
+            }
+          });
+
 }
 
 function hideReservedSeatOptions(){
 	document.getElementById("reservedSeatOptionsModal").style.display ='none';
 }
-
-
 
 
 function openOccuppiedSeatOptions(tableInfo){
@@ -65,17 +195,17 @@ function openOccuppiedSeatOptions(tableInfo){
 
     if(isUserAnAdmin){
 		  document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="moveKOTForEditing(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button> '+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\', \'SEATING_STATUS\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button> '+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="mergeDifferentBills(\''+tableData.table+'\')"><i class="fa fa-compress" style=""></i><tag style="padding-left: 15px">Merge Orders</tag></button> '+
-                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="cancelThisKOT(\''+tableData.KOT+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag></button>'+ 
-                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeTableMappingWarning(\''+tableData.table+'\')"><i class="fa fa-warning" style="color: yellow"></i><tag style="padding-left: 15px">Remove Mapping</tag></button>'+ 
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="moveKOTForEditing(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="generateBillFromKOT(\''+tableData.KOT+'\', \'SEATING_STATUS\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="mergeDifferentBills(\''+tableData.table+'\')"><i class="fa fa-compress" style=""></i><tag style="padding-left: 15px">Merge Orders</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button> '+
+                  '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="cancelThisKOT(\''+tableData.KOT+'\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                  '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="removeTableMappingWarning(\''+tableData.table+'\')"><i class="fa fa-warning" style="color: yellow"></i><tag style="padding-left: 15px">Remove Mapping</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
 	  }
     else{
       document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="moveKOTForEditing(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag></button> '+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="generateBillFromKOT(\''+tableData.KOT+'\', \'SEATING_STATUS\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="moveKOTForEditing(\''+tableData.KOT+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="generateBillFromKOT(\''+tableData.KOT+'\', \'SEATING_STATUS\'); hideOccuppiedSeatOptions();"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button> '+
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
     }
 
@@ -84,18 +214,85 @@ function openOccuppiedSeatOptions(tableInfo){
 
     if(isUserAnAdmin){
 		  document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="settlePrintedBill(\''+tableData.KOT+'\')"><i class="fa fa-credit-card" style=""></i><tag style="padding-left: 15px">Settle Bill</tag></button> '+ 
-                  '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeTableMappingWarning(\''+tableData.table+'\')"><i class="fa fa-warning" style="color: yellow"></i><tag style="padding-left: 15px">Remove Mapping</tag></button>'+ 
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="settlePrintedBill(\''+tableData.KOT+'\')"><i class="fa fa-credit-card" style=""></i><tag style="padding-left: 15px">Settle Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button> '+ 
+                  '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="removeTableMappingWarning(\''+tableData.table+'\')"><i class="fa fa-warning" style="color: yellow"></i><tag style="padding-left: 15px">Remove Mapping</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
 	  }
     else{
       document.getElementById("occuppiedSeatOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+tableData.table+'</b></h1>'+
-                  '<button class="btn btn-success tableOptionsButtonBig" onclick="settlePrintedBill(\''+tableData.KOT+'\')"><i class="fa fa-credit-card" style=""></i><tag style="padding-left: 15px">Settle Bill</tag></button> '+
+                  '<button class="btn btn-success tableOptionsButtonBig easySelectTool_occuppiedSeatOption" onclick="settlePrintedBill(\''+tableData.KOT+'\')"><i class="fa fa-credit-card" style=""></i><tag style="padding-left: 15px">Settle Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button> '+
                   '<button class="btn btn-default tableOptionsButton" onclick="hideOccuppiedSeatOptions()">Close</button> ';
     }
   }
 
 	document.getElementById("occuppiedSeatOptionsModal").style.display ='block';
+
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+
+          var li = $('#occuppiedSeatOptionsModalContent .easySelectTool_occuppiedSeatOption');
+          var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#occuppiedSeatOptionsModal').is(':visible')) {
+
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
+
+                    if(liSelected){
+                        liSelected.removeClass('selectOptionLiveOrder');
+                        next = liSelected.prev();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.last().addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.last().addClass('selectOptionLiveOrder');
+                    }                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+                    if(liSelected){
+                      liSelected.removeClass('selectOptionLiveOrder');
+                      next = liSelected.next();
+                      if(next.length > 0){
+                        liSelected = next.addClass('selectOptionLiveOrder');
+                      }else{
+                        liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                      }
+                    }else{
+                      liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                    }
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("occuppiedSeatOptionsModal").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#occuppiedSeatOptionsModal .easySelectTool_occuppiedSeatOption").each(function(){
+                      if($(this).hasClass("selectOptionLiveOrder")){
+                        $(this).click();
+                        e.preventDefault(); 
+                        easySelectTool.unbind();   
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
+            }
+          });
+
 }
 
 function hideOccuppiedSeatOptions(){
@@ -121,6 +318,18 @@ function removeTableMappingWarning(tableNumber){
   document.getElementById("mappingDeleteConfirmationConsent").innerHTML = '<button  class="btn btn-default" onclick="removeTableMappingWarningHide()" style="float: left">Close</button>'+
                                 '<button  class="btn btn-danger" onclick="removeTableMapping(\''+tableNumber+'\')">Proceed to Remove</button>';
 
+
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#mappingDeleteConfirmation').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("mappingDeleteConfirmation").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
 }
 
 function removeTableMappingWarningHide(){
@@ -492,6 +701,19 @@ function addToReserveListConsent(tableID){
 	document.getElementById("reserve_table_in_the_name_of").value = '';
 
 	$('#reserve_table_in_the_name_of').focus();
+
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#addToReservedConsentModal').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("addToReservedConsentModal").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
+
 }
 
 function addToReserveListConsentClose(){
