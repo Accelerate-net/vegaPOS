@@ -784,15 +784,15 @@ function swapTableMapping(old, newTable){
 
                 var nextIndex = -1;
                 var memory_status, memory_assigned, memory_KOT, memory_lastTime;
-                var oldValueDetected = false;
+                
 
+
+
+
+                //Find Old Value
                 for(var i=0; i<tableMapping.length; i++){
-                  
                   if(tableMapping[i].table == old){ 
 
-                    oldValueDetected = true;
-
-                    if(nextIndex == -1){ // OLD Table < NEW Table
                       memory_status = tableMapping[i].status;
                       memory_assigned = tableMapping[i].assigned;
                       memory_KOT = tableMapping[i].KOT;
@@ -802,39 +802,32 @@ function swapTableMapping(old, newTable){
                       tableMapping[i].assigned = "";
                       tableMapping[i].KOT = "";
                       tableMapping[i].lastUpdate = "";
-                      console.log('Swapped @1')
-                    }
-                    else{
-                      tableMapping[i].status = 0;
-                      tableMapping[i].assigned = "";
-                      tableMapping[i].KOT = "";
-                      tableMapping[i].lastUpdate = ""; 
 
-                      tableMapping[nextIndex].status = memory_status;
-                      tableMapping[nextIndex].assigned = memory_assigned;
-                      tableMapping[nextIndex].KOT = memory_KOT;
-                      tableMapping[nextIndex].lastUpdate = memory_lastTime; 
-                      console.log('Swapped @2')
+                      replaceWithNewTable();
 
                       break;
-                    }
                   }
-                  else if(tableMapping[i].table == newTable){
-                    nextIndex = i;
-
-                    if(oldValueDetected){
-                      tableMapping[nextIndex].status = memory_status;
-                      tableMapping[nextIndex].assigned = memory_assigned;
-                      tableMapping[nextIndex].KOT = memory_KOT;
-                      tableMapping[nextIndex].lastUpdate = memory_lastTime;    
-                      console.log('Swapped @3')  
-
-                      break;                
-                    }
-                  }
-
                 }
 
+
+                function replaceWithNewTable(){
+                  //Find New Table
+                  for(var j=0; j<tableMapping.length; j++){
+                    if(tableMapping[j].table == newTable){ 
+                        tableMapping[j].status = memory_status;
+                        tableMapping[j].assigned = memory_assigned;
+                        tableMapping[j].KOT = memory_KOT;
+                        tableMapping[j].lastUpdate = memory_lastTime; 
+
+                        updateChangesOnServer();
+
+                        break;
+                    }     
+                  }             
+                }
+
+
+                function updateChangesOnServer(){
                         //Update
                         var updateData = {
                           "_rev": data.docs[0]._rev,
@@ -856,7 +849,8 @@ function swapTableMapping(old, newTable){
                             showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                           }
 
-                        });             
+                        });    
+                }         
 
                     
               }
