@@ -3500,20 +3500,18 @@ function enableAdminUser(profileUser){
 
   if(profileUser.name != '' && profileUser.code != ''){
     document.getElementById("adminUserModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
-                                   '<header>'+
+                                    '<header>'+
                                       '<span class="avatarTransparent"><img src="images/common/passcode_lock.png" id="adminUserLockIcon"></span>'+
-                                      '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login as <b>Sahad</b></h1>'+
+                                      '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login as <b>'+profileUser.name+'</b></h1>'+
                                       '<hr style="margin-bottom: 15px; margin-top: 5px;">'+
                                       '<p style="font-size: 12px; letter-spacing: 4px; color: #959595;">ENTER PASSCODE</p>'+
-                                   '</header>'+
-                                   '<form style="margin: 0">'+
+                                    '</header>'+
                                     '<div class="row" style="margin: 15px 0">'+
                                         '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextPasscode(event, this, \'2\')" maxlength="1" type="password" id="adminUserPasscode_1" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
                                         '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextPasscode(event, this, \'3\')" maxlength="1" type="password" id="adminUserPasscode_2" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
                                         '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextPasscode(event, this, \'4\')" maxlength="1" type="password" id="adminUserPasscode_3" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
                                         '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="processPasscodeAndLogin(event, this, \''+profileUser.code+'\')" maxlength="1" type="password" id="adminUserPasscode_4" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+                     
                                     '</div>'+
-                                   '</form>'+
                                 '</section>';
 
     document.getElementById("adminUserModalHome").style.display = 'block';
