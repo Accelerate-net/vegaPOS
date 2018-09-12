@@ -3170,16 +3170,16 @@ function showSpotlight(){
                                                       var tempData = encodeURI(JSON.stringify(spotItem));
 
                                                       if(spotItem.status == 0){
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
+                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
                                                       }
                                                       else if(spotItem.status == 1){
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'MAPPED\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
+                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
                                                       }
                                                       else if(spotItem.status == 2){
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="preSettleBill(\''+spotItem.KOT+'\', \'ORDER_PUNCHING\')"> <i class="fa fa-circle" style="color: #ef9912"></i> Table #'+(spotItem.table)+'</li>';
+                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #ef9912"></i> Table #'+(spotItem.table)+'</li>';
                                                       }
                                                       else if(spotItem.status == 5){
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\', \''+(spotItem.assigned != "" && spotItem.assigned != "Hold Order" ? spotItem.assigned : '')+'\', '+(spotItem.assigned != "" && spotItem.assigned == "Hold Order" ? 1 : 0)+')"> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
+                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\'))> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
                                                       }
                                                       
                                                       count++;
@@ -3199,10 +3199,10 @@ function showSpotlight(){
                                                       var tempData = encodeURI(JSON.stringify(spotItem));
 
                                                       if(spotItem.isAvailable){ //Item Available
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="additemtocart(\''+tempData+'\')"> <i class="fa fa-check" style="color: #2ecc71; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="spotlightTriggerMenuItem(\''+tempData+'\')"> <i class="fa fa-check" style="color: #2ecc71; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
                                                       }
                                                       else{
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="additemtocart(\''+tempData+'\')"> <i class="fa fa-times" style="color: #e74c3c; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="spotlightTriggerMenuItem(\''+tempData+'\')"> <i class="fa fa-times" style="color: #e74c3c; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
                                                       } //Not available
 
                                                       count++;
@@ -3281,14 +3281,18 @@ console.log('am here')
                                         var tempData = encodeURI(JSON.stringify(spotItem));
 
                                         if(spotItem.status == 0){
-                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
                                         }
-                                        else if(spotItem.status == 1 || spotItem.status == 2){
-                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'MAPPED\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
+                                        else if(spotItem.status == 1){
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
+                                        }
+                                        else if(spotItem.status == 2){
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #ef9912"></i> Table #'+(spotItem.table)+'</li>';
                                         }
                                         else if(spotItem.status == 5){
-                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="retrieveTableInfo(\''+spotItem.table+'\', \'FREE\', \''+(spotItem.assigned != "" && spotItem.assigned != "Hold Order" ? spotItem.assigned : '')+'\', '+(spotItem.assigned != "" && spotItem.assigned == "Hold Order" ? 1 : 0)+')"> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
                                         }
+
                                         
                                         count++;
                                         tabIndex++;
@@ -3307,10 +3311,10 @@ console.log('am here')
                                         var tempData = encodeURI(JSON.stringify(spotItem));
 
                                         if(spotItem.isAvailable){ //Item Available
-                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="additemtocart(\''+tempData+'\')"> <i class="fa fa-check" style="color: #2ecc71; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="spotlightTriggerMenuItem(\''+tempData+'\')"> <i class="fa fa-check" style="color: #2ecc71; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
                                         }
                                         else{
-                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="additemtocart(\''+tempData+'\')"> <i class="fa fa-times" style="color: #e74c3c; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="spotlightTriggerMenuItem(\''+tempData+'\')"> <i class="fa fa-times" style="color: #e74c3c; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
                                         } //Not available
 
                                         count++;
@@ -3360,6 +3364,102 @@ console.log('am here 2')
 }
 
 
+/* Options for Spotlight Menu item click */
+function spotlightTriggerMenuItem(tempData){
+
+  if(currentRunningPage == 'new-order'){
+    additemtocart(tempData)
+  }
+  else if(currentRunningPage == 'manage-menu'){
+    
+    var spotlight_item = JSON.parse(decodeURI(tempData));
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+              var mastermenu = data.docs[0].value;
+        
+              for (var i=0; i<mastermenu.length; i++){
+                for(var j=0; j<mastermenu[i].items.length; j++){
+
+                  if(mastermenu[i].items[j].code == spotlight_item.code){
+                    openSubMenu(mastermenu[i].category, mastermenu[i].items[j].code);
+                    break;
+                  }
+              
+                }         
+              }
+
+          }
+        }
+      }
+    }); 
+
+
+  } 
+}
+
+/* Options for Spotlight Table click */
+function spotlightTriggerTable(encodedData){
+  
+  var tableData = JSON.parse(decodeURI(encodedData));
+
+  if(currentRunningPage == 'new-order'){
+
+    if(tableData.status == 0){
+      retrieveTableInfo(tableData.table, 'FREE');
+    }
+    else if(tableData.status == 1){
+      retrieveTableInfo(tableData.table, 'MAPPED');
+    }
+    else if(tableData.status == 2){
+      preSettleBill(tableData.KOT, 'ORDER_PUNCHING');
+    }
+    else if(tableData.status == 5){
+      retrieveTableInfo(tableData.table, 'FREE', (tableData.assigned != "" && tableData.assigned != "Hold Order" ? tableData.assigned : ''), (tableData.assigned != "" && tableData.assigned == "Hold Order" ? 1 : 0));
+    }
+
+  }
+  else if(currentRunningPage == 'live-orders'){
+
+    if(tableData.status == 1){
+      liveOrderOptions(tableData.KOT);
+    }
+    else{
+      showToast('No active order found on this Table', '#27ae60');
+    }
+
+  }
+  else if(currentRunningPage == 'seating-status'){
+
+    if(tableData.status == 0){
+      openFreeSeatOptions(tableData.table);
+    }
+    else if(tableData.status == 1 || tableData.status == 2){
+      openOccuppiedSeatOptions(encodedData);
+    }
+    else if(tableData.status == 5){
+      openReservedSeatOptions(tableData.table, tableData.assigned, (tableData.assigned != "" && tableData.assigned == "Hold Order" ? 1 : 0));
+    }
+
+  }
+
+}
 
 
 /* 

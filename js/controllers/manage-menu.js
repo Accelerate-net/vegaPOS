@@ -458,7 +458,7 @@ function getVegIcon(flag){
 }
 
 
-function openSubMenu(menuCategory){	
+function openSubMenu(menuCategory, optionalHighlighItem){	
 
 	//read menu
     var requestData = {
@@ -499,7 +499,7 @@ function openSubMenu(menuCategory){
 								availabilityTag = '<span class="label notavailTag" id="item_avail_'+mastermenu[i].items[j].code+'" onclick="markAvailability(\''+mastermenu[i].items[j].code+'\')">Out of Stock</span>';
 							}
 
-							itemsInCategory = itemsInCategory + '<tr>'+
+							itemsInCategory = itemsInCategory + '<tr id="menu_item_row_'+mastermenu[i].items[j].code+'">'+
 							                                       '<td class="deleteItemWrap" style="padding-left: 25px">'+getVegIcon(mastermenu[i].items[j].vegFlag)+mastermenu[i].items[j].name+'<tag class="deleteItemIcon" onclick="deleteItemFromMenu(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-minus-circle"></i></tag><span style="display: block; font-size: 10px; color: #8a8a8a; letter-spacing: 1px; margin-left: 13px;">'+mastermenu[i].items[j].code+'</span></td>'+
 							                                       '<td><button class="btn btn-sm itemPriceTag" onclick="editItemPrice(\''+encodeURI(JSON.stringify(mastermenu[i].items[j]))+'\', \''+menuCategory+'\')"><i class="fa fa-inr"></i>'+mastermenu[i].items[j].price+'</button></td>'+
 							                                       '<td>'+availabilityTag+'</td>'+
@@ -577,6 +577,12 @@ function openSubMenu(menuCategory){
                 	itemsInCategory = '<p style="color: #bdc3c7">No items found in '+menuCategory+'</p>';
 				
 				document.getElementById("menuRenderContent").innerHTML = itemsInCategory;
+
+
+				//Highlight item row (optional)
+				if(optionalHighlighItem && optionalHighlighItem != ''){
+					$('#menu_item_row_'+optionalHighlighItem).addClass('borderedItemSelection');
+				}
 
           }
           else{

@@ -5526,6 +5526,8 @@ input:checked + .slider:before {
   border: 1px solid #e74c3c;
 }
 
-
+.borderedItemSelection{
+  border: 2px solid #f39c12;
+}
 
 

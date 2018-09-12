@@ -296,6 +296,18 @@ function liveOrderOptionsNonDine(kotID){
 
           document.getElementById("liveOrderOptionsModal").style.display = 'block';
 
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#liveOrderOptionsModal').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("liveOrderOptionsModal").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
+
         }
         else{
           showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
@@ -365,6 +377,19 @@ function liveOrderOptions(kotID){
           }
 
           document.getElementById("liveOrderOptionsModal").style.display = 'block';
+
+
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#liveOrderOptionsModal').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("liveOrderOptionsModal").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
 
         }
         else{
@@ -641,7 +666,19 @@ function pickTableForTransferOrder(currentTableID, kotID){
                                           
                                           document.getElementById("pickTableForTransferOrderModalContent").innerHTML = renderSectionArea;                        
                                           document.getElementById("pickTableForTransferOrderModal").style.display = 'block'; 
-                                    
+                  
+                                          var easyActionsTool = $(document).on('keydown',  function (e) {
+                                            console.log('Am secretly running...')
+                                            if($('#pickTableForTransferOrderModal').is(':visible')) {
+
+                                                  if(e.which == 27){ // Escape (Close)
+                                                    document.getElementById("pickTableForTransferOrderModal").style.display ='none';
+                                                    easyActionsTool.unbind();
+                                                  }
+
+                                            }
+                                          });
+
                           }
                           else{
                             showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');

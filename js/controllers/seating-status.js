@@ -14,6 +14,19 @@ function openFreeSeatOptions(tableID){
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="addToReserveListConsent(\''+tableID+'\')"><i class="fa fa-male" style=""></i><tag style="padding-left: 15px">Reserve this Table</tag></button>'+  
                   '<button class="btn btn-default tableOptionsButton" onclick="hideFreeSeatOptions()">Close</button>';
 	document.getElementById("freeSeatOptionsModal").style.display ='block';
+
+
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#freeSeatOptionsModal').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("freeSeatOptionsModal").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
 }
 
 function hideFreeSeatOptions(){
@@ -28,6 +41,18 @@ function openReservedSeatOptions(tableID, optionalCustomerName, optionalSaveFlag
                   '<button class="btn btn-primary tableOptionsButtonBig" onclick="removeFromReserveList(\''+tableID+'\')"><i class="fa fa-check-square-o" style=""></i><tag style="padding-left: 15px">Free this Table</tag></button>'+  
                   '<button class="btn btn-default tableOptionsButton" onclick="hideReservedSeatOptions()">Close</button>';
 	document.getElementById("reservedSeatOptionsModal").style.display ='block';
+
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#reservedSeatOptionsModal').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("reservedSeatOptionsModal").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
 }
 
 function hideReservedSeatOptions(){
@@ -96,6 +121,21 @@ function openOccuppiedSeatOptions(tableInfo){
   }
 
 	document.getElementById("occuppiedSeatOptionsModal").style.display ='block';
+
+
+
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#occuppiedSeatOptionsModal').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("occuppiedSeatOptionsModal").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
+
 }
 
 function hideOccuppiedSeatOptions(){
@@ -121,6 +161,18 @@ function removeTableMappingWarning(tableNumber){
   document.getElementById("mappingDeleteConfirmationConsent").innerHTML = '<button  class="btn btn-default" onclick="removeTableMappingWarningHide()" style="float: left">Close</button>'+
                                 '<button  class="btn btn-danger" onclick="removeTableMapping(\''+tableNumber+'\')">Proceed to Remove</button>';
 
+
+          var easyActionsTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#mappingDeleteConfirmation').is(':visible')) {
+
+                  if(e.which == 27){ // Escape (Close)
+                    document.getElementById("mappingDeleteConfirmation").style.display ='none';
+                    easyActionsTool.unbind();
+                  }
+
+            }
+          });
 }
 
 function removeTableMappingWarningHide(){
