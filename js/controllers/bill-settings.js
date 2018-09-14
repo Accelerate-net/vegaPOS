@@ -96,9 +96,89 @@ function hideNewMode(){
 }
 
 function openNewOrderSource(){
-	document.getElementById("newOrderSourceArea").style.display = "block";
+
+              //Preload Billing Modes data
+              var requestData = {
+                "selector"  :{ 
+                              "identifierTag": "ZAITOON_BILLING_MODES" 
+                            },
+                "fields"    : ["identifierTag", "value"]
+              }
+
+              $.ajax({
+                type: 'POST',
+                url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+                dataType: 'json',
+                timeout: 10000,
+                success: function(data) {
+                  console.log(data)
+                  if(data.docs.length > 0){
+                    if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+
+                        var modes = data.docs[0].value;
+
+                        openNewOrderSourceAfterProcess(modes);
+
+                    }
+                    else{
+                      openNewOrderSourceAfterProcess([]);
+                    }
+                  }
+                  else{
+                    openNewOrderSourceAfterProcess([]);
+                  }
+                  
+                },
+                error: function(data) {
+                  openNewOrderSourceAfterProcess([]);
+                }
+
+              });
+
+
+}
+
+function openNewOrderSourceAfterProcess(billingModes){
+
+  document.getElementById("newOrderSourceArea").style.display = "block";
   $("#add_new_source_name").focus();
-	document.getElementById("openNewOrderSourceButton").style.display = "none";
+  document.getElementById("openNewOrderSourceButton").style.display = "none";
+
+  //Options to Choose for default delivery/takeaway
+  if(billingModes.length > 0){
+    
+    var atleastOneFound_delivery = false;
+    var atleastOneFound_takeaway = false;
+
+    var defaultTemplate_delivery = '<option value="NONE" selected="selected">Not Set</option>';
+    var defaultTemplate_takeaway = '<option value="NONE" selected="selected">Not Set</option>';
+    
+    var n = 0;
+    while(billingModes[n]){
+      if(billingModes[n].type == 'DELIVERY'){
+        defaultTemplate_delivery += '<option value="'+billingModes[n].name+'">'+billingModes[n].name+'</option>';
+        atleastOneFound_delivery = true;
+      }
+      else if(billingModes[n].type == 'PARCEL'){
+        defaultTemplate_takeaway += '<option value="'+billingModes[n].name+'">'+billingModes[n].name+'</option>';
+        atleastOneFound_takeaway = true;
+      }
+      
+      n++;
+    }  
+
+    if(atleastOneFound_delivery){
+      document.getElementById("add_new_source_default_delivery").innerHTML = defaultTemplate_delivery;
+    }
+
+    if(defaultTemplate_takeaway){
+      document.getElementById("add_new_source_default_takeaway").innerHTML = defaultTemplate_takeaway;
+    }
+    
+  }
+
 }
 
 function hideNewOrderSource(){
@@ -1300,9 +1380,6 @@ function deletePaymentMode(modeName) {
 
 
 // ORDER SOURCES
-
-
-/* read payment modes */
 function fetchAllOrderSources(){
 
     var requestData = {
@@ -1325,12 +1402,14 @@ function fetchAllOrderSources(){
           if(data.docs[0].identifierTag == 'ZAITOON_ORDER_SOURCES'){
 
               var modes = data.docs[0].value;
-              modes.sort(); //alphabetical sorting 
+              window.localStorage.addedOrderSourcesData = JSON.stringify(modes);
+
               var modesTag = '';
-
-
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+'</td> <td>'+modes[i].code+'</td> '+(modes[i].code == 'SYSTEM' || modes[i].code == 'ONLINE' ? '<td> <i class="fa fa-lock" style="color: #90d899"></i> </td>' : '<td onclick="deleteOrderSourceConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td>')+'</tr>';
+                modesTag = modesTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+modes[i].name+
+                ((modes[i].defaultDelivery != '' && modes[i].defaultDelivery != 'NONE') ? '<tag style="display: block; font-size: 10px; color: gray">Default Delivery Mode: <tag style="color: #f39c12">'+modes[i].defaultDelivery+'</tag>' : '')+
+                ((modes[i].defaultTakeaway != '' && modes[i].defaultTakeaway != 'NONE') ? '<tag style="display: block; font-size: 10px; color: gray">Default Takeaway Mode: <tag style="color: #f39c12">'+modes[i].defaultTakeaway+'</tag>' : '')+
+                '</td> <td>'+modes[i].code+'</td> '+(modes[i].code == 'SYSTEM' || modes[i].code == 'ONLINE' ? '<td> <i class="fa fa-lock" style="color: #90d899"></i> </td>' : '<td onclick="deleteOrderSourceConfirm(\''+modes[i].name+'\')"> <i class="fa fa-trash-o"></i> </td>')+'</tr>';
               }
 
               if(!modesTag)
@@ -1354,14 +1433,11 @@ function fetchAllOrderSources(){
       }
 
     });
-
 }
 
 
-
-
 /* add new payment mode */
-function addOrderSource(optionalName, optionalCode) {  
+function addOrderSource(optionalName, optionalCode, optionalDelivery, optionalTakeaway) {  
 
   var paramObj = {};
 
@@ -1379,6 +1455,20 @@ function addOrderSource(optionalName, optionalCode) {
     paramObj.code = optionalCode;
   }
 
+  if(!optionalDelivery || optionalDelivery == ''){
+    paramObj.defaultDelivery = $('#add_new_source_default_delivery').val();
+  }
+  else{
+    paramObj.defaultDelivery = optionalDelivery;
+  }
+
+  if(!optionalTakeaway || optionalTakeaway == ''){
+    paramObj.defaultTakeaway = $('#add_new_source_default_takeaway').val();
+  }
+  else{
+    paramObj.defaultTakeaway = optionalTakeaway;
+  }
+
 
   if(paramObj.name == ''){
     showToast('Warning: Please set a name', '#e67e22');
@@ -1388,6 +1478,9 @@ function addOrderSource(optionalName, optionalCode) {
     showToast('Warning: Please set a code', '#e67e22');
     return '';
   }
+
+  
+  
 
   // if(paramObj.code == ''){
   //   showToast('Warning: Reserved Keyword. Please set different a code', '#e67e22');
@@ -1504,10 +1597,14 @@ function deleteOrderSource(modeName) {
                var modesList = data.docs[0].value;
 
                var memory_code = '';
+               var memory_delivery_default = '';
+               var memory_takeaway_default = '';
 
                for (var i=0; i<modesList.length; i++) {  
                  if (modesList[i].name == modeName){
                     memory_code = modesList[i].code;
+                    memory_delivery_default = modesList[i].defaultDelivery;
+                    memory_takeaway_default = modesList[i].defaultTakeaway;
                     modesList.splice(i,1);
                     break;
                  }
@@ -1529,9 +1626,9 @@ function deleteOrderSource(modeName) {
                   timeout: 10000,
                   success: function(data) {
                     /* on successful delete */
-                    fetchAllPaymentModes();
+                    fetchAllOrderSources();
 
-                    showUndo('Deleted', 'addOrderSource(\''+modeName+'\', \''+memory_code+'\')');
+                    showUndo('Deleted', 'addOrderSource(\''+modeName+'\', \''+memory_code+'\', \''+memory_delivery_default+'\', \''+memory_takeaway_default+'\')');
                   },
                   error: function(data) {
                     showToast('System Error: Unable to make changes in Order Sources data. Please contact Accelerate Support.', '#e74c3c');

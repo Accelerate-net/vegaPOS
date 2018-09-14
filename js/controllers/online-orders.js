@@ -934,15 +934,39 @@ function punchOnlineOrderToKOT(encodedOrder){
 	var customerInfo = '';
 
 	var online_order_source = order.source ? order.source : 'ZAITOON'; 
-	console.log('AM HARD CODED!!!!');
 	if(online_order_source == ''){
-		showToast('Error: This order can not be punched. Order Source missing.', '#e74c3c');
+		showToast('Error: This order can not be punched. Order Source is missing.', '#e74c3c');
 		return '';
 	}
 
+
+	/* --- Start --- 
+		Find if any default billing modes set against the given ORDER SOURCE.
+	*/
+
+	var default_order_sources_modes = window.localStorage.addedOrderSourcesData ? JSON.parse(window.localStorage.addedOrderSourcesData) : []; 
+	
+	var defaultModesFound_delivery = '';
+	var defaultModesFound_takeaway = '';
+
+	var h = 0;
+	while(default_order_sources_modes[h]){
+		if(default_order_sources_modes[h].code == online_order_source){
+			if(default_order_sources_modes[h].defaultDelivery != 'NONE' && default_order_sources_modes[h].defaultDelivery != ''){
+				defaultModesFound_delivery = default_order_sources_modes[h].defaultDelivery;
+			}
+			if(default_order_sources_modes[h].defaultTakeaway != 'NONE' && default_order_sources_modes[h].defaultTakeaway != ''){
+				defaultModesFound_takeaway = default_order_sources_modes[h].defaultTakeaway;
+			}
+			break;
+		}
+		h++;
+	}
+
+	/* --- End --- */
+
 	var default_parcel_mode = window.localStorage.systemOptionsSettings_defaultTakeawayMode ? window.localStorage.systemOptionsSettings_defaultTakeawayMode : ''; 
 	var default_delivery_mode = window.localStorage.systemOptionsSettings_defaultDeliveryMode ? window.localStorage.systemOptionsSettings_defaultDeliveryMode : '';
-
 
 	if(default_parcel_mode == 'NONE'){
 		default_parcel_mode = '';
@@ -964,7 +988,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 
 	if(order.isTakeaway){ //Set default Takeaway Order
 
-		if(default_parcel_mode == ''){
+		if(defaultModesFound_takeaway == '' && default_parcel_mode == ''){
 			showToast('Warning! Default billing mode for Online Takeaway orders is not set.', '#e67e22');
 			return '';
 		}
@@ -972,7 +996,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 		customerInfo = {
 			"name": order.userName,
 			"mobile": order.userID,
-			"mode": default_parcel_mode,
+			"mode": defaultModesFound_takeaway != '' ? defaultModesFound_takeaway : default_parcel_mode,
 			"modeType": "PARCEL",
 			"mappedAddress": JSON.stringify(order.deliveryAddress),
 			"reference": order.orderID,
@@ -982,7 +1006,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 	}
 	else{ //Set default Delivery Order
 	
-		if(default_delivery_mode == ''){
+		if(defaultModesFound_delivery == '' && default_delivery_mode == ''){
 			showToast('Warning! Default billing mode for Online Delivery orders is not set.', '#e67e22');
 			return '';
 		}
@@ -990,7 +1014,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 		customerInfo = {
 			"name": order.userName,
 			"mobile": order.userID,
-			"mode": default_delivery_mode,
+			"mode": defaultModesFound_delivery != '' ? defaultModesFound_delivery : default_delivery_mode,
 			"modeType": "DELIVERY",
 			"mappedAddress": JSON.stringify(order.deliveryAddress),
 			"reference": order.orderID,

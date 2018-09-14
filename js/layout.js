@@ -207,6 +207,7 @@ function applyLicenceTerms(){
                   applyShortcuts();
                   autoSessionSwitchChecker();
                   applyConfiguredPrinters();
+                  applyOrderSources();
 
                   //If Online enabled
                   if(machinesList[n].isOnlineEnabled){
@@ -254,9 +255,39 @@ function removeWelcomeScreen(){
   document.getElementById("welcomeScreenLock").style.display = 'none';
 }
 
+/* apply added ORDER SOURCES */
+function applyOrderSources(){
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_ORDER_SOURCES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_ORDER_SOURCES'){
+              var order_sources_list = data.docs[0].value;
+              window.localStorage.addedOrderSourcesData = JSON.stringify(order_sources_list);
+          }
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });
+}
 
 /* apply configured printers */
 function applyConfiguredPrinters(){
+
   var printersList = window.localStorage.connectedPrintersList ? JSON.parse(window.localStorage.connectedPrintersList) : [];
 
   var list_bills = [];
