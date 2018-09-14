@@ -120,6 +120,9 @@
                     <p style="color: #777">Please switch on the Server and/or check the connection to it.</p>
                     <a href="#" onclick="testLocalServerConnection(1)" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Retry?</a>
                     <tag style="display: block; font-size: 80%" id="refreshServerCheckCounter">-</tag>
+
+                    <a href="#" onclick="viewServerURL()" style="text-transform: none; letter-spacing: normal; border: none; position: absolute; top: 10px; right: 5px; width: 30px; color: #ccc; font-size: 18px; cursor: pointer;"><i class="fa fa-cog"></i></a>
+                    
                 </div>
             </section>
         </div>
@@ -131,14 +134,14 @@
     <!-- APPLICATION ACTIVATION : SCREEN LOCK -->
     <div id="applicationActivationLock" style="display: none">
         <div id="wrapper">
-            <section id="mainLock" style="padding: 35px 44px 20px 44px">
+            <section id="mainLock" style="padding: 35px 44px 20px 44px;">
                 <header>
                     <span class=""><img src="images/common/application_not_activated.png" alt=""></span>
                     <h1 style="font-size: 28px; color: #edac0d; font-family: 'Roboto';">Application not Activated</h1>
                 </header>
 
                 <div style="margin: 0;" id="applicationActivationLockDefault">
-                    <p style="color: #777">Please connect to Internet and Activate the Application.</p>
+                    <p style="color: #777">Please connect to the Internet and Activate the Application.</p>
                     <a href="#" onclick="activateApplicationFromHomeScreen()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Activate</a>
                 </div>
 
@@ -154,6 +157,8 @@
 
                     <a href="#" onclick="goProceedToActivation()" style="text-transform: none; letter-spacing: normal; border-bottom: 1px solid grey; margin-top: 15px;">Activate Now</a>
 
+                    <a href="#" onclick="viewServerURL()" style="text-transform: none; letter-spacing: normal; border: none; position: absolute; top: 10px; right: 5px; width: 30px; color: #ccc; font-size: 18px; cursor: pointer;"><i class="fa fa-cog"></i></a>
+
                 </div>
 
             </section>
@@ -163,11 +168,39 @@
 
 
 
+    <!-- SERVER URL SETTINGS -->
+    <div id="serverConnectionURLDisplayModal" class="modal" style="z-index: 10000;">
+         <div class="modal-dialog" style="top: 20%">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader" style="background: #cc4333">
+                  <button  onclick="viewServerURLHide()" style="float: right;" class="btn clearButton">X</button>
+                  <h4 class="modal-title"><i class="fa fa-desktop" style="margin-right: 8px"></i>Server Address</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 30px 20px;">
+
+                     <div class="row">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Server URL" style="border: none; border-bottom: 1px solid #ddd" class="form-control tip" id="add_custom_server_url"/>
+                           </div>
+                        </div>
+                     </div>
+
+               </div>
+               <div class="modal-footer" style="padding: 0">
+                  <button style="width: 100%; border: none; border-radius: 0; height: 45px; outline: none !important;" class="btn btn-warning" onclick="setServerConnectionURL()">Save Server Address</button>
+               </div>
+            </div>
+         </div>
+    </div>
+
+
 
     <!-- APPLICATION ACTIVATION : SCREEN LOCK -->
     <div id="applicationExpireLock" style="display: none">
         <div id="wrapper">
-            <section id="mainLock" style="padding: 35px 44px 20px 44px">
+            <section id="mainLock" style="padding: 35px 44px 20px 44px;">
                 <header>
                     <span class=""><img src="images/common/application_expired.png" alt=""></span>
                     <h1 style="font-size: 28px; color: #edac0d; font-family: 'Roboto';">Licence Expired</h1>

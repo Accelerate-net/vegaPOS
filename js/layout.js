@@ -430,6 +430,46 @@ function activateApplicationFromHomeHide(){
   document.getElementById("applicationActivationLockActive").style.display = 'block';
 }
 
+
+function viewServerURL(){
+  
+  document.getElementById("serverConnectionURLDisplayModal").style.display = 'block';
+
+  var default_url = 'http://admin:admin@127.0.0.1:5984/';
+  var saved_url = window.localStorage.serverConnectionURL ? window.localStorage.serverConnectionURL : '';
+
+  if(saved_url == ''){
+    $('#add_custom_server_url').val(default_url);
+  }
+  else{
+    $('#add_custom_server_url').val(saved_url);
+  }
+}
+
+function viewServerURLHide(){
+  document.getElementById("serverConnectionURLDisplayModal").style.display = 'none';
+}
+
+function setServerConnectionURL(){
+
+  var url = $('#add_custom_server_url').val();
+  url = url.replace(/\s/g,'');
+
+  var default_url = 'http://admin:admin@127.0.0.1:5984/';
+
+  if(url != ''){
+    window.localStorage.serverConnectionURL = url;
+    COMMON_LOCAL_SERVER_IP = url;
+
+    viewServerURLHide();
+  }
+  else{
+    COMMON_LOCAL_SERVER_IP = default_url;
+    showToast('Error: Add a Server URL', '#e74c3c');
+  }
+}
+
+
 function goProceedToActivation(){
 
   var activation_code = document.getElementById("activation_code_home_entered").value;
@@ -533,7 +573,7 @@ function pushLicenseToLocaServerFromHome(licenceObject){
                       window.localStorage.accelerate_licence_number = licenceObject.licence;
                       window.localStorage.accelerate_licence_machineUID = licenceObject.machineUID;
                   
-                    document.getElementById("applicationActivationLock").style.display = 'none';
+                      document.getElementById("applicationActivationLock").style.display = 'none';
                       applyLicenceTerms();
                   },
                   error: function(data) {
@@ -1430,6 +1470,7 @@ function testLocalServerConnection(retryFlag){
               if(retryFlag && retryFlag == 1){
                 playNotificationSound('STARTUP');
                 showToast('Connected to the Server', '#27ae60');
+                applyLicenceTerms(); //TWEAK
               }
 
               clearInterval(checkServerRefreshInterval);

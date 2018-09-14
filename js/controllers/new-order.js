@@ -485,12 +485,12 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 	var selectedBillingModeName = $('#customer_form_data_mode').attr("selected-mode");
 	var selectedBillingModeInfo = '';
 
-/*
+
 	//TWEAK
 	if(selectedBillingModeName == ''){
 		selectedBillingModeName = $('#customer_form_data_mode').html();
 	}
-*/
+
 
 	var n = 0;
 	while(billing_modes[n]){
@@ -501,9 +501,14 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 		n++;
 	}
 
+	var licenceRequest = window.localStorage.accelerate_licence_number ? window.localStorage.accelerate_licence_number : '';
+
 	//Caution: BILLING MODE not found
 	if(!selectedBillingModeInfo || selectedBillingModeInfo == ''){
-		showToast('Error: Unknown Billing Mode. Check if mode <b>'+selectedBillingModeName+'</b> exists', '#e74c3c');
+		
+		if(licenceRequest != '') //show notification if application is activated.
+			showToast('Error: Unknown Billing Mode. Check if mode <b>'+(selectedBillingModeName != undefined && selectedBillingModeName != '' ? selectedBillingModeName : '')+'</b> exists', '#e74c3c');
+		
 		selectedBillingModeInfo = {
 			"name": "Unknown",
 			"extras": [],

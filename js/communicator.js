@@ -64,7 +64,7 @@ ipc.on('all-printers-list', function (event, listOfPrinters, optionalRequest) {
 
 function sendToPrinter(orderObject, type, optionalRequest){
 
- return '';
+ //return '';
 
  var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
@@ -120,9 +120,22 @@ if(data_custom_scanpay_enabled == 1){
 
 if(type == 'BILL'){
 
-var $j = jQuery.noConflict();
-var qrcode = $j('#dummyQRCodeHolder').qrcode({width: 64, height: 64, text : "https://www.zaitoon.online" });
+//Scan & Pay QR Code Options
+var qr_code_options = {
+   width: 64, 
+   height: 64, 
+   text : "https://www.zaitoon.online"
+};
 
+console.log('Started')
+   
+var $j = jQuery.noConflict();
+var qrcode = $j('#dummyQRCodeHolder').qrcode(qr_code_options, function(){
+   console.log('Completed')
+});
+
+
+console.log('End')
 
 //Render Items
 var sub_total = 0;
@@ -417,9 +430,14 @@ var html_template = ''+
 
 if(type == 'DUPLICATE_BILL'){
 
+   console.log('1')
+
 var $j = jQuery.noConflict();
 var qrcode = $j('#dummyQRCodeHolder').qrcode({width: 64, height: 64, text : "https://www.zaitoon.online" });
 
+console.log(qrcode)
+
+console.log('2')
 
 //Render Items
 var sub_total = 0;
