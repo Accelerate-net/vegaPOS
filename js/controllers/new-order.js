@@ -1104,7 +1104,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+	
-		                        '<div class="col-xs-8" style="padding: 0">'+
+		                        '<div class="col-xs-4" style="padding: 0">'+
 		                           '<div class="btn-group-vertical btn-block">'+
 		                              '<button class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                           '</div>'+
@@ -1277,6 +1277,34 @@ else{
 	}
 }
 
+
+
+/* To Print Current KOT View */
+function printCurrentKOTView(kotID, optionalSource){
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          var kot = data.docs[0];
+          sendToPrinter(kot, 'VIEW');
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    }); 	
+}
 
 
 function startFreshOrder(){
