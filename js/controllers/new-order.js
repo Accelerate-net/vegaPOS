@@ -58,7 +58,7 @@ function additemtocart(encodedItem, optionalSource){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+		if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
 
 		}
 		else{
@@ -313,7 +313,7 @@ function deleteItem(item, isCustom, variant){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 
-		if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+		if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
 
 		}
 		else{
@@ -406,7 +406,7 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
 
-		if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+		if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
 
 		}
 		else{
@@ -484,6 +484,13 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 	
 	var selectedBillingModeName = $('#customer_form_data_mode').attr("selected-mode");
 	var selectedBillingModeInfo = '';
+
+/*
+	//TWEAK
+	if(selectedBillingModeName == ''){
+		selectedBillingModeName = $('#customer_form_data_mode').html();
+	}
+*/
 
 	var n = 0;
 	while(billing_modes[n]){
@@ -578,7 +585,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 
 
-			if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+			if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
 
 			}
 			else{
@@ -1074,8 +1081,8 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 
  	//If editing allowed?
  	var isEditingEnabled = false;
- 	if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed != ''){
- 		if(window.localStorage.appOtherPreferences_cancellationAllowed == 1)
+ 	if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed != ''){
+ 		if(window.localStorage.appOtherPreferences_orderEditingAllowed == 1)
  			isEditingEnabled = true;
  	}
 
@@ -2132,7 +2139,7 @@ function clearCart(){
 		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 
-			if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+			if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
 
 			}
 			else{
@@ -2156,7 +2163,7 @@ function clearCartConsent(){
 		if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-			if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+			if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
 
 			}
 			else{
@@ -6296,7 +6303,7 @@ function addCommentToItem(itemCode, variant){
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 			
-			if(window.localStorage.appOtherPreferences_cancellationAllowed && window.localStorage.appOtherPreferences_cancellationAllowed == 1){
+			if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
 
 			}
 			else{

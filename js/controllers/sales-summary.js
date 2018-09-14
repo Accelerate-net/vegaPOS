@@ -3554,10 +3554,30 @@ function fetchSingleClickReport(){
 
 		runReportAnimation(95); //of Step 11 which completed the data processing
 
-		var reportInfo_branch = 'IIT Madras';
-		var reportInfo_admin = 'Sahadudheen';
-		var reportInfo_time = '03:01 AM, 28-08-2018';
-		var reportInfo_address = 'Zaitoon Multicuisine 1, Vantage Building, Mahatma Gandhi Road, Subramaniam Colony, Adyar, Chennai - 41';
+
+		//Get staff info.
+		var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
+		
+		if(jQuery.isEmptyObject(loggedInStaffInfo)){
+			loggedInStaffInfo.name = 'Zaitoon Staff';
+			loggedInStaffInfo.code = '0000000000';
+		}	
+
+
+
+		var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
+			
+		if(reportInfo_branch == ''){
+			showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+			return '';
+		}
+
+		var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
+
+		var reportInfo_admin = loggedInStaffInfo.name;
+		var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
+		var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : 'Zaitoon Multicuisine Restaurants';
+
 
 		generateReportContentDownload();
 
@@ -4149,11 +4169,27 @@ function fetchSingleClickReport(){
 	function singleClickWeeklyFinalReportRender(graphImage){
 		runReportAnimation(100); //of Step 11 which completed the data processing
 
+		//Get staff info.
+		var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
+		
+		if(jQuery.isEmptyObject(loggedInStaffInfo)){
+			loggedInStaffInfo.name = 'Zaitoon Staff';
+			loggedInStaffInfo.code = '0000000000';
+		}	
 
-		var reportInfo_branch = 'IIT Madras';
-		var reportInfo_admin = 'Sahadudheen';
-		var reportInfo_time = '03:01 AM, 28-08-2018';
-		var reportInfo_address = 'Zaitoon Multicuisine 1, Vantage Building, Mahatma Gandhi Road, Subramaniam Colony, Adyar, Chennai - 41';
+
+		var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
+			
+		if(reportInfo_branch == ''){
+			showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+			return '';
+		}
+
+		var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
+
+		var reportInfo_admin = loggedInStaffInfo.name;
+		var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
+		var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : 'Zaitoon Multicuisine Restaurants';
 
 
 		if(graphImage && graphImage != ''){
@@ -4369,10 +4405,34 @@ function reportActionEmail(){
 
 	var temp_image_name = (textContent.imageName).replace(/\s/g,'');
 
+	var email_list = window.localStorage.appOtherPreferences_reportEmailList ? window.localStorage.appOtherPreferences_reportEmailList : '';
+
+	if(email_list == ''){
+		showToast('Warning: No Emails added. Please configure atleast one Email from System Options', '#e67e22');
+		return '';
+	}
+	else{
+		  //Validate first
+		  var emailList = email_list.split(',');
+
+		  for (var i = 0; i < emailList.length; i++) { 
+		      if(!validateEmail(emailList[i].trim())) {
+		        showToast('Warning: Invalid list of Emails. Edit the list from System Options', '#e67e22');
+		        return '';
+		      }
+		  }
+
+		  function validateEmail(email) {
+		      var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+		      return re.test(email);
+		  }
+	}
+
+
 	var data = {
 		"token": window.localStorage.loggedInAdmin,
-		"name": "Sahad",
-		"email": "sahadudheen.mp@gmail.com",
+		"name": "Zaitoon",
+		"email": email_list,
 		"title": textContent.reportTitle,
 		"content": mailContent,
 		"image": graphImage,

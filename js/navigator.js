@@ -226,5 +226,5 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('user-settings', 'Punch Order');
+renderPage('system-settings', 'Punch Order');
 
