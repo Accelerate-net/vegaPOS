@@ -3564,7 +3564,6 @@ function fetchSingleClickReport(){
 		}	
 
 
-
 		var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
 			
 		if(reportInfo_branch == ''){
@@ -3578,6 +3577,9 @@ function fetchSingleClickReport(){
 		var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
 		var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : 'Zaitoon Multicuisine Restaurants';
 
+
+		//Reset Token Number and KOT Number (if preference set)
+		resetBillingCounters();
 
 		generateReportContentDownload();
 
@@ -4366,13 +4368,7 @@ function fetchSingleClickReport(){
 		      '</div>'+
 		    '</body>'+
 		    '<html>';
-
-
-
 	}	
-
-
-
 
 	function singleClickLoadErrors(){
 		//Display if any errors
@@ -4387,6 +4383,127 @@ function fetchSingleClickReport(){
 			document.getElementById("singleClickReport_ErrorContent").style.display = 'block';
 			document.getElementById("singleClickReport_ErrorContent").innerHTML = renderError;
 		}
+	}
+
+	function resetBillingCounters(){
+		var isEnabledVariabled = window.localStorage.appOtherPreferences_resetCountersAfterReport ? window.localStorage.appOtherPreferences_resetCountersAfterReport : '';
+		if(isEnabledVariabled == 1){
+			var present_day_today = getCurrentTime('DATE_STAMP');
+			if(fromDate == toDate && fromDate == present_day_today){
+				resetBillingKOTIndex();
+			}
+		}
+	}
+
+	function resetBillingKOTIndex(){
+   
+	    //Check for KOT index on Server
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_KOT_INDEX" 
+	                  },
+	      "fields"    : ["_rev", "identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_KOT_INDEX'){
+
+		          		var memory_revID = data.docs[0]._rev;
+
+	                    	  //Update KOT number on server
+	                          var updateData = {
+	                            "_rev": memory_revID,
+	                            "identifierTag": "ZAITOON_KOT_INDEX",
+	                            "value": 1
+	                          }
+
+	                          $.ajax({
+	                            type: 'PUT',
+	                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_INDEX/',
+	                            data: JSON.stringify(updateData),
+	                            contentType: "application/json",
+	                            dataType: 'json',
+	                            timeout: 10000,
+	                            success: function(data) {
+	                              resetBillingTokenIndex();
+	                            },
+	                            error: function(data) {
+	                              resetBillingTokenIndex();
+	                            }
+	                          });
+	             
+	          }
+	          else{
+	            resetBillingTokenIndex();
+	          }
+	        }
+	        else{
+	          resetBillingTokenIndex();
+	        }
+
+	      },
+	      error: function(data) {
+	        resetBillingTokenIndex();
+	      }
+
+	    });		
+	}
+
+	function resetBillingTokenIndex(){
+
+						    var requestData = {
+						      "selector"  :{ 
+						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                  },
+						      "fields"    : ["_rev", "identifierTag", "value"]
+						    }
+
+						    $.ajax({
+						      type: 'POST',
+						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      data: JSON.stringify(requestData),
+						      contentType: "application/json",
+						      dataType: 'json',
+						      timeout: 10000,
+						      success: function(data) {
+						        if(data.docs.length > 0){
+						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+
+										window.localStorage.claimedTokenNumber = 1;
+										window.localStorage.claimedTokenNumberTimestamp = new Date();
+
+				                          //Update token number on server
+				                          var updateData = {
+				                            "_rev": data.docs[0]._rev,
+				                            "identifierTag": "ZAITOON_TOKEN_INDEX",
+				                            "value": 2
+				                          }
+
+				                          $.ajax({
+				                            type: 'PUT',
+				                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TOKEN_INDEX/',
+				                            data: JSON.stringify(updateData),
+				                            contentType: "application/json",
+				                            dataType: 'json',
+				                            timeout: 10000,
+				                            success: function(data) {
+				                            	showToast('KOT and Token Numbers are automatically reset. Change your preferences from System Options.', '#27ae60'); 
+				                            }
+				                          });  
+
+						          }
+
+						        }
+						      }
+						    });
 	}
 }
 
