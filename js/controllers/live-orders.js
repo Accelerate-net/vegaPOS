@@ -283,12 +283,14 @@ function liveOrderOptionsNonDine(kotID){
 
           if(isUserAnAdmin){
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsNonDineClose()">Close</button>';
           }
           else{
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsNonDineClose()">Close</button>';
           }
@@ -421,6 +423,7 @@ function liveOrderOptions(kotID){
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
@@ -428,6 +431,7 @@ function liveOrderOptions(kotID){
           else{
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
           }
@@ -521,6 +525,35 @@ function cancelRunningKOTOrder(kotID, pageRef){
   liveOrderOptionsNonDineClose();
   cancelRunningOrder(kotID, pageRef);
 }
+
+
+/* To print Duplicate KOT */
+function printDuplicateKOT(kotID, optionalSource){
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          var kot = data.docs[0];
+          sendToPrinter(kot, 'DUPLICATE_KOT');
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    }); 
+}
+
 
 
 /*Add to edit KOT*/

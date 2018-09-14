@@ -485,12 +485,12 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 	var selectedBillingModeName = $('#customer_form_data_mode').attr("selected-mode");
 	var selectedBillingModeInfo = '';
 
-/*
+
 	//TWEAK
 	if(selectedBillingModeName == ''){
 		selectedBillingModeName = $('#customer_form_data_mode').html();
 	}
-*/
+
 
 	var n = 0;
 	while(billing_modes[n]){
@@ -501,9 +501,14 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 		n++;
 	}
 
+	var licenceRequest = window.localStorage.accelerate_licence_number ? window.localStorage.accelerate_licence_number : '';
+
 	//Caution: BILLING MODE not found
 	if(!selectedBillingModeInfo || selectedBillingModeInfo == ''){
-		showToast('Error: Unknown Billing Mode. Check if mode <b>'+selectedBillingModeName+'</b> exists', '#e74c3c');
+		
+		if(licenceRequest != '') //show notification if application is activated.
+			showToast('Error: Unknown Billing Mode. Check if mode <b>'+(selectedBillingModeName != undefined && selectedBillingModeName != '' ? selectedBillingModeName : '')+'</b> exists', '#e74c3c');
+		
 		selectedBillingModeInfo = {
 			"name": "Unknown",
 			"extras": [],
@@ -1093,10 +1098,15 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                           '<div class="btn-group-vertical btn-block">'+
 		                           	  (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
-		                        '</div>'+ 		
-		                        '<div class="col-xs-8" style="padding: 0 0 0 4px">'+
+		                        '</div>'+ 	
+		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                           '</div>'+
+		                        '</div>'+	
+		                        '<div class="col-xs-4" style="padding: 0">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              '<button class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                     '</div>';
@@ -1119,7 +1129,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #bdc3c7 !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+
@@ -1141,8 +1151,13 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
-		                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
+		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                           '</div>'+
+		                        '</div>'+
+		                        '<div class="col-xs-4" style="padding: 0;">'+
+		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                        '</div>'+                            
 		                     '</div>';
 	 		}
@@ -1164,7 +1179,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #bdc3c7 !important" class="btn bg-purple btn-block btn-flat" onclick="undoChangesInKOT()">Undo Changes</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+
@@ -1186,8 +1201,13 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
-		                        '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Save & View Bill</button>'+
+		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
+		                           '<div class="btn-group-vertical btn-block">'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                           '</div>'+
+		                        '</div>'+
+		                        '<div class="col-xs-4" style="padding: 0">'+
+		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                        '</div>'+                            
 		                     '</div>';
 	 		}
@@ -1257,6 +1277,34 @@ else{
 	}
 }
 
+
+
+/* To Print Current KOT View */
+function printCurrentKOTView(kotID, optionalSource){
+
+    var requestData = { "selector" :{ "KOTNumber": kotID }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          var kot = data.docs[0];
+          sendToPrinter(kot, 'VIEW');
+        }
+        else{
+          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    }); 	
+}
 
 
 function startFreshOrder(){

@@ -64,7 +64,7 @@ ipc.on('all-printers-list', function (event, listOfPrinters, optionalRequest) {
 
 function sendToPrinter(orderObject, type, optionalRequest){
 
- return '';
+ //return '';
 
  var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
@@ -120,9 +120,22 @@ if(data_custom_scanpay_enabled == 1){
 
 if(type == 'BILL'){
 
-var $j = jQuery.noConflict();
-var qrcode = $j('#dummyQRCodeHolder').qrcode({width: 64, height: 64, text : "https://www.zaitoon.online" });
+//Scan & Pay QR Code Options
+var qr_code_options = {
+   width: 64, 
+   height: 64, 
+   text : "https://www.zaitoon.online"
+};
 
+console.log('Started')
+   
+var $j = jQuery.noConflict();
+var qrcode = $j('#dummyQRCodeHolder').qrcode(qr_code_options, function(){
+   console.log('Completed')
+});
+
+
+console.log('End')
 
 //Render Items
 var sub_total = 0;
@@ -412,14 +425,19 @@ var html_template = ''+
 
 
 /*
-   PRINTING BILL
+   PRINTING DUPLICATE BILL
 */
 
 if(type == 'DUPLICATE_BILL'){
 
+   console.log('1')
+
 var $j = jQuery.noConflict();
 var qrcode = $j('#dummyQRCodeHolder').qrcode({width: 64, height: 64, text : "https://www.zaitoon.online" });
 
+console.log(qrcode)
+
+console.log('2')
 
 //Render Items
 var sub_total = 0;
@@ -713,8 +731,6 @@ var html_template = ''+
    PRINTING KOT
 */
 
-
-
 if(type == 'KOT'){
 
    if(optionalRequest == 'EDITING'){
@@ -876,6 +892,145 @@ var html_template = ''+
 }
 
 
+
+
+
+/*
+   PRINTING DUPLICATE KOT
+*/
+
+if(type == 'DUPLICATE_KOT'){
+
+//Render Items
+var total_items = 0;
+var total_quantity = 0;
+
+var itemsList = '';
+var n = 0;
+while(orderObject.cart[n]){
+
+   itemsList +='<tr>'+
+                  '<td><span style="font-size:18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  '</td>'+
+                  '<td style="text-align: right">'+
+                     '<p>'+
+                        '<tag class="itemQuantity" style="font-size:18px">'+orderObject.cart[n].qty+'</tag>'+
+                     '</p>'+
+                  '</td>'+
+               '</tr>'
+
+   total_quantity += orderObject.cart[n].qty;
+
+   n++;
+}
+
+total_items = n;
+
+
+var html_template = ''+
+      '<div class="KOTHeader">'+
+         '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">DUPLICATE KOT</div>'+
+         '<table style="width: 100%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="serviceType" style="'+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? 'display: none' : '' )+'">'+(orderObject.orderDetails.modeType == 'DINE' ? 'ON TABLE' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'SELF SERVICE' : ''))+'</tag>'+
+                     '<tag class="serviceType" style="padding: 0; font-size: 10px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? '' : 'display: none' )+'"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">'+(orderObject.orderDetails.modeType == 'PARCEL' ? 'PARCEL' : (orderObject.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : ''))+'</tag>'+(orderObject.orderDetails.reference != ''  ? '<tag style="display: block; padding: 2px;">#'+orderObject.orderDetails.reference+'</tag>' : '<tag style="display: block; padding: 2px;">'+orderObject.customerName+'</tag>')+'</tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+               '<td style="vertical-align: top; '+(orderObject.orderDetails.modeType == 'DINE' || orderObject.orderDetails.modeType == 'TOKEN' ? '' : 'display: none')+'">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Table No' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Token No' : ''))+'</tag>'+
+                     '<tag class="tokenNumber">'+orderObject.table+'</tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+         
+      '</div>'+
+
+      '<div class="KOTNumberArea">'+
+
+         '<table style="width: 100%">'+
+            '<col style="width: 60%">'+
+            '<col style="width: 40%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+               '<p>'+
+                  '<tag class="subLabel">KOT NO</tag>'+
+                  '<tag class="KOTNumber">'+orderObject.KOTNumber+'</tag>'+
+               '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">TIME STAMP</tag>'+
+                     '<tag class="timeStamp">'+getFancyTime(orderObject.timePunch)+'<time class="timeDisplay">'+orderObject.date+'</time></tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+
+      '</div>'+
+      '<div class="KOTContent">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 85%">'+
+            '<col style="width: 15%">'+ itemsList +
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSummary">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 80%">'+
+            '<col style="width: 20%">'+
+            '<tr>'+
+               '<td>Number of Items</td>'+
+               '<td style="text-align: right;">'+total_items+'</td>'+
+            '</tr>'+
+            '<tr>'+
+               '<td>Total Quantity</td>'+
+               '<td style="text-align: right;">'+total_quantity+'</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSpecialComments" style="'+(orderObject.specialRemarks != '' ? '' : 'display: none')+'">'+
+       '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag class="subLabel">SPECIAL COMMENTS</tag>'+
+                        '<tag class="commentsSubText">'+orderObject.specialRemarks+'</tag>'+
+                     '</p>'+  
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSpecialComments" style="'+(orderObject.allergyInfo.length > 0 ? '' : 'display: none')+'">'+
+       '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag class="subLabel">ALLERGY WARNING</tag>'+
+                        '<tag class="commentsSubText">'+((orderObject.allergyInfo).toString())+'</tag>'+
+                     '</p>'+  
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>';
+}
 
 
 
@@ -1041,6 +1196,152 @@ var html_template = ''+
          '</table>'+
       '</div>';
 }
+
+
+
+
+/*
+   PRINTING ITEMS VIEW
+*/
+
+if(type == 'VIEW'){
+
+//Render Items
+var total_items = 0;
+var total_quantity = 0;
+
+var itemsList = '';
+var n = 0;
+while(orderObject.cart[n]){
+
+   itemsList +='<tr>'+
+                  '<td><span style="font-size:18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  '</td>'+
+                  '<td style="text-align: right">'+
+                     '<p>'+
+                        '<tag class="itemQuantity" style="font-size:18px">'+orderObject.cart[n].qty+'</tag>'+
+                     '</p>'+
+                  '</td>'+
+               '</tr>'
+
+   total_quantity += orderObject.cart[n].qty;
+
+   n++;
+}
+
+total_items = n;
+
+
+var html_template = ''+
+      '<div class="KOTHeader">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="serviceType" style="'+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? 'display: none' : '' )+'">'+(orderObject.orderDetails.modeType == 'DINE' ? 'ON TABLE' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'SELF SERVICE' : ''))+'</tag>'+
+                     '<tag class="serviceType" style="padding: 0; font-size: 10px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? '' : 'display: none' )+'"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">'+(orderObject.orderDetails.modeType == 'PARCEL' ? 'PARCEL' : (orderObject.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : ''))+'</tag>'+(orderObject.orderDetails.reference != ''  ? '<tag style="display: block; padding: 2px;">#'+orderObject.orderDetails.reference+'</tag>' : '<tag style="display: block; padding: 2px;">'+orderObject.customerName+'</tag>')+'</tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+               '<td style="vertical-align: top; '+(orderObject.orderDetails.modeType == 'DINE' || orderObject.orderDetails.modeType == 'TOKEN' ? '' : 'display: none')+'">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Table No' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Token No' : ''))+'</tag>'+
+                     '<tag class="tokenNumber">'+orderObject.table+'</tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+         
+      '</div>'+
+
+      '<div class="KOTNumberArea">'+
+
+         '<table style="width: 100%">'+
+            '<col style="width: 60%">'+
+            '<col style="width: 40%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+               '<p>'+
+                  '<tag class="subLabel">KOT NO</tag>'+
+                  '<tag class="KOTNumber">'+orderObject.KOTNumber+'</tag>'+
+               '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">TIME STAMP</tag>'+
+                     '<tag class="timeStamp">'+getFancyTime(orderObject.timePunch)+'<time class="timeDisplay">'+orderObject.date+'</time></tag>'+
+                  '</p>'+
+                  '<tag>'+'</tag>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+
+      '</div>'+
+      '<div class="KOTContent">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 85%">'+
+            '<col style="width: 15%">'+ itemsList +
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSummary">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 80%">'+
+            '<col style="width: 20%">'+
+            '<tr>'+
+               '<td>Number of Items</td>'+
+               '<td style="text-align: right;">'+total_items+'</td>'+
+            '</tr>'+
+            '<tr>'+
+               '<td>Total Quantity</td>'+
+               '<td style="text-align: right;">'+total_quantity+'</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSpecialComments" style="'+(orderObject.specialRemarks != '' ? '' : 'display: none')+'">'+
+       '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag class="subLabel">SPECIAL COMMENTS</tag>'+
+                        '<tag class="commentsSubText">'+orderObject.specialRemarks+'</tag>'+
+                     '</p>'+  
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>'+
+      '<div class="KOTSpecialComments" style="'+(orderObject.allergyInfo.length > 0 ? '' : 'display: none')+'">'+
+       '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag class="subLabel">ALLERGY WARNING</tag>'+
+                        '<tag class="commentsSubText">'+((orderObject.allergyInfo).toString())+'</tag>'+
+                     '</p>'+  
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>';
+}
+
+
+
+
+
+  if(type == 'DUPLICATE_KOT') //TWEAK
+      type = 'KOT';
 
   //ipc.send('print-to-pdf', html_template);
   var selected_printers = null;
@@ -1279,6 +1580,7 @@ var html_template = ''+
 
 
   //ipc.send('print-to-pdf', html_template);
+
   var selected_printers = null;
   var b = 0;
   while(allActivePrinters[b]){
