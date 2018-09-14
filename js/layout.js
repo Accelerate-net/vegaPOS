@@ -185,6 +185,7 @@ function applyLicenceTerms(){
 
                   window.localStorage.accelerate_licence_number = machinesList[n].licence;
                   window.localStorage.accelerate_licence_branch = machinesList[n].branch;
+                  window.localStorage.accelerate_licence_branch_name = machinesList[n].branchName ? machinesList[n].branchName : machinesList[n].branch;
                   window.localStorage.accelerate_licence_machineUID = machinesList[n].machineUID;
                   window.localStorage.appCustomSettings_SystemName = machinesList[n].machineCustomName;
                   window.localStorage.accelerate_licence_online_enabled = machinesList[n].isOnlineEnabled ? 1 : 0;
@@ -1081,11 +1082,31 @@ function applySystemOptionSettings(){
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_OnlineOrders = tempVal;
                       }
+                      else if(params[i].name == "resetCountersAfterReport"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_resetCountersAfterReport = tempVal;
+                      }
+                      else if(params[i].name == "orderEditingAllowed"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_orderEditingAllowed = tempVal;
+                      }
                       else if(params[i].name == "defaultPrepaidName"){
                         var tempVal = params[i].value;
                         
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_defaultPrepaidName = tempVal;
+                      }
+                      else if(params[i].name == "reportEmailList"){
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_reportEmailList = tempVal;
                       }
                       else if(params[i].name == "defaultDeliveryMode"){
                         var tempVal = params[i].value;
@@ -1463,14 +1484,12 @@ function checkLogin(){
                                       '<span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login to Cloud Server</h1>'+
                                    '</header>'+
-                                   '<form style="margin: 0">'+
                                     '<div class="row" style="margin: 15px 0">'+
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Username" type="text" id="loginHome_server_username" value="" class="form-control loginWindowInput"> </div> </div>'+
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Password" type="password" id="loginHome_server_password" value="" class="form-control loginWindowInput"> </div> </div>'+                     
                                     '</div>'+
                                     '<button  onclick="doHomeLogin()" class="btn btn-success loginWindowButton">Login</button>'+
                                     '<button  onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
-                                   '</form>'+
                                 '</section>';
 
     document.getElementById("loginModalHome").style.display = 'block';
@@ -1484,10 +1503,10 @@ function checkLogin(){
                                       '<h1 style="font-size: 24px; margin-bottom: 0; color: #3e5b6b; font-family: \'Roboto\';">'+loggedInAdminInfo.branch+'</h1>'+
                                       '<p style="font-size: 14px; color: #72767d;">Logged In as <b>'+loggedInAdminInfo.name+'</b></p>'+
                                    '</header>'+
-                                   '<form style="margin: 15px 0">'+
+                                   '<div style="margin: 15px 0">'+
                                     '<button  onclick="doHomeLogout()" class="btn btn-danger loginWindowButton">Logout Now</button>'+
                                     '<button  onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
-                                   '</form>'+
+                                   '</div>'+
                                 '</section>';
 
     document.getElementById("loginModalHome").style.display = 'block';
@@ -1504,14 +1523,14 @@ function recoveryLogin(){
                                       '<span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login to the Server</h1>'+
                                    '</header>'+
-                                   '<form style="margin: 0">'+
+                                   '<div style="margin: 0">'+
                                     '<div class="row" style="margin: 15px 0">'+
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Username" type="text" id="loginHome_server_username" value="" class="form-control loginWindowInput"> </div> </div>'+
                                         '<div class="col-lg-12"> <div class="form-group"> <input placeholder="Password" type="password" id="loginHome_server_password" value="" class="form-control loginWindowInput"> </div> </div>'+                     
                                     '</div>'+
                                     '<button  onclick="performRecoveryLogin()" class="btn btn-success loginWindowButton">Login</button>'+
                                     '<button  onclick="cancelLoginWindow()" class="btn btn-default loginWindowButton">Cancel</button>'+
-                                   '</form>'+
+                                   '</div>'+
                                 '</section>';
 
     document.getElementById("loginModalHome").style.display = 'block';

@@ -204,7 +204,7 @@ ipc.on("printBillDocument", (event, content, printer_list) => {
 // when worker window is ready
 ipc.on("readyToPrintBillDocument", (event, printer_list) => {
 
-    const pdfPath = path.join(os.tmpdir(), 'print.pdf');
+    //const pdfPath = path.join(os.tmpdir(), 'print.pdf');
 
     // var pageSettingsSilent = {
     //   'marginsType': 1, //No Margin
@@ -218,6 +218,7 @@ ipc.on("readyToPrintBillDocument", (event, printer_list) => {
 
 
     var pageSettingsSilent = printer_list[0].settings;
+    console.log(pageSettingsSilent)
 
     // workerWindow.webContents.printToPDF(pageSettingsSilent, function (error, data) {
     //     if (error) throw error
@@ -230,11 +231,11 @@ ipc.on("readyToPrintBillDocument", (event, printer_list) => {
     //     })
     // })
 
-    // workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
-    //     if (error) throw error
-    // })
+    workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
+        if (error) throw error
+    })
 
-    workerWindow.webContents.print(pageSettingsSilent);
+    //workerWindow.webContents.print(pageSettingsSilent);
 });
 
 

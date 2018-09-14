@@ -153,7 +153,19 @@
                                    </select>
                                 </div>
                             </td>
-                          </tr>  
+                          </tr> 
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Editing Order once KOT is printed<tag style="display: block; font-size: 80%; color: #949393;">Dine Orders can be always edited. This option is applicable for other billing modes only.</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionEditingKOTAllowed()" id="systemOptionEditingAllowed" class="form-control" style="width:100%;">
+                                      <option value="NO">Not Allowed</option>
+                                      <option value="YES">Allowed</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
                           <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%; ">
                             <td colspan="2" style="padding: 10px 0 5px 0;">Online Order Settings</td>
                           </tr>  
@@ -201,6 +213,34 @@
                                 </div>
                             </td>
                           </tr>                          
+
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%; ">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Summary Settings</td>
+                          </tr>  
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Reset KOT/Token Numbers when the Report is generated</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionResetCounter()" id="systemOptionResetCounter" class="form-control" style="width:100%;">
+                                      <option value="NO">Do NOT Reset</option>
+                                      <option value="YES">Reset</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Email List for receiving Reports<tag style="display: block; font-size: 80%; color: #949393;">Separated by Comma</tag></td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="systemOptionEmailListValidator()" style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px;" id="systemOptionReport_email_list" placeholder="List of Emails" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
 
                         </table>  
 

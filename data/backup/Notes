@@ -10,6 +10,7 @@ Notes:
 20. appOtherPreferences_cancellationAllowed (Allow Cancellation after billing)
 21. Email preference for Reports
 
+
 Moved to Version 2:
 1.B Item wise table shift.
 2. Spotlight (Customers pending)
@@ -26,3 +27,7 @@ Moved to Version 2:
 14. Optimise menu Image rendering 
 22. Update Online Menu etc. (Option in Preferences)
 
+
+
+Update Running Instances:
+> System Options DATA on CouchDB --> Updated

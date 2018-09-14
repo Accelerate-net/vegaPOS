@@ -371,6 +371,29 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes){
                           }
                           break;
                         }
+                        case "orderEditingAllowed": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionEditingAllowed").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionEditingAllowed").value = 'NO';
+                          }
+                          break;
+                        }
+                        case "resetCountersAfterReport": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionResetCounter").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionResetCounter").value = 'NO';
+                          }
+                          break;
+                        }
+                        case "reportEmailList": {
+                          document.getElementById("systemOptionReport_email_list").value = params[i].value;
+                          
+                          break;
+                        }
                         case "defaultPrepaidName": {
                           if(isOnlineOrdersEnabled){
                             document.getElementById("systemOptionOnlineOrders_prepaidTag").style.display = 'table-row';
@@ -382,6 +405,7 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes){
                           }  
                           break;
                         }
+                        
                         case "defaultDeliveryMode": {
                           if(isOnlineOrdersEnabled){
 
@@ -1292,6 +1316,25 @@ function changeSystemOptionNotification(){
   changeSystemOptionsFile("notifications", optName);
 }
 
+
+function changeSystemOptionEditingKOTAllowed(){
+  var optName = document.getElementById("systemOptionEditingAllowed").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_orderEditingAllowed = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("orderEditingAllowed", optName);
+}
+
+function changeSystemOptionResetCounter(){
+  var optName = document.getElementById("systemOptionResetCounter").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_resetCountersAfterReport = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("resetCountersAfterReport", optName);  
+}
+
+
+
 function changeSystemOptionDefaultDineMode(){
   var optName = document.getElementById("systemOptionDefaultDineMode").value;
 
@@ -1306,6 +1349,44 @@ function systemOptionPrepaidKeyword(){
   //Update
   window.localStorage.systemOptionsSettings_defaultPrepaidName = optName;
   changeSystemOptionsFile("defaultPrepaidName", optName); 
+}
+
+
+function systemOptionEmailListValidator(){
+
+  var emails = document.getElementById("systemOptionReport_email_list").value;
+
+  emails = emails.replace(/\s/g,'');
+
+  if(emails == ''){ //Unset
+    window.localStorage.appOtherPreferences_reportEmailList = emails;
+    changeSystemOptionsFile("reportEmailList", emails); 
+    return '';    
+  }
+
+  //Validate first
+  var emailList = emails.split(',');
+  var allEmailsValid = true;
+
+  for (var i = 0; i < emailList.length; i++) { 
+      if(!validateEmail(emailList[i].trim())) {
+        showToast('Warning: Invalid list of Emails. Emails not saved.', '#e67e22');
+        allEmailsValid = false;
+        return '';
+      }
+  }
+
+  //Update
+  if(allEmailsValid){
+    window.localStorage.appOtherPreferences_reportEmailList = emails;
+    changeSystemOptionsFile("reportEmailList", emails); 
+  }
+
+  function validateEmail(email) {
+      var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+      return re.test(email);
+  }
+
 }
 
 
