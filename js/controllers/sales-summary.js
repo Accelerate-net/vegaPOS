@@ -4416,7 +4416,17 @@ function fetchSingleClickReport(){
 	        if(data.docs.length > 0){
 	          if(data.docs[0].identifierTag == 'ZAITOON_KOT_INDEX'){
 
-		          		var memory_revID = data.docs[0]._rev;
+	          		var temp_value = parseInt(data.docs[0].value);
+
+	          		//TWEAK
+	          		/* to be safe with KOT number. 2 different KOTs with same KOTNumber should not exists at a time */
+	          		/* assuming a max of 200 KOTs active at a time */
+	          		if(temp_value < 200){
+	          			resetBillingTokenIndex();
+	          			return '';
+	          		}
+
+		          	var memory_revID = data.docs[0]._rev;
 
 	                    	  //Update KOT number on server
 	                          var updateData = {
