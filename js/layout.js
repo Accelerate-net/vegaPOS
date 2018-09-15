@@ -1197,6 +1197,34 @@ function applySystemOptionSettings(){
                         
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_defaultDineMode = tempVal;
+                      }
+                      else if(params[i].name == "scanPayEnabled"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_scanPayEnabled = tempVal;
+                      }
+                      else if(params[i].name == "scanPayAPI"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_scanPayAPI = tempVal;
+                      }
+                      else if(params[i].name == "showDefaultQRCode"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_showDefaultQR = tempVal;
+                      }
+                      else if(params[i].name == "showDefaultQRTarget"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_defaultQRTarget = tempVal;
                       }                      
                     } //end FOR (Render)
 

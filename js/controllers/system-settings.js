@@ -351,6 +351,8 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes){
 
                     var params = settingsList[n].data;
                     var isOnlineOrdersEnabled = false;
+                    var isScanPayActive = false;
+                    var isCustomQREnabled = false;
 
                     //Render
                     for (var i=0; i<params.length; i++){
@@ -471,6 +473,59 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes){
                             document.getElementById("systemOptionDefaultDineMode").innerHTML = atleastOneFound ? defaultTemplate : '<option value="NONE" selected>Not Set</option>';
                             break;
                         }
+                        case "scanPayEnabled":{
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionScanPay").value = params[i].value;
+                            isScanPayActive = true;
+                          }
+                          else{
+                            document.getElementById("systemOptionScanPay").value = 'NO';
+                            isScanPayActive = false;
+                          }
+                          break;
+                        }
+                        case "scanPayAPI":{
+                          if(isScanPayActive){
+                            document.getElementById("scanPay_base_api").style.display = 'table-row';
+                            $('#systemOptionScanPayAPIAddress').val(params[i].value);
+                          }
+                          else{
+                            document.getElementById("scanPay_base_api").style.display = 'none';
+                          }
+                          break;
+                        }
+                        case "showDefaultQRCode":{
+                          if(!isScanPayActive){
+
+                            document.getElementById("scanPay_show_custom_qr").style.display = 'table-row';
+
+                            if(params[i].value == 'YES'){
+                              document.getElementById("systemOptionShowQRCode").value = params[i].value;
+                              isCustomQREnabled = true;
+                            }
+                            else{
+                              document.getElementById("systemOptionShowQRCode").value = 'NO';
+                              isCustomQREnabled = false;
+                            }
+                          }
+                          else{
+                            document.getElementById("scanPay_show_custom_qr").style.display = 'none';
+                          }
+
+                          break;
+                        }
+                        case "showDefaultQRTarget":{
+                          if(!isScanPayActive && isCustomQREnabled){
+                            document.getElementById("scanPay_custom_url").style.display = 'table-row';
+                            $('#systemOptionQRCodeaTargetURL').val(params[i].value);
+                          }
+                          else{
+                            document.getElementById("scanPay_custom_url").style.display = 'none';
+                          }
+
+                          break;
+                        }
+
 
                       }
                 
@@ -1819,8 +1874,58 @@ function systemReservedShortCutsModalHide(){
 
 
 
+/* Scan & Pay Part */
+function changeSystemOptionScanPay(){
+  var optName = document.getElementById("systemOptionScanPay").value;
 
+  //Update
+  window.localStorage.scanPaySettings_scanPayEnabled = optName;
+  changeSystemOptionsFile("scanPayEnabled", optName);
+}
 
+function systemOptionSetAPIAddress(){
+
+  var url = document.getElementById("systemOptionScanPayAPIAddress").value;
+  url = url.replace(/\s/g,'');
+
+  if(url == ''){ //Unset
+    //disable scan & pay!
+    document.getElementById("systemOptionScanPay").value = 'NO';
+    window.localStorage.scanPaySettings_scanPayAPI = '';
+    changeSystemOptionScanPay();
+    return '';    
+  }
+  else{
+    window.localStorage.scanPaySettings_scanPayAPI = url;
+    changeSystemOptionsFile("scanPayAPI", url); 
+  }
+}
+
+function changeSystemOptionShowQRCode(){
+  var optName = document.getElementById("systemOptionShowQRCode").value;
+
+  //Update
+  window.localStorage.scanPaySettings_showDefaultQR = optName;
+  changeSystemOptionsFile("showDefaultQRCode", optName);
+}
+
+function systemOptionQRCodeTarget(){
+
+  var url = document.getElementById("systemOptionQRCodeaTargetURL").value;
+  url = url.replace(/\s/g,'');
+
+  if(url == ''){ //Unset
+    //disable scan & pay!
+    document.getElementById("systemOptionShowQRCode").value = 'NO';
+    window.localStorage.scanPaySettings_defaultQRTarget = '';
+    changeSystemOptionShowQRCode();
+    return '';    
+  }
+  else{
+    window.localStorage.scanPaySettings_defaultQRTarget = url;
+    changeSystemOptionsFile("showDefaultQRTarget", url); 
+  }
+}
 
 
 
