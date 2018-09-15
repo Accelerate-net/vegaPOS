@@ -96,8 +96,10 @@ var data_custom_footer_comments = window.localStorage.bill_custom_footer_comment
 var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
 var data_custom_footer_contact = window.localStorage.bill_custom_footer_contact ? window.localStorage.bill_custom_footer_contact : '';
 
-
-
+var data_custom_header_client_name = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '';
+if(data_custom_header_client_name == ''){
+   data_custom_header_client_name = 'Invoice';
+}
 
 /*
    SCAN PAY OPTIONS
@@ -142,6 +144,11 @@ var data_scan_pay_sendmetadata_qrcode = window.localStorage.scanPaySettings_send
 var sendMetaDataToDefaultQR = false;
 if(data_scan_pay_sendmetadata_qrcode == 'YES'){
    sendMetaDataToDefaultQR = true;
+}
+
+//If Scan Pay is ENABLED, do not show custom QR at all!
+if(data_custom_scanpay_enabled){
+   showDefaultQRCode = false;
 }
 
 
@@ -435,7 +442,7 @@ if(type == 'BILL'){
 
       var html_template = ''+
             '<div id="logo">'+
-              (data_custom_header_image != '' ? '<center><img src=\''+data_custom_header_image+'\'/></center>' : '<h1>Invoice</h1>')+
+              (data_custom_header_image != '' ? '<center><img style="max-width: 90%" src=\''+data_custom_header_image+'\'/></center>' : '<h1 style="text-align: center">'+data_custom_header_client_name+'</h1>')+
             '</div>'+
             '<div class="invoiceHeader">'+
                '<table style="width: 100%">'+
@@ -732,7 +739,7 @@ else{
 
 var html_template = ''+
       '<div id="logo">'+
-        (data_custom_header_image != '' ? '<center><img src=\''+data_custom_header_image+'\'/></center>' : '<h1>Invoice</h1>')+
+        (data_custom_header_image != '' ? '<center><img style="max-width: 90%" src=\''+data_custom_header_image+'\'/></center>' : '<h1 style="text-align: center">'+data_custom_header_client_name+'</h1>')+
       '</div>'+
       '<div class="invoiceHeader">'+
          '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0;">DUPLICATE INVOICE</div>'+

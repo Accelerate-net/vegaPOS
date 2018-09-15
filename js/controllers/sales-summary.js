@@ -4125,10 +4125,15 @@ function fetchSingleClickReport(){
 
 		    var data_custom_header_image = window.localStorage.bill_custom_header_image ? window.localStorage.bill_custom_header_image : '';
 
+		    var data_custom_header_client_name = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '';
+			if(data_custom_header_client_name == ''){
+			   data_custom_header_client_name = 'Report';
+			}
+
 		    var finalReport_printContent = cssData +
 		    	'<body>'+
 			      '<div id="logo">'+
-			        '<center><img src=\''+data_custom_header_image+'\'/></center>'+
+			        (data_custom_header_image != '' ? '<center><img style="max-width: 90%" src=\''+data_custom_header_image+'\'/></center>' : '<h1 style="text-align: center">'+data_custom_header_client_name+'</h1>')+
 			      '</div>'+
 			      '<div class="KOTHeader" style="padding: 0; background: #444;">'+
 			      	'<p style="text-align: center; font-size: 16px; font-weight: bold; text-transform: uppercase; padding-top: 6px; color: #FFF;">'+reportInfo_branch+'</p>'+

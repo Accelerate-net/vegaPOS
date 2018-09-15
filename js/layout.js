@@ -186,6 +186,7 @@ function applyLicenceTerms(){
                   window.localStorage.accelerate_licence_number = machinesList[n].licence;
                   window.localStorage.accelerate_licence_branch = machinesList[n].branch;
                   window.localStorage.accelerate_licence_branch_name = machinesList[n].branchName ? machinesList[n].branchName : machinesList[n].branch;
+                  window.localStorage.accelerate_licence_client_name = machinesList[n].client ? machinesList[n].client : '';
                   window.localStorage.accelerate_licence_machineUID = machinesList[n].machineUID;
                   window.localStorage.appCustomSettings_SystemName = machinesList[n].machineCustomName;
                   window.localStorage.accelerate_licence_online_enabled = machinesList[n].isOnlineEnabled ? 1 : 0;
