@@ -525,6 +525,24 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes){
 
                           break;
                         }
+                        case "sendMetadataToQR":{
+                          if(!isScanPayActive){
+
+                            document.getElementById("scanPay_show_custom_metadata").style.display = 'table-row';
+
+                            if(params[i].value == 'YES'){
+                              document.getElementById("systemOptionSendMetaData").value = params[i].value;
+                            }
+                            else{
+                              document.getElementById("systemOptionSendMetaData").value = 'NO';
+                            }
+                          }
+                          else{
+                            document.getElementById("scanPay_show_custom_metadata").style.display = 'none';
+                          }
+
+                          break;
+                        }
 
 
                       }
@@ -1925,6 +1943,14 @@ function systemOptionQRCodeTarget(){
     window.localStorage.scanPaySettings_defaultQRTarget = url;
     changeSystemOptionsFile("showDefaultQRTarget", url); 
   }
+}
+
+function changeSystemOptionSendMetaData(){
+  var optName = document.getElementById("systemOptionSendMetaData").value;
+
+  //Update
+  window.localStorage.scanPaySettings_sendMetadataToQR = optName;
+  changeSystemOptionsFile("sendMetadataToQR", optName);
 }
 
 

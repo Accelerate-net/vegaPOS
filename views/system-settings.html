@@ -293,7 +293,7 @@
                           </tr>
 
                           <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_custom_url">
-                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">QR Code Target URL<tag style="display: block; font-size: 80%; color: #949393;">Scanning the QR Code will hit this specified URL. Bill Number, Outlet Code and Customer Mobile will be posted to this</tag></td>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">QR Code Target URL<tag style="display: block; font-size: 80%; color: #949393;">When Customer scans the QR Code it will hit this specified URL</tag></td>
                             <td style="padding-top:10px">
                               <div class="row">
                                 <div class="col-lg-12">
@@ -305,6 +305,17 @@
                             </td>
                           </tr>
                           
+                          <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_show_custom_metadata">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Send meta data to the Target URL<tag style="display: block; font-size: 80%; color: #949393;">Enabling this will append Bill Number, Outlet Code and Customer Mobile with the Target URL</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionSendMetaData()" id="systemOptionSendMetaData" class="form-control" style="width:100%;">
+                                      <option value="NO">No</option>
+                                      <option value="YES">Yes</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
 
                         </table>  
 

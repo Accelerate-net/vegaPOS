@@ -1225,7 +1225,14 @@ function applySystemOptionSettings(){
                         
                         /*update localstorage*/             
                         window.localStorage.scanPaySettings_defaultQRTarget = tempVal;
-                      }                      
+                      }         
+                      else if(params[i].name == "sendMetadataToQR"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_sendMetadataToQR = tempVal;
+                      }             
                     } //end FOR (Render)
 
                     break;
