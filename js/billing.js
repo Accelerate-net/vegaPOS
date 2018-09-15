@@ -1966,6 +1966,9 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
           kotfile.totalAmountPaid = "";
           kotfile.paymentReference = "";
 
+          var branch_code = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : '';
+          kotfile.outletCode = branch_code != '' ? branch_code : 'UNKNOWN';
+
 
           /* BILL SUM CALCULATION */
 

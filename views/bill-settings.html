@@ -379,6 +379,35 @@
 
 
       <!-- Modal -->
+      <div id="customImageHeaderModal" class="modal">
+         <div class="modal-dialog" style="top: 20%">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <button  onclick="viewHeaderImageContentHide()" style="float: right;" class="btn clearButton">X</button>
+                  <h4 class="modal-title">Header Image (Data URL)</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow: scroll">
+
+                     <div class="row">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Logo Data URL" style="border: none; border-bottom: 1px solid" class="form-control tip" id="header_image_data_url_custom"/>
+                           </div>
+                        </div>
+                     </div>
+
+               </div>
+               <div class="modal-footer">
+                  <button  class="btn btn-default" onclick="viewHeaderImageContentHide()" style="float: left">Cancel</button>
+                  <button  class="btn btn-success" onclick="headerImageContentSave()">Save</button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+      <!-- Modal -->
       <div id="settingsDeleteConfirmation" class="modal">
          <div class="modal-dialog" style="top: 20%">
             <!-- Modal content-->

@@ -31,3 +31,6 @@ Moved to Version 2:
 
 Update Running Instances:
 > System Options DATA on CouchDB --> Updated
+> Billing Layout (Logo Imgage) DATA on CouchDB --> Updated
+
+-- Add all relevant stub data to DB when new Licence applied

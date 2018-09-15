@@ -186,6 +186,7 @@ function applyLicenceTerms(){
                   window.localStorage.accelerate_licence_number = machinesList[n].licence;
                   window.localStorage.accelerate_licence_branch = machinesList[n].branch;
                   window.localStorage.accelerate_licence_branch_name = machinesList[n].branchName ? machinesList[n].branchName : machinesList[n].branch;
+                  window.localStorage.accelerate_licence_client_name = machinesList[n].client ? machinesList[n].client : '';
                   window.localStorage.accelerate_licence_machineUID = machinesList[n].machineUID;
                   window.localStorage.appCustomSettings_SystemName = machinesList[n].machineCustomName;
                   window.localStorage.accelerate_licence_online_enabled = machinesList[n].isOnlineEnabled ? 1 : 0;
@@ -1197,7 +1198,42 @@ function applySystemOptionSettings(){
                         
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_defaultDineMode = tempVal;
-                      }                      
+                      }
+                      else if(params[i].name == "scanPayEnabled"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_scanPayEnabled = tempVal;
+                      }
+                      else if(params[i].name == "scanPayAPI"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_scanPayAPI = tempVal;
+                      }
+                      else if(params[i].name == "showDefaultQRCode"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_showDefaultQR = tempVal;
+                      }
+                      else if(params[i].name == "showDefaultQRTarget"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_defaultQRTarget = tempVal;
+                      }         
+                      else if(params[i].name == "sendMetadataToQR"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.scanPaySettings_sendMetadataToQR = tempVal;
+                      }             
                     } //end FOR (Render)
 
                     break;

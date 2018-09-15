@@ -132,6 +132,9 @@
                           <col width="40%">
                           <col width="60%">
 
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Notification Options</td>
+                          </tr> 
                           <tr>
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Show Notifications</td>
                             <td style="padding-top:10px">
@@ -145,6 +148,11 @@
                                 </div>
                             </td>
                           </tr>
+
+
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Billing Defaults</td>
+                          </tr> 
                           <tr>
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Default Billing Mode for Dine In</td>
                             <td style="padding-top:10px;">
@@ -154,7 +162,7 @@
                                 </div>
                             </td>
                           </tr> 
-                          <tr>
+                          <tr style="border-top: 1px dashed #f5f5f5;">
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Editing Order once KOT is printed<tag style="display: block; font-size: 80%; color: #949393;">Dine Orders can be always edited. This option is applicable for other billing modes only.</tag></td>
                             <td style="padding-top:10px">
                                 <div class="form-group">
@@ -181,7 +189,7 @@
                             </td>
                           </tr>
 
-                          <tr id="systemOptionOnlineOrders_prepaidTag" style="display: none">
+                          <tr id="systemOptionOnlineOrders_prepaidTag" style="display: none; border-top: 1px dashed #f5f5f5;">
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Reserved Online Payment Method</td>
                             <td style="padding-top:10px">
                               <div class="row">
@@ -194,7 +202,7 @@
                             </td>
                           </tr>
 
-                          <tr id="systemOptionOnlineOrders_default_delivery" style="display: none">
+                          <tr id="systemOptionOnlineOrders_default_delivery" style="display: none; border-top: 1px dashed #f5f5f5;">
                             <td style="width: 40%; vertical-align: middle; padding-right: 30px; color: #28364a;">Default Billing Mode for Online Delivery</td>
                             <td style="padding-top:10px; width: 60%">
                                 <div class="form-group">
@@ -204,7 +212,7 @@
                             </td>
                           </tr>
 
-                          <tr id="systemOptionOnlineOrders_default_takeaway" style="display: none">  
+                          <tr id="systemOptionOnlineOrders_default_takeaway" style="display: none; border-top: 1px dashed #f5f5f5;">  
                             <td style="width: 40%; vertical-align: middle; padding-right: 30px; color: #28364a;">Default Billing Mode for Online Takeaways</td>
                             <td style="padding-top:10px; width: 60%">
                                 <div class="form-group">
@@ -229,7 +237,7 @@
                             </td>
                           </tr>
 
-                          <tr>
+                          <tr style="border-top: 1px dashed #f5f5f5;">
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Email List for receiving Reports<tag style="display: block; font-size: 80%; color: #949393;">Separated by Comma</tag></td>
                             <td style="padding-top:10px">
                               <div class="row">
@@ -242,13 +250,78 @@
                             </td>
                           </tr>
 
+
+
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%; ">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Scan & Pay Settings</td>
+                          </tr>  
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Enable Scan & Pay</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionScanPay()" id="systemOptionScanPay" class="form-control" style="width:100%;">
+                                      <option value="NO">Disabled</option>
+                                      <option value="YES">Enabled</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_base_api">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Scan & Pay API Base URL<tag style="display: block; font-size: 80%; color: #949393;">Bill Number, Outlet Code and Customer Mobile will be posted to this</tag></td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="systemOptionSetAPIAddress()" style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px;" id="systemOptionScanPayAPIAddress" placeholder="API URL" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+
+                          <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_show_custom_qr">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Do you want to show any custom QR Code on the Bill?</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionShowQRCode()" id="systemOptionShowQRCode" class="form-control" style="width:100%;">
+                                      <option value="NO">No</option>
+                                      <option value="YES">Yes</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_custom_url">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">QR Code Target URL<tag style="display: block; font-size: 80%; color: #949393;">When Customer scans the QR Code it will hit this specified URL</tag></td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="systemOptionQRCodeTarget()" style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px;" id="systemOptionQRCodeaTargetURL" placeholder="Target URL" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          
+                          <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_show_custom_metadata">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Send meta data to the Target URL<tag style="display: block; font-size: 80%; color: #949393;">Enabling this will append Bill Number, Outlet Code and Customer Mobile with the Target URL</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionSendMetaData()" id="systemOptionSendMetaData" class="form-control" style="width:100%;">
+                                      <option value="NO">No</option>
+                                      <option value="YES">Yes</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
                         </table>  
 
                         <div class="clearfix"></div>
                     </div>
                 </div>
-
-
 
 
                 <!-- Personalisation Options -->
