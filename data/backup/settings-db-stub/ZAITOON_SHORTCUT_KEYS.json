@@ -7,7 +7,7 @@
       "data": [
         {
           "name": "Show Spotlight Search",
-          "value": "ctrl+w"
+          "value": ""
         },
         {
           "name": "Select Billing Mode",
@@ -15,7 +15,7 @@
         },
         {
           "name": "Set Table/Address",
-          "value": "f1"
+          "value": ""
         },
         {
           "name": "Focus Guest Details",
@@ -31,7 +31,7 @@
         },
         {
           "name": "Save Current Order",
-          "value": "shift+h"
+          "value": ""
         },
         {
           "name": "Close Order",
@@ -59,7 +59,7 @@
         },
         {
           "name": "Settle Bill",
-          "value": "f3"
+          "value": ""
         },
         {
           "name": "Assign Delivery Agent",
@@ -83,11 +83,11 @@
         },
         {
           "name": "Go to All Bills",
-          "value": "f5"
+          "value": ""
         },
         {
           "name": "Switch User",
-          "value": "shift+c"
+          "value": ""
         }
       ]
     },
@@ -96,7 +96,7 @@
       "data": [
         {
           "name": "Show Spotlight Search",
-          "value": "ctrl+w"
+          "value": ""
         },
         {
           "name": "Select Billing Mode",
@@ -148,11 +148,11 @@
         },
         {
           "name": "Settle Bill",
-          "value": "f3"
+          "value": ""
         },
         {
           "name": "Assign Delivery Agent",
-          "value": "f2"
+          "value": ""
         },
         {
           "name": "Issue Refund",
@@ -176,7 +176,7 @@
         },
         {
           "name": "Switch User",
-          "value": "shift+c"
+          "value": ""
         }
       ]
     }

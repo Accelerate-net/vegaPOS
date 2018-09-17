@@ -5,7 +5,7 @@ function switchLiveOrderRenderType(){
 
   if(filterLiveOrdersFlag == 'DINE'){
     window.localStorage.filterLiveOrdersKOTFlag = 'OTHER';
-    $('#switchLiveOrderRenderTypeButton').html('Showing Delivery and Parcel Orders');
+    $('#switchLiveOrderRenderTypeButton').html('Showing Non-Dine Orders');
     renderAllKOTs();
   }
   else{
@@ -42,7 +42,7 @@ function renderAllKOTs() {
       $('#switchLiveOrderRenderTypeButton').html('Showing Dine Orders');
     }
     else{
-      $('#switchLiveOrderRenderTypeButton').html('Showing Delivery and Parcel Orders');
+      $('#switchLiveOrderRenderTypeButton').html('Showing Non-Dine Orders');
     }
 
     $('#switchLiveOrderRenderTypeButton').removeClass('hiddenLiveButton');
