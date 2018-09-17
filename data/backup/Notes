@@ -28,9 +28,12 @@ Moved to Version 2:
 22. Update Online Menu etc. (Option in Preferences)
 
 
+SORT DATA - Table Number
+
 
 Update Running Instances:
 > System Options DATA on CouchDB --> Updated
 > Billing Layout (Logo Image) DATA on CouchDB --> Updated
+> Order Status DATA
 
 -- Add all relevant stub data to DB when new Licence applied

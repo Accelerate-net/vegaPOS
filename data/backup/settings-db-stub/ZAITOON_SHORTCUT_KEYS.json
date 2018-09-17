@@ -7,15 +7,15 @@
       "data": [
         {
           "name": "Show Spotlight Search",
-          "value": ""
+          "value": "ctrl+w"
         },
         {
           "name": "Select Billing Mode",
-          "value": ""
+          "value": "ctrl+m"
         },
         {
           "name": "Set Table/Address",
-          "value": ""
+          "value": "f1"
         },
         {
           "name": "Focus Guest Details",
@@ -31,7 +31,7 @@
         },
         {
           "name": "Save Current Order",
-          "value": ""
+          "value": "shift+h"
         },
         {
           "name": "Close Order",
@@ -43,11 +43,11 @@
         },
         {
           "name": "Print KOT",
-          "value": ""
+          "value": "ctrl+i"
         },
         {
           "name": "Print Item View",
-          "value": ""
+          "value": "u"
         },
         {
           "name": "Print Bill",
@@ -59,7 +59,7 @@
         },
         {
           "name": "Settle Bill",
-          "value": ""
+          "value": "f3"
         },
         {
           "name": "Assign Delivery Agent",
@@ -83,11 +83,11 @@
         },
         {
           "name": "Go to All Bills",
-          "value": ""
+          "value": "f5"
         },
         {
           "name": "Switch User",
-          "value": ""
+          "value": "shift+c"
         }
       ]
     },
@@ -96,7 +96,7 @@
       "data": [
         {
           "name": "Show Spotlight Search",
-          "value": ""
+          "value": "ctrl+w"
         },
         {
           "name": "Select Billing Mode",
@@ -148,11 +148,11 @@
         },
         {
           "name": "Settle Bill",
-          "value": ""
+          "value": "f3"
         },
         {
           "name": "Assign Delivery Agent",
-          "value": ""
+          "value": "f2"
         },
         {
           "name": "Issue Refund",
@@ -176,7 +176,7 @@
         },
         {
           "name": "Switch User",
-          "value": ""
+          "value": "shift+c"
         }
       ]
     }
