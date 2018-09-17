@@ -1101,7 +1101,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+ 	
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+	
 		                        '<div class="col-xs-4" style="padding: 0">'+
@@ -1153,7 +1153,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
@@ -1203,7 +1203,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button  style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+

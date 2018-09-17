@@ -11,7 +11,7 @@
         },
         {
           "name": "Select Billing Mode",
-          "value": ""
+          "value": "ctrl+m"
         },
         {
           "name": "Set Table/Address",
@@ -43,11 +43,11 @@
         },
         {
           "name": "Print KOT",
-          "value": ""
+          "value": "ctrl+i"
         },
         {
           "name": "Print Item View",
-          "value": ""
+          "value": "u"
         },
         {
           "name": "Print Bill",

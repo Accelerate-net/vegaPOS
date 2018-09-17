@@ -3,34 +3,10 @@
   "identifierTag": "ZAITOON_STAFF_PROFILES",
   "value": [
     {
-      "name": "Abhijith C S",
-      "code": "9043960876",
-      "role": "STEWARD",
-      "password": ""
-    },
-    {
-      "name": "Anas Jafry",
-      "code": "9884179675",
-      "role": "STEWARD",
-      "password": ""
-    },
-    {
-      "name": "Hamdan",
-      "code": "9003824036",
-      "role": "STEWARD",
-      "password": ""
-    },
-    {
-      "name": "Ameen",
-      "code": "9539512022",
-      "role": "STEWARD",
-      "password": ""
-    },
-    {
-      "name": "Shafeeq",
-      "code": "7418304073",
-      "role": "AGENT",
-      "password": ""
+      "name": "Default",
+      "code": "9999999999",
+      "role": "ADMIN",
+      "password": "1234"
     }
   ]
 }

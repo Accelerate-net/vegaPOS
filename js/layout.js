@@ -1024,6 +1024,13 @@ function initialiseKeyboardShortcuts(){
           })
           break;
         }
+        case "Print Item View":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_PrintItemViewButton").click();
+            return false;
+          })
+          break;
+        }
         case "Print Duplicate Bill":{
           Mousetrap.bind([shortcutsData[n].value], function() {
             $("#triggerClick_PrintDuplicateBillButton").click();
