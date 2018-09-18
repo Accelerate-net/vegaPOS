@@ -2872,6 +2872,9 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
     bill.paymentMode = paymentModeSelected;
     bill.dateStamp = getCurrentTime('DATE_STAMP');
 
+    var branch_code = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : '';
+    bill.outletCode = branch_code != '' ? branch_code : 'UNKNOWN';
+
 
     //Split Payment details
     if(paymentModeSelected == 'MULTIPLE'){
