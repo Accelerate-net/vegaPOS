@@ -160,64 +160,64 @@ echo .........................
 echo
 echo [1/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_bill.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_bills1/_design/bills -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_bills/_design/bills -d "$stub_data_received"
 echo
 echo [2/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_bill-filters.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_bills1/_design/bill-filters -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_bills/_design/bill-filters -d "$stub_data_received"
 #CANCELLED INVOICES
 echo
 echo [3/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_cancelled_invoice_filters.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_invoices1/_design/invoice-filters -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_invoices/_design/invoice-filters -d "$stub_data_received"
 echo
 echo [4/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_cancelled_invoice_refund_summary.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_invoices1/_design/refund-summary -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_invoices/_design/refund-summary -d "$stub_data_received"
 echo
 echo [5/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_cancelled_invoices.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_invoices1/_design/invoices -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_invoices/_design/invoices -d "$stub_data_received"
 #CANCELLED ORDERS
 echo
 echo [6/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_cancelled_order_filters.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_orders1/_design/order-filters -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_orders/_design/order-filters -d "$stub_data_received"
 echo
 echo [7/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_cancelled_orders.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_orders1/_design/orders -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_cancelled_orders/_design/orders -d "$stub_data_received"
 #INVOICES
 echo
 echo [8/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_invoice.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_invoices1/_design/invoices -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_invoices/_design/invoices -d "$stub_data_received"
 echo
 echo [9/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_invoice_filters.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_invoices1/_design/invoice-filters -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_invoices/_design/invoice-filters -d "$stub_data_received"
 echo
 echo [10/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_invoice_refund_summary.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_invoices1/_design/refund-summary -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_invoices/_design/refund-summary -d "$stub_data_received"
 echo
 echo [11/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_invoice_summary.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_invoices1/_design/invoice-summary -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_invoices/_design/invoice-summary -d "$stub_data_received"
 #ONLINE ORDERS
 echo
 echo [12/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_online_orders_filter.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_online_orders1/_design/filter-by -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_online_orders/_design/filter-by -d "$stub_data_received"
 #USERS
 echo
 echo [13/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_users_names.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_users1/_design/names -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_users/_design/names -d "$stub_data_received"
 echo
 echo [14/14]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/data/backup/couchdb-apis/couchdb_users_search.js)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_users1/_design/search -d "$stub_data_received"
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_users/_design/search -d "$stub_data_received"
 echo
 echo
 echo Finished.
