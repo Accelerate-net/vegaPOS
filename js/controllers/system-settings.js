@@ -526,7 +526,7 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes){
                           break;
                         }
                         case "sendMetadataToQR":{
-                          if(!isScanPayActive){
+                          if(!isScanPayActive && isCustomQREnabled){
 
                             document.getElementById("scanPay_show_custom_metadata").style.display = 'table-row';
 

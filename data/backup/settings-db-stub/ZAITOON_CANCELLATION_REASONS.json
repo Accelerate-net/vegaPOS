@@ -1,10 +1,12 @@
 {
-  "_id": "ZAITOON_CANCELLATION_REASONS",
-  "identifierTag": "ZAITOON_CANCELLATION_REASONS",
-  "value": [
-    "No Worth for Cash",
-    "Not Satisfied",
-    "Other Emergency Situations",
-    "Delayed Service"
-  ]
+	"_id": "ZAITOON_CANCELLATION_REASONS",
+	"identifierTag": "ZAITOON_CANCELLATION_REASONS",
+	"value": [
+		"Not Worth for Cash",
+		"Not Satisfied with Food",
+		"Not Satisfied with Service",
+		"Delayed Service",
+		"Items not Available",
+		"Other Emergency Situations"
+	]
 }

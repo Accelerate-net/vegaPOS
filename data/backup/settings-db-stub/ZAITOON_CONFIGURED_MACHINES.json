@@ -2,17 +2,5 @@
   "_id": "ZAITOON_CONFIGURED_MACHINES",
   "identifierTag": "ZAITOON_CONFIGURED_MACHINES",
   "value": [
-    {
-      "licence": "ACCELERATE_102",
-      "machineUID": "Z001",
-      "dateInstall": "02-08-2018",
-      "dateExpire": "15-08-2018",
-      "isTrial": false,
-      "machineCustomName": "Counter 1",
-      "branch": "IITMADRAS",
-      "client": "ZAITOON",
-      "isOnlineEnabled": true,
-      "isActive": false
-    }
   ]
 }
