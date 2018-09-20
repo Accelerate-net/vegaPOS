@@ -116,6 +116,8 @@ function renderSideNavigation(){
                                 '<a href="#"><i class="fa fa-circle-o"></i>Photos Manager</a></li>'+
                             '<li onclick="renderPage(\'sales-summary\', \'Sales Summary\')">'+
                                 '<a href="#"><i class="fa fa-circle-o"></i>Sales Summary</a></li>'+
+                            '<li onclick="renderPage(\'table-layout\', \'Table Layout\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Table Layout</a></li>'+
                         '</ul>'+
                     '</li>'+
                     '<li id="sidebarSettings" class="treeview mm_products" onclick="activateSidebarElement(\'sidebarSettings\')">'+
@@ -132,8 +134,6 @@ function renderSideNavigation(){
                                 '<a href="#"><i class="fa fa-circle-o"></i>Configure Printers</a></li>'+
                             '<li onclick="renderPage(\'system-settings\', \'System Settings\')">'+
                                 '<a href="#"><i class="fa fa-circle-o"></i>System Settings</a></li>'+
-                            '<li onclick="renderPage(\'table-layout\', \'Table Layout\')">'+
-                                '<a href="#"><i class="fa fa-circle-o"></i>Table Layout</a></li>'+
                             '<li onclick="renderPage(\'user-settings\', \'Users Settings\')">'+
                                 '<a href="#"><i class="fa fa-circle-o"></i>Users Settings</a></li>'+
                         '</ul>'+
