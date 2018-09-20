@@ -7,39 +7,6 @@
       "data": [
         {
           "name": "theme",
-          "value": "skin-green"
-        },
-        {
-          "name": "menuImages",
-          "value": "YES"
-        },
-        {
-          "name": "punchingRightScreen",
-          "value": "TABLE"
-        },
-        {
-          "name": "virtualKeyboard",
-          "value": 0
-        },
-        {
-          "name": "screenLockOptions",
-          "value": ""
-        },
-        {
-          "name": "screenLockDuration",
-          "value": "30"
-        },
-        {
-          "name": "securityPasscodeProtection",
-          "value": "NO"
-        }
-      ]
-    },
-    {
-      "systemName": "Z001",
-      "data": [
-        {
-          "name": "theme",
           "value": "skin-blue"
         },
         {

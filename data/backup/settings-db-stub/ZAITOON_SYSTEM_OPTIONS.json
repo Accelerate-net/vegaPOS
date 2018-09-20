@@ -7,76 +7,15 @@
       "data": [
         {
           "name": "notifications",
-          "value": "ERRORS"
+          "value": "ALL"
         },
         {
           "name": "orderEditingAllowed",
-          "value": "YES"
-        },
-        {
-          "name": "resetCountersAfterReport",
-          "value": "YES"
-        },
-        {
-          "name": "onlineOrders",
-          "value": "YES"
-        },
-        {
-          "name": "defaultPrepaidName",
-          "value": "Razor"
-        },
-        {
-          "name": "reportEmailList",
-          "value": ""
-        },
-        {
-          "name": "defaultDeliveryMode",
-          "value": "Delivery - Zatioon App"
-        },
-        {
-          "name": "defaultTakeawayMode",
-          "value": "NONE"
-        },
-        {
-          "name": "defaultDineMode",
-          "value": "Dine In"
-        },
-        {
-          "name": "scanPayEnabled",
-          "value": "YES"
-        },
-        {
-          "name": "scanPayAPI",
-          "value": ""
-        },
-        {
-          "name": "showDefaultQRCode",
           "value": "NO"
         },
         {
-          "name": "showDefaultQRTarget",
-          "value": ""
-        },
-        {
-          "name": "sendMetadataToQR",
-          "value": "NO"
-        }
-      ]
-    },
-    {
-      "systemName": "Z001",
-      "data": [
-        {
-          "name": "notifications",
-          "value": "ERRORS"
-        },
-        {
-          "name": "orderEditingAllowed",
-          "value": "YES"
-        },
-        {
           "name": "resetCountersAfterReport",
-          "value": "YES"
+          "value": "NO"
         },
         {
           "name": "onlineOrders",
@@ -88,19 +27,19 @@
         },
         {
           "name": "reportEmailList",
-          "value": "abhijithcs1993@gmail.com,shamseerzaitoon@gmail.com"
+          "value": ""
         },
         {
           "name": "defaultDeliveryMode",
-          "value": "Delivery - Zatioon App"
+          "value": "NONE"
         },
         {
           "name": "defaultTakeawayMode",
-          "value": "Takeaway - Zatioon App"
+          "value": "NONE"
         },
         {
           "name": "defaultDineMode",
-          "value": "Dine In"
+          "value": "NONE"
         },
         {
           "name": "scanPayEnabled",
@@ -112,7 +51,7 @@
         },
         {
           "name": "showDefaultQRCode",
-          "value": "YES"
+          "value": "NO"
         },
         {
           "name": "showDefaultQRTarget",

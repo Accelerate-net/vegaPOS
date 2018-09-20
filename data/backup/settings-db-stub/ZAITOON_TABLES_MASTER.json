@@ -9,7 +9,7 @@
       "status": 0,
       "assigned": "",
       "KOT": "",
-      "lastUpdate": "1727"
+      "lastUpdate": ""
     },
     {
       "table": "2",
@@ -18,7 +18,7 @@
       "status": 0,
       "assigned": "",
       "KOT": "",
-      "lastUpdate": "0521"
+      "lastUpdate": ""
     },
     {
       "table": "3",
@@ -26,7 +26,7 @@
       "type": "Dining Hall",
       "status": 0,
       "KOT": "",
-      "lastUpdate": "1914",
+      "lastUpdate": "",
       "assigned": ""
     },
     {
@@ -36,7 +36,7 @@
       "status": 0,
       "assigned": "",
       "KOT": "",
-      "lastUpdate": "1919"
+      "lastUpdate": ""
     },
     {
       "table": "5",
@@ -45,7 +45,7 @@
       "assigned": "",
       "KOT": "",
       "status": 0,
-      "lastUpdate": "1921"
+      "lastUpdate": ""
     },
     {
       "table": "6",
@@ -54,7 +54,7 @@
       "assigned": "",
       "KOT": "",
       "status": 0,
-      "lastUpdate": "0446"
+      "lastUpdate": ""
     },
     {
       "table": "7",
@@ -89,7 +89,7 @@
       "type": "Dining Hall",
       "status": 0,
       "KOT": "",
-      "lastUpdate": "1546",
+      "lastUpdate": "",
       "assigned": ""
     }
   ]

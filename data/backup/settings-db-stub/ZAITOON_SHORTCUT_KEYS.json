@@ -7,96 +7,7 @@
       "data": [
         {
           "name": "Show Spotlight Search",
-          "value": "ctrl+w"
-        },
-        {
-          "name": "Select Billing Mode",
-          "value": "ctrl+m"
-        },
-        {
-          "name": "Set Table/Address",
-          "value": "f1"
-        },
-        {
-          "name": "Focus Guest Details",
           "value": ""
-        },
-        {
-          "name": "Focus Item Search",
-          "value": ""
-        },
-        {
-          "name": "Set Special Comments",
-          "value": ""
-        },
-        {
-          "name": "Save Current Order",
-          "value": "shift+h"
-        },
-        {
-          "name": "Close Order",
-          "value": ""
-        },
-        {
-          "name": "Cancel Order",
-          "value": ""
-        },
-        {
-          "name": "Print KOT",
-          "value": "ctrl+i"
-        },
-        {
-          "name": "Print Item View",
-          "value": "u"
-        },
-        {
-          "name": "Print Bill",
-          "value": ""
-        },
-        {
-          "name": "Print Duplicate Bill",
-          "value": ""
-        },
-        {
-          "name": "Settle Bill",
-          "value": "f3"
-        },
-        {
-          "name": "Assign Delivery Agent",
-          "value": ""
-        },
-        {
-          "name": "Issue Refund",
-          "value": ""
-        },
-        {
-          "name": "Cancel Invoice",
-          "value": ""
-        },
-        {
-          "name": "Refresh Application",
-          "value": ""
-        },
-        {
-          "name": "Refresh Online Orders",
-          "value": ""
-        },
-        {
-          "name": "Go to All Bills",
-          "value": "f5"
-        },
-        {
-          "name": "Switch User",
-          "value": "shift+c"
-        }
-      ]
-    },
-    {
-      "systemName": "Any",
-      "data": [
-        {
-          "name": "Show Spotlight Search",
-          "value": "ctrl+w"
         },
         {
           "name": "Select Billing Mode",
@@ -148,11 +59,11 @@
         },
         {
           "name": "Settle Bill",
-          "value": "f3"
+          "value": ""
         },
         {
           "name": "Assign Delivery Agent",
-          "value": "f2"
+          "value": ""
         },
         {
           "name": "Issue Refund",
@@ -176,7 +87,7 @@
         },
         {
           "name": "Switch User",
-          "value": "shift+c"
+          "value": ""
         }
       ]
     }

@@ -9,28 +9,16 @@
       "defaultDelivery": ""
     },
     {
-      "name": "Swiggy",
-      "code": "SWIGGY",
-      "defaultTakeaway": "",
-      "defaultDelivery": ""
-    },
-    {
       "name": "Online",
       "code": "ONLINE",
       "defaultTakeaway": "",
       "defaultDelivery": ""
     },
     {
-      "name": "Zomato",
-      "code": "ZOMATO",
-      "defaultDelivery": "Delivery - Zatioon App",
-      "defaultTakeaway": "Takeaway - Zatioon App"
-    },
-    {
-      "name": "ZAITOoon",
-      "code": "ZAITOON",
-      "defaultDelivery": "Delivery - Zatioon App",
-      "defaultTakeaway": "Takeaway - Zatioon App"
+      "name": "Swiggy",
+      "code": "SWIGGY",
+      "defaultDelivery": "Delivery - Swiggy",
+      "defaultTakeaway": ""
     }
   ]
 }

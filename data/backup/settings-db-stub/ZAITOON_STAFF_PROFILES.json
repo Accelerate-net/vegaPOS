@@ -3,7 +3,7 @@
   "identifierTag": "ZAITOON_STAFF_PROFILES",
   "value": [
     {
-      "name": "Default",
+      "name": "Default Admin",
       "code": "9999999999",
       "role": "ADMIN",
       "password": "1234"

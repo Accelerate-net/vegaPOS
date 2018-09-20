@@ -3,9 +3,14 @@
   "identifierTag": "ZAITOON_DISCOUNT_TYPES",
   "value": [
     {
-      "name": "Zaitoon App",
+      "name": "Loyal Customer",
       "maxDiscountUnit": "PERCENTAGE",
-      "maxDiscountValue": 200
+      "maxDiscountValue": 10
+    },
+    {
+      "name": "Partners Guest",
+      "maxDiscountUnit": "PERCENTAGE",
+      "maxDiscountValue": 20
     }
   ]
 }
