@@ -30,6 +30,10 @@ Moved to Version 2:
 
 SORT DATA - Table Number
 
+Bugs:
+Drag Spotlight - MENU MOUSE CLICK
+D for Dine Mode, T for Takeaway --> change between the billing modes
+
 
 Update Running Instances:
 > System Options DATA on CouchDB --> Updated
