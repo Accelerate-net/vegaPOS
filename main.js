@@ -12,6 +12,7 @@ app.showExitPrompt = true
 /*
   PRINTER
 */
+
 const fs = require('fs')
 const os = require('os')
 const ipc = electron.ipcMain;
@@ -218,6 +219,7 @@ ipc.on("readyToPrintBillDocument", (event, printer_list) => {
 
 
     var pageSettingsSilent = printer_list[0].settings;
+    pageSettingsSilent.deviceName = printer_list[0].target;
    
     // workerWindow.webContents.printToPDF(pageSettingsSilent, function (error, data) {
     //     if (error) throw error
@@ -230,11 +232,11 @@ ipc.on("readyToPrintBillDocument", (event, printer_list) => {
     //     })
     // })
 
-    workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
-        if (error) throw error
-    })
+    // workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
+    //     if (error) throw error
+    // })
 
-    //workerWindow.webContents.print(pageSettingsSilent);
+    workerWindow.webContents.print(pageSettingsSilent);
 });
 
 
