@@ -317,6 +317,7 @@ ipc.on('printSmallReport', function(event, html_content, selected_printers){
     // }
 
   var pageSettingsSilent = selected_printers[0].settings;
+  pageSettingsSilent.deviceName = selected_printers[0].target;
 
   if(!pageSettingsSilent || pageSettingsSilent == [] || pageSettingsSilent == null){
     alert('Print Error: No printers found.');
@@ -330,9 +331,11 @@ ipc.on('printSmallReport', function(event, html_content, selected_printers){
 
   win.webContents.on('did-finish-load', () => {
 
-    win.webContents.print(pageSettingsSilent,  function (error, data) {
-        if (error) throw error
-    })
+    // win.webContents.print(pageSettingsSilent,  function (error, data) {
+    //     if (error) throw error
+    // })
+
+    win.webContents.print(pageSettingsSilent)
 
       // win.webContents.printToPDF(pageSettingsSilent, (error, data) => {
       
