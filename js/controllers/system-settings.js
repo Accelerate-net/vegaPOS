@@ -800,6 +800,7 @@ function changeSystemOptionsFile(type, changedValue){
 
                               if(type == 'onlineOrders'){
                                 renderSideNavigation();
+                                recheckCloudConnectionStatus();
                               }
 
                           },
