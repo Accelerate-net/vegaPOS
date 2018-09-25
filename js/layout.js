@@ -1532,6 +1532,7 @@ function applySystemOptionSettings(){
                     for (var i=0; i<params.length; i++){
                       if(params[i].name == "notifications"){           
                         window.localStorage.systemOptionsSettings_notifications = params[i].value;
+                        NOTIFICATION_FILTER = params[i].value;
                       }
                       else if(params[i].name == "onlineOrders"){
 

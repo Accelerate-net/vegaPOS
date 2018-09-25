@@ -1788,6 +1788,7 @@ function changeSystemOptionNotification(){
 
   //Update
   window.localStorage.systemOptionsSettings_notifications = optName;
+  NOTIFICATION_FILTER = optName;
   changeSystemOptionsFile("notifications", optName);
 }
 

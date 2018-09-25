@@ -6,7 +6,7 @@ var default_server_url_common = 'http://admin:admin@127.0.0.1:5984/';
 var saved_server_url_manual = window.localStorage.serverConnectionURL ? window.localStorage.serverConnectionURL : '';
 
 let COMMON_LOCAL_SERVER_IP = saved_server_url_manual != '' ? saved_server_url_manual : default_server_url_common;
-
+let NOTIFICATION_FILTER = 'ALL';
 
 
 
@@ -141,20 +141,74 @@ function getImageCode(text){
 var toastShowingInterval;
 function showToast(message, color){
 
-    clearInterval(toastShowingInterval);
+  switch(NOTIFICATION_FILTER){
 
-    var x = document.getElementById("infobar")
-    if(color){
-      x.style.background = color;
+    case "ALL":{
+      clearInterval(toastShowingInterval);
+
+      var x = document.getElementById("infobar")
+      if(color){
+        x.style.background = color;
+      }
+
+      x.innerHTML = message;
+      x.className = "show";
+      toastShowingInterval = setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000); 
+
+      if(color == '#e74c3c'){ //Error
+        playNotificationSound('ERROR')
+      }
+
+      break;
+    }
+    case "WARNINGS":{
+
+      if(color == '#e74c3c' || color == '#e67e22'){
+          clearInterval(toastShowingInterval);
+
+          var x = document.getElementById("infobar")
+          if(color){
+            x.style.background = color;
+          }
+
+          x.innerHTML = message;
+          x.className = "show";
+          toastShowingInterval = setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000); 
+
+          if(color == '#e74c3c'){ //Error
+            playNotificationSound('ERROR')
+          }
+      }
+
+      break;
+    }
+    case "ERRORS":{
+
+      if(color == '#e74c3c'){
+          clearInterval(toastShowingInterval);
+
+          var x = document.getElementById("infobar")
+          if(color){
+            x.style.background = color;
+          }
+
+          x.innerHTML = message;
+          x.className = "show";
+          toastShowingInterval = setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000); 
+
+          if(color == '#e74c3c'){ //Error
+            playNotificationSound('ERROR')
+          }
+      }
+
+      break;
+    }
+    case "NONE":{
+      //Do not show anything!
+      break;
     }
 
-		x.innerHTML = message;
-		x.className = "show";
-		toastShowingInterval = setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000); 
-
-    if(color == '#e74c3c'){ //Error
-      playNotificationSound('ERROR')
-    }
+  }
 
 }
 
