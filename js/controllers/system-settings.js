@@ -97,6 +97,17 @@ function renderConfigureSystem(){
                 $('#system_configure_license_issued').val(machineData.dateInstall);
                 $('#system_configure_license_uid').val(machineData.machineUID);
                 
+                //Server IP Address
+                var default_url = 'http://admin:admin@127.0.0.1:5984/';
+                var saved_url = window.localStorage.serverConnectionURL ? window.localStorage.serverConnectionURL : '';
+
+                if(saved_url == ''){
+                  $('#system_configure_server_address').val(default_url);
+                }
+                else{
+                  $('#system_configure_server_address').val(saved_url);
+                }
+                
               }
               else{ //Machine not Activated yet.
                 document.getElementById("configureSystemActivationWarning").style.display = 'block';
