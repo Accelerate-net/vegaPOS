@@ -122,7 +122,6 @@ function markAvailability(code){
           if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
 
 	          	var mastermenu = data.docs[0].value;
-	          	mastermenu.sort(); //alphabetical sorting 
 
 	          	var remember_avail = 0;
 
@@ -488,7 +487,10 @@ function openSubMenu(menuCategory, optionalHighlighItem){
 					if(menuCategory == mastermenu[i].category){
 
 						//alphabetical sorting
-						mastermenu[i].items.sort();
+						mastermenu[i].items.sort(function(obj1, obj2) {
+			                // Ascending: first age less than the previous
+			                return obj1.code - obj2.code;
+			            });
 
 						for(var j=0; j<mastermenu[i].items.length; j++){
 
