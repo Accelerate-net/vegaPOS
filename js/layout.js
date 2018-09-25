@@ -578,7 +578,7 @@ function pushLicenseToLocaServerFromHome(licenceObject){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
 
@@ -591,12 +591,393 @@ function pushLicenseToLocaServerFromHome(licenceObject){
                }
              }
 
+              machinesList.push(licenceObject);
+              var remember_rev = data.docs[0]._rev;
+              createFirstTimeActivationStubs(licenceObject, machinesList, remember_rev);
+              
+          }
+          else{
+            showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
 
-                machinesList.push(licenceObject);
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read System Configurations data. Please contact Accelerate Support.', '#e74c3c');
+      }
 
+    });  
+}
+
+
+/* create stubs */
+function createFirstTimeActivationStubs(licenceObject, machinesList, remember_rev){
+
+  firstTimeStub_personalisations();
+
+  //Step 1 : Personalisations 
+  function firstTimeStub_personalisations(){
+
+    var requestData = {"selector": { "identifierTag": "ZAITOON_PERSONALISATIONS" }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+
+              var settingsList = data.docs[0].value;
+              var machineName = licenceObject.machineUID;
+
+              if(!machineName || machineName == ''){
+                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                return '';
+              }
+
+
+              var isAlreadyFound = false;
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+                    isAlreadyFound = true;
+                    break;
+                }
+              }  
+
+
+              if(!isAlreadyFound){
+                //Add stub and update
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "theme", "value": "skin-green" }, { "name": "menuImages", "value": "YES" }, { "name": "punchingRightScreen", "value": "TABLE" }, { "name": "virtualKeyboard", "value": 0 }, { "name": "screenLockOptions", "value": "" }, { "name": "screenLockDuration", "value": "30" }, { "name": "securityPasscodeProtection", "value": "NO" } ] }
+                settingsList.push(new_stub);
+              
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_PERSONALISATIONS",
+                  "value": settingsList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_PERSONALISATIONS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      firstTimeStub_system_options();
+                  },
+                  error: function(data) {
+                      showToast('Configurations Error: Unable to create Personalisations stub data. Please contact Accelerate Support.', '#e74c3c');
+                      return '';
+                  }
+                });  
+              } 
+              else{
+                firstTimeStub_system_options();
+              }
+                          
+          }
+          else{
+            showToast('Configurations Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+            return '';
+          }
+        }
+        else{
+          showToast('Configurations Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');      
+          return '';
+        }
+        
+      },
+      error: function(data) {
+        showToast('Configurations Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+        return '';
+      }
+
+    });      
+  }
+
+
+  //Step 2 : System Options
+  function firstTimeStub_system_options(){
+
+    var requestData = {"selector": { "identifierTag": "ZAITOON_SYSTEM_OPTIONS" }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SYSTEM_OPTIONS'){
+
+              var settingsList = data.docs[0].value;
+              var machineName = licenceObject.machineUID;
+
+              if(!machineName || machineName == ''){
+                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                return '';
+              }
+
+
+              var isAlreadyFound = false;
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+                    isAlreadyFound = true;
+                    break;
+                }
+              }  
+
+
+              if(!isAlreadyFound){
+                //Add stub and update
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ERRORS" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "resetCountersAfterReport", "value": "YES" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razor" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "Dine In" }, { "name": "scanPayEnabled", "value": "YES" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                settingsList.push(new_stub);
+              
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_SYSTEM_OPTIONS",
+                  "value": settingsList
+                }
+
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SYSTEM_OPTIONS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      firstTimeStub_custom_shortcuts();
+                  },
+                  error: function(data) {
+                      showToast('Configurations Error: Unable to create System Options stub data. Please contact Accelerate Support.', '#e74c3c');
+                      return '';
+                  }
+                });  
+              } 
+              else{
+                firstTimeStub_custom_shortcuts();
+              }
+                          
+          }
+          else{
+            showToast('Configurations Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+            return '';
+          }
+        }
+        else{
+          showToast('Configurations Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');      
+          return '';
+        }
+        
+      },
+      error: function(data) {
+        showToast('Configurations Error: Unable to read System Options data. Please contact Accelerate Support.', '#e74c3c');
+        return '';
+      }
+
+    });      
+  }
+
+
+
+  //Step 3 : Custom Shortcuts
+  function firstTimeStub_custom_shortcuts(){
+
+    var requestData = {"selector": { "identifierTag": "ZAITOON_SHORTCUT_KEYS" }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+
+              var settingsList = data.docs[0].value;
+              var machineName = licenceObject.machineUID;
+
+              if(!machineName || machineName == ''){
+                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                return '';
+              }
+
+
+              var isAlreadyFound = false;
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+                    isAlreadyFound = true;
+                    break;
+                }
+              }  
+
+
+              if(!isAlreadyFound){
+                //Add stub and update
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "Show Spotlight Search", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "f3" }, { "name": "Assign Delivery Agent", "value": "f2" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "shift+c" } ] }
+                settingsList.push(new_stub);
+              
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_SHORTCUT_KEYS",
+                  "value": settingsList
+                }
+
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SHORTCUT_KEYS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      firstTimeStub_configured_printers();
+                  },
+                  error: function(data) {
+                      showToast('Configurations Error: Unable to create Custom Shortcuts stub data. Please contact Accelerate Support.', '#e74c3c');
+                      return '';
+                  }
+                });  
+              } 
+              else{
+                firstTimeStub_configured_printers();
+              }
+                          
+          }
+          else{
+            showToast('Configurations Error: Custom Shortcuts data not found. Please contact Accelerate Support.', '#e74c3c');
+            return '';
+          }
+        }
+        else{
+          showToast('Configurations Error: Custom Shortcuts data not found. Please contact Accelerate Support.', '#e74c3c');      
+          return '';
+        }
+        
+      },
+      error: function(data) {
+        showToast('Configurations Error: Unable to read Custom Shortcuts data. Please contact Accelerate Support.', '#e74c3c');
+        return '';
+      }
+
+    });      
+  }
+
+
+
+  //Step 4 : Configured Printer
+  function firstTimeStub_configured_printers(){
+
+    var requestData = {"selector": { "identifierTag": "ZAITOON_CONFIGURED_PRINTERS" }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_PRINTERS'){
+
+              var settingsList = data.docs[0].value;
+              var machineName = licenceObject.machineUID;
+
+              if(!machineName || machineName == ''){
+                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                return '';
+              }
+
+
+              var isAlreadyFound = false;
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+                    isAlreadyFound = true;
+                    break;
+                }
+              }  
+
+
+              if(!isAlreadyFound){
+                //Add stub and update
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Kitchen", "type": "NETWORK", "address": "http://192.0.1.2:9204/", "actions": [ "KOT" ], "height": "", "width": "123" }, { "name": "Desk", "type": "NETWORK", "address": "http://192.0.1.3:14214/", "actions": [ "BILL" ], "height": "", "width": "123" }, { "name": "AC Dine Hall", "type": "NETWORK", "address": "http://192.0.3.129:8090", "height": "", "width": "320", "actions": "BILL,DUPLICATE BILL" } ] }
+                settingsList.push(new_stub);
+              
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_CONFIGURED_PRINTERS",
+                  "value": settingsList
+                }
+
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_PRINTERS/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      finalActivateLicence();
+                  },
+                  error: function(data) {
+                      showToast('Configurations Error: Unable to create Configured Printers stub data. Please contact Accelerate Support.', '#e74c3c');
+                      return '';
+                  }
+                });  
+              } 
+              else{
+                finalActivateLicence();
+              }
+                          
+          }
+          else{
+            showToast('Configurations Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+            return '';
+          }
+        }
+        else{
+          showToast('Configurations Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');      
+          return '';
+        }
+        
+      },
+      error: function(data) {
+        showToast('Configurations Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+        return '';
+      }
+
+    });      
+  }
+
+
+
+  //Step : Final (Create all)
+  function finalActivateLicence(){
+
+                //Update configured machines
+                var updateData = {
+                  "_rev": remember_rev,
                   "identifierTag": "ZAITOON_CONFIGURED_MACHINES",
                   "value": machinesList
                 }
@@ -614,29 +995,17 @@ function pushLicenseToLocaServerFromHome(licenceObject){
 
                       window.localStorage.accelerate_licence_number = licenceObject.licence;
                       window.localStorage.accelerate_licence_machineUID = licenceObject.machineUID;
-                  
+                                
                       document.getElementById("applicationActivationLock").style.display = 'none';
-                      applyLicenceTerms();
+                      applyLicenceTerms();    
+                      
                   },
                   error: function(data) {
                       showToast('System Error: Unable to update System Configurations data. Please contact Accelerate Support.', '#e74c3c');
                   }
                 });  
-          }
-          else{
-            showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
-        }
+  }
 
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read System Configurations data. Please contact Accelerate Support.', '#e74c3c');
-      }
-
-    });  
 }
 
 
