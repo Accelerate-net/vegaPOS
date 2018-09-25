@@ -107,7 +107,7 @@ function renderConfigureSystem(){
                 else{
                   $('#system_configure_server_address').val(saved_url);
                 }
-                
+
               }
               else{ //Machine not Activated yet.
                 document.getElementById("configureSystemActivationWarning").style.display = 'block';
@@ -797,6 +797,10 @@ function changeSystemOptionsFile(type, changedValue){
                           success: function(data) {
 
                               renderSystemOptions();
+
+                              if(type == 'onlineOrders'){
+                                renderSideNavigation();
+                              }
 
                           },
                           error: function(data) {

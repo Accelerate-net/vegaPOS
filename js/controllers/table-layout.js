@@ -127,7 +127,7 @@ function fetchAllTableSections(){
               var tablesList = '';
 
               for (var i=0; i<table.length; i++){
-                tablesList = tablesList + '<tr> <th style="text-align: left">#'+(i+1)+'</th><th style="text-align: left">'+table[i]+'</th> <th style="text-align: left" onclick="deleteSingleTableSectionConsent(\''+table[i]+'\')"> <i class="fa fa-trash-o"></i> </th> </tr>';
+                tablesList = tablesList + '<tr> <td style="text-align: left">#'+(i+1)+'</td><td style="text-align: left">'+table[i]+'</td> <td style="text-align: center; cursor: pointer" onclick="deleteSingleTableSectionConsent(\''+table[i]+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
               }
 
               if(!tablesList){

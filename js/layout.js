@@ -35,6 +35,22 @@ function renderSideNavigation(){
       loggedInStaffInfo.role = "";
     }
 
+
+    //Online orders enabled 
+    var isOnlineOrdersEnabled = window.localStorage.accelerate_licence_online_enabled ? window.localStorage.accelerate_licence_online_enabled : 0; 
+    var isOnlineOrdersAccepted = window.localStorage.systemOptionsSettings_OnlineOrders ? window.localStorage.systemOptionsSettings_OnlineOrders : false;
+    
+    var onlineOrdersIcon = '';
+    if(isOnlineOrdersEnabled == 1 && (isOnlineOrdersAccepted == 'true' || isOnlineOrdersAccepted == true)){
+      onlineOrdersIcon =  '<li onclick="renderPage(\'online-orders\', \'Online Orders\')">'+
+                            '<a href="#">'+
+                              '<tag class="onlineOrderCountLabel" style="display: none" id="onlineOrderCounter">'+'</tag>'+
+                              '<img src="images/navigation/navigate_online.png" width="32px">'+
+                              '<span class="navSideName">Online Orders</span>'+
+                            '</a>'+
+                          '</li>';
+    }
+
     //either profile not chosen, or not an admin
     if(loggedInStaffInfo.code == '' || loggedInStaffInfo.role != 'ADMIN'){ 
         document.getElementById("sidemenuNavigationBar").innerHTML = ''+
@@ -82,14 +98,8 @@ function renderSideNavigation(){
                           '<img src="images/navigation/navigate_seating.png" width="32px">'+
                           '<span class="navSideName">Seating Status</span>'+
                         '</a>'+
-                    '</li>'+                  
-                    '<li onclick="renderPage(\'online-orders\', \'Online Orders\')">'+
-                        '<a href="#">'+
-                          '<tag class="onlineOrderCountLabel" style="display: none" id="onlineOrderCounter">'+'</tag>'+
-                          '<img src="images/navigation/navigate_online.png" width="32px">'+
-                          '<span class="navSideName">Online Orders</span>'+
-                        '</a>'+
                     '</li>'+
+                    onlineOrdersIcon +                 
                     '<li onclick="renderPage(\'reward-points\', \'Reward Points\')">'+
                         '<a href="#">'+
                           '<img src="images/navigation/navigate_rewards.png" width="32px">'+
@@ -1358,6 +1368,28 @@ function pingServer(){
 
 function renderServerConnectionStatus(){
 
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+
+
+  //Online orders enabled 
+  var isOnlineOrdersEnabled = window.localStorage.accelerate_licence_online_enabled ? window.localStorage.accelerate_licence_online_enabled : 0; 
+  var isOnlineOrdersAccepted = window.localStorage.systemOptionsSettings_OnlineOrders ? window.localStorage.systemOptionsSettings_OnlineOrders : false;
+
+  if(isUserAnAdmin && (isOnlineOrdersEnabled == 1 && (isOnlineOrdersAccepted == 'true' || isOnlineOrdersAccepted == true))){
+    
       var admin_data = {
         "token": window.localStorage.loggedInAdmin,
       }
@@ -1389,12 +1421,36 @@ function renderServerConnectionStatus(){
           document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-exclamation-triangle"></i> Error in Connection</tag>';
         }
       });
+  }
 }
 
 
 
 function getServerConnectionStatus(){
 
+
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+
+
+  //Online orders enabled 
+  var isOnlineOrdersEnabled = window.localStorage.accelerate_licence_online_enabled ? window.localStorage.accelerate_licence_online_enabled : 0; 
+  var isOnlineOrdersAccepted = window.localStorage.systemOptionsSettings_OnlineOrders ? window.localStorage.systemOptionsSettings_OnlineOrders : false;
+
+  if(isUserAnAdmin && (isOnlineOrdersEnabled == 1 && (isOnlineOrdersAccepted == 'true' || isOnlineOrdersAccepted == true))){
+    
       var admin_data = {
         "token": window.localStorage.loggedInAdmin,
       }
@@ -1431,7 +1487,13 @@ function getServerConnectionStatus(){
     //Repeat
     var t = setTimeout(function() {
       getServerConnectionStatus()
-    }, 300000);
+    }, 150000);
+  
+  }
+  else{
+    document.getElementById("globalServerConnectionStatusHolder").style.display = 'none';
+  }
+
 }
 
 
@@ -1776,11 +1838,9 @@ function cancelLoginWindow(){
 
 
 //ONLINE ORDERS PENDING COUNT
-
 function getOnlineOrdersCount() {
 
   // LOGGED IN USER INFO
-
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
         
   if(jQuery.isEmptyObject(loggedInStaffInfo)){
@@ -1796,8 +1856,11 @@ function getOnlineOrdersCount() {
   }
 
 
+  //Online orders enabled 
+  var isOnlineOrdersEnabled = window.localStorage.accelerate_licence_online_enabled ? window.localStorage.accelerate_licence_online_enabled : 0; 
+  var isOnlineOrdersAccepted = window.localStorage.systemOptionsSettings_OnlineOrders ? window.localStorage.systemOptionsSettings_OnlineOrders : false;
 
-  if(isUserAnAdmin){
+  if(isUserAnAdmin && (isOnlineOrdersEnabled == 1 && (isOnlineOrdersAccepted == 'true' || isOnlineOrdersAccepted == true))){
     
       //Refresh Badge Counts
       var admin_data = {};
@@ -1829,12 +1892,46 @@ function getOnlineOrdersCount() {
           document.getElementById('onlineOrderCounter').style.display = 'none';
         }
       });
+  
+    var t = setTimeout(function(){
+      getOnlineOrdersCount();
+    }, 30000); 
+  
+  }
+}
+
+
+
+function recheckCloudConnectionStatus(){
+
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
   }
 
 
-  var t = setTimeout(function() {
-    getOnlineOrdersCount()
-  }, 30000); 
+  //Online orders enabled 
+  var isOnlineOrdersEnabled = window.localStorage.accelerate_licence_online_enabled ? window.localStorage.accelerate_licence_online_enabled : 0; 
+  var isOnlineOrdersAccepted = window.localStorage.systemOptionsSettings_OnlineOrders ? window.localStorage.systemOptionsSettings_OnlineOrders : false;
+
+  if(isUserAnAdmin && (isOnlineOrdersEnabled == 1 && (isOnlineOrdersAccepted == 'true' || isOnlineOrdersAccepted == true))){
+    document.getElementById("globalServerConnectionStatusHolder").style.display = 'block';
+    getServerConnectionStatus();
+    getOnlineOrdersCount();
+  }
+  else{
+    document.getElementById("globalServerConnectionStatusHolder").style.display = 'none';
+  } 
 }
 
 
@@ -2023,6 +2120,7 @@ function switchProfile(encodedProfile){
     }
 
     selectStewardWindowClose();
+    recheckCloudConnectionStatus();
 
     $("#customer_form_data_mobile").focus();
 }
@@ -3827,6 +3925,7 @@ function proceedToSetAdminUser(userProfile){
     }
     
     selectStewardWindowClose();
+    recheckCloudConnectionStatus();
 
     $("#customer_form_data_mobile").focus();
 }
