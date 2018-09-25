@@ -228,6 +228,8 @@ function hideLoading(){
   document.getElementById("generalLoaderText").innerHTML = 'Loading...';
 }
 
+
+
 /* USAGE:
 showLoading(3000, 'Custom Text');
 */

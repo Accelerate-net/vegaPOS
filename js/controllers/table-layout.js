@@ -65,7 +65,12 @@ function fetchAllTables(){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
               var table = data.docs[0].value;
-              table.sort(); //alphabetical sorting 
+              table.sort(function(obj1, obj2) {
+                // Ascending: first age less than the previous
+                return obj1.table - obj2.table;
+              });
+               
+
               var tablesList = '';
 
               for (var i=0; i<table.length; i++){
@@ -117,7 +122,8 @@ function fetchAllTableSections(){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
 
               var table = data.docs[0].value;
-              table.sort(); //alphabetical sorting 
+              table.sort();
+
               var tablesList = '';
 
               for (var i=0; i<table.length; i++){
@@ -196,8 +202,7 @@ function deleteSingleTable(name) {
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
               var table = data.docs[0].value;
-              table.sort(); //alphabetical sorting 
-
+              
                for (var i=0; i<table.length; i++) {  
                  if (table[i].table == name){
                     if(table[i].status == 0){
@@ -282,7 +287,6 @@ function deleteSingleTableSection(sectionName) {
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
               var table = data.docs[0].value;
-              table.sort(); //alphabetical sorting 
 
               var allFreeTables = true;
 
@@ -415,7 +419,6 @@ function deleteAllMappedTables(sectionName){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
                   var table = data.docs[0].value;
-                  table.sort(); //alphabetical sorting 
 
                    for (var i=0; i<table.length; i++) {  
                      if (table[i].type == sectionName){
@@ -497,7 +500,7 @@ function addNewTableSection(){
             if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
 
                 var table = data.docs[0].value;
-                
+
                 if(table == []){
                   table.push(sectionName);
                 }
@@ -616,6 +619,7 @@ function addNewTable() {
 
                   var table = data.docs[0].value;
                   
+
                   if(table == []){
                     table.push(paramObj);
                   }

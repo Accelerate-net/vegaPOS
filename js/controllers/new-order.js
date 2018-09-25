@@ -3202,7 +3202,11 @@ function renderTables(){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
               var tables = data.docs[0].value;
-              tables.sort();
+
+              tables.sort(function(obj1, obj2) {
+                // Ascending: first age less than the previous
+                return obj1.table - obj2.table;
+              });
 
               if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
               	smallTableFlag = ' mediumTile';
@@ -5338,8 +5342,11 @@ function pickTableForNewOrder(currentTableID){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
               var tables = data.docs[0].value;
-              tables.sort();
- 
+              tables.sort(function(obj1, obj2) {
+                // Ascending: first age less than the previous
+                return obj1.table - obj2.table;
+              });
+               
               if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
               	smallTableFlag = ' mediumTile';
               }
