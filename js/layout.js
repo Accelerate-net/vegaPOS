@@ -216,6 +216,7 @@ function applyLicenceTerms(){
                   applyPersonalisations();
                   applyBillLayout();
                   applyShortcuts();
+                  applyKOTRelays();
                   autoSessionSwitchChecker();
                   applyConfiguredPrinters();
                   applyOrderSources();
@@ -352,6 +353,7 @@ function applyConfiguredPrinters(){
                     case "KOT":{
                       list_kot.push({
                         "target" : printers[n].type,
+                        "name" : printers[n].name,
                         "settings": {
                                       "marginsType": 1, //No Margin
                                       "printBackground": true, 
@@ -367,6 +369,7 @@ function applyConfiguredPrinters(){
                     case "BILL":{
                       list_bills.push({
                         "target" : printers[n].type,
+                        "name" : printers[n].name,
                         "settings": {
                                       "marginsType": 1, //No Margin
                                       "printBackground": true, 
@@ -382,6 +385,7 @@ function applyConfiguredPrinters(){
                     case "DUPLICATE_BILL":{
                       list_bills_duplicate.push({
                         "target" : printers[n].type,
+                        "name" : printers[n].name,
                         "settings": {
                                       "marginsType": 1, //No Margin
                                       "printBackground": true, 
@@ -397,6 +401,7 @@ function applyConfiguredPrinters(){
                     case "REPORT":{
                       list_report.push({
                         "target" : printers[n].type,
+                        "name" : printers[n].name,
                         "settings": {
                                       "marginsType": 1, //No Margin
                                       "printBackground": true, 
@@ -410,8 +415,9 @@ function applyConfiguredPrinters(){
                       break;
                     }
                     case "VIEW":{
-                      list_report.push({
+                      list_view.push({
                         "target" : printers[n].type,
+                        "name" : printers[n].name,
                         "settings": {
                                       "marginsType": 1, //No Margin
                                       "printBackground": true, 
@@ -1555,6 +1561,13 @@ function applySystemOptionSettings(){
                         /*update localstorage*/             
                         window.localStorage.appOtherPreferences_orderEditingAllowed = tempVal;
                       }
+                      else if(params[i].name == "KOTRelayEnabled"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_KOTRelayEnabled = tempVal;
+                      }
                       else if(params[i].name == "defaultPrepaidName"){
                         var tempVal = params[i].value;
                         
@@ -1585,6 +1598,13 @@ function applySystemOptionSettings(){
                         
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_defaultDineMode = tempVal;
+                      }
+                      else if(params[i].name == "defaultKOTPrinter"){
+
+                        var tempVal = params[i].value;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_defaultKOTPrinter = tempVal;
                       }
                       else if(params[i].name == "scanPayEnabled"){
 
@@ -4467,6 +4487,58 @@ function markSpotlightMenuItemAvailability(code, type){
 
 }
 
+
+/* Apply KOT Relays */
+function applyKOTRelays(){
+  
+    //Read from Server, apply changes, and save to LocalStorage
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_KOT_RELAYING" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+                    window.localStorage.custom_kot_relays = JSON.stringify(settingsList[n].data);
+                    break;
+                }
+              }
+
+          }
+          else{
+            showToast('Not Found Error: KOT Relays data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: KOT Relays data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOT Relays data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });    
+}
 
 
   

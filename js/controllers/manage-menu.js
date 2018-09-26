@@ -2007,14 +2007,12 @@ function deleteCategoryFromMaster(menuCategory){
 
 				}
 		       
-
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
                   "identifierTag": "ZAITOON_MASTER_MENU",
                   "value": mastermenu
                 }
-
 
                 $.ajax({
                   type: 'PUT',
@@ -2100,6 +2098,7 @@ function deleteCategory(name) {
                   success: function(data) {
 	                   /* on successful delete */
 	                   deleteCategoryFromMaster(name);
+	                   deleteCategoryFromKOTRelays(name);
 
 					   /* on successful delete */
 					   document.getElementById("menuDetailsArea").style.display = "none";
@@ -2195,6 +2194,7 @@ function renameCategoryFromMaster(current, newName){
                   timeout: 10000,
                   success: function(data) {
                     fetchAllCategories();
+                    renameKOTRelaysList(current, newName);
 		        	openSubMenu(newName);
                   },
                   error: function(data) {
@@ -2220,6 +2220,159 @@ function renameCategoryFromMaster(current, newName){
     });  
 
 }
+
+
+
+function renameKOTRelaysList(current, newName){
+
+	/* 
+		Check if this category is listed under "KOT Relaying"
+		and if added, update its name
+	*/
+
+
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_KOT_RELAYING" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+
+                    for (var i=0; i<settingsList[n].data.length; i++){
+                      if(settingsList[n].data[i].name == current){
+                        settingsList[n].data[i].name = newName;
+                        break;
+                      }
+                    }
+
+                    updateRelayData(settingsList, data.docs[0]._rev);
+
+                  break;
+                }
+              }
+
+
+          }
+          else{
+            showToast('Not Found Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+function deleteCategoryFromKOTRelays(name){
+
+	/* 
+		Check if this category is listed under "KOT Relaying"
+		and if added, remove the name
+	*/
+
+
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_KOT_RELAYING" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+
+                    for (var i=0; i<settingsList[n].data.length; i++){
+                      if(settingsList[n].data[i].name == name){
+                        settingsList[n].data.splice(i,1);
+                        break;
+                      }
+                    }
+
+                    updateRelayData(settingsList, data.docs[0]._rev);
+
+                  break;
+                }
+              }
+
+
+          }
+          else{
+            showToast('Not Found Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  	
+}
+
+
+function updateRelayData(customList, rev){
+
+                    //Update
+                    var updateData = {
+                      "_rev": rev,
+                      "identifierTag": "ZAITOON_KOT_RELAYING",
+                      "value": customList
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_RELAYING/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });     
+}
+
 
 
 function saveNewCategoryName(currentName){

@@ -379,7 +379,6 @@ function deletePrinterProfile(name){
                  }
                }
 
-               console.log(printers)
                printersList[listIndex].data = printers;
 
                 //Update
@@ -401,6 +400,8 @@ function deletePrinterProfile(name){
             					fetchAllPrintersInfo();
             					hideDeletePrinterConsent();
                       applyConfiguredPrinters();
+
+                      removePrinterFromKOTRelays(name);
                   },
                   error: function(data) {
                     showToast('System Error: Unable to make changes in Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
@@ -423,5 +424,97 @@ function deletePrinterProfile(name){
       }
 
     });  
-
 }
+
+
+function removePrinterFromKOTRelays(name){
+
+  /* 
+    Check if this printer is listed under "KOT Relaying"
+    and if added, remove the name
+  */
+
+
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_KOT_RELAYING" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+
+              var settingsList = data.docs[0].value;
+
+              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+              if(!machineName || machineName == ''){
+                machineName = 'Any';
+              }
+
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+
+                    for (var i=0; i<settingsList[n].data.length; i++){
+                      if(settingsList[n].data[i].printer == name){
+                        settingsList[n].data.splice(i,1);
+                        i--;
+                      }
+                    }
+
+                    updateRelayDataWithPrinters(settingsList, data.docs[0]._rev);
+
+                  break;
+                }
+              }
+
+
+          }
+          else{
+            showToast('Not Found Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });   
+}
+
+
+function updateRelayDataWithPrinters(customList, rev){
+
+                    //Update
+                    var updateData = {
+                      "_rev": rev,
+                      "identifierTag": "ZAITOON_KOT_RELAYING",
+                      "value": customList
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_RELAYING/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });     
+}
+
+
+
+
+

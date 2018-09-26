@@ -13,6 +13,7 @@
 
 
                         <div class="billSettingsOption" onclick="openSystemSettings('keyboardShortcuts')"> Custom Shortcuts <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openSystemSettings('kitchenSections')"> KOT Relaying <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('personalOptions')"> Personalisations<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('systemSecurity')"> Security<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('configureSystem')">System Configuration<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
@@ -177,18 +178,9 @@
 
 
                           <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
-                            <td colspan="2" style="padding: 10px 0 5px 0;">Billing Defaults</td>
+                            <td colspan="2" style="padding: 10px 0 5px 0;">KOT/Bill Defaults</td>
                           </tr> 
                           <tr>
-                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Default Billing Mode for Dine In</td>
-                            <td style="padding-top:10px;">
-                                <div class="form-group">
-                                   <select onchange="changeSystemOptionDefaultDineMode()" id="systemOptionDefaultDineMode" class="form-control" style="width:100%;">
-                                   </select>
-                                </div>
-                            </td>
-                          </tr> 
-                          <tr style="border-top: 1px dashed #f5f5f5;">
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Editing Order once KOT is printed<tag style="display: block; font-size: 80%; color: #949393;">Dine Orders can be always edited. This option is applicable for other billing modes only.</tag></td>
                             <td style="padding-top:10px">
                                 <div class="form-group">
@@ -199,6 +191,38 @@
                                 </div>
                             </td>
                           </tr>
+
+                          <tr style="border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Enable KOT Relaying<tag style="display: block; font-size: 80%; color: #949393;">KOTs will be split and sent to respective Kitchen Sections separately</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionKOTRelaying()" id="systemOptionKOTRelayEnabled" class="form-control" style="width:100%;">
+                                      <option value="YES">Enabled</option>
+                                      <option value="NO">Disabled</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Default Billing Mode for Dine In</td>
+                            <td style="padding-top:10px;">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionDefaultDineMode()" id="systemOptionDefaultDineMode" class="form-control" style="width:100%;">
+                                   </select>
+                                </div>
+                            </td>
+                          </tr> 
+
+                          <tr style="border-top: 1px dashed #f5f5f5;" id="systemOptionDefaultKOTPrinter_holder">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Default KOT Printer<tag style="display: block; font-size: 80%; color: #949393;">Choose the Main Printer - all the KOTs by default will be printed on this printer</tag></td>
+                            <td style="padding-top:10px;">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionDefaultKOTPrinter()" id="systemOptionDefaultKOTPrinter" class="form-control" style="width:100%;">
+                                   </select>
+                                </div>
+                            </td>
+                          </tr> 
 
                           <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%; ">
                             <td colspan="2" style="padding: 10px 0 5px 0;">Online Order Settings</td>
@@ -513,53 +537,6 @@
 
                                   <div id="shortCutsRenderPlane"></div>
 
-
-                                  <!-- 
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="toggle_category_slider">Toggle Category Slider</label> <input type="text" name="toggle_category_slider" value="ALT+F10" class="form-control tip" id="toggle_category_slider">
-                                     </div>
-                                  </div>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="cancel_sale">Cancel Sale</label> <input type="text" name="cancel_sale" value="ALT+F5" class="form-control tip" id="cancel_sale">
-                                     </div>
-                                  </div>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="suspend_sale">Suspend Sale</label> <input type="text" name="suspend_sale" value="ALT+F6" class="form-control tip" id="suspend_sale">
-                                     </div>
-                                  </div>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="print_order">Print Order</label> <input type="text" name="print_order" value="ALT+F11" class="form-control tip" id="print_order">
-                                     </div>
-                                  </div>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="print_bill">Print Bill</label> <input type="text" name="print_bill" value="ALT+F12" class="form-control tip" id="print_bill">
-                                     </div>
-                                  </div>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="finalize_sale">Finalize Sale</label> <input type="text" name="finalize_sale" value="ALT+F8" class="form-control tip" id="finalize_sale">
-                                     </div>
-                                  </div>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="today_sale">Today's Sale</label> <input type="text" name="today_sale" value="Ctrl+F1" class="form-control tip" id="today_sale">
-                                     </div>
-                                  </div>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="open_hold_bills">Opened Bills</label> <input type="text" name="open_hold_bills" value="Ctrl+F2" class="form-control tip" id="open_hold_bills">
-                                     </div>
-                                  </div>
-                                  <div class="col-md-4 col-sm-4">
-                                     <div class="form-group">
-                                        <label for="close_register">Close Register</label> <input type="text" name="close_register" value="ALT+F7" class="form-control tip" id="close_register">
-                                     </div>
-                                  </div> -->
                                   <div class="clearfix"></div>
                                </div>
                             </div>
@@ -568,6 +545,33 @@
                         <div class="clearfix"></div>
                     </div>
                 </div>
+
+
+
+
+
+                <!-- Kitchen Sections -->
+                <div class="box box-primary" style="display: none" id="kitchenSections">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">KOT Relaying <tag id="kot_relay_not_enabled_label" style="display: none; color: #ff9797; font-size: 14px; text-transform: uppercase; font-weight: 600; position: absolute; right: 10px; top: 18px; border: 1px solid; padding: 2px 8px; border-radius: 5px; background: #fff0f0;">Not Enabled</tag></h3>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                               <div class="well well-sm" style="margin: 0">
+                                  <p>Map the Printers with Kitchen Sections, if you want the orders to be printed on the respective kitchen sections. By default, all the KOTs will be printed on the <tag onclick="renderPage('system-settings', 'System Settings'); openSystemSettings('systemOptions', 'HIGHLIGHT_DEFAULT_KOT_PRINTER')" class="systemShortcutIcon">Default KOT Printer</tag> which is set by you.</p>
+                                  <div id="kitchenSectionsRenderPlane"></div>
+                                  <div class="clearfix"></div>
+                               </div>
+                            </div>
+                         </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
 
 
 
@@ -729,6 +733,8 @@
         </div>
 
 
+
+
         <!-- Modal -->
         <div id="selectShortKeysModal" class="modal">
            <div class="modal-dialog" style="top: 15px">
@@ -804,6 +810,32 @@
               </div>
            </div>
         </div>
+
+
+
+
+
+
+
+        <!-- Modal -->
+        <div id="selectKOTRelayPrinterModal" class="modal">
+           <div class="modal-dialog" style="top: 15px">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 20px;">
+                    
+                    <p id="selectKOTRelayPrinterBrief" style="font-size: 18px; text-align: center"></p>
+
+                    <div id="selectKOTRelayPrinterList"></div>
+                    
+                 </div>
+                 <div class="modal-footer" style="padding: 0; border: none" id="selectKOTRelayPrinterActions"></div>
+
+              </div>
+           </div>
+        </div>
+
+
 
 
 

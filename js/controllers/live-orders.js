@@ -202,11 +202,13 @@ function renderAllKOTs() {
           document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Orders</tag>';
           
           setTimeout(function(){
-            $('#switchLiveOrderRenderTypeButton').addClass('hiddenLiveButton'); 
+            if(currentRunningPage == 'live-orders')
+              $('#switchLiveOrderRenderTypeButton').addClass('hiddenLiveButton'); 
           }, 500);
 
           setTimeout(function(){
-            document.getElementById("switchLiveOrderRenderTypeButton").style.display = 'none'; 
+            if(currentRunningPage == 'live-orders')
+              document.getElementById("switchLiveOrderRenderTypeButton").style.display = 'none'; 
           }, 2499);
 
           return '';
