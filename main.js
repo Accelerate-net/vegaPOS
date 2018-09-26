@@ -205,7 +205,7 @@ ipc.on("printBillDocument", (event, content, printer_list) => {
 // when worker window is ready
 ipc.on("readyToPrintBillDocument", (event, printer_list) => {
 
-    //const pdfPath = path.join(os.tmpdir(), 'print.pdf');
+    // const pdfPath = path.join(os.tmpdir(), 'print.pdf');
 
     // var pageSettingsSilent = {
     //   'marginsType': 1, //No Margin
@@ -218,9 +218,6 @@ ipc.on("readyToPrintBillDocument", (event, printer_list) => {
     // }
 
 
-    var pageSettingsSilent = printer_list[0].settings;
-    pageSettingsSilent.deviceName = printer_list[0].target;
-   
     // workerWindow.webContents.printToPDF(pageSettingsSilent, function (error, data) {
     //     if (error) throw error
     //     fs.writeFile(pdfPath, data, function (error) {
@@ -232,9 +229,13 @@ ipc.on("readyToPrintBillDocument", (event, printer_list) => {
     //     })
     // })
 
-    // workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
-    //     if (error) throw error
-    // })
+
+    var pageSettingsSilent = printer_list[0].settings;
+    pageSettingsSilent.deviceName = printer_list[0].target;
+   
+    // // workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
+    // //     if (error) throw error
+    // // })
 
     workerWindow.webContents.print(pageSettingsSilent);
 });

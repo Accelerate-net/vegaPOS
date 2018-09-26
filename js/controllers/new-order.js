@@ -4745,7 +4745,135 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              if(data.ok){
 
 	              	//Send KOT for Printing
-	              	sendToPrinter(obj, 'KOT');
+	              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+	              	if(isKOTRelayingEnabled){
+
+	              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
+	              		var relaySkippedItems = [];
+
+	              		populateRelayRules();
+
+	              		function populateRelayRules(){
+		              		var n = 0;
+		              		while(relayRuleList[n]){
+
+		              			relayRuleList[n].subcart = [];
+
+		              			for(var i = 0; i < obj.cart.length; i++){
+		              				if(obj.cart[i].category == relayRuleList[n].name && relayRuleList[n].printer != ''){
+		              					relayRuleList[n].subcart.push(obj.cart[i]);
+		              				}
+		              			}	
+
+		              			if(n == relayRuleList.length - 1){
+		              				generateRelaySkippedItems();
+		              			}
+
+		              			n++;
+		              		}
+		              	}
+
+		              	function generateRelaySkippedItems(){
+		              		var m = 0;
+		              		while(obj.cart[m]){
+
+		              			for(var i = 0; i < relayRuleList.length; i++){
+		              				if(obj.cart[m].category == relayRuleList[i].name && relayRuleList[i].printer != ''){
+		              					//item found
+		              					break;
+		              				}
+
+		              				if(i == relayRuleList.length - 1){ //last iteration and item not found
+		              					relaySkippedItems.push(obj.cart[m])
+		              				}
+		              			}	
+
+		              			if(m == obj.cart.length - 1){
+
+		              				//Print Relay Skipped items (if exists)
+		              				var relay_skipped_obj = obj;
+		              				relay_skipped_obj.cart = relaySkippedItems;
+		              				
+		              				if(relaySkippedItems.length > 0){
+		              					console.log('Print: Default')
+		              					sendToPrinter(relay_skipped_obj, 'KOT');
+		              				}
+
+		              				printRelayedKOT(relayRuleList);	
+		              			}
+
+		              			m++;
+		              		}
+		              	}
+
+		              	function printRelayedKOT(relayedList){
+
+		              		var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+						    var g = 0;
+						    var allPrintersList = [];
+
+						    while(allConfiguredPrintersList[g]){
+						      
+						      for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+						        if(!isItARepeat(allConfiguredPrintersList[g].list[a].name)){
+						          allPrintersList.push({
+						            "name": allConfiguredPrintersList[g].list[a].name,
+						            "target": allConfiguredPrintersList[g].list[a].target
+						          });
+						          }
+						      }
+
+						      if(g == allConfiguredPrintersList.length - 1){
+						      	startRelayPrinting();
+						      }
+						      
+						      g++;
+						    }
+
+						    function isItARepeat(name){
+						      var h = 0;
+						      while(allPrintersList[h]){
+						        if(allPrintersList[h].name == name){
+						          return true;
+						        }
+
+						        if(h == allPrintersList.length - 1){ // last iteration
+						          return false;
+						        }
+						        h++;
+						      }
+						    }
+
+						    function startRelayPrinting(){
+						    	var p = 0;
+						    	while(allPrintersList[p]){
+						    		
+						    		var relayedItems = [];
+						    		for(var i = 0; i < relayedList.length; i++){
+						    			if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[p].name){
+						    				relayedItems = relayedItems.concat(relayedList[i].subcart)	
+						    			}
+
+						    			if(i == relayedList.length - 1){ //last iteration
+						    				var relayedNewObj = obj;
+						    				relayedNewObj.cart = relayedItems;
+
+						    				console.log('Print: '+allPrintersList[p].name)
+
+						    				if(relayedItems.length > 0)
+						    					sendToPrinter(relayedNewObj, 'KOT');
+						    			}
+						    		}
+
+						    		p++;
+						    	}
+						    }
+
+		              	}
+	              	}
+	              	else{
+	              		sendToPrinter(obj, 'KOT');
+	              	}
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
