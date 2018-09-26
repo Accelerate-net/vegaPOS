@@ -3491,6 +3491,7 @@ function printDuplicateBill(billNumber){
         if(firstdata.docs.length > 0){
           var bill = firstdata.docs[0];
           sendToPrinter(bill, 'DUPLICATE_BILL');
+          showToast('Duplicate Bill #'+billNumber+' generated Successfully', '#27ae60');
         }
         else{
           showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');

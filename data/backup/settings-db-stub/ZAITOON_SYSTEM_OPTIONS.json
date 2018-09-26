@@ -42,6 +42,10 @@
           "value": "NONE"
         },
         {
+          "name": "KOTRelayEnabled",
+          "value": "NO"
+        },
+        {
           "name": "scanPayEnabled",
           "value": "NO"
         },
