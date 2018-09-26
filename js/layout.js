@@ -3749,9 +3749,16 @@ function showSpotlight(){
 
                                       var mastermenu = menudata.docs[0].value; 
                                       var menuitems = [];
+                                      var menu_index = 0;
                                       var n = 0;
                                       while(mastermenu[n]){
-                                        menuitems = menuitems.concat(mastermenu[n].items)
+
+                                        for(var i = 0; i < mastermenu[n].items.length; i++){
+                                          menuitems[menu_index] = mastermenu[n].items[i];
+                                          menuitems[menu_index].category = mastermenu[n].category;
+                                          menu_index++;
+                                        }
+
                                         n++;
                                       }
 
@@ -3990,7 +3997,7 @@ console.log('am here 2')
 function spotlightTriggerMenuItem(tempData){
 
   if(currentRunningPage == 'new-order'){
-    additemtocart(tempData)
+    additemtocart(tempData, 'ATTACHED_WITHIN')
   }
   else if(currentRunningPage == 'manage-menu'){
     

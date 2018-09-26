@@ -46,13 +46,19 @@ function saveToCart(productToAdd){
          	cart_products[flag].qty +=1;
       }
       else{
-      		cart_products.push({"name": productToAdd.name, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1});
+      		cart_products.push({"name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1});
       }
 
 	  window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
 }
 
-function additemtocart(encodedItem, optionalSource){
+function additemtocart(encodedItem, category, optionalSource){
+
+	/*
+		category == 'ATTACHED_WITHIN' (encodedItem itself contains the category name)
+		when the item is added through the spotlight tool
+	*/
+
 
 	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
@@ -70,6 +76,10 @@ function additemtocart(encodedItem, optionalSource){
 	}
 
 	var productToAdd = JSON.parse(decodeURI(encodedItem));
+
+	if(category != '' && category != 'ATTACHED_WITHIN'){
+		productToAdd.category = category;
+	}
 
 	if(!productToAdd.isAvailable && optionalSource != 'DELETE_REVERSAL'){
 		showToast('Out of Stock: <b>'+productToAdd.name+'</b> is not available', '#48929B');
@@ -105,7 +115,7 @@ function additemtocart(encodedItem, optionalSource){
 		var i = 0;
 		var optionList = '';
 		while(productToAdd.customOptions[i]){
-			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.code+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\')">'+
+			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.category+'\', \''+productToAdd.code+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\')">'+
 										'<a>'+productToAdd.customOptions[i].customName+'<tag class="spotlightCustomItemTick"><i class="fa fa-check"></i></tag> <tag style="float: right"><i class="fa fa-inr"></i>'+productToAdd.customOptions[i].customPrice+'</tag></a>'+
 									  '</li>';
 			i++;
@@ -199,12 +209,13 @@ function additemtocart(encodedItem, optionalSource){
 	$("#add_item_by_search").focus();
 }
 
-function addCustomToCart(name, code, price, variant, optionalSource, encodedIngredients){
+function addCustomToCart(name, category, code, price, variant, optionalSource, encodedIngredients){
 
 		var ingredientsTemp = encodedIngredients && encodedIngredients != '' ? JSON.parse(decodeURI(encodedIngredients)) : '';
 
 		var productToAdd = {};
 		productToAdd.name = name;
+		productToAdd.category = category;
 		productToAdd.code = code;
 		productToAdd.price = price;
 		productToAdd.variant = variant;
@@ -3714,11 +3725,11 @@ function renderMenu(subtype){
 						for(var j=0; j<mastermenu[i].items.length; j++){
 							var temp = encodeURI(JSON.stringify(mastermenu[i].items[j]));
 							if(mastermenu[i].items[j].isPhoto && showPhotosFlag){
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\')" type="button" type="button" class="btn btn-both btn-flat product"><tag id="menu_image_holder_'+mastermenu[i].items[j].code+'"><div id="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></tag><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\', \''+subtype+'\')" type="button" type="button" class="btn btn-both btn-flat product"><tag id="menu_image_holder_'+mastermenu[i].items[j].code+'"><div id="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></tag><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
 								fetchImageFromServer(mastermenu[i].items[j].code, mastermenu[i].items[j].vegFlag);
 							}
 							else{
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img"><div id="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\', \''+subtype+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img"><div id="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
 							}
 						}
 						break;
@@ -4277,10 +4288,10 @@ function revertDelete(encodedItem){
 	var item = JSON.parse(decodeURI(encodedItem));
 
 	if(item.isCustom){
-		addCustomToCart(item.name, item.code, item.price, item.variant, '',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "");
+		addCustomToCart(item.name,  item.category, item.code, item.price, item.variant, '',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "");
 	}
 	else{
-		additemtocart(encodedItem, 'DELETE_REVERSAL');
+		additemtocart(encodedItem, 'ATTACHED_WITHIN', 'DELETE_REVERSAL');
 	}
 	
 	quickViewRemovedItems();
@@ -7031,7 +7042,7 @@ function initMenuSuggestion(){
 
 						        if ((items.name.search(regex) != -1) || (items.price.search(regex) != -1) || (items.shortCode.search(regex) != -1)) {
 						        	tabIndex = -1;
-						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \''+subMenu.category+'\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
 						            count++;
 						            tabIndex++;
 						        }
