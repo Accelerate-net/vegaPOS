@@ -609,9 +609,9 @@ function openSubMenu(menuCategory, optionalHighlighItem){
 
 //To mark items availability -- batch process
 function markAllItemsAvailability(current){
-	document.getElementById("markAllItemsAvailabilityConsent").innerHTML = '<button class="btn btn-default" onclick="markAllItemsAvailabilityHide()" style="float: left">Cancel</button>'+
-                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_NOT_AVAIL\')" class="btn btn-danger" style="float: right">Mark All NOT Available</button>'+
-                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_AVAIL\')" class="btn btn-success">Mark All Available</button>';
+	document.getElementById("markAllItemsAvailabilityConsent").innerHTML = ''+
+                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_NOT_AVAIL\')" class="btn btn-danger" style="float: left; width: 50%; height: 45px; border: none; border-radius: 0; margin: 0;">Mark All NOT Available</button>'+
+                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_AVAIL\')" class="btn btn-success" style="float: right; width: 50%; height: 45px; border: none; border-radius: 0; margin: 0;">Mark All Available</button>';
 	
 	document.getElementById("markAllItemsAvailabilityContent").innerHTML = '<div class="row">'+
 	                        '<div class="col-lg-12">Please select an option to mark the availability of <b>'+current+'</b> items.'+
