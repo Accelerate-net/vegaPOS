@@ -5,10 +5,7 @@ Notes:
 15. CRITICAL BUG: Default Admin User (auto create) need.
 16. CRITICAL BUG: Remove mouse trap while entering password etc.
 17. Offline Google Fonts
-18. Sample TEST print on CONFIGURED PRITNERS
 19. CRITICAL BUG: DUPLICATION in BILLS!!! (Double ENTER issues)
-20. appOtherPreferences_cancellationAllowed (Allow Cancellation after billing)
-21. Email preference for Reports
 
 
 Moved to Version 2:
