@@ -370,14 +370,14 @@ function fetchSystemOrder(encodedMapping){
 
 function showRemoveInvoiceMapping(mappingObject, optionalPageRef){
 	document.getElementById("removeOnlineOrderInvoiceModal").style.display = 'block';
-	document.getElementById("removeOnlineOrderInvoiceText").innerHTML = 'This order #'+mappingObject.onlineOrder+' was Cancelled/Removed. Do you want to erase this mapping?';
+	document.getElementById("removeOnlineOrderInvoiceText").innerHTML = 'Order #'+mappingObject.onlineOrder+' is now found on the Server. This order would have been Cancelled or Removed. Do you want to erase this mapping?';
 	document.getElementById("removeOnlineOrderInvoiceConsent").innerHTML = '<button  class="btn btn-default" onclick="showRemoveInvoiceMappingHide()" style="float: left">Hide</button>'+
                                 '<button  class="btn btn-danger" onclick="removeMappingFromFile(\''+mappingObject._id+'\', \''+mappingObject._rev+'\')">Erase Mapping</button>';
 	
 }
 
 function showRemoveInvoiceMappingHide(){
-	document.getElementById("removeOnlineOrderInvoiceModal").style.display = 'hide';
+	document.getElementById("removeOnlineOrderInvoiceModal").style.display = 'none';
 }
 
 function removeMappingFromFile(id, revID){
