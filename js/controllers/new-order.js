@@ -628,8 +628,8 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 			document.getElementById("summaryDisplay").innerHTML = '';
 			document.getElementById("summarySumDisplay").innerHTML = '<div style="height: 30vh !important;"></div>';
 
-			document.getElementById("cartDetails").innerHTML = '<p style="font-size: 21px; margin: 50px 0 0 0 ; text-align: center; font-weight: 300; color: #b9b9b9; }">'+
-								'<img style="width: 25%; margin: 20px 0px 5px 0px;" src="images/common/emptycart.png"><br>Order Cart is empty!</p>';
+			document.getElementById("cartDetails").innerHTML = '<p style="font-size: 18px; margin: 15px 0 0 0 ; text-align: center; font-weight: 300; color: #b9b9b9; }">'+
+								'<img style="width: 18%; margin: 20px 0px 5px 0px;" src="images/common/emptycart.png"><br>No items in Cart</p>';
 			
 			document.getElementById("cartActionButtons").innerHTML = '';
 
