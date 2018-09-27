@@ -47,7 +47,7 @@ function createWindow () {
     workerWindow = new BrowserWindow({show : false});
     workerWindow.loadURL("file://" + __dirname + "/templates/print-template.html");
     // workerWindow.hide();
-    workerWindow.webContents.openDevTools();
+    //workerWindow.webContents.openDevTools();
     workerWindow.on("closed", () => {
         workerWindow = null;
     });
@@ -66,7 +66,7 @@ function createWindow () {
 
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools()
+  //mainWindow.webContents.openDevTools()
 
   //Full Screen
   mainWindow.setFullScreen(true)
