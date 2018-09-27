@@ -4378,7 +4378,6 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 			              			
 			              	}
 
-	//sendKOTChangesToPrinter(kot, compareObject);
 }
 
 
