@@ -1,40 +1,21 @@
 
-Notes:
-1.A Item Change (Chicken --> Mutton Biryani)
-12. add more details to report download (number of discount orders, calculated round off)
-15. CRITICAL BUG: Default Admin User (auto create) need.
-16. CRITICAL BUG: Remove mouse trap while entering password etc.
-17. Offline Google Fonts
-19. CRITICAL BUG: DUPLICATION in BILLS!!! (Double ENTER issues)
+Fixes for Version 1:
+
+1. add more details to report download (number of discount orders, calculated round off)
+
 
 
 Moved to Version 2:
-1.B Item wise table shift.
-2. Spotlight (Customers pending)
-3. Create QR Code and create link on cloud server
+
+3. Spotlight (Customers pending)
 4. User Access (Super Admin)
 5. Add Order Source to Bill (add to Filter Invoices and Cancelled Invoices also)
-6. Report Generation (set email id in preferences)
-7. Show only Stewards or Admins also (preference settings)
-8. User Selection pop up on default screen (idle screen)
-9. Auto logout of ADMIN PREVILAGE if idle more than 5 mins
-10. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
-11. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings.
-13. Black and White A4 Print - Reports 
-14. Optimise menu Image rendering 
-22. Update Online Menu etc. (Option in Preferences)
+6. User Selection pop up on default screen (idle screen)
+7. Auto logout of ADMIN PREVILAGE if idle more than 5 mins
+8. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
+9. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings.
+10. Black and White A4 Print - Reports 
+11. Optimise menu Image rendering 
+12. Update Online Menu etc. (Option in Preferences)
+13. EASY CHANGE : D for Dine Mode, T for Takeaway --> change between the billing modes
 
-
-SORT DATA - Table Number
-
-Bugs:
-Drag Spotlight - MENU MOUSE CLICK
-D for Dine Mode, T for Takeaway --> change between the billing modes
-
-
-Update Running Instances:
-> System Options DATA on CouchDB --> Updated
-> Billing Layout (Logo Image) DATA on CouchDB --> Updated
-> Order Status DATA
-
--- Add all relevant stub data to DB when new Licence applied
