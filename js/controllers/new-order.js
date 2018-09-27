@@ -4236,27 +4236,36 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 				              			n++;
 				              		}
+
+				              		if(relayRuleList.length == 0){
+				              			generateRelaySkippedItems();
+				              		}
 				              	}
 
 				              	function generateRelaySkippedItems(){
 				              		var m = 0;
 				              		while(compareObject[m]){
 
-				              			for(var i = 0; i < relayRuleList.length; i++){
-				              				if(compareObject[m].category == relayRuleList[i].name && relayRuleList[i].printer != ''){
-				              					//item found
-				              					break;
-				              				}
+				              			if(relayRuleList.length != 0){
+					              			for(var i = 0; i < relayRuleList.length; i++){
+					              				if(compareObject[m].category == relayRuleList[i].name && relayRuleList[i].printer != ''){
+					              					//item found
+					              					break;
+					              				}
 
-				              				if(i == relayRuleList.length - 1){ //last iteration and item not found
-				              					relaySkippedItems.push(compareObject[m])
-				              				}
-				              			}	
+					              				if(i == relayRuleList.length - 1){ //last iteration and item not found
+					              					relaySkippedItems.push(compareObject[m])
+					              				}
+					              			}	
+					              		}
+					              		else{ //no relays set, skip all items
+					              			relaySkippedItems.push(compareObject[m]);
+					              		}
 
 				              			if(m == compareObject.length - 1){
 
 				              				if(relaySkippedItems.length > 0){
-				              					sendKOTChangesToPrinter(kot, relay_skipped_obj);
+				              					sendKOTChangesToPrinter(kot, relaySkippedItems);
 				              				}
 
 				              				printRelayedKOT(relayRuleList);	
@@ -4997,22 +5006,31 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 				              			n++;
 				              		}
+
+				              		if(relayRuleList.length == 0){
+				              			generateRelaySkippedItems();
+				              		}
 				              	}
 
 				              	function generateRelaySkippedItems(){
 				              		var m = 0;
 				              		while(obj.cart[m]){
 
-				              			for(var i = 0; i < relayRuleList.length; i++){
-				              				if(obj.cart[m].category == relayRuleList[i].name && relayRuleList[i].printer != ''){
-				              					//item found
-				              					break;
-				              				}
+				              			if(relayRuleList.length != 0){
+					              			for(var i = 0; i < relayRuleList.length; i++){
+					              				if(obj.cart[m].category == relayRuleList[i].name && relayRuleList[i].printer != ''){
+					              					//item found
+					              					break;
+					              				}
 
-				              				if(i == relayRuleList.length - 1){ //last iteration and item not found
-				              					relaySkippedItems.push(obj.cart[m])
-				              				}
-				              			}	
+					              				if(i == relayRuleList.length - 1){ //last iteration and item not found
+					              					relaySkippedItems.push(obj.cart[m])
+					              				}
+					              			}
+					              		}
+					              		else{ //no relays set, skip all items
+					              			relaySkippedItems.push(obj.cart[m]);
+					              		}	
 
 				              			if(m == obj.cart.length - 1){
 
