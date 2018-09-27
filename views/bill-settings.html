@@ -54,7 +54,7 @@
                            <button class="btn btn-success btn-sm" id="openNewDiscountButton" onclick="openNewDiscountType()"  style="float: right">Add New</button>
                         </div>
 
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="max-height: 75vh">
                             <table id="discountTypesTable" class="table">
 
                             </table>
@@ -72,7 +72,7 @@
                            <button class="btn btn-success btn-sm" id="openNewOrderSourceButton" onclick="openNewOrderSource()"  style="float: right">Add New</button>
                         </div>
 
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="max-height: 75vh">
                             <table id="orderSourcesTable" class="table">
 
                             </table>
@@ -91,7 +91,7 @@
                            <button class="btn btn-success btn-sm" id="openNewPaymentModeButton" onclick="openNewPaymentMode()"  style="float: right">Add New</button>
                         </div>
 
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="max-height: 75vh">
                             <table id="paymentModesTable" class="table">
 
                             </table>
@@ -110,7 +110,7 @@
                            <button class="btn btn-success btn-sm" id="openNewModeButton" onclick="openNewMode()"  style="float: right">Add New</button>
                         </div>
 
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="max-height: 75vh">
                             <table id="billingModesTable" class="table">
 
                             </table>
@@ -129,7 +129,7 @@
                            <button class="btn btn-success btn-sm" id="openNewBillButton" onclick="openNewBill()"  style="float: right">Add New</button>
                         </div>
 
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="max-height: 75vh">
                             <table id="billingParamsTable" class="table">
 
                             </table>
@@ -387,7 +387,7 @@
                   <button  onclick="viewHeaderImageContentHide()" style="float: right;" class="btn clearButton">X</button>
                   <h4 class="modal-title">Header Image (Data URL)</h4>
                </div>
-               <div class="modal-body" style="max-height: 420px; overflow: scroll">
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
 
                      <div class="row">
                         <div class="col-lg-12">
@@ -413,7 +413,7 @@
             <!-- Modal content-->
             <div class="modal-content">
               <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Confirm Delete</h1> </div>
-               <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 30px 15px">
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px">
                 <p style="font-size: 16px; margin: 0; color: #e74c3c;" id="settingsDeleteConfirmationText"></P>
                </div>
                <div class="modal-footer" style="border: none; padding-top: 0" id="settingsDeleteConfirmationConsent">

@@ -169,7 +169,7 @@ input[type=number]::-webkit-outer-spin-button {
 .menuRenderPlane{
   height: 65vh !important;
   /*overflow: scroll !important;*/
-  overflow-y:auto !important;
+  overflow-y: auto !important;
   overflow-x: none !important;
 }
 
@@ -2057,7 +2057,7 @@ ol ol {
 */
 
 .pos #list-table-div{
-  height: 30vh !important;
+  height: 25vh !important;
   overflow: scroll;
 }
 
