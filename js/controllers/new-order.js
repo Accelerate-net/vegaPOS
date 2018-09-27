@@ -4265,7 +4265,39 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 				              			if(m == compareObject.length - 1){
 
 				              				if(relaySkippedItems.length > 0){
-				              					sendKOTChangesToPrinter(kot, relaySkippedItems);
+				              					//Print skipped items (non-relayed items)
+							              		var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+							              		
+							              		if(defaultKOTPrinter == ''){
+							              			sendKOTChangesToPrinter(kot, relaySkippedItems);
+							              		}
+							              		else{
+													var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+												    var selected_printer = '';
+
+												    var g = 0;
+												    while(allConfiguredPrintersList[g]){
+												      if(allConfiguredPrintersList[g].type == 'KOT'){
+														for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+													        if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
+													        	selected_printer = allConfiguredPrintersList[g].list[a];
+													        	sendKOTChangesToPrinter(kot, relaySkippedItems, selected_printer);
+													        	break;
+													        }
+													    }
+												      }
+												      
+
+												      if(g == allConfiguredPrintersList.length - 1){
+												      	if(selected_printer == ''){ //No printer found, print on default!
+												      		sendKOTChangesToPrinter(kot, relaySkippedItems);
+												      	}
+												      }
+												      
+												      g++;
+												    }
+							              		}
+
 				              				}
 
 				              				printRelayedKOT(relayRuleList);	
@@ -5039,7 +5071,38 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 				              				relay_skipped_obj.cart = relaySkippedItems;
 				              				
 				              				if(relaySkippedItems.length > 0){
-				              					sendToPrinter(relay_skipped_obj, 'KOT');
+
+								              		var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+								              		
+								              		if(defaultKOTPrinter == ''){
+								              			sendToPrinter(relay_skipped_obj, 'KOT');
+								              		}
+								              		else{
+														var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+													    var selected_printer = '';
+
+													    var g = 0;
+													    while(allConfiguredPrintersList[g]){
+													      if(allConfiguredPrintersList[g].type == 'KOT'){
+															for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+														        if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
+														        	selected_printer = allConfiguredPrintersList[g].list[a];
+														        	sendToPrinter(relay_skipped_obj, 'KOT', selected_printer);
+														        	break;
+														        }
+														    }
+													      }
+													      
+
+													      if(g == allConfiguredPrintersList.length - 1){
+													      	if(selected_printer == ''){ //No printer found, print on default!
+													      		sendToPrinter(relay_skipped_obj, 'KOT');
+													      	}
+													      }
+													      
+													      g++;
+													    }
+								              		}
 				              				}
 
 				              				printRelayedKOT(relayRuleList);	
