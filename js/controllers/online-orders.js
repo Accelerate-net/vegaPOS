@@ -284,6 +284,9 @@ function fetchSystemOrder(encodedMapping){
 	        }
 	        else{
 	          showToast('Not Found Error: #'+mappingObject.systemBill+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+	          
+	          //Show remove mapping option
+	          showRemoveInvoiceMapping(mappingObject);
 	        }
 	        
 	      },
@@ -313,6 +316,9 @@ function fetchSystemOrder(encodedMapping){
 	        }
 	        else{
 	          showToast('Not Found Error: Bill #'+billNum+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+	       	
+	       	  //Show remove mapping option
+	          showRemoveInvoiceMapping(mappingObject);
 	        }
 	        
 	      },
@@ -342,8 +348,11 @@ function fetchSystemOrder(encodedMapping){
 	        }
 	        else{
 	          showToast('Not Found Error: Bill #'+billNum+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
-	        }
 	        
+	          //Show remove mapping option
+	          showRemoveInvoiceMapping(mappingObject);
+
+	        }
 	      },
 	      error: function(data) {
 	        showToast('System Error: Unable to read Bill data. Please contact Accelerate Support.', '#e74c3c');
@@ -358,6 +367,37 @@ function fetchSystemOrder(encodedMapping){
 
 }
 
+
+function showRemoveInvoiceMapping(mappingObject, optionalPageRef){
+	document.getElementById("removeOnlineOrderInvoiceModal").style.display = 'block';
+	document.getElementById("removeOnlineOrderInvoiceText").innerHTML = 'This order #'+mappingObject.onlineOrder+' was Cancelled/Removed. Do you want to erase this mapping?';
+	document.getElementById("removeOnlineOrderInvoiceConsent").innerHTML = '<button  class="btn btn-default" onclick="showRemoveInvoiceMappingHide()" style="float: left">Hide</button>'+
+                                '<button  class="btn btn-danger" onclick="removeMappingFromFile(\''+mappingObject._id+'\', \''+mappingObject._rev+'\')">Erase Mapping</button>';
+	
+}
+
+function showRemoveInvoiceMappingHide(){
+	document.getElementById("removeOnlineOrderInvoiceModal").style.display = 'hide';
+}
+
+function removeMappingFromFile(id, revID){
+
+	showRemoveInvoiceMappingHide();
+
+    $.ajax({
+      type: 'DELETE',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/'+id+'?rev='+revID,
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        renderLiveOnlineOrders();
+      },
+      error: function(data) {
+        showToast('Server Warning: Unable to modify Online Orders. Please contact Accelerate Support.', '#e67e22');
+      }
+    }); 
+}
 
 
 
