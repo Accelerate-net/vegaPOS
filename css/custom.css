@@ -2102,7 +2102,7 @@ ol ol {
 
 #uiBeauty_menuCategory::-webkit-scrollbar-thumb
 {
-  -webkit-box-shadow: inset 0 0 5px rgba(0,0,0,.3);
+  -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,.3);
   background-color: #9cc5d2;
 }
 
