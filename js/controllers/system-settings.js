@@ -1095,7 +1095,7 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                 }
               }
               else{ //if not set, reset to default values
-                document.getElementById("systemOptionDefaultKOTPrinter_holder").style = "background: none !important;";
+                document.getElementById("systemOptionDefaultKOTPrinter_holder").style = "background: none !important; border-top: 1px dashed #f5f5f5;";
               }
 
 }
