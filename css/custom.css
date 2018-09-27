@@ -2106,6 +2106,32 @@ ol ol {
   background-color: #9cc5d2;
 }
 
+/* 
+  New Order -> Item Suggestions
+  Comments Suggestions (item wise comments)
+ */
+#uiBeauty_itemSuggestions::-webkit-scrollbar-track,
+#uiBeauty_commentSuggestions::-webkit-scrollbar-track  
+{
+  background-color: #FFF;
+}
+
+#uiBeauty_itemSuggestions::-webkit-scrollbar,
+#uiBeauty_commentSuggestions::-webkit-scrollbar
+{
+  width: 8px;
+  background-color: #F5F5F5;
+}
+
+#uiBeauty_itemSuggestions::-webkit-scrollbar-thumb,
+#uiBeauty_commentSuggestions::-webkit-scrollbar-thumb
+{
+  -webkit-box-shadow: inset 0 0 4px rgba(0,0,0,.3);
+  background-color: #9cc5d2;
+}
+
+
+
 /* New order -> Pick Table for New Order */
 #pickTableForNewOrderModalContent::-webkit-scrollbar-track
 {

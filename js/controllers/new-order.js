@@ -7061,7 +7061,7 @@ function openItemWiseCommentModal(itemCode, variant){
 
 						    
 						    if(renderContent != '')
-						    	$('#commentSuggestionsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow: scroll">'+renderContent+'</ul>');
+						    	$('#commentSuggestionsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_commentSuggestions">'+renderContent+'</ul>');
 						    else
 						    	$('#commentSuggestionsRenderArea').html('');
 
@@ -7427,7 +7427,7 @@ function initMenuSuggestion(){
 
 					    
 					    if(renderContent != '')
-					    	$('#searchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow: scroll">'+renderContent+'</ul>');
+					    	$('#searchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+renderContent+'</ul>');
 					    else
 					    	$('#searchResultsRenderArea').html('');
 
