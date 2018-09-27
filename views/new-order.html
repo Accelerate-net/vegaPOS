@@ -108,7 +108,7 @@
 
          <div class="contents menuListingPOS" style="overflow: auto !important; display: none" id="fullRightPanelTable">
             <h1 class="punchMenuTableTitle">Current Table Status</h1>
-            <div id="tableRenderPlane" style="overflow: scroll !important">
+            <div id="tableRenderPlane" style="overflow-y: auto !important; overflow-x: none !important;">
                <center class="renderDelayText">
                   <p class="renderDelayText" style="text-align: center"><tag style="font-size: 150%">Auch!</tag><br>Rendering <b>the Table Status</b> is unusually taking time. It could be a System Error. Please Refresh the Application once and if the problem persists, please contact Accelerate Support Team.</p>
                   <button class="btn btn-default" style="background: none; color: gray; border: none" onclick="renderPage('new-order', 'Punch Order')"><tag class="renderDelayText">Refresh Now</tag></button>
@@ -128,7 +128,7 @@
          <div class="modal-dialog" style="top: 15px">
             <!-- Modal content-->
             <div class="modal-content">
-               <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 30px 15px">
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px">
                 <p style="font-size: 16px; margin: 0; color: #e74c3c;">The order <b>will not</b> get Cancelled when you Clear the Cart. Order remains until you Cancel it separately. <br><br>Do you want to Clear the Cart?</p>
                </div>
                <div class="modal-footer">
@@ -147,7 +147,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Warning!</h1> </div>
-               <div class="modal-body" style="max-height: 420px; overflow: scroll; padding: 30px 15px">
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px">
                 <p style="font-size: 16px; margin: 0; color: #e74c3c;">You are loading an order from the <b>Saved Orders List</b>. This would over-write the current order which has unsaved changes. <br><br>Are you sure want to open this Saved Order?</p>
                </div>
                <div class="modal-footer" id="overWriteHoldOrderModalActions">
@@ -169,7 +169,7 @@
                <button  onclick="hideCustomiseItem()" style="float: right;" class="btn clearButton">X</button>
                <h4 class="modal-title" id="customiseItemTitle">Choose an Option</h4>
             </div>
-            <div class="modal-body" style="max-height: 420px; overflow: scroll">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important">
                <div class="row">
                   <div class="col-lg-12" id="customOptionsList">
                   </div>
@@ -192,7 +192,7 @@
                <button  onclick="hideUndoDelete()" style="float: right;" class="btn clearButton">X</button>
                <h4 class="modal-title">Deleting Items</h4>
             </div>
-            <div class="modal-body" style="max-height: 420px; overflow: scroll">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
                <div class="row">
                   <div class="col-lg-12" id="deleteItemsListing">
                   </div>
@@ -209,7 +209,7 @@
 
    <!-- Modal -->
    <div id="pickTableForNewOrderModal" class="modal">
-      <div class="modal-dialog" style="top: 10%; width: 80%">
+      <div class="modal-dialog" style="top: 25px; width: 80%">
          <!-- Modal content-->
          <div class="modal-content">
             <div class="modal-header">
@@ -221,7 +221,7 @@
                </h4>
 
             </div>
-            <div class="modal-body" style="max-height: 70vh; overflow: scroll; padding-top: 0" id="pickTableForNewOrderModalContent">
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto !important; overflow-x: none !important;; padding-top: 0" id="pickTableForNewOrderModalContent">
             </div>
             <div class="modal-footer" style="padding: 0">
                <button  class="btn btn-default" onclick="pickTableForNewOrderHide()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Cancel</button>
@@ -244,7 +244,7 @@
                   <button  class="btn btn-default" onclick="clearDefaultDeliveryAddressContents()" style="position: absolute; right: 10px; top: 10px;">Reset</button>
             </div>
 
-            <div class="modal-body" style="max-height: 420px; width: 100%; overflow: scroll;" id="pickAddressForNewOrderModalContent">
+            <div class="modal-body" style="max-height: 420px; width: 100%; overflow-y: auto !important; overflow-x: none !important;" id="pickAddressForNewOrderModalContent">
 
                      <div class="row" style="padding: 5px 15px;">
                         <div class="col-sm-12">
@@ -304,7 +304,7 @@
                   <button class="btn btn-default" id="addNewSavedDeliveryAddressButton" onclick="openNewSavedDeliveryAddressArea()" style="position: absolute; right: 10px; top: 10px;">Add New</button>
             </div>
 
-            <div class="modal-body" style="max-height: 420px; overflow: scroll;" id="pickAddressForNewOrderModalContent">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;" id="pickAddressForNewOrderModalContent">
 
                      <div class="row" style="margin: 0" id="areaForSavedAddressRender">
 
@@ -367,7 +367,7 @@
                   <button  onclick="addSpecialCustomItemHide()" style="float: right;" class="btn clearButton">X</button>
                   <h4 class="modal-title">Custom Charges</h4>
                </div>
-               <div class="modal-body" style="max-height: 420px; overflow: scroll">
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
 
                      <div class="row">
                         <div class="col-lg-8">
@@ -401,7 +401,7 @@
                <label style="margin: 0; font-size: 21px; color: #FFF; font-weight: 400; font-family: sans-serif;" id="itemWiseCommentsModalTitle">Comments</label>
             </div>
 
-            <div class="modal-body" style="max-height: 420px; overflow: scroll;" id="pickAddressForNewOrderModalContent">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;" id="pickAddressForNewOrderModalContent">
 
                      <div class="row" style="margin-bottom: 20px">
                         <div class="col-lg-12">
@@ -437,7 +437,7 @@
                <label style="margin: 0; font-size: 21px; color: #FFF; font-weight: 400; font-family: sans-serif;">Special Requests for this Order</label>
             </div>
 
-            <div class="modal-body" style="max-height: 420px; overflow: scroll;">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
 
                      <div class="row" style="margin-bottom: 20px;">
                         <div class="col-lg-12">
@@ -466,7 +466,7 @@
       <div class="modal-dialog" style="top: 15px">
          <!-- Modal content-->
          <div class="modal-content">
-            <div class="modal-body" style="max-height: 420px; overflow: scroll;">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
                      <div class="row">
                         <div class="col-lg-12">
                                  <div class="form-group">

@@ -8,7 +8,7 @@
                               <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Registered Users</h3>
                               <button class="btn btn-success btn-sm" id="openNewUserButton" onclick="openNewUser()" style="float: right">New User</button>
                            </div>
-                           <div class="table-responsive">
+                           <div class="table-responsive" style="max-height: 75vh">
                               <table id="allUsersRenderArea" class="table">
                               </table>
                            </div>
@@ -62,7 +62,7 @@
             <!-- Modal content-->
             <div class="modal-content">
                <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Confirm Delete</h1> </div>
-               <div class="modal-body" style="max-height: 420px; overflow: scroll">
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
                 <p style="font-size: 16px; margin: 0; color: #e74c3c;" id="deleteUserConsentModalText"></P>
                </div>
                <div class="modal-footer" style="border: none; padding-top: 0" id="deleteUserConsentModalConsent">
