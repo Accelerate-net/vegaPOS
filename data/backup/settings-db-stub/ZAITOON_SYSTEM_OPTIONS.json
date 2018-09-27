@@ -46,6 +46,10 @@
           "value": "NO"
         },
         {
+          "name": "defaultKOTPrinter",
+          "value": ""
+        },
+        {
           "name": "scanPayEnabled",
           "value": "NO"
         },
