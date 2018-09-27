@@ -4911,6 +4911,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          obj.discount = {};
 	          obj.customExtras = {};
 
+	        /*
 	          //Set _id from Branch mentioned in Licence
 	          var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
 	          if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
@@ -4918,9 +4919,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          	return '';
 	          }
 
-
 	          obj._id = accelerate_licencee_branch+'_KOT_'+kot;
-
+	        */
 
 	          var remember_obj = '';
 
