@@ -31,7 +31,7 @@ function createWindow () {
       width: 1080,
       minWidth: 680,
       height: 840,
-      icon: path.join(__dirname, 'assets/icons/png/64x64.png'),
+      icon: path.join(__dirname, '/assets/icons/png/64x64.png'),
       title: app.getName()
     })
 
@@ -45,7 +45,7 @@ function createWindow () {
 
 
 
-    workerWindow = new BrowserWindow({show : false, icon: path.join(__dirname, 'assets/icons/png/64x64.png')});
+    workerWindow = new BrowserWindow({show : false, icon: path.join(__dirname, '/assets/icons/png/64x64.png')});
     workerWindow.loadURL("file://" + __dirname + "/templates/print-template.html");
     // workerWindow.hide();
     //workerWindow.webContents.openDevTools();
