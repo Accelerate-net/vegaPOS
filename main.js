@@ -193,17 +193,17 @@ app.on('activate', function () {
 /* Printer Processes */
 
 // retransmit it to workerWindow
-ipc.on("printBillDocument", (event, content, printer_list) => {
+ipc.on("printBillDocument", (event, content, selected_printer) => {
 
     if(!workerWindow){
       alert('Error CLOSED.')
       return '';
     }
-    workerWindow.webContents.send("printBillDocument", content, printer_list);
+    workerWindow.webContents.send("printBillDocument", content, selected_printer);
 });
 
 // when worker window is ready
-ipc.on("readyToPrintBillDocument", (event, printer_list) => {
+ipc.on("readyToPrintBillDocument", (event, selected_printer) => {
 
     // const pdfPath = path.join(os.tmpdir(), 'print.pdf');
 
@@ -230,8 +230,8 @@ ipc.on("readyToPrintBillDocument", (event, printer_list) => {
     // })
 
 
-    var pageSettingsSilent = printer_list[0].settings;
-    pageSettingsSilent.deviceName = printer_list[0].target;
+    var pageSettingsSilent = selected_printer.settings;
+    pageSettingsSilent.deviceName = selected_printer.target;
    
     // // workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
     // //     if (error) throw error
@@ -300,7 +300,7 @@ ipc.on('generatePDFReportA4', function(event, html_content, report_title){
 
 
 /* PDF Report Printer */
-ipc.on('printSmallReport', function(event, html_content, selected_printers){
+ipc.on('printSmallReport', function(event, html_content, selected_printer){
 
   if(!html_content || html_content == ''){
     console.log('Error: No Content to Print');
@@ -317,8 +317,8 @@ ipc.on('printSmallReport', function(event, html_content, selected_printers){
     //   'silent': true
     // }
 
-  var pageSettingsSilent = selected_printers[0].settings;
-  pageSettingsSilent.deviceName = selected_printers[0].target;
+  var pageSettingsSilent = selected_printer.settings;
+  pageSettingsSilent.deviceName = selected_printer.target;
 
   if(!pageSettingsSilent || pageSettingsSilent == [] || pageSettingsSilent == null){
     alert('Print Error: No printers found.');

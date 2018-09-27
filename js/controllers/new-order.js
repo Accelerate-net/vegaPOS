@@ -305,6 +305,7 @@ function addManualCustomItem(){
 
 		var productToAdd = {};
 		productToAdd.name = name;
+		productToAdd.category = 'MANUAL_UNKNOWN';
 		productToAdd.code = top_manual_index;
 		productToAdd.price = price;
 		productToAdd.isCustom = false;
@@ -1306,6 +1307,8 @@ function printCurrentKOTView(kotID, optionalSource){
         if(data.docs.length > 0){
           var kot = data.docs[0];
           sendToPrinter(kot, 'VIEW');
+
+          showToast('Items View of #'+kotID+' generated Successfully', '#27ae60');
         }
         else{
           showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
@@ -4174,8 +4177,7 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 	        }
 
 
-          	  //Update on Server
-              
+          	  	//Update on Server
                 $.ajax({
                   type: 'PUT',
                   url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
@@ -4186,7 +4188,7 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
                   success: function(data) {
                   	  clearAllMetaData();
                   	  renderCustomerInfo();
-                      sendKOTChangesToPrinter(kot, compareObject);
+                      sendKOTChangesToPrinterPreProcess(kot, compareObject);
                   },
                   error: function(data) {
                       showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
@@ -4203,6 +4205,184 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
       }
     }); 
 }
+
+
+function sendKOTChangesToPrinterPreProcess(kot, compareObject){
+
+			              	
+			              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+			              	if(isKOTRelayingEnabled){
+
+			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
+			              		var relaySkippedItems = [];
+
+			              		populateRelayRules();
+
+			              		function populateRelayRules(){
+				              		var n = 0;
+				              		while(relayRuleList[n]){
+
+				              			relayRuleList[n].subcart = [];
+
+				              			for(var i = 0; i < compareObject.length; i++){
+				              				if(compareObject[i].category == relayRuleList[n].name && relayRuleList[n].printer != ''){
+				              					relayRuleList[n].subcart.push(compareObject[i]);
+				              				}
+				              			}	
+
+				              			if(n == relayRuleList.length - 1){
+				              				generateRelaySkippedItems();
+				              			}
+
+				              			n++;
+				              		}
+				              	}
+
+				              	function generateRelaySkippedItems(){
+				              		var m = 0;
+				              		while(compareObject[m]){
+
+				              			for(var i = 0; i < relayRuleList.length; i++){
+				              				if(compareObject[m].category == relayRuleList[i].name && relayRuleList[i].printer != ''){
+				              					//item found
+				              					break;
+				              				}
+
+				              				if(i == relayRuleList.length - 1){ //last iteration and item not found
+				              					relaySkippedItems.push(compareObject[m])
+				              				}
+				              			}	
+
+				              			if(m == compareObject.length - 1){
+
+				              				if(relaySkippedItems.length > 0){
+				              					sendKOTChangesToPrinter(kot, relay_skipped_obj);
+				              				}
+
+				              				printRelayedKOT(relayRuleList);	
+				              				
+				              			}
+
+				              			m++;
+				              		}
+				              	}
+
+				              	function printRelayedKOT(relayedList){
+
+				              		var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+								    var g = 0;
+								    var allPrintersList = [];
+
+								    while(allConfiguredPrintersList[g]){
+								      
+								      for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+								        if(!isItARepeat(allConfiguredPrintersList[g].list[a].name)){
+								          allPrintersList.push({
+								            "name": allConfiguredPrintersList[g].list[a].name,
+								            "target": allConfiguredPrintersList[g].list[a].target,
+								            "template": allConfiguredPrintersList[g].list[a]
+								          });
+								          }
+								      }
+
+								      if(g == allConfiguredPrintersList.length - 1){
+								      	startRelayPrinting(0);
+								      }
+								      
+								      g++;
+								    }
+
+								    function isItARepeat(name){
+								      var h = 0;
+								      while(allPrintersList[h]){
+								        if(allPrintersList[h].name == name){
+								          return true;
+								        }
+
+								        if(h == allPrintersList.length - 1){ // last iteration
+								          return false;
+								        }
+								        h++;
+								      }
+								    }
+
+								    function startRelayPrinting(index){
+
+								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
+
+										//add some delay
+				              			setTimeout(function(){ 
+				              			
+								    		var relayedItems = [];
+								    		for(var i = 0; i < relayedList.length; i++){
+								    			if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
+								    				relayedItems = relayedItems.concat(relayedList[i].subcart)	
+								    			}
+
+								    			if(i == relayedList.length - 1){ //last iteration
+
+								    				if(relayedItems.length > 0){
+								    					
+								    					sendKOTChangesToPrinter(kot, relayedItems, allPrintersList[index].template);
+								    					
+								    					if(allPrintersList[index+1]){
+								    						startRelayPrinting(index+1);
+								    					}
+								    				}
+								    				else{
+								    					if(allPrintersList[index+1]){
+								    						startRelayPrinting(index+1);
+								    					}
+								    				}
+								    			}
+								    		}
+
+								    	}, 1000);
+								    }
+
+				              	}
+			              	}
+			              	else{ //no relay (normal case)
+			              		
+			              		var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+			              		
+			              		if(defaultKOTPrinter == ''){
+			              			sendKOTChangesToPrinter(kot, compareObject);
+			              		}
+			              		else{
+									var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+								    var selected_printer = '';
+
+								    var g = 0;
+								    while(allConfiguredPrintersList[g]){
+								      if(allConfiguredPrintersList[g].type == 'KOT'){
+										for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+									        if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
+									        	selected_printer = allConfiguredPrintersList[g].list[a];
+									        	sendKOTChangesToPrinter(kot, compareObject, selected_printer);
+									        	break;
+									        }
+									    }
+								      }
+								      
+
+								      if(g == allConfiguredPrintersList.length - 1){
+								      	if(selected_printer == ''){ //No printer found, print on default!
+								      		sendKOTChangesToPrinter(kot, compareObject);
+								      	}
+								      }
+								      
+								      g++;
+								    }
+			              		}
+			              			
+			              	}
+
+	//sendKOTChangesToPrinter(kot, compareObject);
+}
+
+
+
 
 
 /* to quick view what items got removed */
@@ -4730,8 +4910,11 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          	return '';
 	          }
 
+
 	          obj._id = accelerate_licencee_branch+'_KOT_'+kot;
 
+
+	          var remember_obj = '';
 
 	          //Post to local Server
 	          $.ajax({
@@ -4744,136 +4927,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	            success: function(data) {
 	              if(data.ok){
 
-	              	//Send KOT for Printing
-	              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
-	              	if(isKOTRelayingEnabled){
-
-	              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
-	              		var relaySkippedItems = [];
-
-	              		populateRelayRules();
-
-	              		function populateRelayRules(){
-		              		var n = 0;
-		              		while(relayRuleList[n]){
-
-		              			relayRuleList[n].subcart = [];
-
-		              			for(var i = 0; i < obj.cart.length; i++){
-		              				if(obj.cart[i].category == relayRuleList[n].name && relayRuleList[n].printer != ''){
-		              					relayRuleList[n].subcart.push(obj.cart[i]);
-		              				}
-		              			}	
-
-		              			if(n == relayRuleList.length - 1){
-		              				generateRelaySkippedItems();
-		              			}
-
-		              			n++;
-		              		}
-		              	}
-
-		              	function generateRelaySkippedItems(){
-		              		var m = 0;
-		              		while(obj.cart[m]){
-
-		              			for(var i = 0; i < relayRuleList.length; i++){
-		              				if(obj.cart[m].category == relayRuleList[i].name && relayRuleList[i].printer != ''){
-		              					//item found
-		              					break;
-		              				}
-
-		              				if(i == relayRuleList.length - 1){ //last iteration and item not found
-		              					relaySkippedItems.push(obj.cart[m])
-		              				}
-		              			}	
-
-		              			if(m == obj.cart.length - 1){
-
-		              				//Print Relay Skipped items (if exists)
-		              				var relay_skipped_obj = obj;
-		              				relay_skipped_obj.cart = relaySkippedItems;
-		              				
-		              				if(relaySkippedItems.length > 0){
-		              					console.log('Print: Default')
-		              					sendToPrinter(relay_skipped_obj, 'KOT');
-		              				}
-
-		              				printRelayedKOT(relayRuleList);	
-		              			}
-
-		              			m++;
-		              		}
-		              	}
-
-		              	function printRelayedKOT(relayedList){
-
-		              		var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
-						    var g = 0;
-						    var allPrintersList = [];
-
-						    while(allConfiguredPrintersList[g]){
-						      
-						      for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
-						        if(!isItARepeat(allConfiguredPrintersList[g].list[a].name)){
-						          allPrintersList.push({
-						            "name": allConfiguredPrintersList[g].list[a].name,
-						            "target": allConfiguredPrintersList[g].list[a].target
-						          });
-						          }
-						      }
-
-						      if(g == allConfiguredPrintersList.length - 1){
-						      	startRelayPrinting();
-						      }
-						      
-						      g++;
-						    }
-
-						    function isItARepeat(name){
-						      var h = 0;
-						      while(allPrintersList[h]){
-						        if(allPrintersList[h].name == name){
-						          return true;
-						        }
-
-						        if(h == allPrintersList.length - 1){ // last iteration
-						          return false;
-						        }
-						        h++;
-						      }
-						    }
-
-						    function startRelayPrinting(){
-						    	var p = 0;
-						    	while(allPrintersList[p]){
-						    		
-						    		var relayedItems = [];
-						    		for(var i = 0; i < relayedList.length; i++){
-						    			if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[p].name){
-						    				relayedItems = relayedItems.concat(relayedList[i].subcart)	
-						    			}
-
-						    			if(i == relayedList.length - 1){ //last iteration
-						    				var relayedNewObj = obj;
-						    				relayedNewObj.cart = relayedItems;
-
-						    				console.log('Print: '+allPrintersList[p].name)
-
-						    				if(relayedItems.length > 0)
-						    					sendToPrinter(relayedNewObj, 'KOT');
-						    			}
-						    		}
-
-						    		p++;
-						    	}
-						    }
-
-		              	}
-	              	}
-	              	else{
-	              		sendToPrinter(obj, 'KOT');
-	              	}
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
@@ -4883,6 +4936,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              		clearAllMetaData();
 	              		renderCustomerInfo();
 	              		$("#add_item_by_search").focus();
+
+	              		initialiseKOTPrinting();
 	              	}
 	              	else if(orderMetaInfo.modeType == 'TOKEN'){
 
@@ -4893,7 +4948,9 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 						window.localStorage.claimedTokenNumberTimestamp = '';	              		
 	 					
 	 					pushCurrentOrderAsEditKOT(obj);
-	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
+	              		generateBillFromKOT(kot, 'ORDER_PUNCHING');
+
+	              		initialiseKOTPrinting();
 	              	}
 	              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
 	              		showToast('#'+kot+' generated Successfully', '#27ae60');
@@ -4906,8 +4963,193 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              		
 
 	              		pushCurrentOrderAsEditKOT(obj);
-	              		generateBillFromKOT(kot, 'ORDER_PUNCHING')
+	              		generateBillFromKOT(kot, 'ORDER_PUNCHING');
+
+	              		initialiseKOTPrinting();
 	              	}
+
+
+	              	//Send KOT for Printing
+	              	function initialiseKOTPrinting(){
+			              	
+			              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+			              	if(isKOTRelayingEnabled){
+
+			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
+			              		var relaySkippedItems = [];
+
+			              		populateRelayRules();
+
+			              		function populateRelayRules(){
+				              		var n = 0;
+				              		while(relayRuleList[n]){
+
+				              			relayRuleList[n].subcart = [];
+
+				              			for(var i = 0; i < obj.cart.length; i++){
+				              				if(obj.cart[i].category == relayRuleList[n].name && relayRuleList[n].printer != ''){
+				              					relayRuleList[n].subcart.push(obj.cart[i]);
+				              				}
+				              			}	
+
+				              			if(n == relayRuleList.length - 1){
+				              				generateRelaySkippedItems();
+				              			}
+
+				              			n++;
+				              		}
+				              	}
+
+				              	function generateRelaySkippedItems(){
+				              		var m = 0;
+				              		while(obj.cart[m]){
+
+				              			for(var i = 0; i < relayRuleList.length; i++){
+				              				if(obj.cart[m].category == relayRuleList[i].name && relayRuleList[i].printer != ''){
+				              					//item found
+				              					break;
+				              				}
+
+				              				if(i == relayRuleList.length - 1){ //last iteration and item not found
+				              					relaySkippedItems.push(obj.cart[m])
+				              				}
+				              			}	
+
+				              			if(m == obj.cart.length - 1){
+
+				              				//Print Relay Skipped items (if exists)
+				              				var relay_skipped_obj = obj;
+				              				relay_skipped_obj.cart = relaySkippedItems;
+				              				
+				              				if(relaySkippedItems.length > 0){
+				              					sendToPrinter(relay_skipped_obj, 'KOT');
+				              				}
+
+				              				printRelayedKOT(relayRuleList);	
+				              				
+				              			}
+
+				              			m++;
+				              		}
+				              	}
+
+				              	function printRelayedKOT(relayedList){
+
+				              		var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+								    var g = 0;
+								    var allPrintersList = [];
+
+								    while(allConfiguredPrintersList[g]){
+								      
+								      for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+								        if(!isItARepeat(allConfiguredPrintersList[g].list[a].name)){
+								          allPrintersList.push({
+								            "name": allConfiguredPrintersList[g].list[a].name,
+								            "target": allConfiguredPrintersList[g].list[a].target,
+								            "template": allConfiguredPrintersList[g].list[a]
+								          });
+								          }
+								      }
+
+								      if(g == allConfiguredPrintersList.length - 1){
+								      	startRelayPrinting(0);
+								      }
+								      
+								      g++;
+								    }
+
+								    function isItARepeat(name){
+								      var h = 0;
+								      while(allPrintersList[h]){
+								        if(allPrintersList[h].name == name){
+								          return true;
+								        }
+
+								        if(h == allPrintersList.length - 1){ // last iteration
+								          return false;
+								        }
+								        h++;
+								      }
+								    }
+
+								    function startRelayPrinting(index){
+
+								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
+
+										//add some delay
+				              			setTimeout(function(){ 
+				              			
+								    		var relayedItems = [];
+								    		for(var i = 0; i < relayedList.length; i++){
+								    			if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
+								    				relayedItems = relayedItems.concat(relayedList[i].subcart)	
+								    			}
+
+								    			if(i == relayedList.length - 1){ //last iteration
+								    				var relayedNewObj = obj;
+								    				relayedNewObj.cart = relayedItems;
+
+								    				if(relayedItems.length > 0){
+								    					
+								    					sendToPrinter(relayedNewObj, 'KOT', allPrintersList[index].template);
+								    					
+								    					if(allPrintersList[index+1]){
+								    						startRelayPrinting(index+1);
+								    					}
+								    				}
+								    				else{
+								    					if(allPrintersList[index+1]){
+								    						startRelayPrinting(index+1);
+								    					}
+								    				}
+								    			}
+								    		}
+
+								    	}, 1000);
+								    }
+
+				              	}
+			              	}
+			              	else{ //no relay (normal case)
+			              		
+			              		var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+			              		
+			              		if(defaultKOTPrinter == ''){
+			              			sendToPrinter(obj, 'KOT');
+			              		}
+			              		else{
+									var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+								    var selected_printer = '';
+
+								    var g = 0;
+								    while(allConfiguredPrintersList[g]){
+								      if(allConfiguredPrintersList[g].type == 'KOT'){
+										for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+									        if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
+									        	selected_printer = allConfiguredPrintersList[g].list[a];
+									        	sendToPrinter(obj, 'KOT', selected_printer);
+									        	break;
+									        }
+									    }
+								      }
+								      
+
+								      if(g == allConfiguredPrintersList.length - 1){
+								      	if(selected_printer == ''){ //No printer found, print on default!
+								      		sendToPrinter(obj, 'KOT');
+								      	}
+								      }
+								      
+								      g++;
+								    }
+			              		}
+			              			
+			              	}
+
+			        } //end - initialise KOT Prints
+
+
+
 
                           
 

@@ -17,18 +17,18 @@ function printPDFReport(html_template){
       return '';
     }
 
-     var selected_printers = null;
+     var selected_printer = null;
      var b = 0;
      while(allActivePrinters[b]){
       if(allActivePrinters[b].type == 'REPORT'){
-         selected_printers = allActivePrinters[b].list;
+         selected_printer = allActivePrinters[b].list[0];
          break;
       }
       b++;
      }
 
-     if(selected_printers && selected_printers.length > 0){
-      ipc.send("printSmallReport", html_template, selected_printers);
+     if(selected_printer && selected_printer != '' && selected_printer != null){
+      ipc.send("printSmallReport", html_template, selected_printer);
      }
      else{
       showToast('Print Error: Print failed. No printer configured to print Reports.', '#e74c3c');   
@@ -62,7 +62,7 @@ ipc.on('all-printers-list', function (event, listOfPrinters, optionalRequest) {
    PRINT BILLS
 */
 
-function sendToPrinter(orderObject, type, optionalRequest){
+function sendToPrinter(orderObject, type, optionalTargetPrinter){
 
  //return '';
 
@@ -818,10 +818,6 @@ var html_template = ''+
 
 if(type == 'KOT'){
 
-   if(optionalRequest == 'EDITING'){
-      //Editing KOT
-   }
-
 //Render Items
 var total_items = 0;
 var total_quantity = 0;
@@ -1432,27 +1428,35 @@ var html_template = ''+
 
 
    function postContentToTemplate(html_template){
-      console.log('Printing...'+type)
+
         if(type == 'DUPLICATE_KOT') //TWEAK
             type = 'KOT';
 
-        //ipc.send('print-to-pdf', html_template);
-        var selected_printers = null;
-        var b = 0;
-        while(allActivePrinters[b]){
-         if(allActivePrinters[b].type == type){
-            selected_printers = allActivePrinters[b].list;
-            break;
-         }
-         b++;
-        }
 
-        if(selected_printers && selected_printers.length > 0){
-         ipc.send("printBillDocument", html_template, selected_printers);
+
+        //ipc.send('print-to-pdf', html_template);
+        var selected_printer = null;
+
+         if(!optionalTargetPrinter || optionalTargetPrinter == '' || optionalTargetPrinter == undefined){
+            var b = 0;
+            while(allActivePrinters[b]){
+               if(allActivePrinters[b].type == type){
+                  selected_printer = allActivePrinters[b].list[0];
+                  break;
+               }
+               b++;
+            }
+         }
+         else if(optionalTargetPrinter != ''){
+            selected_printer = optionalTargetPrinter;
+         }
+
+        if(selected_printer && selected_printer != '' && selected_printer != null){
+            ipc.send("printBillDocument", html_template, selected_printer);
         }
         else{
-         showToast('Print Error: Print failed. No printer configured for '+type, '#e74c3c');   
-         return '';
+            showToast('Print Error: Print failed. No printer configured for '+type, '#e74c3c');   
+            return '';
         }
    }
 
@@ -1461,8 +1465,10 @@ var html_template = ''+
 
 
 
-function sendKOTChangesToPrinter(orderObject, compareObject){
-console.log(compareObject)
+function sendKOTChangesToPrinter(orderObject, compareObject, optionalTargetPrinter){
+ 
+ console.log(compareObject)
+ 
  var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
  if(allActivePrinters.length == 0){
@@ -1675,23 +1681,30 @@ var html_template = ''+
 
   //ipc.send('print-to-pdf', html_template);
 
-  var selected_printers = null;
-  var b = 0;
-  while(allActivePrinters[b]){
-   if(allActivePrinters[b].type == 'KOT'){
-      selected_printers = allActivePrinters[b].list;
-      break;
-   }
-   b++;
-  }
+         var selected_printer = null;
 
-  if(selected_printers && selected_printers.length > 0){
-   ipc.send("printBillDocument", html_template, selected_printers);
-  }
-  else{
-   showToast('Print Error: Print failed. No printer configured for '+type, '#e74c3c');   
-   return '';
-  }
+         if(!optionalTargetPrinter || optionalTargetPrinter == '' || optionalTargetPrinter == undefined){
+            var b = 0;
+            while(allActivePrinters[b]){
+               if(allActivePrinters[b].type == 'KOT'){
+                  selected_printer = allActivePrinters[b].list[0];
+                  break;
+               }
+               b++;
+            }
+         }
+         else if(optionalTargetPrinter != ''){
+            selected_printer = optionalTargetPrinter;
+         }
+
+
+        if(selected_printer && selected_printer != '' && selected_printer != null){
+         ipc.send("printBillDocument", html_template, selected_printer);
+        }
+        else{
+         showToast('Print Error: Print failed. No printer configured for '+type, '#e74c3c');   
+         return '';
+        }
 
 }
 
