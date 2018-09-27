@@ -2181,6 +2181,10 @@ function renderCurrentKOTRelaysAfterProcess(categoriesList){
                   }
                   m++;
                 }
+
+                if(addedRelaysList.length == 0){
+                  return '';
+                }
               }
           }
           else{
@@ -2387,36 +2391,47 @@ function mapKOTRelayPrinter(category, printer_name){
 
                 if(settingsList[n].systemName == machineName){
 
-                    //inner FOR
-                    for (var i=0; i<settingsList[n].data.length; i++){
+                    if(settingsList[n].data.length != 0){
+                        //inner FOR
+                        for (var i=0; i<settingsList[n].data.length; i++){
 
-                      //Find the index at which the key has to be set
-                      if(settingsList[n].data[i].name == category){
-                        replaceIndex = i;
-                      }
+                          //Find the index at which the key has to be set
+                          if(settingsList[n].data[i].name == category){
+                            replaceIndex = i;
+                          }
 
-                      if(i == settingsList[n].data.length - 1){ //last iteration
-                       
-                        if(replaceIndex > -1){ //replace index is found
-                          settingsList[n].data[replaceIndex].printer = printer_name;
+                          if(i == settingsList[n].data.length - 1){ //last iteration
+                           
+                            if(replaceIndex > -1){ //replace index is found
+                              settingsList[n].data[replaceIndex].printer = printer_name;
 
-                          selectKOTRelayModalHide();
-                          saveToRelayData(settingsList, remember_rev_tag);
-                          break;
-                        }
-                        else{
-                          settingsList[n].data.push({ //add as a new entry
-                            "name": category,
-                            "printer": printer_name
-                          });
-                          
-                          selectKOTRelayModalHide();
-                          saveToRelayData(settingsList, remember_rev_tag);
-                          break;
+                              selectKOTRelayModalHide();
+                              saveToRelayData(settingsList, remember_rev_tag);
+                              break;
+                            }
+                            else{
+                              settingsList[n].data.push({ //add as a new entry
+                                "name": category,
+                                "printer": printer_name
+                              });
+                              
+                              selectKOTRelayModalHide();
+                              saveToRelayData(settingsList, remember_rev_tag);
+                              break;
 
-                        }
-                      }
-                    } //end inner FOR
+                            }
+                          }
+                        } //end inner FOR
+                    }
+                    else{
+                        settingsList[n].data.push({ //add as a new entry
+                                  "name": category,
+                                  "printer": printer_name
+                                });
+                                
+                        selectKOTRelayModalHide();
+                        saveToRelayData(settingsList, remember_rev_tag);
+                    }
 
                   break;
                 }
