@@ -2,7 +2,7 @@
 Fixes for Version 1:
 
 1. add more details to report download (number of discount orders, calculated round off)
-
+2. CRITICAL BUG >> REFUND not excluded from total sales figure.
 
 
 Moved to Version 2:

@@ -1847,6 +1847,595 @@ function fetchRefundSummaryCallback(index, modes, fromDate, toDate, grandSum, gr
 
 
 
+//ITEM WISE REPORT
+function fetchItemSummary(){
+
+	/*
+		Top Items sold in given date range
+	*/
+
+
+	$( "#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_itemSummary").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+	document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9; text-align: center" class="blink_me">Please Wait! The Report is being generated.</p>';
+	document.getElementById("completeItemSummaryButton").style.display = 'none';
+
+	document.getElementById("itemSummaryReportOptions").innerHTML = ''+
+									'<div id="itemSummaryReportActions" style="display: none">'+
+                                        '<button data-hold="" text-hold="" id="itemSummaryReportAction_Download" onclick="itemReportActionDownload()" style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-download"></i> Download</button>'+
+                                        '<button data-hold="" id="itemSummaryReportAction_Print" onclick="itemReportActionPrint()" style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-print"></i> Print</button>'+
+                                      '</div></center>';	
+
+	//The total Sales w.r.t Items in the given DATE RANGE
+	
+	showLoading(50000, 'Generating Report...');
+
+	$.ajax({
+		type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
+		timeout: 50000,
+		success: function(data) {
+
+			hideLoading();
+
+			var itemsList = data.rows;
+			if(itemsList.length == 0){
+				document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items sold on the given dates</p>';
+				document.getElementById("completeItemSummaryButton").style.display = 'none';
+				return '';
+			}
+
+			reduceByDate(itemsList);
+			
+			function reduceByDate(listOfItems){
+				//Reduce Function 
+				var reduced_list = listOfItems.reduce(function (accumulator, item) {
+					if(accumulator[item.key[2]]){
+						accumulator[item.key[2]].count += item.value;
+					}
+					else{
+						accumulator[item.key[2]] = {
+							"category": item.key[1],
+							"count": item.value
+						};
+					}
+
+				  	return accumulator;
+				}, {});
+
+				var formattedList = [];
+				var keysCount = Object.keys(reduced_list);
+
+				var counter = 1;
+				for (x in reduced_list) {
+				    formattedList.push({
+				    	"name": x,
+				    	"count": reduced_list[x].count,
+				    	"category": reduced_list[x].category
+				    });
+
+				    if(counter == keysCount.length){ //last iteration
+				    	// Ascending: Sorting
+				    	formattedList.sort(function(obj1, obj2) {
+		                	return obj2.count - obj1.count;
+		              	});
+
+				    	renderTopSellingItems(formattedList);
+				    }
+
+				    counter++;
+				}
+				
+			}
+
+			function renderTopSellingItems(itemsFilteredList){
+
+				if(itemsFilteredList.length > 0){ 
+
+					var upper_limit = 15;
+					if(itemsFilteredList.length < 15){ //max of 20 items
+						upper_limit = itemsFilteredList.length;
+					}
+
+					var renderContent = '';
+					for(var i = 0; i < upper_limit; i++){
+						renderContent += '<tr> <td><i class="fa fa-star" style="color: #ffd63f; font-size: 12px; margin-right: 10px; top: -1px; position: relative;"></i><b style="color: #e69d17; font-size: 17px; font-weight: 500; }">'+itemsFilteredList[i].name+(itemsFilteredList[i].category != '' && itemsFilteredList[i].category != 'UNKNOWN' ? '<tag style="color: gray; margin-left: 6px; font-size: 12px;">'+itemsFilteredList[i].category+'</tag>' : '')+'</b></td> <td class="summaryLine3" style="text-align: center; color: #e69d17">'+itemsFilteredList[i].count+'</td> </tr>';
+					}
+
+					document.getElementById("summaryRender_itemSummary").innerHTML = renderContent;
+					document.getElementById("completeItemSummaryButton").style.display = 'inline-block';
+				} 
+				else{ 
+					document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items sold on the given dates</p>';
+					document.getElementById("completeItemSummaryButton").style.display = 'none';
+				}
+			}
+		},
+		error: function(data){
+			hideLoading();
+			document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Summary on the given dates</p>';
+			showToast('Not Found Error: Order Summary data not found. Please contact Accelerate Support.', '#e74c3c');
+			document.getElementById("completeItemSummaryButton").style.display = 'none';
+			return '';								    	
+		}
+	});  
+
+}
+
+
+function generateOverallItemReport(){
+	/*
+		Items sold in given date range
+	*/
+
+
+	$( "#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_itemSummary").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+	document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9; text-align: center" class="blink_me">Please Wait! The Report is being generated.</p>';
+	document.getElementById("completeItemSummaryButton").style.display = 'none';
+	document.getElementById("itemSummaryReportActions").style.display = 'none';
+
+	//The total Sales w.r.t Items in the given DATE RANGE
+
+	showLoading(50000, 'Generating Report...');
+
+	$.ajax({
+		type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
+		timeout: 50000,
+		success: function(data) {
+
+			hideLoading();
+
+			var itemsList = data.rows;
+
+			if(itemsList.length == 0){
+				document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items sold on the given dates</p>';
+				document.getElementById("completeItemSummaryButton").style.display = 'none';
+				return '';
+			}
+
+			reduceByDate(itemsList);
+			
+			function reduceByDate(listOfItems){
+				//Reduce Function 
+				var reduced_list = listOfItems.reduce(function (accumulator, item) {
+					if(accumulator[item.key[2]]){
+						accumulator[item.key[2]].count += item.value;
+					}
+					else{
+						accumulator[item.key[2]] = {
+							"category": item.key[1],
+							"count": item.value
+						};
+					}
+
+				  	return accumulator;
+				}, {});
+
+				var formattedList = [];
+				var keysCount = Object.keys(reduced_list);
+
+				var counter = 1;
+				for (x in reduced_list) {
+				    formattedList.push({
+				    	"name": x,
+				    	"count": reduced_list[x].count,
+				    	"category": reduced_list[x].category
+				    });
+
+				    if(counter == keysCount.length){ //last iteration
+				    	// Ascending: Sorting
+				    	formattedList.sort(function(obj1, obj2) {
+		                	return obj2.count - obj1.count;
+		              	});
+
+				    	renderAllItemsSummary(formattedList);
+				    }
+
+				    counter++;
+				}
+				
+			}
+
+			function renderAllItemsSummary(itemsFilteredList){
+
+				var categorySortedList = itemsFilteredList.reduce(function (accumulator, item) {
+					if(accumulator[item.category]){
+						accumulator[item.category].push({
+							"name": item.name,
+							"count": item.count
+						});
+					}
+					else{
+						accumulator[item.category] = [];
+						accumulator[item.category].push({
+							"name": item.name,
+							"count": item.count
+						});
+					}
+
+				  	return accumulator;
+				}, {});
+
+
+				var formattedCategoryList = [];
+				var categoryCount = Object.keys(categorySortedList);
+
+				var counter = 1;
+				for (x in categorySortedList) {
+
+					var n = 0;
+					var sub_list = [];
+					while(categorySortedList[x][n]){
+						sub_list.push({
+					    	"name": categorySortedList[x][n].name,
+					    	"count": categorySortedList[x][n].count
+						});
+						n++;
+					}
+
+
+				    formattedCategoryList.push({
+				    	"category": x,
+				    	"items": sub_list
+				    });
+
+				    if(counter == categoryCount.length){ //last iteration
+				    	renderAllItemsSummaryAfterProcess(formattedCategoryList);
+				    }
+
+				    counter++;
+				}
+
+
+				
+
+				function renderAllItemsSummaryAfterProcess(categorisedItemsList){
+					if(categorisedItemsList.length > 0){ 
+
+						var renderContent = '';
+
+						var n = 0;
+						while(categorisedItemsList[n]){ //render category
+
+							var category_name = categorisedItemsList[n].category;
+							if(category_name == 'UNKNOWN'){
+								category_name = 'Unknown Category';
+							}
+							else if(category_name == 'MANUAL_UNKNOWN'){
+								category_name = '<i style="color: #adadad">Manually Added Items</i>';
+							}
+
+							renderContent += '<tr class="summaryRowHighlight"><td style="font-size: 18px; font-weight: 600; background: #666; color: #FFF;" colspan="2">'+category_name+'</td></tr> ';
+							for(var i = 0; i < categorisedItemsList[n].items.length; i++){
+								renderContent += '<tr> <td><b style="color: #3e3e3e; font-size: 16px; font-weight: 400; }">'+categorisedItemsList[n].items[i].name+'</b></td> <td class="summaryLine3" style="text-align: center; font-size: 16px; color: #3e3e3e">'+categorisedItemsList[n].items[i].count+'</td> </tr>';
+							}
+							n++;
+						}
+					
+						document.getElementById("summaryRender_itemSummary").innerHTML = renderContent;
+						document.getElementById("completeItemSummaryButton").style.display = 'none';
+						document.getElementById("itemSummaryReportActions").style.display = 'block';
+					
+
+						//Build Content for actions
+						generateItemReportContentDownload();
+
+						function generateItemReportContentDownload(){
+
+
+							//Get staff info.
+							var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
+							
+							if(jQuery.isEmptyObject(loggedInStaffInfo)){
+								loggedInStaffInfo.name = 'Zaitoon Staff';
+								loggedInStaffInfo.code = '0000000000';
+							}	
+
+
+							var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
+								
+							if(reportInfo_branch == ''){
+								showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+								return '';
+							}
+
+							var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
+
+							var reportInfo_admin = loggedInStaffInfo.name;
+							var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
+							var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : 'Zaitoon Multicuisine Restaurants';
+
+
+
+							var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
+
+							var reportInfo_title = 'Item wise Sales on <b>'+fancy_from_date+'</b>';
+							var temp_report_title = 'Item wise Sales on '+fancy_from_date;
+							if(fromDate != toDate){
+								fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
+								var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
+
+								reportInfo_title = 'Item wise Sales from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
+								temp_report_title = 'Item wise Sales from '+fancy_from_date+' to '+fancy_to_date;
+							}
+
+						    var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
+
+
+
+							var quickSummaryRendererContent = '';
+							var categorySplitRenderContent = '';
+
+							var n = 0;
+							while(categorisedItemsList[n]){ //render category
+
+								var category_name = categorisedItemsList[n].category;
+								if(category_name == 'UNKNOWN'){
+									category_name = 'Unknown Category';
+								}
+								else if(category_name == 'MANUAL_UNKNOWN'){
+									category_name = '<i>Manually Added Items</i>';
+								}
+
+								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
+									
+									quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+categorisedItemsList[n].items[i].name+'</td><td class="tableQuickAmount">'+categorisedItemsList[n].items[i].count+'</td></tr>';
+								
+									if(i == categorisedItemsList[n].items.length - 1){ //last iteration
+										
+										categorySplitRenderContent += ''+
+																  '<div class="summaryTableSectionHolder">'+
+															        '<div class="summaryTableSection">'+
+															           '<div class="tableQuickHeader">'+
+															              '<h1 class="tableQuickHeaderText">'+category_name+'</h1>'+
+															           '</div>'+
+															           '<div class="tableQuick">'+
+															              '<table style="width: 100%">'+
+															                 '<col style="width: 70%">'+
+															                 '<col style="width: 30%">'+
+															                 quickSummaryRendererContent+
+															              '</table>'+
+															           '</div>'+
+															        '</div>'+
+															      '</div>';
+
+										quickSummaryRendererContent = '';										
+
+									}
+								}
+
+								n++;
+							}
+
+						    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://zaitoon.online/pos/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+						    
+						    var finalReport_downloadContent = cssData+
+							    '<body>'+
+							      '<div class="mainHeader">'+
+							         '<div class="headerLeftBox">'+
+							            '<div id="logo">'+
+							               '<img src="https://zaitoon.online/pos/email_logo.png">'+
+							            '</div>'+
+							            '<p class="headerAddress">'+reportInfo_address+'</p>'+
+							         '</div>'+
+							         '<div class="headerRightBox">'+
+							            '<h1 class="headerBranch">'+reportInfo_branch+'</h1>'+
+							            '<p class="headerAdmin">'+reportInfo_admin+'</p>'+
+							            '<p class="headerTimestamp">'+reportInfo_time+'</p>'+
+							         '</div>'+
+							      '</div>'+
+							      '<div class="introFacts" style="min-height: 0; margin-bottom: -25px;">'+
+							         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
+							      '</div>'+
+							      categorySplitRenderContent+
+							      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
+							         '<p class="footerNote">care@zaitoon.online | www.zaitoon.online | support@accelerate.net.in</p>'+
+							      '</div>'+
+							    '</body>';
+
+								var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
+								$('#itemSummaryReportAction_Download').attr('data-hold', finalContent_EncodedDownload);
+
+								var finalContent_EncodedText = encodeURI(fancy_report_title_name);
+								$('#itemSummaryReportAction_Download').attr('text-hold', finalContent_EncodedText);
+
+								generateItemReportContentPrint();
+						}
+
+
+
+						function generateItemReportContentPrint(){
+
+
+							//Get staff info.
+							var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
+							
+							if(jQuery.isEmptyObject(loggedInStaffInfo)){
+								loggedInStaffInfo.name = 'Zaitoon Staff';
+								loggedInStaffInfo.code = '0000000000';
+							}	
+
+
+							var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
+								
+							if(reportInfo_branch == ''){
+								showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+								return '';
+							}
+
+							var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
+
+							var reportInfo_admin = loggedInStaffInfo.name;
+							var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
+							var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : 'Zaitoon Multicuisine Restaurants';
+
+
+							var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
+
+							var reportInfo_title = 'Item wise Sales on <b>'+fancy_from_date+'</b>';
+							var temp_report_title = 'Item wise Sales on '+fancy_from_date;
+							if(fromDate != toDate){
+								fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
+								var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
+
+								reportInfo_title = 'Item wise Sales from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
+								temp_report_title = 'Item wise Sales from '+fancy_from_date+' to '+fancy_to_date;
+							}
+
+						    var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
+
+
+
+						    //Quick Summary Content
+							var quickSummaryRendererContent = '';
+							var categorySplitRenderContent = '';
+
+							var n = 0;
+							while(categorisedItemsList[n]){ //render category
+
+								var category_name = categorisedItemsList[n].category;
+								if(category_name == 'UNKNOWN'){
+									category_name = 'Unknown Category';
+								}
+								else if(category_name == 'MANUAL_UNKNOWN'){
+									category_name = '<i>Manually Added Items</i>';
+								}
+
+								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
+									
+									quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+categorisedItemsList[n].items[i].name+'</td><td style="font-size: 11px; text-align: right">'+categorisedItemsList[n].items[i].count+'</td></tr>';
+								
+									if(i == categorisedItemsList[n].items.length - 1){ //last iteration
+										
+										categorySplitRenderContent += ''+
+										'<div class="KOTContent">'+
+								    		 '<h2 style="text-align: center; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">'+category_name+'</h2>'+
+									         '<table style="width: 100%">'+
+									            '<col style="width: 85%">'+
+									            '<col style="width: 15%">'+ 
+									            quickSummaryRendererContent+
+									         '</table>'+
+									    '</div>';	
+
+										quickSummaryRendererContent = '';	
+									}
+								}
+
+								n++;
+							}
+
+
+						    var cssData = '<head> <style type="text/css"> .KOTContent,.KOTHeader,.KOTNumberArea,.KOTSummary{width:100%;background-color:none}.subLabel,body{font-family:sans-serif}.KOTNumber,.invoiceNumber,.subLabel{letter-spacing:2px}#logo{min-height:60px;width:100%;border-bottom:2px solid #000}.KOTHeader,.KOTNumberArea{min-height:30px;padding:5px 0;border-bottom:1px solid #7b7b7b}.KOTContent{min-height:100px;font-size:11px;padding-top:6px;border-bottom:2px solid}.KOTSummary{font-size:11px;padding:5px 0;border-bottom:1px solid}.KOTContent td,.KOTContent table{border-collapse:collapse}.KOTContent td{border-bottom:1px dashed #444;padding:7px 0}.invoiceHeader,.invoiceNumberArea{padding:5px 0;border-bottom:1px solid #7b7b7b;width:100%;background-color:none}.KOTSpecialComments{min-height:20px;width:100%;background-color:none;padding:5px 0}.invoiceNumberArea{min-height:30px}.invoiceContent{min-height:100px;width:100%;background-color:none;font-size:11px;padding-top:6px;border-bottom:1px solid}.invoiceCharges{min-height:90px;font-size:11px;width:100%;background-color:none;padding:5px 0;border-bottom:2px solid}.invoiceCustomText,.invoicePaymentsLink{background-color:none;border-bottom:1px solid;width:100%}.invoicePaymentsLink{min-height:72px}.invoiceCustomText{padding:5px 0;font-size:12px;text-align:center}.subLabel{display:block;font-size:8px;font-weight:300;text-transform:uppercase;margin-bottom:5px}p{margin:0}.itemComments,.itemOldComments{font-style:italic;margin-left:10px}.serviceType{border:1px solid;padding:4px;font-size:12px;display:block;text-align:center;margin-bottom:8px}.tokenNumber{display:block;font-size:16px;font-weight:700}.billingAddress,.timeStamp{font-weight:300;display:block}.billingAddress{font-size:12px;line-height:1.2em}.mobileNumber{display:block;margin-top:8px;font-size:12px}.timeStamp{font-size:11px}.KOTNumber{font-size:15px;font-weight:700}.commentsSubText{font-size:12px;font-style:italic;font-weight:300;display:block}.invoiceNumber{font-size:15px;font-weight:700}.timeDisplay{font-size:75%;display:block}.rs{font-size:60%}.paymentSubText{font-size:10px;font-weight:300;display:block}.paymentSubHead{font-size:12px;font-weight:700;display:block}.qrCode{width:100%;max-width:120px;text-align:right}.addressContact,.addressText{color:gray;text-align:center}.addressText{font-size:10px;padding:5px 0}.addressContact{font-size:9px;padding:0 0 5px}.gstNumber{font-weight:700;font-size:10px}.attendantName,.itemQuantity{font-size:12px}#defaultScreen{position:fixed;left:0;top:0;z-index:100001;width:100%;height:100%;overflow:visible;background-image:url(../data/photos/brand/pattern.jpg);background-repeat:repeat;padding-top:100px}.attendantName{font-weight:300;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.itemComments,.itemQuantity{font-weight:700;display:block}.itemOldComments{display:block;text-decoration:line-through}.itemOldQuantity{font-size:12px;text-decoration:line-through;display:block} </style> </head>';
+
+						    var data_custom_header_image = window.localStorage.bill_custom_header_image ? window.localStorage.bill_custom_header_image : '';
+
+						    var data_custom_header_client_name = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '';
+							if(data_custom_header_client_name == ''){
+							   data_custom_header_client_name = 'Item Report';
+							}
+
+						    var finalReport_printContent = cssData +
+						    	'<body>'+
+							      '<div id="logo">'+
+							        (data_custom_header_image != '' ? '<center><img style="max-width: 90%" src=\''+data_custom_header_image+'\'/></center>' : '<h1 style="text-align: center">'+data_custom_header_client_name+'</h1>')+
+							      '</div>'+
+							      '<div class="KOTHeader" style="padding: 0; background: #444;">'+
+							      	'<p style="text-align: center; font-size: 16px; font-weight: bold; text-transform: uppercase; padding-top: 6px; color: #FFF;">'+reportInfo_branch+'</p>'+
+							      '</div>'+
+							      '<div class="KOTNumberArea">'+
+							         '<table style="width: 100%">'+
+							            '<col style="width: 50%">'+
+							            '<col style="width: 50%">'+
+							            '<tr>'+
+							               '<td style="vertical-align: top">'+
+							               '<p>'+
+							                  '<tag class="subLabel">Admin</tag>'+
+							                  '<tag class="KOTNumber" style="font-size: 13; font-weight: 300; letter-spacing: unset;">'+reportInfo_admin+'</tag>'+
+							               '</p>'+
+							               '</td>'+
+							               '<td style="vertical-align: top">'+
+							                  '<p style=" text-align: right; float: right">'+
+							                     '<tag class="subLabel">TIME STAMP</tag>'+
+							                     '<tag class="timeStamp">'+reportInfo_time+'</tag>'+
+							                  '</p>'+
+							               '</td>'+
+							            '</tr>'+
+							         '</table>'+
+							      '</div>'+
+							      '<h1 style="margin: 6px 3px; padding-bottom: 5px; font-weight: 400; text-align: center; font-size: 15px; border-bottom: 2px solid; }">'+reportInfo_title+'</h1>'+
+							   	  categorySplitRenderContent+
+							   	'</body>';
+
+								var finalContent_EncodedPrint = encodeURI(finalReport_printContent);
+								$('#itemSummaryReportAction_Print').attr('data-hold', finalContent_EncodedPrint);
+
+						}
+
+					}
+					else{ 
+						document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items sold on the given dates</p>';
+					}
+				}
+			}
+		},
+		error: function(data){
+			hideLoading();
+			document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Summary on the given dates</p>';
+			showToast('Not Found Error: Order Summary data not found. Please contact Accelerate Support.', '#e74c3c');
+			return '';								    	
+		}
+	});  
+}
+
+
+//ITEM REPORT ACTIONS
+function itemReportActionDownload(){
+	var htmlContentEncoded = $('#itemSummaryReportAction_Download').attr('data-hold');
+	var htmlContent = decodeURI(htmlContentEncoded);
+
+	var textContentEncoded = $('#itemSummaryReportAction_Download').attr('text-hold');
+	var textContent = decodeURI(textContentEncoded);
+
+	showToast('Downloading Report', '#27ae60');
+	generatePDFReport(htmlContent, textContent);
+}
+
+function itemReportActionPrint(){
+	var htmlContentEncoded = $('#itemSummaryReportAction_Print').attr('data-hold');
+	var htmlContent = decodeURI(htmlContentEncoded);
+
+	showToast('Printing Report', '#27ae60');
+	printPDFReport(htmlContent);
+}
+
+
+
+
+
+
+
 /**************************************
  	SINGLE CLICK REPORT GENERATOR
 ***************************************/
