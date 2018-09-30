@@ -60,6 +60,13 @@
                                </div>
 
 
+                               <div class="row" style="margin-top: 10px">
+                                  <div class="col-sm-12">
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchItemSummary()"><i class="fa fa-file-text-o" style="padding-right: 10px"></i> Item Summary</button>
+                                  </div>
+                               </div>
+
+
                            </div>
                            <div class="clearfix"></div>
                         </div>
@@ -286,6 +293,31 @@
                                      <div class="table-responsive">
                                         <table class="table" style="margin: 0">
                                           <tbody id="summaryRender_refundSummary">
+
+                                          </tbody>                                 
+                                        </table>
+                                     </div>
+                                </div>
+                            </div>
+
+                        </div>
+                     </div>
+
+
+
+                     <div class="box box-primary" id="summaryRenderArea_itemSummary" style="display: none">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Top Selling Items</h3>
+                              <button class="btn-success btn btn-sm" style="display: inline-block; position: absolute; top: 11px; right: 0;" id="completeItemSummaryButton" onclick="generateOverallItemReport()">Complete Report</button>
+                              <div id="itemSummaryReportOptions" style="display: block; position: absolute; top: 10px; right: -5px;"></div>
+                           </div>
+
+                            <div class="row" style="margin: 0">
+                                <div class="col-sm-12" style="padding: 0">
+                                     <div class="table-responsive">
+                                        <table class="table" style="margin: 0">
+                                          <tbody id="summaryRender_itemSummary">
 
                                           </tbody>                                 
                                         </table>
