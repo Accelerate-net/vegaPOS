@@ -753,7 +753,7 @@ function fetchOverAllTurnOver(){
 			
 			//time to render...
 			if(temp_totalOrders > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Gross Sales Amount</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_totalPaid).toFixed(2)+'</td> </tr>';
+				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Total Sales Volume</b><tag style="position: absolute; display: block; font-size: 9px; color: #bf792d;">Refunds not Excluded</tag></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_totalPaid).toFixed(2)+'</td> </tr>';
 				netSalesWorth = temp_totalPaid; 
 				document.getElementById("overallBarChart").style.display = 'block';
 			}
@@ -1136,8 +1136,8 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 							temp_refundSum += seconddata.rows[0].value.sum;
 						}
 
-						netSalesWorth += temp_refundSum;
-
+						//netSalesWorth -= temp_refundSum; <-- Refunds not included in Net Sales
+						netRefundsProcessed = temp_refundSum;
 
 						if(temp_refundSum > 0){
 							graphData.push({
@@ -1177,7 +1177,7 @@ function renderSummaryFinal(netSalesWorth, graphData){
 
 	if(netSalesWorth > 0){
 		graphData.push({
-			"name": 'Gross Sales',
+			"name": 'Sales Volume',
 			"value": netSalesWorth
 		})
 	}	
@@ -2534,6 +2534,7 @@ function fetchSingleClickReport(){
 	var completeReportInfo = [];
 	var netSalesWorth = 0;
 	var netGuestsCount = '###';
+	var netRefundsProcessed = 0;
 	var reportInfoExtras = [];
 	var completeErrorList = []; //In case any API call causes Error
 	var detailedListByBillingMode = []; //Billing mode wise
@@ -2543,6 +2544,8 @@ function fetchSingleClickReport(){
 	var paymentGraphData = []; //For payment graphs
 	var billsGraphData = []; //For bills graphs
 
+
+	//Net Sales Worth = Total Paid - (All the other charges) - (Discounts & Refunds) + (Tips)
 
 	//Starting point
 	runReportAnimation(0);
@@ -3016,7 +3019,8 @@ function fetchSingleClickReport(){
 							temp_refundSum += seconddata.rows[0].value.sum;
 						}
 
-						netSalesWorth += temp_refundSum;
+						//netSalesWorth -= temp_refundSum;
+						netRefundsProcessed = temp_refundSum;
 
 						completeReportInfo.push({
 								"name": "Refunds Issued",
@@ -4369,7 +4373,7 @@ function fetchSingleClickReport(){
 			      '<div class="introFacts">'+
 			         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
 			         '<div class="factsArea">'+
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
+			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
 			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netSalesWorth).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
 			            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
 			            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
@@ -4387,7 +4391,7 @@ function fetchSingleClickReport(){
 			                 '<col style="width: 30%">'+
 			                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales Worth</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
 			                 quickSummaryRendererContent+
-			                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value).toFixed(2)+'</td></tr>'+
+			                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
 			              '</table>'+
 			           '</div>'+
 			        '</div>'+
@@ -4557,7 +4561,7 @@ function fetchSingleClickReport(){
 				      '<div class="introFacts">'+
 				         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
 				         '<div class="factsArea">'+
-				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
 				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netSalesWorth).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
 				            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
 				            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
@@ -4575,7 +4579,7 @@ function fetchSingleClickReport(){
 				                 '<col style="width: 30%">'+
 				                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales Worth</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
 				                 quickSummaryRendererContent+
-				                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value).toFixed(2)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
 				              '</table>'+
 				           '</div>'+
 				        '</div>'+
@@ -4644,7 +4648,7 @@ function fetchSingleClickReport(){
 			            '<col style="width: 15%">'+ 
 			            '<tr><td style="font-size: 11px"><b>Net Sales Worth</b></td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
 			            quickSummaryRendererContent+
-			            '<tr><td style="font-size: 13px"><b>Gross Sales</b></td><td style="font-size: 13px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[0].value).toFixed(2)+'</td></tr>'+
+			            '<tr><td style="font-size: 13px"><b>Gross Sales</b></td><td style="font-size: 13px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
 			         '</table>'+
 			    '</div>';
 
@@ -4933,7 +4937,7 @@ function fetchSingleClickReport(){
 		      '<div class="introFacts">'+
 		         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
 		         '<div class="factsArea">'+
-		            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
+		            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
 		            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netSalesWorth).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
 		            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
 		            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
@@ -4950,7 +4954,7 @@ function fetchSingleClickReport(){
 		                 '<col style="width: 30%">'+
 		                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales Worth</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
 		                 quickSummaryRendererContent+
-		                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value).toFixed(2)+'</td></tr>'+
+		                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
 		              '</table>'+
 		           '</div>'+
 		        '</div>'+
