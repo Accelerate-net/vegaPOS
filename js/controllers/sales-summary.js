@@ -5207,3 +5207,79 @@ function reportActionPrint(){
 
 	printPDFReport(htmlContent);
 }
+
+
+
+
+function jugaad(){
+
+	bill_counter = 2001907;
+	process();
+	function process(){
+
+					if(bill_counter == 2001911){
+						return '';
+					}
+
+				  bill_counter++;
+				  preset_bill_number = "IITMADRAS_INVOICE_"+bill_counter;
+				  console.log('>> '+preset_bill_number)
+
+                  var requestData = { "selector" :{ "_id": preset_bill_number }}
+
+                  $.ajax({
+                    type: 'POST',
+                    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_find',
+                    data: JSON.stringify(requestData),
+                    contentType: "application/json",
+                    dataType: 'json',
+                    timeout: 10000,
+                    success: function(data) {
+                      if(data.docs.length > 0){
+
+			            var newBillFile = data.docs[0];
+
+			            newBillFile.dateStamp = "20181003";
+
+			            if(newBillFile.date == '02-10-2018'){
+
+                            //Update
+			                var updateData = newBillFile;
+			                console.log(updateData)
+
+			                $.ajax({
+			                  type: 'PUT',
+			                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/'+preset_bill_number+'/',
+			                  data: JSON.stringify(updateData),
+			                  contentType: "application/json",
+			                  dataType: 'json',
+			                  timeout: 10000,
+			                  success: function(data) {
+			                  	process();
+			                  	
+			                  },
+			                  error: function(data) {
+			                  	console.log(data)
+			                  	console.log('FAILED to update :')   
+			                  }
+			                }); 
+				        }
+				        else{
+				        	console.log('FAILED : Date Mismatch!')
+				        }
+			            //End - post KOT to Server
+                      }
+                      else{
+                      	process();
+                        console.log('INVOICE NOTFOUND :'+preset_bill_number)
+                      }
+                    },
+                    error: function(data) {
+                      process();
+                      console.log('ERRO INVOICE  :'+preset_bill_number)	  
+                    }
+
+                  });	
+	}
+}
+
