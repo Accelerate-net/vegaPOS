@@ -96,7 +96,7 @@ function getCurrentTime(type){
     	return today;
 
     if(type == 'DATE_DDMMYY')
-      return dd+mm+yyyy;
+      return dd+''+mm+''+yyyy;
 
     if(type == 'DATE_DD-MM-YY')
       return dd+'-'+mm+'-'+yyyy;
@@ -105,7 +105,7 @@ function getCurrentTime(type){
       return yyyy+'-'+mm+'-'+dd;
 
     if(type == 'DATE_STAMP')
-      return yyyy+mm+dd;
+      return yyyy+''+mm+''+dd;
 	 
 }
 
