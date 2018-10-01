@@ -5217,7 +5217,7 @@ function jugaad(){
 	process();
 	function process(){
 
-					if(bill_counter == 2001911){
+					if(bill_counter == 2001910){
 						return '';
 					}
 
@@ -5239,14 +5239,13 @@ function jugaad(){
 
 			            var newBillFile = data.docs[0];
 
-			            newBillFile.dateStamp = "20181003";
+			            newBillFile.dateStamp = "AAA";
 
 			            if(newBillFile.date == '02-10-2018'){
 
                             //Update
 			                var updateData = newBillFile;
-			                console.log(updateData)
-
+			                
 			                $.ajax({
 			                  type: 'PUT',
 			                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/'+preset_bill_number+'/',
