@@ -2870,7 +2870,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
     bill.timeSettle = getCurrentTime('TIME');
     bill.totalAmountPaid = parseFloat(totalSplitSum).toFixed(2);
     bill.paymentMode = paymentModeSelected;
-    bill.dateStamp = getCurrentTime('DATE_STAMP');
+    bill.dateStamp = moment(bill.date, 'DD-MM-YYYY').format('YYYYMMDD');
 
     var branch_code = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : '';
     bill.outletCode = branch_code != '' ? branch_code : 'UNKNOWN';
@@ -2982,7 +2982,7 @@ function settleBillAndPushAuto(bill, optionalPageRef){
     bill.timeSettle = getCurrentTime('TIME');
     bill.totalAmountPaid = Math.round(bill.payableAmount * 100) / 100;
     bill.paymentMode = "PREPAID";
-    bill.dateStamp = getCurrentTime('DATE_STAMP');
+    bill.dateStamp = moment(bill.date, 'DD-MM-YYYY').format('YYYYMMDD');
 
 console.log('To update AUTO SETTLE')
 
