@@ -1,50 +1,4 @@
 
-
-/* THIS DOC REQUIRES JQUERY AND FILE STREAM*/
-
-
-/*
-var db = new PouchDB('my_database_2');
-console.log(db)
-
-var remoteCouch = 'http://admin:admin@127.0.0.1:5984/test_vega';
-
-
-function showTodos() {
-  db.allDocs({include_docs: true, descending: true}, function(err, doc) {
-    console.log(doc.rows);
-  });
-}
-
-
-
-function addTodo(text) {
-  var todo = {
-    _id: new Date().toISOString(),
-    title: text,
-    completed: false
-  };
-  db.put(todo, function callback(err, result) {
-    if (!err) {
-      console.log('Successfully posted a todo!');
-      showTodos();
-    }
-  });
-}
-
-addTodo('CS');
-
-function sync() {
-  var opts = {live: true};
-  db.replicate.to(remoteCouch, opts, '');
-  db.replicate.from(remoteCouch, opts, '');
-}
-
-
-sync();
-
-*/
-
 /* read categories */
 function fetchAllCategories(){
 
@@ -943,6 +897,57 @@ function openNewMenuItem(category){
 	document.getElementById("new_item_price").value = '';
 	document.getElementById("newMenuItemModal").style.display = "block";
 	$("#new_item_manual_code").focus();
+
+
+	suggestItemCode();
+
+	function suggestItemCode(){
+
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_MASTER_MENU" 
+	                  },
+	      "fields"    : ["_rev", "identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+
+	             	var mastermenu = data.docs[0].value;
+
+	             	var highest_code = 0;
+
+	             	var m = 0;
+	             	while(mastermenu[m]){
+	             		for(var c = 0; c < mastermenu[m].items.length; c++){
+	             			if(parseInt(mastermenu[m].items[c].code) > highest_code){
+	             				highest_code = parseInt(mastermenu[m].items[c].code);
+	             			}
+	             		}
+
+	             		if(m == mastermenu.length - 1){ //last iteration
+	             			$("#new_item_manual_code").val(highest_code + 1);
+	             		}
+
+	             		m++;
+	             	}
+
+	          }
+	        }
+	      },
+	      error: function(data) {
+	        
+	      }
+	    });  
+	}
 }
 
 function hideNewMenuItem(){	
@@ -1350,12 +1355,18 @@ function saveItemToFile(category, item, editFlag) {
                     if(categoryExists){ //Add to EXISTING Category
                     	var isItemDuplicate = false;
 
-                        for (var j = 0; j < mastermenu[i].items.length; j++) {
-                            if (mastermenu[i].items[j].code == item.code) {
-                                isItemDuplicate = true;
-                                break;
-                            }
-                        }
+                    	var f = 0;
+                    	while(mastermenu[f]){
+
+	                        for (var j = 0; j < mastermenu[f].items.length; j++) {
+	                            if (mastermenu[f].items[j].code == item.code) {
+	                                isItemDuplicate = true;
+	                                break;
+	                            }
+	                        }
+
+	                        f++;
+	                    }
 
                         if(isItemDuplicate){ 
                             
@@ -1387,7 +1398,7 @@ function saveItemToFile(category, item, editFlag) {
 				                });
 				            }  
 				            else{
-	                        	showToast('Warning: Item Code already exists. Please choose a different code.', '#e67e22');
+	                        	showToast('Warning: Item Code <b>#'+item.code+'</b> already exists. Please choose a different code.', '#e67e22');
 	                            return '';
 	                        }
                         }
@@ -1626,7 +1637,7 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 				                });
 				            }  
 				            else{
-	                        	showToast('Warning: Item Code already exists. Please choose a different code.', '#e67e22');
+	                        	showToast('Warning: Item Code <b>#'+item.code+'</b> already exists. Please choose a different code.', '#e67e22');
 	                            return '';
 	                        }
                         }
