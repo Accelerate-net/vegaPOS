@@ -9,46 +9,45 @@ const { dialog } = require('electron')
 
 app.showExitPrompt = true
 
-/*
-  PRINTER
-*/
 
 const fs = require('fs')
 const os = require('os')
 const ipc = electron.ipcMain;
 const shell = electron.shell;
 
-// Keep a global reference of the window object, if you don't, the window will
-// be closed automatically when the JavaScript object is garbage collected.
-
 let mainWindow
 let workerWindow //Printer Preview Window
 
 function createWindow () {
-  // Create the browser window.
-  mainWindow = new BrowserWindow(
-    {
-      width: 1080,
-      minWidth: 680,
-      height: 840,
-      icon: path.join(__dirname, '/assets/icons/png/64x64.png'),
-      title: app.getName()
-    })
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+  //To get the Computer's resolution
+    const screen = require('electron').screen;
+    const display = screen.getPrimaryDisplay();
+    const area = display.workArea;
 
+    // Create the browser window.
+    mainWindow = new BrowserWindow(
+      {
+        width: area.width ? area.width : 1280,
+        height: area.height ? area.height : 1024,
+        icon: path.join(__dirname, '/assets/icons/png/64x64.png'),
+        title: app.getName()
+      })
+
+    // and load the index.html of the app.
+    mainWindow.loadURL(url.format({
+      pathname: path.join(__dirname, 'index.html'),
+      protocol: 'file:',
+      slashes: true
+    }))
 
 
 
     workerWindow = new BrowserWindow({show : false, icon: path.join(__dirname, '/assets/icons/png/64x64.png')});
     workerWindow.loadURL("file://" + __dirname + "/templates/print-template.html");
-    // workerWindow.hide();
+    //workerWindow.hide();
     //workerWindow.webContents.openDevTools();
+    
     workerWindow.on("closed", () => {
         workerWindow = null;
     });
@@ -56,29 +55,18 @@ function createWindow () {
     workerWindow.hide();
 
 
-// const execFile = require('child_process').execFile;
-// const child = execFile('couchdb', ['--version'], (error, stdout, stderr) => {
-//     if (error) {
-//         console.error('stderr', stderr);
-//         throw error;
-//     }
-//     console.log('stdout', stdout);
-// });
-
-
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools()
-
   //Full Screen
   mainWindow.setFullScreen(true)
 
+  //Open the DevTools.
+  //mainWindow.webContents.openDevTools()
+
   // Emitted when the window is closed.
   mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
     mainWindow = null;
-    workerWindow.close(); //Close WorkerWindow as well
+
+    if(workerWindow != null)
+      workerWindow.close(); //Close WorkerWindow as well
 
   })
 
@@ -101,18 +89,16 @@ function createWindow () {
         })
     }
   })
-
-
+  
 }
-
 
 
 //To retrieve printers list
 let printerWindowContent = null;
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
+
+
+
 app.on('ready', function(){
 
     createWindow();
