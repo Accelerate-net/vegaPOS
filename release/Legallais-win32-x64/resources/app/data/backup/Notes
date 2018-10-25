@@ -1,0 +1,18 @@
+
+Fixes for Version 1:
+
+
+Moved to Version 2:
+
+3. Spotlight (Customers pending)
+4. User Access (Super Admin)
+5. Add Order Source to Bill (add to Filter Invoices and Cancelled Invoices also)
+6. User Selection pop up on default screen (idle screen)
+7. Auto logout of ADMIN PREVILAGE if idle more than 5 mins
+8. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
+9. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings.
+10. Black and White A4 Print - Reports 
+11. Optimise menu Image rendering 
+12. Update Online Menu etc. (Option in Preferences)
+13. EASY CHANGE : D for Dine Mode, T for Takeaway --> change between the billing modes
+

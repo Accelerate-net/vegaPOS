@@ -1,0 +1,95 @@
+{
+  "_id": "ZAITOON_SHORTCUT_KEYS",
+  "identifierTag": "ZAITOON_SHORTCUT_KEYS",
+  "value": [
+    {
+      "systemName": "Z001",
+      "data": [
+        {
+          "name": "Show Spotlight Search",
+          "value": ""
+        },
+        {
+          "name": "Select Billing Mode",
+          "value": ""
+        },
+        {
+          "name": "Set Table/Address",
+          "value": ""
+        },
+        {
+          "name": "Focus Guest Details",
+          "value": ""
+        },
+        {
+          "name": "Focus Item Search",
+          "value": ""
+        },
+        {
+          "name": "Set Special Comments",
+          "value": ""
+        },
+        {
+          "name": "Save Current Order",
+          "value": ""
+        },
+        {
+          "name": "Close Order",
+          "value": ""
+        },
+        {
+          "name": "Cancel Order",
+          "value": ""
+        },
+        {
+          "name": "Print KOT",
+          "value": ""
+        },
+        {
+          "name": "Print Item View",
+          "value": ""
+        },
+        {
+          "name": "Print Bill",
+          "value": ""
+        },
+        {
+          "name": "Print Duplicate Bill",
+          "value": ""
+        },
+        {
+          "name": "Settle Bill",
+          "value": ""
+        },
+        {
+          "name": "Assign Delivery Agent",
+          "value": ""
+        },
+        {
+          "name": "Issue Refund",
+          "value": ""
+        },
+        {
+          "name": "Cancel Invoice",
+          "value": ""
+        },
+        {
+          "name": "Refresh Application",
+          "value": ""
+        },
+        {
+          "name": "Refresh Online Orders",
+          "value": ""
+        },
+        {
+          "name": "Go to All Bills",
+          "value": ""
+        },
+        {
+          "name": "Switch User",
+          "value": ""
+        }
+      ]
+    }
+  ]
+}

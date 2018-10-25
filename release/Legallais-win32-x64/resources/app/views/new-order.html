@@ -1,0 +1,491 @@
+<template class="task-template">
+        
+   <div class="row" style="position: relative; top: -5px;">
+      <div class="col-sm-4" style="padding: 0 0 0 10px">
+
+               <div class="posCartHeader">
+                     <h1 class="posCartHead" style="margin: 0" id="ongoingOrderTitle">
+                              New Order
+                        <tag class="specialRequestsHolder" onclick="openSpecialRequestModal()"><tag class="specialRequestsButton"><i class="fa fa-bell-o"></i></tag></tag>
+                     </h1> 
+               </div>   
+
+               <div class="well well-sm punchPOS" id="leftdiv" style="padding: 0 2px 8px 2px; margin-bottom: 5px;">
+
+                  <div id="lefttop" style="margin-bottom: 5px;">
+
+
+<!-- 
+                           <h1 class="posCartHead" id="ongoingOrderTitle">
+                              New Order<tag class="specialRequestsHolder" onclick="openSpecialRequestModal()"><tag class="specialRequestsButton"><i class="fa fa-filter"></i></tag></tag>
+                           </h1>
+ -->
+                       
+                     
+                        <hr style="margin: 0">
+
+                        <h2 class="posCartSubHead" style="margin-top: 8px; margin-bottom: 0">Customer Details</h2>
+                        <div style="padding: 0 6px" id="orderCustomerInfo"></div>
+
+                        <h2 class="posCartSubHead" style="margin-top: 8px">Order Cart<span class="customMenuItem" onclick="addSpecialCustomItem()">Add Custom</span></h2>
+
+                     <div class="form-group" style="margin-bottom:5px; margin-right: 6px; margin-left: 6px">
+                        <input type="text" name="code" id="add_item_by_search" class="form-control ui-autocomplete-input mousetrap" placeholder="Search item by name or short code"/>
+
+                        <div id="searchResultsRenderArea" class="searchResultsHolder">
+
+                        </div>
+                     </div>
+                  </div>
+               
+                  <div class="fixed-table-container">
+                     <div style="padding: 0px 6px !important">
+                        <table class="table table-striped table-condensed table-hover list-table" style="margin:0px; z-index: 2;">
+                           <col width="10%"> 
+                           <col width="40%">
+                           <col width="15%">
+                           <col width="20%">
+                           <col width="15%">
+                                                     
+                           <thead id="cartTitleHead">
+                           </thead>
+                        </table>
+                     </div>
+                     <div id="list-table-div" style="padding-left: 6px !important; overflow-x: hidden">
+                        <table class="table table-striped table-condensed table-hover list-table" style="margin:0px;">
+                           <col width="10%">
+                           <col width="40%">
+                           <col width="15%">
+                           <col width="20%">
+                           <col width="15%">
+                           <tbody id="cartDetails">
+                           </tbody>
+                        </table>
+                     </div>
+
+                     <div style="clear:both;"></div>
+                     <div id="summaryDisplay" style="margin-left: 6px; max-height: 120px; overflow-y: scroll;">
+                     </div>
+                     <div id="summarySumDisplay" style="margin-right: 6px; margin-left: 6px;">
+
+                     </div>
+                  </div>
+
+               </div>
+            
+         
+            <div id="cartActionButtons" class="col-xs-12 text-center"> </div>
+
+
+
+      </div>
+      <div class="col-sm-8">
+
+         <div class="contents menuListingPOS" style="display: none" id="fullRightPanelMenu">
+            <h1 class="punchMenuTitle"><tag id="posSubMenuTitle">The Menu</tag>
+
+               <div class="dropdown">
+                 <button class="dropbtn"><i class="fa fa-angle-down"></i></button>
+                 <div class="dropdown-content" id="posSubMenuDropdown">
+
+                 </div>
+               </div>
+
+            </h1>
+            <div id="item-list" class="menuRenderPlane">
+               <center class="renderDelayText">
+                  <p class="renderDelayText" style="text-align: center"><tag style="font-size: 150%">Ohoo!</tag><br>Rendering <b>the Menu</b> is unusually taking time. It could be a System Error. Please Refresh the Application once and if the problem persists, please contact Accelerate Support Team.</p>
+                  <button class="btn btn-default" style="background: none; color: gray; border: none" onclick="renderPage('new-order', 'Punch Order')"><tag class="renderDelayText">Refresh Now</tag></button>
+               </center>
+            </div>
+         
+            <div class="pickSubMenu" id="subMenuSelectionArea">
+            </div>
+
+         </div>
+
+
+
+         <div class="contents menuListingPOS" style="overflow: auto !important; display: none" id="fullRightPanelTable">
+            <h1 class="punchMenuTableTitle">Current Table Status</h1>
+            <div id="tableRenderPlane" style="overflow-y: auto !important; overflow-x: none !important;">
+               <center class="renderDelayText">
+                  <p class="renderDelayText" style="text-align: center"><tag style="font-size: 150%">Auch!</tag><br>Rendering <b>the Table Status</b> is unusually taking time. It could be a System Error. Please Refresh the Application once and if the problem persists, please contact Accelerate Support Team.</p>
+                  <button class="btn btn-default" style="background: none; color: gray; border: none" onclick="renderPage('new-order', 'Punch Order')"><tag class="renderDelayText">Refresh Now</tag></button>
+               </center>
+            </div>
+         </div>
+
+
+
+
+      </div>
+   </div>
+
+
+      <!-- Modal -->
+      <div id="clearCartConsentModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px">
+                <p style="font-size: 16px; margin: 0; color: #e74c3c;">The order <b>will not</b> get Cancelled when you Clear the Cart. Order remains until you Cancel it separately. <br><br>Do you want to Clear the Cart?</p>
+               </div>
+               <div class="modal-footer">
+                  <button  class="btn btn-default" onclick="hideClearCartModal()" style="float: left">Cancel</button>
+                  <button  class="btn btn-danger" onclick="clearCart()">Clear the Cart</button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+
+      <!-- Modal -->
+      <div id="overWriteHoldOrderModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Warning!</h1> </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px">
+                <p style="font-size: 16px; margin: 0; color: #e74c3c;">You are loading an order from the <b>Saved Orders List</b>. This would over-write the current order which has unsaved changes. <br><br>Are you sure want to open this Saved Order?</p>
+               </div>
+               <div class="modal-footer" id="overWriteHoldOrderModalActions">
+
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+
+
+   <!-- Modal -->
+   <div id="customiseItemModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button  onclick="hideCustomiseItem()" style="float: right;" class="btn clearButton">X</button>
+               <h4 class="modal-title" id="customiseItemTitle">Choose an Option</h4>
+            </div>
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important">
+               <div class="row">
+                  <div class="col-lg-12" id="customOptionsList">
+                  </div>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <button  class="btn btn-default" onclick="hideCustomiseItem()" style="float: left">Cancel</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+   <!-- Modal -->
+   <div id="undoDeleteModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button  onclick="hideUndoDelete()" style="float: right;" class="btn clearButton">X</button>
+               <h4 class="modal-title">Deleting Items</h4>
+            </div>
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+               <div class="row">
+                  <div class="col-lg-12" id="deleteItemsListing">
+                  </div>
+                  <p style="margin: 25px 15px 0 16px; color: #9a9a9a;"><br>New KOT is yet to be printed. Click on the items to undo deletion and add them back.</p>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <button  class="btn btn-default" onclick="hideUndoDelete()" style="float: left">Close</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+   <!-- Modal -->
+   <div id="pickTableForNewOrderModal" class="modal">
+      <div class="modal-dialog" style="top: 25px; width: 80%">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button class="btn btn-default" onclick="pickDummyTableForNewOrder()" style="float: right;">Assign Dummy</button>
+               <h4 class="modal-title" style="font-size: 21px; font-weight: 400">
+                  Choose a Table
+                  <input class="tableSearchInputModal" id="tableEasyInputBox" type="text">
+                  <tag class="tableSearchStatusModal" id="tableEasyInputBoxStatus"></tag>
+               </h4>
+
+            </div>
+            <div class="modal-body" style="max-height: 65vh; overflow-y: auto !important; overflow-x: none !important;; padding-top: 0" id="pickTableForNewOrderModalContent">
+            </div>
+            <div class="modal-footer" style="padding: 0">
+               <button  class="btn btn-default" onclick="pickTableForNewOrderHide()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Cancel</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+   <!-- Modal -->
+   <div id="pickAddressForNewOrderModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-header" style="background: #1abc9c; color: #FFF">
+                  <h1 style="margin: 0; font-size: 21px; font-weight: 400; padding-left: 10px">Delivery Address
+                  </h1>
+
+                  <button  class="btn btn-default" onclick="clearDefaultDeliveryAddressContents()" style="position: absolute; right: 10px; top: 10px;">Reset</button>
+            </div>
+
+            <div class="modal-body" style="max-height: 420px; width: 100%; overflow-y: auto !important; overflow-x: none !important;" id="pickAddressForNewOrderModalContent">
+
+                     <div class="row" style="padding: 5px 15px;">
+                        <div class="col-sm-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Recepient Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_name" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-12">
+                           <div class="form-group">
+                              <input type="number" value="" placeholder="Mobile Number" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_contact" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Flat/House No" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_flatNo" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Flat/House Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_flatName" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Landmark" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_landmark" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Area" style="border: none; border-bottom: 1px solid" class="form-control tip" id="delivery_address_parcel_area" required="required" />
+                           </div>
+                        </div>
+                     </div>
+
+            </div>
+            <div class="modal-footer">
+               <button  class="btn btn-default" onclick="pickAddressForNewOrderHide()" style="float: left">Cancel</button>
+               <button  class="btn btn-success" id="pickAddressForNewOrderConfirmButton" onclick="saveNewDeliveryAddress()" style="float: right">Set Address</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+   <!-- Modal -->
+   <div id="chooseAddressForNewOrderModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-header" style="background: #1abc9c; color: #FFF">
+                  <h1 style="margin: 0; font-size: 21px; font-weight: 400; padding-left: 10px">Saved Delivery Addressess
+                  </h1>
+
+                  <button class="btn btn-default" id="addNewSavedDeliveryAddressButton" onclick="openNewSavedDeliveryAddressArea()" style="position: absolute; right: 10px; top: 10px;">Add New</button>
+            </div>
+
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;" id="pickAddressForNewOrderModalContent">
+
+                     <div class="row" style="margin: 0" id="areaForSavedAddressRender">
+
+                     </div>
+
+                     <div class="row" id="addNewSavedWindow" style="padding: 20px 30px 20px 15px; display: none">
+                        <h1 style="font-size: 18px; color: #1abc9c; text-align: left; padding-left: 15px; margin-top: 0;">Add New Address</h1>
+                        <div class="col-sm-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Recepient Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_name" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-12">
+                           <div class="form-group">
+                              <input type="number" value="" placeholder="Mobile Number" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_contact" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Flat/House No" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_flatNo" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Flat/House Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_flatName" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Landmark" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_landmark" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-sm-6">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Area" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_deliveryAddress_area" required="required" />
+                           </div>
+                        </div>
+                        <button  class="btn btn-default" onclick="hideNewSavedDeliveryAddressArea()" style="float: left; margin-left: 15px">Close</button>
+                        <button  class="btn btn-success" onclick="saveNewDeliveryAddress()" style="float: right; margin-right: 15px">Save Address</button>
+                     </div>
+
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+               <button  class="btn btn-default" onclick="chooseAddressFromSavedListHide()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Cancel</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+      <!-- Modal -->
+      <div id="newManualCustomItemModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <button  onclick="addSpecialCustomItemHide()" style="float: right;" class="btn clearButton">X</button>
+                  <h4 class="modal-title">Custom Charges</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+
+                     <div class="row">
+                        <div class="col-lg-8">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Custom Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_manual_custom_name"/>
+                           </div>
+                        </div>
+                        <div class="col-lg-4">
+                           <div class="form-group">
+                              <input type="number" value="" placeholder="Custom Price" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_manual_custom_price"/>
+                           </div>
+                        </div>
+                     </div>
+
+               </div>
+               <div class="modal-footer">
+                  <button  class="btn btn-default" onclick="addSpecialCustomItemHide()" style="float: left">Cancel</button>
+                  <button  class="btn btn-success" onclick="addManualCustomItem()">Add to Cart</button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+   <!-- Modal -->
+   <div id="itemWiseCommentsModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header" style="padding: 10px 15px; background: #1abc9c;">
+               <label style="margin: 0; font-size: 21px; color: #FFF; font-weight: 400; font-family: sans-serif;" id="itemWiseCommentsModalTitle">Comments</label>
+            </div>
+
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;" id="pickAddressForNewOrderModalContent">
+
+                     <div class="row" style="margin-bottom: 20px">
+                        <div class="col-lg-12">
+                                 <div class="form-group">
+                                    <input type="text" value="" class="form-control tip" id="add_item_wise_comment" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px;" placeholder="Add any Comment"/>
+                                    
+                                    <div id="commentSuggestionsRenderArea" class="searchResultsHolder"></div>
+
+                                 </div>                                 
+                        </div>
+                     </div>
+
+                     <p style="margin: 0; font-size: 14px; font-weight: 400; margin-bottom: 5px; color: #969696;">Suggestions:</p>
+                     <div id="savedCommentsSuggestions"></div>
+
+
+            </div>
+            <div class="modal-footer" id="itemWiseCommentsModalActions">
+
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+   <!-- Modal -->
+   <div id="specialRequestsModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header" style="padding: 10px 15px; background: #1abc9c;">
+               <label style="margin: 0; font-size: 21px; color: #FFF; font-weight: 400; font-family: sans-serif;">Special Requests for this Order</label>
+            </div>
+
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+
+                     <div class="row" style="margin-bottom: 20px;">
+                        <div class="col-lg-12">
+                                 <div class="form-group">
+                                    <input type="text" value="" class="form-control tip" id="specialRequests_comments" style="border: none; border-bottom: 1px solid; font-size: 18px; padding: 6px 0px; margin: 30px 0 20px 0" placeholder="Add any Special Request?" required="required" />
+                                 </div>                                 
+                        </div>
+                     </div>
+
+                     <p style="margin: 0; font-size: 11px; font-weight: bold; margin-bottom: 5px; color: #969696; text-transform: uppercase; letter-spacing: 1px;">Avoid Allergic Ingredients</p>
+                     <div id="specialRequestsAllergicSuggestions"></div>
+
+
+            </div>
+            <div class="modal-footer" id="specialRequestsModalActions">
+
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+   <!-- Modal -->
+   <div id="setTokenOptionsModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                     <div class="row">
+                        <div class="col-lg-12">
+                                 <div class="form-group">
+                                    <label style="margin: 0 0 10px 0; font-size: 28px; font-weight: 300;">Next <b>Token Number</b> will be</label>
+                                    <input type="number" value="" class="form-control tip" id="next_token_value_set" style="border: none; border-bottom: 1px solid; font-size: 36px; letter-spacing: 5px; height: 60px; font-weight: bold; padding: 10px 3px;" required="required" />
+                                 </div>                                 
+                        </div>
+                     </div>
+            </div>
+            <div class="modal-footer">
+               <button  class="btn btn-default" onclick="setTokenManuallyHide()" style="float: left">Cancel</button>
+               <button  class="btn btn-primary" onclick="restartTokenManuallySave()" style="float: left">Restart from 1</button>
+               <button  class="btn btn-success" onclick="setTokenManuallySave()" style="float: right">Set Token</button>
+
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+</template>

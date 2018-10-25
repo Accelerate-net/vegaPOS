@@ -2567,10 +2567,6 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 									}								
 							}
 			 			}
-						else if(tempModeType == 'PARCEL'){ //ask for address
-							
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Mode</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Parcel</tag>';
-						}
 						else if(tempModeType == 'DINE'){ //ask for table
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-danger" style="width: 100%; text-overflow: ellipsis; overflow: hidden;" onclick="pickTableForNewOrder()">Select Table</tag>';
 							
@@ -2578,7 +2574,7 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 								selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="pickTableForNewOrder(\''+customerInfo.mappedAddress+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
 							}
 						}					
-						else if(tempModeType == 'TOKEN'){ //assign token
+						else if(tempModeType == 'TOKEN' || tempModeType == 'PARCEL'){ //assign token
 							
 							var isTokenValid = true;
 							var isTokenAutoChanged = false;
@@ -2677,9 +2673,6 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 								selectMappedAddressButton = '<label class="cartCustomerLabel">Address</label><tag id="parcelAddressButtonWrap"><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="pickAddressForNewOrder(\''+encodeURI(customerInfo.mappedAddress)+'\')" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+getFormattedAddress(customerInfo.mappedAddress)+'</tag></tag>';
 							}
 						}
-						else if(tempModeType == 'PARCEL'){ //ask for address
-							selectMappedAddressButton = '<label class="cartCustomerLabel">Mode</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Parcel</tag>';
-						}
 						else if(tempModeType == 'DINE'){ //ask for table
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag class="btn btn-danger disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">Not Set</tag>';
 							
@@ -2687,97 +2680,16 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 								selectMappedAddressButton = '<label class="cartCustomerLabel">Table No.</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
 							}
 						}					
-						else if(tempModeType == 'TOKEN'){ //assign token
+						else if(tempModeType == 'TOKEN' || tempModeType == 'PARCEL'){ //assign token
 
-							var isTokenValid = true;
-							var isTokenAutoChanged = false;
-
-							if(window.localStorage.claimedTokenNumberTimestamp && window.localStorage.claimedTokenNumberTimestamp != ''){
-								
-								var currentTime = new Date();
-								var recordedTime = new Date(window.localStorage.claimedTokenNumberTimestamp);
-
-								if(currentTime - recordedTime > 300000){ //Old Token, reclaim for new Token
-									isTokenValid = false;
-									isTokenAutoChanged = true;
-								}
-								else{
-									isTokenValid = true;
-								}
-							}
-							else{
-								isTokenValid = false;
-							}
-
-
-							if(isTokenValid && window.localStorage.claimedTokenNumber && window.localStorage.claimedTokenNumber != ''){
-								customerInfo.mappedAddress = parseInt(window.localStorage.claimedTokenNumber);
-								selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
-								renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
-							}
-							else{ //Claim a Token from Server
-
-							    var requestData = {
-							      "selector"  :{ 
-							                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
-							                  },
-							      "fields"    : ["_rev", "identifierTag", "value"]
-							    }
-
-							    $.ajax({
-							      type: 'POST',
-							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
-							      data: JSON.stringify(requestData),
-							      contentType: "application/json",
-							      dataType: 'json',
-							      timeout: 10000,
-							      success: function(data) {
-							        if(data.docs.length > 0){
-							          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
-
-							            var tempToken = parseInt(data.docs[0].value);
-
-										if(!tempToken || tempToken == ''){
-											tempToken = 1;
-										}
-
-										if(!isTokenValid && isTokenAutoChanged){
-											showToast('Warning: Token Number has been adjusted to the latest Count', '#e67e22');
-										}
-
-										//Save the Claimed Token locally
-										window.localStorage.claimedTokenNumber = tempToken;
-										window.localStorage.claimedTokenNumberTimestamp = new Date();
-
-										//Update next token on Server
-										updateTokenCountOnServer(tempToken+1, data.docs[0]._rev);
-
-										customerInfo.mappedAddress = tempToken;
-										selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag class="btn btn-default disabled" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
-							          	
-							          	renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
-							         
-							          }
-							          else{
-							            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
-							          }
-							        }
-							        else{
-							          showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
-							        }
-
-							      },
-							      error: function(data) {
-							        showToast('System Error: Unable to read Token Index. Please contact Accelerate Support.', '#e74c3c');
-							      }
-
-							    });
-							}
-
+							//customerInfo.mappedAddress = parseInt(window.localStorage.claimedTokenNumber);
+							selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" style="width: 100%; text-overflow: ellipsis; overflow: hidden; cursor: not-allowed">'+customerInfo.mappedAddress+'</tag>';
+							renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							
 						}						
 					} //Editing	
 
-					if(tempModeType != 'TOKEN'){ /* TWEAK */
+					if(tempModeType != 'TOKEN' && tempModeType != 'PARCEL'){ /* TWEAK */
 						renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
 					}
 					//Note: Because Token involves a network call delay.
@@ -2904,6 +2816,9 @@ function getFormattedAddress(addressObject){
 }
 
 function updateTokenCountOnServer(nextToken, revID){
+
+
+	console.log('Token Updated >> '+nextToken)
 
 
 			                          //Update token number on server
@@ -4789,14 +4704,15 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		return '';
 	}
 
-	if(customerInfo.mobile == '' && customerInfo.modeType == 'PARCEL'){
-		showToast('Please enter Customer Contact Number', '#e74c3c');
-		return '';
-	}
 
 	if(customerInfo.mappedAddress == '' && customerInfo.modeType != 'PARCEL'){
 		switch(customerInfo.modeType){
 			case "TOKEN":{
+				showToast('Token is not set', '#e74c3c');
+				return '';
+				break;
+			}
+			case "PARCEL":{
 				showToast('Token is not set', '#e74c3c');
 				return '';
 				break;
@@ -4824,7 +4740,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		{
 			"name": "Anas Jafry",
 			"mobile": "9884179675",
-			"mode": "VIP Guest",
+			"mode": "Dine AC",
 			"mappedAddress": "T3",
 			"reference": "Ref. to any other API (say booking number)"
 		}
@@ -4943,7 +4859,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          obj.discount = {};
 	          obj.customExtras = {};
 
-	        /*
+	        
 	          //Set _id from Branch mentioned in Licence
 	          var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
 	          if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
@@ -4952,7 +4868,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          }
 
 	          obj._id = accelerate_licencee_branch+'_KOT_'+kot;
-	        */
+	        
 
 	          var remember_obj = '';
 
@@ -4994,6 +4910,12 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              	}
 	              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
 	              		showToast('#'+kot+' generated Successfully', '#27ae60');
+
+	              		if(orderMetaInfo.modeType == 'PARCEL'){
+	              			//Clear Token
+							window.localStorage.claimedTokenNumber = '';
+							window.localStorage.claimedTokenNumberTimestamp = '';	 
+	              		}
 	              		
 	              		//If an online order ==> Save Mapping
 	              		if(obj.orderDetails.isOnline){

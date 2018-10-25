@@ -1,0 +1,86 @@
+<template class="task-template">
+
+                           <div class="row">
+                              <div class="col-sm-3"></div>
+                              <div class="col-sm-6">
+                                 <div class="input-group" style="padding: 10px; border: none;">
+                                    <input type="text" id="rewardsSearchInput" class="form-control input-lg" style="text-align: center" value="" placeholder="Coupon or Voucher or Mobile Number">
+                                    <span class="input-group-btn">
+                                    <button onclick="searchRequest()" class="btn btn-default btn-lg" type="button"><i class="fa fa-search"></i></button>
+                                    </span>
+                                 </div>
+                              </div>
+                           </div>
+
+                           <div class="row">
+                              <div class="col-sm-3"></div>
+                              <div class="col-sm-6" id="errorRenderArea">
+                                    
+                              </div>
+                           </div>
+
+            <div class="row" style="margin-top: 20px">
+                <div class="col-xs-1"></div>
+                <div class="col-xs-3">
+                    <div id="renderAreaUserInfo"></div>
+                </div>
+
+                <div class="col-xs-7">
+                    <div id="renderAreaUserStats"></div>
+                </div>
+            </div>
+
+      <!-- Modal -->
+      <div id="loginModal" class="modal">
+         <div class="modal-dialog" style="top: 20%; width: 27em !important;">
+            <!-- Modal content-->
+
+
+            <div class="modal-content" style="border-radius: 4px;">
+               <section id="main" style="padding: 35px 44px 20px 44px">
+                  <header>
+                     <span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>
+                     <h1 style="font-size: 21px; font-family: 'Roboto'; color: #3e5b6b;">Login to Cloud Server</h1>
+                  </header>
+                  <div style="margin: 0">
+                     <div class="row" style="margin: 15px 0">
+                        <div class="col-lg-12">
+                           <div class="form-group"> <input placeholder="Username" type="text" id="login_server_username" value="" class="form-control loginWindowInput"> </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group"> <input placeholder="Password" type="password" id="login_server_password" value="" class="form-control loginWindowInput"> </div>
+                        </div>
+                     </div>
+                     <button  onclick="doLogin()" class="btn btn-success loginWindowButton">Login</button>
+                     <button  onclick="hideLoginModal()" class="btn btn-default loginWindowButton">Cancel</button>
+                  </div>
+               </section>
+            </div>
+
+         </div>
+      </div>
+
+
+
+
+      <!-- Modal -->
+      <div id="couponRedeemModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header" style="background: #1abc9c; color: #FFF; font-weight: bold;">
+                  <button  onclick="hideCouponRedeemModal()" style="float: right;" class="btn clearButton">X</button>
+                  <h4 class="modal-title">Coupon or Voucher Details</h4>
+               </div>
+                <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;" id="couponRedeemConfirmation">
+                                
+               </div>
+               <div class="modal-footer" style="padding: 0">
+                    <button  class="btn btn-default" onclick="hideCouponRedeemModal()" style="width: 100%; border: none; border-radius: 0; height: 50px">Close</button>
+                </div>
+            </div>
+         </div>
+      </div>
+
+
+    </template>

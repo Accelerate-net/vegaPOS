@@ -1,0 +1,896 @@
+<template class="task-template">
+
+        <div class="row">
+
+            <div class="col-xs-3">
+                <div class="box box-primary">
+                    <div class="box-body" style="padding: 4px 4px 0px 4px">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px 5px 5px; font-size: 21px;"><i class="fa fa-cog"></i> Settings</h3>
+                        
+                        </div>
+
+
+                        <div class="billSettingsOption" onclick="openSystemSettings('keyboardShortcuts')"> Custom Shortcuts <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openSystemSettings('kitchenSections')"> KOT Relaying <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openSystemSettings('personalOptions')"> Personalisations<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openSystemSettings('systemSecurity')"> Security<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openSystemSettings('configureSystem')">System Configuration<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openSystemSettings('systemOptions')"> System Options<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>                        
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6" id="detailsDisplaySystemSettings">
+
+                <!-- Configure System -->
+                <div class="box box-primary" style="display: none" id="configureSystem">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">System Configuration</h3>
+                        </div>
+
+                        <div id="configureSystemActivationWarning">
+                          <p>This application is <b>not activated</b> yet. Application can not connect to the local server and sync with cloud server unless you activate.</p>
+
+                          <button class="btn btn-success" onclick="openActivationModal()">Activate Application</button>
+                        </div>
+
+
+
+                        <table style="width: 100%; display: none" id="configureSystemDetailsRender">
+                          <col width="40%">
+                          <col width="60%">
+
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Application License</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input style="font-size: 14px; border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: bold; text-transform: uppercase; background: none; letter-spacing: 2px;" id="system_configure_license_number" disabled class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Custom Machine Name</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="changeSystemName()" style="font-size: 18px; border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; color: #ff4757; font-weight: 400;" id="edit_main_system_name" placeholder="Set System Name" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Status</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: 400; background: none; color: gray" id="system_configure_license_expiry" class="form-control tip" disabled/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>     
+
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Machine UID</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: 400; background: none; color: gray" id="system_configure_license_uid" class="form-control tip" disabled/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>     
+
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Activation Date</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: 400; background: none; color: gray" id="system_configure_license_issued" class="form-control tip" disabled/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>  
+
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Connected Server</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: 400; background: none; color: gray" id="system_configure_server_address" class="form-control tip" disabled/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr> 
+
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Reset Licence</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <a href="#" onclick="showMasterResetConfirm()">Reset</a>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>                                                    
+
+
+                        </table>  
+
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+
+
+                <!-- System Options -->
+                <div class="box box-primary" style="display: none" id="systemOptions">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">System Options</h3>
+                        </div>
+                        <table style="width: 100%">
+                          <col width="40%">
+                          <col width="60%">
+
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Notification Options</td>
+                          </tr> 
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Show Notifications</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionNotification()" id="systemOptionNotification" class="form-control" style="width:100%;">
+                                      <option value="ALL">Show All</option>
+                                      <option value="WARNINGS">Only Warnings and Errors</option>
+                                      <option value="ERRORS">Only Errors</option>
+                                      <option value="NONE">None</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">KOT/Bill Defaults</td>
+                          </tr> 
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Editing Order once KOT is printed<tag style="display: block; font-size: 80%; color: #949393;">Dine Orders can be always edited. This option is applicable for other billing modes only.</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionEditingKOTAllowed()" id="systemOptionEditingAllowed" class="form-control" style="width:100%;">
+                                      <option value="NO">Not Allowed</option>
+                                      <option value="YES">Allowed</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Enable KOT Relaying<tag style="display: block; font-size: 80%; color: #949393;">KOTs will be split and sent to respective Kitchen Sections separately</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionKOTRelaying()" id="systemOptionKOTRelayEnabled" class="form-control" style="width:100%;">
+                                      <option value="YES">Enabled</option>
+                                      <option value="NO">Disabled</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Default Billing Mode for Dine In</td>
+                            <td style="padding-top:10px;">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionDefaultDineMode()" id="systemOptionDefaultDineMode" class="form-control" style="width:100%;">
+                                   </select>
+                                </div>
+                            </td>
+                          </tr> 
+
+                          <tr style="border-top: 1px dashed #f5f5f5;" id="systemOptionDefaultKOTPrinter_holder">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Default KOT Printer<tag style="display: block; font-size: 80%; color: #949393;">Choose the Main Printer - all the KOTs by default will be printed on this printer</tag></td>
+                            <td style="padding-top:10px;">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionDefaultKOTPrinter()" id="systemOptionDefaultKOTPrinter" class="form-control" style="width:100%;">
+                                   </select>
+                                </div>
+                            </td>
+                          </tr> 
+
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%; ">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Online Order Settings</td>
+                          </tr>  
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Accept Online Orders</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionOnlineOrders()" id="systemOptionOnlineOrders" class="form-control" style="width:100%;">
+                                      <option value="NO">No</option>
+                                      <option value="YES">Yes</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr id="systemOptionOnlineOrders_prepaidTag" style="display: none; border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Reserved Online Payment Method</td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="systemOptionPrepaidKeyword()" style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px; font-weight: bold" id="systemOptionOnlineOrders_prepaid_keyword" placeholder="Payment Method Name" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+
+                          <tr id="systemOptionOnlineOrders_default_delivery" style="display: none; border-top: 1px dashed #f5f5f5;">
+                            <td style="width: 40%; vertical-align: middle; padding-right: 30px; color: #28364a;">Default Billing Mode for Online Delivery</td>
+                            <td style="padding-top:10px; width: 60%">
+                                <div class="form-group">
+                                   <select onchange="systemOptionOnlineOrderDefaultDelivery()" id="systemOptionOnlineOrder_Default_Delivery" class="form-control" style="width:100%;">
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr id="systemOptionOnlineOrders_default_takeaway" style="display: none; border-top: 1px dashed #f5f5f5;">  
+                            <td style="width: 40%; vertical-align: middle; padding-right: 30px; color: #28364a;">Default Billing Mode for Online Takeaways</td>
+                            <td style="padding-top:10px; width: 60%">
+                                <div class="form-group">
+                                   <select onchange="systemOptionOnlineOrderDefaultTakeaway()" id="systemOptionOnlineOrder_Default_Takeaway" class="form-control" style="width:100%;">
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>                          
+
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%; ">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Summary Settings</td>
+                          </tr>  
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Automatically reset KOT/Token Numbers after the <b>Daily Report</b> is generated</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionResetCounter()" id="systemOptionResetCounter" class="form-control" style="width:100%;">
+                                      <option value="NO">Do NOT Reset</option>
+                                      <option value="YES">Automatically Reset</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Email List for receiving Reports<tag style="display: block; font-size: 80%; color: #949393;">Separated by Comma</tag></td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="systemOptionEmailListValidator()" style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px;" id="systemOptionReport_email_list" placeholder="List of Emails" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+
+
+
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%; ">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Scan & Pay Settings</td>
+                          </tr>  
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Enable Scan & Pay</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionScanPay()" id="systemOptionScanPay" class="form-control" style="width:100%;">
+                                      <option value="NO">Disabled</option>
+                                      <option value="YES">Enabled</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_base_api">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Scan & Pay API Base URL<tag style="display: block; font-size: 80%; color: #949393;">Bill Number, Outlet Code and Customer Mobile will be posted to this</tag></td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="systemOptionSetAPIAddress()" style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px;" id="systemOptionScanPayAPIAddress" placeholder="API URL" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+
+                          <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_show_custom_qr">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Do you want to show any custom QR Code on the Bill?</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionShowQRCode()" id="systemOptionShowQRCode" class="form-control" style="width:100%;">
+                                      <option value="NO">No</option>
+                                      <option value="YES">Yes</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_custom_url">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">QR Code Target URL<tag style="display: block; font-size: 80%; color: #949393;">When Customer scans the QR Code it will hit this specified URL</tag></td>
+                            <td style="padding-top:10px">
+                              <div class="row">
+                                <div class="col-lg-12">
+                                  <div class="form-group">
+                                     <input onchange="systemOptionQRCodeTarget()" style="border: none; border-bottom: 1px solid #f9f9f9; padding: 6px 2px;" id="systemOptionQRCodeaTargetURL" placeholder="Target URL" class="form-control tip"/>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                          
+                          <tr style="display:none; border-top: 1px dashed #f5f5f5;" id="scanPay_show_custom_metadata">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Send meta data to the Target URL<tag style="display: block; font-size: 80%; color: #949393;">Enabling this will append Bill Number, Outlet Code and Customer Mobile with the Target URL</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionSendMetaData()" id="systemOptionSendMetaData" class="form-control" style="width:100%;">
+                                      <option value="NO">No</option>
+                                      <option value="YES">Yes</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                        </table>  
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+                <!-- Personalisation Options -->
+                <div class="box box-primary" style="display: none" id="personalOptions">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Personalisations</h3>
+                        </div>
+                        <table style="width: 100%">
+                          <col width="40%">
+                          <col width="60%">
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Theme</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <div class="row" style="height: 80px; overflow: hidden">
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-blue')">
+                                        <tag class="themeBlueDark"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-blue">Blue Dark</p>
+                                      </div>
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-blue-light')">
+                                        <tag class="themeBlueLight"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-blue-light">Blue Light</p>
+                                      </div>
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-green')">
+                                        <tag class="themeGreenDark"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-green">Green Dark</p>
+                                      </div>
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-green-light')">
+                                        <tag class="themeGreenLight"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-green-light">Green Light</p>
+                                      </div>
+                                   </div>
+                                   <div class="row" style="height: 80px; overflow: hidden">
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-purple')">
+                                        <tag class="themePurpleDark"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-purple">Purple Dark</p>
+                                      </div>
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-purple-light')">
+                                        <tag class="themePurpleLight"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-purple-light">Purple Light</p>
+                                      </div>
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-red')">
+                                        <tag class="themeRedDark"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-red">Red Dark</p>
+                                      </div>
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-red-light')">
+                                        <tag class="themeRedLight"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-red-light">Red Light</p>
+                                      </div>
+                                   </div>
+                                   <div class="row" style="height: 80px; overflow: hidden">
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-yellow')">
+                                        <tag class="themeYellowDark"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-yellow">Yellow Dark</p>
+                                      </div>
+                                      <div class="col-sm-3 themeSelectionButton" onclick="changePersonalisationTheme('skin-yellow-light')">
+                                        <tag class="themeYellowLight"></tag>
+                                        <p class="themeSelectionTitle" id="title_skin-yellow-light">Yellow Light</p>
+                                      </div>
+                                   </div>                                   
+
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">What to Display on Right Panel of Order Page?</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changePersonalisationRightDisplay()" id="personalisationRightDisplayChoice" class="form-control" style="width:100%;">
+                                      <option value="MENU">Menu</option>
+                                      <option value="TABLE">Table Layout</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Display Menu Images</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changePersonalisationImage()" id="personalisationEditImage" class="form-control" style="width:100%;">
+                                      <option value="NO">No</option>
+                                      <option value="YES">Yes</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Show Virtual Keyboard</td>
+                            <td style="padding-top:10px;">
+                                <div class="form-group">
+                                   <select onchange="changePersonalisationKeyboard()" id="personalisationEditKeyboard" class="form-control" style="width:100%;">
+                                      <option value="0">Not Supported</option>
+                                      <!--
+                                      <option value="1">When Input Prompted</option>
+                                      <option value="2">Always</option> 
+                                      -->
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>  
+
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Idle Screen Options</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changePersonalisationLock()" id="personalisationInactiveScreen" class="form-control" style="width:100%;">
+                                      <option value="NONE">Do Nothing</option>
+                                      <option value="SCREENSAVER">Show Screen Saver</option>
+                                      <option value="LOCKSCREEN">Lock Screen</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+
+                          <tr id="personalisationInactiveScreen_TimeOptions" style="display: none">
+                            <td style="width: 40%; vertical-align: middle; font-weight: bold;">Idle Screen After</td>
+                            <td style="padding-top:10px; width: 60%">
+                                <div class="form-group">
+                                   <select onchange="changePersonalisationIdleDuration()" id="personalisationIdleDuration" class="form-control" style="width:100%;">
+                                      <option value="30">30 Seconds</option>
+                                      <option value="60">1 Minute</option>
+                                      <option value="120">2 Minutes</option>
+                                      <option value="300">5 Minutes</option>
+                                      <option value="600">10 Minutes</option>
+                                      <option value="900">15 Minutes</option>
+                                      <option value="1800">30 Minutes</option>
+                                      <option value="2700">45 Minutes</option>
+                                      <option value="3600">1 Hour</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+
+                        </table>  
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+
+                <!-- Keyboard Shortcuts -->
+                <div class="box box-primary" style="display: none" id="keyboardShortcuts">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Keyboard Shortcuts</h3>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                               <div class="well well-sm" style="margin: 0">
+                                  <p>You can use any keys F1 - F12 and A - Z. And any other key combinations with Crtl or Alt or Shift. A few key combinations are <tag onclick="openDefaultKeys()" class="systemShortcutIcon">System Reserved Shortcuts</tag> and which can not be used.</p>
+
+                                  <div id="shortCutsRenderPlane"></div>
+
+                                  <div class="clearfix"></div>
+                               </div>
+                            </div>
+                         </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+
+
+
+                <!-- Kitchen Sections -->
+                <div class="box box-primary" style="display: none" id="kitchenSections">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">KOT Relaying <tag id="kot_relay_not_enabled_label" style="display: none; color: #ff9797; font-size: 14px; text-transform: uppercase; font-weight: 600; position: absolute; right: 10px; top: 18px; border: 1px solid; padding: 2px 8px; border-radius: 5px; background: #fff0f0;">Not Enabled</tag></h3>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                               <div class="well well-sm" style="margin: 0">
+                                  <p>Map the Printers with Kitchen Sections, if you want the orders to be printed on the respective kitchen sections. By default, all the KOTs will be printed on the <tag onclick="renderPage('system-settings', 'System Settings'); openSystemSettings('systemOptions', 'HIGHLIGHT_DEFAULT_KOT_PRINTER')" class="systemShortcutIcon">Default KOT Printer</tag> which is set by you.</p>
+                                  <div id="kitchenSectionsRenderPlane"></div>
+                                  <div class="clearfix"></div>
+                               </div>
+                            </div>
+                         </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+
+
+                <!-- Security Options -->
+                <div class="box box-primary" style="display: none" id="systemSecurity">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Security Options</h3>
+                        </div>
+                        <table style="width: 100%">
+                          <col width="40%">
+                          <col width="60%">
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Passcode Protection</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSecurityPasscodeProtection()" id="securityPasscodeProtection" class="form-control" style="width:100%;">
+                                      <option value="YES">Enabled</option>
+                                      <option value="NO">Disabled</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="display: none" id="passcodeActionsArea">
+                            <td style="vertical-align: middle; font-weight: bold;">Passcode</td>
+                            <td style="padding-top:10px;">
+                                <div class="form-group">
+                                  <button class="btn btn-sm btn-success" onclick="changePasscodeToNew()">Change</button>
+                                  <button class="btn btn-sm btn-danger" onclick="recoveryPasscodeLogin()">Reset</button>
+                                </div>
+                            </td>
+                          </tr>  
+
+                        </table>  
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+          
+
+            </div>
+
+
+
+
+
+            <div class="col-xs-4" id="detailsNewSystemSettings">
+            </div>
+       
+       </div>        
+     </div>
+
+
+
+
+<!-- Modal -->
+<div id="setNewPassCodeModal" class="modal" style="display: none;">
+   <div class="modal-dialog" style="top: 20%; width: 27em !important;">
+      <!-- Modal content-->
+      <div class="modal-content" style="border-radius: 4px;">
+         <section id="main" style="padding: 35px 44px 20px 44px">
+            <h1 style="font-size: 21px; font-family: 'Roboto'; color: #3e5b6b;">Set Passcode</h1>
+            <div style="margin: 0">
+               <div class="row" style="margin: 15px 0">
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="New Passcode" type="password" id="screenlock_passcode_new" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="Confirm Passcode" type="password" id="screenlock_passcode_confirm" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+               </div>
+               <button  onclick="securityPasscodeProtectionSetCode()" class="btn btn-success loginWindowButton">Set Passcode</button>
+               <button  onclick="securityPasscodeProtectionSetCodeHIDE()" class="btn btn-default loginWindowButton">Cancel</button>
+            </div>
+         </section>
+      </div>
+   </div>
+</div>
+
+
+
+<!-- Modal -->
+<div id="confirmCurrentPassCodeModal" class="modal" style="display: none;">
+   <div class="modal-dialog" style="top: 20%; width: 27em !important;">
+      <!-- Modal content-->
+      <div class="modal-content" style="border-radius: 4px;">
+         <section id="main" style="padding: 35px 44px 20px 44px">
+            <h1 style="font-size: 21px; font-family: 'Roboto'; color: #3e5b6b;">Confirm Passcode</h1>
+            <div style="margin: 0">
+               <div class="row" style="margin: 15px 0">
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="Current Passcode" type="password" id="screenlock_passcode_old_confirm" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+               </div>
+               <button  onclick="securityPasscodeProtectionConfirmCode()" class="btn btn-success loginWindowButton">Proceed</button>
+               <button  onclick="securityPasscodeProtectionConfirmCodeHIDE()" class="btn btn-default loginWindowButton">Cancel</button>
+            </div>
+         </section>
+      </div>
+   </div>
+</div>
+
+
+<!-- Modal -->
+<div id="setChangePassCodeModal" class="modal" style="display: none;">
+   <div class="modal-dialog" style="top: 20%; width: 27em !important;">
+      <!-- Modal content-->
+      <div class="modal-content" style="border-radius: 4px;">
+         <section id="main" style="padding: 35px 44px 20px 44px">
+            <h1 style="font-size: 21px; font-family: 'Roboto'; color: #3e5b6b;">Change Passcode</h1>
+            <div style="margin: 0">
+               <div class="row" style="margin: 15px 0">
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="Current Passcode" type="password" id="screenlock_passcode_original" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="New Passcode" type="password" id="screenlock_passcode_new_1" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="Confirm Passcode" type="password" id="screenlock_passcode_new_2" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+               </div>
+               <button  onclick="setChangedPasscodeToNew()" class="btn btn-success loginWindowButton">Change Passcode</button>
+               <button  onclick="changePasscodeToNewHIDE()" class="btn btn-default loginWindowButton">Cancel</button>
+            </div>
+         </section>
+      </div>
+   </div>
+</div>
+
+
+        <!-- LOGIN MODAL -->
+        <div id="loginModalResetPasscode" class="modal" style="z-index: 2500 !important">
+             <div class="modal-dialog" style="top: 20%; width: 27em !important;">
+                <!-- Modal content-->
+                <div class="modal-content" style="border-radius: 4px;" id="loginModalResetCodeContent">
+
+                </div>
+             </div>
+          </div>
+
+        <!-- Modal -->
+        <div id="masterResetConfirmModal" class="modal">
+           <div class="modal-dialog" style="top: 15px">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px; background: #dd4b39">
+                  <p style="text-align: center"><img src="images/common/alert.png"></p>
+                  <p style="font-size: 16px; margin: 0; color: #FFF;">
+                    <b style="color: #ffc200">Warning!</b> Proceed only if you have understood the after effects of performing <b>Licence Reset</b>, it might end up in losing your data. In case you are confused, please contact Accelerate Support before you continue.
+                  </P>
+                 </div>
+                 <div class="modal-footer">
+                    <button  class="btn btn-default" onclick="masterResetConfirmHide()" style="float: left">Cancel</button>
+                    <button  class="btn btn-danger" onclick="confirmLicenceRemove()">Reset Now</button></div>
+              </div>
+           </div>
+        </div>
+
+
+
+
+        <!-- Modal -->
+        <div id="selectShortKeysModal" class="modal">
+           <div class="modal-dialog" style="top: 15px">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 20px;">
+                    
+                    <p id="selectShortKeysModalBrief" style="font-size: 18px; text-align: center"></p>
+                    
+                    <div style="text-align: center" id="wholeKeyboard">
+
+                      <div class="keyboardKeysSet" style="border-bottom: 1px solid #f4f4f4; margin-bottom: 15px; padding: 10px 0;">
+                        <button onclick="recordShortKey(this)" key-value="f1" class="keySelectionDetector keySelectionButton">F1</button>
+                        <button onclick="recordShortKey(this)" key-value="f2" class="keySelectionDetector keySelectionButton">F2</button>
+                        <button onclick="recordShortKey(this)" key-value="f3" class="keySelectionDetector keySelectionButton">F3</button>
+                        <button onclick="recordShortKey(this)" key-value="f4" class="keySelectionDetector keySelectionButton">F4</button>
+                        <button onclick="recordShortKey(this)" key-value="f5" class="keySelectionDetector keySelectionButton">F5</button>
+                        <button onclick="recordShortKey(this)" key-value="f6" class="keySelectionDetector keySelectionButton">F6</button>
+                        <button onclick="recordShortKey(this)" key-value="f7" class="keySelectionDetector keySelectionButton">F7</button>
+                        <button onclick="recordShortKey(this)" key-value="f8" class="keySelectionDetector keySelectionButton">F8</button>
+                        <button onclick="recordShortKey(this)" key-value="f9" class="keySelectionDetector keySelectionButton">F9</button>
+                        <button onclick="recordShortKey(this)" key-value="f10" class="keySelectionDetector keySelectionButton">F10</button>
+                        <button onclick="recordShortKey(this)" key-value="f11" class="keySelectionDetector keySelectionButton">F11</button>
+                        <button onclick="recordShortKey(this)" key-value="f12" class="keySelectionDetector keySelectionButton">F12</button>
+                      </div>
+
+                      <div class="keyboardKeysSet">
+                        <button onclick="recordShortKey(this)" key-value="q" class="keySelectionDetector keySelectionButton">Q</button>
+                        <button onclick="recordShortKey(this)" key-value="w" class="keySelectionDetector keySelectionButton">W</button>
+                        <button onclick="recordShortKey(this)" key-value="e" class="keySelectionDetector keySelectionButton">E</button>
+                        <button onclick="recordShortKey(this)" key-value="r" class="keySelectionDetector keySelectionButton">R</button>
+                        <button onclick="recordShortKey(this)" key-value="t" class="keySelectionDetector keySelectionButton">T</button>
+                        <button onclick="recordShortKey(this)" key-value="y" class="keySelectionDetector keySelectionButton">Y</button>
+                        <button onclick="recordShortKey(this)" key-value="u" class="keySelectionDetector keySelectionButton">U</button>
+                        <button onclick="recordShortKey(this)" key-value="i" class="keySelectionDetector keySelectionButton">I</button>
+                        <button onclick="recordShortKey(this)" key-value="o" class="keySelectionDetector keySelectionButton">O</button>
+                        <button onclick="recordShortKey(this)" key-value="p" class="keySelectionDetector keySelectionButton">P</button>
+                      </div>
+
+                      <div class="keyboardKeysSet" style="padding-top: 5px">
+                        <button onclick="recordShortKey(this)" key-value="a" class="keySelectionDetector keySelectionButton">A</button>
+                        <button onclick="recordShortKey(this)" key-value="s" class="keySelectionDetector keySelectionButton">S</button>
+                        <button onclick="recordShortKey(this)" key-value="d" class="keySelectionDetector keySelectionButton">D</button>
+                        <button onclick="recordShortKey(this)" key-value="f" class="keySelectionDetector keySelectionButton">F</button>
+                        <button onclick="recordShortKey(this)" key-value="g" class="keySelectionDetector keySelectionButton">G</button>
+                        <button onclick="recordShortKey(this)" key-value="h" class="keySelectionDetector keySelectionButton">H</button>
+                        <button onclick="recordShortKey(this)" key-value="j" class="keySelectionDetector keySelectionButton">J</button>
+                        <button onclick="recordShortKey(this)" key-value="k" class="keySelectionDetector keySelectionButton">K</button>
+                        <button onclick="recordShortKey(this)" key-value="l" class="keySelectionDetector keySelectionButton">L</button>
+                      </div>
+
+                      <div class="keyboardKeysSet" style="border-bottom: 1px solid #f4f4f4; margin-bottom: 15px; padding: 5px 0 10px 0;">
+                        <button onclick="recordShortKey(this)" key-value="z" class="keySelectionDetector keySelectionButton">Z</button>
+                        <button onclick="recordShortKey(this)" key-value="x" class="keySelectionDetector keySelectionButton">X</button>
+                        <button onclick="recordShortKey(this)" key-value="c" class="keySelectionDetector keySelectionButton">C</button>
+                        <button onclick="recordShortKey(this)" key-value="v" class="keySelectionDetector keySelectionButton">V</button>
+                        <button onclick="recordShortKey(this)" key-value="b" class="keySelectionDetector keySelectionButton">B</button>
+                        <button onclick="recordShortKey(this)" key-value="n" class="keySelectionDetector keySelectionButton">N</button>
+                        <button onclick="recordShortKey(this)" key-value="m" class="keySelectionDetector keySelectionButton">M</button>
+                      </div>
+
+                      <div class="keyboardKeysSet" style="padding-top: 5px">
+                        <tag onclick="recordShortKey(this)" key-value="shift" class="keySelectionDetector keySelectionButtonKey shiftKeyButton"></tag>
+                        <tag onclick="recordShortKey(this)" key-value="ctrl" class="keySelectionDetector keySelectionButtonKey ctrlKeyButton"></tag>
+                        <tag onclick="recordShortKey(this)" key-value="alt" class="keySelectionDetector keySelectionButtonKey altKeyButton"></tag>
+                      </div>
+
+                    </div>
+
+                 </div>
+                 <div class="modal-footer" style="padding: 0; border: none" id="selectShortKeysModalActions"></div>
+
+              </div>
+           </div>
+        </div>
+
+
+
+
+
+
+
+        <!-- Modal -->
+        <div id="selectKOTRelayPrinterModal" class="modal">
+           <div class="modal-dialog" style="top: 15px">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 20px;">
+                    
+                    <p id="selectKOTRelayPrinterBrief" style="font-size: 18px; text-align: center"></p>
+
+                    <div id="selectKOTRelayPrinterList"></div>
+                    
+                 </div>
+                 <div class="modal-footer" style="padding: 0; border: none" id="selectKOTRelayPrinterActions"></div>
+
+              </div>
+           </div>
+        </div>
+
+
+
+
+
+
+        <!-- Modal -->
+        <div id="systemReservedShortCutsModal" class="modal">
+           <div class="modal-dialog" style="top: 15px">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 20px;">
+                    <p style="font-size: 18px; text-align: center">System Reserved Shortcuts</p>
+                              
+                              <div class="well well-sm" style="margin: 0">
+                                  <div id="renderAreaSystemShorts"></div>          
+                                  <div class="clearfix"></div>
+                               </div>                    
+
+                 </div>
+                 <div class="modal-footer" style="padding: 0; border: none">
+                  <button class="btn btn-default" style="width: 100%; border: none; border-radius: 0" onclick="systemReservedShortCutsModalHide()" style="float: left">Close</button>
+                </div>
+
+
+              </div>
+           </div>
+        </div>
+
+
+      <!-- Modal -->
+      <div id="applicationActivationModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <button  onclick="openActivationModalHide()" style="float: right;" class="btn clearButton">X</button>
+                  <h4 class="modal-title"><b>Activate Application</b></h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important">
+                  
+                     <div class="row">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Enter Code" style="border: none; font-size: 21px; border-bottom: 1px solid #c9c9c9; padding: 10px 0; height: 45px; margin-top: 15px; text-align: center; text-transform: uppercase; letter-spacing: 5px; font-weight: bold; color: black;" class="form-control tip" id="activation_code_entered"/>
+                           </div>
+                        </div>
+                     </div>
+                  
+               </div>
+               <div class="modal-footer">
+                  <button  class="btn btn-default" onclick="openActivationModalHide()" style="float: left">Cancel</button>
+                  <button  class="btn btn-success" onclick="proceedToActivation()">Activate Now</button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+</template>

@@ -19,7 +19,7 @@ function switchLiveOrderRenderType(){
 function getAddressFormattedLive(kot){
 
   if(kot.orderDetails.modeType == 'PARCEL'){
-    return (kot.customerName != "" ? '<b>'+kot.customerName+'</b>' : '') + (kot.customerMobile != '' ? '<tag style="display: block">Mob. '+kot.customerMobile+'</tag>' : '');
+    return "<tag style='display: block;'>Token <b>#"+kot.table+"</b></tag>" + (kot.customerName != "" ? '<b>'+kot.customerName+'</b>' : '') + (kot.customerMobile != '' ? '<tag style="display: block">Mob. <b>'+kot.customerMobile+'</b></tag>' : '');
   }
   else if(kot.orderDetails.modeType == 'TOKEN'){
     return "Token <b>#"+kot.table+"</b>";
@@ -162,7 +162,7 @@ function renderAllKOTs() {
                                     }
 
                                     var tableList =               '<tr style="font-size: 16px;" class="liveOrderNonDine" onclick="liveOrderOptionsNonDine(\''+kot.KOTNumber+'\')">'+
-                                                                      '<td><b>#'+kot.KOTNumber+'</b><tag style="display: block; color: #dc2e6f">'+kot.orderDetails.modeType+'</tag>'+(kot.orderDetails.reference != '' ? '<tag style="display: block; color: gray">Ref. <b>'+kot.orderDetails.reference+'</b></tag>' : '')+'</td>'+
+                                                                      '<td><b>#'+kot.KOTNumber+'</b><tag style="display: block; color: #dc2e6f; font-size: 12px;">'+kot.orderDetails.modeType+'</tag>'+(kot.orderDetails.reference != '' ? '<tag style="display: block; color: gray">Ref. <b>'+kot.orderDetails.reference+'</b></tag>' : '')+'</td>'+
                                                                       '<td style="font-size: 95%">'+itemsList+'</td>'+
                                                                       '<td style="text-align: center">'+getFormattedTime(kot.timePunch)+' ago</td>'+
                                                                       '<td style="text-align: left; font-size: 14px;">'+getAddressFormattedLive(kot)+'</td>'+
@@ -285,6 +285,7 @@ function liveOrderOptionsNonDine(kotID){
 
           if(isUserAnAdmin){
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kot.KOTNumber+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
@@ -292,6 +293,7 @@ function liveOrderOptionsNonDine(kotID){
           }
           else{
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
+                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kot.KOTNumber+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsNonDineClose()">Close</button>';

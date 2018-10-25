@@ -24,6 +24,7 @@ function timedUpdate () {
 timedUpdate();
 
 
+
 // Render SIDE NAVIGATION bar
 function renderSideNavigation(){
 

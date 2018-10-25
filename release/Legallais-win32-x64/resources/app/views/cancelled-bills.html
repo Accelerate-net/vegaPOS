@@ -1,0 +1,172 @@
+<template class="task-template">
+<div class="row">
+            <div class="col-xs-5">
+              
+                <div class="row">
+                    <div class="col-xs-6" onclick="loadAllCancelledUnbilled()" style="cursor: pointer">
+                        <div class="box box-primary">
+                            <div class="box-body" id="billSelection_unbilled">
+                                <div id="cancelledOrdersCount" class="rewardsCount">..</div>
+                                <div class="rewardsName">Cancelled Orders</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-6" onclick="loadAllCancelledInvoices()" style="cursor: pointer">
+                        <div class="box box-primary">
+                            <div class="box-body" id="billSelection_invoiced">
+                                <div id="cancelledInvoicesCount" class="rewardsCount">..</div>
+                                <div class="rewardsName">Cancelled Invoices</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="box box-primary" >
+
+                    <div class="box-body">
+
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="min-width: 115px; padding: 5px 0px; font-size: 21px; color: #f30d0d" id="billTypeTitle">Bills</h3>
+                           <span id="billTypeTitleButton"><button class="billsFilterButton" onclick="openFilterModal()">Filter</button></span>
+                           <tag style="float: right" id="navigationAssitantBills">
+                           </tag>
+                        </div>
+
+                            <div class="table-responsive">
+                                <table class="table" id="billBriefDisplayRender">
+
+                                </table>
+                            </div>
+                            <div class="clearfix"></div>
+
+                    
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-7" id="billDetailedDisplayRender">
+
+            </div>
+        </div>
+
+
+
+
+   <!-- Modal -->
+   <div id="addressViewFromBillModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px">Address
+                  </h1>
+
+                     <div class="row" style="padding: 5px 30px 20px 15px;" id="addressViewFromBillModalContent">
+                        
+                     </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+                <button  class="btn btn-default" onclick="viewDeliveryAddressFromBillHide()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Close</button>                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+   <!-- Modal -->
+   <div id="cancelReasonModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #f30d0d">Cancellation Details
+                  </h1>
+
+                     <div class="row" style="padding: 10px 25px 5px 25px;" id="cancelReasonModalContent">
+                        
+                     </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+                <button  class="btn btn-default" onclick="cancelDetailsDisplayHide()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Close</button>                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+   <!-- Modal -->
+   <div id="searchFilterModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding-bottom: 15px">
+                     <div class="row">
+                        <div class="col-lg-12">
+                                 <div class="form-group">
+                                    <label style="margin: 0; font-size: 24px; font-weight: 300;">Filter & Search</label>
+                                    <hr style="margin: 5px 0 10px 0">
+
+                                   <div id="filterSearchArea" style="margin: 0 0 10px 0; padding: 15px 5px 40px 5px;">
+                                    <input type="text" value="" class="form-control tip" id="filter_search_key" style="border: none; border-bottom: 2px solid; font-size: 36px; height: 60px; font-weight: 300; padding: 10px 3px;" placeholder="Search Here" required="required" />
+                                  </div>
+
+
+                                    <div class="col-lg-12">
+                                       <div class="row" style="border: 1px solid #eeeeee; padding: 6px 0 2px 0;">
+
+
+                                          <div class="col-sm-4">
+                                            <label style="font-size: 10px">SEARCH USING</label>
+                                            <select id="filterSearchCriteria" class="form-control mySearchSelector" onchange="changeCancelledFilterSearchCriteria()">
+                                              <option value="bill">Bill Number</option>
+                                              <option value="all">All Bills</option>
+                                              <option value="steward">Attended Staff</option>
+                                              <option value="machine">Billing Machine</option>
+                                              <option value="type">Billing Modes</option>
+                                              <option value="customer">Customer Mobile</option>
+                                              <option value="session">Dine Session</option>
+                                              <option value="payment">Payment Modes</option>
+                                              <option value="refund">Refund Status</option>
+                                              <option value="table">Table Number</option>
+                                            </select>
+                                          </div>
+                                                                                  
+                                          <div class="col-sm-4">
+                                             <label style="font-size: 10px">FROM DATE</label><br>
+                                             <input type="text" id="reportFromDate" class="myDatePicker" style="width: 100%" placeholder="From Date">
+                                          </div>
+                                          <div class="col-sm-4">
+                                             <label style="font-size: 10px">TO DATE</label><br>
+                                             <input type="text" id="reportToDate" class="myDatePicker" style="width: 100%" placeholder="To Date">
+                                          </div>
+
+                                       </div>
+
+                                   </div>
+                                 </div>                                     
+                        </div>
+                     </div>
+            </div>
+            <div class="modal-footer">
+               <button  class="btn btn-default" onclick="hideFilterModal()" style="float: left">Cancel</button>
+               <span id="actionButtonSearch"><button  class="btn btn-success" onclick="filterSearchInitialize()" style="float: right">Proceed</button></span>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+
+ </template>       

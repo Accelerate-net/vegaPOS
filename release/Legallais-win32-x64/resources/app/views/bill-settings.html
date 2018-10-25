@@ -1,0 +1,427 @@
+<template class="task-template">
+
+        <div class="row">
+
+            <div class="col-xs-2">
+                <div class="box box-primary">
+                    <div class="box-body" style="padding: 4px 4px 0px 4px">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px 5px 5px; font-size: 21px;"><i class="fa fa-cog"></i> Settings</h3>
+                        
+                        </div>
+
+                        <div class="billSettingsOption" onclick="openBillSettings('billLayout')"> Bill Layout<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openBillSettings('billingModes')"> Billing Modes <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openBillSettings('discountTypes')"> Discount Types <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openBillSettings('orderSources')"> Order Sources <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openBillSettings('paymentModes')"> Payment Modes <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openBillSettings('billingExtras')"> Taxes & Other Extras <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        
+
+                        
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6" id="detailsDisplayBillSettings">
+
+
+                <!-- Bill Layout -->
+                <div class="box box-primary" style="display: none" id="billLayout">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Bill Layout</h3>
+                           <button class="btn btn-success btn-sm" onclick="saveLayoutChanges()"  style="float: right">Save</button>
+                        </div>
+
+                        <div id="billLayoutRenderArea" style="width: 66%; max-width: 320px; border: 1px solid #a7a7a7; padding: 10px; position: relative"> </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+
+                <!-- Discount Types -->
+                <div class="box box-primary" style="display: none" id="discountTypes">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Discount Types</h3>
+                           <button class="btn btn-success btn-sm" id="openNewDiscountButton" onclick="openNewDiscountType()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div class="table-responsive" style="max-height: 75vh">
+                            <table id="discountTypesTable" class="table">
+
+                            </table>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+                <!-- Order Sources -->
+                <div class="box box-primary" style="display: none" id="orderSources">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order Sources</h3>
+                           <button class="btn btn-success btn-sm" id="openNewOrderSourceButton" onclick="openNewOrderSource()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div class="table-responsive" style="max-height: 75vh">
+                            <table id="orderSourcesTable" class="table">
+
+                            </table>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+                <!-- Payment Modes -->
+                <div class="box box-primary" style="display: none" id="paymentModes">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Payment Modes</h3>
+                           <button class="btn btn-success btn-sm" id="openNewPaymentModeButton" onclick="openNewPaymentMode()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div class="table-responsive" style="max-height: 75vh">
+                            <table id="paymentModesTable" class="table">
+
+                            </table>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+                <!-- Billing Modes -->
+                <div class="box box-primary" style="display: none" id="billingModes">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Billing Modes</h3>
+                           <button class="btn btn-success btn-sm" id="openNewModeButton" onclick="openNewMode()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div class="table-responsive" style="max-height: 75vh">
+                            <table id="billingModesTable" class="table">
+
+                            </table>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+                <!-- Billing Extras -->
+                <div class="box box-primary" style="display: none" id="billingExtras">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Billing Extras</h3>
+                           <button class="btn btn-success btn-sm" id="openNewBillButton" onclick="openNewBill()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div class="table-responsive" style="max-height: 75vh">
+                            <table id="billingParamsTable" class="table">
+
+                            </table>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+
+            </div>
+
+
+            <div class="col-xs-4" id="detailsNewBillSettings">
+               
+               <!-- Discount Types : Actions -->
+                <div style="display: none" id="newDiscountTypeArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add New Discount Type</h3>
+                           </div>
+                           <div class="col-lg-12">
+
+                                 <div class="form-group">
+                                    <label>Name</label> <input type="text" value="" class="form-control tip" id="add_new_discount_name" required="required" />
+                                 </div>                                 
+ 
+                                <div class="form-group">
+                                    <label>Max Discount</label> <input type="number" value="" class="form-control tip" id="add_new_discount_maxValue" required="required" />
+                                 </div>                                 
+
+                                 <div class="form-group">
+                                    <label for="group">Discount Unit</label> 
+                                    <select name="group" id="add_new_discount_unit" class="form-control input-tip select2" style="width:100%;">
+                                       <option value="PERCENTAGE" selected="selected">Percentage (%)</option>
+                                       <option value="AMOUNT">Amount (Rs)</option>
+                                    </select>
+                                 </div>
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addDiscountType()" class="btn btn-primary">Add Type</button>
+
+                                    <button  class="btn btn-default" onclick="hideNewDiscountType()" >Cancel</button>
+                                 </div>
+
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+               <!-- Order Sources : Actions -->
+                <div style="display: none" id="newOrderSourceArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add New Order Source</h3>
+                           </div>
+                           <div class="col-lg-12">
+                                 <div class="form-group">
+                                    <label for="first_name">Source Name</label> <input type="text" value="" class="form-control tip" id="add_new_source_name" required="required" />
+                                 </div>                                 
+ 
+                                 <div class="form-group">
+                                    <label for="first_name">Code</label> <input type="text" value="" class="form-control tip" id="add_new_source_code" required="required" />
+                                 </div>                                 
+
+                                 <div class="form-group">
+                                    <label for="group">Default Delivery Mode</label> 
+                                    <select name="group" id="add_new_source_default_delivery" class="form-control input-tip select2" style="width:100%;">
+                                       <option value="NONE" selected="selected">Not Set</option>
+                                    </select>
+                                 </div>
+
+                                 <div class="form-group">
+                                    <label for="group">Default Takeaway Mode</label> 
+                                    <select name="group" id="add_new_source_default_takeaway" class="form-control input-tip select2" style="width:100%;">
+                                       <option value="NONE" selected="selected">Not Set</option>
+                                    </select>
+                                 </div>
+
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addOrderSource()" class="btn btn-primary">Add</button>
+
+                                    <button  class="btn btn-default" onclick="hideNewOrderSource()" >Cancel</button>
+                                 </div>
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+               <!-- Payment Modes : Actions -->
+                <div style="display: none" id="newPaymentModeArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add New Payment Mode</h3>
+                           </div>
+                           <div class="col-lg-12">
+
+                                 <div class="form-group">
+                                    <label for="first_name">Name</label> <input type="text" value="" class="form-control tip" id="add_new_payment_name" required="required" />
+                                 </div>                                 
+ 
+                                <div class="form-group">
+                                    <label for="first_name">Code</label> <input type="text" value="" class="form-control tip" id="add_new_payment_code" required="required" />
+                                 </div>                                 
+
+
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addPaymentMode()" class="btn btn-primary">Add Mode</button>
+
+                                    <button  class="btn btn-default" onclick="hideNewPaymentMode()" >Cancel</button>
+
+
+                                 </div>
+                              
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Billing Modes : Actions -->
+                <div style="display: none" id="newModeArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add New Billing Mode</h3>
+                           </div>
+                           <div class="col-lg-12">
+
+                                 <div class="form-group">
+                                    <label for="first_name">Name</label> <input type="text" value="" class="form-control tip" id="add_new_mode_name" required="required" />
+                                 </div>                                 
+
+                                 <div class="form-group">
+                                    <label for="group">Type</label> 
+                                    <select name="group" id="add_new_mode_type" class="form-control input-tip select2" style="width:100%;">
+                                       <option value="DINE" selected="selected">Dine In or Table Service</option>
+                                       <option value="DELIVERY">Delivery</option>
+                                       <option value="PARCEL">Parcel or Take Away</option>
+                                       <option value="TOKEN">Token based Self Service</option>                                      
+                                    </select>
+                                 </div>
+
+                                 <div class="form-group">
+                                    <label for="value">Applicable Extras</label> 
+                                    <div id="selectedBillingModeExtras"></div>
+
+                                    <p style="font-size: 14px; padding: 0; color: #168c9a; margin: 5px 0" id="extrasList"></p>
+                                 </div>   
+                                 <div class="form-group">
+                                    <label for="group">Is Discountable?</label> 
+                                    <select name="group" id="add_new_mode_discountable" class="form-control input-tip select2" style="width:100%;">
+                                       <option value="YES" selected="selected">Yes</option>
+                                       <option value="NO">No</option>
+                                    </select>
+                                 </div>
+
+                                 <div class="form-group">
+                                    <label for="first_name">Max. Discount Amount</label> <input type="number" value="2000" class="form-control tip" id="add_new_mode_maxDisc" required="required" />
+                                 </div>     
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addMode()" class="btn btn-primary">Add Mode</button>
+
+                                    <button  class="btn btn-default" onclick="hideNewMode()" >Cancel</button>
+
+
+                                 </div>
+
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Billing Extras : Actions -->
+                <div style="display: none" id="newBillArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add Billing Parameter</h3>
+                           </div>
+                           <div class="col-lg-12">
+
+                                 <div class="form-group">
+                                    <label for="first_name">Name</label> <input type="text" value="" class="form-control tip" id="add_new_param_name" required="required" />
+                                 </div>                                 
+                                 <div class="form-group">
+                                    <label for="group">Exclude on Packaged Items</label> 
+                                    <p style="margin: -5px 0 10px 0; color: gray; font-size: 11px;">Packaged Items being sold at its MRP, already includes the taxes and container charges - for example Pepsi Can. Do you want to exclude this charge on such items?</p>
+                                    <select name="group" id="add_new_param_compulsary" class="form-control input-tip select2" style="width:100%;">
+                                       <option value="YES">Yes</option>
+                                       <option value="NO" selected="selected">No</option>
+                                    </select>
+                                 </div>
+
+                                 <div class="form-group">
+                                    <label for="value">Standard Value</label> <input type="number" value="0.00" class="form-control tip" id="add_new_param_value" required="required" />
+                                 </div>
+                                 <div class="form-group">
+                                    <label for="unit">Unit</label> 
+                                    <select name="unit" id="add_new_param_unit" class="form-control input-tip select2" style="width:100%;">
+                                       <option value="PERCENTAGE" selected="selected">Percentage (%)</option>
+                                       <option value="FIXED">Fixed Amount (Rs)</option>
+                                    </select>
+                                 </div>
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addParameter()" class="btn btn-primary">Add Parameter</button>
+
+                                    <button  class="btn btn-default" onclick="hideNewBill()" >Cancel</button>
+
+
+                                 </div>
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                  </div>
+               </div>
+
+
+        
+        </div>
+
+
+
+
+
+      <!-- Modal -->
+      <div id="customImageHeaderModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <button  onclick="viewHeaderImageContentHide()" style="float: right;" class="btn clearButton">X</button>
+                  <h4 class="modal-title">Header Image (Data URL)</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+
+                     <div class="row">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <input type="text" value="" placeholder="Logo Data URL" style="border: none; border-bottom: 1px solid" class="form-control tip" id="header_image_data_url_custom"/>
+                           </div>
+                        </div>
+                     </div>
+
+               </div>
+               <div class="modal-footer">
+                  <button  class="btn btn-default" onclick="viewHeaderImageContentHide()" style="float: left">Cancel</button>
+                  <button  class="btn btn-success" onclick="headerImageContentSave()">Save</button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+      <!-- Modal -->
+      <div id="settingsDeleteConfirmation" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Confirm Delete</h1> </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px">
+                <p style="font-size: 16px; margin: 0; color: #e74c3c;" id="settingsDeleteConfirmationText"></P>
+               </div>
+               <div class="modal-footer" style="border: none; padding-top: 0" id="settingsDeleteConfirmationConsent">
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+
+</template>

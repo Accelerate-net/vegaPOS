@@ -1,0 +1,16 @@
+{
+  "_id": "ZAITOON_DISCOUNT_TYPES",
+  "identifierTag": "ZAITOON_DISCOUNT_TYPES",
+  "value": [
+    {
+      "name": "Loyal Customer",
+      "maxDiscountUnit": "PERCENTAGE",
+      "maxDiscountValue": 10
+    },
+    {
+      "name": "Partners Guest",
+      "maxDiscountUnit": "PERCENTAGE",
+      "maxDiscountValue": 20
+    }
+  ]
+}

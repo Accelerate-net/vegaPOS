@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <style type="text/css">
+ 
+      	body{
+      		font-family: sans-serif;
+      	}
+
+         #logo{
+	         background: url(../data/photos/brand/invoice-logo.png) no-repeat center center;
+	         min-height: 70px; 
+	         width: 100%;
+	         background-color: none;
+         }
+         .KOTHeader{
+	         min-height: 30px;
+	         width: 100%;
+	         padding: 5px 0;
+	         background-color: none;
+	         border-bottom: 1px solid #7b7b7b;
+         }
+
+         .KOTNumberArea{
+	         min-height: 30px;
+	         width: 100%;
+	         padding: 5px 0;
+	         background-color: none;
+	         border-bottom: 1px solid #7b7b7b;
+         }
+
+
+         .KOTContent{
+	         min-height: 100px;
+	         width: 100%;
+	         background-color: none;
+	         font-size: 11px;
+	         padding-top: 6px;
+	         border-bottom: 2px solid;
+
+         }
+         .KOTSummary{
+	         font-size: 11px;
+	         width: 100%;
+	         background-color: none;
+	         padding: 5px 0;
+	         border-bottom: 1px solid;
+
+         }
+
+         .KOTContent tr, .KOTContent td {
+            border-bottom: 1px dashed;
+            padding: 5px 0;
+         }
+
+         .KOTSpecialComments{
+	         min-height: 20px;
+	         width: 100%;
+	         background-color: none;
+            padding: 5px 0;
+
+         }
+
+         .subLabel{
+         	    display: block;
+			    font-size: 8px;
+			    font-weight: 300;
+			    text-transform: uppercase;
+			    letter-spacing: 2px;
+			    font-family: sans-serif;
+			    margin-bottom: 5px;
+
+         }
+         p{
+         	margin: 0;
+         }
+         .serviceType{
+         	    border: 1px solid;
+			    padding: 4px;
+			    font-size: 12px;
+			    display: block;
+			    text-align: center;
+			    margin-bottom: 8px;
+         }
+
+         .tokenNumber{
+         	display: block; font-size: 16px; font-weight: bold;
+         }
+
+         .billingAddress{
+         		display: block;
+         	    font-size: 12px;
+			    font-weight: 300;
+			    line-height: 1.2em;
+         }
+
+         .mobileNumber{
+         		display: block;
+         		margin-top: 8px;
+         		font-size: 12px;
+         }
+
+         .timeStamp{
+         		display: block;
+         		font-size: 11px;
+         		font-weight:300;
+         }
+
+         .KOTNumber{
+         	letter-spacing: 2px;
+		    font-size: 15px;
+		    font-weight: bold;
+		}
+
+		.timeDisplay{
+			font-size: 75%;
+			display: block;
+		}
+
+		.commentsSubText{
+			font-size: 12px;
+         font-style: italic;
+			font-weight: 300;
+			display: block;
+		}
+
+		.paymentSubHead{
+			font-size: 12px; 
+			font-weight: bold;
+			display: block;
+		}
+
+		.qrCode{
+			width: 100%; max-width: 120px; text-align: right
+		}
+
+		.addressText{
+			font-size: 10px;
+			color: gray;
+			padding: 5px 0;
+			text-align: center;
+		}
+		.addressContact{
+			font-size: 9px;
+			color: gray;
+			padding: 0 0 5px 0;
+			text-align: center;
+		}
+
+		.attendantName{
+			font-weight: 300;
+			font-size: 12px;
+		}
+
+      .itemOldComments{
+         display: block;
+          font-style: italic;
+          margin-left: 10px;
+          text-decoration: line-through;
+      }
+
+      .itemComments{
+         display: block;
+          font-style: italic;
+          font-weight: bold;
+          margin-left: 10px;
+      }
+
+      .itemQuantity{
+         font-size: 12px;
+         font-weight: bold;
+         display: block;
+      }
+
+      .itemOldQuantity{
+         font-size: 12px;
+         text-decoration: line-through;
+         display: block;
+
+      }
+
+      </style>
+   </head>
+   <body>
+      <div id="logo">
+      </div>
+      <div class="KOTHeader">
+         <table style="width: 100%">
+            <col style="width: 33%">
+            <col style="width: 33%">
+            <col style="width: 33%">
+            <tr>
+               <td style="vertical-align: top">
+                  <p>
+                     <tag class="subLabel" style="margin: 5px 0 0 0">STEWARD</tag>
+                     <tag class="attendantName">Anas Jafry</tag>
+                  </p>
+               </td>
+               <td style="vertical-align: top">
+                  <p>
+                     <tag class="serviceType">Service</tag>
+                  </p>
+                  <tag></tag>
+               </td>
+               <td style="vertical-align: top">
+                  <p style=" text-align: right; float: right">
+                     <tag class="subLabel">Token No</tag>
+                     <tag class="tokenNumber">103</tag>
+                  </p>
+                  <tag></tag>
+               </td>
+            </tr>
+         </table>
+         
+      </div>
+
+      <div class="KOTNumberArea">
+
+         <table style="width: 100%">
+            <col style="width: 60%">
+            <col style="width: 40%">
+            <tr>
+               <td style="vertical-align: top">
+		      	<p>
+		      		<tag class="subLabel">KOT NO</tag>
+		      		<tag class="KOTNumber">131444</tag>
+		      	</p>
+               </td>
+               <td style="vertical-align: top">
+                  <p style=" text-align: right; float: right">
+                     <tag class="subLabel">TIME STAMP</tag>
+                     <tag class="timeStamp">03:00 PM<time class="timeDisplay">13th March, 2018</time></tag>
+                  </p>
+                  <tag></tag>
+               </td>
+            </tr>
+         </table>
+
+
+
+      </div>
+      <div class="KOTContent">
+         <table style="width: 100%">
+            <col style="width: 80%">
+            <col style="width: 20%">
+            <tr>
+               <td>Malabar Chicken Biriyani
+                  <comments class="itemOldComments">add extra raita</comments>
+                  <newcomments class="itemComments">add extra spicy raita</newcomments>
+               </td>
+               <td style="text-align: right">
+                  <p>
+                     <tag class="itemQuantity">2</tag>
+                  </p>
+               </td>
+            </tr>
+            <tr>
+               <td>Barbeque Spicy (Single)</td>
+               <td style="text-align: right">
+                  <p>
+                     <tag class="itemOldQuantity">1</tag>
+                     <tag class="itemQuantity">2</tag>
+                  </p>
+            </td>
+            </tr>
+         </table>
+      </div>
+      <div class="KOTSummary">
+         <table style="width: 100%">
+            <col style="width: 80%">
+            <col style="width: 20%">
+            <tr>
+               <td>Number of Items</td>
+               <td style="text-align: right;">2</td>
+            </tr>
+            <tr>
+               <td>Total Quantity</td>
+               <td style="text-align: right;">3</td>
+            </tr>
+         </table>
+      </div>
+      <div class="KOTSpecialComments">
+       <table style="width: 100%">
+            <col style="width: 100%">
+            <tr>
+               <td style="vertical-align: top">
+               		<p>
+               			<tag class="subLabel">SPECIAL COMMENTS</tag>
+               			<tag class="commentsSubText">Get 5% off next time when you pay online!</tag>
+               		</p>	
+               </td>
+            </tr>
+         </table>
+      </div>
+
+   </body>
+</html>

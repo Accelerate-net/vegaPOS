@@ -1,0 +1,22 @@
+{
+  "_id": "ZAITOON_PAYMENT_MODES",
+  "identifierTag": "ZAITOON_PAYMENT_MODES",
+  "value": [
+    {
+      "name": "Cash",
+      "code": "CASH"
+    },
+    {
+      "name": "Debit Card",
+      "code": "DCARD"
+    },
+    {
+      "name": "American Express",
+      "code": "AMEX"
+    },
+    {
+      "name": "Razorpay",
+      "code": "PREPAID"
+    }
+  ]
+}

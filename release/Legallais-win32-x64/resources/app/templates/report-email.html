@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <style type="text/css">
+ 
+      	body{
+      		font-family: sans-serif;
+            margin: 0;
+      	}
+
+         #logo{
+	         min-height: 60px; 
+	         width: 100%;
+         }
+
+         /*MAIN HEADER*/
+         .mainHeader{
+            background: #c63931; width: 100%; min-height: 95px; padding: 10px 0;
+            border-bottom: 2px solid #a8302b;
+            
+            background-image: url('https://zaitoon.online/por/pattern.jpg');
+
+            background-repeat: repeat;
+
+         }
+
+         .headerLeftBox{
+            width: 55%; display: inline-block; padding-left: 25px
+         }
+
+         .headerRightBox{
+            width: 35%; float: right; display: inline-block; text-align: right; padding-right: 25px
+         }
+
+
+         .headerAddress{
+            margin: 0 0 5px 0; font-size: 14px; color: #e4a1a6;
+         }
+
+         .headerBranch{
+            margin: 10px 0; font-weight: bold; text-transform: uppercase; font-size: 21px; padding: 3px 8px; color: #c63931; display: inline-block; background: #FFF;
+         }
+
+         .headerAdmin{
+            margin: 0 0 3px 0; font-size: 16px; color: #FFF;
+         }
+
+         .headerTimestamp{
+            margin: 0 0 5px 0; font-size: 12px; color: #e4a1a6;
+         }
+
+         /*FACTS AND TITLE*/
+         .reportTitle{
+            margin: 15px 0; font-size: 26px; font-weight: 400; text-align: center; color: #3498db;
+         }
+
+         .introFacts{
+            background: none; width: 100%; min-height: 95px; padding: 10px 0
+         }
+
+         .factsArea{
+            display: block; padding: 10px 25px; text-align: center
+         }
+
+         .factsBox{
+             width: 20%;
+             display: inline-block;
+             text-align: left;
+             padding: 20px 15px;
+             border: 2px solid #a8302b;
+             border-radius: 5px;
+             color: #FFF;
+             height: 65px;
+             background: #c63931;
+         }
+
+         .factsBoxFigure{
+            margin: 0 0 8px 0; font-weight: bold; font-size: 32px;
+         }
+
+         .factsBoxFigure .factsPrice{
+            font-weight: 400; font-size: 40%; color: #e4a1a6; margin-left: 2px
+         }
+
+         .factsBoxBrief{
+            margin: 0; font-size: 16px; color: #F1C40F; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
+         }
+
+
+         /*SUMMARY TABLES*/
+         .summaryTableSection{
+            padding: 0 25px;
+            margin-top: 30px;
+         }
+
+         .summaryTableSection table {
+            border-collapse: collapse;
+         }
+         .summaryTableSection td {
+            border-bottom: 1px solid #fdebed;
+         }
+
+         .tableQuickHeader{
+             min-height: 40px;
+             background: #c63931;
+             border-bottom: 3px solid #a8302b;
+             border-top-right-radius: 15px;
+             color: #FFF;
+         }
+
+         .tableQuickHeaderText{
+            margin: 0 0 0 25px; font-size: 18px; letter-spacing: 2px; text-transform: uppercase; padding-top: 10px; font-weight: bold;
+         }
+         
+         .tableQuickBrief{
+            padding: 10px; font-size: 16px; color: #a71a14;
+         }
+
+         .tableQuickAmount{
+            padding: 10px; font-size: 18px; text-align: right; color: #a71a14;
+         }
+
+         .tableQuickAmount .price{
+            font-size: 70%;
+            margin-right: 2px;
+         }
+
+         .tableGraphRow{
+            position: relative;
+         }
+
+         .tableGraph_Graph{
+                width: 30%;
+                display: inline-block;
+                text-align: center;
+                float: right;
+                margin-top: 30px;
+         }
+
+         .tableGraph_Table{
+            padding: 10px; width: 65%; display: inline-block
+         }
+
+
+         .weeklyGraph{
+             text-align: center;
+             padding: 25px;
+             border: 1px solid #f2f2f2;
+             margin: 0;
+             border-top: none;
+         }
+
+         /*FOOTER*/
+         .footerNote{
+            text-align: center;
+            font-size: 12px;
+            color: #595959;
+            margin: 0;
+         }
+
+      </style>
+   </head>
+   <body>
+
+    
+      <div class="mainHeader">
+         <div class="headerLeftBox">
+            <div id="logo">
+               <img src="https://zaitoon.online/por/email_logo.png">
+            </div>
+            <p class="headerAddress">Zaitoon Multicuisine 1, Vantage Building, Mahatma Gandhi Road, Subramaniam Colony, Adyar, Chennai - 41</p>
+         </div>
+         <div class="headerRightBox">
+            <h1 class="headerBranch">IIT MADRAS</h1>
+            <p class="headerAdmin">Sahadudheen</p>
+            <p class="headerTimestamp">03:01 AM, 28-08-2018</p>
+         </div>
+      </div>
+
+
+      <div class="introFacts">
+         <h1 class="reportTitle">Sales Report of <b>2nd February, 2018 - Sunday</b></h1>
+         
+         <div class="factsArea">
+            <div class="factsBox">
+               <h1 class="factsBoxFigure">134123.00<tag class="factsPrice">INR</tag></h1>
+               <p class="factsBoxBrief">Gross Sales</p>
+            </div>
+
+            <div class="factsBox">
+               <h1 class="factsBoxFigure">131013.00<tag class="factsPrice">INR</tag></h1>
+               <p class="factsBoxBrief">Net Sales</p>
+            </div>
+
+            <div class="factsBox">
+               <h1 class="factsBoxFigure">381</h1>
+               <p class="factsBoxBrief">Guests</p>
+            </div>
+
+            <div class="factsBox">
+               <h1 class="factsBoxFigure">249</h1>
+               <p class="factsBoxBrief">Bills</p>
+            </div>
+
+         </div>
+
+      </div>
+
+
+
+
+   <div class="summaryTableSection">
+
+      <div class="tableQuickHeader">
+         <h1 class="tableQuickHeaderText">WEEKLY SALES PERFORMANCE</h1>
+      </div>
+      <div class="weeklyGraph">
+            <img src="../images/test3.png" style="max-width: 80%">
+      </div>
+   </div>
+
+
+
+   <div class="summaryTableSection">
+
+      <div class="tableQuickHeader">
+         <h1 class="tableQuickHeaderText">Quick Summary</h1>
+      </div>
+
+      <div style="padding: 10px">
+         <table style="width: 100%">
+            <col style="width: 70%">
+            <col style="width: 30%">
+            <tr>
+               <td class="tableQuickBrief" style="font-weight: bold;">Net Sales Worth</td>
+               <td class="tableQuickAmount" style="font-weight: bold;"><tag class="price">Rs.</tag>120249</td>
+            </tr>
+            <tr>
+               <td class="tableQuickBrief">Total Tips Received</td>
+               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>540</td>
+            </tr>
+            <tr>
+               <td class="tableQuickBrief">Total Round Off Amount</td>
+               <td class="tableQuickAmount">- <tag class="price">Rs.</tag>241</td>
+            </tr>
+            <tr>
+               <td class="tableQuickBrief">Total Discounts Offered</td>
+               <td class="tableQuickAmount">- <tag class="price">Rs.</tag>3402</td>
+            </tr>
+            <tr>
+               <td class="tableQuickBrief">SGST</td>
+               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>12001</td>
+            </tr>
+            <tr>
+               <td class="tableQuickBrief">CGST</td>
+               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>12001</td>
+            </tr>
+            <tr>
+               <td class="tableQuickBrief">Service Charges</td>
+               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>6738</td>
+            </tr>
+            <tr>
+               <td class="tableQuickBrief">Container Charges</td>
+               <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>2429</td>
+            </tr>
+            <tr>
+               <td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Sales</td>
+               <td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><tag class="price">Rs.</tag>25895</td>
+            </tr>
+         </table>
+      </div>
+
+   </div>
+
+
+   <div class="summaryTableSection">
+
+      <div class="tableQuickHeader">
+         <h1 class="tableQuickHeaderText">ORDER WISE SUMMARY</h1>
+      </div>
+
+
+      <div class="tableGraphRow">
+
+
+         <div class="tableGraph_Graph">
+            <img src="../images/test1.png">
+         </div>
+
+         <div class="tableGraph_Table">
+            <table style="width: 100%">
+               <col style="width: 70%">
+               <col style="width: 30%">
+               <tr>
+                  <td class="tableQuickBrief" style="font-weight: bold;">Net Sales Worth</td>
+                  <td class="tableQuickAmount" style="font-weight: bold;"><tag class="price">Rs.</tag>120249</td>
+               </tr>
+               <tr>
+                  <td class="tableQuickBrief">Total Tips Received</td>
+                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>540</td>
+               </tr>
+               <tr>
+                  <td class="tableQuickBrief">Total Round Off Amount</td>
+                  <td class="tableQuickAmount">- <tag class="price">Rs.</tag>241</td>
+               </tr>
+               <tr>
+                  <td class="tableQuickBrief">Total Discounts Offered</td>
+                  <td class="tableQuickAmount">- <tag class="price">Rs.</tag>3402</td>
+               </tr>
+               <tr>
+                  <td class="tableQuickBrief">SGST</td>
+                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>12001</td>
+               </tr>
+               <tr>
+                  <td class="tableQuickBrief">CGST</td>
+                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>12001</td>
+               </tr>
+               <tr>
+                  <td class="tableQuickBrief">Service Charges</td>
+                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>6738</td>
+               </tr>
+               <tr>
+                  <td class="tableQuickBrief">Container Charges</td>
+                  <td class="tableQuickAmount">+ <tag class="price">Rs.</tag>2429</td>
+               </tr>
+               <tr>
+                  <td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Sales</td>
+                  <td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><tag class="price">Rs.</tag>25895</td>
+               </tr>
+            </table>
+         </div>
+
+
+   </div>
+
+   </div>
+
+
+   <div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">
+      <p class="footerNote">care@zaitoon.online | www.zaitoon.online | support@accelerate.net.in</p>
+   </div>
+
+   </body>
+</html>
+
