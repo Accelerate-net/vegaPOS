@@ -23,7 +23,16 @@ function timedUpdate () {
 
 timedUpdate();
 
+//Disable ' key --> JSON Safe
+function enableJSONSafe(){
+          $(document).on('keydown',  function (e) {
+                 if(e.which == 222){
+                  e.preventDefault();
+                }
+          });  
+}
 
+enableJSONSafe();
 
 // Render SIDE NAVIGATION bar
 function renderSideNavigation(){
