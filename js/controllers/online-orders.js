@@ -370,7 +370,7 @@ function fetchSystemOrder(encodedMapping){
 
 function showRemoveInvoiceMapping(mappingObject, optionalPageRef){
 	document.getElementById("removeOnlineOrderInvoiceModal").style.display = 'block';
-	document.getElementById("removeOnlineOrderInvoiceText").innerHTML = 'Order #'+mappingObject.onlineOrder+' is now found on the Server. This order would have been Cancelled or Removed. Do you want to erase this mapping?';
+	document.getElementById("removeOnlineOrderInvoiceText").innerHTML = 'Order #'+mappingObject.onlineOrder+' is not found on the Server. This order would have been Cancelled or Removed. Do you want to erase this mapping?';
 	document.getElementById("removeOnlineOrderInvoiceConsent").innerHTML = '<button  class="btn btn-default" onclick="showRemoveInvoiceMappingHide()" style="float: left">Hide</button>'+
                                 '<button  class="btn btn-danger" onclick="removeMappingFromFile(\''+mappingObject._id+'\', \''+mappingObject._rev+'\')">Erase Mapping</button>';
 	
@@ -699,15 +699,15 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 			if(orderObj.orderDetails.modeType == 'DELIVERY'){
 				if(mappingObject.systemStatus == 1){ //Not billed yet --> Option for Cancel
 					if(mappingObject.onlineStatus == 1){
-						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="dispatchOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Dispatch Now</button> </div> </div>';
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Remove</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="dispatchOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Dispatch Now</button> </div> </div>';
 					}
 					else if(mappingObject.onlineStatus == 2){
-						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> </div>';
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Remove</button> </div> <div class="col-xs-2"> </div> </div>';
 					}
 				}
 				else{
 					if(mappingObject.onlineStatus == 1){
-						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" disabled>Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="dispatchOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Dispatch Now</button> </div> </div>';
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Remove</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="dispatchOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Dispatch Now</button> </div> </div>';
 					}
 					else if(mappingObject.onlineStatus == 2){
 						document.getElementById("responseActionsBar").innerHTML = '';
@@ -717,15 +717,15 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 			else if(orderObj.orderDetails.modeType == 'PARCEL'){
 				if(mappingObject.systemStatus == 1){ //Not billed yet --> Option for Cancel
 					if(mappingObject.onlineStatus == 1){
-						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="markReadyOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Order Ready</button> </div> </div>';
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Remove</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="markReadyOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Order Ready</button> </div> </div>';
 					}
 					else if(mappingObject.onlineStatus == 2){
-						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Cancel</button> </div> <div class="col-xs-2"> </div> </div>';
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Remove</button> </div> <div class="col-xs-2"> </div> </div>';
 					} 
 				}
 				else{
 					if(mappingObject.onlineStatus == 1){
-						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" disabled>Cancel</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="markReadyOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Order Ready</button> </div> </div>';
+						document.getElementById("responseActionsBar").innerHTML = '<div class="row" style="margin-top: 10px"> <div class="col-xs-5"> <button class="btn btn-danger btn-sm" style="float: left" onclick="cancelOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Remove</button> </div> <div class="col-xs-2"> </div> <div class="col-xs-5"> <button class="btn btn-success btn-sm" style="float: right" onclick="markReadyOnlineOrder(\''+encodeURI(JSON.stringify(mappingObject))+'\')">Order Ready</button> </div> </div>';
 					}
 					else if(mappingObject.onlineStatus == 2){
 						document.getElementById("responseActionsBar").innerHTML = '';
@@ -739,6 +739,12 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 
 function cancelOnlineOrder(encodedMapping){
 	var mappingObject = JSON.parse(decodeURI(encodedMapping));
+
+	document.getElementById("removeOnlineOrderInvoiceModal").style.display = 'block';
+	document.getElementById("removeOnlineOrderInvoiceText").innerHTML = 'Are you sure want to erase this mapping for Order #'+mappingObject.onlineOrder+'? It will erase the order only from the local system, cancel the order on the Web Portal/App separately.';
+	document.getElementById("removeOnlineOrderInvoiceConsent").innerHTML = '<button  class="btn btn-default" onclick="showRemoveInvoiceMappingHide()" style="float: left">Hide</button>'+
+                                '<button  class="btn btn-danger" onclick="removeMappingFromFile(\''+mappingObject._id+'\', \''+mappingObject._rev+'\')">Erase Mapping</button>';
+	
 }
 
 
