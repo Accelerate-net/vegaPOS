@@ -563,7 +563,7 @@ function goProceedToActivation(){
           }
           else{
             if(data.errorCode == 404){
-              showToast(data.error, '#e74c3c');
+              showToast(data.error, '#2c3e50');
               return '';
             }
           }
@@ -1683,7 +1683,7 @@ function applySystemName(){
   }
   else{
     window.localStorage.appCustomSettings_SystemName = 'Nameless Machine';
-    document.getElementById("thisSystemName").innerHTML = 'Nameless Machine';
+    document.getElementById("thisSystemName").innerHTML = '<tag class="noSystemNameSet" onclick="renderPage(\'system-settings\', \'System Settings\'); openSystemSettings(\'configureSystem\');">Nameless Machine</tag>';
   }
 }
 
@@ -1752,7 +1752,7 @@ function pingServer(){
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
-              showToast(data.error, '#e74c3c');
+              showToast(data.error, '#2c3e50');
               return false;
             }
             return false;
@@ -1809,7 +1809,7 @@ function renderServerConnectionStatus(){
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
-              showToast(data.error, '#e74c3c');
+              showToast(data.error, '#2c3e50');
               document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Re-authenticate</tag>';
               return '';
             }
@@ -1871,7 +1871,7 @@ function getServerConnectionStatus(){
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
-              showToast(data.error, '#e74c3c');
+              showToast(data.error, '#2c3e50');
               document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Re-authenticate</tag>';
               return '';
             }
@@ -1887,7 +1887,7 @@ function getServerConnectionStatus(){
     //Repeat
     var t = setTimeout(function() {
       getServerConnectionStatus()
-    }, 150000);
+    }, 60000);
   
   }
   else{

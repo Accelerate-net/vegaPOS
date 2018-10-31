@@ -110,6 +110,7 @@ function additemtocart(encodedItem, category, optionalSource){
 
 	
 	if(productToAdd.isCustom){
+		
 		//Pop up
 		
 		var i = 0;
@@ -2334,7 +2335,7 @@ function hideBillingModeSelector(){
 
 
 /*customer info*/
-function renderCustomerInfo(){
+function renderCustomerInfo(optionalSource){
 
     var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
 
@@ -2351,23 +2352,23 @@ function renderCustomerInfo(){
           if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
 
 				var holding_orders = data.docs[0].value;
-				renderCustomerInfoBeforeProcess(holding_orders);  
+				renderCustomerInfoBeforeProcess(holding_orders, optionalSource);  
           }
           else{
-            renderCustomerInfoBeforeProcess([]);  
+            renderCustomerInfoBeforeProcess([], optionalSource);  
           }
         }
         else{
-        	renderCustomerInfoBeforeProcess([]);    
+        	renderCustomerInfoBeforeProcess([], optionalSource);    
         }
       },
       error: function(data) {
-      	renderCustomerInfoBeforeProcess([]);  
+      	renderCustomerInfoBeforeProcess([], optionalSource);  
       }
     });
 }
 
-function renderCustomerInfoBeforeProcess(holding_orders){
+function renderCustomerInfoBeforeProcess(holding_orders, optionalSource){
 
 	var addressOptionsAvailable = false;
 	var addressObj; 
@@ -2599,7 +2600,7 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 							if(isTokenValid && window.localStorage.claimedTokenNumber && window.localStorage.claimedTokenNumber != ''){
 								customerInfo.mappedAddress = parseInt(window.localStorage.claimedTokenNumber);
 								selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
-								renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+								renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList, optionalSource);
 							}
 							else{ //Claim a Token from Server
 
@@ -2642,7 +2643,7 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 										customerInfo.mappedAddress = tempToken;
 										selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" onclick="setTokenManually()" style="width: 100%; text-overflow: ellipsis; overflow: hidden;">'+customerInfo.mappedAddress+'</tag>';
 
-										renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+										renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList, optionalSource);
 							          }
 							          else{
 							            showToast('Not Found Error: Token Index data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -2684,13 +2685,13 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 
 							//customerInfo.mappedAddress = parseInt(window.localStorage.claimedTokenNumber);
 							selectMappedAddressButton = '<label class="cartCustomerLabel">Token No.</label><tag id="triggerClick_TableAddressButton" class="btn btn-default" style="width: 100%; text-overflow: ellipsis; overflow: hidden; cursor: not-allowed">'+customerInfo.mappedAddress+'</tag>';
-							renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+							renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList, optionalSource);
 							
 						}						
 					} //Editing	
 
 					if(tempModeType != 'TOKEN' && tempModeType != 'PARCEL'){ /* TWEAK */
-						renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList);
+						renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList, optionalSource);
 					}
 					//Note: Because Token involves a network call delay.
 
@@ -2718,7 +2719,7 @@ function renderCustomerInfoBeforeProcess(holding_orders){
 
 
 
-function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList){
+function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMappedAddressButton, tempModeType, billingModesList, optionalSource){
 
 
 					var modalTemplate = ''+
@@ -2798,6 +2799,10 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			        // }
 
 			        window.localStorage.customerData = JSON.stringify(customerInfo);
+
+			        if(optionalSource == "FOCUS_GUEST_COUNT"){
+			        	$("#customer_form_data_count").focus();
+			        }
 
 			        renderCart();
 }
@@ -3075,8 +3080,7 @@ function setCustomerInfoTable(tableID){
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 
 	pickTableForNewOrderHide();
-	renderCustomerInfo();
-
+	renderCustomerInfo('FOCUS_GUEST_COUNT');
 
 	//re-render right panel
 	if(window.localStorage.appCustomSettings_OrderPageRightPanelDisplay && window.localStorage.appCustomSettings_OrderPageRightPanelDisplay == 'TABLE'){
@@ -4482,6 +4486,10 @@ function generateNewKOT(){
 
 	          	var selectedModeExtrasList = selectedBillingModeInfo.extras;
 	          	var cartExtrasList = [];
+
+	          	if(selectedModeExtrasList == undefined){
+	          		showToast("Something went wrong. Select Billing Mode again.", '#e74c3c');
+	          	}
 
 	          	var n = 0;
 	          	var m = 0;
@@ -7037,34 +7045,54 @@ function openItemWiseCommentModal(itemCode, variant){
 						        return;
 						    }
 
-						    var regex = new RegExp(searchField, "i");
-						    var renderContent = '';
-						    var count = 0;
+						    var name_regex = new RegExp("^"+ searchField, "i");
+						   
 						    var tabIndex = 1;
 						    var itemsRenderList = '';
+						    var itemsRenderAppendList = '';
 
 						    $.each(suggestionsDataList, function(key_1, suggestionItem) {
 						    	
-						    		itemsRenderList = '';
-						    		count = 0;
+									var suggestion_splits = suggestionItem.split(" ");
+					    	 		var total_words = suggestion_splits.length;
 
-							        if ((suggestionItem.search(regex) != -1)) {
-							        	tabIndex = -1;
-							  			itemsRenderList += '<li class="ui-menu-item" onclick="addFromSuggestions(\''+suggestionItem+'\', \'SUGGESTION_LIST\'); " tabindex="'+tabIndex+'">'+suggestionItem+'</li>'
-							            count++;
-							            tabIndex++;
-							        }
-							           		
+					    	 		if(total_words == 1){
+					    	 			if(suggestionItem.search(name_regex) != -1){
+					    	 				tabIndex = -1;
+								  			itemsRenderList += '<li class="ui-menu-item" onclick="addFromSuggestions(\''+suggestionItem+'\', \'SUGGESTION_LIST\'); " tabindex="'+tabIndex+'">'+suggestionItem+'</li>'
+								            count++;
+								            tabIndex++;
+					    	 			}
+					    	 		}
+					    	 		else{ //has more than one words
 
-						    		if(count > 0){
-						    			renderContent += itemsRenderList;
-						    		}
+					    	 			//Starts with
+					    	 			if(suggestionItem.search(name_regex) != -1){
+											tabIndex = -1;
+								  			itemsRenderList += '<li class="ui-menu-item" onclick="addFromSuggestions(\''+suggestionItem+'\', \'SUGGESTION_LIST\'); " tabindex="'+tabIndex+'">'+suggestionItem+'</li>'
+								            count++;
+								            tabIndex++;
+					    	 			}
+					    	 			else{
+						    	 			for(var n = 0; n < total_words; n++){
+						    	 				if(suggestion_splits[n].search(name_regex) != -1){
+							    	 				tabIndex = -1;
+										  			itemsRenderAppendList += '<li class="ui-menu-item" onclick="addFromSuggestions(\''+suggestionItem+'\', \'SUGGESTION_LIST\'); " tabindex="'+tabIndex+'">'+suggestionItem+'</li>'
+										            count++;
+										            tabIndex++;
+
+							    	 				break;
+							    	 			}
+						    	 			}
+						    	 		}
+
+					    	 		}
 
 						    });
 
 						    
-						    if(renderContent != '')
-						    	$('#commentSuggestionsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_commentSuggestions">'+renderContent+'</ul>');
+						    if(itemsRenderList != '' || itemsRenderAppendList != '')
+						    	$('#commentSuggestionsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_commentSuggestions">'+itemsRenderList+itemsRenderAppendList+'</ul>');
 						    else
 						    	$('#commentSuggestionsRenderArea').html('');
 
@@ -7322,6 +7350,16 @@ function initMenuSuggestion(){
 
 	          	var mastermenu = data.docs[0].value; 
 
+	          	//Process whole menu (list of only Menu Items)
+	          	var menu_processed = [];
+	          	$.each(mastermenu, function(key_1, subMenu) {
+					$.each(subMenu.items, function(key_2, items) {
+						items.category = subMenu.category;
+						menu_processed.push(items);
+					});
+				});
+
+
 				/*Select on Arrow Up/Down */
 				var li = $('#searchResultsRenderArea li');
 				var liSelected = undefined;
@@ -7374,6 +7412,7 @@ function initMenuSuggestion(){
 
 				    }
 				    else if (e.which === 13) {
+
 				        /*
 				        	Add Item if the Enter Key
 							is pressed inside the Search Input
@@ -7397,40 +7436,81 @@ function initMenuSuggestion(){
 					    }
 
 					    var regex = new RegExp(searchField, "i");
-					    var renderContent = '';
+					    var name_regex = new RegExp("^" + searchField, "i");
+
 					    var count = 0;
 					    var tabIndex = 1;
 					    var itemsList = '';
+					    var itemsAppendList = '';
 
-					    $.each(mastermenu, function(key_1, subMenu) {
-					    	
-					    	itemsList = '';
-					    	count = 0;
-					    	$.each(subMenu.items, function(key_2, items) {
+					    $.each(menu_processed, function(key_2, items) {
 
 					    		if(!items.shortCode){
 					    			items.shortCode = '';
 					    		}
 
-						        if ((items.name.search(regex) != -1) || (items.price.search(regex) != -1) || (items.shortCode.search(regex) != -1)) {
-						        	tabIndex = -1;
-						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \''+subMenu.category+'\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+					    		items.itemCode = items.code.toString();
+
+								if((items.itemCode.search(regex) != -1)){
+					    	 		tabIndex = -1;
+						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
 						            count++;
 						            tabIndex++;
-						        }
-						           		
+					    	 	}
+					    	 	else if((items.shortCode.search(name_regex) != -1)){
+					    	 		tabIndex = -1;
+						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+						            count++;
+						            tabIndex++;
+					    	 	}
+					    	 	else{
 
-					    	 });
+					    	 		var item_name = items.name;
+					    	 		var item_name_splits = item_name.split(" ");
+					    	 		var total_words = item_name_splits.length;
 
-					    	if(count > 0){
-					    		renderContent += '<label class="menuSuggestionSubMenu">'+subMenu.category+'</label>'+itemsList;
-					    	}
+					    	 		if(total_words == 1){
+					    	 			if(item_name.search(name_regex) != -1){
+					    	 				
 
+					    	 				tabIndex = -1;
+								  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+								            count++;
+								            tabIndex++;
+					    	 			}
+					    	 		}
+					    	 		else{ //has more than one words
+
+					    	 			//Starts with
+					    	 			if(item_name.search(name_regex) != -1){
+
+					    	 				tabIndex = -1;
+								  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+								            count++;
+								            tabIndex++;
+					    	 			}
+					    	 			else{
+						    	 			for(var n = 0; n < total_words; n++){
+						    	 				if(item_name_splits[n].search(name_regex) != -1){
+							    	 				tabIndex = -1;
+										  			//Append to LAST 
+										  			itemsAppendList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+										            count++;
+										            tabIndex++;
+
+							    	 				break;
+							    	 			}
+						    	 			}
+						    	 		}
+
+					    	 		}
+					    	 	}
 					    });
 
-					    
-					    if(renderContent != '')
-					    	$('#searchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+renderContent+'</ul>');
+
+						//Render the list
+					    if(itemsList != '' || itemsAppendList != '')
+					    	$('#searchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+itemsList+itemsAppendList+'</ul>');
 					    else
 					    	$('#searchResultsRenderArea').html('');
 
