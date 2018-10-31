@@ -4860,7 +4860,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
           if(data.docs[0].identifierTag == 'ZAITOON_KOT_INDEX'){
 
 	          var num = parseInt(data.docs[0].value) + 1;
-	          var kot = 'KOT' + num;
+	          var kot = 'K' + num;
 
 	          var memory_revID = data.docs[0]._rev;
 	         

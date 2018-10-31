@@ -335,7 +335,7 @@ if(type == 'BILL'){
             billHeaderRender = userInfo +                
                         '<td style="vertical-align: top">'+
                            '<p style=" text-align: right; float: right">'+
-                              '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
+                              '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY '+orderObject.KOTNumber+'</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
                               '<tag class="subLabel">Order No</tag>'+
                               '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
                               '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
@@ -348,7 +348,7 @@ if(type == 'BILL'){
              billHeaderRender = userInfo +                
                         '<td style="vertical-align: top">'+
                            '<p style=" text-align: right; float: right">'+
-                              '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag><tag style="display: block; padding: 2px;">CASH</tag></tag>'+
+                              '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY '+orderObject.KOTNumber+'</tag><tag style="display: block; padding: 2px;">CASH</tag></tag>'+
                               '<tag class="subLabel">Order No</tag>'+
                               '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
                               '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
@@ -364,7 +364,7 @@ if(type == 'BILL'){
                            '<tag class="billingAddress">'+
                            (orderObject.customerName != '' ? orderObject.customerName+'<br>' : '')+
                            (orderObject.customerMobile != '' ? '<tag class="mobileNumber">Mob. <b>'+orderObject.customerMobile+'</b>' : '')+ '</tag>'+
-                           '<tag class="serviceType" style="border-radius: 3px; font-size: 80%; display: inline-block; margin: 10px 0 0 0;">PARCEL</tag>'+
+                           '<tag class="serviceType" style="border-radius: 3px; font-size: 80%; display: inline-block; margin: 10px 0 0 0;">PARCEL'+(orderObject.table && orderObject.table != "" ? ' #'+orderObject.table : '')+'</tag>'+
                         '</p>'+
                      '</td>';  
 
@@ -648,7 +648,7 @@ if(orderObject.orderDetails.modeType == 'DELIVERY'){
       billHeaderRender = userInfo +                
                   '<td style="vertical-align: top">'+
                      '<p style=" text-align: right; float: right">'+
-                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
+                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY '+orderObject.KOTNumber+'</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
                         '<tag class="subLabel">Order No</tag>'+
                         '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
                         '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
@@ -661,7 +661,7 @@ if(orderObject.orderDetails.modeType == 'DELIVERY'){
        billHeaderRender = userInfo +                
                   '<td style="vertical-align: top">'+
                      '<p style=" text-align: right; float: right">'+
-                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag><tag style="display: block; padding: 2px;">CASH</tag></tag>'+
+                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY '+orderObject.KOTNumber+'</tag><tag style="display: block; padding: 2px;">CASH</tag></tag>'+
                         '<tag class="subLabel">Order No</tag>'+
                         '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
                         '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
@@ -894,7 +894,7 @@ var html_template = ''+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
-                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'EXECUTIVE')+'</tag>'+
                      '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
                   '</p>'+
                '</td>'+
@@ -1037,7 +1037,7 @@ var html_template = ''+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
-                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'EXECUTIVE')+'</tag>'+
                      '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
                   '</p>'+
                '</td>'+
@@ -1181,7 +1181,7 @@ var html_template = ''+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
-                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'EXECUTIVE')+'</tag>'+
                      '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
                   '</p>'+
                '</td>'+
@@ -1349,7 +1349,7 @@ var html_template = ''+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
-                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'EXECUTIVE')+'</tag>'+
                      '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
                   '</p>'+
                '</td>'+
@@ -1491,7 +1491,7 @@ var html_template = ''+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
-                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'EXECUTIVE')+'</tag>'+
                      '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
                   '</p>'+
                '</td>'+
@@ -1759,7 +1759,7 @@ var html_template = ''+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
-                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'STEWARD')+'</tag>'+
+                     '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'EXECUTIVE')+'</tag>'+
                      '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
                   '</p>'+
                '</td>'+
