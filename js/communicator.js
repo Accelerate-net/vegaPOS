@@ -364,7 +364,7 @@ if(type == 'BILL'){
                            '<tag class="billingAddress">'+
                            (orderObject.customerName != '' ? orderObject.customerName+'<br>' : '')+
                            (orderObject.customerMobile != '' ? '<tag class="mobileNumber">Mob. <b>'+orderObject.customerMobile+'</b>' : '')+ '</tag>'+
-                           '<tag class="serviceType" style="border-radius: 3px; font-size: 80%; display: inline-block; margin: 10px 0 0 0;">PARCEL'+(orderObject.table && orderObject.table != "" ? ' #'+orderObject.table : '')+'</tag>'+
+                           '<tag class="serviceType" style="border-radius: 3px; font-size: 80%; display: inline-block; margin: 10px 0 0 0;"><span style="text-transform: uppercase">'+orderObject.orderDetails.mode+'</span> '+(orderObject.table && orderObject.table != "" ? ' #'+orderObject.table : '')+'</tag>'+
                         '</p>'+
                      '</td>';  
 
@@ -600,7 +600,7 @@ if(orderObject.customExtras.amount &&  orderObject.customExtras.amount != 0){
 var discount_sum = 0;
 
 var discountList = '';
-if(orderObject.discount.amount &&  orderObject.discount.amount != 0){
+if(orderObject.discount.amount && orderObject.discount.amount != 0){
 
    discountList +=   '<tr>'+
                         '<td>Discount</td>'+
@@ -616,14 +616,15 @@ if(orderObject.discount.amount &&  orderObject.discount.amount != 0){
 var refunds_sum = 0;
 
 var refundList = '';
-if(orderObject.refundDetails.amount &&  orderObject.refundDetails.amount != 0){
+if(orderObject.refundDetails){
+   if(orderObject.refundDetails.amount != 0){
+      refundList +=  '<tr>'+
+                        '<td style="font-weight: bold; text-transform: uppercase">Refunded Amount</td>'+
+                        '<td style="text-align: right; font-size: 21px; font-weight: bold">- <rs class="rs">Rs.</rs>'+orderObject.refundDetails.amount+'</td>'+
+                     '</tr>';
 
-   refundList +=  '<tr>'+
-                     '<td style="font-weight: bold; text-transform: uppercase">Refunded Amount</td>'+
-                     '<td style="text-align: right; font-size: 21px; font-weight: bold">- <rs class="rs">Rs.</rs>'+orderObject.refundDetails.amount+'</td>'+
-                  '</tr>';
-
-   refunds_sum = orderObject.refundDetails.amount;
+      refunds_sum = orderObject.refundDetails.amount;
+   }
 }
 
 
@@ -1044,7 +1045,7 @@ var html_template = ''+
                '<td style="vertical-align: top">'+
                   '<p>'+
                      '<tag class="serviceType" style="'+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? 'display: none' : '' )+'">'+(orderObject.orderDetails.modeType == 'DINE' ? 'ON TABLE' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'SELF SERVICE' : ''))+'</tag>'+
-                     '<tag class="serviceType" style="padding: 0; font-size: 10px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? '' : 'display: none' )+'"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">'+(orderObject.orderDetails.modeType == 'PARCEL' ? 'PARCEL #'+orderObject.table : (orderObject.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : ''))+'</tag>'+(orderObject.orderDetails.reference != ''  ? '<tag style="display: block; padding: 2px;">#'+orderObject.orderDetails.reference+'</tag>' : '<tag style="display: block; padding: 2px;">'+orderObject.customerName+'</tag>')+'</tag>'+
+                     '<tag class="serviceType" style="padding: 0; font-size: 10px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? '' : 'display: none' )+'"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">'+(orderObject.orderDetails.modeType == 'PARCEL' ? '<span style="text-transform: uppercase">'+orderObject.orderDetails.mode+'</span> #'+orderObject.table : (orderObject.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : ''))+'</tag>'+(orderObject.orderDetails.reference != ''  ? '<tag style="display: block; padding: 2px;">#'+orderObject.orderDetails.reference+'</tag>' : '<tag style="display: block; padding: 2px;">'+orderObject.customerName+'</tag>')+'</tag>'+
                   '</p>'+
                   '<tag>'+'</tag>'+
                '</td>'+
