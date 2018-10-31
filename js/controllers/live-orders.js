@@ -536,6 +536,8 @@ function printDuplicateKOT(kotID, optionalSource){
 
     var requestData = { "selector" :{ "KOTNumber": kotID }}
 
+    showLoading(10000, 'Fetching...');
+
     $.ajax({
       type: 'POST',
       url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
@@ -544,12 +546,14 @@ function printDuplicateKOT(kotID, optionalSource){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
+
+        hideLoading();
+        showToast('Duplicate KOT printed Successfully', '#27ae60');
+
         if(data.docs.length > 0){
           
-
                       var obj = data.docs[0];
                       
-
                       var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
                       if(isKOTRelayingEnabled){
 
@@ -773,6 +777,7 @@ function printDuplicateKOT(kotID, optionalSource){
         }
       },
       error: function(data) {
+        hideLoading();
         showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
       }
     }); 
