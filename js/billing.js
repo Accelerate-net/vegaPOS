@@ -3374,6 +3374,7 @@ function processRefundSettledBill(billNumber, optionalPageRef){
                   timeout: 10000,
                   success: function(data) {
                       showToast('Refund of <b><i class="fa fa-inr"></i>'+refundObj.amount+'</b> issued Successfully', '#27ae60');
+                      loadAllSettledBills();
                       openSelectedBill(encodedBill, 'SETTLED');
                   },
                   error: function(data) {

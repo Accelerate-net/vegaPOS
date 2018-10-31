@@ -5792,3 +5792,14 @@ input:checked + .slider:before {
   -webkit-animation-duration: 1s;
   animation-duration: 1s; 
 }
+
+.textInlineButton{
+    cursor: pointer;
+    border: 1px solid;
+    border-radius: 4px;
+    padding: 0px 6px;
+    font-weight: bold;
+    font-size: 90%;
+    display: inline-block;
+}
+

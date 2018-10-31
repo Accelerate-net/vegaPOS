@@ -6941,14 +6941,11 @@ function openItemWiseCommentModal(itemCode, variant){
 				var firstClickTracked = false;
 				var keypressCounter = 0;
 
-				console.log(keypressCounter)
-				
 				var easySelectionTool = $('#add_item_wise_comment').keyup(function(e) {
 
 					if($('#itemWiseCommentsModal').is(':visible')) {
 						
 						keypressCounter++;
-						console.log(keypressCounter)
 						
 						if(firstClick == ''){
 							firstClick = e.which;
