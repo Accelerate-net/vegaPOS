@@ -611,6 +611,22 @@ if(orderObject.discount.amount &&  orderObject.discount.amount != 0){
 }
 
 
+
+//Refunds Issued
+var refunds_sum = 0;
+
+var refundList = '';
+if(orderObject.refundDetails.amount &&  orderObject.refundDetails.amount != 0){
+
+   refundList +=  '<tr>'+
+                     '<td style="font-weight: bold; text-transform: uppercase">Refunded Amount</td>'+
+                     '<td style="text-align: right; font-size: 21px; font-weight: bold">- <rs class="rs">Rs.</rs>'+orderObject.refundDetails.amount+'</td>'+
+                  '</tr>';
+
+   refunds_sum = orderObject.refundDetails.amount;
+}
+
+
 //Render User Info
 var userInfo = '';
 var billHeaderRender = '';
@@ -789,9 +805,9 @@ var html_template = ''+
                '<td style="text-align: right;"><rs class="rs">Rs.</rs>'+sub_total+'</td>'+
             '</tr>'+ extrasList + customExtrasList + discountList +
             '<tr>'+
-               '<td style="font-weight: bold; text-transform: uppercase">Total Payable</td>'+
+               '<td style="font-weight: bold; text-transform: uppercase">Total Paid</td>'+
                '<td style="text-align: right; font-size: 21px; font-weight: bold"><rs class="rs">Rs.</rs>'+orderObject.payableAmount+'</td>'+
-            '</tr>'+
+            '</tr>'+ refundList +
          '</table>'+
       '</div>'+
       '<div class="invoiceCustomText">'+
