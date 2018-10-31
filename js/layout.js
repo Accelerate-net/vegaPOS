@@ -954,7 +954,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                      finalActivateLicence();
+                      firstTimeStub_kot_relay();
                   },
                   error: function(data) {
                       showToast('Configurations Error: Unable to create Configured Printers stub data. Please contact Accelerate Support.', '#e74c3c');
@@ -963,7 +963,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                 });  
               } 
               else{
-                finalActivateLicence();
+                firstTimeStub_kot_relay();
               }
                           
           }
@@ -980,6 +980,95 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
       },
       error: function(data) {
         showToast('Configurations Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+        return '';
+      }
+
+    });      
+  }
+
+
+
+  //Step 5 : KOT Relay Data
+  function firstTimeStub_kot_relay(){
+
+    var requestData = {"selector": { "identifierTag": "ZAITOON_KOT_RELAYING" }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+
+              var settingsList = data.docs[0].value;
+              var machineName = licenceObject.machineUID;
+
+              if(!machineName || machineName == ''){
+                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                return '';
+              }
+
+
+              var isAlreadyFound = false;
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+                    isAlreadyFound = true;
+                    break;
+                }
+              }  
+
+
+              if(!isAlreadyFound){
+                //Add stub and update
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [] }
+                settingsList.push(new_stub);
+              
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_KOT_RELAYING",
+                  "value": settingsList
+                }
+
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_RELAYING/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      finalActivateLicence();
+                  },
+                  error: function(data) {
+                      showToast('Configurations Error: Unable to create KOT Relaying stub data. Please contact Accelerate Support.', '#e74c3c');
+                      return '';
+                  }
+                });  
+              } 
+              else{
+                finalActivateLicence();
+              }
+                          
+          }
+          else{
+            showToast('Configurations Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+            return '';
+          }
+        }
+        else{
+          showToast('Configurations Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');      
+          return '';
+        }
+        
+      },
+      error: function(data) {
+        showToast('Configurations Error: Unable to read KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
         return '';
       }
 

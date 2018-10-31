@@ -257,18 +257,22 @@ function addNewPrinterProfile(){
                   flag = 1;
                   break;
                }
+               /*
+               //Allowing to add same printer with different names (for KOT Relaying)
                else if(printers[i].type == type){
                   flag = 2;
                   break;
                }
+               */
              }
 
              if(flag == 1){
                showToast('Warning: Printer Name already taken. Please set a different name.', '#e67e22');
-             }
+             }/* 
+             //Allowing to add same printer with different names (for KOT Relaying)
              else if(flag == 2){
                showToast('Warning: Printer is already registered. Please choose a different Printer.', '#e67e22');
-             }
+             }*/
              else{
 
                 printers.push(newObj);
