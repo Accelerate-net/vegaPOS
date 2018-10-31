@@ -3809,6 +3809,10 @@ function generateEditedKOT(){
 	}
 
 
+	//Check if Item Deleted or Count Decreased (only Admins can do this!)
+	var hasRestrictedEdits = false;
+
+
 	//Track changes in the KOT
 	var comparisonResult = [];
 
@@ -3850,6 +3854,8 @@ function generateEditedKOT(){
 						tempItem.newComments = changed_cart_products[i].comments;
 					}
 					comparisonResult.push(tempItem);
+
+					hasRestrictedEdits = true;
 				}
 				else{ //same qty
 					//console.log(checkingItem.name+' x '+checkingItem.qty);
@@ -3884,6 +3890,8 @@ function generateEditedKOT(){
 						tempItem.newComments = changed_cart_products[i].comments;
 					}
 					comparisonResult.push(tempItem);
+
+					hasRestrictedEdits = true;
 				}
 				else{ //same qty
 					//console.log(checkingItem.name+' x '+checkingItem.qty);
@@ -3906,6 +3914,8 @@ function generateEditedKOT(){
 							tempItem.newComments = changed_cart_products[i].comments;
 						}
 						comparisonResult.push(tempItem);
+
+						hasRestrictedEdits = true;
 					}
 					else{
 						//console.log(checkingItem.name+' x 0 (Deleted)');
@@ -3917,6 +3927,8 @@ function generateEditedKOT(){
 							tempItem.newComments = changed_cart_products[i].comments;
 						}
 						comparisonResult.push(tempItem);
+
+						hasRestrictedEdits = true;
 					}
 				}
 			}
@@ -3964,7 +3976,7 @@ function generateEditedKOT(){
 
 			//last iteration
 			if(j == changed_cart_products.length - 1){
-				generateEditedKOTAfterProcess(originalData.KOTNumber, changed_cart_products, changedCustomerInfo, comparisonResult)
+				generateEditedKOTAfterProcess(originalData.KOTNumber, changed_cart_products, changedCustomerInfo, comparisonResult, hasRestrictedEdits)
 			} 
 
 			j++;
@@ -3974,8 +3986,28 @@ function generateEditedKOT(){
 }
 
 
-function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject){
-	
+function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject, hasRestrictedEdits){
+
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+
+  if(hasRestrictedEdits && !isUserAnAdmin){
+  	showToast('No Permission: Only an Admin can reduce item quantity.', '#e67e22');
+  	return '';
+  }
+
+
     var requestData = { "selector" :{ "KOTNumber": kotID }}
 
     $.ajax({
