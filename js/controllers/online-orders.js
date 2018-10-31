@@ -1231,6 +1231,10 @@ function selectDeliveryBoyWindow(encodedMapping){
                 n++;
               }
 
+              if(renderContent == ''){
+              	renderContent = '<p style="margin: 20px 0; font-size: 16px; color: #dd4b39;">There are no Delivery Agents added yet. Please <tag class="textInlineButton" onclick="renderPage(\'user-settings\', \'User Settings\');" style="color: #1abc9c">ADD AN AGENT</tag> to continue.</p>';
+              }
+
               document.getElementById("deliveryBoysModal").style.display = 'block';
               document.getElementById("deliveryBoysModalContent").innerHTML = '<div class="modal-header" style="padding: 0; border: none"> <div class="row"><h1 style="margin: 0; font-size: 14px; color: #FFF; padding: 10px 25px; text-align: left; font-weight: bold; text-transform: uppercase; background: #607e8c;">Select a Delivery Agent</h1></div> </div> </div>'+
               										'<div style="padding: 10px 10px 5px 10px">'+renderContent + '</div></div><div class="modal-footer" style="padding: 5px 0 0 0; border: none"> <div class="row"> <button class="btn btn-default" onclick="selectDeliveryBoyWindowSystemClose()" id="deliveryBoyWindowCloseButton" style="width: 100%; height: 40px; border: none">Close</button> </div> </div> </div>';

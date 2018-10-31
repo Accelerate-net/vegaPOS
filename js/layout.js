@@ -563,7 +563,7 @@ function goProceedToActivation(){
           }
           else{
             if(data.errorCode == 404){
-              showToast(data.error, '#e74c3c');
+              showToast(data.error, '#2c3e50');
               return '';
             }
           }
@@ -757,7 +757,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ERRORS" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "resetCountersAfterReport", "value": "YES" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razor" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "Dine In" }, { "name": "scanPayEnabled", "value": "YES" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "notifications", "value": "ALL" }, { "name": "orderEditingAllowed", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "NONE" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" }] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -954,7 +954,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                      finalActivateLicence();
+                      firstTimeStub_kot_relay();
                   },
                   error: function(data) {
                       showToast('Configurations Error: Unable to create Configured Printers stub data. Please contact Accelerate Support.', '#e74c3c');
@@ -963,7 +963,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                 });  
               } 
               else{
-                finalActivateLicence();
+                firstTimeStub_kot_relay();
               }
                           
           }
@@ -980,6 +980,95 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
       },
       error: function(data) {
         showToast('Configurations Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+        return '';
+      }
+
+    });      
+  }
+
+
+
+  //Step 5 : KOT Relay Data
+  function firstTimeStub_kot_relay(){
+
+    var requestData = {"selector": { "identifierTag": "ZAITOON_KOT_RELAYING" }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+
+              var settingsList = data.docs[0].value;
+              var machineName = licenceObject.machineUID;
+
+              if(!machineName || machineName == ''){
+                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                return '';
+              }
+
+
+              var isAlreadyFound = false;
+              for(var n=0; n<settingsList.length; n++){
+                if(settingsList[n].systemName == machineName){
+                    isAlreadyFound = true;
+                    break;
+                }
+              }  
+
+
+              if(!isAlreadyFound){
+                //Add stub and update
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [] }
+                settingsList.push(new_stub);
+              
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ZAITOON_KOT_RELAYING",
+                  "value": settingsList
+                }
+
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_RELAYING/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      finalActivateLicence();
+                  },
+                  error: function(data) {
+                      showToast('Configurations Error: Unable to create KOT Relaying stub data. Please contact Accelerate Support.', '#e74c3c');
+                      return '';
+                  }
+                });  
+              } 
+              else{
+                finalActivateLicence();
+              }
+                          
+          }
+          else{
+            showToast('Configurations Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+            return '';
+          }
+        }
+        else{
+          showToast('Configurations Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');      
+          return '';
+        }
+        
+      },
+      error: function(data) {
+        showToast('Configurations Error: Unable to read KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
         return '';
       }
 
@@ -1683,7 +1772,7 @@ function applySystemName(){
   }
   else{
     window.localStorage.appCustomSettings_SystemName = 'Nameless Machine';
-    document.getElementById("thisSystemName").innerHTML = 'Nameless Machine';
+    document.getElementById("thisSystemName").innerHTML = '<tag class="noSystemNameSet" onclick="renderPage(\'system-settings\', \'System Settings\'); openSystemSettings(\'configureSystem\');">Nameless Machine</tag>';
   }
 }
 
@@ -1752,7 +1841,7 @@ function pingServer(){
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
-              showToast(data.error, '#e74c3c');
+              showToast(data.error, '#2c3e50');
               return false;
             }
             return false;
@@ -1809,7 +1898,7 @@ function renderServerConnectionStatus(){
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
-              showToast(data.error, '#e74c3c');
+              showToast(data.error, '#2c3e50');
               document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Re-authenticate</tag>';
               return '';
             }
@@ -1871,7 +1960,7 @@ function getServerConnectionStatus(){
           {
             if(data.errorCode == 404){
               window.localStorage.loggedInAdmin = "";
-              showToast(data.error, '#e74c3c');
+              showToast(data.error, '#2c3e50');
               document.getElementById('globalServerConnectionStatus').innerHTML = '<tag class="serverStatusRed"><i class="fa fa-globe"></i> Re-authenticate</tag>';
               return '';
             }
@@ -1887,7 +1976,7 @@ function getServerConnectionStatus(){
     //Repeat
     var t = setTimeout(function() {
       getServerConnectionStatus()
-    }, 150000);
+    }, 60000);
   
   }
   else{

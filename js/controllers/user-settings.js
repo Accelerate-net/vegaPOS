@@ -291,7 +291,7 @@ function addNewUserProfile(){
 	newObj.name = name;
 	newObj.code = mobile;
 	newObj.role = role;
-	newObj.password = "";
+	newObj.password = null;
 
 	if(role == '' || name == '' || mobile == ''){
 		showToast('Warning: Missing some values', '#e67e22');
@@ -302,6 +302,10 @@ function addNewUserProfile(){
 		showToast('Warning: Invalid mobile number', '#e67e22');
 		return '';
 	}
+
+  if(newObj.role == "ADMIN"){
+    newObj.password = 1234;
+  }
 
 
     var requestData = {
@@ -356,7 +360,11 @@ function addNewUserProfile(){
                   timeout: 10000,
                   success: function(data) {
 
-			            fetchAllUsersInfo(); //refresh the list
+                    if(role == 'ADMIN'){
+                      showToast('Success! You may change default password <b>1234</b>', '#27ae60');
+                    }
+
+			              fetchAllUsersInfo(); //refresh the list
 	                	hideNewUser();
                   
                   },

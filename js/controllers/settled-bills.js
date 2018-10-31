@@ -2577,7 +2577,7 @@ function openSelectedBill(encodedBill, type){
 
         if(isUserAnAdmin){
         	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
-                                  '<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+bill.billNumber+'\')">'+
+                                  '<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
     									'<path d="M0-.75h24v24H0z" fill="none"/>'+
@@ -3473,36 +3473,11 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
 
 
 //Print Duplicate Bill
-function printDuplicateBill(billNumber){
-
-	billNumber = parseInt(billNumber);
-
-    var requestData = { "selector" :{ "billNumber": billNumber }}
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(firstdata) {
-
-        if(firstdata.docs.length > 0){
-          var bill = firstdata.docs[0];
-          sendToPrinter(bill, 'DUPLICATE_BILL');
-          showToast('Duplicate Bill #'+billNumber+' generated Successfully', '#27ae60');
-        }
-        else{
-          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
-        }
-        
-      },
-      error: function(firstdata) {
-        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
-      }
-
-    });  
+function printDuplicateBill(encodedBill){
+	
+	var bill = JSON.parse(decodeURI(encodedBill));
+    sendToPrinter(bill, 'DUPLICATE_BILL');
+    showToast('Duplicate Bill #'+bill.billNumber+' generated Successfully', '#27ae60');
 }
 
 

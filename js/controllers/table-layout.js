@@ -66,8 +66,9 @@ function fetchAllTables(){
 
               var table = data.docs[0].value;
               table.sort(function(obj1, obj2) {
-                // Ascending: first age less than the previous
-                return obj1.table - obj2.table;
+                var textA = obj1.table.toUpperCase();
+                var textB = obj2.table.toUpperCase();
+                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
               });
                
 
@@ -289,8 +290,82 @@ function deleteSingleTableSection(sectionName) {
               var table = data.docs[0].value;
 
               var allFreeTables = true;
+              
+              if(table.length == 0){
+                    
+                    //Now proceed to delete
+                    var requestData = {
+                      "selector"  :{ 
+                                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+                                  },
+                      "fields"    : ["_rev", "identifierTag", "value"]
+                    }
 
-               for (var i=0; i<table.length; i++) {  
+                    $.ajax({
+                      type: 'POST',
+                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                      data: JSON.stringify(requestData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        if(data.docs.length > 0){
+                          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+
+                              var sections = data.docs[0].value;
+                              for (var i=0; i<sections.length; i++) {  
+                                if (sections[i] == sectionName){
+                                  sections.splice(i,1);
+                                  break;
+                                }
+                              }
+                                
+                              //Update
+                              var updateData = {
+                                "_rev": data.docs[0]._rev,
+                                "identifierTag": "ZAITOON_TABLE_SECTIONS",
+                                "value": sections
+                              }
+
+                              $.ajax({
+                                type: 'PUT',
+                                url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLE_SECTIONS/',
+                                data: JSON.stringify(updateData),
+                                contentType: "application/json",
+                                dataType: 'json',
+                                timeout: 10000,
+                                success: function(data) {
+                                  fetchAllTableSections();
+                                  deleteAllMappedTables(sectionName);
+                                  return '';
+                                },
+                                error: function(data) {
+                                  showToast('System Error: Unable to update Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                                }
+
+                              });  
+
+                          }
+                          else{
+                            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+                          }
+                        }
+                        else{
+                          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+                        }
+
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });     
+
+              }
+
+
+
+              for (var i=0; i<table.length; i++) {  
                  if (table[i].type == sectionName){
                     if(table[i].status != 0){
                       allFreeTables = false;
@@ -302,7 +377,6 @@ function deleteSingleTableSection(sectionName) {
                  if((i == table.length - 1) && allFreeTables){
                     
                     //Now proceed to delete
-
                     var requestData = {
                       "selector"  :{ 
                                     "identifierTag": "ZAITOON_TABLE_SECTIONS" 
