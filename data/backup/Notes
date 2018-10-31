@@ -4,6 +4,8 @@ Fixes for Version 1:
 
 Moved to Version 2:
 
+1. PHONE DELIVERY (Send SMS Updates to customers)
+2. Take measures to avoid duplicating of online orders (Disconnected ==> Dont accept/punch order)
 3. Spotlight (Customers pending)
 4. User Access (Super Admin)
 5. Add Order Source to Bill (add to Filter Invoices and Cancelled Invoices also)
@@ -14,5 +16,8 @@ Moved to Version 2:
 10. Black and White A4 Print - Reports 
 11. Optimise menu Image rendering 
 12. Update Online Menu etc. (Option in Preferences)
+12A. If an item is blocked on POS, do not accept the ONLINE ORDER. (Do a Precheck)
 13. EASY CHANGE : D for Dine Mode, T for Takeaway --> change between the billing modes
-
+14. Bill Cut
+15. [NEW FEATURE] Sharing Options (eg. Share Soup 1 by 2)
+16. Admin Passcode (Recovery options)

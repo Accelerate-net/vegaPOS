@@ -3872,6 +3872,9 @@ function processCancelRunningOrder(kotID, optionalPageRef){
             delete cancelOrderFile._rev;
 
             cancelOrderFile.cancelDetails = cancelObj;
+          
+            //Send Notice to Kitchen
+            sendCancelledKOTNotice(kot, optionalPageRef);
 
             deleteCancelledKOTFromServer(memory_id, memory_rev, memory_type, memory_table, kotID, optionalPageRef);
 
@@ -3911,6 +3914,234 @@ function processCancelRunningOrder(kotID, optionalPageRef){
     }); 
 }
 
+
+/* To print Cancellation Note to Kitchen */
+function sendCancelledKOTNotice(kot, optionalPageRef){
+
+                      var obj = kot;
+                      
+
+                      var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+                      if(isKOTRelayingEnabled){
+
+                        var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
+                        var relaySkippedItems = [];
+
+                        populateRelayRules();
+
+                        function populateRelayRules(){
+                          var n = 0;
+                          while(relayRuleList[n]){
+
+                            relayRuleList[n].subcart = [];
+
+                            for(var i = 0; i < obj.cart.length; i++){
+                              if(obj.cart[i].category == relayRuleList[n].name && relayRuleList[n].printer != ''){
+                                relayRuleList[n].subcart.push(obj.cart[i]);
+                              }
+                            } 
+
+                            if(n == relayRuleList.length - 1){
+                              generateRelaySkippedItems();
+                            }
+
+                            n++;
+                          }
+
+                          if(relayRuleList.length == 0){
+                            generateRelaySkippedItems();
+                          }
+                        }
+
+                        function generateRelaySkippedItems(){
+                          var m = 0;
+                          while(obj.cart[m]){
+
+                            if(relayRuleList.length != 0){
+                              for(var i = 0; i < relayRuleList.length; i++){
+                                if(obj.cart[m].category == relayRuleList[i].name && relayRuleList[i].printer != ''){
+                                  //item found
+                                  break;
+                                }
+
+                                if(i == relayRuleList.length - 1){ //last iteration and item not found
+                                  relaySkippedItems.push(obj.cart[m])
+                                }
+                              }
+                            }
+                            else{ //no relays set, skip all items
+                              relaySkippedItems.push(obj.cart[m]);
+                            } 
+
+                            if(m == obj.cart.length - 1){
+
+                              //Print Relay Skipped items (if exists)
+                              var relay_skipped_obj = obj;
+                              relay_skipped_obj.cart = relaySkippedItems;
+                              
+                              if(relaySkippedItems.length > 0){
+                                
+                                  //sendToPrinter(relay_skipped_obj, 'DUPLICATE_KOT');
+
+                                  var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+                                  
+                                  if(defaultKOTPrinter == ''){
+                                    sendToPrinter(relay_skipped_obj, 'CANCELLED_KOT');
+                                  }
+                                  else{
+                                        
+                                        var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+                                        var selected_printer = '';
+
+                                        var g = 0;
+                                        while(allConfiguredPrintersList[g]){
+                                          if(allConfiguredPrintersList[g].type == 'KOT'){
+                                        for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+                                              if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
+                                                selected_printer = allConfiguredPrintersList[g].list[a];
+                                                sendToPrinter(relay_skipped_obj, 'CANCELLED_KOT', selected_printer);
+                                                break;
+                                              }
+                                          }
+                                          }
+                                          
+
+                                          if(g == allConfiguredPrintersList.length - 1){
+                                            if(selected_printer == ''){ //No printer found, print on default!
+                                              sendToPrinter(relay_skipped_obj, 'CANCELLED_KOT');
+                                            }
+                                          }
+                                          
+                                          g++;
+                                        }
+                                  }                                
+                              }
+
+                              printRelayedKOT(relayRuleList); 
+                              
+                            }
+
+                            m++;
+                          }
+                        }
+
+                        function printRelayedKOT(relayedList){
+
+                          var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+                          var g = 0;
+                          var allPrintersList = [];
+
+                          while(allConfiguredPrintersList[g]){
+                            
+                            for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+                              if(!isItARepeat(allConfiguredPrintersList[g].list[a].name)){
+                                allPrintersList.push({
+                                  "name": allConfiguredPrintersList[g].list[a].name,
+                                  "target": allConfiguredPrintersList[g].list[a].target,
+                                  "template": allConfiguredPrintersList[g].list[a]
+                                });
+                                }
+                            }
+
+                            if(g == allConfiguredPrintersList.length - 1){
+                              startRelayPrinting(0);
+                            }
+                            
+                            g++;
+                          }
+
+                          function isItARepeat(name){
+                            var h = 0;
+                            while(allPrintersList[h]){
+                              if(allPrintersList[h].name == name){
+                                return true;
+                              }
+
+                              if(h == allPrintersList.length - 1){ // last iteration
+                                return false;
+                              }
+                              h++;
+                            }
+                          }
+
+                          function startRelayPrinting(index){
+
+                            console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
+
+                          //add some delay
+                                    setTimeout(function(){ 
+                                  
+                                        var relayedItems = [];
+                                        for(var i = 0; i < relayedList.length; i++){
+                                          if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
+                                            relayedItems = relayedItems.concat(relayedList[i].subcart)  
+                                          }
+
+                                          if(i == relayedList.length - 1){ //last iteration
+                                            var relayedNewObj = obj;
+                                            relayedNewObj.cart = relayedItems;
+
+                                            if(relayedItems.length > 0){
+                                              
+                                              sendToPrinter(relayedNewObj, 'CANCELLED_KOT', allPrintersList[index].template);
+                                              
+                                              if(allPrintersList[index+1]){
+                                                startRelayPrinting(index+1);
+                                              }
+                                            }
+                                            else{
+                                              if(allPrintersList[index+1]){
+                                                startRelayPrinting(index+1);
+                                              }
+                                            }
+                                          }
+                                        }
+
+                                    }, 1000);
+                          }
+
+                        }
+                      }
+                      else{ //no relay (normal case)
+                        
+                        var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+                        
+                        if(defaultKOTPrinter == ''){
+                          sendToPrinter(obj, 'CANCELLED_KOT');
+                        }
+                        else{
+                              
+                              var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+                              var selected_printer = '';
+
+                              var g = 0;
+                              while(allConfiguredPrintersList[g]){
+                                if(allConfiguredPrintersList[g].type == 'KOT'){
+                              for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+                                    if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
+                                      selected_printer = allConfiguredPrintersList[g].list[a];
+                                      sendToPrinter(obj, 'CANCELLED_KOT', selected_printer);
+                                      break;
+                                    }
+                                }
+                                }
+                                
+
+                                if(g == allConfiguredPrintersList.length - 1){
+                                  if(selected_printer == ''){ //No printer found, print on default!
+                                    sendToPrinter(obj, 'CANCELLED_KOT');
+                                  }
+                                }
+                                
+                                g++;
+                              }
+                        }
+                          
+                      }
+}
+
+
+
 function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPageRef){
     $.ajax({
       type: 'DELETE',
@@ -3919,6 +4150,7 @@ function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPag
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
+
         if(optionalPageRef == 'ORDER_PUNCHING'){
         
           clearAllMetaData();
