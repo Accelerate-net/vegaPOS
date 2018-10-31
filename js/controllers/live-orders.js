@@ -923,9 +923,7 @@ function pickTableForTransferOrder(currentTableID, kotID){
               var tables = data.docs[0].value;
 
               tables.sort(function(obj1, obj2) {
-                var textA = obj1.table.toUpperCase();
-                var textB = obj2.table.toUpperCase();
-                return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                return obj1.table - obj2.table;
               });
               
  

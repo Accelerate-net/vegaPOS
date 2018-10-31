@@ -3137,10 +3137,7 @@ function renderTables(){
               var tables = data.docs[0].value;
 
               tables.sort(function(obj1, obj2) {
-                // Ascending: first age less than the previous
-                var textA = obj1.table.toUpperCase();
-			    var textB = obj2.table.toUpperCase();
-			    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                return obj1.table - obj2.table;
               });
 
               if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
@@ -5768,10 +5765,7 @@ function pickTableForNewOrder(currentTableID){
 
               var tables = data.docs[0].value;
               tables.sort(function(obj1, obj2) {
-                // Ascending: first age less than the previous
-                var textA = obj1.table.toUpperCase();
-			    var textB = obj2.table.toUpperCase();
-			    return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
+                return obj1.table - obj2.table;
               });
                
               if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
