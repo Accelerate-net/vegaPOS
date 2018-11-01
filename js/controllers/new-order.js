@@ -600,9 +600,9 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
 	var disableQuantityChange = false;
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
-		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
-
-
+			
+			var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+			
 			if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
 
 			}
@@ -654,6 +654,18 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 	//Editing Mode (Check for unsaved changes w.r.t Original Cart)
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+
+		var my_copy_KOT_original = JSON.parse(window.localStorage.edit_KOT_originalCopy);
+		var my_copy_KOTNumber = my_copy_KOT_original.KOTNumber;
+		var my_copy_SourceTable = my_copy_KOT_original.table;
+		var my_copy_BillingMode = my_copy_KOT_original.orderDetails.mode;
+		var my_copy_isDineMode = false;
+
+		if(my_copy_KOT_original.orderDetails.modeType == 'DINE'){
+			my_copy_isDineMode = true;	
+		}
+
+
 		while(i < cart_products.length){
 			variantName = '';
 			notifyIcon = '';
@@ -717,7 +729,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 								if(allergicIngredients[a] == cart_products[i].ingredients[c]){
 									itemContainsAllergicIngredient = true;
 									allergyIngredientDetected = true;
-									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : '') )+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 											'<td style="vertical-align: middle">'+
 											'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 											'</td>'+
@@ -728,7 +740,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 							}
 
 							if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
-								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 									'<td style="vertical-align: middle">'+
 									'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 									'</td>'+
@@ -740,7 +752,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 						}			
 					}
 					else{
-						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 							'<td style="vertical-align: middle">'+
 							'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 							'</td>'+
@@ -749,7 +761,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 					}
 				}
 				else{
-					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : '')+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 						'<td style="vertical-align: middle">'+
 						'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 						'</td>'+
@@ -7554,8 +7566,933 @@ function initMenuSuggestion(){
 
 
 
+/* Shift Item Wizard */
+function openShiftItemWizard(source_table, current_kot, billing_mode, encoded_item){
+	var item = JSON.parse(decodeURI(encoded_item));
+	console.log(current_kot, item)
+
+	document.getElementById("shiftItemWizardModal").style.display = 'block';
+	document.getElementById("shiftItemWizardText").innerHTML = "Shift <b>"+item.name+ (item.isCustom ? ' ('+item.variant+')' : '') +"</b>";
+
+	document.getElementById("shiftItemWizard_quantity").value = item.qty;
+	document.getElementById("shiftItemWizard_target").value = (source_table == 1 ? 2 : 1);	
+	document.getElementById("shiftItemWizard_source").value = source_table;
+
+	document.getElementById("shiftItemWizardModalConsent").innerHTML = ''+
+						'<button class="btn btn-default" onclick="shiftItemWizardModalHide()" style="float: left">Close</button>'+
+               			'<button class="btn btn-success" onclick="proceedShiftItem(\''+source_table+'\', \''+current_kot+'\', \''+billing_mode+'\', \''+encoded_item+'\')" style="float: right">Shift Item</button>'
+
+	$('#shiftItemWizard_quantity').select();
+}
+
+function shiftItemWizardModalHide(){
+	document.getElementById("shiftItemWizardModal").style.display = 'none';
+}
+
+function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item){
+
+	var item = JSON.parse(decodeURI(encoded_item));
+	var outgoing_item = item;
+	
+	var target_table = document.getElementById("shiftItemWizard_target").value;
+	if(target_table == ""){
+		showToast('Warning! Please enter a New Table to which item has to be transfered.', '#e67e22');
+		$('#shiftItemWizard_target').select();
+		return "";
+	}
+	if(target_table == source_table){
+		showToast('Warning! Item cannot be transfered to same table!', '#e67e22');
+		$('#shiftItemWizard_target').select();
+		return "";
+	}
+
+	var target_quantity = document.getElementById("shiftItemWizard_quantity").value;
+	if(target_quantity == ""){
+		showToast('Warning! Please enter quantity of items to be transfered.', '#e67e22');
+		$('#shiftItemWizard_quantity').select();
+		return "";
+	}
+	if(target_quantity > item.qty){
+		showToast('Warning! Quantity has to be less than '+item.qty, '#e67e22');
+		$('#shiftItemWizard_quantity').select();
+		return "";
+	}
+	if(target_quantity < 1){
+		showToast('Warning! Transfer atleast 1 quantity.', '#e67e22');
+		$('#shiftItemWizard_quantity').select();
+		return "";
+	}
+
+	//Check if target table is free:
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+	          		var tableMapping = data.docs[0].value;
 
 
+		          	for(var i=0; i<tableMapping.length; i++){
+		          		if(tableMapping[i].table == target_table){
+
+		          			//target table is free
+		          			if(tableMapping[i].status == 0){
+		          				placeNewOrder(target_table, billing_mode, encoded_item);
+		          			}
+
+		          			//table contains running order
+		          			if(tableMapping[i].status == 1){
+		          				appendNewItem(target_table, billing_mode, encoded_item, tableMapping[i].KOT);
+		          			}
+
+		          			if(tableMapping[i].status == 2){
+		          				showToast('Warning! Table #'+target_table+' is already billed. Item can not be transfered to this table.', '#e67e22');
+								$('#shiftItemWizard_target').select();
+								return "";
+		          			}
+
+		          			if(tableMapping[i].status == 5){
+		          				showToast('Warning! Table #'+target_table+' is Reserved. Item can not be transfered to this table.', '#e67e22');
+								$('#shiftItemWizard_target').select();
+								return "";
+		          			}
+
+		          			break;
+		          		}
+		          	}	          
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });	
+
+	//to place new order with this item on new table
+    function placeNewOrder(table_number, billing_mode, encoded_item){
+
+    	var transfer_item = JSON.parse(decodeURI(encoded_item));
+    	target_quantity = parseInt(target_quantity);
+    	transfer_item.qty = target_quantity;
+
+		var cart_products = [];
+		cart_products.push(transfer_item);
+
+		var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
+		
+		var selectedBillingModeName = billing_mode;
+		var selectedBillingModeInfo = '';
+		
+		var n = 0;
+		while(billing_modes[n]){
+			if(billing_modes[n].name == selectedBillingModeName){
+				selectedBillingModeInfo = billing_modes[n];
+				break;
+			}
+			n++;
+		}
+
+
+
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+
+		          	var params = data.docs[0].value;
+
+		          	var selectedModeExtrasList = selectedBillingModeInfo.extras;
+		          	var cartExtrasList = [];
+
+		          	if(selectedModeExtrasList == undefined){
+		          		showToast("Something went wrong. Try again.", '#e74c3c');
+		          	}
+
+		          	var n = 0;
+		          	var m = 0;
+		          	while(selectedModeExtrasList[n]){
+		          		m = 0;
+		          		while(params[m]){	  
+		          			if(selectedModeExtrasList[n].name == params[m].name){  
+		          				params[m].value = parseFloat(selectedModeExtrasList[n].value);    			
+		          				cartExtrasList.push(params[m]);
+		          			}
+		          			
+		          			m++;
+		          		}
+		          		n++;
+		          	}
+		          	
+		          	generateKOTSilently(cart_products, selectedBillingModeInfo, cartExtrasList)	
+
+	          }
+	          else{
+	            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });
+
+    }	
+
+
+	function generateKOTSilently(cart_products, selectedBillingModeInfo, selectedModeExtras){
+			
+			/*Process Figures*/
+			var subTotal = 0;
+			var packagedSubTotal = 0;
+
+			var n = 0;
+			while(cart_products[n]){
+				subTotal = subTotal + cart_products[n].qty * cart_products[n].price;
+
+				if(cart_products[n].isPackaged){
+					packagedSubTotal = packagedSubTotal + cart_products[n].qty * cart_products[n].price;
+				}
+
+				n++;
+			}
+
+			  /*Calculate Taxes and Other Charges*/ 
+
+			  //Note: Skip tax and other extras (with isCompulsary no) on packaged food Pepsi ect. (marked with 'isPackaged' = true)
+
+	          var otherCharges = [];        
+	          var k = 0;
+
+	          if(selectedModeExtras.length > 0){
+	          	for(k = 0; k < selectedModeExtras.length; k++){
+
+	          		var tempExtraTotal = 0;
+
+	          		if(selectedModeExtras[k].value != 0){
+	          			if(selectedModeExtras[k].excludePackagedFoods){
+			          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = (selectedModeExtras[k].value * (subTotal-packagedSubTotal))/100;
+			          			}
+			          			else if(selectedModeExtras[k].unit == 'FIXED'){
+			          				tempExtraTotal = selectedModeExtras[k].value;
+			          			}          				
+	          			}
+	          			else{
+			          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = selectedModeExtras[k].value * subTotal/100;
+			          			}
+			          			else if(selectedModeExtras[k].unit == 'FIXED'){
+			          				tempExtraTotal = selectedModeExtras[k].value;
+			          			}                 				
+	          			}
+
+
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		otherCharges.push({
+				 		"name": selectedModeExtras[k].name,
+						"value": selectedModeExtras[k].value,
+						"unit": selectedModeExtras[k].unit,
+						"amount": tempExtraTotal,
+						"isPackagedExcluded": selectedModeExtras[k].excludePackagedFoods
+	          		})
+	          	}
+	          }
+
+		  // LOGGED IN USER INFO
+
+		  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+		        
+		  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+		    loggedInStaffInfo.name = "";
+		    loggedInStaffInfo.code = "";
+		    loggedInStaffInfo.role = "";
+		  }
+
+
+		var spremarks = '';
+
+		var orderMetaInfo = {};
+		orderMetaInfo.mode = billing_mode;
+		orderMetaInfo.modeType = 'DINE';
+		orderMetaInfo.reference = "";
+		orderMetaInfo.isOnline = false;
+	   
+	    //Check for KOT index on Server
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ZAITOON_KOT_INDEX" 
+	                  },
+	      "fields"    : ["_rev", "identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ZAITOON_KOT_INDEX'){
+
+		          var num = parseInt(data.docs[0].value) + 1;
+		          var kot = 'K' + num;
+
+		          var memory_revID = data.docs[0]._rev;
+		         
+		          var today = getCurrentTime('DATE');
+		          var time = getCurrentTime('TIME');
+
+		          var specialRemarksInfo = '';
+		          var allergyData = [];
+
+		          var obj = {}; 
+		          obj.KOTNumber = kot;
+		          obj.orderDetails = orderMetaInfo;
+		          obj.table = target_table;
+
+		          obj.customerName = "";
+		          obj.customerMobile = ""; 
+		          obj.guestCount = "";
+
+		          obj.machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+		          
+		          var sessionInfo = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData) : {};
+		          obj.sessionName = sessionInfo.name ? sessionInfo.name : '';
+
+		          obj.stewardName = loggedInStaffInfo.name;
+		          obj.stewardCode = loggedInStaffInfo.code;
+
+		          obj.date = today;
+		          obj.timePunch = time;
+		          obj.timeKOT = time;
+		          obj.timeBill = "";
+		          obj.timeSettle = "";
+
+		          obj.cart = cart_products;
+		          obj.specialRemarks = specialRemarksInfo;
+		          obj.allergyInfo = allergyData;
+
+		          obj.extras = otherCharges;
+		          obj.discount = {};
+		          obj.customExtras = {};
+
+		        
+		          //Set _id from Branch mentioned in Licence
+		          var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+		          if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+		          	showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+		          	return '';
+		          }
+
+		          obj._id = accelerate_licencee_branch+'_KOT_'+kot;
+		          console.log(obj._id)
+		        
+		          var remember_obj = '';
+
+		          //Post to local Server
+		          $.ajax({
+		            type: 'POST',
+		            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/',
+		            data: JSON.stringify(obj),
+		            contentType: "application/json",
+		            dataType: 'json',
+		            timeout: 10000,
+		            success: function(data) {
+		              if(data.ok){
+
+		              		  addToTableMapping(target_table, kot, "", 'ORDER_PUNCHING');
+	                    	  
+	                    	  //Update KOT number on server
+	                          var updateData = {
+	                            "_rev": memory_revID,
+	                            "identifierTag": "ZAITOON_KOT_INDEX",
+	                            "value": num
+	                          }
+
+	                          $.ajax({
+	                            type: 'PUT',
+	                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_INDEX/',
+	                            data: JSON.stringify(updateData),
+	                            contentType: "application/json",
+	                            dataType: 'json',
+	                            timeout: 10000,
+	                            success: function(data) {
+	                              	updateSourceKOT();
+	                            },
+	                            error: function(data) {
+	                              showToast('System Error: Unable to update KOT Index. Next KOT Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+	                            }
+	                          });
+		              }
+		              else{
+		                showToast('Warning: New KOT was not Modified. Try again.', '#e67e22');
+		              }
+		            },
+		            error: function(data){           
+		              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+		            }
+		          });  
+				  //End - post KOT to Server
+
+		          
+	          }
+	          else{
+	            showToast('Not Found Error: KOT Index data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: KOT Index data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read KOT Index. Please contact Accelerate Support.', '#e74c3c');
+	      }
+	    });
+	}
+
+
+
+
+    //to append this item to existing order   
+	function appendNewItem(table_number, billing_mode, encoded_item, running_KOTNumber){
+		
+		/*
+			to generate edited KOT silently
+		*/
+
+    	var incoming_item = JSON.parse(decodeURI(encoded_item));
+    	target_quantity = parseInt(target_quantity);
+    	incoming_item.qty = target_quantity;
+
+
+	    var requestData = { "selector" :{ "KOTNumber": running_KOTNumber }}
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          
+	          var kot = data.docs[0];
+
+	          //Exit if billing modes are not matching
+	          if(kot.orderDetails.mode != billing_mode){
+					showToast('Warning! The order on Table #'+target_table+' was punched on different Billing Mode', '#e67e22');
+					$('#shiftItemWizard_target').select();
+					return "";
+	          }
+
+	          //Updates the Cart
+	          var existing_cart = kot.cart;
+
+	          //Check if this incoming item already added
+
+	          	var wasItemAlreadyPresent = false;
+				if(incoming_item.isCustom){
+							var i = 0;
+							while(i < existing_cart.length){
+									if(existing_cart[i].code == incoming_item.code && existing_cart[i].variant == incoming_item.variant){
+										existing_cart[i].qty = parseInt(existing_cart[i].qty) + target_quantity;
+										wasItemAlreadyPresent = true;
+										break;
+									}
+						        i++;
+						    }
+				}
+		        else{
+							var i = 0;
+							while(i < existing_cart.length){
+								if(existing_cart[i].code == incoming_item.code){
+									existing_cart[i].qty = parseInt(existing_cart[i].qty) + target_quantity;
+									wasItemAlreadyPresent = true;
+									break;
+								}
+						        i++;
+						    }
+		        }
+
+		        if(!wasItemAlreadyPresent){
+		        	existing_cart.push(incoming_item); //push as such --> as a new item
+		        }
+
+		        //update the cart
+	           	kot.cart = existing_cart;
+
+
+				/* RECALCULATE New Figures*/
+				var subTotal = 0;
+				var packagedSubTotal = 0;
+
+				var n = 0;
+				while(kot.cart[n]){
+					subTotal = subTotal + kot.cart[n].qty * kot.cart[n].price;
+
+					if(kot.cart[n].isPackaged){
+						packagedSubTotal += kot.cart[n].qty * kot.cart[n].price;
+					}
+
+					n++;
+				}
+
+				/*Calculate Taxes and Other Charges*/
+		        var k = 0;
+		        if(kot.extras.length > 0){
+		          	for(k = 0; k < kot.extras.length; k++){
+
+		          		var tempExtraTotal = 0;
+
+		          		if(kot.extras[k].isPackagedExcluded){
+				          		if(kot.extras[k].value != 0){
+				          			if(kot.extras[k].unit == 'PERCENTAGE'){
+				          				tempExtraTotal = (kot.extras[k].value * (subTotal - packagedSubTotal))/100;
+				          			}
+				          			else if(kot.extras[k].unit == 'FIXED'){
+				          				tempExtraTotal = kot.extras[k].value;
+				          			}
+				          		}
+				        }
+				        else{
+				          		if(kot.extras[k].value != 0){
+				          			if(kot.extras[k].unit == 'PERCENTAGE'){
+				          				tempExtraTotal = kot.extras[k].value * subTotal/100;
+				          			}
+				          			else if(kot.extras[k].unit == 'FIXED'){
+				          				tempExtraTotal = kot.extras[k].value;
+				          			}
+				          		}			        	
+				        }
+
+
+		          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+		          		kot.extras[k] = {
+					 		"name": kot.extras[k].name,
+							"value": kot.extras[k].value,
+							"unit": kot.extras[k].unit,
+							"amount": tempExtraTotal,
+							"isPackagedExcluded": kot.extras[k].isPackagedExcluded
+		          		};
+		          	}
+		        }
+
+		        /*Calculate Discounts if Any*/     
+		        if(kot.discount){
+		          		var tempExtraTotal = 0;
+		          		if(kot.discount.value != 0){
+		          			if(kot.discount.unit == 'PERCENTAGE'){
+		          				tempExtraTotal = kot.discount.value * subTotal/100;
+		          			}
+		          			else if(kot.discount.unit == 'FIXED'){
+		          				tempExtraTotal = kot.discount.value;
+		          			}
+		          		}
+
+		          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+		          		kot.discount.amount = tempExtraTotal;
+		        }
+
+
+		        /*Calculate Custom Extras if Any*/     
+		        if(kot.customExtras){
+		          		var tempExtraTotal = 0;
+		          		if(kot.customExtras.value != 0){
+		          			if(kot.customExtras.unit == 'PERCENTAGE'){
+		          				tempExtraTotal = kot.customExtras.value * subTotal/100;
+		          			}
+		          			else if(kot.customExtras.unit == 'FIXED'){
+		          				tempExtraTotal = kot.customExtras.value;
+		          			}
+		          		}
+
+		          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+		          		kot.customExtras.amount = tempExtraTotal;
+		        }
+
+
+	          	  	//Update on Server
+	                $.ajax({
+	                  type: 'PUT',
+	                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
+	                  data: JSON.stringify(kot),
+	                  contentType: "application/json",
+	                  dataType: 'json',
+	                  timeout: 10000,
+	                  success: function(data) {
+	                  	  updateSourceKOT();  
+	                  },
+	                  error: function(data) {
+	                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+	                  }
+	                });         
+
+	        }
+	        else{
+	          showToast('Not Found Error: #'+running_KOTNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+	    }); 
+	}
+
+
+	//Finally make changes in the source KOT
+	function updateSourceKOT(){
+
+	    var requestData = { "selector" :{ "KOTNumber": current_kot }}
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          
+	          var kot = data.docs[0];
+	          var remember_id = kot._id;
+	          var remember_rev = kot._rev;
+	          var remember_table = kot.table;
+
+	          //Updates the Cart
+	          var existing_cart = kot.cart;
+
+	          var allQuantityTransfered = false;
+	          var new_changed_quantity = 0;
+	          if(outgoing_item.qty == target_quantity){
+	          	allQuantityTransfered = true; // meaning remove it from cart.
+	          }
+	          else{
+	          	new_changed_quantity = parseInt(outgoing_item.qty) - parseInt(target_quantity);
+	          }
+
+	          var i = 0;
+			  while(i < existing_cart.length){
+			  	
+			  	if(existing_cart[i].code == outgoing_item.code){
+			  		if(existing_cart[i].isCustom && outgoing_item.isCustom){
+			  			if(existing_cart[i].variant == outgoing_item.variant){
+
+			  							if(new_changed_quantity > 0){
+											existing_cart[i].qty = new_changed_quantity;
+										}
+										else{
+											existing_cart.splice(i,1);
+										}
+
+										break;
+			  			}
+			  		}
+			  		else{
+			  							if(new_changed_quantity > 0){
+											existing_cart[i].qty = new_changed_quantity;
+										}
+										else{
+											existing_cart.splice(i,1);
+										}
+
+										break;
+			  		}
+			  	}
+
+			  	i++;
+			  }
+
+
+			  	if(existing_cart.length == 0){
+			  		//Cart got empty --> Delete KOT!
+			  		removeEmptyKOT(remember_id, remember_rev, remember_table);
+			  		return "";
+			  	}
+
+
+		        //update the cart
+	           	kot.cart = existing_cart;
+
+
+				/* RECALCULATE New Figures*/
+				var subTotal = 0;
+				var packagedSubTotal = 0;
+
+				var n = 0;
+				while(kot.cart[n]){
+					subTotal = subTotal + kot.cart[n].qty * kot.cart[n].price;
+
+					if(kot.cart[n].isPackaged){
+						packagedSubTotal += kot.cart[n].qty * kot.cart[n].price;
+					}
+
+					n++;
+				}
+
+				/*Calculate Taxes and Other Charges*/
+		        var k = 0;
+		        if(kot.extras.length > 0){
+		          	for(k = 0; k < kot.extras.length; k++){
+
+		          		var tempExtraTotal = 0;
+
+		          		if(kot.extras[k].isPackagedExcluded){
+				          		if(kot.extras[k].value != 0){
+				          			if(kot.extras[k].unit == 'PERCENTAGE'){
+				          				tempExtraTotal = (kot.extras[k].value * (subTotal - packagedSubTotal))/100;
+				          			}
+				          			else if(kot.extras[k].unit == 'FIXED'){
+				          				tempExtraTotal = kot.extras[k].value;
+				          			}
+				          		}
+				        }
+				        else{
+				          		if(kot.extras[k].value != 0){
+				          			if(kot.extras[k].unit == 'PERCENTAGE'){
+				          				tempExtraTotal = kot.extras[k].value * subTotal/100;
+				          			}
+				          			else if(kot.extras[k].unit == 'FIXED'){
+				          				tempExtraTotal = kot.extras[k].value;
+				          			}
+				          		}			        	
+				        }
+
+
+		          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+		          		kot.extras[k] = {
+					 		"name": kot.extras[k].name,
+							"value": kot.extras[k].value,
+							"unit": kot.extras[k].unit,
+							"amount": tempExtraTotal,
+							"isPackagedExcluded": kot.extras[k].isPackagedExcluded
+		          		};
+		          	}
+		        }
+
+		        /*Calculate Discounts if Any*/     
+		        if(kot.discount){
+		          		var tempExtraTotal = 0;
+		          		if(kot.discount.value != 0){
+		          			if(kot.discount.unit == 'PERCENTAGE'){
+		          				tempExtraTotal = kot.discount.value * subTotal/100;
+		          			}
+		          			else if(kot.discount.unit == 'FIXED'){
+		          				tempExtraTotal = kot.discount.value;
+		          			}
+		          		}
+
+		          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+		          		kot.discount.amount = tempExtraTotal;
+		        }
+
+
+		        /*Calculate Custom Extras if Any*/     
+		        if(kot.customExtras){
+		          		var tempExtraTotal = 0;
+		          		if(kot.customExtras.value != 0){
+		          			if(kot.customExtras.unit == 'PERCENTAGE'){
+		          				tempExtraTotal = kot.customExtras.value * subTotal/100;
+		          			}
+		          			else if(kot.customExtras.unit == 'FIXED'){
+		          				tempExtraTotal = kot.customExtras.value;
+		          			}
+		          		}
+
+		          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+		          		kot.customExtras.amount = tempExtraTotal;
+		        }
+
+
+	          	  	//Update on Server
+	                $.ajax({
+	                  type: 'PUT',
+	                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
+	                  data: JSON.stringify(kot),
+	                  contentType: "application/json",
+	                  dataType: 'json',
+	                  timeout: 10000,
+	                  success: function(data) {
+	                  	  shiftingCompleted();  
+	                  },
+	                  error: function(data) {
+	                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+	                  }
+	                });         
+
+	        }
+	        else{
+	          showToast('Not Found Error: #'+running_KOTNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+	    }); 
+	}
+
+	function removeEmptyKOT(id, revID, tableNumber){
+
+	    $.ajax({
+	      type: 'DELETE',
+	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+id+'?rev='+revID,
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	      		
+			    var requestData = {
+			      "selector"  :{ 
+			                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+			                  },
+			      "fields"    : ["_rev", "identifierTag", "value"]
+			    }
+
+			    $.ajax({
+			      type: 'POST',
+			      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+			      data: JSON.stringify(requestData),
+			      contentType: "application/json",
+			      dataType: 'json',
+			      timeout: 10000,
+			      success: function(data) {
+			        if(data.docs.length > 0){
+
+			            if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+			              var tableMapping = data.docs[0].value;
+
+			              for(var i=0; i<tableMapping.length; i++){
+			                if(tableMapping[i].table == tableNumber){
+
+			                  if(tableMapping[i].status == 0){
+			                    return '';
+			                  }
+
+			                  tableMapping[i].assigned = "";
+			                  tableMapping[i].KOT = "";
+			                  tableMapping[i].status = 0;
+			                  tableMapping[i].lastUpdate = "";
+			                  
+			                  break;
+			                }
+			              }
+
+			                    //Update
+			                    var updateData = {
+			                      "_rev": data.docs[0]._rev,
+			                      "identifierTag": "ZAITOON_TABLES_MASTER",
+			                      "value": tableMapping
+			                    }
+
+			                    $.ajax({
+			                      type: 'PUT',
+			                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+			                      data: JSON.stringify(updateData),
+			                      contentType: "application/json",
+			                      dataType: 'json',
+			                      timeout: 10000,
+			                      success: function(data) {
+			                        shiftingCompleted();
+			                      },
+			                      error: function(data) {
+			                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+			                      }
+
+			                    });             
+
+			                
+			          }
+			          else{
+			            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+			          }
+			        }
+			        else{
+			          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+			        }
+
+			      },
+			      error: function(data) {
+			        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+			      }
+
+			    });	      	
+	        
+	      },
+	      error: function(data) {
+	        showToast('Server Warning: Unable to modify Order KOT. Please contact Accelerate Support.', '#e67e22');
+	      }
+	    }); 		
+	}
+
+	function shiftingCompleted(){
+
+		var item_nice_name = outgoing_item.name + (outgoing_item.isCustom ? ' ('+outgoing_item.variant+')' : '');
+
+		shiftItemWizardModalHide();
+		showToast('<b>'+item_nice_name+'</b> has been shifted successfully to table #<b>'+target_table+'</b>', '#27ae60');
+		
+		clearCurrentEditingOrder();
+		renderPage('new-order', 'Punch Order');
+	}
+
+
+}
 
 
 
