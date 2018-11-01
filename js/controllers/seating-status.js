@@ -313,7 +313,7 @@ function cancelThisKOT(kotID){
 function removeTableMappingWarning(tableNumber){
   hideOccuppiedSeatOptions();
   document.getElementById("mappingDeleteConfirmation").style.display = 'block';
-  document.getElementById("mappingDeleteConfirmationText").innerHTML = 'You are removing the Order Mapping on <b>Table #'+tableNumber+'</b>. Order will not get affected, only the mapping will be erased. Are you sure want to continue?'
+  document.getElementById("mappingDeleteConfirmationText").innerHTML = 'You are removing the Order Mapping on <b>Table #'+tableNumber+'</b>. Order will not get affected, only the mapping will be erased. Sure want to continue?'
 
   document.getElementById("mappingDeleteConfirmationConsent").innerHTML = '<button  class="btn btn-default" onclick="removeTableMappingWarningHide()" style="float: left">Close</button>'+
                                 '<button  class="btn btn-danger" onclick="removeTableMapping(\''+tableNumber+'\')">Proceed to Remove</button>';
@@ -1028,7 +1028,7 @@ function addToHoldList(id){
 		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 18px; text-align: left;">Select Orders to Merge its Bills <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';	
 	}
 	else{
-		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 0; padding: 10px 120px 10px 30px !important; font-size: 18px; text-align: left; line-height: 1.6em">The orders placed on Tables '+tempList.toString()+' will be merged as a single Bill on Table '+tempList[0]+'. This can not be revered. Previously applied discounts will be removed. Are you sure want to Merge Orders? <button class="btn btn-sm btn-success" onclick="mergeBillsInTheHoldList()" style="font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Merge and Bill</button> <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';
+		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 0; padding: 10px 120px 10px 30px !important; font-size: 18px; text-align: left; line-height: 1.6em">Merge tables '+tempList.toString()+' on to <b style="font-size: 120%">Table '+tempList[0]+'</b>. This can not be revered. Previously applied discounts will be removed. Sure want to Merge Orders? <button class="btn btn-sm btn-success" onclick="mergeBillsInTheHoldList()" style="font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Merge Orders</button> <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';
 	}
 
 	
