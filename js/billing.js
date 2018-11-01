@@ -4275,3 +4275,99 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
 
     });
 }
+
+
+//Unsettle Bill (Reverse)
+function openUndoSettleWarning(billNumber){
+
+    showLoading(10000, 'Loading...');
+    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(firstdata) {
+        hideLoading();
+
+        if(firstdata.docs.length > 0){
+
+          var reversed_bill = firstdata.docs[0];
+
+          //Do not allow if its a refunded order
+          if(reversed_bill.refundDetails){
+            if(reversed_bill.refundDetails.amount != 0){
+              showToast('Warning: Refund Issued orders can not be moved back to Unsettled.', '#e67e22');
+              return '';
+            }
+          }
+
+          var remember_id = reversed_bill._id;
+          var remember_revID = reversed_bill._rev;
+
+          delete reversed_bill._id;
+          delete reversed_bill._rev;
+          delete reversed_bill.dateStamp;
+          delete reversed_bill.paymentMode;
+          delete reversed_bill.totalAmountPaid;
+          delete reversed_bill.timeSettle;
+          delete reversed_bill.paymentReference;
+          delete reversed_bill.paymentSplits;
+
+
+            //Post to local Server
+            $.ajax({
+              type: 'POST',
+              url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/',
+              data: JSON.stringify(reversed_bill),
+              contentType: "application/json",
+              dataType: 'json',
+              timeout: 10000,
+              success: function(data) {
+                if(data.ok){
+                  showToast('Moved to Un-settled Bills', '#27ae60');
+                  deletePreviousSettledInvoice();
+                }
+                else{
+                  showToast('Warning: Failed to Unsettle Invoice. Try again.', '#e67e22');
+                }
+              },
+              error: function(data){           
+                showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              }
+            });  
+            //End 
+
+
+              //delete original already settled invoice
+              function deletePreviousSettledInvoice(){
+                  $.ajax({
+                    type: 'DELETE',
+                    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/'+remember_id+'?rev='+remember_revID,
+                    contentType: "application/json",
+                    dataType: 'json',
+                    timeout: 10000,
+                    success: function(data) {
+                      renderPage('settled-bills', 'Generated Bills');
+                    },
+                    error: function(data) {
+                      showToast('Server Warning: Unable to modify settled Invoice. Please contact Accelerate Support.', '#e67e22');
+                    }
+                  }); 
+              }
+        }
+        else{
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(firstdata) {
+        hideLoading();
+        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}

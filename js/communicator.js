@@ -620,7 +620,7 @@ if(orderObject.refundDetails){
    if(orderObject.refundDetails.amount != 0){
       refundList +=  '<tr>'+
                         '<td style="font-weight: bold; text-transform: uppercase">Refunded Amount</td>'+
-                        '<td style="text-align: right; font-size: 21px; font-weight: bold">- <rs class="rs">Rs.</rs>'+orderObject.refundDetails.amount+'</td>'+
+                        '<td style="text-align: right; font-weight: bold">- <rs class="rs">Rs.</rs>'+orderObject.refundDetails.amount+'</td>'+
                      '</tr>';
 
       refunds_sum = orderObject.refundDetails.amount;

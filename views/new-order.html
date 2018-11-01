@@ -488,4 +488,44 @@
 
 
 
+   <!-- Shift Item : Modal -->
+   <div id="shiftItemWizardModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                     <div class="row" style="padding: 10px !important;">
+                        <label style="margin:0 0 25px 10px; width: 100%; font-size: 24px; font-weight: 300;" id="shiftItemWizardText">Shifting Item</label>
+                        <div class="col-sm-3" style="padding-top: 10px;">
+                                 <div class="form-group">
+                                    <label style="font-weight: bold; text-transform: uppercase; color: #999; text-align: center; width: 100%; letter-spacing: 0; font-size: 12px; margin: 0;">Quantity</label>
+                                    <input type="number" value="" class="form-control tip" id="shiftItemWizard_quantity" style="border: none; border-bottom: 1px dashed #e2e2e2; font-size: 36px; letter-spacing: 5px; height: 40px; font-weight: bold; padding: 10px 0 10px 0; text-align: center" />
+                                 </div>                                 
+                        </div>
+                        <div class="col-sm-4" style="border: 2px solid #ffd99d; padding-top: 10px;">
+                                 <div class="form-group">
+                                    <label style="font-weight: bold; text-align: center; width: 100%; text-transform: uppercase; color: #f39c12; letter-spacing: 0; font-size: 12px; margin: 0;">From Table</label>
+                                    <input type="text" value="-" class="form-control tip" id="shiftItemWizard_source" style="border: none; font-size: 36px; letter-spacing: 5px; height: 40px; color: #f39c12; font-weight: bold; background: none; padding: 10px 0 10px 0; text-align: center" disabled/>
+                                 </div>  
+                                                                
+                        </div>
+                        <div class="col-sm-1" style="padding-top: 10px;">
+                           <span style="position: absolute; top: 25px; font-size: 24px; color: #1abc83;"><i class="fa fa-arrow-right"></i></span>
+                        </div>
+                        <div class="col-sm-4" style="border: 2px solid #6fda9a; padding-top: 10px;">
+                                 <div class="form-group">
+                                    <label style="font-weight: bold; text-align: center; width: 100%; text-transform: uppercase; color: #1dca85; letter-spacing: 0; font-size: 12px; margin: 0;">To Table</label>
+                                    <input type="text" value="" class="form-control tip" id="shiftItemWizard_target" style="border: none; color: #1dca85; font-size: 36px; letter-spacing: 5px; height: 40px; font-weight: bold; padding: 10px 0 10px 0; text-align: center" />
+                                 </div>                                 
+                        </div>
+                     </div>
+            </div>
+            <div class="modal-footer" id="shiftItemWizardModalConsent">
+               <button class="btn btn-default" onclick="shiftItemWizardModalHide()" style="float: left">Close</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
 </template>
