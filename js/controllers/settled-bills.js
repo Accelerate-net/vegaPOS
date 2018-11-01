@@ -2526,6 +2526,13 @@ function openSelectedBill(encodedBill, type){
 				n++;
 			}
 
+			//Undo Button
+			if(isUserAnAdmin){
+				paymentSplitList += '<a href="#" style="padding: 2px 16px; min-height: unset !important; height: 40px; font-size: 12px; color: #f39c12;" onclick="openUndoSettleWarning('+bill.billNumber+')">'+
+										'<p class="splitPayListTitle"><i class="fa fa-warning"></i> Unsettle</p>'+
+									'</a>';
+			}
+
 			paymentOptionUsedButton =  	'<div class="splitPayListDropdown">'+
 										 	'<div class="splitPayListButton">Multiple Payments</div>'+
 											'<div class="splitPayListDropdown-content"><div class="holdContentArea">'+paymentSplitList+'</div>'+
@@ -2536,6 +2543,13 @@ function openSelectedBill(encodedBill, type){
 			paymentSplitList = '<a href="#"><p class="splitPayListTitle">'+getPaymentCodeEquivalentName(bill.paymentMode)+' <tag style="float: right; font-weight: bold;"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</tag>'+
 									'<p class="splitPayListRef">'+(bill.paymentReference && bill.paymentReference != '' ? bill.paymentReference : '')+'</p>'+
 								'</a>';
+
+			//Undo Button
+			if(isUserAnAdmin){
+				paymentSplitList += '<a href="#" style="padding: 2px 16px; min-height: unset !important; height: 40px; font-size: 12px; color: #f39c12;" onclick="openUndoSettleWarning('+bill.billNumber+')">'+
+										'<p class="splitPayListTitle"><i class="fa fa-warning"></i> Unsettle</p>'+
+									'</a>';
+			}
 
 			paymentOptionUsedButton =  	'<div class="splitPayListDropdown">'+
 										 	'<div class="splitPayListButton">'+getPaymentCodeEquivalentName(bill.paymentMode)+'</div>'+
