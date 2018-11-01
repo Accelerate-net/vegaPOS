@@ -1322,6 +1322,10 @@ function printCurrentKOTView(kotID, optionalSource){
           sendToPrinter(kot, 'VIEW');
 
           showToast('Items View of #'+kotID+' generated Successfully', '#27ae60');
+
+          clearCurrentEditingOrder();
+          $("#add_item_by_search").focus();
+          
         }
         else{
           showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
@@ -4939,10 +4943,13 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
 	              		showToast('#'+kot+' generated Successfully', '#27ae60');
 
-	              		
+	              		/*
 	              		clearAllMetaData();
 	              		renderCustomerInfo();
 	              		$("#add_item_by_search").focus();
+	              		*/
+
+	              		pushCurrentOrderAsEditKOT(obj);
 
 	              		initialiseKOTPrinting();
 	              	}
