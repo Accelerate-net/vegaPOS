@@ -1025,7 +1025,7 @@ while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
                   '<td><span style="font-size: 18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
-                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
                   '</td>'+
                   '<td class="itemQuantity" style="text-align: right; font-size: 18px">'+orderObject.cart[n].qty+
                   '</td>'+
@@ -1308,7 +1308,7 @@ while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
                   '<td style="font-size: 18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+
-                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
                   '</td>'+
                   '<td style="text-align: right">'+
                      '<p>'+
@@ -1473,13 +1473,11 @@ var n = 0;
 while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
-                  '<td><span class="itemComments" style="font-size: 14px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
-                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="font-size: 13px">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  '<td><span style="font-size: 14px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="font-size: 10px">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
                   '</td>'+
                   '<td style="text-align: right">'+
-                     '<p>'+
-                        '<tag class="itemQuantity" style="font-size: 14px">'+orderObject.cart[n].qty+'</tag>'+
-                     '</p>'+
+                     '<span class="itemQuantity" style="font-size: 14px">'+orderObject.cart[n].qty+'</span>'+
                   '</td>'+
                '</tr>'
 
@@ -1677,7 +1675,7 @@ while(compareObject[n]){
    if(compareObject[n].change == 'QUANTITY_INCREASE'){
       itemsList +='<tr>'+
                      '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
-                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+compareObject[n].newComments+'</newcomments>' : '')+
+                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
                      '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">MORE QUANTITY</span></span>'+
                      '</td>'+
                      '<td style="text-align: right;">'+
@@ -1688,7 +1686,7 @@ while(compareObject[n]){
    else if(compareObject[n].change == 'QUANTITY_DECREASE'){
       itemsList +='<tr>'+
                      '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
-                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+compareObject[n].newComments+'</newcomments>' : '')+
+                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
                      '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">LESS QUANTITY</span></span>'+
                      '</td>'+
                      '<td style="text-align: right;">'+
@@ -1709,7 +1707,7 @@ while(compareObject[n]){
    else if(compareObject[n].change == 'NEW_ITEM'){
       itemsList +='<tr>'+
                      '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
-                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+compareObject[n].newComments+'</newcomments>' : '')+
+                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
                      '</td>'+
                      '<td style="text-align: right;">'+
                         '<span class="itemQuantity" style="font-size: 18px">'+ compareObject[n].qty +'</span>'+
