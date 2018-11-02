@@ -365,19 +365,24 @@
             <div class="modal-content">
                <div class="modal-header defaultModalColoredHeader">
                   <button  onclick="addSpecialCustomItemHide()" style="float: right;" class="btn clearButton">X</button>
-                  <h4 class="modal-title">Custom Charges</h4>
+                  <h4 class="modal-title">Add Custom Item</h4>
                </div>
                <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
 
                      <div class="row">
                         <div class="col-lg-8">
                            <div class="form-group">
-                              <input type="text" value="" placeholder="Custom Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_manual_custom_name"/>
+                              <input type="text" value="" placeholder="Custom Name" style="border: none; border-bottom: 1px solid; font-size: 18px; font-weight: bold;" class="form-control tip" id="add_new_manual_custom_name"/>
                            </div>
                         </div>
                         <div class="col-lg-4">
                            <div class="form-group">
-                              <input type="number" value="" placeholder="Custom Price" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_manual_custom_price"/>
+                              <input type="number" value="" placeholder="Custom Price" style="border: none; border-bottom: 1px solid; font-size: 18px; font-weight: bold;" class="form-control tip" id="add_new_manual_custom_price"/>
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group mycheck">
+                              <label class="checkbox-inline" style="font-size: 16px"><input type="checkbox" id="add_new_manual_custom_taxable" value="" checked><tag style="margin-left: 5px">Apply Taxes and other Extras</tag></label>
                            </div>
                         </div>
                      </div>
@@ -385,7 +390,7 @@
                </div>
                <div class="modal-footer">
                   <button  class="btn btn-default" onclick="addSpecialCustomItemHide()" style="float: left">Cancel</button>
-                  <button  class="btn btn-success" onclick="addManualCustomItem()">Add to Cart</button>
+                  <button  class="btn btn-success" id="addManualCustomItemOKButton" onclick="addManualCustomItem()">Add to Cart</button>
                </div>
             </div>
          </div>
