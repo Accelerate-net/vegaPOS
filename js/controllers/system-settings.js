@@ -888,6 +888,15 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }
                           break;
                         }
+                        case "billSettleLater": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionSettleLater").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionSettleLater").value = 'NO';
+                          }
+                          break;
+                        }
                         case "KOTRelayEnabled": {
                           if(params[i].value == 'YES'){
                             document.getElementById("systemOptionKOTRelayEnabled").value = params[i].value;
@@ -1313,7 +1322,7 @@ function changeSystemOptionsFile(type, changedValue){
                       if(settingsList[n].data[i].name == type){
                         
                         settingsList[n].data[i].value = changedValue;
-
+                        console.log(changedValue, machineName)
 
                         //Update
                         var updateData = {
@@ -1957,6 +1966,14 @@ function changeSystemOptionKOTRelaying(){
   //Update
   window.localStorage.appOtherPreferences_KOTRelayEnabled = (optName == 'YES' ? 1 : 0);
   changeSystemOptionsFile("KOTRelayEnabled", optName);
+}
+
+function changeSystemOptionSettleLater(){
+  var optName = document.getElementById("systemOptionSettleLater").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_SettleLater = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("billSettleLater", optName);
 }
 
 

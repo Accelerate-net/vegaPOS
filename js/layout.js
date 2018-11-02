@@ -1660,6 +1660,13 @@ function applySystemOptionSettings(){
                         /*update localstorage*/             
                         window.localStorage.appOtherPreferences_orderEditingAllowed = tempVal;
                       }
+                      else if(params[i].name == "billSettleLater"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_SettleLater = tempVal;
+                      }
                       else if(params[i].name == "KOTRelayEnabled"){
 
                         var tempVal = (params[i].value == 'YES'? 1: 0);

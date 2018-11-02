@@ -2052,6 +2052,8 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
               success: function(data) {
                 if(data.ok){
 
+                          
+
                           showToast('Bill #'+billNumber+' generated Successfully', '#27ae60');
 
                           sendToPrinter(newBillFile, 'BILL');
@@ -2060,7 +2062,20 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                           hideBillPreviewModal();
 
                           if(kotfile.orderDetails.modeType == 'DINE'){
-                            billTableMapping(kotfile.table, billNumber, 2, optionalPageRef);
+
+                            var auto_settle_later_enabled = window.localStorage.appOtherPreferences_SettleLater && window.localStorage.appOtherPreferences_SettleLater == 1 ? true : false;
+                            /* 
+                                "Settle Later" will be pressed by default when an order is billed.
+                                Bill will automatically moved to PENDING SETTLEMENT BILLS,
+                                and the Table will be set free
+                            */ 
+
+                            if(auto_settle_later_enabled){
+                              resetTableToFree(kotfile.table);
+                            }
+                            else{ 
+                              billTableMapping(kotfile.table, billNumber, 2, optionalPageRef);
+                            }
                           }
                           
                           deleteKOTFromServer(memory_id, memory_rev, optionalPageRef);
@@ -2080,6 +2095,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                               //Pop up bill settlement window
                               settleBillAndPush(encodeURI(JSON.stringify(kotfile)), 'ORDER_PUNCHING');
                             }
+
                           }
                           else if(optionalPageRef == 'ONLINE_ORDERS'){
                             if(kotfile.orderDetails.isOnline){
@@ -2149,7 +2165,89 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 }
 
 
+function resetTableToFree(tableNumber){
 
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+
+            if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+
+              var tableMapping = data.docs[0].value;
+
+              for(var i=0; i<tableMapping.length; i++){
+                if(tableMapping[i].table == tableNumber){
+
+                  if(tableMapping[i].status == 0){
+                    return '';
+                  }
+
+                  tableMapping[i].assigned = "";
+                  tableMapping[i].KOT = "";
+                  tableMapping[i].status = 0;
+                  tableMapping[i].lastUpdate = "";
+                  
+                  break;
+                }
+              }
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "value": tableMapping
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                          //re-render right panel
+                          if(window.localStorage.appCustomSettings_OrderPageRightPanelDisplay && window.localStorage.appCustomSettings_OrderPageRightPanelDisplay == 'TABLE'){
+                            renderTables();
+                          }
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+
+                    });             
+
+                
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+}
 
 function deleteKOTFromServer(id, revID, optionalPageRef){
     $.ajax({
@@ -3099,7 +3197,6 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
                           timeout: 10000,
                           success: function(data) {
                             hideSettleBillAndPush();
-                            console.log(optionalPageRef)
                             if(optionalPageRef == 'ORDER_PUNCHING'){
                               triggerRightPanelDisplay();
                             }
@@ -3125,8 +3222,6 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
       hideSettleBillAndPush();
     }
 }
-
-
 
 
 function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
