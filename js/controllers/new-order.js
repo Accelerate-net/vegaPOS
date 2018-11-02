@@ -4155,6 +4155,8 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
                   	  clearAllMetaData();
                   	  renderCustomerInfo();
                       sendKOTChangesToPrinterPreProcess(kot, compareObject);
+
+                      showToast('Changed KOT #'+kot.KOTNumber+' generated Successfully', '#27ae60');
                   },
                   error: function(data) {
                       showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
@@ -4941,7 +4943,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
-	              		showToast('#'+kot+' generated Successfully', '#27ae60');
+	              		showToast('KOT #'+kot+' generated Successfully', '#27ae60');
 
 	              		/*
 	              		clearAllMetaData();
@@ -4955,7 +4957,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              	}
 	              	else if(orderMetaInfo.modeType == 'TOKEN'){
 
-	              		showToast('#'+kot+' generated Successfully', '#27ae60');
+	              		showToast('KOT #'+kot+' generated Successfully', '#27ae60');
 
 	              		//Clear Token
 						window.localStorage.claimedTokenNumber = '';
@@ -4967,7 +4969,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              		initialiseKOTPrinting();
 	              	}
 	              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
-	              		showToast('#'+kot+' generated Successfully', '#27ae60');
+	              		showToast('KOT #'+kot+' generated Successfully', '#27ae60');
 
 	              		if(orderMetaInfo.modeType == 'PARCEL'){
 	              			//Clear Token
