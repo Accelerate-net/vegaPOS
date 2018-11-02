@@ -1473,11 +1473,11 @@ var n = 0;
 while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
-                  '<td><span style="font-size: 14px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
-                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="font-size: 10px">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  '<td><span style="font-size: 13px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="font-size: 11px; display: inline-block;"> ['+orderObject.cart[n].comments+']</newcomments>' : '')+
                   '</td>'+
                   '<td style="text-align: right">'+
-                     '<span class="itemQuantity" style="font-size: 14px">'+orderObject.cart[n].qty+'</span>'+
+                     '<span class="itemQuantity" style="font-size: 13px">'+orderObject.cart[n].qty+'</span>'+
                   '</td>'+
                '</tr>'
 
@@ -1490,7 +1490,7 @@ total_items = n;
 
 
 var html_template = ''+
-      '<div class="KOTHeader">'+
+      '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
             '<col style="width: 33%">'+
             '<col style="width: 33%">'+
@@ -1499,69 +1499,29 @@ var html_template = ''+
                '<td style="vertical-align: top">'+
                   '<p>'+
                      '<tag class="subLabel" style="margin: 5px 0 0 0">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? 'TYPE' : 'EXECUTIVE')+'</tag>'+
-                     '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : orderObject.stewardName)+'</tag>'+
+                     '<tag class="attendantName">'+(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL' ? orderObject.orderDetails.mode : '<b>'+orderObject.stewardName+'</b>')+'</tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top">'+
-                  '<p>'+
-                     '<tag class="serviceType" style="'+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? 'display: none' : '' )+'">'+(orderObject.orderDetails.modeType == 'DINE' ? 'ON TABLE' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'SELF SERVICE' : ''))+'</tag>'+
+                  '<p style="margin: 0">'+
+                     '<tag class="serviceType" style="border: none; margin-bottom: 2px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? 'display: none' : '' )+'">'+(orderObject.orderDetails.modeType == 'DINE' ? '<b style="font-size: 32px; background: #000; color: #FFF; border-radius: 50%; padding: 2px 10px; ">'+orderObject.table+'</b>' : (orderObject.orderDetails.modeType == 'TOKEN' ? '<b style="font-size: 32px">'+orderObject.table+'</b>' : ''))+'</tag>'+
                      '<tag class="serviceType" style="padding: 0; font-size: 10px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? '' : 'display: none' )+'"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">'+(orderObject.orderDetails.modeType == 'PARCEL' ? 'PARCEL #'+orderObject.table : (orderObject.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : ''))+'</tag>'+(orderObject.orderDetails.reference != ''  ? '<tag style="display: block; padding: 2px;">#'+orderObject.orderDetails.reference+'</tag>' : '<tag style="display: block; padding: 2px;">'+orderObject.customerName+'</tag>')+'</tag>'+
                   '</p>'+
-                  '<tag>'+'</tag>'+
                '</td>'+
-               '<td style="vertical-align: top; '+(orderObject.orderDetails.modeType == 'DINE' || orderObject.orderDetails.modeType == 'TOKEN' ? '' : 'display: none')+'">'+
+               '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
-                     '<tag class="subLabel">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Table No' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Token No' : ''))+'</tag>'+
-                     '<tag class="tokenNumber" style="font-size: 18px; font-size: bold;">'+orderObject.table+'</tag>'+
+                     '<tag class="subLabel">TIME</tag>'+
+                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
-                  '<tag>'+'</tag>'+
                '</td>'+
             '</tr>'+
          '</table>'+
-         
       '</div>'+
 
-      '<div class="KOTNumberArea">'+
-
-         '<table style="width: 100%">'+
-            '<col style="width: 60%">'+
-            '<col style="width: 40%">'+
-            '<tr>'+
-               '<td style="vertical-align: top">'+
-               '<p>'+
-                  '<tag class="subLabel">KOT NO</tag>'+
-                  '<tag class="KOTNumber">'+orderObject.KOTNumber+'</tag>'+
-               '</p>'+
-               '</td>'+
-               '<td style="vertical-align: top">'+
-                  '<p style=" text-align: right; float: right">'+
-                     '<tag class="subLabel">TIME STAMP</tag>'+
-                     '<tag class="timeStamp">'+getFancyTime(orderObject.timePunch)+'<time class="timeDisplay">'+orderObject.date+'</time></tag>'+
-                  '</p>'+
-                  '<tag>'+'</tag>'+
-               '</td>'+
-            '</tr>'+
-         '</table>'+
-
-      '</div>'+
-      '<div class="KOTContent">'+
+      '<div class="KOTContent" style="min-height: unset">'+
          '<table style="width: 100%">'+
             '<col style="width: 85%">'+
             '<col style="width: 15%">'+ itemsList +
-         '</table>'+
-      '</div>'+
-      '<div class="KOTSummary">'+
-         '<table style="width: 100%">'+
-            '<col style="width: 80%">'+
-            '<col style="width: 20%">'+
-            '<tr>'+
-               '<td>Number of Items</td>'+
-               '<td style="text-align: right;">'+total_items+'</td>'+
-            '</tr>'+
-            '<tr>'+
-               '<td>Total Quantity</td>'+
-               '<td style="text-align: right;">'+total_quantity+'</td>'+
-            '</tr>'+
          '</table>'+
       '</div>'+
       '<div class="KOTSpecialComments" style="'+(orderObject.specialRemarks != '' ? '' : 'display: none')+'">'+
@@ -1572,19 +1532,6 @@ var html_template = ''+
                      '<p>'+
                         '<tag class="subLabel">SPECIAL COMMENTS</tag>'+
                         '<tag class="commentsSubText">'+orderObject.specialRemarks+'</tag>'+
-                     '</p>'+  
-               '</td>'+
-            '</tr>'+
-         '</table>'+
-      '</div>'+
-      '<div class="KOTSpecialComments" style="'+(orderObject.allergyInfo.length > 0 ? '' : 'display: none')+'">'+
-       '<table style="width: 100%">'+
-            '<col style="width: 100%">'+
-            '<tr>'+
-               '<td style="vertical-align: top">'+
-                     '<p>'+
-                        '<tag class="subLabel">ALLERGY WARNING</tag>'+
-                        '<tag class="commentsSubText">'+((orderObject.allergyInfo).toString())+'</tag>'+
                      '</p>'+  
                '</td>'+
             '</tr>'+
