@@ -160,8 +160,9 @@
                           <col width="60%">
 
                           <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
-                            <td colspan="2" style="padding: 10px 0 5px 0;">Notification Options</td>
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Personal Options</td>
                           </tr> 
+
                           <tr>
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Show Notifications</td>
                             <td style="padding-top:10px">
@@ -171,6 +172,18 @@
                                       <option value="WARNINGS">Only Warnings and Errors</option>
                                       <option value="ERRORS">Only Errors</option>
                                       <option value="NONE">None</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Idle Admin Logout<tag style="display: block; font-size: 80%; color: #949393;">Admin Account will be logged out automatically if idle for long time</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionAdminIdleLogout()" id="systemOptionAdminIdleLogout" class="form-control" style="width:100%;">
+                                      <option value="YES">Enabled</option>
+                                      <option value="NO">Disabled</option>
                                    </select>
                                 </div>
                             </td>

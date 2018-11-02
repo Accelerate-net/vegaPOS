@@ -897,6 +897,15 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }
                           break;
                         }
+                        case "adminIdleLogout": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionAdminIdleLogout").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionAdminIdleLogout").value = 'NO';
+                          }
+                          break;
+                        }
                         case "KOTRelayEnabled": {
                           if(params[i].value == 'YES'){
                             document.getElementById("systemOptionKOTRelayEnabled").value = params[i].value;
@@ -1974,6 +1983,16 @@ function changeSystemOptionSettleLater(){
   //Update
   window.localStorage.appOtherPreferences_SettleLater = (optName == 'YES' ? 1 : 0);
   changeSystemOptionsFile("billSettleLater", optName);
+}
+
+
+
+function changeSystemOptionAdminIdleLogout(){
+  var optName = document.getElementById("systemOptionAdminIdleLogout").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_AdminIdleLogout = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("adminIdleLogout", optName);
 }
 
 

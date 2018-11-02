@@ -63,6 +63,7 @@ function renderSideNavigation(){
 
     //either profile not chosen, or not an admin
     if(loggedInStaffInfo.code == '' || loggedInStaffInfo.role != 'ADMIN'){ 
+
         document.getElementById("sidemenuNavigationBar").innerHTML = ''+
                     '<li onclick="renderPage(\'new-order\', \'Punch Order\')">'+
                         '<a href="#">'+
@@ -90,6 +91,7 @@ function renderSideNavigation(){
                     '</li>';  
       }
       else{ 
+        console.log('rending...')
         document.getElementById("sidemenuNavigationBar").innerHTML = ''+
                     '<li onclick="renderPage(\'new-order\', \'Punch Order\')">'+
                         '<a href="#">'+
@@ -1667,6 +1669,13 @@ function applySystemOptionSettings(){
                         /*update localstorage*/             
                         window.localStorage.appOtherPreferences_SettleLater = tempVal;
                       }
+                      else if(params[i].name == "adminIdleLogout"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_AdminIdleLogout = tempVal;
+                      }
                       else if(params[i].name == "KOTRelayEnabled"){
 
                         var tempVal = (params[i].value == 'YES'? 1: 0);
@@ -2439,62 +2448,72 @@ var refreshInterval;
 
 function initScreenSaver(){
 
+  initAdminIdle();
+
   idleSecondsCounter = 0;
   clearInterval(refreshInterval);
 
-  if(window.localStorage.appCustomSettings_InactivityEnabled && window.localStorage.appCustomSettings_InactivityEnabled != ''){
-    
-    if(window.localStorage.appCustomSettings_InactivityEnabled == 'LOCKSCREEN'){
-      //Lock Screen options
-      /*IMPORTANT -- run only if Lock Code is set*/
-      if(window.localStorage.appCustomSettings_InactivityToken && window.localStorage.appCustomSettings_InactivityToken != ''){
-          if(window.localStorage.appCustomSettings_InactivityScreenDelay && window.localStorage.appCustomSettings_InactivityScreenDelay != ''){
-            IDLE_TIMEOUT = window.localStorage.appCustomSettings_InactivityScreenDelay;
-          }
 
-          refreshInterval = window.setInterval(function() { CheckIdleTime('LOCKSCREEN'); }, 1000);  
-      }    
+      //Screensaver or Lockscreen part
+      if(window.localStorage.appCustomSettings_InactivityEnabled && window.localStorage.appCustomSettings_InactivityEnabled != ''){
         
-    }
-    else if(window.localStorage.appCustomSettings_InactivityEnabled == 'SCREENSAVER'){
-      //Screen Saver options
-          if(window.localStorage.appCustomSettings_InactivityScreenDelay && window.localStorage.appCustomSettings_InactivityScreenDelay != ''){
-            IDLE_TIMEOUT = window.localStorage.appCustomSettings_InactivityScreenDelay;
-          }
+        if(window.localStorage.appCustomSettings_InactivityEnabled == 'LOCKSCREEN'){
+              //Lock Screen options
+              /*IMPORTANT -- run only if Lock Code is set*/
+              if(window.localStorage.appCustomSettings_InactivityToken && window.localStorage.appCustomSettings_InactivityToken != ''){
+                  if(window.localStorage.appCustomSettings_InactivityScreenDelay && window.localStorage.appCustomSettings_InactivityScreenDelay != ''){
+                    IDLE_TIMEOUT = window.localStorage.appCustomSettings_InactivityScreenDelay;
+                  }
 
-          var loggedInAdminInfo = window.localStorage.loggedInAdminData ? JSON.parse(window.localStorage.loggedInAdminData): {};
-          if(loggedInAdminInfo.name && loggedInAdminInfo.name != ''){
-                document.getElementById("inactivityUserName").innerHTML = 'Logged in as <b>'+loggedInAdminInfo.name+'</b>';
-          }
-          if(loggedInAdminInfo.branch && loggedInAdminInfo.branch != ''){
-                document.getElementById("inactivityBranchName").innerHTML = '<b>'+loggedInAdminInfo.branch+'</b>';
-          }
+                  refreshInterval = window.setInterval(function() { CheckIdleTime('LOCKSCREEN'); }, 1000);  
+              }    
+            
+        }
+        else if(window.localStorage.appCustomSettings_InactivityEnabled == 'SCREENSAVER'){
+              //Screen Saver options
+              if(window.localStorage.appCustomSettings_InactivityScreenDelay && window.localStorage.appCustomSettings_InactivityScreenDelay != ''){
+                IDLE_TIMEOUT = window.localStorage.appCustomSettings_InactivityScreenDelay;
+              }
 
-          refreshInterval = window.setInterval(function() { CheckIdleTime('SCREENSAVER'); }, 1000);
+              var loggedInAdminInfo = window.localStorage.loggedInAdminData ? JSON.parse(window.localStorage.loggedInAdminData): {};
+              if(loggedInAdminInfo.name && loggedInAdminInfo.name != ''){
+                    document.getElementById("inactivityUserName").innerHTML = 'Logged in as <b>'+loggedInAdminInfo.name+'</b>';
+              }
+              if(loggedInAdminInfo.branch && loggedInAdminInfo.branch != ''){
+                    document.getElementById("inactivityBranchName").innerHTML = '<b>'+loggedInAdminInfo.branch+'</b>';
+              }
+
+              refreshInterval = window.setInterval(function() { CheckIdleTime('SCREENSAVER'); }, 1000);
+          
+        }
+
       
-    }
 
-    //Start Tracking Events
-      document.onclick = function() {
-          idleSecondsCounter = 0;
-      };
+        //Start Tracking Events
+        document.onclick = function() {
+            idleSecondsCounter = 0;
+        };
 
-      document.onmousemove = function() {
-          idleSecondsCounter = 0;
-      };
+        document.onmousemove = function() {
+            idleSecondsCounter = 0;
+        };
 
-      document.onkeypress = function() {
-          idleSecondsCounter = 0;
-      };
-  }
+        document.onkeypress = function() {
+            idleSecondsCounter = 0;
+        };
+
+      }
+
 }
 
 initScreenSaver();
 
 
 function CheckIdleTime(mode) {
-      idleSecondsCounter++;
-  
+      
+    idleSecondsCounter++;
+
+    //Screensaver or LockScreen
       if(mode == 'SCREENSAVER'){
         if (idleSecondsCounter >= IDLE_TIMEOUT) {
           document.getElementById("inactivityTimeLapsed").innerHTML = convertTimeLapsed(idleSecondsCounter);
@@ -2510,6 +2529,123 @@ function CheckIdleTime(mode) {
               $('#lockScreePasscode').focus();
             }
       }
+}
+
+
+/* 
+  IDLE ADMIN - Logout 
+*/
+
+var admin_idleSecondsCounter = 0;
+var admin_refreshInterval;
+function initAdminIdle(){
+
+  admin_idleSecondsCounter = 0;
+  clearInterval(admin_refreshInterval);
+
+
+      if(window.localStorage.appOtherPreferences_AdminIdleLogout && window.localStorage.appOtherPreferences_AdminIdleLogout == 1){
+          admin_refreshInterval = window.setInterval(function() { AdminCheckIdleTime(); }, 1000);
+      
+
+          //Start Tracking Events
+          document.addEventListener('onclick', function() {
+              admin_idleSecondsCounter = 0;
+          }); 
+
+          document.addEventListener('mousemove', function() {
+              admin_idleSecondsCounter = 0;
+          }); 
+
+          document.addEventListener('onkeypress', function() {
+              admin_idleSecondsCounter = 0;
+          }); 
+      }
+
+
+
+}
+
+function AdminCheckIdleTime(){
+      console.log(admin_idleSecondsCounter)
+      admin_idleSecondsCounter++;
+
+      if(!window.localStorage.appOtherPreferences_AdminIdleLogout || window.localStorage.appOtherPreferences_AdminIdleLogout != 1){
+        admin_idleSecondsCounter = 0;
+        clearInterval(admin_refreshInterval);
+        return "";
+      }
+
+          if (admin_idleSecondsCounter == 114) { // 2 mins less 6 seconds
+
+              // LOGGED IN USER INFO
+              var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+                    
+              if(jQuery.isEmptyObject(loggedInStaffInfo)){
+                loggedInStaffInfo.name = "";
+                loggedInStaffInfo.code = "";
+                loggedInStaffInfo.role = "";
+              }
+
+              if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){
+                showLoading(6000, 'Admin logging out...');
+              }
+          }
+          else if (admin_idleSecondsCounter == 120) { // 2 mins
+
+              // LOGGED IN USER INFO
+              var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+                    
+              if(jQuery.isEmptyObject(loggedInStaffInfo)){
+                loggedInStaffInfo.name = "";
+                loggedInStaffInfo.code = "";
+                loggedInStaffInfo.role = "";
+              }
+
+              if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){
+                removeAdminPrevilages();
+              }
+          }
+}
+
+
+
+function removeAdminPrevilages(){
+
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){
+    loggedInStaffInfo.role = 'STEWARD';
+    window.localStorage.loggedInStaffData = JSON.stringify(loggedInStaffInfo);
+    
+    // What to do after setting Profile?
+    renderSideNavigation();
+
+    if(currentRunningPage != ''){
+      renderPage(currentRunningPage);
+    }
+    else{ //render default page
+      renderPage('new-order', 'Punch Order');
+    }
+
+
+    //ask for passcode again
+    var temp_profile = loggedInStaffInfo;
+    temp_profile.role = 'ADMIN';
+    var temp_profile_encode = JSON.stringify(temp_profile);
+    admin_idleSecondsCounter = 0;
+
+    switchProfile(temp_profile_encode);
+
+    showToast('Message: You are not an admin now. Login again to get the Admin access.', '#e67e22');
+  }  
 }
 
 
@@ -2584,8 +2720,14 @@ function switchProfile(encodedProfile){
     }
 
     if(loggedInStaffInfo.code == userProfile.code){ //Same as already logged in profile
-      selectStewardWindowClose(); //Skip
-      return '';
+      //if logged in as admin, but admin access was revoked due to idle.
+      if(userProfile.role == 'ADMIN' && loggedInStaffInfo.role == 'STEWARD'){
+        //ask for password again
+      }
+      else{
+        selectStewardWindowClose(); //Skip
+        return '';
+      }
     }
 
     if(userProfile.role != 'STEWARD'){
