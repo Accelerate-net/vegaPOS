@@ -317,6 +317,7 @@ if(type == 'BILL'){
       //Render User Info
       var userInfo = '';
       var billHeaderRender = '';
+      var billBottomRender = '';
 
       if(orderObject.orderDetails.modeType == 'DELIVERY'){
 
@@ -335,9 +336,9 @@ if(type == 'BILL'){
             billHeaderRender = userInfo +                
                         '<td style="vertical-align: top">'+
                            '<p style=" text-align: right; float: right">'+
-                              '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY '+orderObject.KOTNumber+'</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
-                              '<tag class="subLabel">Order No</tag>'+
-                              '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
+                              '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
+                              '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
+                              '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '')+'</tag>'+
                               '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
                               '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
                            '</p>'+
@@ -348,23 +349,29 @@ if(type == 'BILL'){
              billHeaderRender = userInfo +                
                         '<td style="vertical-align: top">'+
                            '<p style=" text-align: right; float: right">'+
-                              '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY '+orderObject.KOTNumber+'</tag><tag style="display: block; padding: 2px;">CASH</tag></tag>'+
-                              '<tag class="subLabel">Order No</tag>'+
-                              '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
+                              '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag><tag style="display: block; padding: 2px;">CASH</tag></tag>'+
+                              '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
+                              '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '')+'</tag>'+
                               '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
                               '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
                            '</p>'+
                            '<tag>'+'</tag>'+
                         '</td>';     
          }
+
+         //Bottom of the Bill (for Delivery and Parcel only)
+         billBottomRender =   '<div class="billBottomContainer">'+
+                                 '<div style="text-align: center; font-size:14px; font-weight: bold; background: #000; color: #FFF; padding: 3px 0">'+ orderObject.orderDetails.mode + ' - <b style="font-size: 16px;">'+orderObject.KOTNumber+'</b>'+
+                                 '</div>'+   
+                              '</div>'; 
       }
       else if(orderObject.orderDetails.modeType == 'PARCEL'){
           userInfo = '<td style="vertical-align: top; position: relative">'+
-                        '<p>'+'<label class="subLabel">Billed To</label>'+
+                        '<p>'+'<label class="subLabel" style="'+(orderObject.customerName == '' && orderObject.customerMobile == '' ? 'display: none' : '')+'">Billed To</label>'+
                            '<tag class="billingAddress">'+
                            (orderObject.customerName != '' ? orderObject.customerName+'<br>' : '')+
                            (orderObject.customerMobile != '' ? '<tag class="mobileNumber">Mob. <b>'+orderObject.customerMobile+'</b>' : '')+ '</tag>'+
-                           '<tag class="serviceType" style="border-radius: 3px; font-size: 80%; display: inline-block; margin: 10px 0 0 0;"><span style="text-transform: uppercase">'+orderObject.orderDetails.mode+'</span> '+(orderObject.table && orderObject.table != "" ? ' #'+orderObject.table : '')+'</tag>'+
+                           '<tag class="serviceType" style="border-radius: 3px; font-size: 80%; display: inline-block; margin: 10px 0 0 0;">'+(orderObject.table && orderObject.table != "" ? 'Parcel #<b>'+orderObject.table+'</b>' : 'Parcel')+'</tag>'+
                         '</p>'+
                      '</td>';  
 
@@ -393,13 +400,20 @@ if(type == 'BILL'){
                            '</p>'+
                            '<tag>'+'</tag>'+
                         '</td>';  
-         }          
+         }   
+
+
+         //Bottom of the Bill (for Delivery and Parcel only)
+         billBottomRender =   '<div class="billBottomContainer">'+
+                                 '<div style="text-align: center; font-size:14px; font-weight: bold; background: #000; color: #FFF; padding: 3px 0">'+ orderObject.orderDetails.mode + (orderObject.table && orderObject.table != "" ? ' - <b style="font-size: 16px; ">'+orderObject.KOTNumber+'</b>' : '')+
+                                 '</div>'+   
+                              '</div>';    
       }
       else{
 
          if(orderObject.customerName != '' || orderObject.customerMobile != ''){
              userInfo = '<td style="vertical-align: top; position: relative">'+
-                           '<p>'+'<label class="subLabel">Billed To</label>'+
+                           '<p>'+'<label class="subLabel" style="'+(orderObject.customerName == '' && orderObject.customerMobile == '' ? 'display: none' : '')+'">Billed To</label>'+
                               '<tag class="billingAddress">'+
                               (orderObject.customerName != '' ? orderObject.customerName+'<br>' : '')+
                               (orderObject.customerMobile != '' ? '<tag class="mobileNumber">Mob. <b>'+orderObject.customerMobile+'</b>' : '')+ '</tag>'+
@@ -522,7 +536,7 @@ if(type == 'BILL'){
                '</table>'+
             '</div>'+
             '<p class="addressText">'+data_custom_footer_address+'</p>'+
-            '<p class="addressContact">'+data_custom_footer_contact+'</p>';
+            '<p class="addressContact">'+data_custom_footer_contact+'</p>'+ billBottomRender;
 
             postContentToTemplate(html_template);
    } //End - Render Bill Template Function.
@@ -1010,13 +1024,10 @@ var n = 0;
 while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
-                  '<td><span style="font-size:18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
-                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  '<td><span style="font-size: 18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
                   '</td>'+
-                  '<td style="text-align: right">'+
-                     '<p>'+
-                        '<tag class="itemQuantity" style="font-size:18px">'+orderObject.cart[n].qty+'</tag>'+
-                     '</p>'+
+                  '<td class="itemQuantity" style="text-align: right; font-size: 18px">'+orderObject.cart[n].qty+
                   '</td>'+
                '</tr>'
 
@@ -1154,13 +1165,10 @@ var n = 0;
 while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
-                  '<td><span style="font-size:18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
+                  '<td><span style="font-size: 18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
                   '<newcomments class="itemComments">ORDER CANCELLED'+
                   '</td>'+
-                  '<td style="text-align: right">'+
-                     '<p>'+
-                        '<tag class="itemQuantity" style="font-size:18px">'+orderObject.cart[n].qty+' *</tag>'+
-                     '</p>'+
+                  '<td class="itemQuantity" style="text-align: right; font-size: 18px">' +orderObject.cart[n].qty+' x'+
                   '</td>'+
                '</tr>'
 
@@ -1299,12 +1307,12 @@ var n = 0;
 while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
-                  '<td>'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+
-                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  '<td style="font-size: 18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
                   '</td>'+
                   '<td style="text-align: right">'+
                      '<p>'+
-                        '<tag class="itemQuantity">'+orderObject.cart[n].qty+'</tag>'+
+                        '<tag class="itemQuantity" style="font-size: 18px">'+orderObject.cart[n].qty+'</tag>'+
                      '</p>'+
                   '</td>'+
                '</tr>'
@@ -1465,12 +1473,12 @@ var n = 0;
 while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
-                  '<td><span style="font-size:18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
-                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  '<td><span class="itemComments" style="font-size: 14px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="font-size: 13px">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
                   '</td>'+
                   '<td style="text-align: right">'+
                      '<p>'+
-                        '<tag class="itemQuantity" style="font-size:18px">'+orderObject.cart[n].qty+'</tag>'+
+                        '<tag class="itemQuantity" style="font-size: 14px">'+orderObject.cart[n].qty+'</tag>'+
                      '</p>'+
                   '</td>'+
                '</tr>'
@@ -1506,7 +1514,7 @@ var html_template = ''+
                '<td style="vertical-align: top; '+(orderObject.orderDetails.modeType == 'DINE' || orderObject.orderDetails.modeType == 'TOKEN' ? '' : 'display: none')+'">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">'+(orderObject.orderDetails.modeType == 'DINE' ? 'Table No' : (orderObject.orderDetails.modeType == 'TOKEN' ? 'Token No' : ''))+'</tag>'+
-                     '<tag class="tokenNumber">'+orderObject.table+'</tag>'+
+                     '<tag class="tokenNumber" style="font-size: 18px; font-size: bold;">'+orderObject.table+'</tag>'+
                   '</p>'+
                   '<tag>'+'</tag>'+
                '</td>'+
@@ -1668,53 +1676,43 @@ while(compareObject[n]){
 
    if(compareObject[n].change == 'QUANTITY_INCREASE'){
       itemsList +='<tr>'+
-                     '<td>'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
-                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
+                     '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+compareObject[n].newComments+'</newcomments>' : '')+
                      '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">MORE QUANTITY</span></span>'+
                      '</td>'+
-                     '<td style="text-align: right">'+
-                        '<p>'+
-                           '<tag class="itemOldQuantity">'+compareObject[n].oldValue+'</tag>'+
-                           '<tag class="itemQuantity">+ '+(compareObject[n].qty - compareObject[n].oldValue)+'</tag>'+
-                        '</p>'+
+                     '<td style="text-align: right;">'+
+                        '<span class="itemQuantity" style="font-size: 18px">'+ (compareObject[n].qty - compareObject[n].oldValue) +'</span>'+
                      '</td>'+
                   '</tr>'
    }
    else if(compareObject[n].change == 'QUANTITY_DECREASE'){
       itemsList +='<tr>'+
-                     '<td>'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
-                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
+                     '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+compareObject[n].newComments+'</newcomments>' : '')+
                      '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">LESS QUANTITY</span></span>'+
                      '</td>'+
-                     '<td style="text-align: right">'+
-                        '<p>'+
-                           '<tag class="itemOldQuantity">'+compareObject[n].oldValue+'</tag>'+
-                           '<tag class="itemQuantity">- '+(compareObject[n].oldValue - compareObject[n].qty)+'</tag>'+
-                        '</p>'+
+                     '<td style="text-align: right;">'+
+                        '<span class="itemQuantity" style="font-size: 18px">'+ (compareObject[n].oldValue - compareObject[n].qty) +'</span>'+
                      '</td>'+
                   '</tr>'
    }
    else if(compareObject[n].change == 'ITEM_DELETED'){
       itemsList +='<tr>'+
-                     '<td>'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
-                     '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">ITEM CANCELLED</span></span>'+
+                     '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; background: #000; color: #FFF; padding: 2px 4px;">ITEM CANCELLED</span></span>'+
                      '</td>'+
-                     '<td style="text-align: right">'+
-                        '<p>'+
-                           '<tag class="itemOldQuantity">'+compareObject[n].qty+'</tag>'+
-                        '</p>'+
+                     '<td style="text-align: right;">'+
+                        '<span class="itemQuantity" style="font-size: 18px">'+ compareObject[n].qty + ' x</span>'+
                      '</td>'+
                   '</tr>'
    }
    else if(compareObject[n].change == 'NEW_ITEM'){
       itemsList +='<tr>'+
-                     '<td>'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
-                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
+                     '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments" style="font-size: 16px">- '+compareObject[n].newComments+'</newcomments>' : '')+
                      '</td>'+
-                     '<td style="text-align: right">'+
-                        '<p>'+
-                           '<tag class="itemQuantity">'+compareObject[n].qty+'</tag>'+
-                        '</p>'+
+                     '<td style="text-align: right;">'+
+                        '<span class="itemQuantity" style="font-size: 18px">'+ compareObject[n].qty +'</span>'+
                      '</td>'+
                   '</tr>'
    }
@@ -1798,7 +1796,7 @@ var html_template = ''+
                '<td style="vertical-align: top">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME STAMP</tag>'+
-                     '<tag class="timeStamp">'+getFancyTime(orderObject.timePunch)+'<time class="timeDisplay">'+orderObject.date+'</time></tag>'+
+                     '<tag class="timeStamp">'+getFancyTime(orderObject.timeKOT)+'<time class="timeDisplay">'+orderObject.date+'</time></tag>'+
                   '</p>'+
                   '<tag>'+'</tag>'+
                '</td>'+

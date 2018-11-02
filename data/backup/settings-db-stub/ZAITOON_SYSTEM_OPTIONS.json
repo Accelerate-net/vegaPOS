@@ -9,6 +9,8 @@
           "name": "notifications",
           "value": "ALL"
         },
+        { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" },
+        
         {
           "name": "orderEditingAllowed",
           "value": "NO"

@@ -373,7 +373,7 @@ function createFirstTimeActivationStubsFromSettings(licenceObject, machinesList,
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ERRORS" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "resetCountersAfterReport", "value": "YES" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razor" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "Dine In" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "scanPayEnabled", "value": "YES" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ERRORS" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "resetCountersAfterReport", "value": "YES" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razor" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "Dine In" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "scanPayEnabled", "value": "YES" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -888,6 +888,24 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }
                           break;
                         }
+                        case "billSettleLater": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionSettleLater").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionSettleLater").value = 'NO';
+                          }
+                          break;
+                        }
+                        case "adminIdleLogout": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionAdminIdleLogout").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionAdminIdleLogout").value = 'NO';
+                          }
+                          break;
+                        }
                         case "KOTRelayEnabled": {
                           if(params[i].value == 'YES'){
                             document.getElementById("systemOptionKOTRelayEnabled").value = params[i].value;
@@ -1313,7 +1331,7 @@ function changeSystemOptionsFile(type, changedValue){
                       if(settingsList[n].data[i].name == type){
                         
                         settingsList[n].data[i].value = changedValue;
-
+                        console.log(changedValue, machineName)
 
                         //Update
                         var updateData = {
@@ -1957,6 +1975,24 @@ function changeSystemOptionKOTRelaying(){
   //Update
   window.localStorage.appOtherPreferences_KOTRelayEnabled = (optName == 'YES' ? 1 : 0);
   changeSystemOptionsFile("KOTRelayEnabled", optName);
+}
+
+function changeSystemOptionSettleLater(){
+  var optName = document.getElementById("systemOptionSettleLater").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_SettleLater = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("billSettleLater", optName);
+}
+
+
+
+function changeSystemOptionAdminIdleLogout(){
+  var optName = document.getElementById("systemOptionAdminIdleLogout").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_AdminIdleLogout = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("adminIdleLogout", optName);
 }
 
 
