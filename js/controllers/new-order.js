@@ -3179,9 +3179,8 @@ function renderTables(){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
               var tables = data.docs[0].value;
-
               tables.sort(function(obj1, obj2) {
-                return obj1.table - obj2.table;
+                return obj1.sortIndex - obj2.sortIndex;
               });
 
               if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
@@ -5813,8 +5812,9 @@ function pickTableForNewOrder(currentTableID){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
               var tables = data.docs[0].value;
+
               tables.sort(function(obj1, obj2) {
-                return obj1.table - obj2.table;
+                return obj1.sortIndex - obj2.sortIndex;
               });
                
               if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 

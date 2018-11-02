@@ -5018,8 +5018,8 @@ function fetchSingleClickReport(){
 
 	          		//TWEAK
 	          		/* to be safe with KOT number. 2 different KOTs with same KOTNumber should not exists at a time */
-	          		/* assuming a max of 200 KOTs active at a time */
-	          		if(temp_value < 200){
+	          		/* assuming a max of 100 KOTs active at a time */
+	          		if(temp_value < 100){
 	          			resetBillingTokenIndex();
 	          			return '';
 	          		}

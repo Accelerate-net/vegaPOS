@@ -1643,11 +1643,11 @@ while(compareObject[n]){
    }
    else if(compareObject[n].change == 'ITEM_DELETED'){
       itemsList +='<tr>'+
-                     '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
-                     '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; background: #000; color: #FFF; padding: 2px 4px;">ITEM CANCELLED</span></span>'+
+                     '<td style="font-size: 18px; text-decoration: line-through;">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     '<span style="margin-top: 3px; display: block; font-size: 12px; font-weight: bold;"><span style="display: inline-block; background: #000; color: #FFF; padding: 2px 4px;">ITEM CANCELLED</span></span>'+
                      '</td>'+
                      '<td style="text-align: right;">'+
-                        '<span class="itemQuantity" style="font-size: 18px">'+ compareObject[n].qty + ' x</span>'+
+                        '<span class="itemQuantity" style="font-size: 15px; text-decoration: line-through;">'+ compareObject[n].qty + '</span>'+
                      '</td>'+
                   '</tr>'
    }
