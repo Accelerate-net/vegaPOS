@@ -1252,11 +1252,18 @@ function validateMenuItem(item){
 }
 
 
-function saveItemToFile(category, item, editFlag) {
+function saveItemToFile(category, item) {
 
 
 	console.log(item)
 
+
+	if(item == null){
+		showToast('Something went wrong. Try again.', '#e74c3c');
+		return "";
+	}
+
+	
     /*to find the latest item code*/
 
     var requestData = {
@@ -1372,38 +1379,8 @@ function saveItemToFile(category, item, editFlag) {
 	                    }
 
                         if(isItemDuplicate){ 
-                            
-                            if(editFlag){ //Editing, so no issue with duplicate code
-	                            mastermenu[i].items[j] = item;
-
-				                //Update
-				                var updateData = {
-				                  "_rev": data.docs[0]._rev,
-				                  "identifierTag": "ZAITOON_MASTER_MENU",
-				                  "value": mastermenu
-				                }
-
-				                $.ajax({
-				                  type: 'PUT',
-				                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
-				                  data: JSON.stringify(updateData),
-				                  contentType: "application/json",
-				                  dataType: 'json',
-				                  timeout: 10000,
-				                  success: function(data) {
-				                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
-				                  	openSubMenu(category);
-				                  },
-				                  error: function(data) {
-				                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
-				                  }
-
-				                });
-				            }  
-				            else{
-	                        	showToast('Warning: Item Code <b>#'+item.code+'</b> already exists. Please choose a different code.', '#e67e22');
-	                            return '';
-	                        }
+	                        showToast('Warning: Item Code <b>#'+item.code+'</b> already exists. Please choose a different code.', '#e67e22');
+	                        return '';
                         }
                         
 
@@ -1411,7 +1388,7 @@ function saveItemToFile(category, item, editFlag) {
                         //Completely a New Item 
                         if(!isItemDuplicate){
                             
-                            mastermenu[i].items[j] = item;
+                            mastermenu[i].items.push(item);
                      	
                      		//Update
 			                var updateData = {
@@ -1500,8 +1477,10 @@ function saveItemToFile(category, item, editFlag) {
 
 function saveEditedItemToFile(category, item) {
 
-
-	console.log(item)
+	if(item == null){
+		showToast('Something went wrong. Try again.', '#e74c3c');
+		return "";
+	}
 
     var requestData = {
       "selector"  :{ 
@@ -2009,7 +1988,7 @@ function readNewItem(category){
 
 	if(response.status){
 		item.isAvailable = true;
-		saveItemToFile(category, item, false);
+		saveItemToFile(category, item);
 		document.getElementById("newMenuItemModal").style.display = 'none';
 	}
 	else{
