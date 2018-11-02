@@ -5804,3 +5804,10 @@ input:checked + .slider:before {
     display: inline-block;
 }
 
+
+.mycheck input[type="checkbox"]{
+    width: 20px !important;
+    height: 20px !important;
+    cursor: pointer;
+    margin-top: 2px;
+}

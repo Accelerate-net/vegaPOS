@@ -66,20 +66,20 @@ function fetchAllTables(){
 
               var table = data.docs[0].value;
               table.sort(function(obj1, obj2) {
-                return obj1.table - obj2.table;
+                return obj1.sortIndex - obj2.sortIndex;
               });
                
 
               var tablesList = '';
 
               for (var i=0; i<table.length; i++){
-                tablesList = tablesList + '<tr role="row"> <td>'+(table[i].status == 0 ? '<i class="fa fa-circle" style="color: #2ecc71; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : (table[i].status == 1 ? '<i class="fa fa-circle" style="color: #e74c3c; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : '<i class="fa fa-circle" style="color: #ecaa40; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>'))+table[i].table+'</td> <td>'+table[i].type+'</td> <td>'+table[i].capacity+'</td> <td onclick="deleteSingleTableConsent(\''+table[i].table+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+                tablesList = tablesList + '<tr role="row"> <td>'+table[i].sortIndex+'</td> <td>'+(table[i].status == 0 ? '<i class="fa fa-circle" style="color: #2ecc71; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : (table[i].status == 1 ? '<i class="fa fa-circle" style="color: #e74c3c; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : '<i class="fa fa-circle" style="color: #ecaa40; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>'))+'<b style="font-size: 120%">'+table[i].table+'</b></td> <td style="text-align: center">'+table[i].type+'</td> <td style="text-align: center">'+table[i].capacity+'</td> <td onclick="deleteSingleTableConsent(\''+table[i].table+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
               }
 
               if(!tablesList)
                 document.getElementById("allTablesList").innerHTML = '<p style="color: #bdc3c7">No Table added yet.</p>';
               else
-                document.getElementById("allTablesList").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left">Table</th> <th style="text-align: left">Section</th> <th style="text-align: left">Capacity</th> <th style="text-align: left"></th> </tr> </thead> <tbody>'+
+                document.getElementById("allTablesList").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left">Index</th> <th style="text-align: left">Table</th> <th style="text-align: center">Section</th> <th style="text-align: center">Capacity</th> <th style="text-align: left"></th> </tr> </thead> <tbody>'+
                                         '<tbody>'+tablesList+'</tbody>';         
                 
           }
@@ -649,7 +649,7 @@ function addNewTable() {
   paramObj.capacity = document.getElementById("add_new_table_capacity").value;
   paramObj.type = document.getElementById("add_new_table_type").value;
   
-  paramObj.assigned = "";
+  paramObj.sortIndex = parseInt(document.getElementById("add_new_table_sortIndex").value);
   paramObj.KOT = "";
   paramObj.status = 0;
   paramObj.lastUpdate = "";
@@ -663,6 +663,10 @@ function addNewTable() {
 
    if(paramObj.table == '') {
       showToast('Warning: Please set a name', '#e67e22');
+      return '';
+   }
+   else if(paramObj.sortIndex == "" || paramObj.sortIndex == 0){
+      showToast('Warning: Please set sort index', '#e67e22');
       return '';
    }
    else if(paramObj.type == ''){
@@ -700,14 +704,14 @@ function addNewTable() {
                    var isAlreadyThere = false;
 
                    for (var i=0; i<table.length; i++) {
-                     if (table[i].table == paramObj.table){
+                     if (table[i].table == paramObj.table || table[i].sortIndex == paramObj.sortIndex){
                         isAlreadyThere = true;
                         break;
                      }
                    }
 
                    if(isAlreadyThere){
-                     showToast('Warning: Table Name already exists. Please choose a different name.', '#e67e22');
+                     showToast('Warning: Table Name and Sort Index already added. Please choose a different name and sort index', '#e67e22');
                    }
                    else{
 

@@ -243,9 +243,16 @@ function hideCustomiseItem(){
 /* Special Custom Item */
 //To be entered manually
 
-function addSpecialCustomItem(){
+function addSpecialCustomItem(optionalText){
+
+	var itemName = '';
+
+	if(optionalText && optionalText != ""){
+		itemName =  optionalText;
+	}
+
 	document.getElementById("newManualCustomItemModal").style.display ='block';
-	$('#add_new_manual_custom_name').val('');
+	$('#add_new_manual_custom_name').val(itemName);
 	$('#add_new_manual_custom_price').val(0);
 	$('#add_new_manual_custom_name').focus();
 
@@ -257,6 +264,13 @@ function addSpecialCustomItem(){
                   if(e.which == 27){ // Escape (Close)
                     document.getElementById("newManualCustomItemModal").style.display ='none';
                     easyActionsTool.unbind();
+                    $('#add_item_by_search').focus();
+                    $('#add_item_by_search').select();
+                  }
+                  else if(e.which == 13){ // Enter (Confirm)
+                    $("#addManualCustomItemOKButton").click();
+                    e.preventDefault(); 
+                    easyActionsTool.unbind();
                   }
 
             }
@@ -266,12 +280,17 @@ function addSpecialCustomItem(){
 
 function addSpecialCustomItemHide(){
 	document.getElementById("newManualCustomItemModal").style.display ='none';	
+	$('#add_item_by_search').focus();
+	$('#add_item_by_search').select();
 }
 
 function addManualCustomItem(){
+
 	var name = $('#add_new_manual_custom_name').val();
 	var price = $('#add_new_manual_custom_price').val();
 	price = parseInt(price);
+
+	var tax_flag = $('#add_new_manual_custom_taxable').is(":checked") ? true : false;
 
 	if(name == ''){
 		showToast('Warning: Add a Custom Name', '#e67e22');
@@ -308,9 +327,18 @@ function addManualCustomItem(){
 		productToAdd.name = name;
 		productToAdd.category = 'MANUAL_UNKNOWN';
 		productToAdd.code = top_manual_index;
-		productToAdd.price = price;
+		productToAdd.price = price;	
 		productToAdd.isCustom = false;
-		productToAdd.isPackaged = true;
+
+		if(tax_flag){ //tax applicable
+			productToAdd.isPackaged = false;
+		}
+		else{
+			productToAdd.isPackaged = true;
+		}
+
+		$('#add_item_by_search').val('');
+		$('#add_item_by_search').focus();
 
 		saveToCart(productToAdd);
 
@@ -3151,9 +3179,8 @@ function renderTables(){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
               var tables = data.docs[0].value;
-
               tables.sort(function(obj1, obj2) {
-                return obj1.table - obj2.table;
+                return obj1.sortIndex - obj2.sortIndex;
               });
 
               if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
@@ -5785,8 +5812,9 @@ function pickTableForNewOrder(currentTableID){
           if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
 
               var tables = data.docs[0].value;
+
               tables.sort(function(obj1, obj2) {
-                return obj1.table - obj2.table;
+                return obj1.sortIndex - obj2.sortIndex;
               });
                
               if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
@@ -7557,10 +7585,20 @@ function initMenuSuggestion(){
 
 
 						//Render the list
-					    if(itemsList != '' || itemsAppendList != '')
+					    if(itemsList != '' || itemsAppendList != ''){
 					    	$('#searchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+itemsList+itemsAppendList+'</ul>');
-					    else
-					    	$('#searchResultsRenderArea').html('');
+					    }
+					    else{
+
+					    	var temp_item = $('#add_item_by_search').val();
+
+					    	var custom_template = 	'<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+
+					    								'<span style="display: inline-block; padding: 8px 0 4px 8px; font-size: 12px; text-align: center; color: #c6c6c6; font-style: italic">No matching items found.</span>'+
+										    			'<li class="ui-menu-item" onclick="addSpecialCustomItem(\''+temp_item+'\')" tabindex="'+tabIndex+'"><i class="fa fa-plus-circle" style="color: #18ca8b"></i> <i>add</i> <b style="font-size: 120%">'+temp_item+'</b></li>'+
+										    	   	'</ul>';
+					    	
+					    	$('#searchResultsRenderArea').html(custom_template);
+					    }
 
 					    //Refresh dropdown list
 					    li = $('#searchResultsRenderArea li');

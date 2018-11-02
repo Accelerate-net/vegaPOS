@@ -923,7 +923,7 @@ function pickTableForTransferOrder(currentTableID, kotID){
               var tables = data.docs[0].value;
 
               tables.sort(function(obj1, obj2) {
-                return obj1.table - obj2.table;
+                return obj1.sortIndex - obj2.sortIndex;
               });
               
  
