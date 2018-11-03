@@ -4179,11 +4179,17 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                  	  clearAllMetaData();
-                  	  renderCustomerInfo();
+                  	  
                       sendKOTChangesToPrinterPreProcess(kot, compareObject);
-
                       showToast('Changed KOT #'+kot.KOTNumber+' generated Successfully', '#27ae60');
+
+                      /*
+                      	clearAllMetaData();
+                  	  	renderCustomerInfo();
+                  	  */
+
+                  	  pushCurrentOrderAsEditKOT(kot);
+
                   },
                   error: function(data) {
                       showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
