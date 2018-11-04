@@ -136,8 +136,6 @@ function renderLiveOnlineOrders(){
 
                     	var onlineOrdersMapping = data.docs;
 
-
-
 			          	var items = '';
 						for (var i=0; i<onlineOrdersMapping.length; i++){
 							items = items + '<tr role="row" id="onlineLiveListing_'+onlineOrdersMapping[i].onlineOrder+'" class="onlineOrderListing" onclick="fetchSystemOrder(\''+encodeURI(JSON.stringify(onlineOrdersMapping[i]))+'\')"> <td>'+onlineOrdersMapping[i].onlineOrder+'<br>'+(onlineOrdersMapping[i].type == 'DELIVERY'? '<tag class="onlineDeliveryTag">DELIVERY</tag>' : '<tag class="onlineTakeAwayTag">TAKE AWAY</tag>')+'</td> <td><tag style="display: block">'+onlineOrdersMapping[i].name+'</tag><tag style="display: block">'+onlineOrdersMapping[i].mobile+'<tag></td>'+
@@ -857,19 +855,17 @@ function dispatchOnlineOrderAfterProcess(encodedMapping, agentCode, agentName){
 
 function updateOnlineOrdersMappingDispatch(id, name, code){
 
-    var requestData = { "selector" :{ "_id": id}}
-
                 $.ajax({
                   type: 'POST',
-                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/_find',
+                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/'+id,
                   data: JSON.stringify(requestData),
                   contentType: "application/json",
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                    if(data.docs.length > 0){
+                    if(data._id != ""){
 
-                    	var onlineOrdersMapping = data.docs[0];
+                    	var onlineOrdersMapping = data;
 
                     	onlineOrdersMapping.timeDispatch = getCurrentTime('TIME');
                     	onlineOrdersMapping.onlineStatus = 2;
@@ -921,26 +917,29 @@ function updateSystemBillAgent(billNumber, code, name, status){
             "mobile" : code
     }
 
-    var requestURL = 'zaitoon_bills';
 
-    if(status == 3){
-      requestURL = 'zaitoon_invoices';
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
     }
 
-    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    var requestURL = 'zaitoon_bills/'+accelerate_licencee_branch +"_BILL_"+ billNumber;
+
+    if(status == 3){
+    	requestURL = 'zaitoon_invoices/'+accelerate_licencee_branch +"_INVOICE_"+ billNumber;
+    }
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL,
       timeout: 10000,
       success: function(firstdata) {
-      	console.log(firstdata)
-        if(firstdata.docs.length > 0){
+        if(firstdata._id != ""){
 
-          var bill = firstdata.docs[0];
+          var bill = firstdata;
           bill.deliveryDetails = deliveryObject;
 
                 //Update Bill/Invoice on Server

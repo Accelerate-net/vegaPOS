@@ -46,6 +46,10 @@
           "value": ""
         },
         {
+          "name": "Generate KOT Silently",
+          "value": ""
+        },
+        {
           "name": "Print Item View",
           "value": ""
         },

@@ -1382,7 +1382,8 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+		                              '<button style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+		                           	  '<button class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
 		                           '</div>'+
 		                        '</div>'+                           
 		                     '</div>';
@@ -1433,6 +1434,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '<div class="col-xs-4" style="padding: 0">'+
 		                           '<div class="btn-group-vertical btn-block">'+
 		                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+		                              '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
 		                           '</div>'+
 		                        '</div>'+                           
 		                     '</div>';
@@ -1485,6 +1487,7 @@ else{
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
                            '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
                         '</div>'+
                      '</div>';
  	}   
@@ -1498,6 +1501,7 @@ else{
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
                            '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
                         '</div>'+
                      '</div>';
  	}
@@ -1512,6 +1516,7 @@ else{
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
                            '<div class="btn-group-vertical btn-block">'+
                               '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print KOT</button>'+
+                              '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
                            '</div>'+
                         '</div>'+                    
                      '</div>';
@@ -4025,18 +4030,19 @@ function fetchImageFromServer(itemCode, vegFlag){
 
 */
 
-function generateKOT(){
+function generateKOT(silentFlag){
+
 	//Editing Case
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
-		generateEditedKOT();
+		generateEditedKOT(silentFlag);
 	}
 	else if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){ //New Order Case
-		generateNewKOT();
+		generateNewKOT(silentFlag);
 	}
 }
 
 /*Generate KOT for Editing Order */
-function generateEditedKOT(){
+function generateEditedKOT(silentFlag){
 	var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 	
 	var changedCustomerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
@@ -4165,7 +4171,7 @@ function generateEditedKOT(){
 
 			//last iteration
 			if(j == changed_cart_products.length - 1){
-				generateEditedKOTAfterProcess(originalData.KOTNumber, changed_cart_products, changedCustomerInfo, comparisonResult, hasRestrictedEdits)
+				generateEditedKOTAfterProcess(originalData.KOTNumber, changed_cart_products, changedCustomerInfo, comparisonResult, hasRestrictedEdits, silentFlag)
 			} 
 
 			j++;
@@ -4175,7 +4181,7 @@ function generateEditedKOT(){
 }
 
 
-function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject, hasRestrictedEdits){
+function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject, hasRestrictedEdits, silentFlag){
 
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -4332,8 +4338,13 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
                   timeout: 10000,
                   success: function(data) {
                   	  
-                      sendKOTChangesToPrinterPreProcess(kot, compareObject);
-                      showToast('Changed KOT #'+kot.KOTNumber+' generated Successfully', '#27ae60');
+                  	  if(silentFlag == 'SILENTLY'){ //Skip Printing..
+                  	  	showToast('<b>Skipped Printing!</b> Changed KOT #'+kot.KOTNumber+' generated Successfully.', '#27ae60');
+                  	  }
+                  	  else{
+                      	sendKOTChangesToPrinterPreProcess(kot, compareObject);
+                      	showToast('Changed KOT #'+kot.KOTNumber+' generated Successfully', '#27ae60');
+                      }
 
                       /*
                       	clearAllMetaData();
@@ -4668,7 +4679,7 @@ function revertDelete(encodedItem){
 
 
 /* Generate KOT for Fresh Order */
-function generateNewKOT(){
+function generateNewKOT(silentFlag){
 
 	//Render Cart Items based on local storage
 	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
@@ -4736,7 +4747,7 @@ function generateNewKOT(){
 	          		n++;
 	          	}
 	          	
-	          	generateKOTAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList)	
+	          	generateKOTAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, silentFlag)	
 
           }
           else{
@@ -4871,7 +4882,7 @@ function removeCustomerAddressFromDatabase(mobile, addressID){
 }
 
 
-function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras){
+function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras, silentFlag){
 		
 		/*Process Figures*/
 		var subTotal = 0;
@@ -5124,7 +5135,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
-	              		showToast('KOT #'+kot+' generated Successfully', '#27ae60');
+	              		
 
 	              		/*
 	              		clearAllMetaData();
@@ -5134,11 +5145,15 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 	              		pushCurrentOrderAsEditKOT(obj);
 
-	              		initialiseKOTPrinting();
+	              		if(silentFlag == 'SILENTLY'){
+	              			showToast('<b>Skipped Printing!</b> KOT #'+kot+' generated Successfully.', '#27ae60');
+	              		}
+	              		else{
+	              			initialiseKOTPrinting();
+	              			showToast('KOT #'+kot+' generated Successfully', '#27ae60');
+	              		}
 	              	}
 	              	else if(orderMetaInfo.modeType == 'TOKEN'){
-
-	              		showToast('KOT #'+kot+' generated Successfully', '#27ae60');
 
 	              		//Clear Token
 						window.localStorage.claimedTokenNumber = '';
@@ -5147,10 +5162,16 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	 					pushCurrentOrderAsEditKOT(obj);
 	              		generateBillFromKOT(kot, 'ORDER_PUNCHING');
 
-	              		initialiseKOTPrinting();
+	              		if(silentFlag == 'SILENTLY'){
+	              			showToast('<b>Skipped Printing!</b> KOT #'+kot+' generated Successfully.', '#27ae60');
+	              		}
+	              		else{
+	              			initialiseKOTPrinting();
+	              			showToast('KOT #'+kot+' generated Successfully', '#27ae60');
+	              		}
+
 	              	}
 	              	else if(orderMetaInfo.modeType == 'PARCEL' || orderMetaInfo.modeType == 'DELIVERY'){
-	              		showToast('KOT #'+kot+' generated Successfully', '#27ae60');
 
 	              		if(orderMetaInfo.modeType == 'PARCEL'){
 	              			//Clear Token
@@ -5168,7 +5189,13 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              		pushCurrentOrderAsEditKOT(obj);
 	              		generateBillFromKOT(kot, 'ORDER_PUNCHING');
 
-	              		initialiseKOTPrinting();
+	              		if(silentFlag == 'SILENTLY'){
+	              			showToast('<b>Skipped Printing!</b> KOT #'+kot+' generated Successfully.', '#27ae60');
+	              		}
+	              		else{
+	              			initialiseKOTPrinting();
+	              			showToast('KOT #'+kot+' generated Successfully', '#27ae60');
+	              		}
 	              	}
 
 

@@ -91,7 +91,6 @@ function renderSideNavigation(){
                     '</li>';  
       }
       else{ 
-        console.log('rending...')
         document.getElementById("sidemenuNavigationBar").innerHTML = ''+
                     '<li onclick="renderPage(\'new-order\', \'Punch Order\')">'+
                         '<a href="#">'+
@@ -850,7 +849,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "Show Spotlight Search", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "f3" }, { "name": "Assign Delivery Agent", "value": "f2" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "shift+c" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "Show Spotlight Search", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Generate KOT Silently", "value": "" } , { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "f3" }, { "name": "Assign Delivery Agent", "value": "f2" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "shift+c" } ] }
                 settingsList.push(new_stub);
               
                 //Update
@@ -1503,6 +1502,15 @@ function initialiseKeyboardShortcuts(){
             $("#triggerClick_PrintKOTButton").click();
             return false;
           })
+
+          break;
+        }
+        case "Generate KOT Silently":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            $("#triggerClick_PrintKOTSilentlyButton").click();
+            return false;
+          })
+
           break;
         }
         case "Print Bill":{
