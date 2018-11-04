@@ -2277,7 +2277,7 @@ function openSelectedBill(encodedBill, type){
 		if(!jQuery.isEmptyObject(bill.extras)){
 			var m = 0;
 			while(bill.extras[m]){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.extras[m].name+' ('+(bill.extras[m].unit == 'PERCENTAGE' ? bill.extras[m].value+'%' : 'Rs. '+bill.extras[m].value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.extras[m].amount+'</td> </tr>';
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.extras[m].name+' ('+(bill.extras[m].unit == 'PERCENTAGE' ? bill.extras[m].value+'%' : 'Rs. '+bill.extras[m].value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(Math.round(bill.extras[m].amount * 100) / 100)+'</td> </tr>';
 				charges_extra += bill.extras[m].amount;
 				m++;
 			}
@@ -2285,14 +2285,14 @@ function openSelectedBill(encodedBill, type){
 
 		if(!jQuery.isEmptyObject(bill.customExtras)){
 			if(bill.customExtras.amount && bill.customExtras.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.customExtras.amount+'</td> </tr>';
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(Math.round(bill.customExtras.amount * 100) / 100)+'</td> </tr>';
 				charges_extra += bill.customExtras.amount;
 			}
 		}
 
 		if(!jQuery.isEmptyObject(bill.discount)){
 			if(bill.discount.amount && bill.discount.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts<tag onclick="openDiscountDetailsInfo(\''+encodeURI(JSON.stringify(bill.discount))+'\')" class="refundIssueSmallButton"><i class="fa fa-question"></i></tag></td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts<tag onclick="openDiscountDetailsInfo(\''+encodeURI(JSON.stringify(bill.discount))+'\')" class="refundIssueSmallButton"><i class="fa fa-question"></i></tag></td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+(Math.round(bill.discount.amount * 100) / 100)+'</tag>' : '0')+'</td> </tr>';
 				charges_extra = charges_extra - bill.discount.amount;
 			}
 		}
@@ -2458,7 +2458,7 @@ function openSelectedBill(encodedBill, type){
 		if(!jQuery.isEmptyObject(bill.extras)){
 			var m = 0;
 			while(bill.extras[m]){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.extras[m].name+' ('+(bill.extras[m].unit == 'PERCENTAGE' ? bill.extras[m].value+'%' : 'Rs. '+bill.extras[m].value)+')</td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.extras[m].amount+'</td> </tr>';
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.extras[m].name+' ('+(bill.extras[m].unit == 'PERCENTAGE' ? bill.extras[m].value+'%' : 'Rs. '+bill.extras[m].value)+')</td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+(Math.round(bill.extras[m].amount * 100) / 100)+'</td> </tr>';
 				charges_extra += bill.extras[m].amount;
 				m++;
 			}
@@ -2466,14 +2466,14 @@ function openSelectedBill(encodedBill, type){
 
 		if(!jQuery.isEmptyObject(bill.customExtras)){
 			if(bill.customExtras.amount && bill.customExtras.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+bill.customExtras.amount+'</td> </tr>';
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+(Math.round(bill.customExtras.amount * 100) / 100)+'</td> </tr>';
 				charges_extra += bill.customExtras.amount;
 			}
 		}
 
 		if(!jQuery.isEmptyObject(bill.discount)){
 			if(bill.discount.amount && bill.discount.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts<tag onclick="openDiscountDetailsInfo(\''+encodeURI(JSON.stringify(bill.discount))+'\')" class="refundIssueSmallButton"><i class="fa fa-question"></i></tag></td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+bill.discount.amount+'</tag>' : '0')+'</td> </tr>';
+				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts<tag onclick="openDiscountDetailsInfo(\''+encodeURI(JSON.stringify(bill.discount))+'\')" class="refundIssueSmallButton"><i class="fa fa-question"></i></tag></td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+(Math.round(bill.discount.amount * 100) / 100)+'</tag>' : '0')+'</td> </tr>';
 				charges_extra = charges_extra - bill.discount.amount;
 			}
 		}

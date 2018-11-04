@@ -187,7 +187,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 otherCharges = otherCharges + '</tr><tr class="info">';
               }
 
-              otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+kotfile.extras[i].name+' ('+(kotfile.extras[i].unit == 'PERCENTAGE'? kotfile.extras[i].value + '%': '<i class="fa fa-inr"></i>'+kotfile.extras[i].value)+')</td><td width="15%" class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+kotfile.extras[i].amount+'</td>';
+              otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+kotfile.extras[i].name+' ('+(kotfile.extras[i].unit == 'PERCENTAGE'? kotfile.extras[i].value + '%': '<i class="fa fa-inr"></i>'+kotfile.extras[i].value)+')</td><td width="15%" class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+(Math.round(kotfile.extras[i].amount * 100) / 100)+'</td>';
               otherChargesSum = otherChargesSum + kotfile.extras[i].amount;
               
             }

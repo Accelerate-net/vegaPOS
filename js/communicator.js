@@ -275,7 +275,7 @@ if(type == 'BILL'){
 
          extrasList +=  '<tr>'+
                            '<td>'+orderObject.extras[m].name+' ('+(orderObject.extras[m].unit == 'PERCENTAGE'? orderObject.extras[m].value + '%': 'Rs.'+orderObject.extras[m].value)+')</td>'+
-                           '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+orderObject.extras[m].amount+'</td>'+
+                           '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+(Math.round(orderObject.extras[m].amount * 100) / 100)+'</td>'+
                         '</tr>';
 
          extras_sum += orderObject.extras[m].amount;
@@ -292,7 +292,7 @@ if(type == 'BILL'){
 
          customExtrasList +=  '<tr>'+
                                  '<td>'+orderObject.customExtras.type+' ('+(orderObject.customExtras.unit == 'PERCENTAGE'? orderObject.customExtras.value + '%': 'Rs.'+orderObject.customExtras.value)+')</td>'+
-                                 '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+orderObject.customExtras.amount+'</td>'+
+                                 '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+(Math.round(orderObject.customExtras.amount * 100) / 100)+'</td>'+
                               '</tr>';
 
          custom_extras_sum = orderObject.customExtras.amount;
@@ -584,7 +584,7 @@ while(orderObject.extras[m]){
 
    extrasList +=  '<tr>'+
                      '<td>'+orderObject.extras[m].name+' ('+(orderObject.extras[m].unit == 'PERCENTAGE'? orderObject.extras[m].value + '%': 'Rs.'+orderObject.extras[m].value)+')</td>'+
-                     '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+orderObject.extras[m].amount+'</td>'+
+                     '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+ (Math.round(orderObject.extras[m].amount * 100) / 100) +'</td>'+
                   '</tr>';
 
    extras_sum += orderObject.extras[m].amount;
@@ -601,7 +601,7 @@ if(orderObject.customExtras.amount &&  orderObject.customExtras.amount != 0){
 
    customExtrasList +=  '<tr>'+
                            '<td>'+orderObject.customExtras.type+' ('+(orderObject.customExtras.unit == 'PERCENTAGE'? orderObject.customExtras.value + '%': 'Rs.'+orderObject.customExtras.value)+')</td>'+
-                           '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+orderObject.customExtras.amount+'</td>'+
+                           '<td style="text-align: right;">'+'<rs class="rs">Rs.</rs>'+ (Math.round(orderObject.customExtras.Amount * 100) / 100) +'</td>'+
                         '</tr>';
 
    custom_extras_sum = orderObject.customExtras.amount;
@@ -1248,7 +1248,7 @@ while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
                   '<td><span style="font-size: 18px; text-decoration: line-through; str">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
-                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments style="text-decoration: line-through;" class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments class="itemComments" style="text-decoration: line-through; font-size: 11px;">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
                   '</td>'+
                   '<td class="itemQuantity" style="text-align: right; font-size: 18px; text-decoration: line-through;">' +orderObject.cart[n].qty+
                   '</td>'+

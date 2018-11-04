@@ -1096,20 +1096,23 @@ function pickTableForTransferOrderHide(){
 
 function transferKOTAfterProcess(tableNumber, kotID){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-          var kotfile = data.docs[0];
-
+          var kotfile = data;
 
           if(kotfile.table == tableNumber){ //same table
             return '';
@@ -1124,8 +1127,6 @@ function transferKOTAfterProcess(tableNumber, kotID){
           var tableID_new = tableNumber;
 
           kotfile.table = tableNumber;
-
-          console.log('WRITE CODE: TO SEND KOT TO KITCHEN --> Table Changed')
 
                 /*Save changes in KOT*/
                   
@@ -1145,8 +1146,7 @@ function transferKOTAfterProcess(tableNumber, kotID){
                     liveOrderOptionsClose();    
                     renderAllKOTs();  
 
-                    console.log('********* CHANGE TABLE MAPPING!!!')
-                    swapTableMapping(tableID_old, tableID_new);
+                    swapTableMapping(tableID_old, tableID_new, kotfile);
 
                   },
                   error: function(data) {
@@ -1169,7 +1169,7 @@ function transferKOTAfterProcess(tableNumber, kotID){
 }
 
 
-function swapTableMapping(old, newTable){
+function swapTableMapping(old, newTable, old_kot){
 
   console.log('Swap', old, newTable)
 
@@ -1193,21 +1193,9 @@ function swapTableMapping(old, newTable){
 
                 var tableMapping = data.docs[0].value;
 
-                var nextIndex = -1;
-                var memory_status, memory_assigned, memory_KOT, memory_lastTime;
-                
-
-
-
-
                 //Find Old Value
                 for(var i=0; i<tableMapping.length; i++){
                   if(tableMapping[i].table == old){ 
-
-                      memory_status = tableMapping[i].status;
-                      memory_assigned = tableMapping[i].assigned;
-                      memory_KOT = tableMapping[i].KOT;
-                      memory_lastTime = tableMapping[i].lastUpdate;
 
                       tableMapping[i].status = 0;
                       tableMapping[i].assigned = "";
@@ -1218,6 +1206,11 @@ function swapTableMapping(old, newTable){
 
                       break;
                   }
+
+                  if(i == tableMapping.length - 1){ //Table mapping not found! (Unlinked Order)
+                    replaceWithNewTable();
+                  }
+                
                 }
 
 
@@ -1225,10 +1218,11 @@ function swapTableMapping(old, newTable){
                   //Find New Table
                   for(var j=0; j<tableMapping.length; j++){
                     if(tableMapping[j].table == newTable){ 
-                        tableMapping[j].status = memory_status;
-                        tableMapping[j].assigned = memory_assigned;
-                        tableMapping[j].KOT = memory_KOT;
-                        tableMapping[j].lastUpdate = memory_lastTime; 
+
+                        tableMapping[j].status = 1;
+                        tableMapping[j].assigned = old_kot.customerName;
+                        tableMapping[j].KOT = old_kot.KOTNumber;
+                        tableMapping[j].lastUpdate = (old_kot.timeKOT != "" ? old_kot.timeKOT : old_kot.timePunch); 
 
                         updateChangesOnServer();
 

@@ -424,21 +424,28 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 
 	  var kotID = kotList[0]; //Merge all to first KOT
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    
 
     console.log('FINAL MEGR')
 
+
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
+
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           if(mergedCart && mergedCart.length > 0){
             kotfile.cart = mergedCart;
@@ -492,23 +499,27 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
 	  var h = 1; //Do not count first KOT
     while(kotList[h]){
 
-        var requestData = { "selector" :{ "KOTNumber": kotList[h] }, "fields" : ["_rev", "_id"]}
+        //Set _id from Branch mentioned in Licence
+        var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+        if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+          showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+          return '';
+        }
+
+        var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotList[h];
 
         $.ajax({
-          type: 'POST',
-          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
-          data: JSON.stringify(requestData),
-          contentType: "application/json",
-          dataType: 'json',
+          type: 'GET',
+          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
           timeout: 10000,
           success: function(data) {
-            if(data.docs.length > 0){
+            if(data._id != ""){
 
-                    //Delete KOT
-                    
+
+                    //Delete KOT                    
                     $.ajax({
                       type: 'DELETE',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(data.docs[0]._id)+'/?rev='+data.docs[0]._rev,
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(data._id)+'/?rev='+data._rev,
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
@@ -1024,11 +1035,29 @@ function addToHoldList(id){
 		document.getElementById("holdMain_"+id).classList.add('selectedExtra');
 	}
 
+  var merge_result_text = '';
+  var q = 0;
+  while(tempList[q]){
+
+    if(q == 0){
+      merge_result_text += 'Table '+tempList[q];
+    }
+    else if (q > 0 && q < tempList.length - 1){
+      merge_result_text += ' + Table '+tempList[q];
+    }
+    else if (q = tempList.length - 1) //last iteration
+    { 
+      merge_result_text += ' + Table '+tempList[q] + ' <i class="fa fa-arrow-right"></i> ';
+    }
+
+    q++;
+  }
+
 	if(tempList.length == 1){
 		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 18px; text-align: left;">Select Orders to Merge its Bills <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';	
 	}
 	else{
-		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 0; padding: 10px 120px 10px 30px !important; font-size: 18px; text-align: left; line-height: 1.6em">Merge tables '+tempList.toString()+' on to <b style="font-size: 120%">Table '+tempList[0]+'</b>. This can not be revered. Previously applied discounts will be removed. Sure want to Merge Orders? <button class="btn btn-sm btn-success" onclick="mergeBillsInTheHoldList()" style="font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Merge Orders</button> <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';
+		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 0; padding: 10px 120px 10px 30px !important; font-size: 18px; text-align: left; line-height: 1.6em">Merge orders on <b>'+merge_result_text+'</b> <b style="font-size: 120%; color: #ffd800">Table '+tempList[0]+'</b>. This can not be revered. Previously applied discounts will be removed. Sure want to Merge Orders? <button class="btn btn-sm btn-success" onclick="mergeBillsInTheHoldList()" style="font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Merge Orders</button> <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';
 	}
 
 	
@@ -1055,27 +1084,32 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
     var kotCounter = 0;
 
     var mergingBillingMode = '';
+    var freshCartIndices = 1;
 
     console.log(kotList, tableList)
+
+
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
 
 
     var n = 0;
     while (n < kotCount) {
 
-        var requestData = { "selector" :{ "KOTNumber": kotList[n] }}
+      var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotList[n];
 
-        $.ajax({
-          type: 'POST',
-          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
-          data: JSON.stringify(requestData),
-          contentType: "application/json",
-          dataType: 'json',
-          timeout: 10000,
-          success: function(data) {
+      $.ajax({
+        type: 'GET',
+        url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
+        timeout: 10000,
+        success: function(data) {
+          if(data._id != ""){
 
-            if(data.docs.length > 0){
-
-                    var kotfile = data.docs[0];
+            var kotfile = data;
 
                     if(mergingBillingMode == ''){
                       mergingBillingMode = kotfile.orderDetails.mode;
@@ -1140,7 +1174,10 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
                         }
 
                         if (!itemDuplicateFlag) { //No duplicate, push the item wholely.
+                            kotfile.cart[f].cartIndex = freshCartIndices;
                             mergedCart.push(kotfile.cart[f]);
+
+                            freshCartIndices++;
                         }          
                     }
 

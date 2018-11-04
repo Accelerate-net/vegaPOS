@@ -3990,7 +3990,7 @@ position: absolute;
 .markItemsBatchIcon{
   width: 30px;
   height: 30px;
-  opacity: 0;
+  opacity: 0.2;
   padding: 7px;
   color: #FFF;
   cursor: pointer;
@@ -4000,11 +4000,11 @@ position: absolute;
   display: inline-block;
   position: absolute;
   margin-top: -5px;
+  background: #1abc9c;
 }
 
 
 .markItemsBatchWrap:hover .markItemsBatchIcon{
-  background: #1abc9c;
   opacity: 1;
 }
 
