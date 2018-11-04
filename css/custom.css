@@ -5932,7 +5932,7 @@ input:checked + .slider:before {
 
 .textToKitchenChat{
     font-size: 12px;
-    width: 480px;
+    width: 470px;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
