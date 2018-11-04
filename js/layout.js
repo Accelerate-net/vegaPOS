@@ -561,6 +561,7 @@ function goProceedToActivation(){
           hideLoading();
 
           if(data.status){
+            console.log(data.response)
             pushLicenseToLocaServerFromHome(data.response);
           }
           else{
@@ -580,6 +581,7 @@ function goProceedToActivation(){
 
 
 function pushLicenseToLocaServerFromHome(licenceObject){
+
 
     var requestData = {
       "selector"  :{ 

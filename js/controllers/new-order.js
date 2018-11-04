@@ -22,9 +22,16 @@ function triggerRightPanelDisplay(){
 
 
 /*Add Item to Cart */
-function saveToCart(productToAdd){
+function saveToCart(productToAdd, optionalSource){
 
 		var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+
+
+		/*
+
+		********************************
+		OLD - Compact Cart (deprecated)
+		********************************
 
 		var i = 0;
 		var flag = -1;
@@ -49,7 +56,57 @@ function saveToCart(productToAdd){
       		cart_products.push({"name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1});
       }
 
-	  window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+      */
+
+      var maxCartIndex = 0;
+
+      if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+      	if(window.localStorage.maxCartIndex && window.localStorage.maxCartIndex != 0){
+      		if(optionalSource == 'DELETE_REVERSAL'){
+      			//Do nothing.
+      		}
+      		else{
+      			maxCartIndex = parseInt(window.localStorage.maxCartIndex) + 1;
+      			window.localStorage.maxCartIndex = maxCartIndex;
+      		}
+      	}
+      	else{
+      		var i = 0;
+			maxCartIndex = 0;
+
+			while(i < cart_products.length){
+	          if(maxCartIndex <= cart_products[i].cartIndex){
+				    maxCartIndex = cart_products[i].cartIndex;
+	          }
+
+	          i++;
+	        }
+      	}
+      }
+      else{
+      	var i = 0;
+		maxCartIndex = 0;
+
+		while(i < cart_products.length){
+          if(maxCartIndex <= cart_products[i].cartIndex){
+			    maxCartIndex = cart_products[i].cartIndex;
+          }
+
+          i++;
+        }
+      }
+      
+
+      if(optionalSource == 'DELETE_REVERSAL'){ //For deleted item's reversal case.
+      	console.log(productToAdd.cartIndex)
+      	cart_products.push({"cartIndex": productToAdd.cartIndex, "name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": productToAdd.qty ? productToAdd.qty : 1});
+      }
+      else{
+        cart_products.push({"cartIndex": maxCartIndex + 1, "name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1});
+      }
+
+
+      window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
 }
 
 function additemtocart(encodedItem, category, optionalSource){
@@ -198,7 +255,7 @@ function additemtocart(encodedItem, category, optionalSource){
 
 	}
 	else if(!productToAdd.isCustom){
-		saveToCart(productToAdd)
+		saveToCart(productToAdd, optionalSource)
 		renderCart()
 
 		if(optionalSource == 'SUGGESTION'){
@@ -210,7 +267,7 @@ function additemtocart(encodedItem, category, optionalSource){
 	$("#add_item_by_search").focus();
 }
 
-function addCustomToCart(name, category, code, price, variant, optionalSource, encodedIngredients){
+function addCustomToCart(name, category, code, price, variant, optionalSource, encodedIngredients, cart_index){
 
 		var ingredientsTemp = encodedIngredients && encodedIngredients != '' ? JSON.parse(decodeURI(encodedIngredients)) : '';
 
@@ -223,7 +280,14 @@ function addCustomToCart(name, category, code, price, variant, optionalSource, e
 		productToAdd.isCustom = true;
 		productToAdd.ingredients = ingredientsTemp;
 
-		saveToCart(productToAdd)
+		if(optionalSource == 'DELETE_REVERSAL'){
+			productToAdd.cartIndex = cart_index;
+			saveToCart(productToAdd, 'DELETE_REVERSAL');
+		}
+		else{
+			saveToCart(productToAdd);
+		}
+		
 		document.getElementById("customiseItemModal").style.display ='none'
 		renderCart()
 
@@ -347,6 +411,133 @@ function addManualCustomItem(){
 }
 
 
+function deleteItem(cart_index){
+				
+	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+
+		if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
+
+		}
+		else{
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
+				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+				return '';
+			}		
+		}
+
+		
+	}
+
+	var cart_products = JSON.parse(window.localStorage.zaitoon_cart)
+
+	var i = 0;
+	while(i < cart_products.length){
+
+		if(cart_products[i].cartIndex == cart_index){
+			cart_products.splice(i,1);
+			break;
+		}
+	   	i++;
+	}
+
+
+    if(cart_products.length == 0){
+    	window.localStorage.zaitoon_cart = '';
+    }
+    else{
+    	window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    }
+    
+    renderCart();
+}
+
+
+
+function senseQuantityChange(event, cart_index){
+
+	var x = document.getElementById("qty_"+cart_index);
+	var current_value = parseInt(x.value);
+
+	console.log('current: '+current_value)
+
+	if(event.which === 40){ //Decrease Qty
+
+		if(current_value == 1){
+			return '';
+		}
+
+		x.value = current_value - 1;
+	}
+	else if(event.which === 38){ //Increase Qty
+		x.value = current_value + 1;
+	}
+	else{
+		//Do nothing if not UP or DOWN key pressed.
+		return '';
+
+	}
+
+	var optionalFocusKey = "qty_"+cart_index;
+
+	changeqty(cart_index, optionalFocusKey);
+}
+
+
+function changeqty(cart_index, optionalFocusKey){
+
+	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
+	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
+		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+		
+
+		if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
+
+		}
+		else{
+			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
+				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
+				return '';
+			}	
+		}
+
+	}
+
+
+	var cart_products = JSON.parse(window.localStorage.zaitoon_cart)
+	
+	var i = 0;
+	while(i < cart_products.length){
+		
+		if(cart_products[i].cartIndex == cart_index){
+			
+			var temp = document.getElementById("qty_"+cart_index).value;
+			console.log(temp)
+			if(temp == '' || isNaN(temp) || temp == 0){
+				temp = 1;
+				break;
+			}
+
+			cart_products[i].qty = parseInt(temp);
+			break;
+		}
+
+		i++;
+	}
+
+    window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    renderCart();
+
+    $('#add_item_by_search').focus();
+}
+
+
+/*
+
+********************************
+OLD - Compact Cart (deprecated)
+********************************
 
 function deleteItem(item, isCustom, variant){
 
@@ -409,6 +600,8 @@ function deleteItem(item, isCustom, variant){
     renderCart()
 
 }
+
+
 
 function senseQuantityChange(event, item, isCustom, variant){
 
@@ -514,6 +707,8 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 
     $('#add_item_by_search').focus();
 }
+
+*/
 
 
 function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field to be focused
@@ -699,7 +894,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 			notifyIcon = '';
 			particularItemHasChanges = false;
 
-			var tempItemCheck = checkForItemChanges(cart_products[i].code, cart_products[i].variant, cart_products[i].qty);
+			var tempItemCheck = checkForItemChanges(cart_products[i].code, cart_products[i].variant, cart_products[i].qty, cart_products[i].cartIndex);
 
 			switch(tempItemCheck){
 				case 'QUANTITY_INCREASE':{
@@ -757,9 +952,9 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 								if(allergicIngredients[a] == cart_products[i].ingredients[c]){
 									itemContainsAllergicIngredient = true;
 									allergyIngredientDetected = true;
-									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : '') )+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : '') )+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 											'<td style="vertical-align: middle">'+
-											'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+											'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 											'</td>'+
 											'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 													
@@ -768,9 +963,9 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 							}
 
 							if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
-								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 									'<td style="vertical-align: middle">'+
-									'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+									'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 									'</td>'+
 									'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 								
@@ -780,18 +975,18 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 						}			
 					}
 					else{
-						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 							'<td style="vertical-align: middle">'+
-							'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+							'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 							'</td>'+
 							'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 						
 					}
 				}
 				else{
-					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 						'<td style="vertical-align: middle">'+
-						'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+						'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 						'</td>'+
 						'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 				
@@ -840,24 +1035,24 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 							if(allergicIngredients[a] == cart_products[i].ingredients[c]){
 								itemContainsAllergicIngredient = true;
 								allergyIngredientDetected = true;
-								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 								break;
 							}
 						}
 
 						if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
-							temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+							temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 						}
 
 						a++;
 					}			
 				}
 				else{
-					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 				}
 			}
 			else{
-				temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty'+cart_products[i].code+(cart_products[i].variant && cart_products[i].variant != '' && cart_products[i].variant != undefined ? cart_products[i].variant : '')+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, \''+cart_products[i].code+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')" onchange="changeqty(\''+itemrem+'\', \''+cart_products[i].isCustom+'\', \''+cart_products[i].variant+'\')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+				temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 			}
 
 			/*
@@ -1414,6 +1609,7 @@ function startFreshOrder(){
 	window.localStorage.allergicIngredientsData = '[]';
 
 	window.localStorage.hasUnsavedChangesFlag = 0;
+	window.localStorage.maxCartIndex = 0;
  	document.getElementById("leftdiv").style.borderColor = "#FFF";
 
 	renderCustomerInfo();
@@ -1428,6 +1624,21 @@ function undoChangesInKOT(){
 
 		window.localStorage.zaitoon_cart = JSON.stringify(originalData.cart);
 		showToast('Undone the changes!', '#27ae60');
+
+		//Recalculate max cartIndex
+		var i = 0;
+		var maxCartIndex = 0;
+
+		while(i < originalData.cart.length){
+          if(maxCartIndex <= originalData.cart[i].cartIndex){
+			    maxCartIndex = originalData.cart[i].cartIndex;
+          }
+
+          i++;
+        }
+
+    	window.localStorage.maxCartIndex = maxCartIndex;
+
 
 		renderCustomerInfo();
 	}
@@ -1475,7 +1686,7 @@ function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
 			var itemFound = false;
 			for(var i = 0; i < changed_cart_products.length; i++){
 				//same item found, check for its quantity and report changes
-				if(!original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code)){
+				if(original_cart_products[n].cartIndex == changed_cart_products[i].cartIndex){
 					
 					itemFound = true;
 
@@ -1494,26 +1705,6 @@ function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
 
 					break;
 					
-				}
-				else if(original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code) && (original_cart_products[n].variant == changed_cart_products[i].variant)){
-					
-					itemFound = true;
-
-					//Change in Quantity
-					if(changed_cart_products[i].qty > original_cart_products[n].qty){ //qty increased
-						showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
-						return '';
-					}
-					else if(changed_cart_products[i].qty < original_cart_products[n].qty){ //qty decreased
-						showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
-						return '';
-					}
-					else{ //same qty
-						
-					}
-
-					break;
-
 				}
 
 				//Last iteration to find the item
@@ -1535,11 +1726,7 @@ function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
 
 			for(var m = 0; m < original_cart_products.length; m++){
 				//check if item is found, not found implies New Item!
-				if(!changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code)){
-					//Item Found
-					break;
-				}
-				else if(changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code) && (changed_cart_products[j].variant == original_cart_products[m].variant)){
+				if(changed_cart_products[j].cartIndex == original_cart_products[m].cartIndex){
 					//Item Found
 					break;
 				}
@@ -1566,12 +1753,13 @@ function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
 
 
 
-function checkForItemChanges(code, variant, quantity){
+function checkForItemChanges(code, variant, quantity, cart_index){
 
 /*
 	Check if a particular item in zaitoon_cart has any change w.r.t originalCart 
 	(useful while editing an order)
 */
+
 	var isCustom = true;
 	if(!variant || variant == ''){
 		isCustom = false;
@@ -1597,7 +1785,7 @@ function checkForItemChanges(code, variant, quantity){
 			//Search for the item in orignal Cart
 			for(var m = 0; m < original_cart_products.length; m++){
 				//check if item is found, not found implies New Item!
-				if(!isCustom && (code == original_cart_products[m].code)){
+				if(!isCustom && (code == original_cart_products[m].code && cart_index == original_cart_products[m].cartIndex)){
 					//Item Found
 					if(quantity > original_cart_products[m].qty){ //qty increased
 						return 'QUANTITY_INCREASE';
@@ -1608,7 +1796,7 @@ function checkForItemChanges(code, variant, quantity){
 					
 					break;
 				}
-				else if(isCustom && (code == original_cart_products[m].code) && (variant == original_cart_products[m].variant)){
+				else if(isCustom && (code == original_cart_products[m].code && cart_index == original_cart_products[m].cartIndex) && (variant == original_cart_products[m].variant)){
 					//Item Found
 					if(quantity > original_cart_products[m].qty){ //qty increased
 						return 'QUANTITY_INCREASE';
@@ -1665,13 +1853,7 @@ function checkIfItemDeleted(){
 			var itemFound = false;
 			for(var i = 0; i < changed_cart_products.length; i++){
 				//same item found, check for its quantity and report changes
-				if(!original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code)){
-					
-					itemFound = true;
-					break;
-				}
-				else if(original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code) && (original_cart_products[n].variant == changed_cart_products[i].variant)){
-					
+				if((original_cart_products[n].cartIndex == changed_cart_products[i].cartIndex) && (original_cart_products[n].code == changed_cart_products[i].code)){
 					itemFound = true;
 					break;
 				}
@@ -3459,19 +3641,23 @@ function retrieveTableInfoForNewOrder(tableID){
 /*Add to edit KOT*/
 function moveToEditKOT(kotID){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-          	var kot = data.docs[0];
+          	var kot = data;
 
 		    if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 
@@ -3525,6 +3711,8 @@ function overWriteCurrentRunningOrder(kot){
 
     //var kot = JSON.parse(decodeURI(encodedKOT));
 
+    console.log('editing ...')
+
 
     var customerInfo = {};
     customerInfo.name = kot.customerName;
@@ -3558,6 +3746,21 @@ function overWriteCurrentRunningOrder(kot){
 
     //window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
     window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
+
+
+    //record max cart index
+		var i = 0;
+		var maxCartIndex = 0;
+
+		while(i < kot.cart.length){
+          if(maxCartIndex <= kot.cart[i].cartIndex){
+			    maxCartIndex = kot.cart[i].cartIndex;
+          }
+
+          i++;
+        }
+
+    window.localStorage.maxCartIndex = maxCartIndex;
 
 
     //renderPage('new-order', 'Running Order');
@@ -3868,7 +4071,7 @@ function generateEditedKOT(){
 		for(var i = 0; i < changed_cart_products.length; i++){
 			
 			//same item found, check for its quantity and report changes
-			if(!checkingItem.isCustom && (checkingItem.code == changed_cart_products[i].code)){
+			if((checkingItem.code == changed_cart_products[i].code) && (checkingItem.cartIndex == changed_cart_products[i].cartIndex)){
 				
 				itemFound = true;
 
@@ -3904,50 +4107,13 @@ function generateEditedKOT(){
 				break;
 				
 			}
-			else if(checkingItem.isCustom && (checkingItem.code == changed_cart_products[i].code) && (checkingItem.variant == changed_cart_products[i].variant)){
-				
-				itemFound = true;
-
-				//Change in Quantity
-				if(changed_cart_products[i].qty > checkingItem.qty){ //qty increased
-					//console.log(checkingItem.name+' x '+changed_cart_products[i].qty+' ('+(changed_cart_products[n].qty-original_cart_products[i].qty)+' More)');
-					
-					var tempItem = changed_cart_products[i];
-					tempItem.change = "QUANTITY_INCREASE";
-					tempItem.oldValue = checkingItem.qty;
-					if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
-						tempItem.newComments = changed_cart_products[i].comments;
-					}
-					comparisonResult.push(tempItem);
-				}
-				else if(changed_cart_products[i].qty < checkingItem.qty){ //qty decreased
-					//console.log(changed_cart_products[i].name+' x '+changed_cart_products[i].qty+' ('+(checkingItem.qty-changed_cart_products[i].qty)+' Less)');
-					
-					var tempItem = changed_cart_products[i];
-					tempItem.change = "QUANTITY_DECREASE";
-					tempItem.oldValue = checkingItem.qty;
-					if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
-						tempItem.newComments = changed_cart_products[i].comments;
-					}
-					comparisonResult.push(tempItem);
-
-					hasRestrictedEdits = true;
-				}
-				else{ //same qty
-					//console.log(checkingItem.name+' x '+checkingItem.qty);
-				}
-
-				break;
-
-			}
 
 			//Last iteration to find the item
 			if(i == changed_cart_products.length-1){
 				if(!itemFound){ //Item Deleted
-					if(checkingItem.isCustom){
-						//console.log(checkingItem.name+' - '+checkingItem.variant+' x 0 (Deleted)');
 						
 						var tempItem = checkingItem;
+						
 						tempItem.change = "ITEM_DELETED";
 						tempItem.oldValue = "";
 						if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
@@ -3956,20 +4122,6 @@ function generateEditedKOT(){
 						comparisonResult.push(tempItem);
 
 						hasRestrictedEdits = true;
-					}
-					else{
-						//console.log(checkingItem.name+' x 0 (Deleted)');
-						
-						var tempItem = checkingItem;
-						tempItem.change = "ITEM_DELETED";
-						tempItem.oldValue = "";
-						if(changed_cart_products[i].comments != '' && checkingItem.comments != changed_cart_products[i].comments){
-							tempItem.newComments = changed_cart_products[i].comments;
-						}
-						comparisonResult.push(tempItem);
-
-						hasRestrictedEdits = true;
-					}
 				}
 			}
 		}
@@ -3991,11 +4143,7 @@ function generateEditedKOT(){
 
 			for(var m = 0; m < original_cart_products.length; m++){
 				//check if item is found, not found implies New Item!
-				if(!changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code)){
-					//Item Found
-					break;
-				}
-				else if(changed_cart_products[j].isCustom && (changed_cart_products[j].code == original_cart_products[m].code) && (changed_cart_products[j].variant == original_cart_products[m].variant)){
+				if((changed_cart_products[j].cartIndex == original_cart_products[m].cartIndex) && (changed_cart_products[j].code == original_cart_products[m].code)){
 					//Item Found
 					break;
 				}
@@ -4010,6 +4158,7 @@ function generateEditedKOT(){
 					if(changed_cart_products[j].comments != ''){
 						tempItem.newComments = changed_cart_products[j].comments;
 					}
+					
 					comparisonResult.push(tempItem);
 				}
 			}
@@ -4047,20 +4196,23 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
   	return '';
   }
 
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
           
-          var kot = data.docs[0];
+          var kot = data;
 
           //Updates the KOT
           kot.customerMobile = changedCustomerInfo.mobile;
@@ -4179,11 +4331,17 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                  	  clearAllMetaData();
-                  	  renderCustomerInfo();
+                  	  
                       sendKOTChangesToPrinterPreProcess(kot, compareObject);
-
                       showToast('Changed KOT #'+kot.KOTNumber+' generated Successfully', '#27ae60');
+
+                      /*
+                      	clearAllMetaData();
+                  	  	renderCustomerInfo();
+                  	  */
+
+                  	  pushCurrentOrderAsEditKOT(kot);
+
                   },
                   error: function(data) {
                       showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
@@ -4449,12 +4607,7 @@ function quickViewRemovedItems(){
 		for(var i = 0; i < changed_cart_products.length; i++){
 			
 			//same item found, check for its quantity and report changes
-			if(!original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code)){			
-				itemFound = true;
-				break;
-			}
-			else if(original_cart_products[n].isCustom && (original_cart_products[n].code == changed_cart_products[i].code) && (original_cart_products[n].variant == changed_cart_products[i].variant)){
-				
+			if((original_cart_products[n].cartIndex == changed_cart_products[i].cartIndex) && (original_cart_products[n].code == changed_cart_products[i].code)){			
 				itemFound = true;
 				break;
 			}
@@ -4501,9 +4654,10 @@ function hideUndoDelete(){
 
 function revertDelete(encodedItem){
 	var item = JSON.parse(decodeURI(encodedItem));
+	console.log(item)
 
 	if(item.isCustom){
-		addCustomToCart(item.name,  item.category, item.code, item.price, item.variant, '',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "");
+		addCustomToCart(item.name,  item.category, item.code, item.price, item.variant, 'DELETE_REVERSAL',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "", item.cartIndex);
 	}
 	else{
 		additemtocart(encodedItem, 'ATTACHED_WITHIN', 'DELETE_REVERSAL');
@@ -5387,6 +5541,21 @@ function pushCurrentOrderAsEditKOT(kot){
     window.localStorage.customerData = JSON.stringify(customerInfo);
     window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot); //decodeURI(encodedKOT);
 
+    //record max cart index
+		var i = 0;
+		var maxCartIndex = 0;
+
+		while(i < kot.cart.length){
+          if(maxCartIndex <= kot.cart[i].cartIndex){
+			    maxCartIndex = kot.cart[i].cartIndex;
+          }
+
+          i++;
+        }
+
+
+    window.localStorage.maxCartIndex = maxCartIndex;
+
     renderCustomerInfo();
 }
 
@@ -5411,6 +5580,7 @@ function clearAllMetaData(){
 	window.localStorage.allergicIngredientsData = '[]';
 
 	window.localStorage.hasUnsavedChangesFlag = 0;
+	window.localStorage.maxCartIndex = 0;
  	//document.getElementById("leftdiv").style.borderColor = "#FFF";
 }
 
@@ -5513,6 +5683,7 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 
 
 		window.localStorage.hasUnsavedChangesFlag = 0;
+		window.localStorage.maxCartIndex = 0;
 	 	//document.getElementById("leftdiv").style.borderColor = "#FFF";
 
 		renderCart();
@@ -5584,6 +5755,8 @@ function freshOrderForCustomer(customerEncoded){
 
 
 	window.localStorage.hasUnsavedChangesFlag = 0;
+	window.localStorage.maxCartIndex = 0;
+
  	document.getElementById("leftdiv").style.borderColor = "#FFF";
 
 	renderCart();
@@ -6821,7 +6994,7 @@ function restartTokenManuallySave(){
 
 
 /*Add item-wise comments*/
-function addCommentToItem(itemCode, variant){
+function addCommentToItem(cart_index){
 
 
 	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
@@ -6845,26 +7018,15 @@ function addCommentToItem(itemCode, variant){
 	var text = document.getElementById("add_item_wise_comment").value;
 	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
 
-	if(variant){
+
 		var n = 0;
 		while(cart_products[n]){
-			if(cart_products[n].code == itemCode && cart_products[n].variant == variant){
+			if(cart_products[n].cartIndex == cart_index){
 				cart_products[n].comments = text;
 				break;
 			}
 			n++;
 		}	
-	}
-	else{
-		var n = 0;
-		while(cart_products[n]){
-			if(cart_products[n].code == itemCode){
-				cart_products[n].comments = text;
-				break;
-			}
-			n++;
-		}			
-	}
 
 	window.localStorage.zaitoon_cart = JSON.stringify(cart_products);
 
@@ -6881,38 +7043,17 @@ function addCommentToItem(itemCode, variant){
 	$("#add_item_by_search").focus();
 }
 
-function openItemWiseCommentModal(itemCode, variant){
-
-		console.log('Open ITEM COMMENT')
+function openItemWiseCommentModal(itemCode, variant, cart_index){
 
 		var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
 		var commentsAdded = false; 
 		var variantTitle = '';
 		var itemTitle = '';
 
-		if(variant != ''){
-			var n = 0;
-			while(cart_products[n]){
-				if(cart_products[n].code == itemCode && cart_products[n].variant == variant){
-					itemTitle = cart_products[n].name;
-					if(cart_products[n].hasOwnProperty('comments')){
-						document.getElementById("add_item_wise_comment").value = cart_products[n].comments;
-					}
-					else{
-						document.getElementById("add_item_wise_comment").value = "";
-					}
-					
-					break;
-				}
-				n++;
-			}	
 
-			variantTitle = ' ('+variant+')'; /*TWEAK*/
-		}
-		else{
 			var n = 0;
 			while(cart_products[n]){
-				if(cart_products[n].code == itemCode){
+				if(cart_products[n].cartIndex == cart_index){
 
 					itemTitle = cart_products[n].name;
 					if(cart_products[n].hasOwnProperty('comments')){
@@ -6925,8 +7066,12 @@ function openItemWiseCommentModal(itemCode, variant){
 					break;
 				}
 				n++;
-			}			
-		}
+			}		
+
+			if(variant != ''){
+				variantTitle = ' ('+variant+')';
+			}
+		
 
 
 		var suggestionsDataList = [];
@@ -6986,7 +7131,7 @@ function openItemWiseCommentModal(itemCode, variant){
 	    document.getElementById("itemWiseCommentsModal").style.display = 'block';
 	    document.getElementById("itemWiseCommentsModalTitle").innerHTML = "Comments for <b>"+itemTitle+"</b>"+variantTitle;
 	    document.getElementById("itemWiseCommentsModalActions").innerHTML = '<button  class="btn btn-default" onclick="hideItemWiseCommentModal()" style="float: left">Cancel</button>'+
-               									'<button id="itemWiseCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="addCommentToItem(\''+itemCode+'\', \''+variant+'\')" style="float: right">Save Comment</button>';
+               									'<button id="itemWiseCommentsModalActions_SAVE" type="button" class="btn btn-success" onclick="addCommentToItem('+cart_index+')" style="float: right">Save Comment</button>';
 
 
 		  //Esc --> Hide
@@ -7615,6 +7760,7 @@ function initMenuSuggestion(){
 
 /* Shift Item Wizard */
 function openShiftItemWizard(source_table, current_kot, billing_mode, encoded_item){
+
 	var item = JSON.parse(decodeURI(encoded_item));
 	console.log(current_kot, item)
 
@@ -7743,6 +7889,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
     	var transfer_item = JSON.parse(decodeURI(encoded_item));
     	target_quantity = parseInt(target_quantity);
     	transfer_item.qty = target_quantity;
+    	transfer_item.cartIndex = 1;
 
 		var cart_products = [];
 		cart_products.push(transfer_item);
@@ -8083,35 +8230,20 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 	          //Updates the Cart
 	          var existing_cart = kot.cart;
 
-	          //Check if this incoming item already added
+	          	//Check if this incoming item already added
+	          	var i = 0;
+				var maxCartIndex = 0;
 
-	          	var wasItemAlreadyPresent = false;
-				if(incoming_item.isCustom){
-							var i = 0;
-							while(i < existing_cart.length){
-									if(existing_cart[i].code == incoming_item.code && existing_cart[i].variant == incoming_item.variant){
-										existing_cart[i].qty = parseInt(existing_cart[i].qty) + target_quantity;
-										wasItemAlreadyPresent = true;
-										break;
-									}
-						        i++;
-						    }
-				}
-		        else{
-							var i = 0;
-							while(i < existing_cart.length){
-								if(existing_cart[i].code == incoming_item.code){
-									existing_cart[i].qty = parseInt(existing_cart[i].qty) + target_quantity;
-									wasItemAlreadyPresent = true;
-									break;
-								}
-						        i++;
-						    }
+				while(i < existing_cart.length){
+		          if(maxCartIndex <= existing_cart[i].cartIndex){
+					    maxCartIndex = existing_cart[i].cartIndex;
+		          }
+
+		          i++;
 		        }
 
-		        if(!wasItemAlreadyPresent){
-		        	existing_cart.push(incoming_item); //push as such --> as a new item
-		        }
+		        incoming_item.cartIndex = maxCartIndex + 1;
+		        existing_cart.push(incoming_item);
 
 		        //update the cart
 	           	kot.cart = existing_cart;

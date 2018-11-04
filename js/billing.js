@@ -10,6 +10,8 @@ function generateBillFromKOT(kotID, optionalPageRef){
     optionalPageRef = '';
   }
 
+  console.log(optionalPageRef)
+
 
   //If there is any change in customer data w.r.t OriginalKOT, do make the changes now;
   var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
@@ -19,20 +21,23 @@ function generateBillFromKOT(kotID, optionalPageRef){
   } 
 
 
-    /*Read mentioned KOT - kotID*/
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           if(kotfile.customerName != customerInfo.name || kotfile.customerMobile != customerInfo.mobile || kotfile.guestCount != customerInfo.count){
             console.log('KOT not updated on server.. please update me ***')
@@ -42,6 +47,48 @@ function generateBillFromKOT(kotID, optionalPageRef){
 
             generateBillSuccessCallback('CHANGE_CUSTOMERINFO', optionalPageRef, kotfile); 
           }
+
+          var raw_cart = kotfile.cart;
+          var beautified_cart = [];
+
+          for(var n = 0; n < raw_cart.length; n++){
+            
+            if(n == 0){
+              beautified_cart.push(raw_cart[0]);
+            }
+            else{
+
+              var duplicateFound = false;
+              var k = 0;
+              while(beautified_cart[k]){
+                if(beautified_cart[k].code == raw_cart[n].code){
+                  if(beautified_cart[k].isCustom && raw_cart[n].isCustom){
+                    if(beautified_cart[k].variant == raw_cart[n].variant){
+                      beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
+                      duplicateFound = true;
+                      break;
+                    }
+                  }
+                  else{
+                    beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
+                    duplicateFound = true;
+                    break;
+                  }
+                }
+
+                k++;
+              }
+
+              if(!duplicateFound){
+                beautified_cart.push(raw_cart[n]);
+              }
+
+            }
+
+          }
+
+
+          kotfile.cart = beautified_cart;
 
           generateBillFromKOTAfterProcess(kotfile, optionalPageRef);
           
@@ -71,6 +118,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
   Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
 */
 
+
           // LOGGED IN USER INFO
 
           var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -87,9 +135,6 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
             isUserAnAdmin = true;
           }
 
-
-
-
           document.getElementById("billPreviewContentTitle").innerHTML = kotfile.orderDetails.modeType == 'DINE' ? 'Table <b>'+kotfile.table+'</b> <tag style="float: right">#'+kotfile.KOTNumber+'</tag>' : kotfile.orderDetails.mode+'<tag style="float: right">#'+kotfile.KOTNumber+'</tag>';
 
           var itemList = '';
@@ -102,23 +147,28 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
 
           var n = 0;
           while(kotfile.cart[n]){
-            itemList = itemList + '<tr class="success">'+
-                ' <td class="text-center">'+(n+1)+'</td>'+
-                ' <td>'+kotfile.cart[n].name+(kotfile.cart[n].isCustom ? ' ('+kotfile.cart[n].variant+')': '')+'</td>'+
-                ' <td class="text-center"> <span class="text-center sprice"><i class="fa fa-inr"></i>'+kotfile.cart[n].price+'</span></td>'+
-                ' <td class="text-center">x '+kotfile.cart[n].qty+'</td>'+
-                ' <td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+(kotfile.cart[n].price*kotfile.cart[n].qty)+'</span></td>'+
-                ' </tr>';
 
-                subTotal = subTotal + (kotfile.cart[n].price*kotfile.cart[n].qty);
+              itemList = itemList + '<tr class="success">'+
+                  ' <td class="text-center">'+(n+1)+'</td>'+
+                  ' <td>'+kotfile.cart[n].name+(kotfile.cart[n].isCustom ? ' ('+kotfile.cart[n].variant+')': '')+'</td>'+
+                  ' <td class="text-center"> <span class="text-center sprice"><i class="fa fa-inr"></i>'+kotfile.cart[n].price+'</span></td>'+
+                  ' <td class="text-center">x '+kotfile.cart[n].qty+'</td>'+
+                  ' <td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+(kotfile.cart[n].price * kotfile.cart[n].qty)+'</span></td>'+
+                  ' </tr>';
+
+              //Other calculations
+                subTotal = subTotal + (kotfile.cart[n].price * kotfile.cart[n].qty);
 
                 if(kotfile.cart[n].isPackaged){
-                  packagedSubTotal += (kotfile.cart[n].price*kotfile.cart[n].qty)
+                  packagedSubTotal += (kotfile.cart[n].price * kotfile.cart[n].qty)
                 }
 
                 qtySum = qtySum + kotfile.cart[n].qty;
-            n++;
+
+              
+              n++;
           }
+
 
 
           /*Other Charges*/ 
@@ -137,7 +187,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 otherCharges = otherCharges + '</tr><tr class="info">';
               }
 
-              otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+kotfile.extras[i].name+' ('+(kotfile.extras[i].unit == 'PERCENTAGE'? kotfile.extras[i].value + '%': '<i class="fa fa-inr"></i>'+kotfile.extras[i].value)+')</td><td width="15%" class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+kotfile.extras[i].amount+'</td>';
+              otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+kotfile.extras[i].name+' ('+(kotfile.extras[i].unit == 'PERCENTAGE'? kotfile.extras[i].value + '%': '<i class="fa fa-inr"></i>'+kotfile.extras[i].value)+')</td><td width="15%" class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+(Math.round(kotfile.extras[i].amount * 100) / 100)+'</td>';
               otherChargesSum = otherChargesSum + kotfile.extras[i].amount;
               
             }
@@ -444,8 +494,6 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 }
             }
           });
-
-
 }
 
 
@@ -1944,22 +1992,58 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
     var memory_id = '';
     var memory_rev = '';
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-          var kotfile = data.docs[0];
-          
-          memory_id = data.docs[0]._id;
-          memory_rev = data.docs[0]._rev;
+          var kotfile = data;
+
+          var raw_cart = kotfile.cart;
+          var beautified_cart = [];
+
+          for(var n = 0; n < raw_cart.length; n++){
+            
+            if(n == 0){
+              beautified_cart.push(raw_cart[0]);
+            }
+            else{
+
+              var duplicateFound = false;
+              var k = 0;
+              while(beautified_cart[k]){
+                if(beautified_cart[k].code == raw_cart[n].code){
+                  beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
+                  duplicateFound = true;
+                  break;
+                }
+
+                k++;
+              }
+
+              if(!duplicateFound){
+                beautified_cart.push(raw_cart[n]);
+              }
+
+            }
+
+          }
+
+          kotfile.cart = beautified_cart;
+
+          memory_id = kotfile._id;
+          memory_rev = kotfile._rev;
 
           kotfile.billNumber = billNumber,
           kotfile.paymentMode = "";
