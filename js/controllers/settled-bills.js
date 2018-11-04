@@ -2354,7 +2354,12 @@ function openSelectedBill(encodedBill, type){
                                     '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Settle Bill</span>'+
                                   '</div>'+
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
-                                  	deliveryOrderSubOption+
+                                    '<li class="floaty-list-item floaty-list-item--violet" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-print whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Print Duplicate Bill</span>'+
+                                    '</li>'+ deliveryOrderSubOption +
                                     '<li class="floaty-list-item floaty-list-item--red" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_PENDING\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
                                         '<i class="fa fa-trash-o whiteWash"></i>'+
@@ -2599,7 +2604,7 @@ function openSelectedBill(encodedBill, type){
                                     '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
                                       '<i class="fa fa-print"></i>'+
                                     '</tag>'+
-                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Print Duplicate Bill</span>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Print Duplicate Invoice</span>'+
                                   '</div>'+
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
                                     deliveryOrderSubOption+
