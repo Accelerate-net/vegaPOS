@@ -1804,6 +1804,12 @@ However, delay the fade out process for 2.5 seconds */
 .floaty-list-item--red {
   background-color: #e74c3c;
 }
+
+.floaty-list-item--violet {
+  background-color: #7571ce;
+}
+
+
 .floaty-list-item--yellow {
   background-color: #fdb84a;
 }
@@ -1811,6 +1817,11 @@ However, delay the fade out process for 2.5 seconds */
 .floaty-list-item--red > svg {
   fill: #fff;
 }
+
+.floaty-list-item--violet > svg {
+  fill: #fff;
+}
+
 .floaty-list-item--blue {
   background-color: #3498db;
 }

@@ -104,7 +104,7 @@ function renderAllKOTs() {
 
                                   begKOT = '<li> <a href="#" '+getColorPaper(kot.timeKOT == '' ? kot.timePunch : kot.timeKOT)+' onclick="liveOrderOptions(\''+kot.KOTNumber+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
                                   while (i < kot.cart.length) {
-                                      itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ '</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
+                                      itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ (kot.cart[i].comments && kot.cart[i].comments != "" ? ' <i class="fa fa-comment" style="font-size: 80%"></i>' : '') +'</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
                                       i++;
                                   }
 

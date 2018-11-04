@@ -1076,6 +1076,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 
 		if(order.cart.items[n].isCustom){
 		cart.push({
+					"cartIndex": n + 1,
 					"name": order.cart.items[n].itemName,
 					"price": order.cart.items[n].itemPrice,
 					"isCustom": true,
@@ -1086,6 +1087,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 		}
 		else{
 		cart.push({
+					"cartIndex": n + 1,
 					"name": order.cart.items[n].itemName,
 					"price": order.cart.items[n].itemPrice,
 					"isCustom": false,

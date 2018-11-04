@@ -548,9 +548,6 @@ if(type == 'BILL'){
 
 
 
-
-
-
 /*
    PRINTING DUPLICATE BILL
 */
@@ -977,8 +974,8 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
 
    if(orderObject.stewardName != ""){
 
-      kot_footer_content = '<div class="billBottomContainer">'+
-                              '<div style="padding: 2px 0; text-align: center;">'+
+      kot_footer_content = '<div class="billBottomContainer" style="background: #FFF">'+
+                              '<div style="padding: 2px 0; color: #000; text-align: center;">'+
                                  '<tag style="font-size: 8px; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-family: sans-serif;">PUNCHED BY </tag>'+
                                  '<b style="text-transform: uppercase; font-size:11px;">'+orderObject.stewardName+'</b>'+
                               '</div>'+   
@@ -1170,8 +1167,8 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
 
    if(orderObject.stewardName != ""){
 
-      kot_footer_content = '<div class="billBottomContainer">'+
-                              '<div style="padding: 2px 0; text-align: center;">'+
+      kot_footer_content = '<div class="billBottomContainer" style="background: #FFF">'+
+                              '<div style="padding: 2px 0; color: #000; text-align: center;">'+
                                  '<tag style="font-size: 8px; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-family: sans-serif;">PUNCHED BY </tag>'+
                                  '<b style="text-transform: uppercase; font-size:11px;">'+orderObject.stewardName+'</b>'+
                               '</div>'+   
@@ -1251,9 +1248,9 @@ while(orderObject.cart[n]){
 
    itemsList +='<tr>'+
                   '<td><span style="font-size: 18px; text-decoration: line-through; str">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
-                  '<span style="margin-top: 3px; display: block; font-size: 12px; font-weight: bold;"><span style="display: inline-block; background: #000; color: #FFF; padding: 2px 4px;">ORDER CANCELLED</span></span>'+
+                  (orderObject.cart[n].comments && orderObject.cart[n].comments != '' ? '<newcomments style="text-decoration: line-through;" class="itemComments">- '+orderObject.cart[n].comments+'</newcomments>' : '')+
                   '</td>'+
-                  '<td class="itemQuantity" style="text-align: right; font-size: 15px; text-decoration: line-through;">' +orderObject.cart[n].qty+
+                  '<td class="itemQuantity" style="text-align: right; font-size: 18px; text-decoration: line-through;">' +orderObject.cart[n].qty+
                   '</td>'+
                '</tr>'
 
@@ -1422,8 +1419,8 @@ total_items = n;
    var view_footer_content = '';
    if(orderObject.stewardName != ""){
 
-      view_footer_content = '<div class="billBottomContainer">'+
-                              '<div style="padding: 2px 0; text-align: center;">'+
+      view_footer_content = '<div class="billBottomContainer" style="background: #FFF">'+
+                              '<div style="padding: 2px 0; color: #000; text-align: center;">'+
                                  '<tag style="font-size: 8px; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-family: sans-serif;">ATTENDING </tag>'+
                                  '<b style="text-transform: uppercase; font-size:11px;">'+orderObject.stewardName+'</b>'+
                               '</div>'+   
@@ -1563,7 +1560,6 @@ while(compareObject[n]){
       itemsList +='<tr>'+
                      '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
                      (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
-                     '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">MORE QUANTITY</span></span>'+
                      '</td>'+
                      '<td style="text-align: right;">'+
                         '<span class="itemQuantity" style="font-size: 18px">'+ (compareObject[n].qty - compareObject[n].oldValue) +'</span>'+
@@ -1571,23 +1567,26 @@ while(compareObject[n]){
                   '</tr>'
    }
    else if(compareObject[n].change == 'QUANTITY_DECREASE'){
+
       itemsList +='<tr>'+
-                     '<td style="font-size: 18px">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
-                     (compareObject[n].newComments && compareObject[n].newComments != '' ? '<newcomments class="itemComments">- '+compareObject[n].newComments+'</newcomments>' : '')+
-                     '<span style="margin-top: 3px; display:block; font-size: 8px; font-weight: bold;"><span style="display: inline-block; border: 1px solid #444; padding: 2px 4px;">LESS QUANTITY</span></span>'+
+                     '<td style="font-size: 18px; text-decoration: line-through;">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     (compareObject[n].comments && compareObject[n].comments != '' ? '<newcomments style="text-decoration: line-through;" class="itemComments">- '+compareObject[n].comments+'</newcomments>' : '')+
+                     '<span style="margin-top: 3px; display: block; font-size: 12px; font-weight: bold;"><span style="display: inline-block; background: #000; color: #FFF; padding: 2px 4px;">ITEM CANCELLED</span></span>'+
                      '</td>'+
                      '<td style="text-align: right;">'+
-                        '<span class="itemQuantity" style="font-size: 18px">'+ (compareObject[n].oldValue - compareObject[n].qty) +'</span>'+
+                        '<span class="itemQuantity" style="font-size: 18px; text-decoration: line-through;">'+ compareObject[n].qty + '</span>'+
                      '</td>'+
                   '</tr>'
+
    }
    else if(compareObject[n].change == 'ITEM_DELETED'){
       itemsList +='<tr>'+
                      '<td style="font-size: 18px; text-decoration: line-through;">'+compareObject[n].name + (compareObject[n].isCustom ? ' ('+compareObject[n].variant+')' : '')+
+                     (compareObject[n].comments && compareObject[n].comments != '' ? '<newcomments style="text-decoration: line-through;" class="itemComments">- '+compareObject[n].comments+'</newcomments>' : '')+
                      '<span style="margin-top: 3px; display: block; font-size: 12px; font-weight: bold;"><span style="display: inline-block; background: #000; color: #FFF; padding: 2px 4px;">ITEM CANCELLED</span></span>'+
                      '</td>'+
                      '<td style="text-align: right;">'+
-                        '<span class="itemQuantity" style="font-size: 15px; text-decoration: line-through;">'+ compareObject[n].qty + '</span>'+
+                        '<span class="itemQuantity" style="font-size: 18px; text-decoration: line-through;">'+ compareObject[n].qty + '</span>'+
                      '</td>'+
                   '</tr>'
    }
@@ -1710,8 +1709,8 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
 
    if(orderObject.stewardName != ""){
 
-      kot_footer_content = '<div class="billBottomContainer">'+
-                              '<div style="padding: 2px 0; text-align: center;">'+
+      kot_footer_content = '<div class="billBottomContainer" style="background: #FFF">'+
+                              '<div style="padding: 2px 0; color: #000; text-align: center;">'+
                                  '<tag style="font-size: 8px; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-family: sans-serif;">PUNCHED BY </tag>'+
                                  '<b style="text-transform: uppercase; font-size:11px;">'+orderObject.stewardName+'</b>'+
                               '</div>'+   
