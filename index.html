@@ -402,6 +402,37 @@
 
 
 
+        <!-- TEXT TO KITCHEN -->
+        <div class="ng-spotlight ng-spotlight-overlay" style="display: none;" id="textToKitchenWizard">
+
+           <div class="ng-spotlight-searchbar">
+              <div class="ng-spotlight-icon textSendIcon" style="font-size: 17px; color: grey; float: right;" onclick="sendMessageToKitchen()" id="sendMessageToKitchenButton">
+                 <i class="fa fa-send"></i>
+              </div>
+              <input class="ng-spotlight-input" style="max-width: 600px!important; width: 100%; margin-left: 20px;" id="tok_input" type="text" maxlength="120" placeholder="Type here..." onblur="this.focus()">
+           </div>
+
+           <!-- If results found -->
+           <div class="ng-spotlight-results-panel" style="display: block" id="spotlightRenderPanel">
+              <div class="ng-spotlight-results-list" style="width: 200px;" id="spotlightResultsRenderArea">
+
+                <ul class="ng-spotlight-results-category">
+                    <div class="ng-spotlight-results-list-header" style="padding-left: 10px;">SEND TO</div>
+                    <div id="tok_allPrinterRender"></div>
+                </ul>    
+                        
+              </div>
+              <div class="ng-spotlight-results-detail" style="margin-left: 200px; width: 480px;">
+                 <spotlight-details>
+                    <div class="ng-spotlight-results-detail-default" style="padding-top: 0;" id="spotlightPreview">
+                        <div class="ng-spotlight-results-list-header" style="padding-left: 0; font-family: 'Oswald', sans-serif; padding-top: 5px; border-bottom: 2px solid #4994bf; color: #4994bf">Message Outbox</div>
+                        <div style="height: 310px; overflow-y: auto;" id="tok_allChats"></div>
+                    </div>
+                 </spotlight-details>
+              </div>
+           </div>
+
+        </div>    
 
 
     <!-- BILLING RELATED MODALS -->

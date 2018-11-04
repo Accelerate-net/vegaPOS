@@ -4805,5 +4805,296 @@ function applyKOTRelays(){
     });    
 }
 
+openTalkToKitchen();
+
+
+/* TEXT TO KITCHEN */
+function openTalkToKitchen(){
+
+  document.getElementById("textToKitchenWizard").style.display = "block";
+  
+  $('#tok_input').val('');
+  $('#tok_input').focus();
+
+  //Preload KOT Printers 
+  var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+  var g = 0;
+  var KOTPrintersList = [];
+
+  while(allConfiguredPrintersList[g]){
+    if(allConfiguredPrintersList[g].type == 'KOT'){
+        for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+          KOTPrintersList.push({
+            "name": allConfiguredPrintersList[g].list[a].name,
+            "target": allConfiguredPrintersList[g].list[a].target
+          });
+        }
+        
+        break;
+    }
+    
+    g++;
+  }
+
+
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_TEXT_TO_KITCHEN_LOG" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TEXT_TO_KITCHEN_LOG'){
+            var text_log = data.docs[0].value;
+            renderTextToKitchenWindow(KOTPrintersList, text_log);  
+          }
+          else{
+            renderTextToKitchenWindow(KOTPrintersList, []);  
+          }
+        }
+        else{
+          renderTextToKitchenWindow(KOTPrintersList, []);    
+        }
+      },
+      error: function(data) {
+        renderTextToKitchenWindow(KOTPrintersList, []);  
+      }
+    });
+
+
+
+        var cancelTextToKitchenWizard = $(document).on('keydown',  function (e) {
+          if($('#textToKitchenWizard').is(':visible')) {
+              if(e.which == 27){
+                hideTalkToKitchen();
+                cancelTextToKitchenWizard.unbind();
+              }      
+          }
+        });
+
+
+        $('#tok_input').keyup(function(e) {
+            if (e.which === 13) {
+                $('#sendMessageToKitchenButton').click();
+            }
+        });
+
+
+
+
+}
+
+function renderTextToKitchenWindow(printer_list, chat_log){
+  
+  var n = 0;
+  var printerRender = '';
+  while(printer_list[n]){
+    printerRender += '<li class="ng-spotlight-results-list-item textToKitchenPrinter myPrinter" printer-name="'+printer_list[n].name+'" printer-code="'+printer_list[n].target+'" onclick="triggerActiveTargetPrinter(this)">'+
+                        '<name class="textToKitchenName">'+
+                          '<span class="tok_icon_printer"><i class="fa fa-print" style="margin-right: 10px"></i></span>'+
+                          '<span class="tok_icon_check"><i class="fa fa-check" style="margin-right: 10px"></i></span>'+
+                          printer_list[n].name+'</name>'+
+                      '</li>';
+    n++;
+  }  
+
+  if(printerRender == ''){
+    printerRender = '<p style="font-size: 12px; margin: 10px; text-align: center; font-weight: 300; color: #b9b9b9; letter-spacing: 0;">Oops! There are no Printers set up.</p>';
+  }
+
+  document.getElementById("tok_allPrinterRender").innerHTML = printerRender;
+
+
+  var m = 0;
+  var chatRender = '';
+  while(chat_log[m]){
+
+    var printers_done = '';
+    for(var k = 0; k < chat_log[m].target.length; k++){
+
+      if(k == 0){
+        printers_done = chat_log[m].target[k];
+      }
+      else if(k < chat_log[m].target.length - 1){
+        printers_done += ', '+chat_log[m].target[k];
+      }
+      else if(k == chat_log[m].target.length - 1){
+        printers_done += ' and '+chat_log[m].target[k];
+      }
+    }
+
+    chatRender = '<div class="textToKitchenChatBox">'+
+                    '<span class="currentUserImage textToKitchenIcon">'+getImageCode(chat_log[m].user)+'</span>'+
+                    '<span class="textToKitchenChat"> <span class="textToKitchenChatContent">'+chat_log[m].message+'</span>'+
+                    '<span class="textToKitchenChatData">Sent to <b>'+printers_done+'</b> by '+chat_log[m].user+' on '+chat_log[m].date+'</span> </span>'+
+                    '<span class="textToKitchenTime">'+getFancyTime(chat_log[m].time)+'</span>'+
+                  '</div>' + chatRender;
+    m++;
+  }
+
+  if(chatRender == ""){
+    chatRender = '<p style="margin-top: 50px; font-size: 12px; margin: 30px 0 0 0; text-align: center; font-weight: 300; color: #b9b9b9; letter-spacing: 0;">Outbox is Empty</p>';
+  }
+
+  document.getElementById("tok_allChats").innerHTML = chatRender;
+
+
+}
+
+function triggerActiveTargetPrinter(target){
+  if($(target).hasClass('myPrinter')){
+    $(target).removeClass('myPrinter');
+  }
+  else{
+    $(target).addClass('myPrinter');
+  }
+}
+
+
+function sendMessageToKitchen(){
+
+  var chat_text = document.getElementById("tok_input").value;
+  if(chat_text == "" || chat_text.trim() == ""){
+    showToast('Warning: Please add some message.', '#e67e22');
+    return "";
+  }
+
+  var selected_printers = [];
+  var selected_printers_names = [];
+  $("#tok_allPrinterRender li").each(function(){ 
+    if($(this).hasClass("myPrinter")){
+      selected_printers.push({
+        "name" : $(this).attr("printer-name"),
+        "target" : $(this).attr("printer-code")
+      }) 
+
+      selected_printers_names.push($(this).attr("printer-name"));
+    } 
+  });
+
+  if(selected_printers.length == 0){
+    showToast('Warning: Please select atleast a Kitchen Section.', '#e67e22');
+    return "";
+  }
+
+  //Get staff info.
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
+  
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = 'Default';
+    loggedInStaffInfo.code = '0000000000';
+  } 
+
+
+  var messageObj = {
+    "user": loggedInStaffInfo.name,
+    "time": getCurrentTime('TIME'),
+    "date": getCurrentTime('DATE_DD-MM-YY'),
+    "target": selected_printers,
+    "message": chat_text
+  }
+
+
+  var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+  var temp = {
+    "target": "BBQ",
+    "name": "main78",
+    "settings": {
+      "marginsType": 1,
+      "printBackground": true,
+      "pageSize": {
+        "height": 891000,
+        "width": 78000
+      },
+      "silent": true
+    }
+  };
+
+  if(isKOTRelayingEnabled){
+    printMessageInKitchen(messageObj, temp);
+  }
+  else{
+    printMessageInKitchen(messageObj, temp);
+  }
+
+  messageObj.target = selected_printers_names;
+  saveToChatLog(messageObj);
+
+  playNotificationSound('SEND');
+  showToast('Your message has been sent', '#27ae60');
+
+  hideTalkToKitchen();
+}
+
+function hideTalkToKitchen(){
+  document.getElementById("textToKitchenWizard").style.display = "none";
+}
+
+function saveToChatLog(messageObj){
+
+    var requestData = { "selector" :{ "identifierTag": "ZAITOON_TEXT_TO_KITCHEN_LOG" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ZAITOON_TEXT_TO_KITCHEN_LOG'){
+            
+            var text_log = data.docs[0].value;
+            if(text_log.length < 20){ //max log size --> 20
+              text_log.push(messageObj);
+            }
+            else{
+              text_log.splice(0, 1); //remove first entry
+              text_log.push(messageObj); //append this content to the log as latest entry
+            }
+
+                    //Update
+                    var updateData = {
+                      "_rev": data.docs[0]._rev,
+                      "identifierTag": "ZAITOON_TEXT_TO_KITCHEN_LOG",
+                      "value": text_log
+                    }
+
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TEXT_TO_KITCHEN_LOG/',
+                      data: JSON.stringify(updateData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+
+                      },
+                      error: function(data) {
+                      
+                      }
+                    }); 
+
+          }
+          else{
+            
+          }
+        }
+        else{
+            
+        }
+      },
+      error: function(data) {
+        
+      }
+    });
+}
 
   

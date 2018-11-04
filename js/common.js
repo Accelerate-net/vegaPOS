@@ -32,8 +32,6 @@ function getSummaryStandardDate(date){
   return moment(date, 'DD-MM-YYYY').format('YYYYMMDD')
 }
 
-
-
 function getSuperFancyDate(date){
   //convert DD-MM-YYYY to DD MM, YYYY
   return moment(date, 'DD-MM-YYYY').format('Do MMMM, YYYY')
