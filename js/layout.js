@@ -4967,20 +4967,14 @@ function sendMessageToKitchen(){
     return "";
   }
 
-  var selected_printers = [];
   var selected_printers_names = [];
   $("#tok_allPrinterRender li").each(function(){ 
     if($(this).hasClass("myPrinter")){
-      selected_printers.push({
-        "name" : $(this).attr("printer-name"),
-        "target" : $(this).attr("printer-code")
-      }) 
-
       selected_printers_names.push($(this).attr("printer-name"));
     } 
   });
 
-  if(selected_printers.length == 0){
+  if(selected_printers_names.length == 0){
     showToast('Warning: Please select atleast a Kitchen Section.', '#e67e22');
     return "";
   }
@@ -4998,34 +4992,59 @@ function sendMessageToKitchen(){
     "user": loggedInStaffInfo.name,
     "time": getCurrentTime('TIME'),
     "date": getCurrentTime('DATE_DD-MM-YY'),
-    "target": selected_printers,
+    "target": selected_printers_names,
     "message": chat_text
   }
 
 
-  var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
-  var temp = {
-    "target": "BBQ",
-    "name": "main78",
-    "settings": {
-      "marginsType": 1,
-      "printBackground": true,
-      "pageSize": {
-        "height": 891000,
-        "width": 78000
-      },
-      "silent": true
-    }
-  };
+                    //Relay Printing
+                    var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+                    var g = 0;
+                    var allPrintersList = [];
 
-  if(isKOTRelayingEnabled){
-    printMessageInKitchen(messageObj, temp);
-  }
-  else{
-    printMessageInKitchen(messageObj, temp);
-  }
 
-  messageObj.target = selected_printers_names;
+                    for (var k = 0; k < allConfiguredPrintersList.length; k++){
+                      if(allConfiguredPrintersList[k].type == "KOT"){
+                        allPrintersList = allConfiguredPrintersList[k].list;
+                        break;
+                      }
+                    }
+
+                    if(allPrintersList.length > 1){
+                      doMessagePrint(0);
+                    }
+                    else if(allPrintersList.length == 1){
+                      for(var b = 0; b < messageObj.target.length; b++){
+                        if(allPrintersList[0].name == messageObj.target[b]){
+                          printMessageInKitchen(messageObj, allPrintersList[0]);  
+                          break;
+                        }
+                      }                 
+                    }
+
+                    function doMessagePrint(index){
+
+                        if(!messageObj.target[index]){
+                          return "";
+                        }
+
+                        for(var a = 0; a < allPrintersList.length; a++){
+                          if(allPrintersList[a].name == messageObj.target[index]){
+
+                            printMessageInKitchen(messageObj, allPrintersList[a]);
+
+                            //add some delay
+                            setTimeout(function(){
+                              doMessagePrint(index + 1);
+                            }, 1000);
+
+                            break;
+                          }
+                        }                      
+                    }
+
+
+
   saveToChatLog(messageObj);
 
   playNotificationSound('SEND');
