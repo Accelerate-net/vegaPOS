@@ -642,6 +642,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 
 			case "bill":{
+
 				/*
 					FILTER USING BILL NUMBER 
 				*/
@@ -649,20 +650,23 @@ function loadAllPendingSettlementBills(optionalSource){
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 
-							    var requestData = { "selector" :{ "billNumber": filter_key } }
+						    //Set _id from Branch mentioned in Licence
+						    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+						    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+						      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+						      return '';
+						    }
 
-							    $.ajax({
-							      type: 'POST',
-							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
-							      data: JSON.stringify(requestData),
-							      contentType: "application/json",
-							      dataType: 'json',
-							      timeout: 10000,
-							      success: function(data) {
-							        if(data.docs.length > 0){
+						    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ filter_key;
 
-							          totalPages = 1;
-							          var bill = data.docs[0];
+						    $.ajax({
+						      type: 'GET',
+						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/'+bill_request_data,
+						      timeout: 10000,
+						      success: function(data) {
+						        if(data._id != ""){
+
+							          var bill = data;
 
 								      var resultRender = '';
 									  resultRender 				+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
@@ -691,7 +695,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 							      },
 							      error: function(data) {
-							        showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+							        showToast('Error: Bill #'+filter_key+' not found.', '#e74c3c');
 								  	totalPages = 0;
 								  	filterResultsCount = 0;
 									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
@@ -1038,18 +1042,20 @@ function updateSettledCount(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoices/_view/all?descending=true&include_docs=false',
-		    contentType: "application/json",
-		    dataType: 'json',
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices',
 		    timeout: 10000,
 		    success: function(data) {
 
-		      if(data.total_rows == 0){
+		      if(data.db_name == "zaitoon_invoices"){
+		      	document.getElementById("settledBillsCount").innerHTML = parseInt(data.doc_count) - 5; // 5 other docs (VERY IMP!!!)
+		      	console.log('~ minus 5 : THIS IS VERY IMPORTANT!')
+		      }
+		      else{
 		      	document.getElementById("settledBillsCount").innerHTML = 0;
 				return '';
 		      }
 
-		      document.getElementById("settledBillsCount").innerHTML = data.total_rows;
+		      
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
@@ -1060,22 +1066,26 @@ function updateSettledCount(){
 
 function calculateSettledCount(){
 
+
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoices/_view/all',
-		    contentType: "application/json",
-		    dataType: 'json',
+		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices',
 		    timeout: 10000,
 		    success: function(data) {
-		    	
-		      if(data.total_rows == 0){
-		      	document.getElementById("settledBillsCount").innerHTML = 0;
+
+		      if(data.db_name == "zaitoon_invoices"){
+		      	document.getElementById("settledBillsCount").innerHTML = parseInt(data.doc_count) - 5; // 5 other docs (VERY IMP!!!)
+		      	console.log('~ minus 5 : THIS IS VERY IMPORTANT!')
 		      }
 		      else{
-				document.getElementById("settledBillsCount").innerHTML = data.total_rows;
-			  }
+		      	document.getElementById("settledBillsCount").innerHTML = 0;
+				return '';
+		      }
+
+		      
 		    }
-		  });  
+		    
+		  });
 }
 
 function getPaymentCodeEquivalentName(code){
@@ -1795,20 +1805,24 @@ function loadAllSettledBills(){
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 
-							    var requestData = { "selector" :{ "billNumber": filter_key } }
+						    //Set _id from Branch mentioned in Licence
+						    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+						    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+						      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+						      return '';
+						    }
 
-							    $.ajax({
-							      type: 'POST',
-							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_find',
-							      data: JSON.stringify(requestData),
-							      contentType: "application/json",
-							      dataType: 'json',
-							      timeout: 10000,
-							      success: function(data) {
-							        if(data.docs.length > 0){
+						    var bill_request_data = accelerate_licencee_branch +"_INVOICE_"+ filter_key;
 
-							          	totalPages = 1;
-							          	var bill = data.docs[0];
+						    $.ajax({
+						      type: 'GET',
+						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/'+bill_request_data,
+						      timeout: 10000,
+						      success: function(data) {
+						        if(data._id != ""){
+
+							          	var bill = data;
+										totalPages = 1;
 
 								      	var resultRender = '';
 								      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
@@ -1839,7 +1853,7 @@ function loadAllSettledBills(){
 
 							      },
 							      error: function(data) {
-							        showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+							        showToast('Error: Invoice #'+filter_key+' not found.', '#e74c3c');
 								  	totalPages = 0;
 								  	filterResultsCount = 0;
 									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';

@@ -153,8 +153,6 @@ app.on('ready', function(){
   ]
 
   Menu.setApplicationMenu(Menu.buildFromTemplate(template));
-
-
 })
 
 // Quit when all windows are closed.

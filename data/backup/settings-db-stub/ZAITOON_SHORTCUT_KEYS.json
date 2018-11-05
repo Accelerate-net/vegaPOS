@@ -9,6 +9,10 @@
           "name": "Show Spotlight Search",
           "value": ""
         },
+        { 
+          "name": "Start Text To Kitchen", 
+          "value": "" 
+          },
         {
           "name": "Select Billing Mode",
           "value": ""
@@ -43,6 +47,10 @@
         },
         {
           "name": "Print KOT",
+          "value": ""
+        },
+        {
+          "name": "Generate KOT Silently",
           "value": ""
         },
         {

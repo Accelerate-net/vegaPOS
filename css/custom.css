@@ -234,6 +234,39 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 
+.skin-purple-light .versionText,
+.skin-yellow-light .versionText,
+.skin-red-light .versionText,
+.skin-blue-light .versionText,
+.skin-green-light .versionText{
+    position: absolute;
+    left: 5px;
+    z-index: 1000;
+    color: #d4cdcd;
+    bottom: 5px;
+    margin: 0;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+
+.skin-purple .versionText,
+.skin-yellow .versionText,
+.skin-red .versionText,
+.skin-blue .versionText,
+.skin-green .versionText{
+    position: absolute;
+    left: 5px;
+    z-index: 1000;
+    color: #44555d;
+    bottom: 5px;
+    margin: 0;
+    font-size: 10px;
+    font-weight: 400;
+}
+
+
+
 
 .spotlightOrderTag{
   font-size: 11px; font-family: sans-serif; 
@@ -5822,3 +5855,167 @@ input:checked + .slider:before {
     cursor: pointer;
     margin-top: 2px;
 }
+
+
+.textSendIcon{
+  cursor: pointer;
+}
+
+.textSendIcon:hover .fa,
+.textSendIcon:active .fa,
+.textSendIcon:focus .fa{
+  color: #FFF;
+}
+
+.skin-yellow-light .textSendIcon:hover .fa,
+.skin-yellow-light .textSendIcon:active .fa,
+.skin-yellow-light .textSendIcon:focus .fa,
+.skin-red-light .textSendIcon:hover .fa,
+.skin-red-light .textSendIcon:active .fa,
+.skin-red-light .textSendIcon:focus .fa,
+.skin-violet-light .textSendIcon:hover .fa,
+.skin-violet-light .textSendIcon:active .fa,
+.skin-violet-light .textSendIcon:focus .fa,
+.skin-blue-light .textSendIcon:hover .fa,
+.skin-blue-light .textSendIcon:active .fa,
+.skin-blue-light .textSendIcon:focus .fa,
+.skin-green-light .textSendIcon:hover .fa,
+.skin-green-light .textSendIcon:active .fa,
+.skin-green-light .textSendIcon:focus .fa{
+  color: #333435;
+}
+
+.textToKitchenName{
+    display: inline-block;
+    font-family: 'Oswald', sans-serif;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 185px;  
+}
+
+.textToKitchenPrinter{
+  color: #868686 !important; 
+  padding: 10px 10px 5px 10px !important; 
+  font-size: 24px !important;
+  cursor: pointer;
+  border-bottom: 1px solid #868686;
+}
+
+.textToKitchenPrinter:hover,
+.textToKitchenPrinter:active,
+.textToKitchenPrinter:focus{
+    color: #FFF !important;
+    padding-bottom: 5px !important;
+    border-right: 4px solid #306f94;
+}
+
+.textToKitchenPrinter.myPrinter .tok_icon_printer{
+  display: none;
+}
+
+.tok_icon_check{
+  display: none !important;
+}
+
+.textToKitchenPrinter.myPrinter .tok_icon_check{
+  display: inline-block !important
+}
+
+.textToKitchenPrinter.myPrinter{
+    background: #4196c7 !important;
+    color: #FFF !important;
+    padding-bottom: 5px !important;
+    border-right: 4px solid #306f94 !important;
+    border-bottom: 1px solid #306f94;
+}
+
+.textToKitchenChat{
+    font-size: 12px;
+    width: 470px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    display: block;
+    padding: 15px 10px 15px 60px;
+    text-align: left;
+    cursor: pointer;
+    position: absolute;
+    
+}
+
+
+
+.textToKitchenTime{
+    font-size: 8px;
+    text-transform: uppercase;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+}
+
+.textToKitchenIcon{
+    height: 30px;
+    width: 30px;
+    font-size: 16px;
+    line-height: 30px;
+    margin-top: 7px;
+    margin-left: 10px;  
+    background: #4994bf;
+}
+
+.textToKitchenChatContent{
+  display: block;
+}
+
+.textToKitchenChatData{
+  display: none;
+}
+
+.textToKitchenChat:hover .textToKitchenChatContent,
+.textToKitchenChat:active .textToKitchenChatContent,
+.textToKitchenChat:focus .textToKitchenChatContent{
+  display: none;
+}
+
+.textToKitchenChat:hover .textToKitchenChatData,
+.textToKitchenChat:active .textToKitchenChatData,
+.textToKitchenChat:focus .textToKitchenChatData{
+  display: block;
+}
+
+.textToKitchenChatBox{
+  position: relative;
+  width: 100%;
+  display: block;
+  height: 45px;
+  border-bottom: 1px solid #d2d2d2;
+}
+
+.textToKitchenChatBox:hover,
+.textToKitchenChatBox:active,
+.textToKitchenChatBox:focus{
+    background: #616161;
+    border-color: #4994bf;
+}
+
+.skin-yellow-light .textToKitchenChatBox:hover,
+.skin-yellow-light .textToKitchenChatBox:active,
+.skin-yellow-light .textToKitchenChatBox:focus,
+.skin-red-light .textToKitchenChatBox:hover,
+.skin-red-light .textToKitchenChatBox:active,
+.skin-red-light .textToKitchenChatBox:focus,
+.skin-violet-light .textToKitchenChatBox:hover,
+.skin-violet-light .textToKitchenChatBox:active,
+.skin-violet-light .textToKitchenChatBox:focus,
+.skin-blue-light .textToKitchenChatBox:hover,
+.skin-blue-light .textToKitchenChatBox:active,
+.skin-blue-light .textToKitchenChatBox:focus,
+.skin-green-light .textToKitchenChatBox:hover,
+.skin-green-light .textToKitchenChatBox:active,
+.skin-green-light .textToKitchenChatBox:focus{
+    background: #d2d2d2;
+    border-color: #4994bf;
+}
+
+

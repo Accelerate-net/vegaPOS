@@ -32,6 +32,10 @@ var sounds = {
     url: './data/sounds/play.wav',
     volume: VOLUME
   },
+  SEND: {
+    url: './data/sounds/send.wav',
+    volume: VOLUME
+  },
   STARTUP: {
     url: './data/sounds/startup.wav',
     volume: VOLUME * 2

@@ -9,24 +9,6 @@ let COMMON_LOCAL_SERVER_IP = saved_server_url_manual != '' ? saved_server_url_ma
 let NOTIFICATION_FILTER = 'ALL';
 
 
-
-/*
-  Connect to the Server
-*/
-
-var shell = require('shelljs');
- 
-if (!shell.which('git')) {
-  showToast('System Configuration Alert: Git needs to be installed', '#6F1E51')
-  shell.exit(1);
-}
-else{
-  
-}
-
-
-
-
 //To format the time in '' ago format
 function getFormattedTime(time){
     var tempTime = moment(time, 'hhmm').fromNow(true);
@@ -49,8 +31,6 @@ function getSummaryStandardDate(date){
   //convert YYYY-MM-DD to YYYY-MM-DD
   return moment(date, 'DD-MM-YYYY').format('YYYYMMDD')
 }
-
-
 
 function getSuperFancyDate(date){
   //convert DD-MM-YYYY to DD MM, YYYY

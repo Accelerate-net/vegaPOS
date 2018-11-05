@@ -1777,8 +1777,84 @@ var html_template = kot_header_content +
          showToast('Print Error: Print failed. No printer configured for '+type, '#e74c3c');   
          return '';
         }
-
 }
 
+
+function printMessageInKitchen(messageObject, optionalTargetPrinter){
+
+ var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+ if(allActivePrinters.length == 0){
+   showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+   return '';
+ }
+
+var kot_header_content = ''+
+      '<div class="KOTHeader" style="min-height: unset">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<col style="width: 33%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="subLabel">FROM</tag>'+
+                     '<tag class="KOTNumber">'+messageObject.user+'</tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p style="margin: 0">'+
+                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">MESSAGE</tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top;">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">TIME</tag>'+
+                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+getFancyTime(messageObject.time)+'</tag>'+
+                  '</p>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>';
+
+var html_template = kot_header_content +
+      '<table style="width: 100%">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                     '<p>'+
+                        '<tag style="margin-top: 10px; font-size: 21px; line-height: 1.5em; font-weight: bold;">'+messageObject.message+'</tag>'+
+                     '</p>'+  
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>';
+
+
+         var selected_printer = null;
+
+         if(!optionalTargetPrinter || optionalTargetPrinter == '' || optionalTargetPrinter == undefined){
+            var b = 0;
+            while(allActivePrinters[b]){
+               if(allActivePrinters[b].type == 'KOT'){
+                  selected_printer = allActivePrinters[b].list[0];
+                  break;
+               }
+               b++;
+            }
+         }
+         else if(optionalTargetPrinter != ''){
+            selected_printer = optionalTargetPrinter;
+         }
+
+
+        if(selected_printer && selected_printer != '' && selected_printer != null){
+         ipc.send("printBillDocument", html_template, selected_printer);
+        }
+        else{
+         showToast('Print Error: Print failed. No printer configured for '+type, '#e74c3c');   
+         return '';
+        }
+}
 
 
