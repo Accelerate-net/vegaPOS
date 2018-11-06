@@ -269,8 +269,9 @@ function additemtocart(encodedItem, category, optionalSource){
 				iteration_count++;
 			});		
 
-			if(iteration_count == 0)
-				renderCart();
+			if(iteration_count == 0){
+				renderCart('', 'FOCUS_LATEST_QUANTITY');
+			}
 		}
 		else{
 			renderCart();
@@ -322,6 +323,28 @@ function hideCustomiseItem(){
 //To be entered manually
 
 function addSpecialCustomItem(optionalText){
+
+
+
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+ else{
+  	showToast('No Permission: Only an Admin can <b>add custom</b> item.', '#e67e22');
+  	return '';
+  }
+
+
 
 	var itemName = '';
 
@@ -1106,6 +1129,26 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Total</th>  </tr>';
 	document.getElementById("cartDetails").innerHTML = temp;
 	
+
+
+	//Add Custom item button visibility
+	  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+	        
+	  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+	    loggedInStaffInfo.name = "";
+	    loggedInStaffInfo.code = "";
+	    loggedInStaffInfo.role = "";
+	  }
+
+	  //either profile not chosen, or not an admin
+	  var isUserAnAdmin = false
+	  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+	    isUserAnAdmin = true;
+	  	document.getElementById("customItemAddShortcutButton").style.display = 'block';
+	  }
+	  else{
+	  	document.getElementById("customItemAddShortcutButton").style.display = 'none';
+	  }
 
 
 
@@ -7694,7 +7737,6 @@ function initMenuSuggestion(){
 							Add comment to last item, if ALT pressed.
 				        */ 
 
-
 					    if(e.which === 40){ 
 					        if(liSelected){
 					            liSelected.removeClass('selected');
@@ -7726,7 +7768,7 @@ function initMenuSuggestion(){
 					        }
 					    }
 					    else if(e.which === 18){
-					    	
+
 							//UX Improvements
 							//add comment to last added item
 							var iteration_count = 0;
@@ -7847,11 +7889,31 @@ function initMenuSuggestion(){
 					    }
 					    else{
 
+						  // LOGGED IN USER INFO
+						  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+						        
+						  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+						    loggedInStaffInfo.name = "";
+						    loggedInStaffInfo.code = "";
+						    loggedInStaffInfo.role = "";
+						  }
+
+						  //either profile not chosen, or not an admin
+						  var isUserAnAdmin = false
+						  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+						    isUserAnAdmin = true;
+						  }
+
+
 					    	var temp_item = $('#add_item_by_search').val();
 
+					    	var customAdditionContent = '';
+					    	if(isUserAnAdmin){
+					    		customAdditionContent = '<li class="ui-menu-item" onclick="addSpecialCustomItem(\''+temp_item+'\')" tabindex="'+tabIndex+'"><i class="fa fa-plus-circle" style="color: #18ca8b"></i> <i>add</i> <b style="font-size: 120%">'+temp_item+'</b></li>';
+					    	}
+
 					    	var custom_template = 	'<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+
-					    								'<span style="display: inline-block; padding: 8px 0 4px 8px; font-size: 12px; text-align: center; color: #c6c6c6; font-style: italic">No matching items found.</span>'+
-										    			'<li class="ui-menu-item" onclick="addSpecialCustomItem(\''+temp_item+'\')" tabindex="'+tabIndex+'"><i class="fa fa-plus-circle" style="color: #18ca8b"></i> <i>add</i> <b style="font-size: 120%">'+temp_item+'</b></li>'+
+					    								'<span style="display: inline-block; padding: 8px 0 4px 8px; font-size: 12px; text-align: center; color: #c6c6c6; font-style: italic">No matching items found.</span>'+ customAdditionContent +
 										    	   	'</ul>';
 					    	
 					    	$('#searchResultsRenderArea').html(custom_template);
