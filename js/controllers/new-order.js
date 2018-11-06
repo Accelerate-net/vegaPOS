@@ -1646,16 +1646,17 @@ else{
 			$("#cartDetails .itemQuantityInput").each(function(){
 
 				if(iteration_count == 0){
+					
 					$(this).focus();
 					$(this).select();
 
 
 			        //UX Improvements
+			        var firstEnterTriggered = false;
 					var approveItemQuantityTriggerer = $(this).keyup(function(e) {
 
-							var firstEnterTriggered = false;
-
 							if (e.which === 13) {
+
 								if(firstEnterTriggered){
 						        	var cart_index = parseInt($(this).attr("cart-index")); 
 						        	changeqty(cart_index);
@@ -7935,7 +7936,9 @@ function initMenuSuggestion(){
 
 
 						//Render the list
+						var isSomeItemsFound = false; 
 					    if(itemsList != '' || itemsAppendList != ''){
+					    	isSomeItemsFound = true;
 					    	$('#searchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+itemsList+itemsAppendList+'</ul>');
 					    }
 					    else{
@@ -7970,8 +7973,24 @@ function initMenuSuggestion(){
 					    	$('#searchResultsRenderArea').html(custom_template);
 					    }
 
+					    if(isSomeItemsFound){
+					    	var track_index = 0;
+					    	$("#searchResultsRenderArea li").each(function(){
+
+					    		if(track_index == 0){
+					    			$(this).addClass("selected");
+					    		}
+
+					    		track_index++;
+						    });
+					    }
+
 					    //Refresh dropdown list
 					    li = $('#searchResultsRenderArea li');
+					    if(isSomeItemsFound){
+					    	liSelected = li.eq(0).addClass('selected');
+					    }
+
 					}
 				});   
           }
