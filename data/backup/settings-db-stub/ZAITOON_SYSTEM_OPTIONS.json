@@ -70,7 +70,9 @@
         {
           "name": "sendMetadataToQR",
           "value": "NO"
-        }
+        },
+        { "name": "onlineOrdersNotification", "value": "YES" }
+
       ]
     }
   ]

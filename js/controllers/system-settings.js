@@ -373,7 +373,7 @@ function createFirstTimeActivationStubsFromSettings(licenceObject, machinesList,
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ERRORS" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "resetCountersAfterReport", "value": "YES" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razor" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "Dine In" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "scanPayEnabled", "value": "YES" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ERRORS" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" } , { "name": "onlineOrdersNotification", "value": "YES" } , { "name": "resetCountersAfterReport", "value": "YES" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razor" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "Dine In" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "scanPayEnabled", "value": "YES" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -886,6 +886,22 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           else{
                             document.getElementById("systemOptionEditingAllowed").value = 'NO';
                           }
+                          break;
+                        }
+                        case "onlineOrdersNotification": {
+                          if(isOnlineOrdersEnabled){
+                            document.getElementById("systemOptionOnlineOrders_notificationTag").style.display = 'table-row';
+                            console.log('hello')
+                            if(params[i].value == 'YES'){
+                              document.getElementById("systemOptionOnlineOrdersNotification").value = params[i].value;
+                            }
+                            else{
+                              document.getElementById("systemOptionOnlineOrdersNotification").value = 'NO';
+                            }
+                          }  
+                          else{
+                            document.getElementById("systemOptionOnlineOrders_notificationTag").style.display = 'none';
+                          }  
                           break;
                         }
                         case "billSettleLater": {
@@ -1948,6 +1964,14 @@ function changeSystemOptionOnlineOrders(){
   //Update
   window.localStorage.systemOptionsSettings_OnlineOrders = optName;
   changeSystemOptionsFile("onlineOrders", document.getElementById("systemOptionOnlineOrders").value);
+}
+
+function changeSystemOptionOnlineOrdersNotification(){
+  var optName = document.getElementById("systemOptionOnlineOrdersNotification").value == 'YES'? true: false;
+
+  //Update
+  window.localStorage.systemOptionsSettings_OnlineOrdersNotification = optName;
+  changeSystemOptionsFile("onlineOrdersNotification", document.getElementById("systemOptionOnlineOrdersNotification").value);
 }
 
 function changeSystemOptionNotification(){

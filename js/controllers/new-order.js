@@ -235,14 +235,14 @@ function additemtocart(encodedItem, category, optionalSource){
 
                     $("#customOptionsList .easySelectTool_customItem").each(function(){
                       if($(this).hasClass("selectCustomItem")){
+
+                      	easySelectTool.unbind();   
                         $(this).click();
                         e.preventDefault(); 
-                        easySelectTool.unbind();   
+                        
                       }
                     });    
 
-                               
-                    
                     break;
                   }
                  }
@@ -303,15 +303,34 @@ function addCustomToCart(name, category, code, price, variant, optionalSource, e
 			saveToCart(productToAdd);
 		}
 		
-		document.getElementById("customiseItemModal").style.display ='none'
-		renderCart()
+		document.getElementById("customiseItemModal").style.display ='none';
+
+		console.log(optionalSource)
 
 		if(optionalSource == 'SUGGESTION'){
-			$('#searchResultsRenderArea').html('');
-			document.getElementById("add_item_by_search").value = '';
-		}
 
-		$("#add_item_by_search").focus();		
+			$('#add_item_by_search').val('');
+			$('#searchResultsRenderArea').html('');
+
+			//UX Improvements
+			//Focus last added item's qty input
+			var iteration_count = 0;
+			$("#cartDetails .itemQuantityInput").each(function(){
+
+				if(iteration_count == 0){
+					renderCart('', 'FOCUS_LATEST_QUANTITY_CUSTOM_ITEM');
+				}
+
+				iteration_count++;
+			});		
+
+			if(iteration_count == 0){
+				renderCart('', 'FOCUS_LATEST_QUANTITY_CUSTOM_ITEM');
+			}
+		}
+		else{
+			renderCart();
+		}	
 }
 
 function hideCustomiseItem(){
@@ -523,7 +542,7 @@ function senseQuantityChange(event, cart_index){
 
 
 function changeqty(cart_index, optionalFocusKey){
-
+console.log('qty changes....')
 	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
@@ -757,6 +776,30 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 
 
 function renderCart(optionalFocusKey, forceRequest){ //optionalFocusKey --> Which input field to be focused
+
+
+	//Add Custom item button visibility
+	  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+	        
+	  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+	    loggedInStaffInfo.name = "";
+	    loggedInStaffInfo.code = "";
+	    loggedInStaffInfo.role = "";
+	  }
+
+	  //either profile not chosen, or not an admin
+	  var isUserAnAdmin = false
+	  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+	    isUserAnAdmin = true;
+	  	document.getElementById("customItemAddShortcutButton").style.display = 'block';
+	  }
+	  else{
+	  	document.getElementById("customItemAddShortcutButton").style.display = 'none';
+	  }
+
+
+
+
 
 	//Render Cart Items based on local storage
 	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
@@ -1129,29 +1172,6 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Total</th>  </tr>';
 	document.getElementById("cartDetails").innerHTML = temp;
 	
-
-
-	//Add Custom item button visibility
-	  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
-	        
-	  if(jQuery.isEmptyObject(loggedInStaffInfo)){
-	    loggedInStaffInfo.name = "";
-	    loggedInStaffInfo.code = "";
-	    loggedInStaffInfo.role = "";
-	  }
-
-	  //either profile not chosen, or not an admin
-	  var isUserAnAdmin = false
-	  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
-	    isUserAnAdmin = true;
-	  	document.getElementById("customItemAddShortcutButton").style.display = 'block';
-	  }
-	  else{
-	  	document.getElementById("customItemAddShortcutButton").style.display = 'none';
-	  }
-
-
-
 
 	/*Calculate Taxes and Other Charges*/ 
 	//---------------------------------//
@@ -1589,7 +1609,7 @@ else{
 }
 
 	//optionalFocusKey --> Which input field to be focused after cart is rendered
-	if(optionalFocusKey && optionalFocusKey != '' && optionalFocusKey != undefined){
+	if(optionalFocusKey && optionalFocusKey != '' && optionalFocusKey != undefined && (!forceRequest || forceRequest == "" || forceRequest == undefined)){
 		/* cuurently used for quantity up and down operation only!  --> ADD MORE */
 		$('#'+optionalFocusKey).focus();
 	}
@@ -1619,6 +1639,38 @@ else{
 				iteration_count++;
 			});	
 	}
+	else if(forceRequest == "FOCUS_LATEST_QUANTITY_CUSTOM_ITEM"){ //to fix double ENTER bug
+			//UX Improvements
+			//Focus last added item's qty input
+			var iteration_count = 0;
+			$("#cartDetails .itemQuantityInput").each(function(){
+
+				if(iteration_count == 0){
+
+					$(this).focus();
+					$(this).select();
+
+
+			        //UX Improvements
+			        var firstEnterTriggered = false;
+					var approveItemQuantityTriggerer = $(this).keyup(function(e) {
+
+							if (e.which === 13) {
+
+								if(firstEnterTriggered){
+						        	var cart_index = parseInt($(this).attr("cart-index")); 
+						        	changeqty(cart_index);
+						        	approveItemQuantityTriggerer.unbind();
+						    	}
+
+						    	firstEnterTriggered = true;
+						    }
+					}); 
+				}
+
+				iteration_count++;
+			});	
+	}  
 
 }
 
@@ -3213,43 +3265,32 @@ function suggestCustomerInfoFromMobile(mode, inputElement, optionalRequest){
 	//auto search if mobile length is 10, or if ENTER clicked..
 	if(mobileNumber.length == 10 || optionalRequest == 'FORCE_SEARCH'){
 
-	  var requestData = {
-	    "selector"  :{ 
-	                  "mobile": mobileNumber 
-	                },
-	    "fields"    : ["name", "mobile", "savedAddresses"]
-	  }
-
 	  $.ajax({
-	    type: 'POST',
-	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
-	    data: JSON.stringify(requestData),
-	    contentType: "application/json",
-	    dataType: 'json',
+	    type: 'GET',
+	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/'+mobileNumber,
 	    timeout: 10000,
 	    success: function(data) {
-	      hideLoading();
-	      if(data.docs.length != 0){ //USER FOUND!!!
+	      if(data._id != ""){ //USER FOUND!!!
 
 	      	window.localStorage.userAutoFound = 1;
-	      	window.localStorage.userDetailsAutoFound = JSON.stringify(data.docs[0]);
+	      	window.localStorage.userDetailsAutoFound = JSON.stringify(data);
 
 	      	var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData) : {};
 	      	
-	      	if(data.docs[0].name != ''){
-	      		document.getElementById("customer_form_data_name").value = data.docs[0].name;
-	      		customerInfo.name = data.docs[0].name;
+	      	if(data.name != ''){
+	      		document.getElementById("customer_form_data_name").value = data.name;
+	      		customerInfo.name = data.name;
 	      	}
 
 	      	//Set Address if any saved address found and the mode == 'PARCEL'
 	      	var savedAddressesEncoded = '';
-	      	if(data.docs[0].savedAddresses){
+	      	if(data.savedAddresses){
 
-	      		savedAddressesEncoded = encodeURI(JSON.stringify(data.docs[0].savedAddresses));
+	      		savedAddressesEncoded = encodeURI(JSON.stringify(data.savedAddresses));
 	      	
 	      		//set default address to 1st saved address
-		      	if(customerInfo.modeType == 'DELIVERY' && data.docs[0].savedAddresses.length > 0){
-		      		customerInfo.mappedAddress = JSON.stringify(data.docs[0].savedAddresses[0]);   			
+		      	if(customerInfo.modeType == 'DELIVERY' && data.savedAddresses.length > 0){
+		      		customerInfo.mappedAddress = JSON.stringify(data.savedAddresses[0]);   			
 	      		}
 	      	}
 	      	else{
@@ -4885,7 +4926,15 @@ function generateNewKOT(silentFlag){
 
 function addCustomerToDatabase(customerData){
 
+	//Set _id from Branch mentioned in Licence
+	var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+	if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+	  	showToast('Invalid Licence Error: Customer Database can not be modified. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	  	return '';
+	}
+
 	customerData._id = customerData.mobile;
+	customerData.branch = accelerate_licencee_branch;
 
 	//Post to local Server
 	$.ajax({
@@ -4907,19 +4956,14 @@ function addCustomerToDatabase(customerData){
 
 function updateCustomerAddressOnDatabase(mobile, newAddress){
 
-    var requestData = { "selector" :{ "_id": mobile }}
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/'+mobile,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-          		var userData = data.docs[0];
+          		var userData = data;
           		userData.savedAddresses.push(newAddress);
 
                 $.ajax({
@@ -4930,16 +4974,19 @@ function updateCustomerAddressOnDatabase(mobile, newAddress){
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                  	console.log(data)
+
                   },
                   error: function(data) {
-                      
+                      showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
                   }
                 }); 
         }
+        else{
+        	showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
+        }
       },
       error: function(data) {
-        
+        showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
       }
 
     }); 
@@ -4948,19 +4995,14 @@ function updateCustomerAddressOnDatabase(mobile, newAddress){
 
 function removeCustomerAddressFromDatabase(mobile, addressID){
 
-    var requestData = { "selector" :{ "_id": mobile }}
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/'+mobile,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-          		var userData = data.docs[0];
+          		var userData = data;
           		var n = 0;
           		while(userData.savedAddresses[n]){
           			if(userData.savedAddresses[n].id == addressID){
@@ -4978,16 +5020,16 @@ function removeCustomerAddressFromDatabase(mobile, addressID){
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                  	console.log(data)
+
                   },
                   error: function(data) {
-                      
+                      showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
                   }
                 }); 
         }
       },
       error: function(data) {
-        
+        showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
       }
 
     }); 
@@ -6684,7 +6726,7 @@ function chooseAddressFromSavedList(){
 	while(addressObj[n]){
 
 		savedAddressesList += '<div class="col-sm-5 addressChoose" style="padding: 10px">'+    
-                           '<p class="featureName">'+addressObj[n].name+'<br> '+addressObj[n].flatNo+' '+addressObj[n].flatName+'<br> '+addressObj[n].landmark+' '+addressObj[n].area+'<br> '+( addressObj[n].contact && addressObj[n].contact != '' ? 'Mob. '+addressObj[n].contact : '' )+'</p>'+
+                           '<p class="featureName"><b>'+addressObj[n].name+'</b><br> '+addressObj[n].flatNo+' '+addressObj[n].flatName+'<br> '+addressObj[n].landmark+' '+addressObj[n].area+'<br> '+( addressObj[n].contact && addressObj[n].contact != '' ? 'Mob. <b style="color: #da3769; font-weight: 400; letter-spacing: 2px;">'+addressObj[n].contact+'</b>' : '' )+'</p>'+
                             '<button class="btn btn-sm btn-outline" onclick="useThisSavedAddress(\''+encodeURI(JSON.stringify(addressObj[n]))+'\')">Use Address</button>'+
                             '<span onclick="deleteThisSavedAddress(\''+registeredMobile+'\', \''+addressObj[n].id+'\')" class="btn btn-sm" style="border: none; display: inline; float: right; color: #e74c3c"><i class="fa fa-trash-o"></i></span>'+
                         '</div>';
@@ -7884,7 +7926,9 @@ function initMenuSuggestion(){
 
 
 						//Render the list
+						var isSomeItemsFound = false; 
 					    if(itemsList != '' || itemsAppendList != ''){
+					    	isSomeItemsFound = true;
 					    	$('#searchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+itemsList+itemsAppendList+'</ul>');
 					    }
 					    else{
@@ -7919,8 +7963,24 @@ function initMenuSuggestion(){
 					    	$('#searchResultsRenderArea').html(custom_template);
 					    }
 
+					    if(isSomeItemsFound){
+					    	var track_index = 0;
+					    	$("#searchResultsRenderArea li").each(function(){
+
+					    		if(track_index == 0){
+					    			$(this).addClass("selected");
+					    		}
+
+					    		track_index++;
+						    });
+					    }
+
 					    //Refresh dropdown list
 					    li = $('#searchResultsRenderArea li');
+					    if(isSomeItemsFound){
+					    	liSelected = li.eq(0).addClass('selected');
+					    }
+
 					}
 				});   
           }

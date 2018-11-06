@@ -32,6 +32,11 @@ function getSummaryStandardDate(date){
   return moment(date, 'DD-MM-YYYY').format('YYYYMMDD')
 }
 
+function getHumanStandardDate(date){
+  //convert YYYY-MM-DD to YYYY-MM-DD
+  return moment(date, 'YYYYMMDD').format('DD-MM-YYYY')
+}
+
 function getSuperFancyDate(date){
   //convert DD-MM-YYYY to DD MM, YYYY
   return moment(date, 'DD-MM-YYYY').format('Do MMMM, YYYY')
