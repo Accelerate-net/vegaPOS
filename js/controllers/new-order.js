@@ -248,21 +248,35 @@ function additemtocart(encodedItem, category, optionalSource){
                  }
             }
           });
-
-
-
-
-
 	}
 	else if(!productToAdd.isCustom){
 		saveToCart(productToAdd, optionalSource)
-		renderCart()
-
+		
 		if(optionalSource == 'SUGGESTION'){
+
+			$('#add_item_by_search').val('');
 			$('#searchResultsRenderArea').html('');
-			document.getElementById("add_item_by_search").value = '';
+
+			//UX Improvements
+			//Focus last added item's qty input
+			var iteration_count = 0;
+			$("#cartDetails .itemQuantityInput").each(function(){
+
+				if(iteration_count == 0){
+					renderCart('', 'FOCUS_LATEST_QUANTITY');
+				}
+
+				iteration_count++;
+			});		
+
+			if(iteration_count == 0)
+				renderCart();
+		}
+		else{
+			renderCart();
 		}
 	}	
+
 
 	$("#add_item_by_search").focus();
 }
@@ -513,10 +527,18 @@ function changeqty(cart_index, optionalFocusKey){
 		if(cart_products[i].cartIndex == cart_index){
 			
 			var temp = document.getElementById("qty_"+cart_index).value;
-			console.log(temp)
 			if(temp == '' || isNaN(temp) || temp == 0){
-				temp = 1;
-				break;
+				//temp = 1;
+				console.log('am here...', cart_index)
+				//Delete from Cart
+				deleteItem(cart_index);
+				$('#add_item_by_search').focus();
+
+				return "";
+			}
+
+			if(temp < 0){
+				temp = Math.abs(temp);
 			}
 
 			cart_products[i].qty = parseInt(temp);
@@ -711,7 +733,7 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 */
 
 
-function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field to be focused
+function renderCart(optionalFocusKey, forceRequest){ //optionalFocusKey --> Which input field to be focused
 
 	//Render Cart Items based on local storage
 	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
@@ -791,7 +813,7 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 		          		n++;
 		          	}
 
-		          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, optionalFocusKey);	          	
+		          	renderCartAfterProcess(cart_products, selectedBillingModeInfo, cartExtrasList, optionalFocusKey, forceRequest);	          	
 
 	          }
 	          else{
@@ -811,7 +833,7 @@ function renderCart(optionalFocusKey){ //optionalFocusKey --> Which input field 
 
 }
 
-function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras, optionalFocusKey){
+function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras, optionalFocusKey, forceRequest){
 
 	/*
 		cart_products - cart of items 
@@ -954,7 +976,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 									allergyIngredientDetected = true;
 									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : '') )+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 											'<td style="vertical-align: middle">'+
-											'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+											'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 											'</td>'+
 											'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 													
@@ -965,7 +987,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 							if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
 								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 									'<td style="vertical-align: middle">'+
-									'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+									'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 									'</td>'+
 									'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 								
@@ -977,7 +999,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 					else{
 						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 							'<td style="vertical-align: middle">'+
-							'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+							'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 							'</td>'+
 							'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 						
@@ -986,7 +1008,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				else{
 					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 						'<td style="vertical-align: middle">'+
-						'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
+						'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 						'</td>'+
 						'<td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp
 				
@@ -1035,24 +1057,24 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 							if(allergicIngredients[a] == cart_products[i].ingredients[c]){
 								itemContainsAllergicIngredient = true;
 								allergyIngredientDetected = true;
-								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 								break;
 							}
 						}
 
 						if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
-							temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+							temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 						}
 
 						a++;
 					}			
 				}
 				else{
-					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 				}
 			}
 			else{
-				temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
+				temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button class="btn btn-block btn-xs edit btn-success itemCommentButton" onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td><td><input class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" data-item="2" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')"></td><td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+cart_products[i].price*cart_products[i].qty+'</span></td></tr>' + temp;
 			}
 
 			/*
@@ -1528,6 +1550,33 @@ else{
 		/* cuurently used for quantity up and down operation only!  --> ADD MORE */
 		$('#'+optionalFocusKey).focus();
 	}
+
+	//Overwrite (if any Force Request)
+	if(forceRequest == "FOCUS_LATEST_QUANTITY"){
+			//UX Improvements
+			//Focus last added item's qty input
+			var iteration_count = 0;
+			$("#cartDetails .itemQuantityInput").each(function(){
+
+				if(iteration_count == 0){
+					$(this).focus();
+					$(this).select();
+
+
+			        //UX Improvements
+					var approveItemQuantityTriggerer = $(this).keyup(function(e) {
+							if (e.which === 13) {
+						        var cart_index = parseInt($(this).attr("cart-index")); 
+						        changeqty(cart_index);
+						        approveItemQuantityTriggerer.unbind();
+						    }
+					}); 
+				}
+
+				iteration_count++;
+			});	
+	}
+
 }
 
 
@@ -3036,6 +3085,25 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			        }
 
 			        renderCart();
+
+
+
+			        //UX Improvements
+					var triggerCustomerChecker = $('#customer_form_data_mobile').keyup(function(e) {
+							if (e.which === 13) {
+						        suggestCustomerInfoFromMobile('GENERIC', '', 'FORCE_SEARCH');
+						    }
+					});
+
+					var guestCountEnter = $('#customer_form_data_count').keyup(function(e) {
+							if (e.which === 13) {
+						        $('#add_item_by_search').focus();
+						    }
+					}); 
+
+					
+
+
 }
 
 
@@ -3088,18 +3156,19 @@ function updateTokenCountOnServer(nextToken, revID){
 */
 
 
-function suggestCustomerInfoFromMobile(mode, inputElement){
+function suggestCustomerInfoFromMobile(mode, inputElement, optionalRequest){
 
 	var mobileNumber = '';
 
 	if(mode == 'GENERIC'){
-		mobileNumber = inputElement.value
+		mobileNumber = $('#customer_form_data_mobile').val();
 	}
 	else if(mode == 'DIRECT'){
 		mobileNumber = inputElement;
 	}
 
-	if(mobileNumber.length == 10){
+	//auto search if mobile length is 10, or if ENTER clicked..
+	if(mobileNumber.length == 10 || optionalRequest == 'FORCE_SEARCH'){
 
 	  var requestData = {
 	    "selector"  :{ 
@@ -6533,8 +6602,6 @@ function pickAddressForNewOrder(encodedCurrentAddress){
                  }
             }
           });
-
-
 }
 
 /* Choose from Saved Addresses List */
@@ -7729,14 +7796,15 @@ function initMenuSuggestion(){
 					    	 		}
 					    	 		else{ //has more than one words
 
-					    	 			//Starts with
-					    	 			if(item_name.search(name_regex) != -1){
+					    	 			//Wild Search
+					    	 			if(item_name.search(regex) != -1){
 
 					    	 				tabIndex = -1;
 								  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
 								            count++;
 								            tabIndex++;
 					    	 			}
+					    	 			/*
 					    	 			else{
 						    	 			for(var n = 0; n < total_words; n++){
 						    	 				if(item_name_splits[n].search(name_regex) != -1){
@@ -7750,6 +7818,7 @@ function initMenuSuggestion(){
 							    	 			}
 						    	 			}
 						    	 		}
+						    	 		*/
 
 					    	 		}
 					    	 	}

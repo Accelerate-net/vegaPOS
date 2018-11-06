@@ -2997,6 +2997,29 @@ function hideSettleBillAndPush(){
 
 function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
+  // LOGGED IN USER INFO
+
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+  else{
+    showToast('No Permission: Only an Admin can settle the Bill.', '#e67e22');
+    return '';
+  }
+
+
+
+
     var bill = JSON.parse(decodeURI(encodedBill));
 
     var splitPayHoldList = window.localStorage.billSettleSplitPlayHoldList ? JSON.parse(window.localStorage.billSettleSplitPlayHoldList): [];

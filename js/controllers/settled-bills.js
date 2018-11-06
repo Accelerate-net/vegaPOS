@@ -2384,18 +2384,18 @@ function openSelectedBill(encodedBill, type){
                                 '</div>';
         }
         else{
-        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
-                                  '<div class="floaty-btn small" id="triggerClick_settleBillButton" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
+            subOptions = '<div class="floaty" style="right: -10px; top: 0">' +
+        					'<div class="floaty-btn small" style="box-shadow: none; background: #7571ce" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
     									'<path d="M0-.75h24v24H0z" fill="none"/>'+
                                     '</svg>'+
                                     '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
-                                      '<i class="fa fa-check"></i>'+
+                                      '<i class="fa fa-print"></i>'+
                                     '</tag>'+
-                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Settle Bill</span>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Print Duplicate Bill</span>'+
                                   '</div>'+
-                                '</div>';        	
+                         '</div>';      	
         }
 
 
@@ -2638,7 +2638,18 @@ function openSelectedBill(encodedBill, type){
                                 '</div>';
         }
         else{
-        	subOptions = '';        	
+        	subOptions = '<div class="floaty" style="right: -10px; top: 0">' +
+        					'<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
+                                    '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
+										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
+    									'<path d="M0-.75h24v24H0z" fill="none"/>'+
+                                    '</svg>'+
+                                    '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
+                                      '<i class="fa fa-print"></i>'+
+                                    '</tag>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Print Duplicate Invoice</span>'+
+                                  '</div>'+
+                         '</div>';      	
         }
 
 
