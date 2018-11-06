@@ -7771,6 +7771,7 @@ function initMenuSuggestion(){
 						return '';
 					}
 
+
 				    if (e.which === 40 || e.which === 38 || e.which === 18) {
 				        /*
 				        	Skip Search if the Up-Arrow or Down-Arrow
@@ -7866,13 +7867,13 @@ function initMenuSuggestion(){
 
 					    		items.itemCode = items.code.toString();
 
-								if((items.itemCode.search(regex) != -1)){
+								if(items.itemCode.search(name_regex) != -1){
 					    	 		tabIndex = -1;
 						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
 						            count++;
 						            tabIndex++;
 					    	 	}
-					    	 	else if((items.shortCode.search(name_regex) != -1)){
+					    	 	else if(items.shortCode.search(name_regex) != -1){
 					    	 		tabIndex = -1;
 						  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
 						            count++;
@@ -7880,47 +7881,21 @@ function initMenuSuggestion(){
 					    	 	}
 					    	 	else{
 
-					    	 		var item_name = items.name;
-					    	 		var item_name_splits = item_name.split(" ");
-					    	 		var total_words = item_name_splits.length;
+					    	 			var item_name = items.name;
 
-					    	 		if(total_words == 1){
 					    	 			if(item_name.search(name_regex) != -1){
-					    	 				
-
 					    	 				tabIndex = -1;
 								  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
 								            count++;
 								            tabIndex++;
 					    	 			}
-					    	 		}
-					    	 		else{ //has more than one words
-
-					    	 			//Wild Search
-					    	 			if(item_name.search(regex) != -1){
+					    	 			else if(item_name.search(regex) != -1){
 
 					    	 				tabIndex = -1;
-								  			itemsList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+								  			itemsAppendList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
 								            count++;
 								            tabIndex++;
 					    	 			}
-					    	 			/*
-					    	 			else{
-						    	 			for(var n = 0; n < total_words; n++){
-						    	 				if(item_name_splits[n].search(name_regex) != -1){
-							    	 				tabIndex = -1;
-										  			//Append to LAST 
-										  			itemsAppendList += '<li class="ui-menu-item" onclick="additemtocart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.code+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
-										            count++;
-										            tabIndex++;
-
-							    	 				break;
-							    	 			}
-						    	 			}
-						    	 		}
-						    	 		*/
-
-					    	 		}
 					    	 	}
 					    });
 
