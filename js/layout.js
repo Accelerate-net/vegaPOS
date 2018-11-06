@@ -760,7 +760,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "notifications", "value": "ALL" }, { "name": "orderEditingAllowed", "value": "NO" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "NONE" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" }] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "notifications", "value": "ALL" }, { "name": "orderEditingAllowed", "value": "NO" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "NONE" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" }] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -1680,6 +1680,13 @@ function applySystemOptionSettings(){
                         /*update localstorage*/             
                         window.localStorage.appOtherPreferences_orderEditingAllowed = tempVal;
                       }
+                      else if(params[i].name == "onlineOrdersNotification"){
+
+                        var tempVal = (params[i].value == 'YES'? true: false);
+
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_OnlineOrdersNotification = tempVal;
+                      }
                       else if(params[i].name == "billSettleLater"){
 
                         var tempVal = (params[i].value == 'YES'? 1: 0);
@@ -2363,6 +2370,8 @@ function cancelLoginWindow(){
 //ONLINE ORDERS PENDING COUNT
 function getOnlineOrdersCount() {
 
+  window.localStorage.lastOnlineNotificationCount = 0;
+
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
         
@@ -2382,7 +2391,7 @@ function getOnlineOrdersCount() {
   //Online orders enabled 
   var isOnlineOrdersEnabled = window.localStorage.accelerate_licence_online_enabled ? window.localStorage.accelerate_licence_online_enabled : 0; 
   var isOnlineOrdersAccepted = window.localStorage.systemOptionsSettings_OnlineOrders ? window.localStorage.systemOptionsSettings_OnlineOrders : false;
-
+  var isOnlineShowingNotifications = window.localStorage.systemOptionsSettings_OnlineOrdersNotification && window.localStorage.systemOptionsSettings_OnlineOrdersNotification != 'false' ? window.localStorage.systemOptionsSettings_OnlineOrdersNotification : false;
   if(isUserAnAdmin && (isOnlineOrdersEnabled == 1 && (isOnlineOrdersAccepted == 'true' || isOnlineOrdersAccepted == true))){
     
       //Refresh Badge Counts
@@ -2402,27 +2411,54 @@ function getOnlineOrdersCount() {
                         if(netdata.count != 0){
                           document.getElementById('onlineOrderCounter').style.display = 'inline-block';
                           document.getElementById('onlineOrderCounter').innerHTML = netdata.count;
+
+
+                          var last_seen_count = window.localStorage.lastOnlineNotificationCount ? parseInt(window.localStorage.lastOnlineNotificationCount) : 0;
+                          var new_count = netdata.count;
+
+                          if(new_count > last_seen_count && isUserAnAdmin && isOnlineShowingNotifications){
+                            document.getElementById('onlineOrderReceivedAlert').style.display = 'block';
+                            document.getElementById('onlineOrderReceivedAlertCount').innerHTML = netdata.count;
+
+                            playNotificationSound('BELL');
+                          }
+                          else{
+                            document.getElementById('onlineOrderReceivedAlert').style.display = 'none';                           
+                          }
                         }
                         else{
                           document.getElementById('onlineOrderCounter').style.display = 'none';
+                          document.getElementById('onlineOrderReceivedAlert').style.display = 'none';
                         }
           }
           else{
             document.getElementById('onlineOrderCounter').style.display = 'none';
+            document.getElementById('onlineOrderReceivedAlert').style.display = 'none';
           }
         },
         error: function(data){
           document.getElementById('onlineOrderCounter').style.display = 'none';
+          document.getElementById('onlineOrderReceivedAlert').style.display = 'none';
         }
       });
   
     var t = setTimeout(function(){
       getOnlineOrdersCount();
-    }, 30000); 
+    }, 10000); 
   
   }
 }
 
+
+function goToOnlineOrders(){
+
+  var online_count = document.getElementById('onlineOrderReceivedAlertCount').innerHTML;
+  document.getElementById('onlineOrderReceivedAlert').style.display = 'none';
+
+  window.localStorage.lastOnlineNotificationCount = parseInt(online_count);
+
+  renderPage('online-orders', 'Online Orders');
+}
 
 
 function recheckCloudConnectionStatus(){

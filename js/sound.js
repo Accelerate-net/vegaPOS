@@ -1,4 +1,4 @@
-var VOLUME = 0.15 //(ranges between 0 to 1)
+var VOLUME = 0.2 //(ranges between 0 to 1)
 
 /* Cache of Audio elements, for instant playback */
 var cache = {}
@@ -34,11 +34,15 @@ var sounds = {
   },
   SEND: {
     url: './data/sounds/send.wav',
-    volume: VOLUME
+    volume: VOLUME * 2
+  },
+  BELL: {
+    url: './data/sounds/bell.wav',
+    volume: VOLUME * 5
   },
   STARTUP: {
     url: './data/sounds/startup.wav',
-    volume: VOLUME * 2
+    volume: VOLUME * 5
   }
 
 }

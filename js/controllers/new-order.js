@@ -235,14 +235,14 @@ function additemtocart(encodedItem, category, optionalSource){
 
                     $("#customOptionsList .easySelectTool_customItem").each(function(){
                       if($(this).hasClass("selectCustomItem")){
+
+                      	easySelectTool.unbind();   
                         $(this).click();
                         e.preventDefault(); 
-                        easySelectTool.unbind();   
+                        
                       }
                     });    
 
-                               
-                    
                     break;
                   }
                  }
@@ -303,15 +303,34 @@ function addCustomToCart(name, category, code, price, variant, optionalSource, e
 			saveToCart(productToAdd);
 		}
 		
-		document.getElementById("customiseItemModal").style.display ='none'
-		renderCart()
+		document.getElementById("customiseItemModal").style.display ='none';
+
+		console.log(optionalSource)
 
 		if(optionalSource == 'SUGGESTION'){
-			$('#searchResultsRenderArea').html('');
-			document.getElementById("add_item_by_search").value = '';
-		}
 
-		$("#add_item_by_search").focus();		
+			$('#add_item_by_search').val('');
+			$('#searchResultsRenderArea').html('');
+
+			//UX Improvements
+			//Focus last added item's qty input
+			var iteration_count = 0;
+			$("#cartDetails .itemQuantityInput").each(function(){
+
+				if(iteration_count == 0){
+					renderCart('', 'FOCUS_LATEST_QUANTITY_CUSTOM_ITEM');
+				}
+
+				iteration_count++;
+			});		
+
+			if(iteration_count == 0){
+				renderCart('', 'FOCUS_LATEST_QUANTITY_CUSTOM_ITEM');
+			}
+		}
+		else{
+			renderCart();
+		}	
 }
 
 function hideCustomiseItem(){
@@ -523,7 +542,7 @@ function senseQuantityChange(event, cart_index){
 
 
 function changeqty(cart_index, optionalFocusKey){
-
+console.log('qty changes....')
 	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
@@ -757,6 +776,30 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 
 
 function renderCart(optionalFocusKey, forceRequest){ //optionalFocusKey --> Which input field to be focused
+
+
+	//Add Custom item button visibility
+	  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+	        
+	  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+	    loggedInStaffInfo.name = "";
+	    loggedInStaffInfo.code = "";
+	    loggedInStaffInfo.role = "";
+	  }
+
+	  //either profile not chosen, or not an admin
+	  var isUserAnAdmin = false
+	  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+	    isUserAnAdmin = true;
+	  	document.getElementById("customItemAddShortcutButton").style.display = 'block';
+	  }
+	  else{
+	  	document.getElementById("customItemAddShortcutButton").style.display = 'none';
+	  }
+
+
+
+
 
 	//Render Cart Items based on local storage
 	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
@@ -1129,29 +1172,6 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 	document.getElementById("cartTitleHead").innerHTML = '<tr class="success cartTitleRow"> <th class="satu cartTitleRow" onclick="clearCartConsent()"><i class="fa fa-trash-o"></i></th><th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow" >Qty</th> <th class="cartTitleRow">Total</th>  </tr>';
 	document.getElementById("cartDetails").innerHTML = temp;
 	
-
-
-	//Add Custom item button visibility
-	  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
-	        
-	  if(jQuery.isEmptyObject(loggedInStaffInfo)){
-	    loggedInStaffInfo.name = "";
-	    loggedInStaffInfo.code = "";
-	    loggedInStaffInfo.role = "";
-	  }
-
-	  //either profile not chosen, or not an admin
-	  var isUserAnAdmin = false
-	  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
-	    isUserAnAdmin = true;
-	  	document.getElementById("customItemAddShortcutButton").style.display = 'block';
-	  }
-	  else{
-	  	document.getElementById("customItemAddShortcutButton").style.display = 'none';
-	  }
-
-
-
 
 	/*Calculate Taxes and Other Charges*/ 
 	//---------------------------------//
@@ -1589,7 +1609,7 @@ else{
 }
 
 	//optionalFocusKey --> Which input field to be focused after cart is rendered
-	if(optionalFocusKey && optionalFocusKey != '' && optionalFocusKey != undefined){
+	if(optionalFocusKey && optionalFocusKey != '' && optionalFocusKey != undefined && (!forceRequest || forceRequest == "" || forceRequest == undefined)){
 		/* cuurently used for quantity up and down operation only!  --> ADD MORE */
 		$('#'+optionalFocusKey).focus();
 	}
@@ -1619,6 +1639,37 @@ else{
 				iteration_count++;
 			});	
 	}
+	else if(forceRequest == "FOCUS_LATEST_QUANTITY_CUSTOM_ITEM"){ //to fix double ENTER bug
+			//UX Improvements
+			//Focus last added item's qty input
+			var iteration_count = 0;
+			$("#cartDetails .itemQuantityInput").each(function(){
+
+				if(iteration_count == 0){
+					$(this).focus();
+					$(this).select();
+
+
+			        //UX Improvements
+					var approveItemQuantityTriggerer = $(this).keyup(function(e) {
+
+							var firstEnterTriggered = false;
+
+							if (e.which === 13) {
+								if(firstEnterTriggered){
+						        	var cart_index = parseInt($(this).attr("cart-index")); 
+						        	changeqty(cart_index);
+						        	approveItemQuantityTriggerer.unbind();
+						    	}
+
+						    	firstEnterTriggered = true;
+						    }
+					}); 
+				}
+
+				iteration_count++;
+			});	
+	}  
 
 }
 
