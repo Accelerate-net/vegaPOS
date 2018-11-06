@@ -14,6 +14,8 @@ function setSummaryDateRange(){
 	document.getElementById("reportToDate").value = today;
 }
 
+
+
 function fetchSalesSummary() {
 	/*
 			Summary - BILLING MODE wise
@@ -107,6 +109,12 @@ function fetchSalesSummary() {
 														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
 														                                      '</tr> '
 							renderGraph_SalesSummary(graphData);
+
+							//if today's summary
+							var std_today = getCurrentTime('DATE_STAMP');
+							if(fromDate == toDate && fromDate == std_today){
+								fetchSalesSummaryUnbilledKOT();
+							}
 				    	}
 
 				    },
@@ -156,10 +164,16 @@ function fetchSalesSummaryCallback(index, modes, fromDate, toDate, grandSum, gra
 				    	}
 				    	else{
 				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
-														                                       '<td>Over All</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
+														                                       '<td>Total Settled Amount</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i><b>'+parseFloat(grandSum).toFixed(2)+'</b></td>'+
 														                                      '</tr> '
 							renderGraph_SalesSummary(graphData);
+
+							//if today's summary
+							var std_today = getCurrentTime('DATE_STAMP');
+							if(fromDate == toDate && fromDate == std_today){
+								fetchSalesSummaryUnbilledKOT();
+							}
 				    	}
 
 
@@ -243,6 +257,119 @@ function renderGraph_SalesSummary(graphData){
 		//console.log(myChart.toBase64Image())
 	}
 }
+
+
+
+
+function fetchSalesSummaryUnbilledKOT() {
+
+	/*
+			Summary - BILLING MODE wise (Unbilled Amounts)
+	*/
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+
+	          	var grandSum = 0;
+	          	var grandCount = 0;
+
+				$.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_design/kot-summary/_view/sumbycart',
+				    timeout: 10000,
+				    success: function(data) {
+
+
+				    	if(data.rows.length > 0){
+				    		var result = data.rows[0].value;
+
+				    		grandSum = result.sum;
+				    		grandCount = result.count;
+				    	
+				    		//Sum of Extras
+							$.ajax({
+							    type: 'GET',
+							    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_design/kot-summary/_view/sumbyextras',
+							    timeout: 10000,
+							    success: function(newdata) {
+
+
+							    	if(newdata.rows.length > 0){
+							    		var newresult = newdata.rows[0].value;
+							    		grandSum += newresult.sum;
+
+							    		var html_content = $('#summaryRender_billingMode').html();
+							    		html_content += '<tr class="summaryRowHighlight" style="background: #e2e2e2">'+
+														    '<td>Live Orders</td>'+
+														    '<td class="summaryLine1" style="text-align: right; color: #444; font-size: 110%;"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
+														'</tr>';
+
+										$('#summaryRender_billingMode').html(html_content);
+
+							    		fetchSalesSummaryUnbilledBills(fromDate, toDate, grandSum, grandCount);
+							    	}
+							    },
+							    error: function(data){
+							    	//document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+							    }
+							});  
+
+				    	}
+				    },
+				    error: function(data){
+				    	//document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+				    }
+				});  
+
+
+}
+
+
+function fetchSalesSummaryUnbilledBills(fromDate, toDate, grandSum, grandCount){
+
+	//dates expected as DD-MM-YYYY
+	fromDate = getHumanStandardDate(fromDate);
+	toDate = getHumanStandardDate(toDate);
+
+				$.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-summary/_view/sumbytotalpayable?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+
+				    	if(data.rows.length > 0){
+				    		var result = data.rows[0].value;
+				    		
+				    		var billed_sum = result.sum;
+				    		var billed_count = result.count;
+
+
+							    		var html_content = $('#summaryRender_billingMode').html();
+							    		html_content += '<tr class="summaryRowHighlight" style="background: #e2e2e2">'+
+														    '<td>Pending Settlement</td>'+
+														    '<td class="summaryLine1" style="text-align: right; color: #444; font-size: 110%;"><count class="summaryCount" style="padding-right: 5px">'+(billed_count != 0 ? billed_count+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(billed_sum).toFixed(2)+'</td>'+
+														'</tr>';
+
+										$('#summaryRender_billingMode').html(html_content);
+
+				    	}
+				    },
+				    error: function(data){
+
+				    }
+				});  	
+}
+
+
+
+
 
 
 function openDetailedByMode(selectedBillingMode, fromDate, toDate){
