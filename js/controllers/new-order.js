@@ -2360,6 +2360,8 @@ function clearSavedOrderMappingFromTables(){
 		          			tableMapping[i].KOT = "";
 		          			tableMapping[i].status = 0;
 		          			tableMapping[i].lastUpdate = "";
+		          		
+		          			break;
 		          		}
 		          	}
 
@@ -5995,6 +5997,8 @@ function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 			          			tableMapping[i].KOT = kotID;
 			          			tableMapping[i].lastUpdate = hour+''+mins;
 			          		}
+
+			          		break;
 			          	}
 			          }
 
@@ -6088,6 +6092,8 @@ function billTableMapping(tableID, billNumber, status, optionalPageRef){
 			          		tableMapping[i].status = status;
 			          		tableMapping[i].KOT = billNumber;
 			          		tableMapping[i].lastUpdate = hour+''+mins;
+
+			          		break;
 			          	}
 			          }
 
