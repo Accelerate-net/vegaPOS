@@ -1646,7 +1646,7 @@ else{
 			$("#cartDetails .itemQuantityInput").each(function(){
 
 				if(iteration_count == 0){
-					
+
 					$(this).focus();
 					$(this).select();
 
@@ -3265,43 +3265,32 @@ function suggestCustomerInfoFromMobile(mode, inputElement, optionalRequest){
 	//auto search if mobile length is 10, or if ENTER clicked..
 	if(mobileNumber.length == 10 || optionalRequest == 'FORCE_SEARCH'){
 
-	  var requestData = {
-	    "selector"  :{ 
-	                  "mobile": mobileNumber 
-	                },
-	    "fields"    : ["name", "mobile", "savedAddresses"]
-	  }
-
 	  $.ajax({
-	    type: 'POST',
-	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
-	    data: JSON.stringify(requestData),
-	    contentType: "application/json",
-	    dataType: 'json',
+	    type: 'GET',
+	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/'+mobileNumber,
 	    timeout: 10000,
 	    success: function(data) {
-	      hideLoading();
-	      if(data.docs.length != 0){ //USER FOUND!!!
+	      if(data._id != ""){ //USER FOUND!!!
 
 	      	window.localStorage.userAutoFound = 1;
-	      	window.localStorage.userDetailsAutoFound = JSON.stringify(data.docs[0]);
+	      	window.localStorage.userDetailsAutoFound = JSON.stringify(data);
 
 	      	var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData) : {};
 	      	
-	      	if(data.docs[0].name != ''){
-	      		document.getElementById("customer_form_data_name").value = data.docs[0].name;
-	      		customerInfo.name = data.docs[0].name;
+	      	if(data.name != ''){
+	      		document.getElementById("customer_form_data_name").value = data.name;
+	      		customerInfo.name = data.name;
 	      	}
 
 	      	//Set Address if any saved address found and the mode == 'PARCEL'
 	      	var savedAddressesEncoded = '';
-	      	if(data.docs[0].savedAddresses){
+	      	if(data.savedAddresses){
 
-	      		savedAddressesEncoded = encodeURI(JSON.stringify(data.docs[0].savedAddresses));
+	      		savedAddressesEncoded = encodeURI(JSON.stringify(data.savedAddresses));
 	      	
 	      		//set default address to 1st saved address
-		      	if(customerInfo.modeType == 'DELIVERY' && data.docs[0].savedAddresses.length > 0){
-		      		customerInfo.mappedAddress = JSON.stringify(data.docs[0].savedAddresses[0]);   			
+		      	if(customerInfo.modeType == 'DELIVERY' && data.savedAddresses.length > 0){
+		      		customerInfo.mappedAddress = JSON.stringify(data.savedAddresses[0]);   			
 	      		}
 	      	}
 	      	else{
@@ -4937,7 +4926,15 @@ function generateNewKOT(silentFlag){
 
 function addCustomerToDatabase(customerData){
 
+	//Set _id from Branch mentioned in Licence
+	var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+	if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+	  	showToast('Invalid Licence Error: Customer Database can not be modified. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	  	return '';
+	}
+
 	customerData._id = customerData.mobile;
+	customerData.branch = accelerate_licencee_branch;
 
 	//Post to local Server
 	$.ajax({
@@ -4959,19 +4956,14 @@ function addCustomerToDatabase(customerData){
 
 function updateCustomerAddressOnDatabase(mobile, newAddress){
 
-    var requestData = { "selector" :{ "_id": mobile }}
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/'+mobile,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-          		var userData = data.docs[0];
+          		var userData = data;
           		userData.savedAddresses.push(newAddress);
 
                 $.ajax({
@@ -4982,16 +4974,19 @@ function updateCustomerAddressOnDatabase(mobile, newAddress){
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                  	console.log(data)
+
                   },
                   error: function(data) {
-                      
+                      showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
                   }
                 }); 
         }
+        else{
+        	showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
+        }
       },
       error: function(data) {
-        
+        showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
       }
 
     }); 
@@ -5000,19 +4995,14 @@ function updateCustomerAddressOnDatabase(mobile, newAddress){
 
 function removeCustomerAddressFromDatabase(mobile, addressID){
 
-    var requestData = { "selector" :{ "_id": mobile }}
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/'+mobile,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-          		var userData = data.docs[0];
+          		var userData = data;
           		var n = 0;
           		while(userData.savedAddresses[n]){
           			if(userData.savedAddresses[n].id == addressID){
@@ -5030,16 +5020,16 @@ function removeCustomerAddressFromDatabase(mobile, addressID){
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                  	console.log(data)
+
                   },
                   error: function(data) {
-                      
+                      showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
                   }
                 }); 
         }
       },
       error: function(data) {
-        
+        showToast('Warning: Customer\'s Address on the Server was not updated', '#e67e22');
       }
 
     }); 
@@ -6736,7 +6726,7 @@ function chooseAddressFromSavedList(){
 	while(addressObj[n]){
 
 		savedAddressesList += '<div class="col-sm-5 addressChoose" style="padding: 10px">'+    
-                           '<p class="featureName">'+addressObj[n].name+'<br> '+addressObj[n].flatNo+' '+addressObj[n].flatName+'<br> '+addressObj[n].landmark+' '+addressObj[n].area+'<br> '+( addressObj[n].contact && addressObj[n].contact != '' ? 'Mob. '+addressObj[n].contact : '' )+'</p>'+
+                           '<p class="featureName"><b>'+addressObj[n].name+'</b><br> '+addressObj[n].flatNo+' '+addressObj[n].flatName+'<br> '+addressObj[n].landmark+' '+addressObj[n].area+'<br> '+( addressObj[n].contact && addressObj[n].contact != '' ? 'Mob. <b style="color: #da3769; font-weight: 400; letter-spacing: 2px;">'+addressObj[n].contact+'</b>' : '' )+'</p>'+
                             '<button class="btn btn-sm btn-outline" onclick="useThisSavedAddress(\''+encodeURI(JSON.stringify(addressObj[n]))+'\')">Use Address</button>'+
                             '<span onclick="deleteThisSavedAddress(\''+registeredMobile+'\', \''+addressObj[n].id+'\')" class="btn btn-sm" style="border: none; display: inline; float: right; color: #e74c3c"><i class="fa fa-trash-o"></i></span>'+
                         '</div>';
