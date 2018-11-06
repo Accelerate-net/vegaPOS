@@ -882,9 +882,9 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -894,13 +894,13 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">'+(orderObject.orderDetails.modeType == 'DELIVERY' ? 'PARCEL' : 'PARCEL <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">#'+orderObject.table+'</b>')+'</tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">'+(orderObject.orderDetails.modeType == 'DELIVERY' ? 'PARCEL' : 'PARCEL <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">#'+orderObject.table+'</b>')+'</tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -917,9 +917,9 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -929,13 +929,13 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">SELF SERVICE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">SELF SERVICE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -947,9 +947,9 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -959,13 +959,13 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">ON TABLE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">ON TABLE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1075,9 +1075,9 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1087,13 +1087,13 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">'+(orderObject.orderDetails.modeType == 'DELIVERY' ? 'PARCEL' : 'PARCEL <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">#'+orderObject.table+'</b>')+'</tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">'+(orderObject.orderDetails.modeType == 'DELIVERY' ? 'PARCEL' : 'PARCEL <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">#'+orderObject.table+'</b>')+'</tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1110,9 +1110,9 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1122,13 +1122,13 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">SELF SERVICE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">SELF SERVICE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1140,9 +1140,9 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1152,13 +1152,13 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">ON TABLE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">ON TABLE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1270,9 +1270,9 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
       '<div class="KOTHeader" style="min-height: unset">'+
          '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">-- ORDER CANCELLED --</div>'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1282,13 +1282,13 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">'+(orderObject.orderDetails.modeType == 'DELIVERY' ? 'PARCEL' : 'PARCEL <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">#'+orderObject.table+'</b>')+'</tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">'+(orderObject.orderDetails.modeType == 'DELIVERY' ? 'PARCEL' : 'PARCEL <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">#'+orderObject.table+'</b>')+'</tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1306,9 +1306,9 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
       '<div class="KOTHeader" style="min-height: unset">'+
          '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">-- ORDER CANCELLED --</div>'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1318,13 +1318,13 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">SELF SERVICE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">SELF SERVICE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1337,9 +1337,9 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
       '<div class="KOTHeader" style="min-height: unset">'+
          '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">-- ORDER CANCELLED --</div>'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1349,13 +1349,13 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">ON TABLE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">ON TABLE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1450,7 +1450,7 @@ var html_template = ''+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1617,9 +1617,9 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1629,13 +1629,13 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">'+(orderObject.orderDetails.modeType == 'DELIVERY' ? 'PARCEL' : 'PARCEL <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">#'+orderObject.table+'</b>')+'</tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">'+(orderObject.orderDetails.modeType == 'DELIVERY' ? 'PARCEL' : 'PARCEL <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">#'+orderObject.table+'</b>')+'</tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1652,9 +1652,9 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1664,13 +1664,13 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">SELF SERVICE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">SELF SERVICE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1682,9 +1682,9 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1694,13 +1694,13 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">ON TABLE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">ON TABLE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
@@ -1792,9 +1792,9 @@ function printMessageInKitchen(messageObject, optionalTargetPrinter){
 var kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1804,13 +1804,13 @@ var kot_header_content = ''+
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="font-size: 18px; font-weight: bold;">MESSAGE</tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">MESSAGE</tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
                   '<p style=" text-align: right; float: right">'+
                      '<tag class="subLabel">TIME</tag>'+
-                     '<tag class="timeStamp" style="font-size: 16px; font-weight: bold;">'+getFancyTime(messageObject.time)+'</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+getFancyTime(messageObject.time)+'</tag>'+
                   '</p>'+
                '</td>'+
             '</tr>'+
