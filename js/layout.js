@@ -4818,6 +4818,28 @@ function applyKOTRelays(){
 /* TEXT TO KITCHEN */
 function openTalkToKitchen(){
 
+
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+  else{
+    showToast('No Permission: Only an Admin can use <b>Text to Kitchen</b> feature.', '#e67e22');
+    return '';
+  }
+
+
+
   document.getElementById("textToKitchenWizard").style.display = "block";
   
   $('#tok_input').val('');
