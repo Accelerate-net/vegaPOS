@@ -2024,9 +2024,18 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
               var k = 0;
               while(beautified_cart[k]){
                 if(beautified_cart[k].code == raw_cart[n].code){
-                  beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
-                  duplicateFound = true;
-                  break;
+                  if(beautified_cart[k].isCustom && raw_cart[n].isCustom){
+                    if(beautified_cart[k].variant == raw_cart[n].variant){
+                      beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
+                      duplicateFound = true;
+                      break;
+                    }
+                  }
+                  else{
+                    beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
+                    duplicateFound = true;
+                    break;
+                  }
                 }
 
                 k++;
@@ -2040,7 +2049,9 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
           }
 
+
           kotfile.cart = beautified_cart;
+
 
           memory_id = kotfile._id;
           memory_rev = kotfile._rev;
