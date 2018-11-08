@@ -1,4 +1,4 @@
-	
+
 //Trigger Right Panel 
 function triggerRightPanelDisplay(){
 	//to show Menu
@@ -2355,39 +2355,41 @@ function clearSavedOrderMappingFromTables(){
 
 		          	for(var i=0; i<tableMapping.length; i++){
 		          		if(tableMapping[i].status == 5 && tableMapping[i].assigned == 'Hold Order'){
-
 		          			tableMapping[i].assigned = "";
 		          			tableMapping[i].KOT = "";
 		          			tableMapping[i].status = 0;
 		          			tableMapping[i].lastUpdate = "";
-		          		
-		          			break;
+		          		}
+
+		          		if(i == tableMapping.length - 1){ //last iterations
+		          			updateTables();
 		          		}
 		          	}
 
 
-                    //Update
-                    var updateData = {
-                      "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
-                      "value": tableMapping
-                    }
+		          	function updateTables(){
+	                    //Update
+	                    var updateData = {
+	                      "_rev": data.docs[0]._rev,
+	                      "identifierTag": "ZAITOON_TABLES_MASTER",
+	                      "value": tableMapping
+	                    }
 
-                    $.ajax({
-                      type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
-                      data: JSON.stringify(updateData),
-                      contentType: "application/json",
-                      dataType: 'json',
-                      timeout: 10000,
-                      success: function(data) {
-                        renderTables();
-                      },
-                      error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
-                      }
-
-                    });  	          
+	                    $.ajax({
+	                      type: 'PUT',
+	                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+	                      data: JSON.stringify(updateData),
+	                      contentType: "application/json",
+	                      dataType: 'json',
+	                      timeout: 10000,
+	                      success: function(data) {
+	                        renderTables();
+	                      },
+	                      error: function(data) {
+	                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+	                      }
+	                    });  
+	                }	          
           }
           else{
             showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -2443,10 +2445,15 @@ function addTableToReserveList(tableID, optionalComments){
 	          		tableMapping[i].KOT = "";
 	          		tableMapping[i].status = 5;
 	          		tableMapping[i].lastUpdate = timestamp;
+
+	          		updateTables();
 	          		
 	          		break;
 	          	}
 	          }
+
+
+	          	function updateTables(){
 
                     //Update
                     var updateData = {
@@ -2469,7 +2476,8 @@ function addTableToReserveList(tableID, optionalComments){
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
 
-                    });  	          
+                    });  
+                }	          
 
                 
           }
@@ -2516,7 +2524,7 @@ function removeTableFromReserveList(tableID){
 	          	if(tableMapping[i].table == tableID){
 
 	          		if(tableMapping[i].status != 5){
-	          			return '';
+	          			break;
 	          		}
 
 	          		tableMapping[i].status = 0;
@@ -2524,9 +2532,14 @@ function removeTableFromReserveList(tableID){
 	          		tableMapping[i].lastUpdate = "";
 	          		tableMapping[i].KOT = "";
 
+	          		updateTables();
+
 	          		break;
 	          	}
 	          }
+
+
+	          	function updateTables(){
 
                     //Update
                     var updateData = {
@@ -2549,7 +2562,8 @@ function removeTableFromReserveList(tableID){
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
 
-                    });  	          
+                    });  	  
+                }        
 
                 
           }
@@ -3712,6 +3726,7 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 			          for(var i=0; i<tableMapping.length; i++){
 			          	if(tableMapping[i].table == tableID){
 			          		moveToEditKOT(tableMapping[i].KOT);
+			          		break;
 			          	}
 			          }
 		                
@@ -3774,6 +3789,7 @@ function retrieveTableInfoForNewOrder(tableID){
 			          for(var i=0; i<tableMapping.length; i++){
 			          	if(tableMapping[i].table == tableID){
 			          		moveToEditKOT(tableMapping[i].KOT);
+			          		break;
 			          	}
 			          }
 		                
@@ -5998,9 +6014,13 @@ function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 			          			tableMapping[i].lastUpdate = hour+''+mins;
 			          		}
 
+			          		updateTables();
 			          		break;
 			          	}
 			          }
+
+
+			          	function updateTables(){
 
 		                    //Update
 		                    var updateData = {
@@ -6023,7 +6043,8 @@ function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 		                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
 		                      }
 
-		                    });  	          
+		                    });  
+		                }	          
 
 		                
 		          }
@@ -6093,9 +6114,14 @@ function billTableMapping(tableID, billNumber, status, optionalPageRef){
 			          		tableMapping[i].KOT = billNumber;
 			          		tableMapping[i].lastUpdate = hour+''+mins;
 
+			          		updateTables();
+
 			          		break;
 			          	}
 			          }
+
+
+			          	function updateTables(){
 
 		                    //Update
 		                    var updateData = {
@@ -6128,6 +6154,7 @@ function billTableMapping(tableID, billNumber, status, optionalPageRef){
 		                      }
 
 		                    });  
+						}
 		          }
 		          else{
 		            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -8354,7 +8381,9 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 		            success: function(data) {
 		              if(data.ok){
 
+		              		if(obj.orderDetails.modeType == 'DINE'){
 		              		  addToTableMapping(target_table, kot, "", 'ORDER_PUNCHING');
+		              		}
 	                    	  
 	                    	  //Update KOT number on server
 	                          var updateData = {
@@ -8814,17 +8843,22 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 			                if(tableMapping[i].table == tableNumber){
 
 			                  if(tableMapping[i].status == 0){
-			                    return '';
+			                    break;
 			                  }
 
 			                  tableMapping[i].assigned = "";
 			                  tableMapping[i].KOT = "";
 			                  tableMapping[i].status = 0;
 			                  tableMapping[i].lastUpdate = "";
+
+			                  updateTables();
 			                  
 			                  break;
 			                }
 			              }
+
+
+			              	function updateTables(){
 
 			                    //Update
 			                    var updateData = {
@@ -8847,7 +8881,8 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 			                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
 			                      }
 
-			                    });             
+			                    });   
+			                }          
 
 			                
 			          }
