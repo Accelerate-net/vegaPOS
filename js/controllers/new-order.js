@@ -901,6 +901,27 @@ function renderCart(optionalFocusKey, forceRequest){ //optionalFocusKey --> Whic
 
 function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selectedModeExtras, optionalFocusKey, forceRequest){
 
+
+  // LOGGED IN USER INFO
+
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  //either profile not chosen, or not an admin
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+
+
+  
+
+
 	/*
 		cart_products - cart of items 
 		selectedBillingModeInfo - info relating to the particular mode like minBillAmount, isDiscountable? etc.
@@ -1040,7 +1061,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 								if(allergicIngredients[a] == cart_products[i].ingredients[c]){
 									itemContainsAllergicIngredient = true;
 									allergyIngredientDetected = true;
-									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button id="cart_item_name_'+cart_products[i].cartIndex+'" class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : '') )+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+									temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button id="cart_item_name_'+cart_products[i].cartIndex+'" class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode && isUserAnAdmin ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : '') )+'><span class="sname">'+cart_products[i].name+variantName+'<i class="bannedIngredient fa fa-ban" title="Contains Allergic Ingredients"></i>'+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 											'<td style="vertical-align: middle">'+
 											'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 											'</td>'+
@@ -1051,7 +1072,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 							}
 
 							if(a == allergicIngredients.length - 1 && !itemContainsAllergicIngredient){ //Last iteration
-								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button id="cart_item_name_'+cart_products[i].cartIndex+'" class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+								temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button id="cart_item_name_'+cart_products[i].cartIndex+'" class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode && isUserAnAdmin ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 									'<td style="vertical-align: middle">'+
 									'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 									'</td>'+
@@ -1063,7 +1084,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 						}			
 					}
 					else{
-						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button id="cart_item_name_'+cart_products[i].cartIndex+'" class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+						temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button id="cart_item_name_'+cart_products[i].cartIndex+'" class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode && isUserAnAdmin  ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 							'<td style="vertical-align: middle">'+
 							'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 							'</td>'+
@@ -1072,7 +1093,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 					}
 				}
 				else{
-					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button id="cart_item_name_'+cart_products[i].cartIndex+'" class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
+					temp = '<tr class="success"><td class="text-center"><i class="fa fa-trash-o tip pointer posdel" title="Remove" onclick="deleteItem('+cart_products[i].cartIndex+')"></i></td><td><button id="cart_item_name_'+cart_products[i].cartIndex+'" class="btn btn-block btn-xs edit btn-success itemCommentButton" '+(particularItemHasChanges ? 'onclick="openItemWiseCommentModal(\''+cart_products[i].code+'\', \''+( cart_products[i].isCustom? cart_products[i].variant : '')+'\', '+cart_products[i].cartIndex+')"' : (my_copy_isDineMode && isUserAnAdmin ? 'onclick="openShiftItemWizard(\''+my_copy_SourceTable+'\', \''+my_copy_KOTNumber+'\', \''+my_copy_BillingMode+'\', \''+encodeURI(JSON.stringify(cart_products[i]))+'\')"' : ''))+'><span class="sname">'+cart_products[i].name+variantName+((cart_products[i].hasOwnProperty('comments') && cart_products[i].comments != '') ? '<i class="fa fa-comment-o" style="float: right"></i>' : '')+'</span></button></td><td class="text-center"> <span class="text-right sprice"><i class="fa fa-inr"></i>'+cart_products[i].price+'</span></td>'+
 						'<td style="vertical-align: middle">'+
 						'<input style="width: 80%; float: left" class="form-control input-qty kb-pad text-center rquantity itemQuantityInput" id="qty_'+cart_products[i].cartIndex+'" cart-index="'+cart_products[i].cartIndex+'" name="quantity[]" type="text" value="'+cart_products[i].qty+'" onkeyup="senseQuantityChange(event, '+cart_products[i].cartIndex+')" onchange="changeqty('+cart_products[i].cartIndex+')" '+(disableQuantityChange ? 'disabled' : '')+'>'+notifyIcon+
 						'</td>'+
@@ -8024,6 +8045,29 @@ function shiftItemWizardModalHide(){
 }
 
 function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item){
+
+
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
+
+  var isUserAnAdmin = false
+  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+    isUserAnAdmin = true;
+  }
+ else{
+  	showToast('No Permission: Only an Admin can <b>shift items</b>.', '#e67e22');
+  	shiftItemWizardModalHide();
+  	return '';
+  }
+
+
+
 
 	var item = JSON.parse(decodeURI(encoded_item));
 	var outgoing_item = item;
