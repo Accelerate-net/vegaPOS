@@ -3914,7 +3914,7 @@ function overWriteCurrentRunningOrder(kot){
     var customerInfo = {};
     customerInfo.name = kot.customerName;
     customerInfo.mobile = kot.customerMobile;
-    customerInfo.count = kot.guestCount;
+    customerInfo.count = parseInt(kot.guestCount);
     customerInfo.mappedAddress = kot.table;
     customerInfo.mode = kot.orderDetails.mode;
     customerInfo.modeType = kot.orderDetails.modeType;
@@ -4415,7 +4415,7 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
           //Updates the KOT
           kot.customerMobile = changedCustomerInfo.mobile;
           kot.customerName = changedCustomerInfo.name;
-          kot.guestCount = changedCustomerInfo.count;
+          kot.guestCount = parseInt(changedCustomerInfo.count);
           kot.timeKOT = getCurrentTime('TIME');
           kot.cart = newCart;
 
@@ -5735,7 +5735,7 @@ function pushCurrentOrderAsEditKOT(kot){
     var customerInfo = {};
     customerInfo.name = kot.customerName;
     customerInfo.mobile = kot.customerMobile;
-    customerInfo.count = kot.guestCount;
+    customerInfo.count = parseInt(kot.guestCount);
     customerInfo.mappedAddress = kot.table;
     customerInfo.mode = kot.orderDetails.mode;
     customerInfo.modeType = kot.orderDetails.modeType;
@@ -8377,7 +8377,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 
 		          obj.customerName = "";
 		          obj.customerMobile = ""; 
-		          obj.guestCount = "";
+		          obj.guestCount = 0;
 
 		          obj.machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
 		          
