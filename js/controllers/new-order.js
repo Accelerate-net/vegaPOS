@@ -24,7 +24,7 @@ function triggerRightPanelDisplay(){
 /*Add Item to Cart */
 function saveToCart(productToAdd, optionalSource){
 
-		var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		var cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 
 
 		/*
@@ -106,7 +106,7 @@ function saveToCart(productToAdd, optionalSource){
       }
 
 
-      window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+      window.localStorage.accelerate_cart = JSON.stringify(cart_products)
 }
 
 function additemtocart(encodedItem, category, optionalSource){
@@ -422,7 +422,7 @@ function addManualCustomItem(){
 		return '';
 	}
 
-		var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		var cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 		
 		var i = 0;
 		var top_manual_index = 0;
@@ -486,7 +486,7 @@ function deleteItem(cart_index){
 		
 	}
 
-	var cart_products = JSON.parse(window.localStorage.zaitoon_cart)
+	var cart_products = JSON.parse(window.localStorage.accelerate_cart)
 
 	var i = 0;
 	while(i < cart_products.length){
@@ -500,10 +500,10 @@ function deleteItem(cart_index){
 
 
     if(cart_products.length == 0){
-    	window.localStorage.zaitoon_cart = '';
+    	window.localStorage.accelerate_cart = '';
     }
     else{
-    	window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    	window.localStorage.accelerate_cart = JSON.stringify(cart_products)
     }
     
     renderCart();
@@ -561,7 +561,7 @@ console.log('qty changes....')
 	}
 
 
-	var cart_products = JSON.parse(window.localStorage.zaitoon_cart)
+	var cart_products = JSON.parse(window.localStorage.accelerate_cart)
 	
 	var i = 0;
 	while(i < cart_products.length){
@@ -590,7 +590,7 @@ console.log('qty changes....')
 		i++;
 	}
 
-    window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    window.localStorage.accelerate_cart = JSON.stringify(cart_products)
     renderCart();
 
     $('#add_item_by_search').focus();
@@ -624,7 +624,7 @@ function deleteItem(item, isCustom, variant){
 
 
 	var itemCode = JSON.parse(decodeURI(item))
-	var cart_products = JSON.parse(window.localStorage.zaitoon_cart)
+	var cart_products = JSON.parse(window.localStorage.accelerate_cart)
 
 		if(isCustom == 'true'){
 
@@ -655,10 +655,10 @@ function deleteItem(item, isCustom, variant){
         }
 
     if(cart_products.length == 0){
-    	window.localStorage.zaitoon_cart = '';
+    	window.localStorage.accelerate_cart = '';
     }
     else{
-    	window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    	window.localStorage.accelerate_cart = JSON.stringify(cart_products)
     }
     
     renderCart()
@@ -718,7 +718,7 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 
 
 	var itemCode = JSON.parse(decodeURI(item))
-	var cart_products = JSON.parse(window.localStorage.zaitoon_cart)
+	var cart_products = JSON.parse(window.localStorage.accelerate_cart)
 	
 
 		if(isCustom == 'true'){
@@ -766,7 +766,7 @@ function changeqty(item, isCustom, variant, optionalFocusKey){
 
 
 
-    window.localStorage.zaitoon_cart = JSON.stringify(cart_products)
+    window.localStorage.accelerate_cart = JSON.stringify(cart_products)
     renderCart();
 
     $('#add_item_by_search').focus();
@@ -802,7 +802,7 @@ function renderCart(optionalFocusKey, forceRequest){ //optionalFocusKey --> Whic
 
 
 	//Render Cart Items based on local storage
-	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+	var cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 
 	var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
 	
@@ -845,14 +845,14 @@ function renderCart(optionalFocusKey, forceRequest){ //optionalFocusKey --> Whic
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+	                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -860,7 +860,7 @@ function renderCart(optionalFocusKey, forceRequest){ //optionalFocusKey --> Whic
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
 	              	var params = data.docs[0].value;
 		          	var selectedModeExtrasList = selectedBillingModeInfo.extras;
@@ -1704,7 +1704,7 @@ function printCurrentKOTView(kotID, optionalSource){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1770,7 +1770,7 @@ function startFreshOrder(){
 		}
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
-	window.localStorage.zaitoon_cart = '';
+	window.localStorage.accelerate_cart = '';
 	window.localStorage.edit_KOT_originalCopy = '';
 	window.localStorage.userAutoFound = '';
 	window.localStorage.userDetailsAutoFound = '';
@@ -1787,12 +1787,12 @@ function startFreshOrder(){
 }
 
 function undoChangesInKOT(){
-	//Reset zaitoon_cart same as the originalKOT Cart
+	//Reset accelerate_cart same as the originalKOT Cart
 
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 		var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 
-		window.localStorage.zaitoon_cart = JSON.stringify(originalData.cart);
+		window.localStorage.accelerate_cart = JSON.stringify(originalData.cart);
 		showToast('Undone the changes!', '#27ae60');
 
 		//Recalculate max cartIndex
@@ -1824,7 +1824,7 @@ function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
 	/*
 		Proceed to bill generation only if,
 			1. There are no un-printed items in active Cart
-			2. Meaning, zaitoon_cart equals cart in originalKOT
+			2. Meaning, accelerate_cart equals cart in originalKOT
 	*/
 
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
@@ -1838,7 +1838,7 @@ function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
 			return '';
 		}
 
-		var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		var changed_cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 		if(changed_cart_products.length == 0){
 			showToast('Oops! There are unsaved changes and Bill can not be generated.', '#e74c3c');
 			return '';
@@ -1926,7 +1926,7 @@ function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
 function checkForItemChanges(code, variant, quantity, cart_index){
 
 /*
-	Check if a particular item in zaitoon_cart has any change w.r.t originalCart 
+	Check if a particular item in accelerate_cart has any change w.r.t originalCart 
 	(useful while editing an order)
 */
 
@@ -1939,7 +1939,7 @@ function checkForItemChanges(code, variant, quantity, cart_index){
 
 		var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
-		var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		var changed_cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 		if(changed_cart_products.length == 0){
 			return 'ERROR';
 		}
@@ -1994,7 +1994,7 @@ function checkForItemChanges(code, variant, quantity, cart_index){
 function checkIfItemDeleted(){
 
 /*
-	Check if any item in zaitoon_cart has been deleted w.r.t originalCart 
+	Check if any item in accelerate_cart has been deleted w.r.t originalCart 
 	(useful while editing an order)
 */
 
@@ -2003,7 +2003,7 @@ function checkIfItemDeleted(){
 
 		var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 
-		var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		var changed_cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 		if(changed_cart_products.length == 0){
 			return 'DELETED_ALL';
 		}
@@ -2082,17 +2082,17 @@ function addHoldOrderToCurrent(encodedItem, id){
 		confirmHoldOverWritingModal(encodedItem, id);
 		return '';
 	}
-	else if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+	else if(window.localStorage.accelerate_cart && window.localStorage.accelerate_cart != ''){
 		confirmHoldOverWritingModal(encodedItem, id);
 		return '';
 	}
 
 
-    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_SAVED_ORDERS" } }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -2100,7 +2100,7 @@ function addHoldOrderToCurrent(encodedItem, id){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_ORDERS'){
 
 				var holding_orders = data.docs[0].value;
 				holding_orders.splice(id,1);
@@ -2109,7 +2109,7 @@ function addHoldOrderToCurrent(encodedItem, id){
 
 				var order = JSON.parse(decodeURI(encodedItem));
 				window.localStorage.customerData = JSON.stringify(order.customerDetails);
-				window.localStorage.zaitoon_cart = JSON.stringify(order.cartDetails);
+				window.localStorage.accelerate_cart = JSON.stringify(order.cartDetails);
 
 				//Remove from Table mapping (if already added)
 				if(order.customerDetails.modeType == 'DINE' && order.customerDetails.mappedAddress != ''){
@@ -2120,13 +2120,13 @@ function addHoldOrderToCurrent(encodedItem, id){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_SAVED_ORDERS",
+                      "identifierTag": "ACCELERATE_SAVED_ORDERS",
                       "value": holding_orders
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_ORDERS/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SAVED_ORDERS/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -2170,7 +2170,7 @@ function confirmHoldOverWritingModalHide(){
 function openHeldOrderConfirm(encodedItem, id){
 
 	window.localStorage.edit_KOT_originalCopy = '';
-	window.localStorage.zaitoon_cart = '';
+	window.localStorage.accelerate_cart = '';
 	window.localStorage.customerData = '';
 
 	addHoldOrderToCurrent(encodedItem, id);
@@ -2206,11 +2206,11 @@ function addToHoldKOT(){
 
 		var time = getCurrentTime('TIME');
 
-	    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+	    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_SAVED_ORDERS" } }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -2218,13 +2218,13 @@ function addToHoldKOT(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_ORDERS'){
 
 					var holding_orders = data.docs[0].value;
 					console.log('Current:', holding_orders)
 
 					var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData): [];
-					var product_cart = window.localStorage.zaitoon_cart ? JSON.parse(window.localStorage.zaitoon_cart): [];
+					var product_cart = window.localStorage.accelerate_cart ? JSON.parse(window.localStorage.accelerate_cart): [];
 
 					if(customerInfo.length == 0){
 						showToast('Oops! The Customer Details missing.', '#e67e22');
@@ -2247,13 +2247,13 @@ function addToHoldKOT(){
 	                    //Update
 	                    var updateData = {
 	                      "_rev": data.docs[0]._rev,
-	                      "identifierTag": "ZAITOON_SAVED_ORDERS",
+	                      "identifierTag": "ACCELERATE_SAVED_ORDERS",
 	                      "value": holding_orders
 	                    }
 
 	                    $.ajax({
 	                      type: 'PUT',
-	                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_ORDERS/',
+	                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SAVED_ORDERS/',
 	                      data: JSON.stringify(updateData),
 	                      contentType: "application/json",
 	                      dataType: 'json',
@@ -2293,11 +2293,11 @@ function addToHoldKOT(){
 
 function removeAllHoldOrders(){
 
-    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_SAVED_ORDERS" } }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -2305,20 +2305,20 @@ function removeAllHoldOrders(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_ORDERS'){
 
 					var holding_orders = []
 
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_SAVED_ORDERS",
+                      "identifierTag": "ACCELERATE_SAVED_ORDERS",
                       "value": holding_orders
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_ORDERS/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SAVED_ORDERS/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -2355,21 +2355,21 @@ function clearSavedOrderMappingFromTables(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 	          		var tableMapping = data.docs[0].value;
 
@@ -2392,13 +2392,13 @@ function clearSavedOrderMappingFromTables(){
 	                    //Update
 	                    var updateData = {
 	                      "_rev": data.docs[0]._rev,
-	                      "identifierTag": "ZAITOON_TABLES_MASTER",
+	                      "identifierTag": "ACCELERATE_TABLES_MASTER",
 	                      "value": tableMapping
 	                    }
 
 	                    $.ajax({
 	                      type: 'PUT',
-	                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+	                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
 	                      data: JSON.stringify(updateData),
 	                      contentType: "application/json",
 	                      dataType: 'json',
@@ -2436,21 +2436,21 @@ function addTableToReserveList(tableID, optionalComments){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 	          var tableMapping = data.docs[0].value;
 	          var timestamp = getCurrentTime('TIME');
@@ -2479,13 +2479,13 @@ function addTableToReserveList(tableID, optionalComments){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": tableMapping
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -2523,21 +2523,21 @@ function removeTableFromReserveList(tableID){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 	          var tableMapping = data.docs[0].value;
 
@@ -2565,13 +2565,13 @@ function removeTableFromReserveList(tableID){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": tableMapping
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -2627,7 +2627,7 @@ function clearCart(){
 			
 		}
 
-		window.localStorage.zaitoon_cart = "";
+		window.localStorage.accelerate_cart = "";
 		renderCart();
 		hideClearCartModal();
 }
@@ -2749,11 +2749,11 @@ function hideBillingModeSelector(){
 /*customer info*/
 function renderCustomerInfo(optionalSource){
 
-    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_SAVED_ORDERS" } }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -2761,7 +2761,7 @@ function renderCustomerInfo(optionalSource){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_ORDERS'){
 
 				var holding_orders = data.docs[0].value;
 				renderCustomerInfoBeforeProcess(holding_orders, optionalSource);  
@@ -2900,14 +2900,14 @@ function renderCustomerInfoBeforeProcess(holding_orders, optionalSource){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                    "identifierTag": "ACCELERATE_BILLING_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -2915,7 +2915,7 @@ function renderCustomerInfoBeforeProcess(holding_orders, optionalSource){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
 	          	billingModesInfo = data.docs[0].value;
 	          	billingModesInfo.sort(); //alphabetical sorting 
@@ -3018,21 +3018,21 @@ function renderCustomerInfoBeforeProcess(holding_orders, optionalSource){
 
 							    var requestData = {
 							      "selector"  :{ 
-							                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+							                    "identifierTag": "ACCELERATE_TOKEN_INDEX" 
 							                  },
 							      "fields"    : ["_rev", "identifierTag", "value"]
 							    }
 
 							    $.ajax({
 							      type: 'POST',
-							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+							      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 							      data: JSON.stringify(requestData),
 							      contentType: "application/json",
 							      dataType: 'json',
 							      timeout: 10000,
 							      success: function(data) {
 							        if(data.docs.length > 0){
-							          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+							          if(data.docs[0].identifierTag == 'ACCELERATE_TOKEN_INDEX'){
 
 							            var tempToken = parseInt(data.docs[0].value);
 
@@ -3260,13 +3260,13 @@ function updateTokenCountOnServer(nextToken, revID){
 			                          //Update token number on server
 			                          var updateData = {
 			                            "_rev": revID,
-			                            "identifierTag": "ZAITOON_TOKEN_INDEX",
+			                            "identifierTag": "ACCELERATE_TOKEN_INDEX",
 			                            "value": nextToken
 			                          }
 
 			                          $.ajax({
 			                            type: 'PUT',
-			                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TOKEN_INDEX/',
+			                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TOKEN_INDEX/',
 			                            data: JSON.stringify(updateData),
 			                            contentType: "application/json",
 			                            dataType: 'json',
@@ -3304,7 +3304,7 @@ function suggestCustomerInfoFromMobile(mode, inputElement, optionalRequest){
 
 	  $.ajax({
 	    type: 'GET',
-	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/'+mobileNumber,
+	    url: COMMON_LOCAL_SERVER_IP+'/accelerate_users/'+mobileNumber,
 	    timeout: 10000,
 	    success: function(data) {
 	      if(data._id != ""){ //USER FOUND!!!
@@ -3539,21 +3539,21 @@ function renderTables(){
 	//PRELOAD TABLE MAPPING
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
               var tables = data.docs[0].value;
               tables.sort(function(obj1, obj2) {
@@ -3570,21 +3570,21 @@ function renderTables(){
 
 				    var requestData = {
 				      "selector"  :{ 
-				                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+				                    "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
 				                  },
 				      "fields"    : ["_rev", "identifierTag", "value"]
 				    }
 
 				    $.ajax({
 				      type: 'POST',
-				      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+				      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 				      data: JSON.stringify(requestData),
 				      contentType: "application/json",
 				      dataType: 'json',
 				      timeout: 10000,
 				      success: function(data) {
 				        if(data.docs.length > 0){
-				          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+				          if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
 
 				              var tableSections = data.docs[0].value;
 				              tableSections.sort(); //alphabetical sorting 
@@ -3712,7 +3712,7 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 
 	/* warn if unsaved order (Not editing case) */
 	if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){
-	    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+	    if(window.localStorage.accelerate_cart && window.localStorage.accelerate_cart != ''){
 	        showToast('Warning! There is an unsaved order being punched. Please complete it to continue.', '#e67e22');
 	        
 	       // document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
@@ -3727,21 +3727,21 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 
 		    var requestData = {
 		      "selector"  :{ 
-		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
 		                  },
 		      "fields"    : ["_rev", "identifierTag", "value"]
 		    }
 
 		    $.ajax({
 		      type: 'POST',
-		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 		      data: JSON.stringify(requestData),
 		      contentType: "application/json",
 		      dataType: 'json',
 		      timeout: 10000,
 		      success: function(data) {
 		        if(data.docs.length > 0){
-		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 			          var tableMapping = data.docs[0].value;
 			          for(var i=0; i<tableMapping.length; i++){
@@ -3778,7 +3778,7 @@ function retrieveTableInfoForNewOrder(tableID){
 
 	/* warn if unsaved order (Not editing case) */
 	if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){
-	    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+	    if(window.localStorage.accelerate_cart && window.localStorage.accelerate_cart != ''){
 	        showToast('Warning! There is an unsaved order being punched. Please complete it to continue.', '#e67e22');
 	        
 	       // document.getElementById("overWriteCurrentOrderModal").style.display = 'block';
@@ -3790,21 +3790,21 @@ function retrieveTableInfoForNewOrder(tableID){
 	
 		    var requestData = {
 		      "selector"  :{ 
-		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
 		                  },
 		      "fields"    : ["_rev", "identifierTag", "value"]
 		    }
 
 		    $.ajax({
 		      type: 'POST',
-		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 		      data: JSON.stringify(requestData),
 		      contentType: "application/json",
 		      dataType: 'json',
 		      timeout: 10000,
 		      success: function(data) {
 		        if(data.docs.length > 0){
-		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 			          var tableMapping = data.docs[0].value;
 			          for(var i=0; i<tableMapping.length; i++){
@@ -3849,7 +3849,7 @@ function moveToEditKOT(kotID){
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
         if(data._id != ""){
@@ -3878,7 +3878,7 @@ function moveToEditKOT(kotID){
 		    }
 
 		    /*
-		    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+		    if(window.localStorage.accelerate_cart && window.localStorage.accelerate_cart != ''){
 
 		    	showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
 			        
@@ -3938,7 +3938,7 @@ function overWriteCurrentRunningOrder(kot){
 
 
     //Pending new order will be removed off the cart.
-    window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
+    window.localStorage.accelerate_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
 
     //window.localStorage.edit_KOT_originalCopy = decodeURI(encodedKOT);
@@ -3976,21 +3976,21 @@ function renderCategoryTab(defaultTab){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
 
 	          	var categories = data.docs[0].value;
 	          	categories.sort(); //alphabetical sorting 
@@ -4053,21 +4053,21 @@ function renderMenu(subtype){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	          	var mastermenu = data.docs[0].value; 
 
@@ -4148,7 +4148,7 @@ function fetchImageFromServer(itemCode, vegFlag){
 
         $.ajax({
             type: 'GET',
-            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/'+itemCode,
+            url: COMMON_LOCAL_SERVER_IP+'/accelerate_menu_images/'+itemCode,
             timeout: 10000,
             success: function(serverData) {
               if(serverData.data != ''){
@@ -4243,7 +4243,7 @@ function generateEditedKOT(silentFlag){
 		return '';
 	}
 
-	var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+	var changed_cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 	if(changed_cart_products.length == 0){
 		showToast('Empty Cart! Add items and try again', '#e74c3c');
 		return '';
@@ -4405,7 +4405,7 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
         if(data._id != ""){
@@ -4523,7 +4523,7 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
           	  	//Update on Server
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kot._id)+'/',
                   data: JSON.stringify(kot),
                   contentType: "application/json",
                   dataType: 'json',
@@ -4567,6 +4567,44 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 			              	
 			              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+							var isKOTRelayingEnabledOnDefault = window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT ? (window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT == 1 ? true : false) : false;
+
+			              	var default_set_KOT_printer = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+                        	var default_set_KOT_printer_data = null;
+                        	var only_KOT_printer = null;
+
+
+                        	findDefaultKOTPrinter();
+
+                        	function findDefaultKOTPrinter(){
+
+	                              var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+	                              var g = 0;
+	                              while(allConfiguredPrintersList[g]){
+
+	                                if(allConfiguredPrintersList[g].type == 'KOT'){
+		                              	for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+		                                    if(allConfiguredPrintersList[g].list[a].name == default_set_KOT_printer){
+		                                      default_set_KOT_printer_data = allConfiguredPrintersList[g].list[a];
+		                                    }
+											else if(only_KOT_printer == null){
+		                                    	only_KOT_printer = allConfiguredPrintersList[g].list[a];
+		                                    }
+	                                	}
+
+	                                	break;
+	                                }
+	                               
+	                                g++;
+	                              }
+	                        }
+
+	                        if(default_set_KOT_printer_data == null){
+	                        	default_set_KOT_printer_data = only_KOT_printer;
+	                        }
+
+
 			              	if(isKOTRelayingEnabled){
 
 			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
@@ -4637,7 +4675,14 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 														for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
 													        if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
 													        	selected_printer = allConfiguredPrintersList[g].list[a];
-													        	sendKOTChangesToPrinter(kot, relaySkippedItems, selected_printer);
+
+													        	if(isKOTRelayingEnabledOnDefault){
+													        		sendKOTChangesToPrinter(kot, relaySkippedItems, selected_printer);
+													        	}
+													        	else{
+													        		sendKOTChangesToPrinter(kot, compareObject, selected_printer);
+													        	}
+
 													        	break;
 													        }
 													    }
@@ -4646,7 +4691,12 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 												      if(g == allConfiguredPrintersList.length - 1){
 												      	if(selected_printer == ''){ //No printer found, print on default!
-												      		sendKOTChangesToPrinter(kot, relaySkippedItems);
+												      		if(isKOTRelayingEnabledOnDefault){
+										           				sendKOTChangesToPrinter(kot, relaySkippedItems, default_set_KOT_printer_data);
+										           			}
+										             		else{
+										              			sendKOTChangesToPrinter(kot, compareObject, default_set_KOT_printer_data);
+										              		}
 												      	}
 												      }
 												      
@@ -4654,6 +4704,11 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 												    }
 							              		}
 
+				              				}
+				              				else{
+												if(!isKOTRelayingEnabledOnDefault){
+											        sendKOTChangesToPrinter(kot, compareObject, default_set_KOT_printer_data);
+											    }				              					
 				              				}
 
 				              				printRelayedKOT(relayRuleList);	
@@ -4785,7 +4840,7 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 function quickViewRemovedItems(){
 
 	var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
-	var changed_cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+	var changed_cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 	
 
 
@@ -4874,7 +4929,7 @@ function revertDelete(encodedItem){
 function generateNewKOT(silentFlag){
 
 	//Render Cart Items based on local storage
-	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+	var cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 	if(cart_products.length == 0){
 		showToast('Empty Cart! Add items and try again', '#e74c3c');
 		return '';
@@ -4898,14 +4953,14 @@ function generateNewKOT(silentFlag){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -4913,7 +4968,7 @@ function generateNewKOT(silentFlag){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
 	          	var params = data.docs[0].value;
 
@@ -4978,7 +5033,7 @@ function addCustomerToDatabase(customerData){
 	//Post to local Server
 	$.ajax({
 	    type: 'POST',
-	    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/',
+	    url: COMMON_LOCAL_SERVER_IP+'/accelerate_users/',
 	    data: JSON.stringify(customerData),
 	    contentType: "application/json",
 	    dataType: 'json',
@@ -4997,7 +5052,7 @@ function updateCustomerAddressOnDatabase(mobile, newAddress){
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/'+mobile,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_users/'+mobile,
       timeout: 10000,
       success: function(data) {
         if(data._id != ""){
@@ -5007,7 +5062,7 @@ function updateCustomerAddressOnDatabase(mobile, newAddress){
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_users/'+mobile+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_users/'+mobile+'/',
                   data: JSON.stringify(userData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -5036,7 +5091,7 @@ function removeCustomerAddressFromDatabase(mobile, addressID){
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/'+mobile,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_users/'+mobile,
       timeout: 10000,
       success: function(data) {
         if(data._id != ""){
@@ -5053,7 +5108,7 @@ function removeCustomerAddressFromDatabase(mobile, addressID){
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_users/'+mobile+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_users/'+mobile+'/',
                   data: JSON.stringify(userData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -5243,21 +5298,21 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
     //Check for KOT index on Server
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_KOT_INDEX" 
+                    "identifierTag": "ACCELERATE_KOT_INDEX" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_KOT_INDEX'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_INDEX'){
 
 	          var num = parseInt(data.docs[0].value) + 1;
 	          var kot = 'K' + num;
@@ -5313,18 +5368,19 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	        
 
 	          var remember_obj = '';
+	          var original_order_object_cart = obj.cart;
 
 	          //Post to local Server
 	          $.ajax({
 	            type: 'POST',
-	            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/',
+	            url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/',
 	            data: JSON.stringify(obj),
 	            contentType: "application/json",
 	            dataType: 'json',
 	            timeout: 10000,
 	            success: function(data) {
-	              if(data.ok){
 
+	              if(data.ok){
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
@@ -5396,6 +5452,44 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              	function initialiseKOTPrinting(){
 			              	
 			              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+			              	var isKOTRelayingEnabledOnDefault = window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT ? (window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT == 1 ? true : false) : false;
+
+			              	var default_set_KOT_printer = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+                        	var default_set_KOT_printer_data = null;
+                        	var only_KOT_printer = null;
+
+
+                        	findDefaultKOTPrinter();
+
+                        	function findDefaultKOTPrinter(){
+
+	                              var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+	                              var g = 0;
+	                              while(allConfiguredPrintersList[g]){
+
+	                                if(allConfiguredPrintersList[g].type == 'KOT'){
+		                              	for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+		                                    if(allConfiguredPrintersList[g].list[a].name == default_set_KOT_printer){
+		                                      default_set_KOT_printer_data = allConfiguredPrintersList[g].list[a];
+		                                    }
+											else if(only_KOT_printer == null){
+		                                    	only_KOT_printer = allConfiguredPrintersList[g].list[a];
+		                                    }
+	                                	}
+
+	                                	break;
+	                                }
+	                               
+	                                g++;
+	                              }
+	                        }
+
+	                        if(default_set_KOT_printer_data == null){
+	                        	default_set_KOT_printer_data = only_KOT_printer;
+	                        }
+
+
 			              	if(isKOTRelayingEnabled){
 
 			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
@@ -5458,7 +5552,15 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								              		var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
 								              		
 								              		if(defaultKOTPrinter == ''){
-								              			sendToPrinter(relay_skipped_obj, 'KOT');
+								              			if(isKOTRelayingEnabledOnDefault){
+								              				sendToPrinter(relay_skipped_obj, 'KOT', default_set_KOT_printer_data);
+								              			}
+								              			else{
+								              				var preserved_order = obj;
+											              	preserved_order.cart = original_order_object_cart;
+								              				
+								              				sendToPrinter(preserved_order, 'KOT', default_set_KOT_printer_data);
+								              			}
 								              		}
 								              		else{
 														var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
@@ -5470,7 +5572,18 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 															for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
 														        if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
 														        	selected_printer = allConfiguredPrintersList[g].list[a];
-														        	sendToPrinter(relay_skipped_obj, 'KOT', selected_printer);
+
+														        	if(isKOTRelayingEnabledOnDefault){
+											              				sendToPrinter(relay_skipped_obj, 'KOT', selected_printer);
+											              			}
+											              			else{
+
+											              				var preserved_order = obj;
+											              				preserved_order.cart = original_order_object_cart;
+
+											              				sendToPrinter(preserved_order, 'KOT', selected_printer);
+											              			}
+
 														        	break;
 														        }
 														    }
@@ -5479,13 +5592,29 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 													      if(g == allConfiguredPrintersList.length - 1){
 													      	if(selected_printer == ''){ //No printer found, print on default!
-													      		sendToPrinter(relay_skipped_obj, 'KOT');
+													      		if(isKOTRelayingEnabledOnDefault){
+										              				sendToPrinter(relay_skipped_obj, 'KOT', default_set_KOT_printer_data);
+										              			}
+										              			else{
+										              				var preserved_order = obj;
+											              			preserved_order.cart = original_order_object_cart;
+
+										              				sendToPrinter(preserved_order, 'KOT', default_set_KOT_printer_data);
+										              			}
 													      	}
 													      }
 													      
 													      g++;
 													    }
 								              		}
+				              				}
+				              				else{
+												if(!isKOTRelayingEnabledOnDefault){
+													var preserved_order = obj;
+											        preserved_order.cart = original_order_object_cart;
+											        
+											        sendToPrinter(preserved_order, 'KOT', default_set_KOT_printer_data);
+											    }				              					
 				              				}
 
 				              				printRelayedKOT(relayRuleList);	
@@ -5620,13 +5749,13 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
                           var updateData = {
                             "_rev": memory_revID,
-                            "identifierTag": "ZAITOON_KOT_INDEX",
+                            "identifierTag": "ACCELERATE_KOT_INDEX",
                             "value": num
                           }
 
                           $.ajax({
                             type: 'PUT',
-                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_INDEX/',
+                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_INDEX/',
                             data: JSON.stringify(updateData),
                             contentType: "application/json",
                             dataType: 'json',
@@ -5699,7 +5828,7 @@ function saveOnlineOrderMapping(orderObject){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/',
       data: JSON.stringify(objectData),
       contentType: "application/json",
       dataType: 'json',
@@ -5757,7 +5886,7 @@ function pushCurrentOrderAsEditKOT(kot){
     }
 
     //Pending new order will be removed off the cart.
-    window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
+    window.localStorage.accelerate_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
     window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot); //decodeURI(encodedKOT);
 
@@ -5791,7 +5920,7 @@ function clearAllMetaData(){
 	customerInfo.isOnline = false;
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
-	window.localStorage.zaitoon_cart = '';
+	window.localStorage.accelerate_cart = '';
 	window.localStorage.edit_KOT_originalCopy = '';
 	window.localStorage.userAutoFound = '';
 	window.localStorage.userDetailsAutoFound = '';
@@ -5857,18 +5986,18 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 		
 			/* fetch cart from saved */
 
-		    var requestData = { "selector" :{ "identifierTag": "ZAITOON_SAVED_ORDERS" } }
+		    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_SAVED_ORDERS" } }
 
 		    $.ajax({
 		      type: 'POST',
-		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 		      data: JSON.stringify(requestData),
 		      contentType: "application/json",
 		      dataType: 'json',
 		      timeout: 10000,
 		      success: function(data) {
 		        if(data.docs.length > 0){
-		          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_ORDERS'){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_ORDERS'){
 
 						var holding_orders = data.docs[0].value;
 
@@ -5878,7 +6007,7 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 							if(holding_orders[n].customerDetails.mappedAddress == TableNumber){
 								
 								window.localStorage.edit_KOT_originalCopy = '';
-								window.localStorage.zaitoon_cart = '';
+								window.localStorage.accelerate_cart = '';
 								window.localStorage.customerData = '';
 
 								addHoldOrderToCurrent(encodeURI(JSON.stringify(holding_orders[n])), n);
@@ -5894,7 +6023,7 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 	}
 	else{
 
-		window.localStorage.zaitoon_cart = '';
+		window.localStorage.accelerate_cart = '';
 	
 		window.localStorage.userAutoFound = '';
 		window.localStorage.userDetailsAutoFound = '';
@@ -5967,7 +6096,7 @@ function freshOrderForCustomer(customerEncoded){
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 	window.localStorage.edit_KOT_originalCopy = '';
 
-	window.localStorage.zaitoon_cart = '';
+	window.localStorage.accelerate_cart = '';
 	
 	window.localStorage.userAutoFound = 1;
 	window.localStorage.userDetailsAutoFound = JSON.stringify(newCustomerObj);
@@ -6003,21 +6132,21 @@ function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 
 		    var requestData = {
 		      "selector"  :{ 
-		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
 		                  },
 		      "fields"    : ["_rev", "identifierTag", "value"]
 		    }
 
 		    $.ajax({
 		      type: 'POST',
-		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 		      data: JSON.stringify(requestData),
 		      contentType: "application/json",
 		      dataType: 'json',
 		      timeout: 10000,
 		      success: function(data) {
 		        if(data.docs.length > 0){
-		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 			          var tableMapping = data.docs[0].value;
 			          var timestamp = getCurrentTime('TIME');
@@ -6046,13 +6175,13 @@ function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 		                    //Update
 		                    var updateData = {
 		                      "_rev": data.docs[0]._rev,
-		                      "identifierTag": "ZAITOON_TABLES_MASTER",
+		                      "identifierTag": "ACCELERATE_TABLES_MASTER",
 		                      "value": tableMapping
 		                    }
 
 		                    $.ajax({
 		                      type: 'PUT',
-		                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+		                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
 		                      data: JSON.stringify(updateData),
 		                      contentType: "application/json",
 		                      dataType: 'json',
@@ -6110,21 +6239,21 @@ function billTableMapping(tableID, billNumber, status, optionalPageRef){
 
 		    var requestData = {
 		      "selector"  :{ 
-		                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+		                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
 		                  },
 		      "fields"    : ["_rev", "identifierTag", "value"]
 		    }
 
 		    $.ajax({
 		      type: 'POST',
-		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 		      data: JSON.stringify(requestData),
 		      contentType: "application/json",
 		      dataType: 'json',
 		      timeout: 10000,
 		      success: function(data) {
 		        if(data.docs.length > 0){
-		          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 			          var tableMapping = data.docs[0].value;
 			          var timestamp = getCurrentTime('TIME');
@@ -6147,13 +6276,13 @@ function billTableMapping(tableID, billNumber, status, optionalPageRef){
 		                    //Update
 		                    var updateData = {
 		                      "_rev": data.docs[0]._rev,
-		                      "identifierTag": "ZAITOON_TABLES_MASTER",
+		                      "identifierTag": "ACCELERATE_TABLES_MASTER",
 		                      "value": tableMapping
 		                    }
 
 		                    $.ajax({
 		                      type: 'PUT',
-		                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+		                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
 		                      data: JSON.stringify(updateData),
 		                      contentType: "application/json",
 		                      dataType: 'json',
@@ -6203,21 +6332,21 @@ function pickTableForNewOrder(currentTableID){
 	//PRELOAD TABLE MAPPING
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
               var tables = data.docs[0].value;
 
@@ -6234,21 +6363,21 @@ function pickTableForNewOrder(currentTableID){
 
 				    var requestData = {
 				      "selector"  :{ 
-				                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+				                    "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
 				                  },
 				      "fields"    : ["_rev", "identifierTag", "value"]
 				    }
 
 				    $.ajax({
 				      type: 'POST',
-				      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+				      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 				      data: JSON.stringify(requestData),
 				      contentType: "application/json",
 				      dataType: 'json',
 				      timeout: 10000,
 				      success: function(data) {
 				        if(data.docs.length > 0){
-				          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+				          if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
 
 				            var tableSections = data.docs[0].value;
 				            
@@ -7042,21 +7171,21 @@ function setTokenManually(){
 
 						    var requestData = {
 						      "selector"  :{ 
-						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                    "identifierTag": "ACCELERATE_TOKEN_INDEX" 
 						                  },
 						      "fields"    : ["_rev", "identifierTag", "value"]
 						    }
 
 						    $.ajax({
 						      type: 'POST',
-						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 						      data: JSON.stringify(requestData),
 						      contentType: "application/json",
 						      dataType: 'json',
 						      timeout: 10000,
 						      success: function(data) {
 						        if(data.docs.length > 0){
-						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+						          if(data.docs[0].identifierTag == 'ACCELERATE_TOKEN_INDEX'){
 
 						            var lastToken = parseInt(data.docs[0].value);
 
@@ -7096,21 +7225,21 @@ function setTokenManuallySave(){
 
 						    var requestData = {
 						      "selector"  :{ 
-						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                    "identifierTag": "ACCELERATE_TOKEN_INDEX" 
 						                  },
 						      "fields"    : ["_rev", "identifierTag", "value"]
 						    }
 
 						    $.ajax({
 						      type: 'POST',
-						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 						      data: JSON.stringify(requestData),
 						      contentType: "application/json",
 						      dataType: 'json',
 						      timeout: 10000,
 						      success: function(data) {
 						        if(data.docs.length > 0){
-						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+						          if(data.docs[0].identifierTag == 'ACCELERATE_TOKEN_INDEX'){
 
 									var token = document.getElementById("next_token_value_set").value;
 
@@ -7167,21 +7296,21 @@ function restartTokenManuallySave(){
 
 						    var requestData = {
 						      "selector"  :{ 
-						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                    "identifierTag": "ACCELERATE_TOKEN_INDEX" 
 						                  },
 						      "fields"    : ["_rev", "identifierTag", "value"]
 						    }
 
 						    $.ajax({
 						      type: 'POST',
-						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 						      data: JSON.stringify(requestData),
 						      contentType: "application/json",
 						      dataType: 'json',
 						      timeout: 10000,
 						      success: function(data) {
 						        if(data.docs.length > 0){
-						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+						          if(data.docs[0].identifierTag == 'ACCELERATE_TOKEN_INDEX'){
 
 											updateTokenCountOnServer(2, data.docs[0]._rev);
 
@@ -7249,7 +7378,7 @@ function addCommentToItem(cart_index){
 
 
 	var text = document.getElementById("add_item_wise_comment").value;
-	var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+	var cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 
 
 		var n = 0;
@@ -7261,7 +7390,7 @@ function addCommentToItem(cart_index){
 			n++;
 		}	
 
-	window.localStorage.zaitoon_cart = JSON.stringify(cart_products);
+	window.localStorage.accelerate_cart = JSON.stringify(cart_products);
 
 	if(text != ''){
 		showToast('Comment saved successfully', '#27ae60');
@@ -7278,7 +7407,7 @@ function addCommentToItem(cart_index){
 
 function openItemWiseCommentModal(itemCode, variant, cart_index){
 
-		var cart_products = window.localStorage.zaitoon_cart ?  JSON.parse(window.localStorage.zaitoon_cart) : [];
+		var cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 		var commentsAdded = false; 
 		var variantTitle = '';
 		var itemTitle = '';
@@ -7312,21 +7441,21 @@ function openItemWiseCommentModal(itemCode, variant, cart_index){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_SAVED_COMMENTS" 
+	                    "identifierTag": "ACCELERATE_SAVED_COMMENTS" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
 	      timeout: 10000,
 	      success: function(data) {
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_COMMENTS'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_COMMENTS'){
 
 		            var modes = data.docs[0].value;
 		            modes.sort(); //alphabetical sorting 
@@ -7590,21 +7719,21 @@ function openSpecialRequestModal(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
 
               var ingredientsList = data.docs[0].value;
               ingredientsList.sort(); //alphabetical sorting 
@@ -7786,21 +7915,21 @@ function initMenuSuggestion(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	          	var mastermenu = data.docs[0].value; 
 
@@ -8105,21 +8234,21 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 	          		var tableMapping = data.docs[0].value;
 
@@ -8197,14 +8326,14 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+	                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -8212,7 +8341,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
 		          	var params = data.docs[0].value;
 
@@ -8343,21 +8472,21 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 	    //Check for KOT index on Server
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_KOT_INDEX" 
+	                    "identifierTag": "ACCELERATE_KOT_INDEX" 
 	                  },
 	      "fields"    : ["_rev", "identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
 	      timeout: 10000,
 	      success: function(data) {
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_KOT_INDEX'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_INDEX'){
 
 		          var num = parseInt(data.docs[0].value) + 1;
 		          var kot = 'K' + num;
@@ -8417,7 +8546,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 		          //Post to local Server
 		          $.ajax({
 		            type: 'POST',
-		            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/',
+		            url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/',
 		            data: JSON.stringify(obj),
 		            contentType: "application/json",
 		            dataType: 'json',
@@ -8432,13 +8561,13 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 	                    	  //Update KOT number on server
 	                          var updateData = {
 	                            "_rev": memory_revID,
-	                            "identifierTag": "ZAITOON_KOT_INDEX",
+	                            "identifierTag": "ACCELERATE_KOT_INDEX",
 	                            "value": num
 	                          }
 
 	                          $.ajax({
 	                            type: 'PUT',
-	                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_INDEX/',
+	                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_INDEX/',
 	                            data: JSON.stringify(updateData),
 	                            contentType: "application/json",
 	                            dataType: 'json',
@@ -8497,7 +8626,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -8631,7 +8760,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 	          	  	//Update on Server
 	                $.ajax({
 	                  type: 'PUT',
-	                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
+	                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kot._id)+'/',
 	                  data: JSON.stringify(kot),
 	                  contentType: "application/json",
 	                  dataType: 'json',
@@ -8663,7 +8792,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -8827,7 +8956,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 	          	  	//Update on Server
 	                $.ajax({
 	                  type: 'PUT',
-	                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
+	                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kot._id)+'/',
 	                  data: JSON.stringify(kot),
 	                  contentType: "application/json",
 	                  dataType: 'json',
@@ -8855,7 +8984,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 
 	    $.ajax({
 	      type: 'DELETE',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+id+'?rev='+revID,
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+id+'?rev='+revID,
 	      contentType: "application/json",
 	      dataType: 'json',
 	      timeout: 10000,
@@ -8864,14 +8993,14 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 	      		
 			    var requestData = {
 			      "selector"  :{ 
-			                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+			                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
 			                  },
 			      "fields"    : ["_rev", "identifierTag", "value"]
 			    }
 
 			    $.ajax({
 			      type: 'POST',
-			      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+			      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 			      data: JSON.stringify(requestData),
 			      contentType: "application/json",
 			      dataType: 'json',
@@ -8879,7 +9008,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 			      success: function(data) {
 			        if(data.docs.length > 0){
 
-			            if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+			            if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 			              var tableMapping = data.docs[0].value;
 
@@ -8907,13 +9036,13 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 			                    //Update
 			                    var updateData = {
 			                      "_rev": data.docs[0]._rev,
-			                      "identifierTag": "ZAITOON_TABLES_MASTER",
+			                      "identifierTag": "ACCELERATE_TABLES_MASTER",
 			                      "value": tableMapping
 			                    }
 
 			                    $.ajax({
 			                      type: 'PUT',
-			                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+			                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
 			                      data: JSON.stringify(updateData),
 			                      contentType: "application/json",
 			                      dataType: 'json',

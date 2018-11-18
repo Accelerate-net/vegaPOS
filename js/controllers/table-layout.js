@@ -48,21 +48,21 @@ function fetchAllTables(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
               var table = data.docs[0].value;
               table.sort(function(obj1, obj2) {
@@ -104,21 +104,21 @@ function fetchAllTableSections(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+                    "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
 
               var table = data.docs[0].value;
               table.sort();
@@ -184,21 +184,21 @@ function deleteSingleTable(name) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
               var table = data.docs[0].value;
               
@@ -218,13 +218,13 @@ function deleteSingleTable(name) {
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": table
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -269,21 +269,21 @@ function deleteSingleTableSection(sectionName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
               var table = data.docs[0].value;
 
@@ -294,21 +294,21 @@ function deleteSingleTableSection(sectionName) {
                     //Now proceed to delete
                     var requestData = {
                       "selector"  :{ 
-                                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+                                    "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
                                   },
                       "fields"    : ["_rev", "identifierTag", "value"]
                     }
 
                     $.ajax({
                       type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
                       data: JSON.stringify(requestData),
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
                       success: function(data) {
                         if(data.docs.length > 0){
-                          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+                          if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
 
                               var sections = data.docs[0].value;
                               for (var i=0; i<sections.length; i++) {  
@@ -321,13 +321,13 @@ function deleteSingleTableSection(sectionName) {
                               //Update
                               var updateData = {
                                 "_rev": data.docs[0]._rev,
-                                "identifierTag": "ZAITOON_TABLE_SECTIONS",
+                                "identifierTag": "ACCELERATE_TABLE_SECTIONS",
                                 "value": sections
                               }
 
                               $.ajax({
                                 type: 'PUT',
-                                url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLE_SECTIONS/',
+                                url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLE_SECTIONS/',
                                 data: JSON.stringify(updateData),
                                 contentType: "application/json",
                                 dataType: 'json',
@@ -377,21 +377,21 @@ function deleteSingleTableSection(sectionName) {
                     //Now proceed to delete
                     var requestData = {
                       "selector"  :{ 
-                                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+                                    "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
                                   },
                       "fields"    : ["_rev", "identifierTag", "value"]
                     }
 
                     $.ajax({
                       type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
                       data: JSON.stringify(requestData),
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
                       success: function(data) {
                         if(data.docs.length > 0){
-                          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+                          if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
 
                               var sections = data.docs[0].value;
                               for (var i=0; i<sections.length; i++) {  
@@ -404,13 +404,13 @@ function deleteSingleTableSection(sectionName) {
                               //Update
                               var updateData = {
                                 "_rev": data.docs[0]._rev,
-                                "identifierTag": "ZAITOON_TABLE_SECTIONS",
+                                "identifierTag": "ACCELERATE_TABLE_SECTIONS",
                                 "value": sections
                               }
 
                               $.ajax({
                                 type: 'PUT',
-                                url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLE_SECTIONS/',
+                                url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLE_SECTIONS/',
                                 data: JSON.stringify(updateData),
                                 contentType: "application/json",
                                 dataType: 'json',
@@ -474,21 +474,21 @@ function deleteAllMappedTables(sectionName){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
                   var table = data.docs[0].value;
 
@@ -502,13 +502,13 @@ function deleteAllMappedTables(sectionName){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": table
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -555,21 +555,21 @@ function addNewTableSection(){
 
       var requestData = {
         "selector"  :{ 
-                      "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+                      "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
                     },
         "fields"    : ["_rev", "identifierTag", "value"]
       }
 
       $.ajax({
         type: 'POST',
-        url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+        url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
         data: JSON.stringify(requestData),
         contentType: "application/json",
         dataType: 'json',
         timeout: 10000,
         success: function(data) {
           if(data.docs.length > 0){
-            if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+            if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
 
                 var table = data.docs[0].value;
 
@@ -597,13 +597,13 @@ function addNewTableSection(){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLE_SECTIONS",
+                      "identifierTag": "ACCELERATE_TABLE_SECTIONS",
                       "value": table
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLE_SECTIONS/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLE_SECTIONS/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -677,21 +677,21 @@ function addNewTable() {
 
         var requestData = {
           "selector"  :{ 
-                        "identifierTag": "ZAITOON_TABLES_MASTER" 
+                        "identifierTag": "ACCELERATE_TABLES_MASTER" 
                       },
           "fields"    : ["_rev", "identifierTag", "value"]
         }
 
         $.ajax({
           type: 'POST',
-          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+          url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
           data: JSON.stringify(requestData),
           contentType: "application/json",
           dataType: 'json',
           timeout: 10000,
           success: function(data) {
             if(data.docs.length > 0){
-              if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+              if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
                   var table = data.docs[0].value;
                   
@@ -720,13 +720,13 @@ function addNewTable() {
                       //Update
                       var updateData = {
                         "_rev": data.docs[0]._rev,
-                        "identifierTag": "ZAITOON_TABLES_MASTER",
+                        "identifierTag": "ACCELERATE_TABLES_MASTER",
                         "value": table
                       }
 
                       $.ajax({
                         type: 'PUT',
-                        url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                        url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                         data: JSON.stringify(updateData),
                         contentType: "application/json",
                         dataType: 'json',

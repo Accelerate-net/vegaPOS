@@ -106,21 +106,21 @@ function fetchAllDineSessions(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
 
               var params = data.docs[0].value;
               params.sort(); //alphabetical sorting 
@@ -205,14 +205,14 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -220,7 +220,7 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
 
              var sessionsList = data.docs[0].value;
              var flag = 0;
@@ -242,13 +242,13 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_DINE_SESSIONS",
+                  "identifierTag": "ACCELERATE_DINE_SESSIONS",
                   "value": sessionsList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_DINE_SESSIONS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_DINE_SESSIONS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -294,21 +294,21 @@ function deleteDineSession(sessionName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
 
                var dineSessionsList = data.docs[0].value;
 
@@ -327,13 +327,13 @@ function deleteDineSession(sessionName) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_DINE_SESSIONS",
+                  "identifierTag": "ACCELERATE_DINE_SESSIONS",
                   "value": dineSessionsList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_DINE_SESSIONS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_DINE_SESSIONS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -379,21 +379,21 @@ function fetchAllCookingIngredients(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -445,21 +445,21 @@ function addNewCookingIngredient(optionalParameter) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
 
              var commentsList = data.docs[0].value;
              var flag = 0;
@@ -481,16 +481,16 @@ function addNewCookingIngredient(optionalParameter) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_COOKING_INGREDIENTS",
+                  "identifierTag": "ACCELERATE_COOKING_INGREDIENTS",
                   "value": commentsList
                 }
 
 
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/zaitoon_settings/ZAITOON_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ZAITOON_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
+                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_COOKING_INGREDIENTS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_COOKING_INGREDIENTS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -536,21 +536,21 @@ function deleteCookingIngredient(commentName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
 
                var commentsList = data.docs[0].value;
 
@@ -564,16 +564,16 @@ function deleteCookingIngredient(commentName) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_COOKING_INGREDIENTS",
+                  "identifierTag": "ACCELERATE_COOKING_INGREDIENTS",
                   "value": commentsList
                 }
 
 
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/zaitoon_settings/ZAITOON_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ZAITOON_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
+                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_COOKING_INGREDIENTS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_COOKING_INGREDIENTS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -615,21 +615,21 @@ function fetchAllCancellationReasons(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                    "identifierTag": "ACCELERATE_CANCELLATION_REASONS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -681,21 +681,21 @@ function addNewCancellationReason(optionalParameter) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                    "identifierTag": "ACCELERATE_CANCELLATION_REASONS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
 
              var commentsList = data.docs[0].value;
              var flag = 0;
@@ -717,16 +717,16 @@ function addNewCancellationReason(optionalParameter) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_CANCELLATION_REASONS",
+                  "identifierTag": "ACCELERATE_CANCELLATION_REASONS",
                   "value": commentsList
                 }
 
 
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/zaitoon_settings/ZAITOON_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ZAITOON_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
+                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CANCELLATION_REASONS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_CANCELLATION_REASONS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -772,21 +772,21 @@ function deleteCancellationReason(commentName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                    "identifierTag": "ACCELERATE_CANCELLATION_REASONS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
 
                var commentsList = data.docs[0].value;
 
@@ -800,16 +800,16 @@ function deleteCancellationReason(commentName) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_CANCELLATION_REASONS",
+                  "identifierTag": "ACCELERATE_CANCELLATION_REASONS",
                   "value": commentsList
                 }
 
 
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/zaitoon_settings/ZAITOON_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ZAITOON_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
+                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CANCELLATION_REASONS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_CANCELLATION_REASONS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -856,21 +856,21 @@ function fetchAllSavedComments(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_SAVED_COMMENTS" 
+                    "identifierTag": "ACCELERATE_SAVED_COMMENTS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_COMMENTS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_COMMENTS'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -925,21 +925,21 @@ function addNewComment(optionalParameter) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_SAVED_COMMENTS" 
+                    "identifierTag": "ACCELERATE_SAVED_COMMENTS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_COMMENTS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_COMMENTS'){
 
              var commentsList = data.docs[0].value;
              var flag = 0;
@@ -962,13 +962,13 @@ function addNewComment(optionalParameter) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_SAVED_COMMENTS",
+                  "identifierTag": "ACCELERATE_SAVED_COMMENTS",
                   "value": commentsList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_COMMENTS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SAVED_COMMENTS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1015,21 +1015,21 @@ function deleteSavedComment(commentName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_SAVED_COMMENTS" 
+                    "identifierTag": "ACCELERATE_SAVED_COMMENTS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SAVED_COMMENTS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_COMMENTS'){
 
                var commentsList = data.docs[0].value;
 
@@ -1043,16 +1043,16 @@ function deleteSavedComment(commentName) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_SAVED_COMMENTS",
+                  "identifierTag": "ACCELERATE_SAVED_COMMENTS",
                   "value": commentsList
                 }
 
 
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/zaitoon_settings/ZAITOON_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ZAITOON_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
+                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SAVED_COMMENTS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SAVED_COMMENTS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',

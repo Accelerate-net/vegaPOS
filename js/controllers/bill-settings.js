@@ -35,14 +35,14 @@ function openNewMode(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -50,7 +50,7 @@ function openNewMode(){
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -100,14 +100,14 @@ function openNewOrderSource(){
               //Preload Billing Modes data
               var requestData = {
                 "selector"  :{ 
-                              "identifierTag": "ZAITOON_BILLING_MODES" 
+                              "identifierTag": "ACCELERATE_BILLING_MODES" 
                             },
                 "fields"    : ["identifierTag", "value"]
               }
 
               $.ajax({
                 type: 'POST',
-                url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
                 data: JSON.stringify(requestData),
                 contentType: "application/json",
                 dataType: 'json',
@@ -115,7 +115,7 @@ function openNewOrderSource(){
                 success: function(data) {
                   console.log(data)
                   if(data.docs.length > 0){
-                    if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+                    if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
                         var modes = data.docs[0].value;
 
@@ -282,14 +282,14 @@ function fetchAllParams(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -297,7 +297,7 @@ function fetchAllParams(){
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
               var params = data.docs[0].value;
               params.sort(); //alphabetical sorting 
@@ -376,14 +376,14 @@ function addParameter() {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -391,7 +391,7 @@ function addParameter() {
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
              var billingParamsList = data.docs[0].value;
              var flag = 0;
@@ -413,13 +413,13 @@ function addParameter() {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_BILLING_PARAMETERS",
+                  "identifierTag": "ACCELERATE_BILLING_PARAMETERS",
                   "value": billingParamsList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILLING_PARAMETERS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_BILLING_PARAMETERS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -464,21 +464,21 @@ function deleteParameter(paramName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
                var billingParamsList = data.docs[0].value;
 
@@ -492,13 +492,13 @@ function deleteParameter(paramName) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_BILLING_PARAMETERS",
+                  "identifierTag": "ACCELERATE_BILLING_PARAMETERS",
                   "value": billingParamsList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILLING_PARAMETERS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_BILLING_PARAMETERS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -540,14 +540,14 @@ function fetchAllDiscountTypes(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+                    "identifierTag": "ACCELERATE_DISCOUNT_TYPES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -555,7 +555,7 @@ function fetchAllDiscountTypes(){
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -635,14 +635,14 @@ function addDiscountType(optionalName, optionalUnit, optionalValue) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+                    "identifierTag": "ACCELERATE_DISCOUNT_TYPES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -650,7 +650,7 @@ function addDiscountType(optionalName, optionalUnit, optionalValue) {
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
 
              var discountsList = data.docs[0].value;
              var flag = 0;
@@ -672,13 +672,13 @@ function addDiscountType(optionalName, optionalUnit, optionalValue) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_DISCOUNT_TYPES",
+                  "identifierTag": "ACCELERATE_DISCOUNT_TYPES",
                   "value": discountsList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_DISCOUNT_TYPES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_DISCOUNT_TYPES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -725,21 +725,21 @@ function deleteDiscountType(discountName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+                    "identifierTag": "ACCELERATE_DISCOUNT_TYPES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
 
                var discountsList = data.docs[0].value;
 
@@ -758,13 +758,13 @@ function deleteDiscountType(discountName) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_DISCOUNT_TYPES",
+                  "identifierTag": "ACCELERATE_DISCOUNT_TYPES",
                   "value": discountsList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_DISCOUNT_TYPES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_DISCOUNT_TYPES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -808,14 +808,14 @@ function fetchAllModes(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -823,7 +823,7 @@ function fetchAllModes(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
               var params = data.docs[0].value;
               fetchAllModesAfterProcess(params)
@@ -848,14 +848,14 @@ function fetchAllModes(){
 function fetchAllModesAfterProcess(extrasInfo){
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                    "identifierTag": "ACCELERATE_BILLING_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -863,7 +863,7 @@ function fetchAllModesAfterProcess(extrasInfo){
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -963,14 +963,14 @@ function addMode() {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                    "identifierTag": "ACCELERATE_BILLING_MODES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -978,7 +978,7 @@ function addMode() {
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
              var billingModesList = data.docs[0].value;
              var flag = 0;
@@ -1000,13 +1000,13 @@ function addMode() {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_BILLING_MODES",
+                  "identifierTag": "ACCELERATE_BILLING_MODES",
                   "value": billingModesList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILLING_MODES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_BILLING_MODES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1050,21 +1050,21 @@ function deleteMode(modeName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                    "identifierTag": "ACCELERATE_BILLING_MODES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
                var billingModesList = data.docs[0].value;
 
@@ -1078,13 +1078,13 @@ function deleteMode(modeName) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_BILLING_MODES",
+                  "identifierTag": "ACCELERATE_BILLING_MODES",
                   "value": billingModesList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILLING_MODES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_BILLING_MODES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1125,14 +1125,14 @@ function fetchAllPaymentModes(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1140,7 +1140,7 @@ function fetchAllPaymentModes(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -1216,14 +1216,14 @@ function addPaymentMode(optionalName, optionalCode) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1231,7 +1231,7 @@ function addPaymentMode(optionalName, optionalCode) {
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
              var paymentTypesList = data.docs[0].value;
              var flag = 0;
@@ -1253,13 +1253,13 @@ function addPaymentMode(optionalName, optionalCode) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_PAYMENT_MODES",
+                  "identifierTag": "ACCELERATE_PAYMENT_MODES",
                   "value": paymentTypesList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_PAYMENT_MODES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_PAYMENT_MODES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1304,21 +1304,21 @@ function deletePaymentMode(modeName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
                var modesList = data.docs[0].value;
 
@@ -1335,13 +1335,13 @@ function deletePaymentMode(modeName) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_PAYMENT_MODES",
+                  "identifierTag": "ACCELERATE_PAYMENT_MODES",
                   "value": modesList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_PAYMENT_MODES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_PAYMENT_MODES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1384,14 +1384,14 @@ function fetchAllOrderSources(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_ORDER_SOURCES" 
+                    "identifierTag": "ACCELERATE_ORDER_SOURCES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1399,7 +1399,7 @@ function fetchAllOrderSources(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_ORDER_SOURCES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_ORDER_SOURCES'){
 
               var modes = data.docs[0].value;
               window.localStorage.addedOrderSourcesData = JSON.stringify(modes);
@@ -1490,14 +1490,14 @@ function addOrderSource(optionalName, optionalCode, optionalDelivery, optionalTa
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_ORDER_SOURCES" 
+                    "identifierTag": "ACCELERATE_ORDER_SOURCES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1505,7 +1505,7 @@ function addOrderSource(optionalName, optionalCode, optionalDelivery, optionalTa
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_ORDER_SOURCES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_ORDER_SOURCES'){
 
              var orderSourcesList = data.docs[0].value;
              var flag = 0;
@@ -1527,13 +1527,13 @@ function addOrderSource(optionalName, optionalCode, optionalDelivery, optionalTa
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_ORDER_SOURCES",
+                  "identifierTag": "ACCELERATE_ORDER_SOURCES",
                   "value": orderSourcesList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_ORDER_SOURCES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_ORDER_SOURCES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1578,21 +1578,21 @@ function deleteOrderSource(modeName) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_ORDER_SOURCES" 
+                    "identifierTag": "ACCELERATE_ORDER_SOURCES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_ORDER_SOURCES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_ORDER_SOURCES'){
 
                var modesList = data.docs[0].value;
 
@@ -1613,13 +1613,13 @@ function deleteOrderSource(modeName) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_ORDER_SOURCES",
+                  "identifierTag": "ACCELERATE_ORDER_SOURCES",
                   "value": modesList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_ORDER_SOURCES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_ORDER_SOURCES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1796,14 +1796,14 @@ function renderBillLayout(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILL_LAYOUT" 
+                    "identifierTag": "ACCELERATE_BILL_LAYOUT" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1811,7 +1811,7 @@ function renderBillLayout(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILL_LAYOUT'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILL_LAYOUT'){
 
               var layoutData = data.docs[0].value;
               
@@ -1909,13 +1909,13 @@ function saveLayoutChanges(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILL_LAYOUT" 
+                    "identifierTag": "ACCELERATE_BILL_LAYOUT" 
                   }
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1923,7 +1923,7 @@ function saveLayoutChanges(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILL_LAYOUT'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILL_LAYOUT'){
 
               var layoutData = data.docs[0].value;
 
@@ -1941,13 +1941,13 @@ function saveLayoutChanges(){
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_BILL_LAYOUT",
+                  "identifierTag": "ACCELERATE_BILL_LAYOUT",
                   "value": billLayoutObject
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILL_LAYOUT/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_BILL_LAYOUT/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -2002,11 +2002,11 @@ function headerImageContentSave(){
   var new_url = $('#header_image_data_url_custom').val(); 
   viewHeaderImageContentHide();
  
-    var requestData = { "selector" :{ "identifierTag": "ZAITOON_BILL_LAYOUT" } }
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_BILL_LAYOUT" } }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -2014,7 +2014,7 @@ function headerImageContentSave(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILL_LAYOUT'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILL_LAYOUT'){
 
               var layoutData = data.docs[0].value;
 
@@ -2032,13 +2032,13 @@ function headerImageContentSave(){
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_BILL_LAYOUT",
+                  "identifierTag": "ACCELERATE_BILL_LAYOUT",
                   "value": layoutData
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILL_LAYOUT/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_BILL_LAYOUT/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',

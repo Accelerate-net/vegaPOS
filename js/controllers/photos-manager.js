@@ -4,21 +4,21 @@ function fetchAllCategoriesPhotos(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
 
 	          	var categories = data.docs[0].value;
 	          	categories.sort(); //alphabetical sorting 
@@ -56,21 +56,21 @@ function openSubMenuPhotos(subtype){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	          	var mastermenu = data.docs[0].value; 
 
@@ -135,7 +135,7 @@ function loadImageFromServer(itemCode){
 
         $.ajax({
             type: 'GET',
-            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/'+itemCode,
+            url: COMMON_LOCAL_SERVER_IP+'/accelerate_menu_images/'+itemCode,
             timeout: 10000,
             success: function(serverData) {
               if(serverData.data != ''){
@@ -260,7 +260,7 @@ function pushImageToServer(itemCode, itemName, category, encodedData){
 	          //Post to local Server
 	          $.ajax({
 	            type: 'POST',
-	            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/',
+	            url: COMMON_LOCAL_SERVER_IP+'/accelerate_menu_images/',
 	            data: JSON.stringify(imageObject),
 	            contentType: "application/json",
 	            dataType: 'json',
@@ -292,7 +292,7 @@ function replaceImageOnServer(itemCode, itemName, category, encodedData){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_menu_images/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -308,7 +308,7 @@ function replaceImageOnServer(itemCode, itemName, category, encodedData){
                 //Update
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_menu_images/'+(imageFile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_menu_images/'+(imageFile._id)+'/',
                   data: JSON.stringify(imageFile),
                   contentType: "application/json",
                   dataType: 'json',
@@ -352,7 +352,7 @@ function removeItemPhoto(itemCode, itemName, category){
 
                   $.ajax({
                     type: 'POST',
-                    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/_find',
+                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_menu_images/_find',
                     data: JSON.stringify(requestData),
                     contentType: "application/json",
                     dataType: 'json',
@@ -363,7 +363,7 @@ function removeItemPhoto(itemCode, itemName, category){
                         //Proceed to Delete
                         $.ajax({
                           type: 'DELETE',
-                          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/'+data.docs[0]._id+'?rev='+data.docs[0]._rev,
+                          url: COMMON_LOCAL_SERVER_IP+'/accelerate_menu_images/'+data.docs[0]._id+'?rev='+data.docs[0]._rev,
                           contentType: "application/json",
                           dataType: 'json',
                           timeout: 10000,
@@ -414,21 +414,21 @@ function changePhotoFlagInMenu(code, changeFlag, optionalCategory){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_MASTER_MENU" 
+	                    "identifierTag": "ACCELERATE_MASTER_MENU" 
 	                  },
 	      "fields"    : ["_rev", "identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
 	      timeout: 10000,
 	      success: function(data) {
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 		        var mastermenu = data.docs[0].value; 
 				
@@ -442,14 +442,14 @@ function changePhotoFlagInMenu(code, changeFlag, optionalCategory){
 						    //Update
 			                var updateData = {
 			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "identifierTag": "ACCELERATE_MASTER_MENU",
 			                  "value": mastermenu
 			                }
 
 
 			                $.ajax({
 			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 			                  data: JSON.stringify(updateData),
 			                  contentType: "application/json",
 			                  dataType: 'json',

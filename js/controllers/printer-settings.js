@@ -93,21 +93,21 @@ function fetchAllPrintersInfo(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CONFIGURED_PRINTERS" 
+                    "identifierTag": "ACCELERATE_CONFIGURED_PRINTERS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_PRINTERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CONFIGURED_PRINTERS'){
 
 		        var printersList = data.docs[0].value;
 
@@ -209,14 +209,14 @@ function addNewPrinterProfile(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CONFIGURED_PRINTERS" 
+                    "identifierTag": "ACCELERATE_CONFIGURED_PRINTERS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -224,7 +224,7 @@ function addNewPrinterProfile(){
       success: function(data) {
       	console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_PRINTERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CONFIGURED_PRINTERS'){
 
              var printersList = data.docs[0].value;
 
@@ -281,13 +281,13 @@ function addNewPrinterProfile(){
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_CONFIGURED_PRINTERS",
+                  "identifierTag": "ACCELERATE_CONFIGURED_PRINTERS",
                   "value": printersList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_PRINTERS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_CONFIGURED_PRINTERS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -332,21 +332,21 @@ function deletePrinterProfile(name){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CONFIGURED_PRINTERS" 
+                    "identifierTag": "ACCELERATE_CONFIGURED_PRINTERS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_PRINTERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CONFIGURED_PRINTERS'){
 
              var printersList = data.docs[0].value;
 
@@ -388,13 +388,13 @@ function deletePrinterProfile(name){
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_CONFIGURED_PRINTERS",
+                  "identifierTag": "ACCELERATE_CONFIGURED_PRINTERS",
                   "value": printersList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_PRINTERS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_CONFIGURED_PRINTERS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -439,18 +439,18 @@ function removePrinterFromKOTRelays(name){
   */
 
 
-    var requestData = { "selector" :{ "identifierTag": "ZAITOON_KOT_RELAYING" } }
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_KOT_RELAYING" } }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_RELAYING'){
 
               var settingsList = data.docs[0].value;
 
@@ -499,13 +499,13 @@ function updateRelayDataWithPrinters(customList, rev){
                     //Update
                     var updateData = {
                       "_rev": rev,
-                      "identifierTag": "ZAITOON_KOT_RELAYING",
+                      "identifierTag": "ACCELERATE_KOT_RELAYING",
                       "value": customList
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_RELAYING/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_RELAYING/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',

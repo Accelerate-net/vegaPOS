@@ -40,7 +40,7 @@ function renderOnlineOrders(){
 
 	$.ajax({
 		type: 'POST',
-		url: 'https://www.zaitoon.online/services/posfetchonlineorders.php',
+		url: 'https://www.accelerateengine.app/apis/posfetchonlineorders.php',
 		data: JSON.stringify(data),
 		contentType: "application/json",
 		dataType: 'json',
@@ -52,9 +52,6 @@ function renderOnlineOrders(){
 				//Online Content
 				var i = 0;
 				while(netdata.response[i]){
-
-					netdata.response[i].orderSource = 'ZAITOON';
-					console.log('AM HARD CODED!')
 
 					items = items + '<tr role="row" id="onlineListing_'+netdata.response[i].orderID+'" class="onlineOrderListing" onclick="fetchOrderDetails(\''+netdata.response[i].orderID+'\')"> <td>'+netdata.response[i].orderID+'<br>'+(netdata.response[i].isTakeaway? '<tag class="onlineTakeAwayTag">TAKE AWAY</tag>' : '<tag class="onlineDeliveryTag">DELIVERY</tag>')+'</td> <td><tag style="display: block">'+netdata.response[i].userName+'</tag><tag style="display: block">'+netdata.response[i].userID+'<tag></td>'+
 						'<td><tag style="display: block; text-align: center"><i class="fa fa-inr"></i>'+netdata.response[i].amountPaid+'</tag><tag style="display: block; text-align: center !important">'+(netdata.response[i].isPrepaid ? '<tag style="color: #545454; font-size: 10px;">Prepaid</tag>' : '<tag style="color: #1abc62; font-size: 10px;">Cash</tag>')+'</tag></td> <td><tag style="display: block">'+netdata.response[i].timePlace+'</tag><type class="orderSourceLabel" style="'+getSourceClass(netdata.response[i].orderSource)+'">'+netdata.response[i].orderSource+'</type></td> </tr>';
@@ -126,7 +123,7 @@ function renderLiveOnlineOrders(){
 
                 $.ajax({
                   type: 'POST',
-                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/_find',
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/_find',
                   data: JSON.stringify(requestData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -219,7 +216,7 @@ function renderCompletedOnlineOrders(){
 
                 $.ajax({
                   type: 'POST',
-                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/_find',
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/_find',
                   data: JSON.stringify(requestData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -268,7 +265,7 @@ function fetchSystemOrder(encodedMapping){
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -300,7 +297,7 @@ function fetchSystemOrder(encodedMapping){
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -332,7 +329,7 @@ function fetchSystemOrder(encodedMapping){
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -384,7 +381,7 @@ function removeMappingFromFile(id, revID){
 
     $.ajax({
       type: 'DELETE',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/'+id+'?rev='+revID,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/'+id+'?rev='+revID,
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
@@ -405,7 +402,7 @@ function displayOrderCounts(){
 
                 $.ajax({
                   type: 'GET',
-                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/_design/filter-by/_view/status?startkey=[1,"01-01-2018"]&endkey=[1,"'+todayDate+'"]',
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/_design/filter-by/_view/status?startkey=[1,"01-01-2018"]&endkey=[1,"'+todayDate+'"]',
                   timeout: 10000,
                   success: function(data) {
                   	if(data.rows.length > 0){
@@ -424,7 +421,7 @@ function displayOrderCounts(){
 
                 $.ajax({
                   type: 'GET',
-                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/_design/filter-by/_view/status?startkey=[2,"'+todayDate+'"]&endkey=[2,"'+todayDate+'"]',
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/_design/filter-by/_view/status?startkey=[2,"'+todayDate+'"]&endkey=[2,"'+todayDate+'"]',
                   timeout: 10000,
                   success: function(data) {
                   	if(data.rows.length > 0){
@@ -444,10 +441,12 @@ function displayOrderCounts(){
 
 function getSourceClass(source){
 
+	var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toUpperCase() : 'ACCELERATE';
+
 	if(source == 'SWIGGY'){
 		return 'background: #f37f1c';
 	}
-	else if(source == 'ZAITOON'){
+	else if(source == temp_licenced_client){
 		return 'background: #49575f; border-bottom: 2px solid #d4412f;';
 	}
 	else if(source == 'UBER EATS'){
@@ -493,9 +492,6 @@ function fetchOrderDetails(orderID){
 
 
 			document.getElementById("renderOnlineOrderArea").style.display = 'block';
-
-			lastOrderFetchInfo[i].orderSource = 'ZAITOON';
-			console.log('AM HARD CODED TOOOO!')
 
 			if(lastOrderFetchInfo[i].isPrepaid){
 				document.getElementById("orderInfo").innerHTML = '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Order #<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+orderID+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+
@@ -770,7 +766,7 @@ function markReadyOnlineOrder(encodedMapping){
 
       $.ajax({
         type: 'POST',
-        url: 'https://www.zaitoon.online/services/posdispatchorder.php',
+        url: 'https://www.accelerateengine.app/apis/posdispatchorder.php',
         data: JSON.stringify(data),
         contentType: "application/json",
         dataType: 'json',
@@ -820,7 +816,7 @@ function dispatchOnlineOrderAfterProcess(encodedMapping, agentCode, agentName){
 
       $.ajax({
         type: 'POST',
-        url: 'https://www.zaitoon.online/services/posdispatchorder.php',
+        url: 'https://www.accelerateengine.app/apis/posdispatchorder.php',
         data: JSON.stringify(data),
         contentType: "application/json",
         dataType: 'json',
@@ -857,7 +853,7 @@ function updateOnlineOrdersMappingDispatch(id, name, code){
 
                 $.ajax({
                   type: 'POST',
-                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/'+id,
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/'+id,
                   data: JSON.stringify(requestData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -875,7 +871,7 @@ function updateOnlineOrdersMappingDispatch(id, name, code){
 		                //Update Mapping on Server
 		                $.ajax({
 		                  type: 'PUT',
-		                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_online_orders/'+id+'/',
+		                  url: COMMON_LOCAL_SERVER_IP+'accelerate_online_orders/'+id+'/',
 		                  data: JSON.stringify(onlineOrdersMapping),
 		                  contentType: "application/json",
 		                  dataType: 'json',
@@ -926,10 +922,10 @@ function updateSystemBillAgent(billNumber, code, name, status){
     }
 
 
-    var requestURL = 'zaitoon_bills/'+accelerate_licencee_branch +"_BILL_"+ billNumber;
+    var requestURL = 'accelerate_bills/'+accelerate_licencee_branch +"_BILL_"+ billNumber;
 
     if(status == 3){
-    	requestURL = 'zaitoon_invoices/'+accelerate_licencee_branch +"_INVOICE_"+ billNumber;
+    	requestURL = 'accelerate_invoices/'+accelerate_licencee_branch +"_INVOICE_"+ billNumber;
     }
 
     $.ajax({
@@ -978,7 +974,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 	var order = JSON.parse(decodeURI(encodedOrder));
 	var customerInfo = '';
 
-	var online_order_source = order.source ? order.source : 'ZAITOON'; 
+	var online_order_source = order.source ? order.source : 'ACCELERATE'; 
 	if(online_order_source == ''){
 		showToast('Error: This order can not be punched. Order Source is missing.', '#e74c3c');
 		return '';
@@ -1101,7 +1097,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 
 	/* warn if unsaved order (Not editing case) */
 	if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){
-	    if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+	    if(window.localStorage.accelerate_cart && window.localStorage.accelerate_cart != ''){
 	        showToast('Warning! There is an unsaved order being punched. Please complete it to continue.', '#e67e22');
 	    	return '';
 	    }    
@@ -1128,7 +1124,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 
       $.ajax({
         type: 'POST',
-        url: 'https://www.zaitoon.online/services/posconfirmorder.php',
+        url: 'https://www.accelerateengine.app/apis/posconfirmorder.php',
         data: JSON.stringify(data),
         contentType: "application/json",
         dataType: 'json',
@@ -1156,7 +1152,7 @@ function punchOnlineOrderToKOT(encodedOrder){
 	function proceedToPunchOrder(){
 		window.localStorage.specialRequests_comments = (order.comments && order.comments != '' ? order.comments : '');
 
-		window.localStorage.zaitoon_cart = JSON.stringify(cart);
+		window.localStorage.accelerate_cart = JSON.stringify(cart);
 		window.localStorage.customerData = JSON.stringify(customerInfo);
 
 		renderPage('new-order', 'Punch Order');
@@ -1169,21 +1165,21 @@ function selectDeliveryBoyWindow(encodedMapping){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
               var users = data.docs[0].value;
               users.sort(); //alphabetical sorting 

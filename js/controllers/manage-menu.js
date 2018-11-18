@@ -5,21 +5,21 @@ function fetchAllCategories(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
 
 	          	var categories = data.docs[0].value;
 	          	categories.sort(); //alphabetical sorting 
@@ -59,21 +59,21 @@ function markAvailability(code){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	          	var mastermenu = data.docs[0].value;
 
@@ -102,21 +102,26 @@ function markAvailability(code){
 			                //Update
 			                var updateData = {
 			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "identifierTag": "ACCELERATE_MASTER_MENU",
 			                  "value": mastermenu
 			                }
 
 			                $.ajax({
 			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 			                  data: JSON.stringify(updateData),
 			                  contentType: "application/json",
 			                  dataType: 'json',
 			                  timeout: 10000,
 			                  success: function(data) {
 
-			                  	//Update online menu
-                                sendConfirmationResponseToCloud(code, remember_avail);
+			                  	//Update online menu (if enabled)
+                                var online_flag = 0;
+                                online_flag = window.localStorage.appOtherPreferences_syncOnlineMenu ? window.localStorage.appOtherPreferences_syncOnlineMenu : 0;
+
+                                if(online_flag == 1){
+                                    sendConfirmationResponseToCloud(code, remember_avail);
+                                }
 
 			                  	return '';
 			                  },
@@ -166,7 +171,7 @@ function markAvailability(code){
 
           $.ajax({
             type: 'POST',
-            url: 'https://www.zaitoon.online/services/itemstatus.php',
+            url: 'https://www.accelerateengine.app/apis/itemstatus.php',
             data: JSON.stringify(data),
             contentType: "application/json",
             dataType: 'json',
@@ -416,21 +421,21 @@ function openSubMenu(menuCategory, optionalHighlighItem){
 	//read menu
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	          var mastermenu = data.docs[0].value;
 	          var itemsInCategory = "";
@@ -588,21 +593,21 @@ function markAvailabilityBatch(category, option){
     /*to find the latest item code*/
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	          	var mastermenu = data.docs[0].value;
 
@@ -648,13 +653,13 @@ function markAvailabilityBatchAfterProcess(menu, category, revID){
 			                //Update
 			                var updateData = {
 			                  "_rev": revID,
-			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "identifierTag": "ACCELERATE_MASTER_MENU",
 			                  "value": menu
 			                }
 
 			                $.ajax({
 			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 			                  data: JSON.stringify(updateData),
 			                  contentType: "application/json",
 			                  dataType: 'json',
@@ -678,21 +683,21 @@ function batchProcessMenuAllAvailable(){
     /*to find the latest item code*/
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	          	var mastermenu = data.docs[0].value;
 
@@ -736,13 +741,13 @@ function batchProcessMenuAllAvailableAfterProcess(menu, revID){
 			                //Update
 			                var updateData = {
 			                  "_rev": revID,
-			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "identifierTag": "ACCELERATE_MASTER_MENU",
 			                  "value": menu
 			                }
 
 			                $.ajax({
 			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 			                  data: JSON.stringify(updateData),
 			                  contentType: "application/json",
 			                  dataType: 'json',
@@ -768,21 +773,21 @@ function deleteItemFromMenu(encodedItem, categoryName){
     /*to find the latest item code*/
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	          	var mastermenu = data.docs[0].value;
 
@@ -832,13 +837,13 @@ function deleteItemFromMenuAfterProcess(encodedItem, categoryName, newMenuObj, r
 			                //Update
 			                var updateData = {
 			                  "_rev": revID,
-			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "identifierTag": "ACCELERATE_MASTER_MENU",
 			                  "value": newMenuObj
 			                }
 
 			                $.ajax({
 			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 			                  data: JSON.stringify(updateData),
 			                  contentType: "application/json",
 			                  dataType: 'json',
@@ -905,21 +910,21 @@ function openNewMenuItem(category){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_MASTER_MENU" 
+	                    "identifierTag": "ACCELERATE_MASTER_MENU" 
 	                  },
 	      "fields"    : ["_rev", "identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
 	      timeout: 10000,
 	      success: function(data) {
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	             	var mastermenu = data.docs[0].value;
 
@@ -976,21 +981,21 @@ function addMoreOptions(optionalSource){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
 
               	var modes = data.docs[0].value;
               	modes.sort(); //alphabetical sorting 
@@ -1067,21 +1072,21 @@ function edit_addMoreOptions(optionalSource){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_COOKING_INGREDIENTS" 
+                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_COOKING_INGREDIENTS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
 
               	var modes = data.docs[0].value;
               	modes.sort(); //alphabetical sorting 
@@ -1268,21 +1273,21 @@ function saveItemToFile(category, item) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
              	var mastermenu = data.docs[0].value;
 
@@ -1330,13 +1335,13 @@ function saveItemToFile(category, item) {
 	                //Update
 	                var updateData = {
 	                  "_rev": data.docs[0]._rev,
-	                  "identifierTag": "ZAITOON_MASTER_MENU",
+	                  "identifierTag": "ACCELERATE_MASTER_MENU",
 	                  "value": mastermenu
 	                }
 
 	                $.ajax({
 	                  type: 'PUT',
-	                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+	                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 	                  data: JSON.stringify(updateData),
 	                  contentType: "application/json",
 	                  dataType: 'json',
@@ -1393,13 +1398,13 @@ function saveItemToFile(category, item) {
                      		//Update
 			                var updateData = {
 			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "identifierTag": "ACCELERATE_MASTER_MENU",
 			                  "value": mastermenu
 			                }
 
 			                $.ajax({
 			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 			                  data: JSON.stringify(updateData),
 			                  contentType: "application/json",
 			                  dataType: 'json',
@@ -1428,13 +1433,13 @@ function saveItemToFile(category, item) {
 		                //Update
 		                var updateData = {
 		                  "_rev": data.docs[0]._rev,
-		                  "identifierTag": "ZAITOON_MASTER_MENU",
+		                  "identifierTag": "ACCELERATE_MASTER_MENU",
 		                  "value": mastermenu
 		                }
 
 		                $.ajax({
 		                  type: 'PUT',
-		                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+		                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 		                  data: JSON.stringify(updateData),
 		                  contentType: "application/json",
 		                  dataType: 'json',
@@ -1484,21 +1489,21 @@ function saveEditedItemToFile(category, item) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
              	var mastermenu = data.docs[0].value;
 
@@ -1546,13 +1551,13 @@ function saveEditedItemToFile(category, item) {
 	                //Update
 	                var updateData = {
 	                  "_rev": data.docs[0]._rev,
-	                  "identifierTag": "ZAITOON_MASTER_MENU",
+	                  "identifierTag": "ACCELERATE_MASTER_MENU",
 	                  "value": mastermenu
 	                }
 
 	                $.ajax({
 	                  type: 'PUT',
-	                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+	                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 	                  data: JSON.stringify(updateData),
 	                  contentType: "application/json",
 	                  dataType: 'json',
@@ -1608,13 +1613,13 @@ function saveEditedItemToFile(category, item) {
                      		//Update
 			                var updateData = {
 			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "identifierTag": "ACCELERATE_MASTER_MENU",
 			                  "value": mastermenu
 			                }
 
 			                $.ajax({
 			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 			                  data: JSON.stringify(updateData),
 			                  contentType: "application/json",
 			                  dataType: 'json',
@@ -1643,13 +1648,13 @@ function saveEditedItemToFile(category, item) {
 		                //Update
 		                var updateData = {
 		                  "_rev": data.docs[0]._rev,
-		                  "identifierTag": "ZAITOON_MASTER_MENU",
+		                  "identifierTag": "ACCELERATE_MASTER_MENU",
 		                  "value": mastermenu
 		                }
 
 		                $.ajax({
 		                  type: 'PUT',
-		                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+		                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 		                  data: JSON.stringify(updateData),
 		                  contentType: "application/json",
 		                  dataType: 'json',
@@ -1694,21 +1699,21 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
              	var mastermenu = data.docs[0].value;
 
@@ -1760,13 +1765,13 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 	                //Update
 	                var updateData = {
 	                  "_rev": data.docs[0]._rev,
-	                  "identifierTag": "ZAITOON_MASTER_MENU",
+	                  "identifierTag": "ACCELERATE_MASTER_MENU",
 	                  "value": mastermenu
 	                }
 
 	                $.ajax({
 	                  type: 'PUT',
-	                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+	                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 	                  data: JSON.stringify(updateData),
 	                  contentType: "application/json",
 	                  dataType: 'json',
@@ -1810,13 +1815,13 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 				                //Update
 				                var updateData = {
 				                  "_rev": data.docs[0]._rev,
-				                  "identifierTag": "ZAITOON_MASTER_MENU",
+				                  "identifierTag": "ACCELERATE_MASTER_MENU",
 				                  "value": mastermenu
 				                }
 
 				                $.ajax({
 				                  type: 'PUT',
-				                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+				                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 				                  data: JSON.stringify(updateData),
 				                  contentType: "application/json",
 				                  dataType: 'json',
@@ -1847,13 +1852,13 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
                      		//Update
 			                var updateData = {
 			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ZAITOON_MASTER_MENU",
+			                  "identifierTag": "ACCELERATE_MASTER_MENU",
 			                  "value": mastermenu
 			                }
 
 			                $.ajax({
 			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 			                  data: JSON.stringify(updateData),
 			                  contentType: "application/json",
 			                  dataType: 'json',
@@ -1882,13 +1887,13 @@ function saveEncodedItemToFile(category, encodedItem) { //Custom function for Un
 		                //Update
 		                var updateData = {
 		                  "_rev": data.docs[0]._rev,
-		                  "identifierTag": "ZAITOON_MASTER_MENU",
+		                  "identifierTag": "ACCELERATE_MASTER_MENU",
 		                  "value": mastermenu
 		                }
 
 		                $.ajax({
 		                  type: 'PUT',
-		                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+		                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
 		                  data: JSON.stringify(updateData),
 		                  contentType: "application/json",
 		                  dataType: 'json',
@@ -2102,21 +2107,21 @@ function addCategory() {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
 
              var categoryList = data.docs[0].value;
              var flag = 0;
@@ -2139,13 +2144,13 @@ function addCategory() {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_MENU_CATEGORIES",
+                  "identifierTag": "ACCELERATE_MENU_CATEGORIES",
                   "value": categoryList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MENU_CATEGORIES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MENU_CATEGORIES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -2189,21 +2194,21 @@ function deleteCategoryFromMaster(menuCategory){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
 	          	var mastermenu = data.docs[0].value; 
 				for (var i=0; i<mastermenu.length; i++){
@@ -2218,13 +2223,13 @@ function deleteCategoryFromMaster(menuCategory){
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_MASTER_MENU",
+                  "identifierTag": "ACCELERATE_MASTER_MENU",
                   "value": mastermenu
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -2264,21 +2269,21 @@ function deleteCategory(name) {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
 
                var categoryList = data.docs[0].value;
 
@@ -2292,13 +2297,13 @@ function deleteCategory(name) {
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_MENU_CATEGORIES",
+                  "identifierTag": "ACCELERATE_MENU_CATEGORIES",
                   "value": categoryList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MENU_CATEGORIES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MENU_CATEGORIES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -2359,21 +2364,21 @@ function renameCategoryFromMaster(current, newName){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
                var mastermenu = data.docs[0].value;
 
@@ -2389,13 +2394,13 @@ function renameCategoryFromMaster(current, newName){
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_MASTER_MENU",
+                  "identifierTag": "ACCELERATE_MASTER_MENU",
                   "value": mastermenu
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -2439,18 +2444,18 @@ function renameKOTRelaysList(current, newName){
 	*/
 
 
-    var requestData = { "selector" :{ "identifierTag": "ZAITOON_KOT_RELAYING" } }
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_KOT_RELAYING" } }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_RELAYING'){
 
               var settingsList = data.docs[0].value;
 
@@ -2502,18 +2507,18 @@ function deleteCategoryFromKOTRelays(name){
 	*/
 
 
-    var requestData = { "selector" :{ "identifierTag": "ZAITOON_KOT_RELAYING" } }
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_KOT_RELAYING" } }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_RELAYING'){
 
               var settingsList = data.docs[0].value;
 
@@ -2562,13 +2567,13 @@ function updateRelayData(customList, rev){
                     //Update
                     var updateData = {
                       "_rev": rev,
-                      "identifierTag": "ZAITOON_KOT_RELAYING",
+                      "identifierTag": "ACCELERATE_KOT_RELAYING",
                       "value": customList
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_RELAYING/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_RELAYING/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -2596,21 +2601,21 @@ function saveNewCategoryName(currentName){
 
 		    var requestData = {
 		      "selector"  :{ 
-		                    "identifierTag": "ZAITOON_MENU_CATEGORIES" 
+		                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
 		                  },
 		      "fields"    : ["_rev", "identifierTag", "value"]
 		    }
 
 		    $.ajax({
 		      type: 'POST',
-		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 		      data: JSON.stringify(requestData),
 		      contentType: "application/json",
 		      dataType: 'json',
 		      timeout: 10000,
 		      success: function(data) {
 		        if(data.docs.length > 0){
-		          if(data.docs[0].identifierTag == 'ZAITOON_MENU_CATEGORIES'){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
 
 		             var categoryList = data.docs[0].value;
 		             var locatedPointer = '';
@@ -2634,13 +2639,13 @@ function saveNewCategoryName(currentName){
 		                //Update
 		                var updateData = {
 		                  "_rev": data.docs[0]._rev,
-		                  "identifierTag": "ZAITOON_MENU_CATEGORIES",
+		                  "identifierTag": "ACCELERATE_MENU_CATEGORIES",
 		                  "value": categoryList
 		                }
 
 		                $.ajax({
 		                  type: 'PUT',
-		                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MENU_CATEGORIES/',
+		                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MENU_CATEGORIES/',
 		                  data: JSON.stringify(updateData),
 		                  contentType: "application/json",
 		                  dataType: 'json',

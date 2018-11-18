@@ -48,21 +48,21 @@ function fetchAllUsersInfo(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
 		        var users = data.docs[0].value;
 		        users.sort(); //alphabetical sorting 
@@ -193,14 +193,14 @@ function changeAdminPassword(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -208,7 +208,7 @@ function changeAdminPassword(){
       success: function(data) {
         console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
              var staffList = data.docs[0].value;
              var remember_name = '';
@@ -233,13 +233,13 @@ function changeAdminPassword(){
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_STAFF_PROFILES",
+                  "identifierTag": "ACCELERATE_STAFF_PROFILES",
                   "value": staffList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_STAFF_PROFILES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_STAFF_PROFILES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -310,14 +310,14 @@ function addNewUserProfile(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -325,7 +325,7 @@ function addNewUserProfile(){
       success: function(data) {
       	console.log(data)
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
              var staffList = data.docs[0].value;
              var flag = 0;
@@ -347,13 +347,13 @@ function addNewUserProfile(){
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_STAFF_PROFILES",
+                  "identifierTag": "ACCELERATE_STAFF_PROFILES",
                   "value": staffList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_STAFF_PROFILES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_STAFF_PROFILES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -400,21 +400,21 @@ function deleteUserFromUserProfile(code, name){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
                var staffList = data.docs[0].value;
 
@@ -428,13 +428,13 @@ function deleteUserFromUserProfile(code, name){
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_STAFF_PROFILES",
+                  "identifierTag": "ACCELERATE_STAFF_PROFILES",
                   "value": staffList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_STAFF_PROFILES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_STAFF_PROFILES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
