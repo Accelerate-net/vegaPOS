@@ -189,6 +189,22 @@
                             </td>
                           </tr>
 
+                          <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Menu Settings</td>
+                          </tr> 
+                          <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Sync Online Menu<tag style="display: block; font-size: 80%; color: #949393;">Online Menu will be updated when you change POS Menu, if the feature is available.</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionSyncMenu()" id="systemOptionSyncMenu" class="form-control" style="width:100%;">
+                                      <option value="NO">Disabled</option>
+                                      <option value="YES">Enabled</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+
 
                           <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
                             <td colspan="2" style="padding: 10px 0 5px 0;">KOT/Bill Defaults</td>
@@ -216,6 +232,21 @@
                                 </div>
                             </td>
                           </tr>
+
+                          <tr style="border-top: 1px dashed #f5f5f5; display: none" id="systemOptionKOTRelaying_originalMainKitchen">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Apply KOT Relaying on default KOT Printer<tag style="display: block; font-size: 80%; color: #949393;">Items will be split on the default KOT printer also. Disabling this will print the whole KOT on default KOT printer.</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionKOTRelayingDefaultKOT()" id="systemOptionKOTRelayEnabledDefaultKOT" class="form-control" style="width:100%;">
+                                      <option value="YES">Applicable</option>
+                                      <option value="NO">Not Applicable</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+
+
 
                           <tr style="border-top: 1px dashed #f5f5f5;">
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Enable Settle Later<tag style="display: block; font-size: 80%; color: #949393;">Skip 'Settle Bill' for all the Dine In orders and move the bills to 'Pending Bills'</tag></td>

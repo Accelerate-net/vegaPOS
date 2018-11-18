@@ -1680,6 +1680,13 @@ function applySystemOptionSettings(){
                         /*update localstorage*/             
                         window.localStorage.appOtherPreferences_orderEditingAllowed = tempVal;
                       }
+                      else if(params[i].name == "syncOnlineMenu"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_syncOnlineMenu = tempVal;
+                      }
                       else if(params[i].name == "onlineOrdersNotification"){
 
                         var tempVal = (params[i].value == 'YES'? true: false);
@@ -1707,6 +1714,13 @@ function applySystemOptionSettings(){
 
                         /*update localstorage*/             
                         window.localStorage.appOtherPreferences_KOTRelayEnabled = tempVal;
+                      }
+                      else if(params[i].name == "KOTRelayEnabledDefaultKOT"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT = tempVal;
                       }
                       else if(params[i].name == "defaultPrepaidName"){
                         var tempVal = params[i].value;
@@ -4722,9 +4736,14 @@ function markSpotlightMenuItemAvailability(code, type){
                                 showToast('Availability'+(remember_name != '' ? ' of <b>'+remember_name+'</b> ' : ' ')+'has been updated', '#48929B');
                                 initMenuSuggestion();
                                 
-                                //Update online menu
-                                sendConfirmationResponseToCloud(code, remember_avail);
+                                //Update online menu (if feature is enabled)
+                                var online_flag = 0;
+                                online_flag = window.localStorage.appOtherPreferences_syncOnlineMenu ? window.localStorage.appOtherPreferences_syncOnlineMenu : 0;
 
+                                if(online_flag == 1){
+                                    sendConfirmationResponseToCloud(code, remember_avail);
+                                }
+                                
                                 return '';
                               },
                               error: function(data) {

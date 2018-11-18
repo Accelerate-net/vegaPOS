@@ -4567,6 +4567,44 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 			              	
 			              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+							var isKOTRelayingEnabledOnDefault = window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT ? (window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT == 1 ? true : false) : false;
+
+			              	var default_set_KOT_printer = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+                        	var default_set_KOT_printer_data = null;
+                        	var only_KOT_printer = null;
+
+
+                        	findDefaultKOTPrinter();
+
+                        	function findDefaultKOTPrinter(){
+
+	                              var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+	                              var g = 0;
+	                              while(allConfiguredPrintersList[g]){
+
+	                                if(allConfiguredPrintersList[g].type == 'KOT'){
+		                              	for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+		                                    if(allConfiguredPrintersList[g].list[a].name == default_set_KOT_printer){
+		                                      default_set_KOT_printer_data = allConfiguredPrintersList[g].list[a];
+		                                    }
+											else if(only_KOT_printer == null){
+		                                    	only_KOT_printer = allConfiguredPrintersList[g].list[a];
+		                                    }
+	                                	}
+
+	                                	break;
+	                                }
+	                               
+	                                g++;
+	                              }
+	                        }
+
+	                        if(default_set_KOT_printer_data == null){
+	                        	default_set_KOT_printer_data = only_KOT_printer;
+	                        }
+
+
 			              	if(isKOTRelayingEnabled){
 
 			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
@@ -4637,7 +4675,14 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 														for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
 													        if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
 													        	selected_printer = allConfiguredPrintersList[g].list[a];
-													        	sendKOTChangesToPrinter(kot, relaySkippedItems, selected_printer);
+
+													        	if(isKOTRelayingEnabledOnDefault){
+													        		sendKOTChangesToPrinter(kot, relaySkippedItems, selected_printer);
+													        	}
+													        	else{
+													        		sendKOTChangesToPrinter(kot, compareObject, selected_printer);
+													        	}
+
 													        	break;
 													        }
 													    }
@@ -4646,7 +4691,12 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 												      if(g == allConfiguredPrintersList.length - 1){
 												      	if(selected_printer == ''){ //No printer found, print on default!
-												      		sendKOTChangesToPrinter(kot, relaySkippedItems);
+												      		if(isKOTRelayingEnabledOnDefault){
+										           				sendKOTChangesToPrinter(kot, relaySkippedItems, default_set_KOT_printer_data);
+										           			}
+										             		else{
+										              			sendKOTChangesToPrinter(kot, compareObject, default_set_KOT_printer_data);
+										              		}
 												      	}
 												      }
 												      
@@ -4654,6 +4704,11 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 												    }
 							              		}
 
+				              				}
+				              				else{
+												if(!isKOTRelayingEnabledOnDefault){
+											        sendKOTChangesToPrinter(kot, compareObject, default_set_KOT_printer_data);
+											    }				              					
 				              				}
 
 				              				printRelayedKOT(relayRuleList);	
@@ -5313,6 +5368,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	        
 
 	          var remember_obj = '';
+	          var original_order_object_cart = obj.cart;
 
 	          //Post to local Server
 	          $.ajax({
@@ -5323,8 +5379,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	            dataType: 'json',
 	            timeout: 10000,
 	            success: function(data) {
-	              if(data.ok){
 
+	              if(data.ok){
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
@@ -5396,6 +5452,44 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              	function initialiseKOTPrinting(){
 			              	
 			              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+			              	var isKOTRelayingEnabledOnDefault = window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT ? (window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT == 1 ? true : false) : false;
+
+			              	var default_set_KOT_printer = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+                        	var default_set_KOT_printer_data = null;
+                        	var only_KOT_printer = null;
+
+
+                        	findDefaultKOTPrinter();
+
+                        	function findDefaultKOTPrinter(){
+
+	                              var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+	                              var g = 0;
+	                              while(allConfiguredPrintersList[g]){
+
+	                                if(allConfiguredPrintersList[g].type == 'KOT'){
+		                              	for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+		                                    if(allConfiguredPrintersList[g].list[a].name == default_set_KOT_printer){
+		                                      default_set_KOT_printer_data = allConfiguredPrintersList[g].list[a];
+		                                    }
+											else if(only_KOT_printer == null){
+		                                    	only_KOT_printer = allConfiguredPrintersList[g].list[a];
+		                                    }
+	                                	}
+
+	                                	break;
+	                                }
+	                               
+	                                g++;
+	                              }
+	                        }
+
+	                        if(default_set_KOT_printer_data == null){
+	                        	default_set_KOT_printer_data = only_KOT_printer;
+	                        }
+
+
 			              	if(isKOTRelayingEnabled){
 
 			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
@@ -5458,7 +5552,15 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								              		var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
 								              		
 								              		if(defaultKOTPrinter == ''){
-								              			sendToPrinter(relay_skipped_obj, 'KOT');
+								              			if(isKOTRelayingEnabledOnDefault){
+								              				sendToPrinter(relay_skipped_obj, 'KOT', default_set_KOT_printer_data);
+								              			}
+								              			else{
+								              				var preserved_order = obj;
+											              	preserved_order.cart = original_order_object_cart;
+								              				
+								              				sendToPrinter(preserved_order, 'KOT', default_set_KOT_printer_data);
+								              			}
 								              		}
 								              		else{
 														var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
@@ -5470,7 +5572,18 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 															for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
 														        if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
 														        	selected_printer = allConfiguredPrintersList[g].list[a];
-														        	sendToPrinter(relay_skipped_obj, 'KOT', selected_printer);
+
+														        	if(isKOTRelayingEnabledOnDefault){
+											              				sendToPrinter(relay_skipped_obj, 'KOT', selected_printer);
+											              			}
+											              			else{
+
+											              				var preserved_order = obj;
+											              				preserved_order.cart = original_order_object_cart;
+
+											              				sendToPrinter(preserved_order, 'KOT', selected_printer);
+											              			}
+
 														        	break;
 														        }
 														    }
@@ -5479,13 +5592,29 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 													      if(g == allConfiguredPrintersList.length - 1){
 													      	if(selected_printer == ''){ //No printer found, print on default!
-													      		sendToPrinter(relay_skipped_obj, 'KOT');
+													      		if(isKOTRelayingEnabledOnDefault){
+										              				sendToPrinter(relay_skipped_obj, 'KOT', default_set_KOT_printer_data);
+										              			}
+										              			else{
+										              				var preserved_order = obj;
+											              			preserved_order.cart = original_order_object_cart;
+
+										              				sendToPrinter(preserved_order, 'KOT', default_set_KOT_printer_data);
+										              			}
 													      	}
 													      }
 													      
 													      g++;
 													    }
 								              		}
+				              				}
+				              				else{
+												if(!isKOTRelayingEnabledOnDefault){
+													var preserved_order = obj;
+											        preserved_order.cart = original_order_object_cart;
+											        
+											        sendToPrinter(preserved_order, 'KOT', default_set_KOT_printer_data);
+											    }				              					
 				              				}
 
 				              				printRelayedKOT(relayRuleList);	

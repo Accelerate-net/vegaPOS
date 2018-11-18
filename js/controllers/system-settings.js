@@ -782,7 +782,6 @@ function renderSystemOptions(optionalHighlight){
                 dataType: 'json',
                 timeout: 10000,
                 success: function(data) {
-                  console.log(data)
                   if(data.docs.length > 0){
                     if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
 
@@ -859,6 +858,7 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                     var isOnlineOrdersEnabled = false;
                     var isScanPayActive = false;
                     var isCustomQREnabled = false;
+                    var isKOTRelayEnabled = false;
 
                     //Render
                     for (var i=0; i<params.length; i++){
@@ -879,6 +879,15 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }
                           break;
                         }
+                        case "syncOnlineMenu": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionSyncMenu").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionSyncMenu").value = 'NO';
+                          }
+                          break;
+                        }
                         case "orderEditingAllowed": {
                           if(params[i].value == 'YES'){
                             document.getElementById("systemOptionEditingAllowed").value = params[i].value;
@@ -891,7 +900,7 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                         case "onlineOrdersNotification": {
                           if(isOnlineOrdersEnabled){
                             document.getElementById("systemOptionOnlineOrders_notificationTag").style.display = 'table-row';
-                            console.log('hello')
+                         
                             if(params[i].value == 'YES'){
                               document.getElementById("systemOptionOnlineOrdersNotification").value = params[i].value;
                             }
@@ -925,9 +934,28 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                         case "KOTRelayEnabled": {
                           if(params[i].value == 'YES'){
                             document.getElementById("systemOptionKOTRelayEnabled").value = params[i].value;
+                            isKOTRelayEnabled = true;
                           }
                           else{
                             document.getElementById("systemOptionKOTRelayEnabled").value = 'NO';
+                            isKOTRelayEnabled = false;
+                          }
+                          break;
+                        }
+                        case "KOTRelayEnabledDefaultKOT": {
+                          if(isKOTRelayEnabled){
+
+                            document.getElementById("systemOptionKOTRelaying_originalMainKitchen").style.display = 'table-row';
+
+                            if(params[i].value == 'YES'){
+                              document.getElementById("systemOptionKOTRelayEnabledDefaultKOT").value = params[i].value;
+                            }
+                            else{
+                              document.getElementById("systemOptionKOTRelayEnabledDefaultKOT").value = 'NO';
+                            }
+                          }
+                          else{
+                            document.getElementById("systemOptionKOTRelaying_originalMainKitchen").style.display = 'none';
                           }
                           break;
                         }
@@ -1347,7 +1375,6 @@ function changeSystemOptionsFile(type, changedValue){
                       if(settingsList[n].data[i].name == type){
                         
                         settingsList[n].data[i].value = changedValue;
-                        console.log(changedValue, machineName)
 
                         //Update
                         var updateData = {
@@ -1464,7 +1491,6 @@ function changePersonalisationFile(type, changedValue){
 
                           },
                           error: function(data) {
-                            console.log(data)
                             showToast('System Error: Unable to update Personalisations data. Please contact Accelerate Support.', '#e74c3c');
                           }
 
@@ -1984,6 +2010,15 @@ function changeSystemOptionNotification(){
 }
 
 
+function changeSystemOptionSyncMenu(){
+  var optName = document.getElementById("systemOptionSyncMenu").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_syncOnlineMenu = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("syncOnlineMenu", optName);
+}
+
+
 function changeSystemOptionEditingKOTAllowed(){
   var optName = document.getElementById("systemOptionEditingAllowed").value;
 
@@ -2000,6 +2035,16 @@ function changeSystemOptionKOTRelaying(){
   window.localStorage.appOtherPreferences_KOTRelayEnabled = (optName == 'YES' ? 1 : 0);
   changeSystemOptionsFile("KOTRelayEnabled", optName);
 }
+
+function changeSystemOptionKOTRelayingDefaultKOT(){
+  var optName = document.getElementById("systemOptionKOTRelayEnabledDefaultKOT").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("KOTRelayEnabledDefaultKOT", optName);
+}
+
+
 
 function changeSystemOptionSettleLater(){
   var optName = document.getElementById("systemOptionSettleLater").value;

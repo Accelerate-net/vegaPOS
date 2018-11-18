@@ -115,8 +115,13 @@ function markAvailability(code){
 			                  timeout: 10000,
 			                  success: function(data) {
 
-			                  	//Update online menu
-                                sendConfirmationResponseToCloud(code, remember_avail);
+			                  	//Update online menu (if enabled)
+                                var online_flag = 0;
+                                online_flag = window.localStorage.appOtherPreferences_syncOnlineMenu ? window.localStorage.appOtherPreferences_syncOnlineMenu : 0;
+
+                                if(online_flag == 1){
+                                    sendConfirmationResponseToCloud(code, remember_avail);
+                                }
 
 			                  	return '';
 			                  },

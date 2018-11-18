@@ -4132,9 +4132,50 @@ function processCancelRunningOrder(kotID, optionalPageRef){
 function sendCancelledKOTNotice(kot, optionalPageRef){
 
                       var obj = kot;
+                      var original_order_object_cart = kot.cart;
                       
-
                       var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
+                      var isKOTRelayingEnabledOnDefault = window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT ? (window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT == 1 ? true : false) : false;
+
+                          var default_set_KOT_printer = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
+                          var default_set_KOT_printer_data = null;
+                          var only_KOT_printer = null;
+
+
+                          findDefaultKOTPrinter();
+
+                          function findDefaultKOTPrinter(){
+
+                                var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+                                var g = 0;
+                                while(allConfiguredPrintersList[g]){
+
+                                  if(allConfiguredPrintersList[g].type == 'KOT'){
+                                    for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+                                        if(allConfiguredPrintersList[g].list[a].name == default_set_KOT_printer){
+                                          default_set_KOT_printer_data = allConfiguredPrintersList[g].list[a];
+                                        }
+                                        else if(only_KOT_printer == null){
+                                          only_KOT_printer = allConfiguredPrintersList[g].list[a];
+                                        }
+                                    }
+
+                                    break;
+                                  }
+                                 
+                                  g++;
+                                }
+                          }
+
+                          if(default_set_KOT_printer_data == null){
+                            default_set_KOT_printer_data = only_KOT_printer;
+                          }
+
+
+
+
+
                       if(isKOTRelayingEnabled){
 
                         var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
@@ -4199,7 +4240,14 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
                                   var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
                                   
                                   if(defaultKOTPrinter == ''){
-                                    sendToPrinter(relay_skipped_obj, 'CANCELLED_KOT');
+                                    if(isKOTRelayingEnabledOnDefault){
+                                      sendToPrinter(relay_skipped_obj, 'CANCELLED_KOT', default_set_KOT_printer_data);
+                                    }
+                                    else{
+                                      var preserved_order = obj;
+                                      preserved_order.cart = original_order_object_cart;
+                                      sendToPrinter(preserved_order, 'CANCELLED_KOT', default_set_KOT_printer_data);
+                                    }
                                   }
                                   else{
                                         
@@ -4209,25 +4257,49 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
                                         var g = 0;
                                         while(allConfiguredPrintersList[g]){
                                           if(allConfiguredPrintersList[g].type == 'KOT'){
-                                        for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
-                                              if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
-                                                selected_printer = allConfiguredPrintersList[g].list[a];
-                                                sendToPrinter(relay_skipped_obj, 'CANCELLED_KOT', selected_printer);
-                                                break;
-                                              }
-                                          }
+                                            for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+                                                if(allConfiguredPrintersList[g].list[a].name == defaultKOTPrinter){
+                                                  selected_printer = allConfiguredPrintersList[g].list[a];
+
+                                                  if(isKOTRelayingEnabledOnDefault){
+                                                    sendToPrinter(relay_skipped_obj, 'CANCELLED_KOT', selected_printer);
+                                                  }
+                                                  else{
+                                                    var preserved_order = obj;
+                                                    preserved_order.cart = original_order_object_cart;
+                                                    sendToPrinter(preserved_order, 'CANCELLED_KOT', selected_printer);
+                                                  }
+
+                                                  break;
+                                                }
+                                            }
                                           }
                                           
 
                                           if(g == allConfiguredPrintersList.length - 1){
                                             if(selected_printer == ''){ //No printer found, print on default!
-                                              sendToPrinter(relay_skipped_obj, 'CANCELLED_KOT');
+                                              if(isKOTRelayingEnabledOnDefault){
+                                                sendToPrinter(relay_skipped_obj, 'CANCELLED_KOT', default_set_KOT_printer_data);
+                                              }
+                                              else{
+                                                var preserved_order = obj;
+                                                preserved_order.cart = original_order_object_cart;
+                                                sendToPrinter(preserved_order, 'CANCELLED_KOT', default_set_KOT_printer_data);
+                                              }
                                             }
                                           }
                                           
                                           g++;
                                         }
                                   }                                
+                              }
+                              else{
+                                if(!isKOTRelayingEnabledOnDefault){
+                                  var preserved_order = obj;
+                                  preserved_order.cart = original_order_object_cart;
+
+                                  sendToPrinter(preserved_order, 'CANCELLED_KOT', default_set_KOT_printer_data);
+                                } 
                               }
 
                               printRelayedKOT(relayRuleList); 
