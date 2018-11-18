@@ -1,0 +1,34 @@
+{
+  "_id": "ACCELERATE_BILLING_PARAMETERS",
+  "identifierTag": "ACCELERATE_BILLING_PARAMETERS",
+  "value": [
+    {
+      "name": "SGST",
+      "excludePackagedFoods": true,
+      "value": 2.5,
+      "unit": "PERCENTAGE",
+      "unitName": "Percentage (%)"
+    },
+    {
+      "name": "CGST",
+      "excludePackagedFoods": true,
+      "value": 2.5,
+      "unit": "PERCENTAGE",
+      "unitName": "Percentage (%)"
+    },
+    {
+      "name": "Container Charges",
+      "excludePackagedFoods": true,
+      "value": 5,
+      "unit": "PERCENTAGE",
+      "unitName": "Percentage (%)"
+    },
+    {
+      "name": "Parcel Charges",
+      "excludePackagedFoods": false,
+      "value": 10,
+      "unit": "FIXED",
+      "unitName": "Fixed Amount (Rs)"
+    }
+  ]
+}

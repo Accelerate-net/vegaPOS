@@ -1,0 +1,95 @@
+{
+  "_id": "ACCELERATE_SYSTEM_OPTIONS",
+  "identifierTag": "ACCELERATE_SYSTEM_OPTIONS",
+  "value": [
+    {
+      "systemName": "Any",
+      "data": [
+        {
+          "name": "notifications",
+          "value": "ALL"
+        },
+        {
+          "name": "syncOnlineMenu",
+          "value": "NO"
+        },
+        {
+          "name": "orderEditingAllowed",
+          "value": "YES"
+        },
+        {
+          "name": "onlineOrdersNotification",
+          "value": "YES"
+        },
+        {
+          "name": "billSettleLater",
+          "value": "NO"
+        },
+        {
+          "name": "adminIdleLogout",
+          "value": "NO"
+        },
+        {
+          "name": "resetCountersAfterReport",
+          "value": "NO"
+        },
+        {
+          "name": "onlineOrders",
+          "value": "YES"
+        },
+        {
+          "name": "defaultPrepaidName",
+          "value": "Razorpay"
+        },
+        {
+          "name": "reportEmailList",
+          "value": ""
+        },
+        {
+          "name": "defaultDeliveryMode",
+          "value": "Delivery - Zatioon App"
+        },
+        {
+          "name": "defaultTakeawayMode",
+          "value": "NONE"
+        },
+        {
+          "name": "defaultDineMode",
+          "value": "NONE"
+        },
+        {
+          "name": "KOTRelayEnabled",
+          "value": "YES"
+        },
+        {
+          "name": "KOTRelayEnabledDefaultKOT",
+          "value": "YES"
+        },
+        {
+          "name": "defaultKOTPrinter",
+          "value": "Kitchen"
+        },
+        {
+          "name": "scanPayEnabled",
+          "value": "NO"
+        },
+        {
+          "name": "scanPayAPI",
+          "value": "https://zaitoon.online/"
+        },
+        {
+          "name": "showDefaultQRCode",
+          "value": "YES"
+        },
+        {
+          "name": "showDefaultQRTarget",
+          "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon"
+        },
+        {
+          "name": "sendMetadataToQR",
+          "value": "NO"
+        }
+      ]
+    }
+  ]
+}

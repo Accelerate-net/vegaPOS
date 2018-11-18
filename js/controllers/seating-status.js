@@ -343,14 +343,14 @@ function removeTableMapping(tableNumber){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -358,7 +358,7 @@ function removeTableMapping(tableNumber){
       success: function(data) {
         if(data.docs.length > 0){
 
-            if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+            if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
               var tableMapping = data.docs[0].value;
 
@@ -381,13 +381,13 @@ function removeTableMapping(tableNumber){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": tableMapping
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -440,7 +440,7 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
         if(data._id != ""){
@@ -460,7 +460,7 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -510,7 +510,7 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
 
         $.ajax({
           type: 'GET',
-          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
+          url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
           timeout: 10000,
           success: function(data) {
             if(data._id != ""){
@@ -519,7 +519,7 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
                     //Delete KOT                    
                     $.ajax({
                       type: 'DELETE',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(data._id)+'/?rev='+data._rev,
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(data._id)+'/?rev='+data._rev,
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
@@ -544,21 +544,21 @@ function removeOtherKOTAfterProcess(kotList){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
                 var tableMapping = data.docs[0].value;
 
@@ -582,13 +582,13 @@ function removeOtherKOTAfterProcess(kotList){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": tableMapping
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -688,7 +688,7 @@ function punchNewOrder(TableNumber, optionalCustomerName, optionalSaveFlag){
   window.localStorage.customerData = JSON.stringify(customerInfo);
   window.localStorage.edit_KOT_originalCopy = '';
 
-  window.localStorage.zaitoon_cart = '';
+  window.localStorage.accelerate_cart = '';
 
   window.localStorage.userAutoFound = '';
   window.localStorage.userDetailsAutoFound = '';
@@ -740,21 +740,21 @@ function addToReserveList(tableID){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 	          var tableMapping = data.docs[0].value;
 
@@ -777,13 +777,13 @@ function addToReserveList(tableID){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": tableMapping
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -822,21 +822,21 @@ function removeFromReserveList(tableID){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 	          var tableMapping = data.docs[0].value;
 
@@ -857,13 +857,13 @@ function removeFromReserveList(tableID){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": tableMapping
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -912,7 +912,7 @@ function moveKOTForEditing(kotID){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -935,7 +935,7 @@ function moveKOTForEditing(kotID){
               }
           }
 
-          if(window.localStorage.zaitoon_cart && window.localStorage.zaitoon_cart != ''){
+          if(window.localStorage.accelerate_cart && window.localStorage.accelerate_cart != ''){
               showToast('Warning! There is a new order being punched. Please complete it to continue.', '#e67e22');
               
               document.getElementById("seating_overWriteCurrentOrderModal").style.display = 'block';
@@ -996,7 +996,7 @@ function seating_overWriteCurrentOrder(kot){
     }
 
     //Pending new order will be removed off the cart.
-    window.localStorage.zaitoon_cart = JSON.stringify(kot.cart);
+    window.localStorage.accelerate_cart = JSON.stringify(kot.cart);
     window.localStorage.customerData = JSON.stringify(customerInfo);
     window.localStorage.edit_KOT_originalCopy = JSON.stringify(kot);
     renderPage('new-order', 'Running Order');
@@ -1104,7 +1104,7 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
       $.ajax({
         type: 'GET',
-        url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
+        url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
         timeout: 10000,
         success: function(data) {
           if(data._id != ""){
@@ -1216,21 +1216,21 @@ function mergeBillsInTheHoldList(){
 	/*to find KOT IDs mapped against these tables*/
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
 	          		var tableMapping = data.docs[0].value;
 		            tableMapping.sort(); //alphabetical sorting 
@@ -1276,21 +1276,21 @@ function preloadTableStatus(mode, currentTableID){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
               var tables = data.docs[0].value;
 
@@ -1308,21 +1308,21 @@ function preloadTableStatus(mode, currentTableID){
 
 				    var requestData = {
 				      "selector"  :{ 
-				                    "identifierTag": "ZAITOON_TABLE_SECTIONS" 
+				                    "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
 				                  },
 				      "fields"    : ["_rev", "identifierTag", "value"]
 				    }
 
 				    $.ajax({
 				      type: 'POST',
-				      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+				      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 				      data: JSON.stringify(requestData),
 				      contentType: "application/json",
 				      dataType: 'json',
 				      timeout: 10000,
 				      success: function(data) {
 				        if(data.docs.length > 0){
-				          if(data.docs[0].identifierTag == 'ZAITOON_TABLE_SECTIONS'){
+				          if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
 
 				              var tableSections = data.docs[0].value;
 				              tableSections.sort(); //alphabetical sorting 

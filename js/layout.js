@@ -179,21 +179,21 @@ function applyLicenceTerms(){
     //Read from Server, apply changes, and save to LocalStorage
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                    "identifierTag": "ACCELERATE_CONFIGURED_MACHINES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CONFIGURED_MACHINES'){
 
               var machinesList = data.docs[0].value;
 
@@ -282,21 +282,21 @@ function removeWelcomeScreen(){
 function applyOrderSources(){
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_ORDER_SOURCES" 
+                    "identifierTag": "ACCELERATE_ORDER_SOURCES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_ORDER_SOURCES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_ORDER_SOURCES'){
               var order_sources_list = data.docs[0].value;
               window.localStorage.addedOrderSourcesData = JSON.stringify(order_sources_list);
           }
@@ -322,21 +322,21 @@ function applyConfiguredPrinters(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CONFIGURED_PRINTERS" 
+                    "identifierTag": "ACCELERATE_CONFIGURED_PRINTERS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_PRINTERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CONFIGURED_PRINTERS'){
 
             var printersList = data.docs[0].value;
 
@@ -550,7 +550,7 @@ function goProceedToActivation(){
 
       $.ajax({
         type: 'POST',
-        url: 'https://www.zaitoon.online/services/posactivateapplication.php',
+        url: 'https://www.accelerateengine.app/apis/posactivateapplication.php',
         data: JSON.stringify(admin_data),
         contentType: "application/json",
         dataType: 'json',
@@ -584,14 +584,14 @@ function pushLicenseToLocaServerFromHome(licenceObject){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+                    "identifierTag": "ACCELERATE_CONFIGURED_MACHINES" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -599,7 +599,7 @@ function pushLicenseToLocaServerFromHome(licenceObject){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CONFIGURED_MACHINES'){
 
              var machinesList = data.docs[0].value;
 
@@ -640,18 +640,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
   //Step 1 : Personalisations 
   function firstTimeStub_personalisations(){
 
-    var requestData = {"selector": { "identifierTag": "ZAITOON_PERSONALISATIONS" }}
+    var requestData = {"selector": { "identifierTag": "ACCELERATE_PERSONALISATIONS" }}
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PERSONALISATIONS'){
 
               var settingsList = data.docs[0].value;
               var machineName = licenceObject.machineUID;
@@ -673,19 +673,19 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "theme", "value": "skin-green" }, { "name": "menuImages", "value": "YES" }, { "name": "punchingRightScreen", "value": "TABLE" }, { "name": "virtualKeyboard", "value": 0 }, { "name": "screenLockOptions", "value": "" }, { "name": "screenLockDuration", "value": "30" }, { "name": "securityPasscodeProtection", "value": "NO" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "theme", "value": "skin-yellow" }, { "name": "menuImages", "value": "NO" }, { "name": "punchingRightScreen", "value": "MENU" }, { "name": "virtualKeyboard", "value": 0 }, { "name": "screenLockOptions", "value": "" }, { "name": "screenLockDuration", "value": "30" }, { "name": "securityPasscodeProtection", "value": "NO" } ] }
                 settingsList.push(new_stub);
               
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_PERSONALISATIONS",
+                  "identifierTag": "ACCELERATE_PERSONALISATIONS",
                   "value": settingsList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_PERSONALISATIONS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_PERSONALISATIONS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -727,18 +727,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
   //Step 2 : System Options
   function firstTimeStub_system_options(){
 
-    var requestData = {"selector": { "identifierTag": "ZAITOON_SYSTEM_OPTIONS" }}
+    var requestData = {"selector": { "identifierTag": "ACCELERATE_SYSTEM_OPTIONS" }}
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SYSTEM_OPTIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SYSTEM_OPTIONS'){
 
               var settingsList = data.docs[0].value;
               var machineName = licenceObject.machineUID;
@@ -760,20 +760,20 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "notifications", "value": "ALL" }, { "name": "orderEditingAllowed", "value": "NO" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "NONE" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" }] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "YES" }, { "name": "defaultKOTPrinter", "value": "Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "YES" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
                 settingsList.push(new_stub);
               
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_SYSTEM_OPTIONS",
+                  "identifierTag": "ACCELERATE_SYSTEM_OPTIONS",
                   "value": settingsList
                 }
 
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SYSTEM_OPTIONS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SYSTEM_OPTIONS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -816,18 +816,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
   //Step 3 : Custom Shortcuts
   function firstTimeStub_custom_shortcuts(){
 
-    var requestData = {"selector": { "identifierTag": "ZAITOON_SHORTCUT_KEYS" }}
+    var requestData = {"selector": { "identifierTag": "ACCELERATE_SHORTCUT_KEYS" }}
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SHORTCUT_KEYS'){
 
               var settingsList = data.docs[0].value;
               var machineName = licenceObject.machineUID;
@@ -849,20 +849,20 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "Show Spotlight Search", "value": "" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Generate KOT Silently", "value": "" } , { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "f3" }, { "name": "Assign Delivery Agent", "value": "f2" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "shift+c" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Show Spotlight Search", "value": "" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Generate KOT Silently", "value": "" }, { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "" }, { "name": "Assign Delivery Agent", "value": "" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "" } ] }
                 settingsList.push(new_stub);
               
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_SHORTCUT_KEYS",
+                  "identifierTag": "ACCELERATE_SHORTCUT_KEYS",
                   "value": settingsList
                 }
 
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_SHORTCUT_KEYS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SHORTCUT_KEYS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -905,18 +905,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
   //Step 4 : Configured Printer
   function firstTimeStub_configured_printers(){
 
-    var requestData = {"selector": { "identifierTag": "ZAITOON_CONFIGURED_PRINTERS" }}
+    var requestData = {"selector": { "identifierTag": "ACCELERATE_CONFIGURED_PRINTERS" }}
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_PRINTERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CONFIGURED_PRINTERS'){
 
               var settingsList = data.docs[0].value;
               var machineName = licenceObject.machineUID;
@@ -938,20 +938,20 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Kitchen", "type": "NETWORK", "address": "http://192.0.1.2:9204/", "actions": [ "KOT" ], "height": "", "width": "123" }, { "name": "Desk", "type": "NETWORK", "address": "http://192.0.1.3:14214/", "actions": [ "BILL" ], "height": "", "width": "123" }, { "name": "AC Dine Hall", "type": "NETWORK", "address": "http://192.0.3.129:8090", "height": "", "width": "320", "actions": "BILL,DUPLICATE BILL" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [] }
                 settingsList.push(new_stub);
               
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_CONFIGURED_PRINTERS",
+                  "identifierTag": "ACCELERATE_CONFIGURED_PRINTERS",
                   "value": settingsList
                 }
 
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_PRINTERS/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_CONFIGURED_PRINTERS/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -994,18 +994,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
   //Step 5 : KOT Relay Data
   function firstTimeStub_kot_relay(){
 
-    var requestData = {"selector": { "identifierTag": "ZAITOON_KOT_RELAYING" }}
+    var requestData = {"selector": { "identifierTag": "ACCELERATE_KOT_RELAYING" }}
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_RELAYING'){
 
               var settingsList = data.docs[0].value;
               var machineName = licenceObject.machineUID;
@@ -1033,14 +1033,14 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                 //Update
                 var updateData = {
                   "_rev": data.docs[0]._rev,
-                  "identifierTag": "ZAITOON_KOT_RELAYING",
+                  "identifierTag": "ACCELERATE_KOT_RELAYING",
                   "value": settingsList
                 }
 
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_RELAYING/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_RELAYING/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1086,13 +1086,13 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                 //Update configured machines
                 var updateData = {
                   "_rev": remember_rev,
-                  "identifierTag": "ZAITOON_CONFIGURED_MACHINES",
+                  "identifierTag": "ACCELERATE_CONFIGURED_MACHINES",
                   "value": machinesList
                 }
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_CONFIGURED_MACHINES/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_CONFIGURED_MACHINES/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1125,21 +1125,21 @@ function applyPersonalisations(){
     //Read from Server, apply changes, and save to LocalStorage
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_PERSONALISATIONS" 
+                    "identifierTag": "ACCELERATE_PERSONALISATIONS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_PERSONALISATIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PERSONALISATIONS'){
 
               var settingsList = data.docs[0].value;
 
@@ -1261,14 +1261,14 @@ function applyBillLayout(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILL_LAYOUT" 
+                    "identifierTag": "ACCELERATE_BILL_LAYOUT" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1276,7 +1276,7 @@ function applyBillLayout(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILL_LAYOUT'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILL_LAYOUT'){
 
               var layoutData = data.docs[0].value;
 
@@ -1347,21 +1347,21 @@ function applyShortcuts(){
     //Read from Server, apply changes, and save to LocalStorage
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_SHORTCUT_KEYS" 
+                    "identifierTag": "ACCELERATE_SHORTCUT_KEYS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SHORTCUT_KEYS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SHORTCUT_KEYS'){
 
               var settingsList = data.docs[0].value;
 
@@ -1624,21 +1624,21 @@ function applySystemOptionSettings(){
     //Read from Server, apply changes, and save to LocalStorage
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_SYSTEM_OPTIONS" 
+                    "identifierTag": "ACCELERATE_SYSTEM_OPTIONS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_SYSTEM_OPTIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SYSTEM_OPTIONS'){
 
               var settingsList = data.docs[0].value;
 
@@ -1883,7 +1883,7 @@ function pingServer(){
 
       $.ajax({
         type: 'POST',
-        url: 'https://www.zaitoon.online/services/pospingserver.php',
+        url: 'https://www.accelerateengine.app/apis/pospingserver.php',
         data: JSON.stringify(admin_data),
         contentType: "application/json",
         dataType: 'json',
@@ -1940,7 +1940,7 @@ function renderServerConnectionStatus(){
 
       $.ajax({
         type: 'POST',
-        url: 'https://www.zaitoon.online/services/pospingserver.php',
+        url: 'https://www.accelerateengine.app/apis/pospingserver.php',
         data: JSON.stringify(admin_data),
         contentType: "application/json",
         dataType: 'json',
@@ -2001,7 +2001,7 @@ function getServerConnectionStatus(){
 
       $.ajax({
         type: 'POST',
-        url: 'https://www.zaitoon.online/services/pospingserver.php',
+        url: 'https://www.accelerateengine.app/apis/pospingserver.php',
         data: JSON.stringify(admin_data),
         contentType: "application/json",
         dataType: 'json',
@@ -2049,14 +2049,14 @@ function autoSessionSwitchChecker(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -2064,7 +2064,7 @@ function autoSessionSwitchChecker(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
 
             var sessionsList = data.docs[0].value;
             var currentSession = window.localStorage.setSessionData ? JSON.parse(window.localStorage.setSessionData) : [];
@@ -2283,7 +2283,7 @@ function performRecoveryLogin(){
 
   $.ajax({
     type: 'POST',
-    url: 'https://www.zaitoon.online/services/posserverrecoverylogin.php',
+    url: 'https://www.accelerateengine.app/apis/posserverrecoverylogin.php',
     data: JSON.stringify(data),
     contentType: "application/json",
     dataType: 'json',
@@ -2328,7 +2328,7 @@ function doHomeLogin(){
 
   $.ajax({
     type: 'POST',
-    url: 'https://www.zaitoon.online/services/posserverlogin.php',
+    url: 'https://www.accelerateengine.app/apis/posserverlogin.php',
     data: JSON.stringify(data),
     contentType: "application/json",
     dataType: 'json',
@@ -2415,7 +2415,7 @@ function getOnlineOrdersCount() {
       
       $.ajax({
         type: 'POST',
-        url: 'https://www.zaitoon.online/services/fetchorders.php',
+        url: 'https://www.accelerateengine.app/apis/fetchorders.php',
         data: JSON.stringify(admin_data),
         contentType: "application/json",
         dataType: 'json',
@@ -2843,21 +2843,21 @@ function selectStewardWindow(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
               var users = data.docs[0].value;
               users.sort(); //alphabetical sorting 
@@ -3140,21 +3140,21 @@ function selectSessionWindow(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
 
               var sessions = data.docs[0].value;
               sessions.sort(); //alphabetical sorting 
@@ -3517,7 +3517,7 @@ function renderItemImageFromServer(itemCode){
 
         $.ajax({
             type: 'GET',
-            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_menu_images/'+itemCode,
+            url: COMMON_LOCAL_SERVER_IP+'/accelerate_menu_images/'+itemCode,
             timeout: 10000,
             success: function(serverData) {
               if(serverData.data != ''){
@@ -3695,7 +3695,7 @@ function showSpotlight(){
 
                     $.ajax({
                       type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
                       data: JSON.stringify(requestData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -3769,7 +3769,7 @@ function showSpotlight(){
 
                           $.ajax({
                             type: 'POST',
-                            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+                            url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
                             data: JSON.stringify(requestDataBill),
                             contentType: "application/json",
                             dataType: 'json',
@@ -3841,7 +3841,7 @@ function showSpotlight(){
 
                                 $.ajax({
                                   type: 'POST',
-                                  url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_find',
+                                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_find',
                                   data: JSON.stringify(requestDataInvoice),
                                   contentType: "application/json",
                                   dataType: 'json',
@@ -3939,7 +3939,7 @@ function showSpotlight(){
 
                     $.ajax({
                       type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_users/_find',
+                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_users/_find',
                       data: JSON.stringify(requestData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -4026,42 +4026,42 @@ function showSpotlight(){
                     //Preload TABLES data
                     var requestData = {
                       "selector"  :{ 
-                                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                                   },
                       "fields"    : ["_rev", "identifierTag", "value"]
                     }
 
                     $.ajax({
                       type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
                       data: JSON.stringify(requestData),
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
                       success: function(data) {
                         if(data.docs.length > 0){
-                          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+                          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
                             var tableMapping = data.docs[0].value;
 
                             //Preload MENU data
                             var requestMenuData = {
                               "selector"  :{ 
-                                            "identifierTag": "ZAITOON_MASTER_MENU" 
+                                            "identifierTag": "ACCELERATE_MASTER_MENU" 
                                           },
                               "fields"    : ["_rev", "identifierTag", "value"]
                             }
 
                             $.ajax({
                               type: 'POST',
-                              url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+                              url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
                               data: JSON.stringify(requestMenuData),
                               contentType: "application/json",
                               dataType: 'json',
                               timeout: 10000,
                               success: function(menudata) {
                                 if(menudata.docs.length > 0){
-                                  if(menudata.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+                                  if(menudata.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
                                       var mastermenu = menudata.docs[0].value; 
                                       var menuitems = [];
@@ -4321,21 +4321,21 @@ function spotlightTriggerMenuItem(tempData){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
               var mastermenu = data.docs[0].value;
         
@@ -4544,21 +4544,21 @@ function validateAndLoginAdminUser(userCode){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
               var users = data.docs[0].value; 
 
@@ -4669,21 +4669,21 @@ function markSpotlightMenuItemAvailability(code, type){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_MASTER_MENU" 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_MASTER_MENU'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
 
               var mastermenu = data.docs[0].value;
               mastermenu.sort(); //alphabetical sorting 
@@ -4720,13 +4720,13 @@ function markSpotlightMenuItemAvailability(code, type){
                             //Update
                             var updateData = {
                               "_rev": data.docs[0]._rev,
-                              "identifierTag": "ZAITOON_MASTER_MENU",
+                              "identifierTag": "ACCELERATE_MASTER_MENU",
                               "value": mastermenu
                             }
 
                             $.ajax({
                               type: 'PUT',
-                              url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_MASTER_MENU/',
+                              url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
                               data: JSON.stringify(updateData),
                               contentType: "application/json",
                               dataType: 'json',
@@ -4788,7 +4788,7 @@ function markSpotlightMenuItemAvailability(code, type){
 
           $.ajax({
             type: 'POST',
-            url: 'https://www.zaitoon.online/services/itemstatus.php',
+            url: 'https://www.accelerateengine.app/apis/itemstatus.php',
             data: JSON.stringify(data),
             contentType: "application/json",
             dataType: 'json',
@@ -4822,21 +4822,21 @@ function applyKOTRelays(){
     //Read from Server, apply changes, and save to LocalStorage
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_KOT_RELAYING" 
+                    "identifierTag": "ACCELERATE_KOT_RELAYING" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_KOT_RELAYING'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_RELAYING'){
 
               var settingsList = data.docs[0].value;
 
@@ -4921,11 +4921,11 @@ function openTalkToKitchen(){
   }
 
 
-    var requestData = { "selector" :{ "identifierTag": "ZAITOON_TEXT_TO_KITCHEN_LOG" } }
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_TEXT_TO_KITCHEN_LOG" } }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -4933,7 +4933,7 @@ function openTalkToKitchen(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TEXT_TO_KITCHEN_LOG'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TEXT_TO_KITCHEN_LOG'){
             var text_log = data.docs[0].value;
             renderTextToKitchenWindow(KOTPrintersList, text_log);  
           }
@@ -5138,11 +5138,11 @@ function saveToChatLog(messageObj){
 
   console.log('save...')
 
-    var requestData = { "selector" :{ "identifierTag": "ZAITOON_TEXT_TO_KITCHEN_LOG" } }
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_TEXT_TO_KITCHEN_LOG" } }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -5150,7 +5150,7 @@ function saveToChatLog(messageObj){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TEXT_TO_KITCHEN_LOG'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TEXT_TO_KITCHEN_LOG'){
             
             var text_log = data.docs[0].value;
             if(text_log.length < 20){ //max log size --> 20
@@ -5164,13 +5164,13 @@ function saveToChatLog(messageObj){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TEXT_TO_KITCHEN_LOG",
+                      "identifierTag": "ACCELERATE_TEXT_TO_KITCHEN_LOG",
                       "value": text_log
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TEXT_TO_KITCHEN_LOG/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TEXT_TO_KITCHEN_LOG/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',

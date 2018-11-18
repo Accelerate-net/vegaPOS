@@ -1,0 +1,39 @@
+{
+  "_id": "ACCELERATE_PERSONALISATIONS",
+  "identifierTag": "ACCELERATE_PERSONALISATIONS",
+  "value": [
+    {
+      "systemName": "Any",
+      "data": [
+        {
+          "name": "theme",
+          "value": "skin-yellow"
+        },
+        {
+          "name": "menuImages",
+          "value": "NO"
+        },
+        {
+          "name": "punchingRightScreen",
+          "value": "MENU"
+        },
+        {
+          "name": "virtualKeyboard",
+          "value": 0
+        },
+        {
+          "name": "screenLockOptions",
+          "value": ""
+        },
+        {
+          "name": "screenLockDuration",
+          "value": "30"
+        },
+        {
+          "name": "securityPasscodeProtection",
+          "value": "NO"
+        }
+      ]
+    }
+  ]
+}

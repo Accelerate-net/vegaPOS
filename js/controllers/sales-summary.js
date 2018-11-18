@@ -40,21 +40,21 @@ function fetchSalesSummary() {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_MODES" 
+                    "identifierTag": "ACCELERATE_BILLING_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
               	var modes = data.docs[0].value;
 	          	modes.sort(); //alphabetical sorting 
@@ -72,7 +72,7 @@ function fetchSalesSummary() {
 	          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
 				$.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -135,7 +135,7 @@ function fetchSalesSummaryCallback(index, modes, fromDate, toDate, grandSum, gra
 
 				$.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -282,7 +282,7 @@ function fetchSalesSummaryUnbilledKOT() {
 
 				$.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_design/kot-summary/_view/sumbycart',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-summary/_view/sumbycart',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -296,7 +296,7 @@ function fetchSalesSummaryUnbilledKOT() {
 				    		//Sum of Extras
 							$.ajax({
 							    type: 'GET',
-							    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_design/kot-summary/_view/sumbyextras',
+							    url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-summary/_view/sumbyextras',
 							    timeout: 10000,
 							    success: function(newdata) {
 
@@ -340,7 +340,7 @@ function fetchSalesSummaryUnbilledBills(fromDate, toDate, grandSum, grandCount){
 
 				$.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_design/bill-summary/_view/sumbytotalpayable?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-summary/_view/sumbytotalpayable?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -383,14 +383,14 @@ function openDetailedByMode(selectedBillingMode, fromDate, toDate){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+	                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -398,7 +398,7 @@ function openDetailedByMode(selectedBillingMode, fromDate, toDate){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
 	            var modes = data.docs[0].value;
 	          	modes.sort(); //alphabetical sorting 
@@ -411,7 +411,7 @@ function openDetailedByMode(selectedBillingMode, fromDate, toDate){
 	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes?startkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes?startkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -427,7 +427,7 @@ function openDetailedByMode(selectedBillingMode, fromDate, toDate){
 				    		//Now check in split payments
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes_multiple?startkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes_multiple?startkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -485,7 +485,7 @@ function openDetailedByModeCallback(index, modes, fromDate, toDate, selectedBill
 	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes?startkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes?startkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -500,7 +500,7 @@ function openDetailedByModeCallback(index, modes, fromDate, toDate, selectedBill
 				    		//Now check in split payments
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes_multiple?startkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes_multiple?startkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -567,14 +567,14 @@ function fetchPaymentModeWiseSummary() {
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -582,7 +582,7 @@ function fetchPaymentModeWiseSummary() {
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
               	var modes = data.docs[0].value;
 	          	modes.sort(); //alphabetical sorting 
@@ -596,7 +596,7 @@ function fetchPaymentModeWiseSummary() {
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -611,7 +611,7 @@ function fetchPaymentModeWiseSummary() {
 				    		//Now check in split payments
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -679,7 +679,7 @@ function fetchPaymentModeWiseSummaryCallback(index, modes, fromDate, toDate, gra
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -695,7 +695,7 @@ function fetchPaymentModeWiseSummaryCallback(index, modes, fromDate, toDate, gra
 				    		//Now check in split payments
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -859,7 +859,7 @@ function fetchOverAllTurnOver(){
 	
 	$.ajax({
 	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 		timeout: 10000,
 		success: function(data) {
 
@@ -907,14 +907,14 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -922,7 +922,7 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
 	          	var modes = data.docs[0].value;
 	          	modes.sort(); //alphabetical sorting 
@@ -935,7 +935,7 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -950,7 +950,7 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 				    		//Now check in custom extras
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -1022,7 +1022,7 @@ function fetchOverAllTurnOverCallback(index, modes, fromDate, toDate, netSalesWo
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -1038,7 +1038,7 @@ function fetchOverAllTurnOverCallback(index, modes, fromDate, toDate, netSalesWo
 				    		//Now check in custom extras
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -1095,7 +1095,7 @@ function renderDiscountsOffered(fromDate, toDate, netSalesWorth, graphData){
 
 	$.ajax({
 	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 		timeout: 10000,
 		success: function(data) {
 
@@ -1140,7 +1140,7 @@ function renderRoundOffMade(fromDate, toDate, netSalesWorth, graphData){
 
 	$.ajax({
 	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 		timeout: 10000,
 		success: function(data) {
 
@@ -1187,7 +1187,7 @@ function renderTipsReceived(fromDate, toDate, netSalesWorth, graphData){
 
 	$.ajax({
 	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 		timeout: 10000,
 		success: function(data) {
 
@@ -1238,7 +1238,7 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 		//Refunded but NOT cancelled
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -1254,7 +1254,7 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 				//Cancelled and Refunded Orders
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 					timeout: 10000,
 					success: function(seconddata) {
 
@@ -1413,14 +1413,14 @@ function fetchDiscountSaleSummary(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+	                    "identifierTag": "ACCELERATE_DISCOUNT_TYPES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -1428,7 +1428,7 @@ function fetchDiscountSaleSummary(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
 
 		          	var modes = data.docs[0].value;
 		          	modes.sort(); //alphabetical sorting 
@@ -1449,7 +1449,7 @@ function fetchDiscountSaleSummary(){
 
 					  $.ajax({
 					    type: 'GET',
-					    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+					    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 					    timeout: 10000,
 					    success: function(data) {
 					    	
@@ -1516,7 +1516,7 @@ function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphD
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -1674,14 +1674,14 @@ function fetchCancellationSummary(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1689,7 +1689,7 @@ function fetchCancellationSummary(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
               	var modes = data.docs[0].value;
 	          	modes.sort(); //alphabetical sorting 
@@ -1705,7 +1705,7 @@ function fetchCancellationSummary(){
 	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -1765,7 +1765,7 @@ function fetchCancellationSummaryCallback(index, modes, fromDate, toDate, grandS
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -1836,14 +1836,14 @@ function fetchRefundSummary(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1851,7 +1851,7 @@ function fetchRefundSummary(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
               	var modes = data.docs[0].value;
 	          	modes.sort(); //alphabetical sorting 
@@ -1867,7 +1867,7 @@ function fetchRefundSummary(){
 	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -1931,7 +1931,7 @@ function fetchRefundSummaryCallback(index, modes, fromDate, toDate, grandSum, gr
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -2009,7 +2009,7 @@ function fetchItemSummary(){
 
 	$.ajax({
 		type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
 		timeout: 50000,
 		success: function(data) {
 
@@ -2128,7 +2128,7 @@ function generateOverallItemReport(){
 
 	$.ajax({
 		type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
 		timeout: 50000,
 		success: function(data) {
 
@@ -2276,7 +2276,7 @@ function generateOverallItemReport(){
 							var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
 							
 							if(jQuery.isEmptyObject(loggedInStaffInfo)){
-								loggedInStaffInfo.name = 'Zaitoon Staff';
+								loggedInStaffInfo.name = 'Staff';
 								loggedInStaffInfo.code = '0000000000';
 							}	
 
@@ -2288,11 +2288,14 @@ function generateOverallItemReport(){
 								return '';
 							}
 
+
+							var temp_address_modified = (window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '') + ' - ' + (window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '');  
+
 							var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
 
 							var reportInfo_admin = loggedInStaffInfo.name;
 							var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
-							var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : 'Zaitoon Multicuisine Restaurants';
+							var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : temp_address_modified;
 
 
 
@@ -2356,14 +2359,16 @@ function generateOverallItemReport(){
 								n++;
 							}
 
-						    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://zaitoon.online/pos/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+							var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+
+						    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 						    
 						    var finalReport_downloadContent = cssData+
 							    '<body>'+
 							      '<div class="mainHeader">'+
 							         '<div class="headerLeftBox">'+
 							            '<div id="logo">'+
-							               '<img src="https://zaitoon.online/pos/email_logo.png">'+
+							               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
 							            '</div>'+
 							            '<p class="headerAddress">'+reportInfo_address+'</p>'+
 							         '</div>'+
@@ -2378,7 +2383,7 @@ function generateOverallItemReport(){
 							      '</div>'+
 							      categorySplitRenderContent+
 							      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
-							         '<p class="footerNote">care@zaitoon.online | www.zaitoon.online | support@accelerate.net.in</p>'+
+							         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
 							      '</div>'+
 							    '</body>';
 
@@ -2400,7 +2405,7 @@ function generateOverallItemReport(){
 							var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
 							
 							if(jQuery.isEmptyObject(loggedInStaffInfo)){
-								loggedInStaffInfo.name = 'Zaitoon Staff';
+								loggedInStaffInfo.name = 'Staff';
 								loggedInStaffInfo.code = '0000000000';
 							}	
 
@@ -2412,11 +2417,12 @@ function generateOverallItemReport(){
 								return '';
 							}
 
+							var temp_address_modified = (window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '') + ' - ' + (window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '');
 							var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
 
 							var reportInfo_admin = loggedInStaffInfo.name;
 							var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
-							var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : 'Zaitoon Multicuisine Restaurants';
+							var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : temp_address_modified;
 
 
 							var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
@@ -2683,7 +2689,7 @@ function fetchSingleClickReport(){
 	function singleClickTotalPaid(){
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -2728,7 +2734,7 @@ function fetchSingleClickReport(){
 
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/totalguests?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/totalguests?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -2758,14 +2764,14 @@ function fetchSingleClickReport(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+	                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -2773,7 +2779,7 @@ function fetchSingleClickReport(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
 		          	var modes = data.docs[0].value;
 		          	modes.sort(); //alphabetical sorting 
@@ -2793,7 +2799,7 @@ function fetchSingleClickReport(){
 		          	  //For a given BILLING PARAMETER, the total Sales in the given DATE RANGE
 					  $.ajax({
 					    type: 'GET',
-					    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+					    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 					    timeout: 10000,
 					    success: function(data) {
 					    	
@@ -2808,7 +2814,7 @@ function fetchSingleClickReport(){
 					    		//Now check in custom extras
 						    	$.ajax({
 									type: 'GET',
-									url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+									url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 									timeout: 10000,
 									success: function(data) {
 
@@ -2902,7 +2908,7 @@ function fetchSingleClickReport(){
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -2918,7 +2924,7 @@ function fetchSingleClickReport(){
 				    		//Now check in custom extras
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -2979,7 +2985,7 @@ function fetchSingleClickReport(){
 
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -3026,7 +3032,7 @@ function fetchSingleClickReport(){
 
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -3073,7 +3079,7 @@ function fetchSingleClickReport(){
 
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -3121,7 +3127,7 @@ function fetchSingleClickReport(){
 		//Refunded but NOT cancelled
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -3137,7 +3143,7 @@ function fetchSingleClickReport(){
 				//Cancelled and Refunded Orders
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 					timeout: 10000,
 					success: function(seconddata) {
 
@@ -3215,14 +3221,14 @@ function fetchSingleClickReport(){
 		//Preload Billing Parameters
 	    var requestParamData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+	                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestParamData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -3230,7 +3236,7 @@ function fetchSingleClickReport(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
 		          	var billingExtras = data.docs[0].value;
 
@@ -3249,21 +3255,21 @@ function fetchSingleClickReport(){
 
 					    var requestData = {
 					      "selector"  :{ 
-					                    "identifierTag": "ZAITOON_BILLING_MODES" 
+					                    "identifierTag": "ACCELERATE_BILLING_MODES" 
 					                  },
 					      "fields"    : ["identifierTag", "value"]
 					    }
 
 					    $.ajax({
 					      type: 'POST',
-					      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+					      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 					      data: JSON.stringify(requestData),
 					      contentType: "application/json",
 					      dataType: 'json',
 					      timeout: 10000,
 					      success: function(data) {
 					        if(data.docs.length > 0){
-					          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+					          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
 					              	var modes = data.docs[0].value;
 
@@ -3282,7 +3288,7 @@ function fetchSingleClickReport(){
 							          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
 										$.ajax({
 										    type: 'GET',
-										    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+										    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 										    timeout: 10000,
 										    success: function(data) {
 
@@ -3306,7 +3312,7 @@ function fetchSingleClickReport(){
 										          	//For a given Billing Mode, amount split by billing params
 													$.ajax({
 													    type: 'GET',
-													    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+													    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
 													    timeout: 10000,
 													    success: function(data) {
 													    	
@@ -3321,7 +3327,7 @@ function fetchSingleClickReport(){
 													    		//Now check in custom extras also
 														    	$.ajax({
 																	type: 'GET',
-																	url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+																	url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
 																	timeout: 10000,
 																	success: function(data) {
 
@@ -3474,7 +3480,7 @@ function fetchSingleClickReport(){
 							          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
 										$.ajax({
 										    type: 'GET',
-										    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+										    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 										    timeout: 10000,
 										    success: function(data) {
 
@@ -3497,7 +3503,7 @@ function fetchSingleClickReport(){
 										          	//For a given Billing Mode, amount split by billing params
 													$.ajax({
 													    type: 'GET',
-													    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+													    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
 													    timeout: 10000,
 													    success: function(data) {
 													    	
@@ -3512,7 +3518,7 @@ function fetchSingleClickReport(){
 													    		//Now check in custom extras also
 														    	$.ajax({
 																	type: 'GET',
-																	url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+																	url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
 																	timeout: 10000,
 																	success: function(data) {
 
@@ -3692,14 +3698,14 @@ function fetchSingleClickReport(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+	                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -3707,7 +3713,7 @@ function fetchSingleClickReport(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
 	              	var modes = data.docs[0].value;
 
@@ -3727,7 +3733,7 @@ function fetchSingleClickReport(){
 
 						  $.ajax({
 						    type: 'GET',
-						    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+						    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 						    timeout: 10000,
 						    success: function(data) {
 						    	
@@ -3742,7 +3748,7 @@ function fetchSingleClickReport(){
 						    		//Now check in split payments
 							    	$.ajax({
 										type: 'GET',
-										url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+										url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 										timeout: 10000,
 										success: function(data) {
 
@@ -3846,7 +3852,7 @@ function fetchSingleClickReport(){
 
 						  $.ajax({
 						    type: 'GET',
-						    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+						    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 						    timeout: 10000,
 						    success: function(data) {
 						    	
@@ -3861,7 +3867,7 @@ function fetchSingleClickReport(){
 						    		//Now check in split payments
 							    	$.ajax({
 										type: 'GET',
-										url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+										url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 										timeout: 10000,
 										success: function(data) {
 
@@ -4019,7 +4025,7 @@ function fetchSingleClickReport(){
 
 			$.ajax({
 			    type: 'GET',
-				url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+mydate+'"]&endkey=["'+mydate+'"]',
+				url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+mydate+'"]&endkey=["'+mydate+'"]',
 				timeout: 10000,
 				success: function(data) {
 
@@ -4279,7 +4285,7 @@ function fetchSingleClickReport(){
 		var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
 		
 		if(jQuery.isEmptyObject(loggedInStaffInfo)){
-			loggedInStaffInfo.name = 'Zaitoon Staff';
+			loggedInStaffInfo.name = 'Staff';
 			loggedInStaffInfo.code = '0000000000';
 		}	
 
@@ -4291,11 +4297,12 @@ function fetchSingleClickReport(){
 			return '';
 		}
 
+		var temp_address_modified = (window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '') + ' - ' + (window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '');
 		var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
 
 		var reportInfo_admin = loggedInStaffInfo.name;
 		var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
-		var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : 'Zaitoon Multicuisine Restaurants';
+		var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : temp_address_modified;
 
 
 		//Reset Token Number and KOT Number (if preference set)
@@ -4480,14 +4487,15 @@ function fetchSingleClickReport(){
 			    }
 		    }
 
-		    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://zaitoon.online/pos/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+		    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+		    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 		    
 		    var finalReport_downloadContent = cssData+
 			    '<body>'+
 			      '<div class="mainHeader">'+
 			         '<div class="headerLeftBox">'+
 			            '<div id="logo">'+
-			               '<img src="https://zaitoon.online/pos/email_logo.png">'+
+			               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
 			            '</div>'+
 			            '<p class="headerAddress">'+reportInfo_address+'</p>'+
 			         '</div>'+
@@ -4527,7 +4535,7 @@ function fetchSingleClickReport(){
 			      salesByBillingModeRenderContentFinal+
 			      salesByPaymentTypeRenderContentFinal+
 			      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
-			         '<p class="footerNote">care@zaitoon.online | www.zaitoon.online | support@accelerate.net.in</p>'+
+			         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
 			      '</div>'+
 			    '</body>';
 
@@ -4550,6 +4558,8 @@ function fetchSingleClickReport(){
 				if(window.localStorage.graphImageDataWeekly && window.localStorage.graphImageDataWeekly != ''){
 					hasWeeklyGraphAttached = true;
 				}
+
+				var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
 
 				var graphRenderSectionContent = '';
 				var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
@@ -4577,7 +4587,7 @@ function fetchSingleClickReport(){
 			                '<h1 class="tableQuickHeaderText">WEEKLY SALES TREND</h1>'+
 			             '</div>'+
 			             '<div class="weeklyGraph">'+
-			                '<img src="https://zaitoon.online/pos/report_trend_images_repo/'+temp_image_name+'.png" style="max-width: 90%">'+
+			                '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/report_trend_images_repo/'+temp_image_name+'.png" style="max-width: 90%">'+
 			             '</div>'+
 			          '</div>'+
 			          '</div>';
@@ -4668,14 +4678,15 @@ function fetchSingleClickReport(){
 				        '</div>';
 			    }
 
-			    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://zaitoon.online/pos/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+			    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+			    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 			    
 			    var finalReport_emailContent = '<html>'+cssData+
 				    '<body>'+
 				      '<div class="mainHeader">'+
 				         '<div class="headerLeftBox">'+
 				            '<div id="logo">'+
-				               '<img src="https://zaitoon.online/pos/email_logo.png">'+
+				               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
 				            '</div>'+
 				            '<p class="headerAddress">'+reportInfo_address+'</p>'+
 				         '</div>'+
@@ -4715,7 +4726,7 @@ function fetchSingleClickReport(){
 				      salesByBillingModeRenderContentFinal+
 				      salesByPaymentTypeRenderContentFinal+
 				      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
-				         '<p class="footerNote">care@zaitoon.online | www.zaitoon.online | support@accelerate.net.in</p>'+
+				         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
 				      '</div>'+
 				    '</body>'+
 				    '<html>';
@@ -4900,23 +4911,25 @@ function fetchSingleClickReport(){
 		var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
 		
 		if(jQuery.isEmptyObject(loggedInStaffInfo)){
-			loggedInStaffInfo.name = 'Zaitoon Staff';
+			loggedInStaffInfo.name = 'Staff';
 			loggedInStaffInfo.code = '0000000000';
 		}	
 
 
 		var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
-			
+		var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+
 		if(reportInfo_branch == ''){
 			showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
 			return '';
 		}
 
+		var temp_address_modified = (window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '') + ' - ' + (window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '');
 		var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
 
 		var reportInfo_admin = loggedInStaffInfo.name;
 		var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
-		var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : 'Zaitoon Multicuisine Restaurants';
+		var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : temp_address_modified;
 
 
 		if(graphImage && graphImage != ''){
@@ -4953,7 +4966,7 @@ function fetchSingleClickReport(){
 	                '<h1 class="tableQuickHeaderText">WEEKLY SALES TREND</h1>'+
 	             '</div>'+
 	             '<div class="weeklyGraph">'+
-	                '<img src="https://zaitoon.online/pos/report_trend_images_repo/'+temp_image_name+'.png" style="max-width: 90%">'+
+	                '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/report_trend_images_repo/'+temp_image_name+'.png" style="max-width: 90%">'+
 	             '</div>'+
 	          '</div>'+
 	          '</div>';
@@ -5043,7 +5056,8 @@ function fetchSingleClickReport(){
 
 
 
-	    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://zaitoon.online/pos/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px 25px;text-align:center}.factsBox{margin-right: 5px; width:20%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:30%;display:inline-block;text-align:center;float:right;margin-top:30px}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:65%;display:inline-block}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+	    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+	    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px 25px;text-align:center}.factsBox{margin-right: 5px; width:20%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:30%;display:inline-block;text-align:center;float:right;margin-top:30px}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:65%;display:inline-block}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 	    
 
 	    var finalReport_emailContent = '<html>'+cssData+
@@ -5051,7 +5065,7 @@ function fetchSingleClickReport(){
 		      '<div class="mainHeader">'+
 		         '<div class="headerLeftBox">'+
 		            '<div id="logo">'+
-		               '<img src="https://zaitoon.online/pos/email_logo.png">'+
+		               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
 		            '</div>'+
 		            '<p class="headerAddress">'+reportInfo_address+'</p>'+
 		         '</div>'+
@@ -5089,7 +5103,7 @@ function fetchSingleClickReport(){
 		      salesByBillingModeRenderContentFinal+
 		      salesByPaymentTypeRenderContentFinal+
 		      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
-		         '<p class="footerNote">care@zaitoon.online | www.zaitoon.online | support@accelerate.net.in</p>'+
+		         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
 		      '</div>'+
 		    '</body>'+
 		    '<html>';
@@ -5125,21 +5139,21 @@ function fetchSingleClickReport(){
 	    //Check for KOT index on Server
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_KOT_INDEX" 
+	                    "identifierTag": "ACCELERATE_KOT_INDEX" 
 	                  },
 	      "fields"    : ["_rev", "identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
 	      timeout: 10000,
 	      success: function(data) {
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_KOT_INDEX'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_INDEX'){
 
 	          		var temp_value = parseInt(data.docs[0].value);
 
@@ -5156,13 +5170,13 @@ function fetchSingleClickReport(){
 	                    	  //Update KOT number on server
 	                          var updateData = {
 	                            "_rev": memory_revID,
-	                            "identifierTag": "ZAITOON_KOT_INDEX",
+	                            "identifierTag": "ACCELERATE_KOT_INDEX",
 	                            "value": 1
 	                          }
 
 	                          $.ajax({
 	                            type: 'PUT',
-	                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_KOT_INDEX/',
+	                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_INDEX/',
 	                            data: JSON.stringify(updateData),
 	                            contentType: "application/json",
 	                            dataType: 'json',
@@ -5196,21 +5210,21 @@ function fetchSingleClickReport(){
 
 						    var requestData = {
 						      "selector"  :{ 
-						                    "identifierTag": "ZAITOON_TOKEN_INDEX" 
+						                    "identifierTag": "ACCELERATE_TOKEN_INDEX" 
 						                  },
 						      "fields"    : ["_rev", "identifierTag", "value"]
 						    }
 
 						    $.ajax({
 						      type: 'POST',
-						      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+						      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 						      data: JSON.stringify(requestData),
 						      contentType: "application/json",
 						      dataType: 'json',
 						      timeout: 10000,
 						      success: function(data) {
 						        if(data.docs.length > 0){
-						          if(data.docs[0].identifierTag == 'ZAITOON_TOKEN_INDEX'){
+						          if(data.docs[0].identifierTag == 'ACCELERATE_TOKEN_INDEX'){
 
 										window.localStorage.claimedTokenNumber = 1;
 										window.localStorage.claimedTokenNumberTimestamp = new Date();
@@ -5218,13 +5232,13 @@ function fetchSingleClickReport(){
 				                          //Update token number on server
 				                          var updateData = {
 				                            "_rev": data.docs[0]._rev,
-				                            "identifierTag": "ZAITOON_TOKEN_INDEX",
+				                            "identifierTag": "ACCELERATE_TOKEN_INDEX",
 				                            "value": 2
 				                          }
 
 				                          $.ajax({
 				                            type: 'PUT',
-				                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TOKEN_INDEX/',
+				                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TOKEN_INDEX/',
 				                            data: JSON.stringify(updateData),
 				                            contentType: "application/json",
 				                            dataType: 'json',
@@ -5280,10 +5294,11 @@ function reportActionEmail(){
 		  }
 	}
 
+	var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
 
 	var data = {
 		"token": window.localStorage.loggedInAdmin,
-		"name": "Zaitoon",
+		"name": temp_licenced_client.toUpperCase(),
 		"email": email_list,
 		"title": textContent.reportTitle,
 		"content": mailContent,
@@ -5295,7 +5310,7 @@ function reportActionEmail(){
 
 	$.ajax({
 		type: 'POST',
-		url: 'https://www.zaitoon.online/services/possendreportasemail.php',
+		url: 'https://www.accelerateengine.app/apis/possendreportasemail.php',
 		data: JSON.stringify(data),
 		contentType: "application/json",
 		dataType: 'json',

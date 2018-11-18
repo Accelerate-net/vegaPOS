@@ -39,7 +39,7 @@ function doLogin(){
 
 	$.ajax({
 		type: 'POST',
-		url: 'https://www.zaitoon.online/services/posserverlogin.php',
+		url: 'https://www.accelerateengine.app/apis/posserverlogin.php',
 		data: JSON.stringify(data),
 		contentType: "application/json",
 		dataType: 'json',
@@ -135,7 +135,7 @@ function searchRequest(){
 
 	$.ajax({
 		type: 'POST',
-		url: 'https://www.zaitoon.online/services/possearchrewards.php',
+		url: 'https://www.accelerateengine.app/apis/possearchrewards.php',
 		data: JSON.stringify(data),
 		contentType: "application/json",
 		dataType: 'json',
@@ -178,7 +178,7 @@ function loadMoreOrders(user, nextID){
 
 	$.ajax({
 		type: 'POST',
-		url: 'https://www.zaitoon.online/services/possearchrewards.php',
+		url: 'https://www.accelerateengine.app/apis/possearchrewards.php',
 		data: JSON.stringify(data),
 		contentType: "application/json",
 		dataType: 'json',

@@ -119,7 +119,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -142,7 +142,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -198,7 +198,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -221,7 +221,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -277,7 +277,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -300,7 +300,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -356,7 +356,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -379,7 +379,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -449,7 +449,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -472,7 +472,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -530,7 +530,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 							    $.ajax({
 							      type: 'POST',
-							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_find',
+							      url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_find',
 							      data: JSON.stringify(requestData),
 							      contentType: "application/json",
 							      dataType: 'json',
@@ -590,7 +590,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -613,7 +613,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -671,7 +671,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -694,7 +694,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -751,7 +751,7 @@ function loadAllCancelledUnbilled(optionalSource){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -774,7 +774,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/order-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -836,7 +836,7 @@ function loadAllCancelledUnbilled(optionalSource){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/orders/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+		    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/orders/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
@@ -890,7 +890,7 @@ function updateUnbilledCount(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/_design/orders/_view/all?descending=true&include_docs=false',
+		    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/orders/_view/all?descending=true&include_docs=false',
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
@@ -916,7 +916,7 @@ function updateCancelledCount(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoices/_view/all?descending=true&include_docs=false',
+		    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoices/_view/all?descending=true&include_docs=false',
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
@@ -940,7 +940,7 @@ function calculateCancelledCount(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoices/_view/all',
+		    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoices/_view/all',
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
@@ -1056,14 +1056,14 @@ function loadAllCancelledInvoices(){
 
 		    var requestData = {
 		      "selector"  :{ 
-		                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+		                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
 		                  },
 		      "fields"    : ["identifierTag", "value"]
 		    }
 
 		    $.ajax({
 		      type: 'POST',
-		      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 		      data: JSON.stringify(requestData),
 		      contentType: "application/json",
 		      dataType: 'json',
@@ -1071,7 +1071,7 @@ function loadAllCancelledInvoices(){
 		      success: function(data) {
 
 		        if(data.docs.length > 0){
-		          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
 		              var modes = data.docs[0].value;
 		              if(modes.length > 0)
@@ -1102,7 +1102,7 @@ function loadAllCancelledInvoices(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1125,7 +1125,7 @@ function loadAllCancelledInvoices(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1182,7 +1182,7 @@ function loadAllCancelledInvoices(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1205,7 +1205,7 @@ function loadAllCancelledInvoices(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1264,7 +1264,7 @@ function loadAllCancelledInvoices(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1287,7 +1287,7 @@ function loadAllCancelledInvoices(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1346,7 +1346,7 @@ function loadAllCancelledInvoices(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1369,7 +1369,7 @@ function loadAllCancelledInvoices(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1429,7 +1429,7 @@ function loadAllCancelledInvoices(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1452,7 +1452,7 @@ function loadAllCancelledInvoices(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1510,7 +1510,7 @@ function loadAllCancelledInvoices(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1533,7 +1533,7 @@ function loadAllCancelledInvoices(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1594,7 +1594,7 @@ function loadAllCancelledInvoices(){
 
 							    $.ajax({
 							      type: 'POST',
-							      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_find',
+							      url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_find',
 							      data: JSON.stringify(requestData),
 							      contentType: "application/json",
 							      dataType: 'json',
@@ -1656,7 +1656,7 @@ function loadAllCancelledInvoices(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1679,7 +1679,7 @@ function loadAllCancelledInvoices(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1739,7 +1739,7 @@ function loadAllCancelledInvoices(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1762,7 +1762,7 @@ function loadAllCancelledInvoices(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1822,7 +1822,7 @@ function loadAllCancelledInvoices(){
 			  	if(currentPage == 1){
 				  	$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
 						timeout: 10000,
 						success: function(data) {
 
@@ -1845,7 +1845,7 @@ function loadAllCancelledInvoices(){
 
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 					timeout: 10000,
 					success: function(data) {
 
@@ -1910,7 +1910,7 @@ function loadAllCancelledInvoices(){
 
 		  $.ajax({
 		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/_design/invoices/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+		    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoices/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
 		    contentType: "application/json",
 		    dataType: 'json',
 		    timeout: 10000,
@@ -2262,14 +2262,14 @@ function changeCancelledFilterSearchCriteria(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+	                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -2277,7 +2277,7 @@ function changeCancelledFilterSearchCriteria(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
 	              var modes = data.docs[0].value;
 	              modes.sort(); //alphabetical sorting 
@@ -2315,14 +2315,14 @@ function changeCancelledFilterSearchCriteria(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_BILLING_MODES" 
+	                    "identifierTag": "ACCELERATE_BILLING_MODES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -2330,7 +2330,7 @@ function changeCancelledFilterSearchCriteria(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_MODES'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
 	              var modes = data.docs[0].value;
 	              modes.sort(); //alphabetical sorting 
@@ -2368,14 +2368,14 @@ function changeCancelledFilterSearchCriteria(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_DINE_SESSIONS" 
+	                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -2383,7 +2383,7 @@ function changeCancelledFilterSearchCriteria(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_DINE_SESSIONS'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
 
 	              var modes = data.docs[0].value;
 	              modes.sort(); //alphabetical sorting 
@@ -2421,14 +2421,14 @@ function changeCancelledFilterSearchCriteria(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_CONFIGURED_MACHINES" 
+	                    "identifierTag": "ACCELERATE_CONFIGURED_MACHINES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -2436,7 +2436,7 @@ function changeCancelledFilterSearchCriteria(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_CONFIGURED_MACHINES'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_CONFIGURED_MACHINES'){
 
 	              var modes = data.docs[0].value;
 	              modes.sort(); //alphabetical sorting 
@@ -2474,14 +2474,14 @@ function changeCancelledFilterSearchCriteria(){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ZAITOON_STAFF_PROFILES" 
+	                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
 
 	    $.ajax({
 	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
 	      data: JSON.stringify(requestData),
 	      contentType: "application/json",
 	      dataType: 'json',
@@ -2489,7 +2489,7 @@ function changeCancelledFilterSearchCriteria(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ZAITOON_STAFF_PROFILES'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
 	              var modes = data.docs[0].value;
 	              modes.sort(); //alphabetical sorting 

@@ -32,7 +32,7 @@ function generateBillFromKOT(kotID, optionalPageRef){
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
         if(data._id != ""){
@@ -526,7 +526,7 @@ function removeBillCouponOnKOT(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -547,7 +547,7 @@ function removeBillCouponOnKOT(kotID, optionalPageRef){
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -585,7 +585,7 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -624,7 +624,7 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
 
           $.ajax({
             type: 'POST',
-            url: 'https://www.zaitoon.online/services/posredeemcoupon.php',
+            url: 'https://www.accelerateengine.app/apis/posredeemcoupon.php',
             data: JSON.stringify(admin_data),
             contentType: "application/json",
             dataType: 'json',
@@ -652,7 +652,7 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
 
                       $.ajax({
                         type: 'PUT',
-                        url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                        url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                         data: JSON.stringify(updateData),
                         contentType: "application/json",
                         dataType: 'json',
@@ -730,14 +730,14 @@ function openApplyBillDiscountWindow(kotID, optionalPageRef){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_DISCOUNT_TYPES" 
+                    "identifierTag": "ACCELERATE_DISCOUNT_TYPES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -745,7 +745,7 @@ function openApplyBillDiscountWindow(kotID, optionalPageRef){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_DISCOUNT_TYPES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -806,7 +806,7 @@ function removeBillDiscountOnKOT(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -827,7 +827,7 @@ function removeBillDiscountOnKOT(kotID, optionalPageRef){
                 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -866,7 +866,7 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -935,7 +935,7 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1020,14 +1020,14 @@ function openApplyCustomExtraWindow(kotID, optionalPageRef){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILLING_PARAMETERS" 
+                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1035,7 +1035,7 @@ function openApplyCustomExtraWindow(kotID, optionalPageRef){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILLING_PARAMETERS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -1089,7 +1089,7 @@ function removeCustomExtraOnKOT(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1110,7 +1110,7 @@ function removeCustomExtraOnKOT(kotID, optionalPageRef){
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1145,7 +1145,7 @@ function savePrediscountToKOT(kotID, amount, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1167,7 +1167,7 @@ function savePrediscountToKOT(kotID, amount, optionalPageRef){
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1203,7 +1203,7 @@ function applyCustomExtraOnKOT(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1251,7 +1251,7 @@ function applyCustomExtraOnKOT(kotID, optionalPageRef){
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1365,7 +1365,7 @@ function markNoCostBill(kotID, optionalPageRef){ //APPLY FULL DISCOUNT
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1420,7 +1420,7 @@ function markNoCostBill(kotID, optionalPageRef){ //APPLY FULL DISCOUNT
                 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1457,7 +1457,7 @@ function removeNoCostBillOnKOT(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1478,7 +1478,7 @@ function removeNoCostBillOnKOT(kotID, optionalPageRef){
                 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1515,7 +1515,7 @@ function redeemPointsIfAny(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1548,7 +1548,7 @@ function redeemPointsIfAny(kotID, optionalPageRef){
 
         $.ajax({
           type: 'POST',
-          url: 'https://www.zaitoon.online/services/posredeempoints.php',
+          url: 'https://www.accelerateengine.app/apis/posredeempoints.php',
           data: JSON.stringify(admin_data),
           contentType: "application/json",
           dataType: 'json',
@@ -1577,7 +1577,7 @@ function redeemPointsIfAny(kotID, optionalPageRef){
 
                   $.ajax({
                     type: 'PUT',
-                    url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                    url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                     data: JSON.stringify(updateData),
                     contentType: "application/json",
                     dataType: 'json',
@@ -1643,7 +1643,7 @@ function removeRewardsOnKOT(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -1664,7 +1664,7 @@ function removeRewardsOnKOT(kotID, optionalPageRef){
                 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kotfile._id)+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
                   data: JSON.stringify(updateData),
                   contentType: "application/json",
                   dataType: 'json',
@@ -1745,7 +1745,7 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 
               $.ajax({
                 type: 'POST',
-                url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+                url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
                 data: JSON.stringify(requestData),
                 contentType: "application/json",
                 dataType: 'json',
@@ -1762,7 +1762,7 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
                           //Update on Server
                           $.ajax({
                             type: 'PUT',
-                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_kot/'+(kot._id)+'/',
+                            url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kot._id)+'/',
                             data: JSON.stringify(kot),
                             contentType: "application/json",
                             dataType: 'json',
@@ -1797,21 +1797,21 @@ function releaseTableAfterBillSettle(tableID, billNumber, optionalPageRef){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
             var tableMapping = data.docs[0].value;
             var timestamp = getCurrentTime('TIME');
@@ -1831,13 +1831,13 @@ function releaseTableAfterBillSettle(tableID, billNumber, optionalPageRef){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": tableMapping
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -1950,21 +1950,21 @@ function confirmBillGeneration(kotID, optionalPageRef){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_BILL_INDEX" 
+                    "identifierTag": "ACCELERATE_BILL_INDEX" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_BILL_INDEX'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILL_INDEX'){
 
             var billNumber = parseInt(data.docs[0].value) + 1;
             confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, data.docs[0]._rev)
@@ -2003,7 +2003,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+kot_request_data,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
         if(data._id != ""){
@@ -2139,7 +2139,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
             //Post to local Server
             $.ajax({
               type: 'POST',
-              url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/',
+              url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/',
               data: JSON.stringify(newBillFile),
               contentType: "application/json",
               dataType: 'json',
@@ -2214,13 +2214,13 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                           //Update bill number on server
                           var updateData = {
                             "_rev": revID,
-                            "identifierTag": "ZAITOON_BILL_INDEX",
+                            "identifierTag": "ACCELERATE_BILL_INDEX",
                             "value": billNumber
                           }
 
                           $.ajax({
                             type: 'PUT',
-                            url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_BILL_INDEX/',
+                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_BILL_INDEX/',
                             data: JSON.stringify(updateData),
                             contentType: "application/json",
                             dataType: 'json',
@@ -2265,14 +2265,14 @@ function resetTableToFree(tableNumber){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -2280,7 +2280,7 @@ function resetTableToFree(tableNumber){
       success: function(data) {
         if(data.docs.length > 0){
 
-            if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+            if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
               var tableMapping = data.docs[0].value;
 
@@ -2303,13 +2303,13 @@ function resetTableToFree(tableNumber){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": tableMapping
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -2347,7 +2347,7 @@ function resetTableToFree(tableNumber){
 function deleteKOTFromServer(id, revID, optionalPageRef){
     $.ajax({
       type: 'DELETE',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+id+'?rev='+revID,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+id+'?rev='+revID,
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
@@ -2371,7 +2371,7 @@ function deleteBillFromServer(billNumber, optionalPageRef){
 
                   $.ajax({
                     type: 'POST',
-                    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
                     data: JSON.stringify(requestData),
                     contentType: "application/json",
                     dataType: 'json',
@@ -2382,7 +2382,7 @@ function deleteBillFromServer(billNumber, optionalPageRef){
                         //Proceed to Delete
                         $.ajax({
                           type: 'DELETE',
-                          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/'+data.docs[0]._id+'?rev='+data.docs[0]._rev,
+                          url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+data.docs[0]._id+'?rev='+data.docs[0]._rev,
                           contentType: "application/json",
                           dataType: 'json',
                           timeout: 10000,
@@ -2425,7 +2425,7 @@ function clearAllMetaDataOfBilling(){
   customerInfo.isOnline = false;
 
   window.localStorage.customerData = JSON.stringify(customerInfo);
-  window.localStorage.zaitoon_cart = '';
+  window.localStorage.accelerate_cart = '';
   window.localStorage.userAutoFound = '';
   window.localStorage.userDetailsAutoFound = '';
 
@@ -2490,14 +2490,14 @@ function settleBillAndPush(encodedBill, optionalPageRef){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_PAYMENT_MODES" 
+                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -2505,7 +2505,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_PAYMENT_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
               var modes = data.docs[0].value;
               modes.sort(); //alphabetical sorting 
@@ -2760,7 +2760,7 @@ function preSettleBill(billNumber, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -2794,7 +2794,7 @@ function onlineOrderEasySettleBill(billNumber){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -3152,7 +3152,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
           //Post to local Server
           $.ajax({
             type: 'POST',
-            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/',
+            url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/',
             data: JSON.stringify(finalInvoice),
             contentType: "application/json",
             dataType: 'json',
@@ -3210,7 +3210,7 @@ console.log('To update AUTO SETTLE')
           //Post to local Server
           $.ajax({
             type: 'POST',
-            url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/',
+            url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/',
             data: JSON.stringify(finalInvoice),
             contentType: "application/json",
             dataType: 'json',
@@ -3264,14 +3264,14 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
 
         var requestData = {
           "selector"  :{ 
-                        "identifierTag": "ZAITOON_TABLES_MASTER" 
+                        "identifierTag": "ACCELERATE_TABLES_MASTER" 
                       },
           "fields"    : ["_rev", "identifierTag", "value"]
         }
 
         $.ajax({
           type: 'POST',
-          url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+          url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
           data: JSON.stringify(requestData),
           contentType: "application/json",
           dataType: 'json',
@@ -3279,7 +3279,7 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
           success: function(data) {
             if(data.docs.length > 0){
 
-                if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+                if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
                   var tableMapping = data.docs[0].value;
 
@@ -3302,13 +3302,13 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
                         //Update
                         var updateData = {
                           "_rev": data.docs[0]._rev,
-                          "identifierTag": "ZAITOON_TABLES_MASTER",
+                          "identifierTag": "ACCELERATE_TABLES_MASTER",
                           "value": tableMapping
                         }
 
                         $.ajax({
                           type: 'PUT',
-                          url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                          url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                           data: JSON.stringify(updateData),
                           contentType: "application/json",
                           dataType: 'json',
@@ -3352,7 +3352,7 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_online_orders/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -3375,7 +3375,7 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'zaitoon_online_orders/'+orderObject.orderDetails.onlineOrderDetails.orderSource +'_'+orderObject.orderDetails.reference+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_online_orders/'+orderObject.orderDetails.onlineOrderDetails.orderSource +'_'+orderObject.orderDetails.reference+'/',
                   data: JSON.stringify(onlineOrdersMapping),
                   contentType: "application/json",
                   dataType: 'json',
@@ -3410,21 +3410,21 @@ function initiateRefundSettledBill(billNumber, totalPaid, paymentStatus, optiona
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                    "identifierTag": "ACCELERATE_CANCELLATION_REASONS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
 
               var reasonsList = data.docs[0].value;
               initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
@@ -3546,12 +3546,12 @@ function processRefundSettledBill(billNumber, optionalPageRef){
     initiateRefundSettledBillHide();
 
 
-    var requestURL = 'zaitoon_bills';
+    var requestURL = 'accelerate_bills';
     var requestURLSource = 'BILL';
 
 
     if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
-      requestURL = 'zaitoon_invoices';
+      requestURL = 'accelerate_invoices';
       requestURLSource = 'INVOICE';
     }
 
@@ -3620,21 +3620,21 @@ function initiateCancelSettledBill(billNumber, totalPaid, paymentStatus, optiona
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                    "identifierTag": "ACCELERATE_CANCELLATION_REASONS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
 
               var reasonsList = data.docs[0].value;
               initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
@@ -3795,12 +3795,12 @@ function processCancelSettledBill(billNumber, optionalPageRef){
     initiateCancelSettledBillHide();
 
 
-    var requestURL = 'zaitoon_bills';
+    var requestURL = 'accelerate_bills';
     var requestURLSource = 'BILL';
 
 
     if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
-      requestURL = 'zaitoon_invoices';
+      requestURL = 'accelerate_invoices';
       requestURLSource = 'INVOICE';
     }
 
@@ -3855,7 +3855,7 @@ function processCancelSettledBill(billNumber, optionalPageRef){
             //Post to local Server
             $.ajax({
               type: 'POST',
-              url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_invoices/',
+              url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/',
               data: JSON.stringify(cancelBillFile),
               contentType: "application/json",
               dataType: 'json',
@@ -3889,12 +3889,12 @@ function processCancelSettledBill(billNumber, optionalPageRef){
 
 function deleteCancelledInvoiceFromServer(id, revID, type, table, requestURLSource, optionalPageRef){
 
-  var requestLink = 'zaitoon_bills';
+  var requestLink = 'accelerate_bills';
   if(requestURLSource == 'BILL'){
-    requestLink = 'zaitoon_bills';
+    requestLink = 'accelerate_bills';
   }
   else if(requestURLSource == 'INVOICE'){
-    requestLink = 'zaitoon_invoices';
+    requestLink = 'accelerate_invoices';
   }
 
 
@@ -3934,21 +3934,21 @@ function cancelRunningOrder(kotID, optionalPageRef){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_CANCELLATION_REASONS" 
+                    "identifierTag": "ACCELERATE_CANCELLATION_REASONS" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_CANCELLATION_REASONS'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
 
               var reasonsList = data.docs[0].value;
               cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList)
@@ -4065,7 +4065,7 @@ function processCancelRunningOrder(kotID, optionalPageRef){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -4094,7 +4094,7 @@ function processCancelRunningOrder(kotID, optionalPageRef){
               //Post to local Server
               $.ajax({
                 type: 'POST',
-                url: COMMON_LOCAL_SERVER_IP+'/zaitoon_cancelled_orders/',
+                url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/',
                 data: JSON.stringify(cancelOrderFile),
                 contentType: "application/json",
                 dataType: 'json',
@@ -4430,7 +4430,7 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
 function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPageRef){
     $.ajax({
       type: 'DELETE',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_kot/'+id+'?rev='+revID,
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+id+'?rev='+revID,
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
@@ -4488,21 +4488,21 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ZAITOON_TABLES_MASTER" 
+                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
                   },
       "fields"    : ["_rev", "identifierTag", "value"]
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_settings/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ZAITOON_TABLES_MASTER'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
 
                     var tableMapping = data.docs[0].value;
 
@@ -4521,13 +4521,13 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
                     //Update
                     var updateData = {
                       "_rev": data.docs[0]._rev,
-                      "identifierTag": "ZAITOON_TABLES_MASTER",
+                      "identifierTag": "ACCELERATE_TABLES_MASTER",
                       "value": tableMapping
                     }
 
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'zaitoon_settings/ZAITOON_TABLES_MASTER/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
                       data: JSON.stringify(updateData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -4570,7 +4570,7 @@ function openUndoSettleWarning(billNumber){
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/_find',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_find',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
@@ -4606,7 +4606,7 @@ function openUndoSettleWarning(billNumber){
             //Post to local Server
             $.ajax({
               type: 'POST',
-              url: COMMON_LOCAL_SERVER_IP+'/zaitoon_bills/',
+              url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/',
               data: JSON.stringify(reversed_bill),
               contentType: "application/json",
               dataType: 'json',
@@ -4631,7 +4631,7 @@ function openUndoSettleWarning(billNumber){
               function deletePreviousSettledInvoice(){
                   $.ajax({
                     type: 'DELETE',
-                    url: COMMON_LOCAL_SERVER_IP+'/zaitoon_invoices/'+remember_id+'?rev='+remember_revID,
+                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/'+remember_id+'?rev='+remember_revID,
                     contentType: "application/json",
                     dataType: 'json',
                     timeout: 10000,
