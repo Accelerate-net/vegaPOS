@@ -1947,7 +1947,6 @@ function releaseTableAfterBillSettle(tableID, billNumber, optionalPageRef){
 
 function confirmBillGeneration(kotID, optionalPageRef){
 
-
     var requestData = {
       "selector"  :{ 
                     "identifierTag": "ACCELERATE_BILL_INDEX" 
@@ -2239,7 +2238,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                 }
               },
               error: function(data){           
-                showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                showToast('System Error: Unable to generate the bill. Check for bill number conflict. Please contact Accelerate Support if problem persists.', '#e74c3c');
               }
             });  
             //End - post KOT to Server

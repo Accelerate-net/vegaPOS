@@ -98,11 +98,10 @@ function saveToCart(productToAdd, optionalSource){
       
 
       if(optionalSource == 'DELETE_REVERSAL'){ //For deleted item's reversal case.
-      	console.log(productToAdd.cartIndex)
-      	cart_products.push({"cartIndex": productToAdd.cartIndex, "name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": productToAdd.qty ? productToAdd.qty : 1});
+      	cart_products.push({"cartIndex": productToAdd.cartIndex, "name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": productToAdd.qty ? productToAdd.qty : 1, "cookingTime" : productToAdd.cookingTime ? parseInt(productToAdd.cookingTime) : 0});
       }
       else{
-        cart_products.push({"cartIndex": maxCartIndex + 1, "name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1});
+        cart_products.push({"cartIndex": maxCartIndex + 1, "name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1, "cookingTime" : productToAdd.cookingTime ? parseInt(productToAdd.cookingTime) : 0});
       }
 
 
@@ -173,7 +172,7 @@ function additemtocart(encodedItem, category, optionalSource){
 		var i = 0;
 		var optionList = '';
 		while(productToAdd.customOptions[i]){
-			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.category+'\', \''+productToAdd.code+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\')">'+
+			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.category+'\', \''+productToAdd.code+'\', \''+productToAdd.cookingTime+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\')">'+
 										'<a>'+productToAdd.customOptions[i].customName+'<tag class="spotlightCustomItemTick"><i class="fa fa-check"></i></tag> <tag style="float: right"><i class="fa fa-inr"></i>'+productToAdd.customOptions[i].customPrice+'</tag></a>'+
 									  '</li>';
 			i++;
@@ -282,7 +281,7 @@ function additemtocart(encodedItem, category, optionalSource){
 	$("#add_item_by_search").focus();
 }
 
-function addCustomToCart(name, category, code, price, variant, optionalSource, encodedIngredients, cart_index){
+function addCustomToCart(name, category, code, cookTime, price, variant, optionalSource, encodedIngredients, cart_index){
 
 		var ingredientsTemp = encodedIngredients && encodedIngredients != '' ? JSON.parse(decodeURI(encodedIngredients)) : '';
 
@@ -290,6 +289,7 @@ function addCustomToCart(name, category, code, price, variant, optionalSource, e
 		productToAdd.name = name;
 		productToAdd.category = category;
 		productToAdd.code = code;
+		productToAdd.cookingTime = parseInt(cookTime);
 		productToAdd.price = price;
 		productToAdd.variant = variant;
 		productToAdd.isCustom = true;
@@ -919,9 +919,6 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
   }
 
 
-  
-
-
 	/*
 		cart_products - cart of items 
 		selectedBillingModeInfo - info relating to the particular mode like minBillAmount, isDiscountable? etc.
@@ -1030,6 +1027,8 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				}
 			}
 
+
+
 			totqty = totqty + cart_products[i].qty
 			tot = tot + (cart_products[i].price*cart_products[i].qty)
 
@@ -1117,10 +1116,12 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 		var allergyIngredientDetected = false;
 
 		while(i < cart_products.length){
+			
 			variantName = '';
 			totqty = totqty + cart_products[i].qty
 			tot = tot + (cart_products[i].price*cart_products[i].qty)
 			var itemrem = cart_products[i].code;
+
 
 			if(cart_products[i].isPackaged){
 				totPackaged += (cart_products[i].price*cart_products[i].qty);
@@ -1692,8 +1693,9 @@ else{
 				iteration_count++;
 			});	
 	}  
-
 }
+
+
 
 
 
@@ -4520,6 +4522,22 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 	        }
 
 
+	        var minimum_cooking_time = 0;
+
+	        for(var t = 0; t < compareObject.length; t++){
+	        	if(compareObject[t].change == "NEW_ITEM" || compareObject[t].change == "QUANTITY_INCREASE"){
+					
+					/* min cooking time */
+					if(compareObject[t].cookingTime && compareObject[t].cookingTime > 0){
+						if(minimum_cooking_time <= compareObject[t].cookingTime){
+							minimum_cooking_time = compareObject[t].cookingTime;
+						}
+					}
+
+	        	}
+	        }
+
+
           	  	//Update on Server
                 $.ajax({
                   type: 'PUT',
@@ -4529,7 +4547,16 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                  	  
+                  	 
+	              	//Show minimum cooking time...
+					var display_minimum_cooking_time_flag = true;
+
+					if(display_minimum_cooking_time_flag && minimum_cooking_time > 0){
+						flashMinimumCookingTime(minimum_cooking_time);
+					}
+
+
+
                   	  if(silentFlag == 'SILENTLY'){ //Skip Printing..
                   	  	showToast('<b>Skipped Printing!</b> Changed KOT #'+kot.KOTNumber+' generated Successfully.', '#27ae60');
                   	  }
@@ -4915,7 +4942,7 @@ function revertDelete(encodedItem){
 	console.log(item)
 
 	if(item.isCustom){
-		addCustomToCart(item.name,  item.category, item.code, item.price, item.variant, 'DELETE_REVERSAL',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "", item.cartIndex);
+		addCustomToCart(item.name,  item.category, item.code, item.cookingTime, item.price, item.variant, 'DELETE_REVERSAL',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "", item.cartIndex);
 	}
 	else{
 		additemtocart(encodedItem, 'ATTACHED_WITHIN', 'DELETE_REVERSAL');
@@ -5136,8 +5163,19 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		var subTotal = 0;
 		var packagedSubTotal = 0;
 
+		var minimum_cooking_time = 0;
+
 		var n = 0;
 		while(cart_products[n]){
+
+			/* min cooking time */
+			if(cart_products[n].cookingTime && cart_products[n].cookingTime > 0){
+				if(minimum_cooking_time <= cart_products[n].cookingTime){
+					minimum_cooking_time = cart_products[n].cookingTime;
+				}
+			}
+
+
 			subTotal = subTotal + cart_products[n].qty * cart_products[n].price;
 
 			if(cart_products[n].isPackaged){
@@ -5379,8 +5417,17 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	            dataType: 'json',
 	            timeout: 10000,
 	            success: function(data) {
-
 	              if(data.ok){
+
+
+	              	//Show minimum cooking time...
+					var display_minimum_cooking_time_flag = true;
+
+					if(display_minimum_cooking_time_flag && minimum_cooking_time > 0){
+						flashMinimumCookingTime(minimum_cooking_time);
+					}
+
+
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
@@ -5852,6 +5899,33 @@ function saveOnlineOrderMapping(orderObject){
       }
 
     }); 	
+}
+
+
+let flashMinimumCookingTimeInterval;
+function flashMinimumCookingTime(time_calculated){
+
+	clearInterval(flashMinimumCookingTimeInterval);
+
+
+	var x = document.getElementById("cookingTimeContainer");
+	x.className = "show";
+
+	flashMinimumCookingTimeInterval = setTimeout(function(){ x.className = x.className.replace("show", ""); }, 5000);
+
+	var time_targetted = moment();
+	time_targetted.add(time_calculated,'m');
+
+	var time_targetted_fancy = time_targetted.format('hh:mm a');
+
+	document.getElementById("cookingTimeCounterDisplayCount").innerHTML = time_targetted_fancy;
+	document.getElementById("cookingTimeCounterDisplayMinutes").innerHTML = time_calculated + ' mins'
+}
+
+
+function hideCookingTime(){
+	var x = document.getElementById("cookingTimeContainer");
+	x.className = "";
 }
 
 

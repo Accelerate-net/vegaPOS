@@ -233,7 +233,7 @@ if(type == 'BILL'){
          //Success Callback
 
       });
-      console.log(qrcode)
+      //console.log(qrcode)
       renderBillTemplate(qrcode);
    }
 
@@ -1074,6 +1074,7 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
    
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
+         '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">DUPLICATE KOT</div>'+
          '<table style="width: 100%">'+
             '<col style="width: 30%">'+
             '<col style="width: 40%">'+
@@ -1109,6 +1110,7 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
 
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
+         '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">DUPLICATE KOT</div>'+
          '<table style="width: 100%">'+
             '<col style="width: 30%">'+
             '<col style="width: 40%">'+
@@ -1139,6 +1141,7 @@ else if(orderObject.orderDetails.modeType == 'DINE'){
 
    kot_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
+         '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">DUPLICATE KOT</div>'+
          '<table style="width: 100%">'+
             '<col style="width: 30%">'+
             '<col style="width: 40%">'+
@@ -1416,24 +1419,18 @@ while(orderObject.cart[n]){
 total_items = n;
 
 
-   var view_footer_content = '';
-   if(orderObject.stewardName != ""){
 
-      view_footer_content = '<div class="billBottomContainer" style="background: #FFF">'+
-                              '<div style="padding: 2px 0; color: #000; text-align: center;">'+
-                                 '<tag style="font-size: 8px; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-family: sans-serif;">ATTENDING </tag>'+
-                                 '<b style="text-transform: uppercase; font-size:11px;">'+orderObject.stewardName+'</b>'+
-                              '</div>'+   
-                           '</div>';
-   } 
+var view_header_content = '';
+var view_footer_content = '';
 
-
-var html_template = ''+
+if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.modeType == 'PARCEL'){
+   
+   view_header_content = ''+
       '<div class="KOTHeader" style="min-height: unset">'+
          '<table style="width: 100%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
-            '<col style="width: 33%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
             '<tr>'+
                '<td style="vertical-align: top">'+
                   '<p>'+
@@ -1443,8 +1440,7 @@ var html_template = ''+
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style="margin: 0">'+
-                     '<tag class="serviceType" style="border: none; margin-bottom: 2px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? 'display: none' : '' )+'">'+(orderObject.orderDetails.modeType == 'DINE' ? '<b style="font-size: 30px; background: #000; color: #FFF; border-radius: 3px; padding: 2px 4px; ">'+orderObject.table+'</b>' : (orderObject.orderDetails.modeType == 'TOKEN' ? '<b style="font-size: 32px">'+orderObject.table+'</b>' : ''))+'</tag>'+
-                     '<tag class="serviceType" style="padding: 0; font-size: 10px; '+( orderObject.orderDetails.modeType == 'PARCEL' || orderObject.orderDetails.modeType == 'DELIVERY' ? '' : 'display: none' )+'"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">'+(orderObject.orderDetails.modeType == 'PARCEL' ? 'PARCEL #'+orderObject.table : (orderObject.orderDetails.modeType == 'DELIVERY' ? 'DELIVERY' : ''))+'</tag>'+(orderObject.orderDetails.reference != ''  ? '<tag style="display: block; padding: 2px;">#'+orderObject.orderDetails.reference+'</tag>' : '<tag style="display: block; padding: 2px;">'+orderObject.customerName+'</tag>')+'</tag>'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">'+(orderObject.orderDetails.modeType == 'DELIVERY' ? 'PARCEL' : 'PARCEL <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">#'+orderObject.table+'</b>')+'</tag>'+
                   '</p>'+
                '</td>'+
                '<td style="vertical-align: top;">'+
@@ -1455,8 +1451,85 @@ var html_template = ''+
                '</td>'+
             '</tr>'+
          '</table>'+
-      '</div>'+
+      '</div>';
 
+   view_footer_content = '<div class="billBottomContainer">'+
+                           '<div style="text-align: center; font-size:14px; font-weight: bold; background: #000; color: #FFF; padding: 3px 0">'+ orderObject.orderDetails.mode + ' - <b style="font-size: 16px;">'+orderObject.KOTNumber+'</b>'+
+                           '</div>'+   
+                        '</div>'; 
+}
+else if(orderObject.orderDetails.modeType == 'TOKEN'){
+
+   view_header_content = ''+
+      '<div class="KOTHeader" style="min-height: unset">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 40%">'+
+            '<col style="width: 30%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="subLabel">KOT NO</tag>'+
+                     '<tag class="KOTNumber">'+orderObject.KOTNumber+'</tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p style="margin: 0">'+
+                     '<tag class="serviceType" style="font-size: 16px; font-weight: bold;">SELF SERVICE <b style="font-size: 18px; padding: 1px 5px; background: #000; font-weight: bold; color: #FFF; border-radius: 2px;">'+orderObject.table+'</b></tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top;">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">TIME</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                  '</p>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>';  
+}
+else if(orderObject.orderDetails.modeType == 'DINE'){
+
+   view_header_content = ''+
+      '<div class="KOTHeader" style="min-height: unset">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 35%">'+
+            '<col style="width: 30%">'+
+            '<col style="width: 35%">'+
+            '<tr>'+
+               '<td style="vertical-align: top">'+
+                  '<p>'+
+                     '<tag class="subLabel">KOT NO</tag>'+
+                     '<tag class="KOTNumber">'+orderObject.KOTNumber+'</tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top">'+
+                  '<p style="margin: 0">'+
+                     '<tag class="serviceType" style="border: none; margin-bottom: 2px;"><b style="font-size: 30px; background: #000; color: #FFF; border-radius: 3px; padding: 2px 4px;">'+orderObject.table+'</b></tag>'+
+                  '</p>'+
+               '</td>'+
+               '<td style="vertical-align: top;">'+
+                  '<p style=" text-align: right; float: right">'+
+                     '<tag class="subLabel">TIME</tag>'+
+                     '<tag class="timeStamp" style="font-size: 14px; font-weight: bold;">'+(orderObject.timeKOT == "" ? getFancyTime(orderObject.timePunch) : getFancyTime(orderObject.timeKOT))+'</tag>'+
+                  '</p>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>';  
+
+   if(orderObject.stewardName != ""){
+
+      view_footer_content = '<div class="billBottomContainer" style="background: #FFF">'+
+                              '<div style="padding: 2px 0; color: #000; text-align: center;">'+
+                                 '<tag style="font-size: 8px; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-family: sans-serif;">PUNCHED BY </tag>'+
+                                 '<b style="text-transform: uppercase; font-size:11px;">'+orderObject.stewardName+'</b>'+
+                              '</div>'+   
+                           '</div>';
+   } 
+}
+
+var html_template = view_header_content +
       '<div class="KOTContent" style="min-height: unset">'+
          '<table style="width: 100%">'+
             '<col style="width: 85%">'+
