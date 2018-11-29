@@ -6142,6 +6142,7 @@ input:checked + .slider:before {
     top: 80px;
     background: #4e4e4e;
     border-left: 40px solid #dd395f;
+    z-index: 1501;
 }
 
 

@@ -42,6 +42,14 @@ function getSuperFancyDate(date){
   return moment(date, 'DD-MM-YYYY').format('Do MMMM, YYYY')
 }
 
+function addMinutesToTime(minutes, time){
+  //add minutes to hhmm time
+  var time_start = moment(time, 'HHmm');
+  time_start.add(minutes, 'm');
+
+  return time_start.format('hh:mm a');
+}
+
 //Returns today, and current time
 function getCurrentTime(type){
           

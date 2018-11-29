@@ -4549,7 +4549,7 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
                   success: function(data) {
                   	 
 	              	//Show minimum cooking time...
-					var display_minimum_cooking_time_flag = true;
+					var display_minimum_cooking_time_flag = window.localStorage.appOtherPreferences_minimumCookingTime && window.localStorage.appOtherPreferences_minimumCookingTime == 1 ? true : false;
 
 					if(display_minimum_cooking_time_flag && minimum_cooking_time > 0){
 						flashMinimumCookingTime(minimum_cooking_time);
@@ -5421,7 +5421,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 
 	              	//Show minimum cooking time...
-					var display_minimum_cooking_time_flag = true;
+					var display_minimum_cooking_time_flag = window.localStorage.appOtherPreferences_minimumCookingTime && window.localStorage.appOtherPreferences_minimumCookingTime == 1 ? true : false;
 
 					if(display_minimum_cooking_time_flag && minimum_cooking_time > 0){
 						flashMinimumCookingTime(minimum_cooking_time);

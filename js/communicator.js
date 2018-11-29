@@ -313,6 +313,21 @@ if(type == 'BILL'){
          discount_sum = orderObject.discount.amount;
       }
 
+      /* min cooking time */
+      var minimum_cooking_time = 0;
+      
+      var mct = 0;
+      while(orderObject.cart[mct]){
+         if(orderObject.cart[mct].cookingTime && orderObject.cart[mct].cookingTime > 0){
+            if(minimum_cooking_time <= orderObject.cart[mct].cookingTime){
+               minimum_cooking_time = orderObject.cart[mct].cookingTime;
+            }
+         }
+
+         mct++;
+      }
+
+
 
       //Render User Info
       var userInfo = '';
@@ -409,6 +424,19 @@ if(type == 'BILL'){
                                  '</div>'+   
                               '</div>'; 
 
+         
+         //Show minimum cooking time...
+         var flag_one_enabled = window.localStorage.appOtherPreferences_minimumCookingTime ? window.localStorage.appOtherPreferences_minimumCookingTime : 0;
+         var flag_two_print = window.localStorage.appOtherPreferences_expectedReadyTime ? window.localStorage.appOtherPreferences_expectedReadyTime : 0;
+           
+         if((flag_one_enabled == 1 && flag_two_print == 1) && minimum_cooking_time > 0){
+
+            billBottomRender += '<div class="billBottomContainer">'+
+                                 '<div style="text-align: center; font-size:12px; color: #000; background: #FFF; padding: 3px 0; text-transform:uppercase">Order to be ready by <b style="font-size: 14px; padding: 0 4px; background: #000; color: #FFF">'+(addMinutesToTime(minimum_cooking_time, orderObject.timePunch))+'</b>'+
+                                 '</div>'+   
+                              '</div>';    
+         }
+
       }
       else{
 
@@ -451,6 +479,22 @@ if(type == 'BILL'){
                         '</td>';    
          }
 
+      }
+
+
+      if(orderObject.orderDetails.modeType == 'TOKEN'){
+
+         //Show minimum cooking time...
+         var flag_one_enabled = window.localStorage.appOtherPreferences_minimumCookingTime ? window.localStorage.appOtherPreferences_minimumCookingTime : 0;
+         var flag_two_print = window.localStorage.appOtherPreferences_expectedReadyTime ? window.localStorage.appOtherPreferences_expectedReadyTime : 0;
+           
+         if((flag_one_enabled == 1 && flag_two_print == 1) && minimum_cooking_time > 0){
+
+            billBottomRender += '<div class="billBottomContainer">'+
+                                 '<div style="text-align: center; font-size:12px; color: #FFF; background: #000; padding: 3px 0; text-transform: uppercase">Order to be ready by <b style="font-size: 14px;">'+(addMinutesToTime(minimum_cooking_time, orderObject.timePunch))+'</b>'+
+                                 '</div>'+   
+                              '</div>';    
+         }
       }
 
 
@@ -851,9 +895,19 @@ if(type == 'KOT'){
 var total_items = 0;
 var total_quantity = 0;
 
+/* min cooking time */
+var minimum_cooking_time = 0;
+
 var itemsList = '';
 var n = 0;
 while(orderObject.cart[n]){
+
+   //Minimum cooking time
+   if(orderObject.cart[n].cookingTime && orderObject.cart[n].cookingTime > 0){
+      if(minimum_cooking_time <= orderObject.cart[n].cookingTime){
+         minimum_cooking_time = orderObject.cart[n].cookingTime;
+      }
+   }
 
    itemsList +='<tr>'+
                   '<td><span style="font-size:18px">'+orderObject.cart[n].name + (orderObject.cart[n].isCustom ? ' ('+orderObject.cart[n].variant+')' : '')+'</span>'+
@@ -911,6 +965,17 @@ if(orderObject.orderDetails.modeType == 'DELIVERY' || orderObject.orderDetails.m
                            '<div style="text-align: center; font-size:14px; font-weight: bold; background: #000; color: #FFF; padding: 3px 0">'+ orderObject.orderDetails.mode + ' - <b style="font-size: 16px;">'+orderObject.KOTNumber+'</b>'+
                            '</div>'+   
                         '</div>'; 
+
+   //Show minimum cooking time...
+   var flag_one_enabled = window.localStorage.appOtherPreferences_minimumCookingTime ? window.localStorage.appOtherPreferences_minimumCookingTime : 0;
+   var flag_two_print = window.localStorage.appOtherPreferences_expectedReadyTime ? window.localStorage.appOtherPreferences_expectedReadyTime : 0;
+           
+   if((flag_one_enabled == 1 && flag_two_print == 1) && orderObject.orderDetails.modeType == 'PARCEL' && minimum_cooking_time > 0){
+      kot_footer_content += '<div class="billBottomContainer">'+
+                              '<div style="text-align: center; font-size:12px; text-transform:uppercase; background: #FFF; color: #000; padding: 3px 0">Order to be ready by <b style="font-size: 14px; padding: 0 4px; background:#000; color: #FFF">'+addMinutesToTime(minimum_cooking_time, orderObject.timePunch)+'</b>'+
+                              '</div>'+   
+                           '</div>'; 
+   }
 }
 else if(orderObject.orderDetails.modeType == 'TOKEN'){
 
@@ -941,6 +1006,18 @@ else if(orderObject.orderDetails.modeType == 'TOKEN'){
             '</tr>'+
          '</table>'+
       '</div>';  
+
+   //Show minimum cooking time...
+   var flag_one_enabled = window.localStorage.appOtherPreferences_minimumCookingTime ? window.localStorage.appOtherPreferences_minimumCookingTime : 0;
+   var flag_two_print = window.localStorage.appOtherPreferences_expectedReadyTime ? window.localStorage.appOtherPreferences_expectedReadyTime : 0;
+           
+   if((flag_one_enabled == 1 && flag_two_print == 1) && minimum_cooking_time > 0){
+      kot_footer_content += '<div class="billBottomContainer">'+
+                              '<div style="text-align: center; font-size:12px; text-transform:uppercase; background: #FFF; color: #000; padding: 3px 0">Order to be ready by <b style="font-size: 14px; padding: 0 4px; background:#000; color: #FFF">'+addMinutesToTime(minimum_cooking_time, orderObject.timePunch)+'</b>'+
+                              '</div>'+   
+                           '</div>'; 
+   }
+
 }
 else if(orderObject.orderDetails.modeType == 'DINE'){
 
