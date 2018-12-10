@@ -1311,7 +1311,7 @@ function swapTableMapping(old, newTable, old_kot){
                   remember_rev = tableData._rev;
 
                   tableData.status = 1;
-                  tableData.assigned = old_kot.customerName;
+                  tableData.assigned = old_kot.stewardName;
                   tableData.remarks = old_kot.remarks;
                   tableData.KOT = old_kot.KOTNumber;
                   tableData.lastUpdate = (old_kot.timeKOT != "" ? old_kot.timeKOT : old_kot.timePunch);;

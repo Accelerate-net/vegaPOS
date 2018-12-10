@@ -1241,7 +1241,7 @@ function preloadTableStatus(mode, currentTableID){
 
 														renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+' selected">'+
 																				            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: '-')+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
 																				            '<tag class="tableInfo'+smallTableFlag+'" style="color: #fff"><i class="fa fa-check"></i></tag>'+
 																				        	'</tag>';	
 													}
@@ -1251,7 +1251,7 @@ function preloadTableStatus(mode, currentTableID){
 
 							              				renderTableArea = renderTableArea + '<tag id="holdMain_'+tableData[i].value.table+'" onclick="addToHoldList(\''+tableData[i].value.table+'\')" class="tableTileRed'+smallTableFlag+'">'+
 																				            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: '-')+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
 																				            '<tag class="tableInfo'+smallTableFlag+'" id="hold_'+tableData[i].value.table+'" style="color: #fff">Seated '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																				        	'</tag>';												
 													}
@@ -1260,7 +1260,7 @@ function preloadTableStatus(mode, currentTableID){
 												else if(tableData[i].value.status == 2){
 					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
 																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: '-')+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
 																		            '<tag class="tableInfo'+smallTableFlag+'">Billed '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';	
 												}	
@@ -1274,7 +1274,7 @@ function preloadTableStatus(mode, currentTableID){
 												else{
 					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
 																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: '-')+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
 																		            '<tag class="tableInfo'+smallTableFlag+'">Updated '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';											
 												}
@@ -1330,14 +1330,14 @@ function preloadTableStatus(mode, currentTableID){
 												if(tableData[i].value.status == 1){
 					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tableData[i].value))+'\')" class="tableTileRed'+smallTableFlag+'">'+
 																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: '-')+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
 																		            '<tag class="tableInfo'+smallTableFlag+'">Seated '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';	
 												}
 												else if(tableData[i].value.status == 2){
 					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tableData[i].value))+'\')" class="tableTileYellow'+smallTableFlag+'">'+
 																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: '-')+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
 																		            '<tag class="tableInfo'+smallTableFlag+'">Billed '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';	
 												}
@@ -1351,7 +1351,7 @@ function preloadTableStatus(mode, currentTableID){
 												else{
 					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tableData[i].value))+'\')" class="tableTileRed'+smallTableFlag+'">'+
 																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: '-')+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
 																		            '<tag class="tableInfo'+smallTableFlag+'">Updated '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';											
 												}

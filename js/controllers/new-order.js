@@ -3532,14 +3532,14 @@ function renderTables(){
 														if(tableData[i].value.status == 1){
 								              				renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+'" style="cursor: pointer" onclick="retrieveTableInfo(\''+tableData[i].value.table+'\', \'MAPPED\')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned && tableData[i].value.assigned != '' ? tableData[i].value.assigned : tableData[i].value.capacity+' Seater' )+'</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">'+(currentTableID != '' && currentTableID == tableData[i].value.table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Running')+'</tag>'+
 																					        	'</tag>';	
 														}
 														else if(tableData[i].value.status == 2){
 															renderTableArea = renderTableArea + '<tag class="tableTileYellow'+smallTableFlag+'" style="cursor: pointer" onclick="pickTableForNewOrderHide(); preSettleBill(\''+tableData[i].value.KOT+'\', \'ORDER_PUNCHING\')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned && tableData[i].value.assigned != '' ? tableData[i].value.assigned : tableData[i].value.capacity+' Seater' )+'</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">'+(currentTableID != '' && currentTableID == tableData[i].value.table ? '<i class="fa fa-check" style="color: #FFF"></i>' : 'Bill' +(tableData[i].value.remarks && tableData[i].value.remarks != '' ? ' <b><i class="fa fa-inr"></i>'+tableData[i].value.remarks+'</b>' : '') )+'</tag>'+
 																					        	'</tag>';	
 														}									
@@ -5324,7 +5324,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
-	              		addToTableMapping(obj.table, kot, obj.customerName, 'ORDER_PUNCHING');
+
+	              		addToTableMapping(obj.table, kot, obj.stewardName, 'ORDER_PUNCHING');
 	              		
 
 	              		/*
@@ -6319,7 +6320,7 @@ function pickTableForNewOrder(currentTableID){
 															else if(mytable.value.status == 2){
 																renderTableArea = renderTableArea + '<tag onclick="pickTableForNewOrderHide(); preSettleBill(\''+mytable.value.KOT+'\', \'ORDER_PUNCHING\')" class="tableTileYellow'+smallTableFlag+'">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.value.table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.value.capacity+' Seater</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned && mytable.value.assigned != '' ? mytable.value.assigned : mytable.value.capacity+' Seater' )+'</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Bill'+(mytable.value.remarks && mytable.value.remarks != '' ? ' <b><i class="fa fa-inr"></i>'+mytable.value.remarks+'</b>' : '')+'</tag>'+
 																					        	'</tag>';	
 															}								
@@ -6454,7 +6455,7 @@ function pickTableForNewOrder(currentTableID){
 															else if(mytable.value.status == 2){
 																renderTableArea = renderTableArea + '<tag onclick="pickTableForNewOrderHide(); preSettleBill(\''+mytable.value.KOT+'\', \'ORDER_PUNCHING\')" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableTileYellow'+smallTableFlag+'">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.value.table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.value.capacity+' Seater</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned && mytable.value.assigned != '' ? mytable.value.assigned : mytable.value.capacity+' Seater' )+'</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Bill'+(mytable.value.remarks && mytable.value.remarks != '' ? ' <b><i class="fa fa-inr"></i>'+mytable.value.remarks+'</b>' : '')+'</tag>'+
 																					        	'</tag>';	
 															}								
@@ -6519,7 +6520,7 @@ function pickTableForNewOrder(currentTableID){
 															else if(mytable.value.status == 2){
 																renderTableArea = renderTableArea + '<tag onclick="pickTableForNewOrderHide(); preSettleBill(\''+mytable.value.KOT+'\', \'ORDER_PUNCHING\')" class="tableTileYellow'+smallTableFlag+'">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.value.table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+mytable.value.capacity+' Seater</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned && mytable.value.assigned != '' ? mytable.value.assigned : mytable.value.capacity+' Seater' )+'</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'">Bill'+(mytable.value.remarks && mytable.value.remarks != '' ? ' <b><i class="fa fa-inr"></i>'+mytable.value.remarks+'</b>' : '')+'</tag>'+
 																					        	'</tag>';	
 															}								
