@@ -62,6 +62,10 @@
           "value": ""
         },
         {
+          "name": "Generate Bill Silently",
+          "value": ""
+        },        
+        {
           "name": "Print Duplicate Bill",
           "value": ""
         },

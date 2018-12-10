@@ -462,6 +462,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 '                </div>';
 
           document.getElementById("billPreviewContentActions").innerHTML = '<button id="billButtonAction_generate" class="btn btn-success tableOptionsButton breakWord" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Generate Bill</button>'+
+                            '<button id="billButtonAction_generateSilently" class="btn btn-success tableOptionsButton breakWord" style="height:5px; display: none;" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\', \'SILENTLY\')">Generate Silently</button>'+
                             '<button style="margin: 0" id="billButtonAction_cancel" class="btn btn-default tableOptionsButton breakWord" onclick="hideBillPreviewModal()">Close</button>'
 
           document.getElementById("billPreviewModal").style.display = 'block';
@@ -1928,7 +1929,7 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
 
 
 
-function confirmBillGeneration(kotID, optionalPageRef){
+function confirmBillGeneration(kotID, optionalPageRef, silentRequest){
 
     var requestData = {
       "selector"  :{ 
@@ -1949,7 +1950,7 @@ function confirmBillGeneration(kotID, optionalPageRef){
           if(data.docs[0].identifierTag == 'ACCELERATE_BILL_INDEX'){
 
             var billNumber = parseInt(data.docs[0].value) + 1;
-            confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, data.docs[0]._rev)
+            confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, data.docs[0]._rev, silentRequest)
                 
           }
           else{
@@ -1969,7 +1970,7 @@ function confirmBillGeneration(kotID, optionalPageRef){
 }
 
 
-function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, revID){
+function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, revID, silentRequest){
 
     var memory_id = '';
     var memory_rev = '';
@@ -2130,10 +2131,15 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                 if(data.ok){
 
                           
-
+                        if(silentRequest == 'SILENTLY'){
+                          showToast('<b>Skipped Printing!</b> Bill #'+billNumber+' generated Successfully', '#27ae60');
+                        }
+                        else{
                           showToast('Bill #'+billNumber+' generated Successfully', '#27ae60');
-
                           sendToPrinter(newBillFile, 'BILL');
+                        }
+
+
 
                           clearAllMetaDataOfBilling();
                           hideBillPreviewModal();
@@ -2225,8 +2231,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
               }
             });  
             //End - post KOT to Server
-
-
 
         }
         else{
