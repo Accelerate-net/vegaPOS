@@ -260,20 +260,26 @@ function fetchSystemOrder(encodedMapping){
 	var mappingObject = JSON.parse(decodeURI(encodedMapping));
 	var requestID = mappingObject.systemBill;
 
+
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
 	if(mappingObject.systemStatus == 1){ //Fetch KOT
-	    var requestData = { "selector" :{ "KOTNumber": requestID }}
+	    
+	    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ requestID;
 
 	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
+	      type: 'GET',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
 	      timeout: 10000,
 	      success: function(data) {
-	        if(data.docs.length > 0){
+	        if(data._id != ""){
 
-	          	var kot = data.docs[0];
+	          	var kot = data;
 	          	renderSystemOrderDisplay(kot, mappingObject);
 
 	        }
@@ -292,25 +298,22 @@ function fetchSystemOrder(encodedMapping){
 	    });  
 	}
 	else if(mappingObject.systemStatus == 2){ //Fetch Bill
-		var billNum = parseInt(requestID);
-	    var requestData = { "selector" :{ "billNumber": billNum }}
+
+	    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ requestID;
 
 	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
+	      type: 'GET',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
 	      timeout: 10000,
 	      success: function(data) {
-	        if(data.docs.length > 0){
+	        if(data._id != ""){
 
-	          	var bill = data.docs[0];
+	          	var bill = data;
 	          	renderSystemOrderDisplay(bill, mappingObject);
 
 	        }
 	        else{
-	          showToast('Not Found Error: Bill #'+billNum+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Bill #'+requestID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
 	       	
 	       	  //Show remove mapping option
 	          showRemoveInvoiceMapping(mappingObject);
@@ -324,25 +327,20 @@ function fetchSystemOrder(encodedMapping){
 	    }); 
 	} 	
 	else if(mappingObject.systemStatus == 3){ //Fetch Bill
-		var billNum = parseInt(requestID);
-	    var requestData = { "selector" :{ "billNumber": billNum }}
+
+	    var invoice_request_data = accelerate_licencee_branch +"_INVOICE_"+ requestID;
 
 	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
+	      type: 'GET',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/'+invoice_request_data,
 	      timeout: 10000,
 	      success: function(data) {
-	        if(data.docs.length > 0){
-
-	          	var bill = data.docs[0];
+	        if(data._id != ""){
+	          	var bill = data;
 	          	renderSystemOrderDisplay(bill, mappingObject);
-
 	        }
 	        else{
-	          showToast('Not Found Error: Bill #'+billNum+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Bill #'+requestID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
 	        
 	          //Show remove mapping option
 	          showRemoveInvoiceMapping(mappingObject);
@@ -479,6 +477,8 @@ function forceLogoutOnlineOrders(customeError){
 
 
 function fetchOrderDetails(orderID){
+
+	document.getElementById("responseActionsBar").innerHTML = '';
 
 	var lastOrderFetchInfo = window.localStorage.lastOrderFetchData ?  JSON.parse(window.localStorage.lastOrderFetchData) : [];
 	
@@ -690,6 +690,8 @@ function renderSystemOrderDisplay(orderObj, mappingObject){
 
 
 			//Frame response actions - INTERNET Necessary!
+			document.getElementById("responseActionsBar").innerHTML = '';
+
 			if(orderObj.orderDetails.modeType == 'DELIVERY'){
 				if(mappingObject.systemStatus == 1){ //Not billed yet --> Option for Cancel
 					if(mappingObject.onlineStatus == 1){
@@ -1134,7 +1136,7 @@ function punchOnlineOrderToKOT(encodedOrder){
           hideLoading();
 
           if(data.status){
-            proceedToPunchOrder();
+            
           }
           else{
             showToast('Cloud Server Error: ' + data.error, '#e74c3c');

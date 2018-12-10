@@ -24,35 +24,38 @@ echo
 echo Creating the 8 Databases...
 echo ...........................
 echo 
-echo [1/10] Creating accelerate_bills
+echo [1/11] Creating accelerate_bills
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_bills
 echo 
-echo [2/10] Creating accelerate_cancelled_invoices
+echo [2/11] Creating accelerate_cancelled_invoices
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_cancelled_invoices
 echo 
-echo [3/10] Creating accelerate_cancelled_orders
+echo [3/11] Creating accelerate_cancelled_orders
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_cancelled_orders
 echo 
-echo [4/10] Creating accelerate_invoices
+echo [4/11] Creating accelerate_invoices
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_invoices
 echo 
-echo [5/10] Creating accelerate_kot
+echo [5/11] Creating accelerate_kot
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_kot
 echo 
-echo [6/10] Creating accelerate_menu_images
+echo [6/11] Creating accelerate_menu_images
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_menu_images
 echo 
-echo [7/10] Creating accelerate_online_orders
+echo [7/11] Creating accelerate_online_orders
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_online_orders
 echo 
-echo [8/10] Creating accelerate_settings
+echo [8/11] Creating accelerate_settings
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings
 echo 
-echo [9/10] Creating accelerate_taps_orders
+echo [9/11] Creating accelerate_taps_orders
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_taps_orders
 echo 
-echo [10/10] Creating accelerate_users
+echo [10/11] Creating accelerate_users
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_users
+echo 
+echo [11/11] Creating accelerate_tables
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_tables
 
 
 echo
@@ -60,111 +63,107 @@ echo
 echo Uploading stub data to the Settings Database...
 echo ...............................................
 echo 
-echo [1/27]
+echo [1/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_BILLING_MODES.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_BILLING_MODES -d "$stub_data_received"
 echo
-echo [2/27]
+echo [2/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_BILLING_PARAMETERS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_BILLING_PARAMETERS -d "$stub_data_received"
 echo
-echo [3/27]
+echo [3/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_BILL_INDEX.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_BILL_INDEX -d "$stub_data_received"
 echo
-echo [4/27]
+echo [4/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_BILL_LAYOUT.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_BILL_LAYOUT -d "$stub_data_received"
 echo
-echo [5/27]
+echo [5/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_CANCELLATION_REASONS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_CANCELLATION_REASONS -d "$stub_data_received"
 echo
-echo [6/27]
+echo [6/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_CONFIGURED_MACHINES.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_CONFIGURED_MACHINES -d "$stub_data_received"
 echo
-echo [7/27]
+echo [7/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_CONFIGURED_PRINTERS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_CONFIGURED_PRINTERS -d "$stub_data_received"
 echo
-echo [8/27]
+echo [8/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_COOKING_INGREDIENTS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "$stub_data_received"
 echo
-echo [9/27]
+echo [9/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_DINE_SESSIONS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_DINE_SESSIONS -d "$stub_data_received"
 echo
-echo [10/27]
+echo [10/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_DISCOUNT_TYPES.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_DISCOUNT_TYPES -d "$stub_data_received"
 echo
-echo [11/27]
+echo [11/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_KOT_INDEX.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_KOT_INDEX -d "$stub_data_received"
 echo
-echo [12/27]
+echo [12/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_KOT_RELAYING.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_KOT_RELAYING -d "$stub_data_received"
 echo
-echo [13/27]
+echo [13/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_MASTER_MENU.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_MASTER_MENU -d "$stub_data_received"
 echo
-echo [14/27]
+echo [14/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_MENU_CATALOG.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_MENU_CATALOG -d "$stub_data_received"
 echo
-echo [15/27]
+echo [15/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_MENU_CATEGORIES.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_MENU_CATEGORIES -d "$stub_data_received"
 echo
-echo [16/27]
+echo [16/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_ORDER_SOURCES.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_ORDER_SOURCES -d "$stub_data_received"
 echo
-echo [17/27]
+echo [17/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_PAYMENT_MODES.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_PAYMENT_MODES -d "$stub_data_received"
 echo
-echo [18/27]
+echo [18/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_PERSONALISATIONS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_PERSONALISATIONS -d "$stub_data_received"
 echo
-echo [19/27]
+echo [19/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_SAVED_COMMENTS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_SAVED_COMMENTS -d "$stub_data_received"
 echo
-echo [20/27]
+echo [20/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_SAVED_ORDERS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_SAVED_ORDERS -d "$stub_data_received"
 echo
-echo [21/27]
+echo [21/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_SHORTCUT_KEYS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_SHORTCUT_KEYS -d "$stub_data_received"
 echo
-echo [22/27]
+echo [22/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_STAFF_PROFILES.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_STAFF_PROFILES -d "$stub_data_received"
 echo
-echo [23/27]
+echo [23/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_SYSTEM_OPTIONS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_SYSTEM_OPTIONS -d "$stub_data_received"
 echo
-echo [24/27]
-stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_TABLES_MASTER.json)
-curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_TABLES_MASTER -d "$stub_data_received"
-echo
-echo [25/27]
+echo [25/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_TABLE_SECTIONS.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_TABLE_SECTIONS -d "$stub_data_received"
 echo
-echo [26/27]
+echo [26/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_TEXT_TO_KITCHEN_LOG.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_TEXT_TO_KITCHEN_LOG -d "$stub_data_received"
 echo
-echo [27/27]
+echo [26/26]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/stub-data/ACCELERATE_TOKEN_INDEX.json)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings/ACCELERATE_TOKEN_INDEX -d "$stub_data_received"
 
@@ -176,79 +175,84 @@ echo .........................
 
 #BILL
 echo
-echo [1/17]
+echo [1/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_bill.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_bills/_design/bills -d "$stub_data_received"
 echo
-echo [2/17]
+echo [2/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_bill_filters.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_bills/_design/bill-filters -d "$stub_data_received"
 echo
-echo [3/17]
+echo [3/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_bill_summary.js.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_bills/_design/bill-filters -d "$stub_data_received"
 #CANCELLED INVOICES
 echo
-echo [4/17]
+echo [4/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_cancelled_invoice_filters.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_cancelled_invoices/_design/invoice-filters -d "$stub_data_received"
 echo
-echo [5/17]
+echo [5/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_cancelled_invoice_refund_summary.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_cancelled_invoices/_design/refund-summary -d "$stub_data_received"
 echo
-echo [6/17]
+echo [6/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_cancelled_invoices.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_cancelled_invoices/_design/invoices -d "$stub_data_received"
 #CANCELLED ORDERS
 echo
-echo [7/17]
+echo [7/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_cancelled_order_filters.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_cancelled_orders/_design/order-filters -d "$stub_data_received"
 echo
-echo [8/17]
+echo [8/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_cancelled_orders.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_cancelled_orders/_design/orders -d "$stub_data_received"
 #INVOICES
 echo
-echo [9/17]
+echo [9/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_invoice.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_invoices/_design/invoices -d "$stub_data_received"
 echo
-echo [10/17]
+echo [10/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_invoice_filters.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_invoices/_design/invoice-filters -d "$stub_data_received"
 echo
-echo [11/17]
+echo [11/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_invoice_refund_summary.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_invoices/_design/refund-summary -d "$stub_data_received"
 echo
-echo [12/17]
+echo [12/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_invoice_summary.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_invoices/_design/invoice-summary -d "$stub_data_received"
 echo
-echo [13/17]
+echo [13/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_invoice_order_summary.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_invoices/_design/order-summary -d "$stub_data_received"
 #KOT
 echo
-echo [14/17]
+echo [14/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_kot_summary.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_kot/_design/search -d "$stub_data_received"
 #ONLINE ORDERS
 echo
-echo [15/17]
+echo [15/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_online_orders_filter.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_online_orders/_design/filter-by -d "$stub_data_received"
 #USERS
 echo
-echo [16/17]
+echo [16/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_users_names.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_users/_design/names -d "$stub_data_received"
 echo
-echo [17/17]
+echo [17/18]
 stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_users_search.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_users/_design/search -d "$stub_data_received"
+#TABLES
+echo
+echo [18/18]
+stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_table_filters.js)
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_tables/_design/filter-tables -d "$stub_data_received"
 echo
 echo
 echo Finished.

@@ -4036,27 +4036,25 @@ function showSpotlight(){
 
                     var mobileNumber = searchKey;
 
-
                     //Preload TABLES data
-                    var requestData = {
-                      "selector"  :{ 
-                                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                                  },
-                      "fields"    : ["_rev", "identifierTag", "value"]
-                    }
-
                     $.ajax({
-                      type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-                      data: JSON.stringify(requestData),
-                      contentType: "application/json",
-                      dataType: 'json',
+                      type: 'GET',
+                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
                       timeout: 10000,
                       success: function(data) {
-                        if(data.docs.length > 0){
-                          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+                        if(data.total_rows > 0){
 
-                            var tableMapping = data.docs[0].value;
+                            var tableData = data.rows;
+                            tableData.sort(function(obj1, obj2) {
+                              return obj1.key - obj2.key; //Key is equivalent to sortIndex
+                            });
+
+                            //Process data to required format
+                            var tableMapping = [];
+                            for(var q = 0; q < tableData.length; q++){
+                              tableMapping.push(tableData[q].value);
+                            }
+
 
                             //Preload MENU data
                             var requestMenuData = {
@@ -4205,7 +4203,7 @@ console.log('am here')
                             //End - Menu data
 
                                 
-                          }
+                          
                         }
                       }
                     });
