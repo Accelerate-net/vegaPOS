@@ -14,6 +14,14 @@
           "value": "NO"
         },
         {
+          "name": "minimumCookingTime",
+          "value": "NO"
+        }, 
+        {
+          "name": "expectedReadyTime",
+          "value": "NO"
+        },         
+        {
           "name": "orderEditingAllowed",
           "value": "YES"
         },

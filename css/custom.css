@@ -6132,3 +6132,90 @@ input:checked + .slider:before {
 }
 
 
+
+#cookingTimeContainer{
+    visibility: hidden;
+    position: fixed;
+    width: 180px;
+    height: 100px;
+    right: 30px;
+    top: 80px;
+    background: #4e4e4e;
+    border-left: 40px solid #dd395f;
+    z-index: 1501;
+}
+
+
+#cookingTimeContainer.show {
+    visibility: visible; 
+    -webkit-animation: super_fadein 0.5s, super_fadeout 0.5s 4.5s;
+    animation: super_fadein 0.5s, super_fadeout 0.5s 4.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes super_fadein {
+    from {right: -100px; opacity: 0;} 
+    to {right: 30px; opacity: 1;}
+}
+
+@keyframes super_fadein {
+    from {right: -100px; opacity: 0;}
+    to {right: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes super_fadeout {
+    from {right: 30px; opacity: 1;} 
+    to {right: -100px; opacity: 0;}
+}
+
+@keyframes super_fadeout {
+    from {right: 30px; opacity: 1;}
+    to {right: -100px; opacity: 0;}
+}
+
+.cookingTimeTitle{
+    margin: 8px 0 0 0;
+    font-size: 12px;
+    text-transform: uppercase;
+    text-align: center;
+    color: #ffffff;
+    font-family: 'Oswald', sans-serif;
+}
+
+.cookingTimeMinutes{
+    margin: 0;
+    font-size: 18px;
+    text-transform: uppercase;
+    text-align: center;
+    color: gray;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 300; 
+}
+
+.cookingTimeCircle{
+    width: 140px;
+    height: 45px;
+    position: relative;
+    animation: pulse 1s linear infinite;
+    z-index: 100;
+    cursor: pointer;
+}
+
+.cookingTimeCount{
+    display: block;
+    text-align: center;
+}
+
+.cookingTimeCountContainer{
+    font-size: 32px;
+    font-family: 'Oswald', sans-serif;
+    display: inherit;
+    font-weight: bold;
+    color: #FFF;
+    width: 100%;
+    text-align: center;
+}
+
+
+
+

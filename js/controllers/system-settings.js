@@ -373,7 +373,7 @@ function createFirstTimeActivationStubsFromSettings(licenceObject, machinesList,
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "YES" }, { "name": "defaultKOTPrinter", "value": "Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "YES" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "YES" }, { "name": "defaultKOTPrinter", "value": "Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "YES" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -859,6 +859,7 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                     var isScanPayActive = false;
                     var isCustomQREnabled = false;
                     var isKOTRelayEnabled = false;
+                    var isMinimumCookingTimeEnabled = false;
 
                     //Render
                     for (var i=0; i<params.length; i++){
@@ -886,6 +887,36 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           else{
                             document.getElementById("systemOptionSyncMenu").value = 'NO';
                           }
+                          break;
+                        }
+                        case "minimumCookingTime": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionMinimumCookingTime").value = params[i].value;
+                            isMinimumCookingTimeEnabled = true;
+                          }
+                          else{
+                            document.getElementById("systemOptionMinimumCookingTime").value = 'NO';
+                            isMinimumCookingTimeEnabled = false;
+                          }
+                          
+                          break;
+                        }
+                        case "expectedReadyTime": {
+                          if(isMinimumCookingTimeEnabled){
+
+                            document.getElementById("systemOptionMinimumCookingTime_printTag").style.display = 'table-row';
+
+                            if(params[i].value == 'YES'){
+                              document.getElementById("systemOptionExpectedReadyTime").value = params[i].value;
+                            }
+                            else{
+                              document.getElementById("systemOptionExpectedReadyTime").value = 'NO';
+                            }
+                          }
+                          else{
+                            document.getElementById("systemOptionMinimumCookingTime_printTag").style.display = 'none';
+                          }
+
                           break;
                         }
                         case "orderEditingAllowed": {
@@ -2017,6 +2048,27 @@ function changeSystemOptionSyncMenu(){
   window.localStorage.appOtherPreferences_syncOnlineMenu = (optName == 'YES' ? 1 : 0);
   changeSystemOptionsFile("syncOnlineMenu", optName);
 }
+
+
+function changeSystemOptionMinimumCookingTime(){
+  var optName = document.getElementById("systemOptionMinimumCookingTime").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_minimumCookingTime = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("minimumCookingTime", optName);
+}
+
+
+function changeSystemOptionExpectedReadyTime(){
+  var optName = document.getElementById("systemOptionExpectedReadyTime").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_expectedReadyTime = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("expectedReadyTime", optName);
+}
+
+
+
 
 
 function changeSystemOptionEditingKOTAllowed(){

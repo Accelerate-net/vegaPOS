@@ -1065,6 +1065,8 @@ function edit_addMoreOptions(optionalSource){
 		document.getElementById("edit_more_options_cookingTime").value = '';
 		document.getElementById("edit_more_options_customCode").value = '';
 		document.getElementById("edit_more_options_ingredients").value = '';
+		document.getElementById("packagedItemFlagEdit").checked = false;
+		
 		$("#edit_more_options_customCode").focus();
 	}
 
@@ -2050,7 +2052,7 @@ function reviewItemPrice(category){
 		}
 
 		if(document.getElementById("edit_more_options_cookingTime") && document.getElementById("edit_more_options_cookingTime").value != ''){
-			item.cookingTime = document.getElementById("edit_more_options_cookingTime").value;
+			item.cookingTime = parseInt(document.getElementById("edit_more_options_cookingTime").value);
 		}
 		else{
 			if(item.cookingTime){

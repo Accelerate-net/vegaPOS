@@ -24,7 +24,7 @@ echo $a
 a=`expr $a + 1`
 echo [$a/$max]
 stub_data_received=$(curl https://zaitoon.online/services/posimportcontacts.php)
-curl -H 'Content-Type: application/json' -X POST http://$database_user_name:$database_user_password@$database_ip:$database_port/zaitoon_users -d "$stub_data_received"
+curl -H 'Content-Type: application/json' -X POST http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_users -d "$stub_data_received"
 echo
 done
 echo
