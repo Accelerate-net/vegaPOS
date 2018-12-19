@@ -111,7 +111,7 @@ function renderAllKOTs() {
                                   items = begKOT + itemsInCart + '</table> </div>'+(i > 6?'<more class="more">More Items</more>':'')+
                                                           '<tag class="bottomTag">'+
                                                           '<p class="tagSteward">' +(kot.stewardName != ''? kot.stewardName   : 'Unknown Staff')+ '</p>'+
-                                                          '<p class="tagUpdate">'+(kot.timeKOT == ''? 'First KOT Printed '+getFormattedTime(kot.timePunch)+' ago': 'KOT Edited '+getFormattedTime(kot.timeKOT)+' ago' )+'</p>'+
+                                                          '<p class="tagUpdate">'+(kot.timeKOT == ''? 'Order punched '+getFormattedTime(kot.timePunch)+' ago': 'Order modified '+getFormattedTime(kot.timeKOT)+' ago' )+'</p>'+
                                                           '</tag> </a>';
 
                                   fullKOT = fullKOT + items + '</li>';
@@ -804,7 +804,7 @@ function printDuplicateKOT(kotID, optionalSource){
                                           }
                                         }
 
-                                    }, 1000);
+                                    }, 10);
                           }
 
                         }
@@ -976,35 +976,22 @@ function pickTableForTransferOrder(currentTableID, kotID){
     var smallTableFlag = '';
 
     //PRELOAD TABLE MAPPING
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+        if(data.total_rows > 0){
 
-              var tables = data.docs[0].value;
-
-              tables.sort(function(obj1, obj2) {
-                return obj1.sortIndex - obj2.sortIndex;
+              var tableData = data.rows;
+              tableData.sort(function(obj1, obj2) {
+                return obj1.key - obj2.key; //Key is equivalent to sortIndex
               });
-              
  
-              if(tables.length < 50 && tables.length > 30){ //As per UI, it can include 30 large tables 
+              if(tableData.length < 50 && tableData.length > 30){ //As per UI, it can include 30 large tables 
                 smallTableFlag = ' mediumTile';
               }
-              else if(tables.length > 50){
+              else if(tableData.length > 50){
                 smallTableFlag = ' smallTile';
               }
  
@@ -1036,38 +1023,38 @@ function pickTableForTransferOrder(currentTableID, kotID){
                                           while(tableSections[n]){
                                     
                                             var renderTableArea = ''
-                                            for(var i = 0; i<tables.length; i++){
-                                                if(tables[i].type == tableSections[n]){
+                                            for(var i = 0; i<tableData.length; i++){
+                                                if(tableData[i].value.type == tableSections[n]){
 
-                                                    if(tables[i].status != 0){ /*Occuppied*/
-                                                        if(tables[i].status == 1){
-                                                            if(currentTableID != '' && currentTableID == tables[i].table){
-                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')">'+
-                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
+                                                    if(tableData[i].value.status != 0){ /*Occuppied*/
+                                                        if(tableData[i].value.status == 1){
+                                                            if(currentTableID != '' && currentTableID == tableData[i].value.table){
+                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')">'+
+                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
                                                                                                 '<tag class="tableCapacity'+smallTableFlag+'">Current Table</tag>'+
                                                                                                 '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
                                                                                                 '</tag>';   
                                                             }   
                                                             else{
                                                                 renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
-                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
                                                                                             '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
                                                                                             '</tag>';                                                       
                                                             }
                                                         }                                   
-                                                        else if(tables[i].status == 5){
-                                                            if(currentTableID != '' && currentTableID == tables[i].table){
-                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')">'+
-                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+                                                        else if(tableData[i].value.status == 5){
+                                                            if(currentTableID != '' && currentTableID == tableData[i].value.table){
+                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')">'+
+                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? "For "+tableData[i].value.assigned : "-")+'</tag>'+
                                                                                                 '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
                                                                                                 '</tag>';   
                                                             }   
                                                             else{
-                                                                renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')">'+
-                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? "For "+tables[i].assigned : "-")+'</tag>'+
+                                                                renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')">'+
+                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? "For "+tableData[i].value.assigned : "-")+'</tag>'+
                                                                                                 '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
                                                                                                 '</tag>';   
                                                             }
@@ -1075,8 +1062,8 @@ function pickTableForTransferOrder(currentTableID, kotID){
                                                         }                                   
                                                         else{
                                                             renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
-                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
                                                                                             '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
                                                                                             '</tag>';                                           
                                                         }
@@ -1084,17 +1071,17 @@ function pickTableForTransferOrder(currentTableID, kotID){
                                                     }
                                                     else{
 
-                                                        if(currentTableID != '' && currentTableID == tables[i].table){
-                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')" class="tableTileBlue'+smallTableFlag+'">'+
-                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+                                                        if(currentTableID != '' && currentTableID == tableData[i].value.table){
+                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')" class="tableTileBlue'+smallTableFlag+'">'+
+                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
                                                                                             '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
                                                                                             '</tag>';
                                                         }   
                                                         else{
-                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tables[i].table+'\', \''+kotID+'\')" class="tableTileGreen'+smallTableFlag+'">'+
-                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
                                                                                             '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
                                                                                             '</tag>';
                                                         }                                                                   
@@ -1143,11 +1130,6 @@ function pickTableForTransferOrder(currentTableID, kotID){
 
                     });
 
-                
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -1247,106 +1229,124 @@ function swapTableMapping(old, newTable, old_kot){
 
   console.log('Swap', old, newTable)
 
-        var requestData = {
-          "selector"  :{ 
-                        "identifierTag": "ACCELERATE_TABLES_MASTER" 
+
+    //Find the old table
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+old+'"]&endkey=["'+old+'"]',
+      timeout: 10000,
+      success: function(data) {
+        if(data.rows.length == 1){
+
+              var tableData = data.rows[0].value;
+
+              var remember_id = null;
+              var remember_rev = null;
+
+              if(tableData.table == old){
+
+                remember_id = tableData._id;
+                remember_rev = tableData._rev;
+
+                tableData.status = 0;
+                tableData.assigned = "";
+                tableData.remarks = "";
+                tableData.KOT = "";
+                tableData.lastUpdate = "";
+
+                    //Update
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        changeNewTable();
                       },
-          "fields"    : ["_rev", "identifierTag", "value"]
-        }
+                      error: function(data) {
+                        changeNewTable();
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });   
 
-        $.ajax({
-          type: 'POST',
-          url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-          data: JSON.stringify(requestData),
-          contentType: "application/json",
-          dataType: 'json',
-          timeout: 10000,
-          success: function(data) {
-            if(data.docs.length > 0){
-              if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
-
-                var tableMapping = data.docs[0].value;
-
-                //Find Old Value
-                for(var i=0; i<tableMapping.length; i++){
-                  if(tableMapping[i].table == old){ 
-
-                      tableMapping[i].status = 0;
-                      tableMapping[i].assigned = "";
-                      tableMapping[i].KOT = "";
-                      tableMapping[i].lastUpdate = "";
-
-                      replaceWithNewTable();
-
-                      break;
-                  }
-
-                  if(i == tableMapping.length - 1){ //Table mapping not found! (Unlinked Order)
-                    replaceWithNewTable();
-                  }
-                
-                }
-
-
-                function replaceWithNewTable(){
-                  //Find New Table
-                  for(var j=0; j<tableMapping.length; j++){
-                    if(tableMapping[j].table == newTable){ 
-
-                        tableMapping[j].status = 1;
-                        tableMapping[j].assigned = old_kot.customerName;
-                        tableMapping[j].KOT = old_kot.KOTNumber;
-                        tableMapping[j].lastUpdate = (old_kot.timeKOT != "" ? old_kot.timeKOT : old_kot.timePunch); 
-
-                        updateChangesOnServer();
-
-                        break;
-                    }     
-                  }             
-                }
-
-
-                function updateChangesOnServer(){
-                        //Update
-                        var updateData = {
-                          "_rev": data.docs[0]._rev,
-                          "identifierTag": "ACCELERATE_TABLES_MASTER",
-                          "value": tableMapping
-                        }
-
-                        $.ajax({
-                          type: 'PUT',
-                          url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
-                          data: JSON.stringify(updateData),
-                          contentType: "application/json",
-                          dataType: 'json',
-                          timeout: 10000,
-                          success: function(data) {
-
-                          },
-                          error: function(data) {
-                            showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
-                          }
-
-                        });    
-                }         
-
-                    
               }
               else{
+                changeNewTable();
                 showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
               }
-            }
-            else{
-              showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-            }
+        }
+        else{
+          changeNewTable();
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
 
-          },
-          error: function(data) {
-            showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      },
+      error: function(data) {
+        changeNewTable();
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });
+
+
+
+    //Find the new table
+    function changeNewTable(){
+      $.ajax({
+        type: 'GET',
+        url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+newTable+'"]&endkey=["'+newTable+'"]',
+        timeout: 10000,
+        success: function(data) {
+          if(data.rows.length == 1){
+
+                var tableData = data.rows[0].value;
+
+                var remember_id = null;
+                var remember_rev = null;
+
+                if(tableData.table == newTable){
+
+                  remember_id = tableData._id;
+                  remember_rev = tableData._rev;
+
+                  tableData.status = 1;
+                  tableData.assigned = old_kot.stewardName;
+                  tableData.remarks = old_kot.remarks;
+                  tableData.KOT = old_kot.KOTNumber;
+                  tableData.lastUpdate = (old_kot.timeKOT != "" ? old_kot.timeKOT : old_kot.timePunch);;
+
+                      //Update
+                      $.ajax({
+                        type: 'PUT',
+                        url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                        data: JSON.stringify(tableData),
+                        contentType: "application/json",
+                        dataType: 'json',
+                        timeout: 10000,
+                        success: function(data) {
+                          
+                        },
+                        error: function(data) {
+                          showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        }
+                      });   
+
+                }
+                else{
+                  showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                }
+          }
+          else{
+            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
           }
 
-        });  
+        },
+        error: function(data) {
+          showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        }
+      });
+    }
 }
 
 

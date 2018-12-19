@@ -462,6 +462,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                 '                </div>';
 
           document.getElementById("billPreviewContentActions").innerHTML = '<button id="billButtonAction_generate" class="btn btn-success tableOptionsButton breakWord" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Generate Bill</button>'+
+                            '<button id="billButtonAction_generateSilently" class="btn btn-success tableOptionsButton breakWord" style="height:5px; display: none;" onclick="confirmBillGeneration(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\', \'SILENTLY\')">Generate Silently</button>'+
                             '<button style="margin: 0" id="billButtonAction_cancel" class="btn btn-default tableOptionsButton breakWord" onclick="hideBillPreviewModal()">Close</button>'
 
           document.getElementById("billPreviewModal").style.display = 'block';
@@ -1793,52 +1794,37 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
 
 
 
-function releaseTableAfterBillSettle(tableID, billNumber, optionalPageRef){
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableName+'"]&endkey=["'+tableName+'"]',
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+        if(data.rows.length == 1){
 
-            var tableMapping = data.docs[0].value;
-            var timestamp = getCurrentTime('TIME');
+              var tableData = data.rows[0].value;
 
-            for(var i=0; i<tableMapping.length; i++){
-              if(tableMapping[i].table == tableID){
+              var remember_id = null;
+              var remember_rev = null;
 
-                tableMapping[i].assigned = "";
-                tableMapping[i].KOT = "";
-                tableMapping[i].status = 0;
-                tableMapping[i].lastUpdate = timestamp;
-                
-                break;
-              }
-            }
+              if(tableData.table == tableName){
+
+                remember_id = tableData._id;
+                remember_rev = tableData._rev;
+
+                tableData.assigned = "";
+                tableData.remarks = "";
+                tableData.KOT = "";
+                tableData.status = 0;
+                tableData.lastUpdate = "";              
+
 
                     //Update
-                    var updateData = {
-                      "_rev": data.docs[0]._rev,
-                      "identifierTag": "ACCELERATE_TABLES_MASTER",
-                      "value": tableMapping
-                    }
-
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
-                      data: JSON.stringify(updateData),
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
@@ -1853,14 +1839,12 @@ function releaseTableAfterBillSettle(tableID, billNumber, optionalPageRef){
                       error: function(data) {
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
+                    });   
 
-                    });             
-
-                
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
+              }
+              else{
+                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+              }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -1945,7 +1929,7 @@ function releaseTableAfterBillSettle(tableID, billNumber, optionalPageRef){
 
 
 
-function confirmBillGeneration(kotID, optionalPageRef){
+function confirmBillGeneration(kotID, optionalPageRef, silentRequest){
 
     var requestData = {
       "selector"  :{ 
@@ -1966,7 +1950,7 @@ function confirmBillGeneration(kotID, optionalPageRef){
           if(data.docs[0].identifierTag == 'ACCELERATE_BILL_INDEX'){
 
             var billNumber = parseInt(data.docs[0].value) + 1;
-            confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, data.docs[0]._rev)
+            confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, data.docs[0]._rev, silentRequest)
                 
           }
           else{
@@ -1986,7 +1970,7 @@ function confirmBillGeneration(kotID, optionalPageRef){
 }
 
 
-function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, revID){
+function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, revID, silentRequest){
 
     var memory_id = '';
     var memory_rev = '';
@@ -2147,10 +2131,15 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                 if(data.ok){
 
                           
-
+                        if(silentRequest == 'SILENTLY'){
+                          showToast('<b>Skipped Printing!</b> Bill #'+billNumber+' generated Successfully', '#27ae60');
+                        }
+                        else{
                           showToast('Bill #'+billNumber+' generated Successfully', '#27ae60');
-
                           sendToPrinter(newBillFile, 'BILL');
+                        }
+
+
 
                           clearAllMetaDataOfBilling();
                           hideBillPreviewModal();
@@ -2168,7 +2157,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                               resetTableToFree(kotfile.table);
                             }
                             else{ 
-                              billTableMapping(kotfile.table, billNumber, 2, optionalPageRef);
+                              billTableMapping(kotfile.table, billNumber, kotfile.payableAmount, 2, optionalPageRef);
                             }
                           }
                           
@@ -2243,8 +2232,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
             });  
             //End - post KOT to Server
 
-
-
         }
         else{
           showToast('Not Found Error: Order #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
@@ -2261,55 +2248,35 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
 function resetTableToFree(tableNumber){
 
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data.rows.length == 1){
 
-            if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+              var tableData = data.rows[0].value;
 
-              var tableMapping = data.docs[0].value;
+              var remember_id = null;
+              var remember_rev = null;
 
-              for(var i=0; i<tableMapping.length; i++){
-                if(tableMapping[i].table == tableNumber){
+              if(tableData.table == tableNumber){
 
-                  if(tableMapping[i].status == 0){
-                    return '';
-                  }
+                remember_id = tableData._id;
+                remember_rev = tableData._rev;
 
-                  tableMapping[i].assigned = "";
-                  tableMapping[i].KOT = "";
-                  tableMapping[i].status = 0;
-                  tableMapping[i].lastUpdate = "";
-                  
-                  break;
-                }
-              }
+                tableData.assigned = "";
+                tableData.remarks = "";
+                tableData.KOT = "";
+                tableData.status = 0;
+                tableData.lastUpdate = "";              
+
 
                     //Update
-                    var updateData = {
-                      "_rev": data.docs[0]._rev,
-                      "identifierTag": "ACCELERATE_TABLES_MASTER",
-                      "value": tableMapping
-                    }
-
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
-                      data: JSON.stringify(updateData),
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
@@ -2322,14 +2289,13 @@ function resetTableToFree(tableNumber){
                       error: function(data) {
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
+                    });   
 
-                    });             
 
-                
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
+              }
+              else{
+                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+              }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -3261,79 +3227,60 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
 
         var tableNumber = bill.table;
 
-        var requestData = {
-          "selector"  :{ 
-                        "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                      },
-          "fields"    : ["_rev", "identifierTag", "value"]
-        }
-
         $.ajax({
-          type: 'POST',
-          url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-          data: JSON.stringify(requestData),
-          contentType: "application/json",
-          dataType: 'json',
+          type: 'GET',
+          url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
           timeout: 10000,
           success: function(data) {
-            if(data.docs.length > 0){
+            if(data.rows.length == 1){
 
-                if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+                  var tableData = data.rows[0].value;
 
-                  var tableMapping = data.docs[0].value;
+                  var remember_id = null;
+                  var remember_rev = null;
 
-                  for(var i=0; i<tableMapping.length; i++){
-                    if(tableMapping[i].table == tableNumber){
+                  if(tableData.table == tableNumber){
 
-                      if(tableMapping[i].status == 0){
-                        return '';
-                      }
+                    remember_id = tableData._id;
+                    remember_rev = tableData._rev;
 
-                      tableMapping[i].assigned = "";
-                      tableMapping[i].KOT = "";
-                      tableMapping[i].status = 0;
-                      tableMapping[i].lastUpdate = "";
-                      
-                      break;
-                    }
-                  }
+                    tableData.assigned = "";
+                    tableData.remarks = "";
+                    tableData.KOT = "";
+                    tableData.status = 0;
+                    tableData.lastUpdate = "";              
 
-                        //Update
-                        var updateData = {
-                          "_rev": data.docs[0]._rev,
-                          "identifierTag": "ACCELERATE_TABLES_MASTER",
-                          "value": tableMapping
-                        }
 
-                        $.ajax({
-                          type: 'PUT',
-                          url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
-                          data: JSON.stringify(updateData),
-                          contentType: "application/json",
-                          dataType: 'json',
-                          timeout: 10000,
-                          success: function(data) {
+                    //Update
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
                             hideSettleBillAndPush();
                             if(optionalPageRef == 'ORDER_PUNCHING'){
                               triggerRightPanelDisplay();
                             }
-                          }
-                        });             
-              }
-              else{
-                hideSettleBillAndPush()  
-              }
+                      }
+                    });   
+                  }
+                  else{
+                    hideSettleBillAndPush();
+                  }
             }
             else{
-              hideSettleBillAndPush()  
+              hideSettleBillAndPush();
             }
 
           },
           error: function(data) {
-            hideSettleBillAndPush()
+            hideSettleBillAndPush();  
           }
 
-        });      
+        });    
     }
     else{ //Just hide the window for any other type of orders.
       hideSettleBillAndPush();
@@ -3343,23 +3290,17 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
 
 function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
 
-    var requestData = {
-      "selector"  :{ 
-                    "_id": orderObject.orderDetails.onlineOrderDetails.orderSource +'_'+orderObject.orderDetails.reference
-                  }
-    }
+
+    var online_id_request_data = orderObject.orderDetails.onlineOrderDetails.orderSource+'_'+orderObject.orderDetails.reference;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/'+online_id_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id != ""){
 
-              var onlineOrdersMapping = data.docs[0];
+              var onlineOrdersMapping = data;
 
               onlineOrdersMapping.systemBill = orderObject.billNumber;
 
@@ -3370,11 +3311,10 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
                 onlineOrdersMapping.systemStatus = 3;
               }
 
-              console.log(onlineOrdersMapping)
 
                 $.ajax({
                   type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_online_orders/'+orderObject.orderDetails.onlineOrderDetails.orderSource +'_'+orderObject.orderDetails.reference+'/',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_online_orders/'+online_id_request_data+'/',
                   data: JSON.stringify(onlineOrdersMapping),
                   contentType: "application/json",
                   dataType: 'json',
@@ -4381,7 +4321,7 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
                                           }
                                         }
 
-                                    }, 1000);
+                                    }, 10);
                           }
 
                         }
@@ -4485,49 +4425,35 @@ function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPag
 
 function updateTableMappingAfterCancellation(tableID, optionalPageRef){
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableID+'"]&endkey=["'+tableID+'"]',
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+        if(data.rows.length == 1){
 
-                    var tableMapping = data.docs[0].value;
+              var tableData = data.rows[0].value;
 
-                    for(var i=0; i<tableMapping.length; i++){
-                      if(tableMapping[i].table == tableID){
+              var remember_id = null;
+              var remember_rev = null;
 
-                        tableMapping[i].status = 0;
-                        tableMapping[i].assigned = "";
-                        tableMapping[i].lastUpdate = "";
-                        tableMapping[i].KOT = "";
+              if(tableData.table == tableID){
 
-                        break;
-                      }
-                    }
+                remember_id = tableData._id;
+                remember_rev = tableData._rev;
+
+                tableData.assigned = "";
+                tableData.remarks = "";
+                tableData.KOT = "";
+                tableData.status = 0;
+                tableData.lastUpdate = "";              
+
 
                     //Update
-                    var updateData = {
-                      "_rev": data.docs[0]._rev,
-                      "identifierTag": "ACCELERATE_TABLES_MASTER",
-                      "value": tableMapping
-                    }
-
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
-                      data: JSON.stringify(updateData),
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
@@ -4542,11 +4468,12 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
                       error: function(data) {
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
-                    });     
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
+                    });   
+
+              }
+              else{
+                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+              }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');

@@ -15,8 +15,6 @@ function openFreeSeatOptions(tableID){
                   '<button class="btn btn-default tableOptionsButton" onclick="hideFreeSeatOptions()">Close</button>';
 	document.getElementById("freeSeatOptionsModal").style.display ='block';
 
-
-
           /*
             EasySelect Tool (LISTS)
           */
@@ -316,7 +314,7 @@ function removeTableMappingWarning(tableNumber){
   document.getElementById("mappingDeleteConfirmationText").innerHTML = 'You are removing the Order Mapping on <b>Table #'+tableNumber+'</b>. Order will not get affected, only the mapping will be erased. Sure want to continue?'
 
   document.getElementById("mappingDeleteConfirmationConsent").innerHTML = '<button  class="btn btn-default" onclick="removeTableMappingWarningHide()" style="float: left">Close</button>'+
-                                '<button  class="btn btn-danger" onclick="removeTableMapping(\''+tableNumber+'\')">Proceed to Remove</button>';
+                                '<button class="btn btn-danger" onclick="removeTableMapping(\''+tableNumber+'\')">Proceed to Remove</button>';
 
 
           var easyActionsTool = $(document).on('keydown',  function (e) {
@@ -341,54 +339,35 @@ function removeTableMapping(tableNumber){
 
     removeTableMappingWarningHide();
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data.rows.length == 1){
 
-            if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+              var tableData = data.rows[0].value;
 
-              var tableMapping = data.docs[0].value;
+              var remember_id = null;
+              var remember_rev = null;
 
-              for(var i=0; i<tableMapping.length; i++){
-                if(tableMapping[i].table == tableNumber){
+              if(tableData.table == tableNumber){
 
-                  if(tableMapping[i].status == 0){
-                    return '';
-                  }
+                remember_id = tableData._id;
+                remember_rev = tableData._rev;
 
-                  tableMapping[i].assigned = "";
-                  tableMapping[i].KOT = "";
-                  tableMapping[i].status = 0;
-                  tableMapping[i].lastUpdate = "";
-                  
-                  break;
-                }
-              }
+                tableData.assigned = "";
+                tableData.remarks = "";
+                tableData.KOT = "";
+                tableData.status = 0;
+                tableData.lastUpdate = "";              
+
 
                     //Update
-                    var updateData = {
-                      "_rev": data.docs[0]._rev,
-                      "identifierTag": "ACCELERATE_TABLES_MASTER",
-                      "value": tableMapping
-                    }
-
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
-                      data: JSON.stringify(updateData),
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
@@ -398,14 +377,13 @@ function removeTableMapping(tableNumber){
                       error: function(data) {
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
+                    });   
 
-                    });             
 
-                
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
+              }
+              else{
+                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+              }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -417,6 +395,7 @@ function removeTableMapping(tableNumber){
       }
 
     });
+
 }
 
 
@@ -542,81 +521,61 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
 
 function removeOtherKOTAfterProcess(kotList){
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+    clearTable(1) //Do not count first KOT
+    function clearTable(kot_counter){
 
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+      if(kot_counter == kotList.length){ //last KOT/Table mapping to clear
+        preloadTableStatus();
+        return "";        
+      }
 
-                var tableMapping = data.docs[0].value;
+      $.ajax({
+        type: 'GET',
+        url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyKOT?startkey=["'+kotList[kot_counter]+'"]&endkey=["'+kotList[kot_counter]+'"]',
+        timeout: 10000,
+        success: function(data) {
+          if(data.rows.length == 1){
 
-                for(var i=0; i<tableMapping.length; i++){
-                  var n = 1; //Do not count first KOT
-                  while(kotList[n]){
-                    if(tableMapping[i].KOT == kotList[n]){
-                      
-                      tableMapping[i].status = 0;
-                      tableMapping[i].assigned = "";
-                      tableMapping[i].lastUpdate = "";
-                      tableMapping[i].KOT = "";
-                      
-                      break;
-                    }
-                    
-                    n++;
-                  }
-                }
+                  var tableData = data.rows[0].value;
+
+                  var remember_id = tableData._id;
+                  var remember_rev = tableData._rev;
+
+                  tableData.remarks = "";
+                  tableData.assigned = "";
+                  tableData.KOT = "";
+                  tableData.status = "";
+                  tableData.lastUpdate = "";          
+
 
                     //Update
-                    var updateData = {
-                      "_rev": data.docs[0]._rev,
-                      "identifierTag": "ACCELERATE_TABLES_MASTER",
-                      "value": tableMapping
-                    }
-
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
-                      data: JSON.stringify(updateData),
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
                       success: function(data) {
-                        preloadTableStatus();
+                        clearTable(kot_counter + 1);
                       },
                       error: function(data) {
+                        clearTable(kot_counter + 1);
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
-
-                    });             
-
-                
+                    });  
           }
           else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+            clearTable(kot_counter + 1);
+            showToast('Not Found Error: KOT #'+kotList[kot_counter]+' was not found. Please contact Accelerate Support.', '#e74c3c');
           }
-        }
-        else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        },
+        error: function(data) {
+          showToast('System Error: Unable to read KOT data. Please contact Accelerate Support.', '#e74c3c');
         }
 
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-      }
-    });  
+      });             
+    }
 }
 
 
@@ -732,158 +691,57 @@ function addToReserveListConsentClose(){
 }
 
 
-function addToReserveList(tableID){
+function addToReserveList(tableNumber){
 
 	addToReserveListConsentClose();
 	var comments = document.getElementById("reserve_table_in_the_name_of").value;
 
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+        if(data.rows.length == 1){
 
-	          var tableMapping = data.docs[0].value;
+              var tableData = data.rows[0].value;
 
-	          for(var i=0; i<tableMapping.length; i++){
-	          	if(tableMapping[i].table == tableID){
+              var remember_id = null;
+              var remember_rev = null;
 
-	          		if(tableMapping[i].status != 0){
-	          			return '';
-	          		}
+              if(tableData.table == tableNumber){
 
-	          		tableMapping[i].assigned = comments;
-	          		tableMapping[i].KOT = "";
-	          		tableMapping[i].status = 5;
-	          		tableMapping[i].lastUpdate = "";
+                remember_id = tableData._id;
+                remember_rev = tableData._rev;
 
-	          		break;
-	          	}
-	          }
+                tableData.remarks = "";
+                tableData.assigned = comments;
+                tableData.KOT = "";
+                tableData.status = 5;
+                tableData.lastUpdate = "";          
+
 
                     //Update
-                    var updateData = {
-                      "_rev": data.docs[0]._rev,
-                      "identifierTag": "ACCELERATE_TABLES_MASTER",
-                      "value": tableMapping
-                    }
-
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
-                      data: JSON.stringify(updateData),
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
                       contentType: "application/json",
                       dataType: 'json',
                       timeout: 10000,
                       success: function(data) {
-			           	showToast('Table '+tableID+' has been marked as Reserved', '#27ae60');
-			           	hideFreeSeatOptions();
-			           	preloadTableStatus();
-                      },
-                      error: function(data) {
-                        showToast('System Error: Unable to Reserve. Update Tables data failed. Please contact Accelerate Support.', '#e74c3c');
-                      }
-
-                    });  	          
-
-                
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
-      }
-
-    });
-}
-
-function removeFromReserveList(tableID){
-
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
-
-	          var tableMapping = data.docs[0].value;
-
-	          for(var i=0; i<tableMapping.length; i++){
-	          	if(tableMapping[i].table == tableID){
-	          		if(tableMapping[i].status != 5){
-	          			return '';
-	          		}
-
-	          		tableMapping[i].status = 0;
-	          		tableMapping[i].assigned = "";
-	          		tableMapping[i].lastUpdate = "";
-	          		tableMapping[i].KOT = "";
-
-	          		break;
-	          	}
-	          }
-                    //Update
-                    var updateData = {
-                      "_rev": data.docs[0]._rev,
-                      "identifierTag": "ACCELERATE_TABLES_MASTER",
-                      "value": tableMapping
-                    }
-
-                    $.ajax({
-                      type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLES_MASTER/',
-                      data: JSON.stringify(updateData),
-                      contentType: "application/json",
-                      dataType: 'json',
-                      timeout: 10000,
-                      success: function(data) {
-			           	showToast('Table '+tableID+' has been marked as Free', '#27ae60');
-			           	hideReservedSeatOptions();
-			           	preloadTableStatus();
+                        showToast('Table <b>'+tableNumber+'</b> has been marked as Reserved', '#27ae60');
+                        hideFreeSeatOptions();
+                        preloadTableStatus();
                       },
                       error: function(data) {
                         showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
-
-                    });  	          
-
-                
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
+                    });   
+              }
+              else{
+                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+              }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -893,7 +751,65 @@ function removeFromReserveList(tableID){
       error: function(data) {
         showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
       }
+    });
+}
 
+function removeFromReserveList(tableNumber){
+
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
+      timeout: 10000,
+      success: function(data) {
+        if(data.rows.length == 1){
+
+              var tableData = data.rows[0].value;
+
+              var remember_id = null;
+              var remember_rev = null;
+
+              if(tableData.table == tableNumber){
+
+                remember_id = tableData._id;
+                remember_rev = tableData._rev;
+
+                tableData.remarks = "";
+                tableData.assigned = "";
+                tableData.KOT = "";
+                tableData.status = 0;
+                tableData.lastUpdate = "";          
+
+
+                    //Update
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        showToast('Table <b>'+tableNumber+'</b> has been marked as Free', '#27ae60');
+                        hideReservedSeatOptions();
+                        preloadTableStatus();
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });   
+              }
+              else{
+                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+              }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
     });
 }
 
@@ -1214,34 +1130,20 @@ function mergeBillsInTheHoldList(){
 	var KOTList = [];
 
 	/*to find KOT IDs mapped against these tables*/
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+        if(data.total_rows > 0){
 
-	          		var tableMapping = data.docs[0].value;
-		            tableMapping.sort(); //alphabetical sorting 
+              var tableData = data.rows;
 
 		              for (var i =0; i < holdList.length; i++){
 			              var m = 0;
-			              while(tableMapping[m]){
-			              	if(holdList[i] == tableMapping[m].table){
-			              		KOTList.push(tableMapping[m].KOT);
-
-                        console.log(tableMapping[m])
+			              while(m < tableData.length){
+			              	if(holdList[i] == tableData[m].value.table){
+			              		KOTList.push(tableData[m].value.KOT);
 			              		break;
 			              	}
 			              	m++;
@@ -1249,12 +1151,6 @@ function mergeBillsInTheHoldList(){
 		              }
 
 		              mergeBillsInTheHoldListAfterProcess(KOTList, holdList); /* Merge KOTs*/	                    
-
-                
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -1274,35 +1170,23 @@ function preloadTableStatus(mode, currentTableID){
     //To display Large (default) or Small Tables
     var smallTableFlag = '';
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+        if(data.total_rows > 0){
 
-              var tables = data.docs[0].value;
-
-              tables.sort(function(obj1, obj2) {
-                return obj1.sortIndex - obj2.sortIndex;
+              var tableData = data.rows;
+              tableData.sort(function(obj1, obj2) {
+                return obj1.key - obj2.key; //Key is equivalent to sortIndex
               });
 
  
-              if(tables.length < 60 && tables.length > 30){ //As per UI, it can include 30 large tables 
+              if(tableData.length < 60 && tableData.length > 30){ //As per UI, it can include 30 large tables 
                 smallTableFlag = ' mediumTile';
               }
-              else if(tables.length > 60){
+              else if(tableData.length > 60){
                 smallTableFlag = ' smallTile';
               }
 
@@ -1345,19 +1229,19 @@ function preloadTableStatus(mode, currentTableID){
 					              while(tableSections[n]){
 					        
 					              	var renderTableArea = ''
-					              	for(var i = 0; i<tables.length; i++){
-					              		if(tables[i].type == tableSections[n]){
+					              	for(var i = 0; i<tableData.length; i++){
+					              		if(tableData[i].value.type == tableSections[n]){
 
-					              			if(tables[i].status != 0){ /*Occuppied*/
-												if(tables[i].status == 1){
+					              			if(tableData[i].value.status != 0){ /*Occuppied*/
+												if(tableData[i].value.status == 1){
 
-													if(tables[i].table == currentTableID){
+													if(tableData[i].value.table == currentTableID){
 
 														totalTablesToMerge++;
 
 														renderTableArea = renderTableArea + '<tag class="tableTileRed'+smallTableFlag+' selected">'+
-																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
 																				            '<tag class="tableInfo'+smallTableFlag+'" style="color: #fff"><i class="fa fa-check"></i></tag>'+
 																				        	'</tag>';	
 													}
@@ -1365,33 +1249,33 @@ function preloadTableStatus(mode, currentTableID){
 
 														totalTablesToMerge++;
 
-							              				renderTableArea = renderTableArea + '<tag id="holdMain_'+tables[i].table+'" onclick="addToHoldList(\''+tables[i].table+'\')" class="tableTileRed'+smallTableFlag+'">'+
-																				            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																				            '<tag class="tableInfo'+smallTableFlag+'" id="hold_'+tables[i].table+'" style="color: #fff">Punched '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+							              				renderTableArea = renderTableArea + '<tag id="holdMain_'+tableData[i].value.table+'" onclick="addToHoldList(\''+tableData[i].value.table+'\')" class="tableTileRed'+smallTableFlag+'">'+
+																				            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																				            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
+																				            '<tag class="tableInfo'+smallTableFlag+'" id="hold_'+tableData[i].value.table+'" style="color: #fff">Seated '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																				        	'</tag>';												
 													}
 
 												}	
-												else if(tables[i].status == 2){
+												else if(tableData[i].value.status == 2){
 					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
-																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo'+smallTableFlag+'">Billed '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Billed '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';	
 												}	
-												else if(tables[i].status == 5){
+												else if(tableData[i].value.status == 5){
 					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
-																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? (tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableData[i].value.assigned) : "-")+'</tag>'+
 																		            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																		        	'</tag>';	
 												}																									
 												else{
 					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
-																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo'+smallTableFlag+'">Updated '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Updated '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';											
 												}
 
@@ -1400,8 +1284,8 @@ function preloadTableStatus(mode, currentTableID){
 					              			else{
 
 					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
-																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
 																		            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
 																		        	'</tag>';		              				
 					              			}
@@ -1439,36 +1323,36 @@ function preloadTableStatus(mode, currentTableID){
 					              while(tableSections[n]){
 					        
 					              	var renderTableArea = ''
-					              	for(var i = 0; i<tables.length; i++){
-					              		if(tables[i].type == tableSections[n]){
+					              	for(var i = 0; i<tableData.length; i++){
+					              		if(tableData[i].value.type == tableSections[n]){
 
-					              			if(tables[i].status != 0){ /*Occuppied*/
-												if(tables[i].status == 1){
-					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileRed'+smallTableFlag+'">'+
-																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo'+smallTableFlag+'">Punched '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+					              			if(tableData[i].value.status != 0){ /*Occuppied*/
+												if(tableData[i].value.status == 1){
+					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tableData[i].value))+'\')" class="tableTileRed'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Seated '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';	
 												}
-												else if(tables[i].status == 2){
-					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileYellow'+smallTableFlag+'">'+
-																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo'+smallTableFlag+'">Billed '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+												else if(tableData[i].value.status == 2){
+					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tableData[i].value))+'\')" class="tableTileYellow'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Billed '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';	
 												}
-												else if(tables[i].status == 5){
-					              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tables[i].table+'\', \''+tables[i].assigned+'\', '+(tables[i].assigned == 'Hold Order' ? 1 : 0)+')" class="tableReserved'+smallTableFlag+'">'+
-																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ""? (tables[i].assigned == 'Hold Order' ? 'Saved Order' : 'For '+tables[i].assigned) : "-")+'</tag>'+
+												else if(tableData[i].value.status == 5){
+					              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tableData[i].value.table+'\', \''+tableData[i].value.assigned+'\', '+(tableData[i].value.assigned == 'Hold Order' ? 1 : 0)+')" class="tableReserved'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? (tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableData[i].value.assigned) : "-")+'</tag>'+
 																		            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
 																		        	'</tag>';	
 												}									
 												else{
-					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tables[i]))+'\')" class="tableTileRed'+smallTableFlag+'">'+
-																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tables[i].assigned != ''? tables[i].assigned: '-')+'</tag>'+
-																		            '<tag class="tableInfo'+smallTableFlag+'">Updated '+getFormattedTime(tables[i].lastUpdate)+' ago</tag>'+
+					              				renderTableArea = renderTableArea + '<tag onclick="openOccuppiedSeatOptions(\''+encodeURI(JSON.stringify(tableData[i].value))+'\')" class="tableTileRed'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ''? tableData[i].value.assigned: tableData[i].value.capacity+' Seater')+'</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">Updated '+getFormattedTime(tableData[i].value.lastUpdate)+' ago</tag>'+
 																		        	'</tag>';											
 												}
 
@@ -1476,9 +1360,9 @@ function preloadTableStatus(mode, currentTableID){
 					              			}
 					              			else{
 
-					              				renderTableArea = renderTableArea + '<tag onclick="openFreeSeatOptions(\''+tables[i].table+'\')" class="tableTileGreen'+smallTableFlag+'">'+
-																		            '<tag class="tableTitle'+smallTableFlag+'">'+tables[i].table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+tables[i].capacity+' Seater</tag>'+
+					              				renderTableArea = renderTableArea + '<tag onclick="openFreeSeatOptions(\''+tableData[i].value.table+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
 																		            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
 																		        	'</tag>';		              				
 					              			}
@@ -1516,11 +1400,6 @@ function preloadTableStatus(mode, currentTableID){
 
 				    });
 
-                
-          }
-          else{
-            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');

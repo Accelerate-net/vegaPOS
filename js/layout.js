@@ -557,6 +557,8 @@ function goProceedToActivation(){
         timeout: 10000,
         success: function(data) {
 
+          console.log(data)
+
           hideLoading();
 
           if(data.status){
@@ -849,7 +851,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Show Spotlight Search", "value": "" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Generate KOT Silently", "value": "" }, { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "" }, { "name": "Assign Delivery Agent", "value": "" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Show Spotlight Search", "value": "" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Generate KOT Silently", "value": "" }, { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Generate Bill Silently", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "" }, { "name": "Assign Delivery Agent", "value": "" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "" } ] }
                 settingsList.push(new_stub);
               
                 //Update
@@ -1528,6 +1530,16 @@ function initialiseKeyboardShortcuts(){
           })
           break;
         }
+        case "Generate Bill Silently":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            if($('#billPreviewModal').is(':visible')) {
+              $("#billButtonAction_generateSilently").click();
+            }
+            return false;
+          })
+
+          break;
+        }        
         case "Print Item View":{
           Mousetrap.bind([shortcutsData[n].value], function() {
             $("#triggerClick_PrintItemViewButton").click();
@@ -4036,27 +4048,25 @@ function showSpotlight(){
 
                     var mobileNumber = searchKey;
 
-
                     //Preload TABLES data
-                    var requestData = {
-                      "selector"  :{ 
-                                    "identifierTag": "ACCELERATE_TABLES_MASTER" 
-                                  },
-                      "fields"    : ["_rev", "identifierTag", "value"]
-                    }
-
                     $.ajax({
-                      type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-                      data: JSON.stringify(requestData),
-                      contentType: "application/json",
-                      dataType: 'json',
+                      type: 'GET',
+                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
                       timeout: 10000,
                       success: function(data) {
-                        if(data.docs.length > 0){
-                          if(data.docs[0].identifierTag == 'ACCELERATE_TABLES_MASTER'){
+                        if(data.total_rows > 0){
 
-                            var tableMapping = data.docs[0].value;
+                            var tableData = data.rows;
+                            tableData.sort(function(obj1, obj2) {
+                              return obj1.key - obj2.key; //Key is equivalent to sortIndex
+                            });
+
+                            //Process data to required format
+                            var tableMapping = [];
+                            for(var q = 0; q < tableData.length; q++){
+                              tableMapping.push(tableData[q].value);
+                            }
+
 
                             //Preload MENU data
                             var requestMenuData = {
@@ -4205,7 +4215,7 @@ console.log('am here')
                             //End - Menu data
 
                                 
-                          }
+                          
                         }
                       }
                     });

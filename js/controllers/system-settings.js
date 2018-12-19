@@ -41,7 +41,7 @@ function openSystemSettings(id, optionalHighlight){
 function renderConfigureSystem(){
 
     var licenseRequest = window.localStorage.accelerate_licence_number ? window.localStorage.accelerate_licence_number : '';
-
+    
     var requestData = {
       "selector"  :{ 
                     "identifierTag": "ACCELERATE_CONFIGURED_MACHINES" 
@@ -462,7 +462,7 @@ function createFirstTimeActivationStubsFromSettings(licenceObject, machinesList,
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Show Spotlight Search", "value": "" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Generate KOT Silently", "value": "" }, { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "" }, { "name": "Assign Delivery Agent", "value": "" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Show Spotlight Search", "value": "" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Generate KOT Silently", "value": "" }, { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Generate Bill Silently", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "" }, { "name": "Assign Delivery Agent", "value": "" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "" } ] }
                 settingsList.push(new_stub);
               
                 //Update
@@ -3081,8 +3081,5 @@ function changeSystemOptionSendMetaData(){
   window.localStorage.scanPaySettings_sendMetadataToQR = optName;
   changeSystemOptionsFile("sendMetadataToQR", optName);
 }
-
-
-
 
 
