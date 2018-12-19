@@ -804,7 +804,7 @@ function printDuplicateKOT(kotID, optionalSource){
                                           }
                                         }
 
-                                    }, 1000);
+                                    }, 10);
                           }
 
                         }

@@ -4710,7 +4710,7 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 								    			}
 								    		}
 
-								    	}, 1000);
+								    	}, 10);
 								    }
 
 				              	}
@@ -5639,7 +5639,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								    			}
 								    		}
 
-								    	}, 1000);
+								    	}, 10);
 								    }
 
 				              	}

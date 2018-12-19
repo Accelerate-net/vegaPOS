@@ -4321,7 +4321,7 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
                                           }
                                         }
 
-                                    }, 1000);
+                                    }, 10);
                           }
 
                         }
