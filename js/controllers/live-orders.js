@@ -773,11 +773,8 @@ function printDuplicateKOT(kotID, optionalSource){
 
                           function startRelayPrinting(index){
 
-                            console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
+                                        console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
 
-                          //add some delay
-                                    setTimeout(function(){ 
-                                  
                                         var relayedItems = [];
                                         for(var i = 0; i < relayedList.length; i++){
                                           if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
@@ -803,8 +800,6 @@ function printDuplicateKOT(kotID, optionalSource){
                                             }
                                           }
                                         }
-
-                                    }, 10);
                           }
 
                         }

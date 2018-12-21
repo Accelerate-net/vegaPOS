@@ -4681,11 +4681,8 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 								    function startRelayPrinting(index){
 
-								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
+								    		console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
 
-										//add some delay
-				              			setTimeout(function(){ 
-				              			
 								    		var relayedItems = [];
 								    		for(var i = 0; i < relayedList.length; i++){
 								    			if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
@@ -4709,8 +4706,6 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 								    				}
 								    			}
 								    		}
-
-								    	}, 10);
 								    }
 
 				              	}
@@ -5608,11 +5603,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 								    function startRelayPrinting(index){
 
-								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
+								    		console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
 
-										//add some delay
-				              			setTimeout(function(){ 
-				              			
 								    		var relayedItems = [];
 								    		for(var i = 0; i < relayedList.length; i++){
 								    			if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
@@ -5638,8 +5630,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								    				}
 								    			}
 								    		}
-
-								    	}, 10);
+								    		
 								    }
 
 				              	}
