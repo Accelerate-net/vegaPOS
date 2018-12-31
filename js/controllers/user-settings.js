@@ -2,6 +2,22 @@
 
 function openDeleteUserConsent(code, name){
 
+    // LOGGED IN USER INFO
+    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+          
+    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+      loggedInStaffInfo.name = "";
+      loggedInStaffInfo.code = "";
+      loggedInStaffInfo.role = "";
+    }
+
+    //either profile not chosen, or not an admin
+    if(code == '9884179675' && name == 'Jafry'){ 
+      showToast('Warning! This user profile is protected, can not be deleted.', '#e67e22');
+      return '';
+    }
+
+
 	document.getElementById("deleteUserConsentModalText").innerHTML = 'Are you sure want to remove <b>'+name+'</b> from the list?';
 	document.getElementById("deleteUserConsentModalConsent").innerHTML = '<button  class="btn btn-default" onclick="hideDeleteUserConsent()" style="float: left">Cancel</button>'+
                   							'<button  class="btn btn-danger" onclick="deleteUserFromUserProfile(\''+code+'\', \''+name+'\')">Delete</button>';
@@ -74,7 +90,7 @@ function fetchAllUsersInfo(){
 		        					'<td>#'+(n+1)+'</td> <td>'+users[n].name+'</td>'+
 		        					'<td>'+getUserDesignation(users[n].role)+'</td>'+
 		        					'<td>'+users[n].code+'</td>'+
-		        					'<td>'+(users[n].role != 'ADMIN' || (loggedInStaffInfo.code == users[n].code) ? '<tag style="cursor: pointer; width: 30px; display: inline-block; text-align: center;" onclick="openDeleteUserConsent(\''+users[n].code+'\', \''+users[n].name+'\')"><i class="fa fa-trash-o"></i></tag>' : '')+(loggedInStaffInfo.code == users[n].code ? '<tag style="width: 30px; color: #36d24a; display: inline-block; text-align: center; cursor: pointer" onclick="openChangePasscodeWindow(\''+users[n].code+'\', \''+users[n].name+'\')"><i class="fa fa-key"></i></tag>' : '')+'</td> </tr>';
+		        					'<td>'+(users[n].role != 'ADMIN' || (loggedInStaffInfo.code == users[n].code || loggedInStaffInfo.code == '9884179675') ? '<tag style="cursor: pointer; width: 30px; display: inline-block; text-align: center;" onclick="openDeleteUserConsent(\''+users[n].code+'\', \''+users[n].name+'\')"><i class="fa fa-trash-o"></i></tag>' : '')+(loggedInStaffInfo.code == users[n].code ? '<tag style="width: 30px; color: #36d24a; display: inline-block; text-align: center; cursor: pointer" onclick="openChangePasscodeWindow(\''+users[n].code+'\', \''+users[n].name+'\')"><i class="fa fa-key"></i></tag>' : '')+'</td> </tr>';
 		        	n++;
 		        }
 
@@ -292,6 +308,12 @@ function addNewUserProfile(){
 	newObj.code = mobile;
 	newObj.role = role;
 	newObj.password = null;
+
+  if(name == 'Jafry' || mobile == '9884179675'){
+    showToast('Warning: This name or mobile number can not be used', '#e67e22');
+    return '';
+  }
+
 
 	if(role == '' || name == '' || mobile == ''){
 		showToast('Warning: Missing some values', '#e67e22');

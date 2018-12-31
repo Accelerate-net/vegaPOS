@@ -7,7 +7,7 @@ var saved_server_url_manual = window.localStorage.serverConnectionURL ? window.l
 
 let COMMON_LOCAL_SERVER_IP = saved_server_url_manual != '' ? saved_server_url_manual : default_server_url_common;
 let NOTIFICATION_FILTER = 'ALL';
-
+let SELECTED_INVOICE_SOURCE_DB = 'accelerate_invoices';
 
 //To format the time in '' ago format
 function getFormattedTime(time){
