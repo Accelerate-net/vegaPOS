@@ -2163,11 +2163,14 @@ function generateOverallItemReport(){
 			function reduceByDate(listOfItems){
 				//Reduce Function 
 				var reduced_list = listOfItems.reduce(function (accumulator, item) {
-					if(accumulator[item.key[2]]){
-						accumulator[item.key[2]].count += item.value;
+				
+				var accumulator_item_name = item.key[3] && item.key[3] != "" ? item.key[2] + ' ('+item.key[3]+')' : item.key[2];
+
+					if(accumulator[accumulator_item_name]){
+						accumulator[accumulator_item_name].count += item.value;
 					}
 					else{
-						accumulator[item.key[2]] = {
+						accumulator[accumulator_item_name] = {
 							"category": item.key[1],
 							"count": item.value
 						};
@@ -2202,7 +2205,7 @@ function generateOverallItemReport(){
 			}
 
 			function renderAllItemsSummary(itemsFilteredList){
-
+				
 				var categorySortedList = itemsFilteredList.reduce(function (accumulator, item) {
 					if(accumulator[item.category]){
 						accumulator[item.category].push({
