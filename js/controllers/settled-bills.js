@@ -9,7 +9,7 @@ function loadAllPendingSettlementBills(optionalSource){
 	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
 
 	//Adjust server source db
-	SELECTED_INVOICE_SOURCE_DB = 'accelerate_invoices';
+	SELECTED_INVOICE_SOURCE_DB = 'accelerate_maverick';
 
     // LOGGED IN USER INFO
     var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -21,7 +21,7 @@ function loadAllPendingSettlementBills(optionalSource){
     }	
 
     if(loggedInStaffInfo.role == 'ADMIN' && loggedInStaffInfo.code == '9884179675'){
-    	SELECTED_INVOICE_SOURCE_DB = 'accelerate_maverick';
+    	SELECTED_INVOICE_SOURCE_DB = 'accelerate_invoices';
     }
 
 
