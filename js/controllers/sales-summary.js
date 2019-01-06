@@ -2172,12 +2172,14 @@ function generateOverallItemReport(){
 					else{
 						accumulator[accumulator_item_name] = {
 							"category": item.key[1],
-							"count": item.value
+							"count": item.value,
+							"price": item.key[4]
 						};
 					}
 
 				  	return accumulator;
 				}, {});
+
 
 				var formattedList = [];
 				var keysCount = Object.keys(reduced_list);
@@ -2187,6 +2189,7 @@ function generateOverallItemReport(){
 				    formattedList.push({
 				    	"name": x,
 				    	"count": reduced_list[x].count,
+				    	"saleAmount": reduced_list[x].count * reduced_list[x].price,
 				    	"category": reduced_list[x].category
 				    });
 
@@ -2205,24 +2208,27 @@ function generateOverallItemReport(){
 			}
 
 			function renderAllItemsSummary(itemsFilteredList){
-				
+
 				var categorySortedList = itemsFilteredList.reduce(function (accumulator, item) {
 					if(accumulator[item.category]){
 						accumulator[item.category].push({
 							"name": item.name,
-							"count": item.count
+							"count": item.count,
+							"saleAmount": item.saleAmount
 						});
 					}
 					else{
 						accumulator[item.category] = [];
 						accumulator[item.category].push({
 							"name": item.name,
-							"count": item.count
+							"count": item.count,
+							"saleAmount": item.saleAmount
 						});
 					}
 
 				  	return accumulator;
 				}, {});
+
 
 
 				var formattedCategoryList = [];
@@ -2236,7 +2242,8 @@ function generateOverallItemReport(){
 					while(categorySortedList[x][n]){
 						sub_list.push({
 					    	"name": categorySortedList[x][n].name,
-					    	"count": categorySortedList[x][n].count
+					    	"count": categorySortedList[x][n].count,
+					    	"saleAmount": categorySortedList[x][n].saleAmount
 						});
 						n++;
 					}
@@ -2258,6 +2265,9 @@ function generateOverallItemReport(){
 				
 
 				function renderAllItemsSummaryAfterProcess(categorisedItemsList){
+
+					console.log(categorisedItemsList)
+
 					if(categorisedItemsList.length > 0){ 
 
 						var renderContent = '';
@@ -2273,10 +2283,16 @@ function generateOverallItemReport(){
 								category_name = '<i style="color: #adadad">Manually Added Items</i>';
 							}
 
-							renderContent += '<tr class="summaryRowHighlight"><td style="font-size: 18px; font-weight: 600; background: #666; color: #FFF;" colspan="2">'+category_name+'</td></tr> ';
+							
+							var renderItemsList = '';
+							var itemsTotalSales = 0;
 							for(var i = 0; i < categorisedItemsList[n].items.length; i++){
-								renderContent += '<tr> <td><b style="color: #3e3e3e; font-size: 16px; font-weight: 400; }">'+categorisedItemsList[n].items[i].name+'</b></td> <td class="summaryLine3" style="text-align: center; font-size: 16px; color: #3e3e3e">'+categorisedItemsList[n].items[i].count+'</td> </tr>';
+								itemsTotalSales += categorisedItemsList[n].items[i].saleAmount;
+								renderItemsList += '<tr> <td><b style="color: #3e3e3e; font-size: 16px; font-weight: 400; }">'+categorisedItemsList[n].items[i].name+'</b></td> <td class="summaryLine3" style="text-align: center; font-size: 16px; color: #3e3e3e">'+categorisedItemsList[n].items[i].count+'</td> </tr>';
 							}
+
+							renderContent += '<tr class="summaryRowHighlight"><td style="font-size: 18px; font-weight: 600; background: #666; color: #FFF;">'+category_name+'</td> <td style="font-size: 18px; font-weight: 600; text-align: center; background: #666; color: #FFF;"><i class="fa fa-inr"></i>'+itemsTotalSales+'</td> </tr>' + renderItemsList;
+
 							n++;
 						}
 					
@@ -2348,17 +2364,20 @@ function generateOverallItemReport(){
 									category_name = '<i>Manually Added Items</i>';
 								}
 
+								var categoryWiseSum = 0;
+
 								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
 									
 									quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+categorisedItemsList[n].items[i].name+'</td><td class="tableQuickAmount">'+categorisedItemsList[n].items[i].count+'</td></tr>';
-								
+									categoryWiseSum += categorisedItemsList[n].items[i].saleAmount;
+
 									if(i == categorisedItemsList[n].items.length - 1){ //last iteration
 										
 										categorySplitRenderContent += ''+
 																  '<div class="summaryTableSectionHolder">'+
 															        '<div class="summaryTableSection">'+
 															           '<div class="tableQuickHeader">'+
-															              '<h1 class="tableQuickHeaderText">'+category_name+'</h1>'+
+															              '<h1 class="tableQuickHeaderText">'+category_name+'<tag style="float: right; margin-right: 20px; letter-spacing: unset !important"><tag style="font-size: 60%">Rs.</tag>'+categoryWiseSum+'</tag></h1>'+
 															           '</div>'+
 															           '<div class="tableQuick">'+
 															              '<table style="width: 100%">'+
@@ -2475,15 +2494,20 @@ function generateOverallItemReport(){
 									category_name = '<i>Manually Added Items</i>';
 								}
 
+								var categoryItemsAmount = 0;
+
 								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
 									
 									quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+categorisedItemsList[n].items[i].name+'</td><td style="font-size: 11px; text-align: right">'+categorisedItemsList[n].items[i].count+'</td></tr>';
-								
+									
+									categoryItemsAmount += categorisedItemsList[n].items[i].saleAmount;
+
+
 									if(i == categorisedItemsList[n].items.length - 1){ //last iteration
 										
 										categorySplitRenderContent += ''+
 										'<div class="KOTContent">'+
-								    		 '<h2 style="text-align: center; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">'+category_name+'</h2>'+
+								    		 '<h2 style="text-align: left; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">'+category_name+' <tag style="float: right">Rs. '+categoryItemsAmount+'</tag></h2>'+
 									         '<table style="width: 100%">'+
 									            '<col style="width: 85%">'+
 									            '<col style="width: 15%">'+ 
