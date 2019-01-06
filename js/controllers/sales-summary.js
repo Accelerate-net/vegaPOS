@@ -830,6 +830,207 @@ function renderGraph_PaymentModeWiseSummary(graphData){
 
 
 
+function fetchSessionWiseSummary() {
+
+	/*
+			Summary - SESSION wise
+	*/
+
+
+	$("#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_sessionWise").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+
+	var graphData = [];
+
+	document.getElementById("summaryRender_sessionWise").innerHTML = '';
+
+
+	$.ajax({
+		type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sessionwisesales?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]',
+		timeout: 50000,
+		success: function(data) {
+
+			var itemsList = data.rows;
+			if(itemsList.length == 0){
+				document.getElementById("summaryRender_sessionWise").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">No settled invoices found on the given dates</p>';
+				return '';
+			}
+
+
+			reduceByDate(itemsList);
+			
+			function reduceByDate(listOfItems){
+				//Reduce Function 
+				var reduced_list = listOfItems.reduce(function (accumulator, item) {
+					if(accumulator[item.key[1]]){
+						accumulator[item.key[1]].amount += item.value; //total amount
+						accumulator[item.key[1]].number_of_guests += item.key[2]; //number of guests
+						accumulator[item.key[1]].count++; //number of orders
+					}
+					else{
+						accumulator[item.key[1]] = {
+							"session": item.key[1],
+							"amount": item.value,
+							"count": 1,
+							"number_of_guests": item.key[2],
+						};
+					}
+
+				  	return accumulator;
+				}, {});
+
+
+				var formattedList = [];
+				var keysCount = Object.keys(reduced_list);
+
+				var counter = 1;
+				for (x in reduced_list) {
+				    formattedList.push({
+				    	"number_of_guests": reduced_list[x].number_of_guests,
+				    	"count": reduced_list[x].count,
+				    	"amount": reduced_list[x].amount,
+				    	"session": reduced_list[x].session
+				    });
+
+				    if(counter == keysCount.length){ //last iteration
+				    	// Ascending: Sorting
+				    	formattedList.sort(function(obj1, obj2) {
+		                	return obj2.count - obj1.count;
+		              	});
+
+				    	renderSummaryList(formattedList);
+				    }
+
+				    counter++;
+				}
+				
+			}
+
+			function renderSummaryList(itemsFilteredList){
+
+				if(itemsFilteredList.length > 0){ 
+
+					var upper_limit = 15;
+					if(itemsFilteredList.length < 15){ //max of 20 items
+						upper_limit = itemsFilteredList.length;
+					}
+
+					var renderContent = '';
+					for(var i = 0; i < upper_limit; i++){
+						renderContent += '<tr> <td>'+itemsFilteredList[i].session+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+itemsFilteredList[i].count+' Orders'+(itemsFilteredList[i].number_of_guests && itemsFilteredList[i].number_of_guests > 0 ? ' and '+itemsFilteredList[i].number_of_guests+' Guests' : '')+'</count><i class="fa fa-inr"></i>'+parseFloat(itemsFilteredList[i].amount).toFixed(2)+'</td> </tr>';
+					
+						if(itemsFilteredList[i].amount > 0 && itemsFilteredList[i].session != "Unknown"){
+						    graphData.push({
+								"name": itemsFilteredList[i].session,
+								"value": itemsFilteredList[i].amount
+							})
+						}			
+
+					}
+
+					document.getElementById("summaryRender_sessionWise").innerHTML = renderContent;
+
+					//render the graph
+					renderGraph_SessionWiseSummary(graphData);
+
+				} 
+				else{ 
+					document.getElementById("summaryRender_sessionWise").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no settled invoices on the given dates</p>';
+				}
+			}
+		},
+		error: function(data){
+			document.getElementById("summaryRender_sessionWise").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Session Summary on the given dates</p>';
+			showToast('Not Found Error: Session Summary data not found. Please contact Accelerate Support.', '#e74c3c');
+			return '';								    	
+		}
+	});  
+}
+
+
+
+function renderGraph_SessionWiseSummary(graphData){
+
+	var graph_labels = [];
+	var graph_data = [];
+	var graph_background = [];
+	var graph_border = [];
+
+	var m = 0;
+	var totalBaseSum = 0;
+	while(graphData[m]){
+		totalBaseSum += graphData[m].value;
+		m++;
+	} 
+
+	var n = 0;
+	while(graphData[n]){
+		var colorSet = random_rgba_color_set();
+
+		graph_labels.push(graphData[n].name);
+		graph_data.push(parseFloat(((graphData[n].value/totalBaseSum)*100)).toFixed(1))
+		graph_background.push(colorSet[0])
+		graph_border.push(colorSet[1])
+
+		n++;
+	}
+
+	var ctx = document.getElementById("sessionsPieChart").getContext('2d');
+	var myChart = new Chart(ctx, {
+	    type: 'pie',
+	    data: {
+	        labels: graph_labels,
+	        datasets: [{
+	            label: 'Sessions',
+	            data: graph_data,
+	            backgroundColor: graph_background,
+	            borderColor: graph_border,
+	            borderWidth: 1
+	        }]
+	    },
+	    options: {
+            tooltips: {
+                enabled: true,
+                mode: 'single',
+                callbacks: {
+                    label: function(tooltipItems) {
+                        return ' '+graph_labels[tooltipItems.index]+' '+graph_data[tooltipItems.index] + '%';
+                    }
+                }
+            },	    	
+	        scales: {
+	            yAxes: [{
+	            	display:false,
+	                ticks: {
+	                    beginAtZero:true,
+	                    display: false
+	                },
+	                gridLines: {
+                    	display:false
+                	}
+	            }]
+	        }
+	    }
+	});	
+}
+
+
+
+
+
+
+
 
 function fetchOverAllTurnOver(){
 	

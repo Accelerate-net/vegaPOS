@@ -3,11 +3,7 @@ Fixes for Version 1:
 1. KOT Not going sometimes
 2. Bill not printing sometimes
 3. KOT Relay print not effecient
-4. Bill Process (view summary)
-5. Home Delivery font size (small sometimes)
-6. Session wise reports
-7. Takeaway -> Delivery (change mode option)
-8. Dine In, Parcel (ASSEMBLY DESK) --> new feature
+4. CRITICAL (ADD PRINT LOGS --> to understand why printing fails) with all main events (KOT, duplicate bill, etc.)
 
 Moved to Version 2:
 
@@ -27,3 +23,5 @@ Moved to Version 2:
 14. Bill Cut
 15. [NEW FEATURE] Sharing Options (eg. Share Soup 1 by 2)
 16. Admin Passcode (Recovery options)
+17. Takeaway -> Delivery (change mode option)
+18. Dine In, Parcel (ASSEMBLY DESK) --> new feature

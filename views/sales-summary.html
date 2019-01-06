@@ -45,6 +45,11 @@
                                   </div>
                                </div>
 
+                               <div class="row" style="margin-top: 10px">
+                                  <div class="col-sm-12">
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSessionWiseSummary()"><i class="fa fa-file-text-o" style="padding-right: 10px"></i> Summary by Sessions</button>
+                                  </div>
+                               </div>
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
@@ -65,6 +70,7 @@
                                 <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchItemSummary()"><i class="fa fa-file-text-o" style="padding-right: 10px"></i> Item Summary</button>
                                   </div>
                                </div>
+
 
                            </div>
                            <div class="clearfix"></div>
@@ -163,6 +169,34 @@
                                 <div class="col-sm-6" style="padding: 0 0 15px 15px">
                                   <center><div style="width: 75%">
                                     <canvas id="paymentModesPieChart" width="100" height="100"></canvas>
+                                  </div></center>
+                                </div>
+                            </div>
+
+                        </div>
+                     </div>
+
+
+                     <div class="box box-primary" id="summaryRenderArea_sessionWise" style="display: none">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Summary by <b>Sessions</b></h3>
+                           </div>
+
+
+                            <div class="row" style="margin: 0">
+                                <div class="col-sm-6" style="padding: 0">
+                                     <div class="table-responsive">
+                                        <table class="table" style="margin: 0">
+                                          <tbody id="summaryRender_sessionWise">
+
+                                          </tbody>                                 
+                                        </table>
+                                     </div>
+                                </div>
+                                <div class="col-sm-6" style="padding: 0 0 15px 15px">
+                                  <center><div style="width: 75%">
+                                    <canvas id="sessionsPieChart" width="100" height="100"></canvas>
                                   </div></center>
                                 </div>
                             </div>
