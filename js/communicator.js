@@ -1724,7 +1724,7 @@ while(compareObject[n]){
                      '<span style="margin-top: 3px; display: block; font-size: 12px; font-weight: bold;"><span style="display: inline-block; background: #000; color: #FFF; padding: 2px 4px;">ITEM CANCELLED</span></span>'+
                      '</td>'+
                      '<td style="text-align: right;">'+
-                        '<span class="itemQuantity" style="font-size: 18px; text-decoration: line-through;">'+ compareObject[n].qty + '</span>'+
+                        '<span class="itemQuantity" style="font-size: 18px; text-decoration: line-through;">'+ (compareObject[n].oldValue - compareObject[n].qty) + '</span>'+
                      '</td>'+
                   '</tr>'
 

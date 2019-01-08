@@ -333,14 +333,17 @@ function fetchSalesSummaryUnbilledKOT() {
 							    	}
 							    },
 							    error: function(data){
-							    	//document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+							    	fetchSalesSummaryUnbilledBills(fromDate, toDate, 0, 0);	
 							    }
 							});  
 
 				    	}
+				    	else{
+				    		fetchSalesSummaryUnbilledBills(fromDate, toDate, 0, 0);
+				    	}
 				    },
 				    error: function(data){
-				    	//document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+				    	fetchSalesSummaryUnbilledBills(fromDate, toDate, 0, 0);
 				    }
 				});  
 
@@ -1097,7 +1100,7 @@ function fetchOverAllTurnOver(){
 			
 			//time to render...
 			if(temp_totalOrders > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Total Sales Volume</b><tag style="position: absolute; display: block; font-size: 9px; color: #bf792d;">Refunds not Excluded</tag></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_totalPaid).toFixed(2)+'</td> </tr>';
+				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Total Sales Volume</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i><tag id="figureTotalSalesVolume">'+parseFloat(temp_totalPaid).toFixed(2)+'</tag></td> </tr>';
 				netSalesWorth = temp_totalPaid; 
 				document.getElementById("overallBarChart").style.display = 'block';
 			}
@@ -1493,6 +1496,11 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 						//time to render...
 						if(temp_refundCount > 0){
 							document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_refundCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_refundSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+
+							//Adjust total sales volume
+							var x = document.getElementById("figureTotalSalesVolume");
+							var total_sales_volume_without_refund = x.innerHTML;
+							document.getElementById("figureTotalSalesVolume").innerHTML = parseFloat(total_sales_volume_without_refund - temp_refundSum).toFixed(2);
 						}
 						else{
 							document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
