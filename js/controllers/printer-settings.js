@@ -15,6 +15,54 @@ function hideDeletePrinterConsent(){
 } 
 
 
+function openTestPrinterConsent(name){
+
+  var sample_code = Math.floor((Math.random() * 1000) + 1);
+
+  document.getElementById("simpleNumberCode").innerHTML = sample_code;
+
+  document.getElementById("testPrinterConsentModalText").innerHTML = 'The above code <b>'+sample_code+'</b> will be printed on the Printer <b>'+name+'</b>.';
+  document.getElementById("testPrinterConsentModalConsent").innerHTML = '<button  class="btn btn-default" onclick="hideTestPrinterConsent()" style="float: left">Cancel</button>'+
+                                '<button  class="btn btn-success" onclick="testPrinterProfile(\''+name+'\', \''+sample_code+'\')">Continue</button>';
+  
+  document.getElementById("testPrinterConsentModal").style.display = "block";
+
+} 
+
+function hideTestPrinterConsent(){
+  document.getElementById("testPrinterConsentModal").style.display = "none";
+} 
+
+function testPrinterProfile(printerName, sample_code){
+
+  hideTestPrinterConsent();
+
+  var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+  
+  var isFound = false;
+
+  for (var k = 0; k < allConfiguredPrintersList.length && !isFound ; k++){
+    for(var j = 0; j < allConfiguredPrintersList[k].list.length; j++){
+      if(allConfiguredPrintersList[k].list[j].name == printerName){
+
+        testPrinterWorking(allConfiguredPrintersList[k].list[j], sample_code);
+        showToast('Test print <b>'+sample_code+'</b> sent to <b>'+printerName+'</b>', '#27ae60');
+
+        isFound = true;
+        break;
+      }
+    }
+  }  
+
+  if(!isFound){
+    showToast('Warning: Printer <b>'+printerName+'</b> not found. Refresh and try again.', '#e67e22');
+  }
+
+}
+
+
+
+
 function openNewPrinterReRender(){
   var printersList = window.localStorage.connectedPrintersList ? JSON.parse(window.localStorage.connectedPrintersList) : [];
   console.log(printersList)
@@ -134,6 +182,7 @@ function fetchAllPrintersInfo(){
 		        	printerRenderContent = printerRenderContent + '<div class="myListedPrinter">'+
                                                  '<center><img src="images/common/printer.png" style="width: 64px; height: 64px;"></center>'+
                                                  '<tag class="myListedPrinterDelete" onclick="openDeletePrinterConsent(\''+printers[n].name+'\')"><i class="fa fa-trash-o"></i></tag>'+
+                                                 '<tag class="myListedPrinterTest" onclick="openTestPrinterConsent(\''+printers[n].name+'\')"><i class="fa fa-print"></i></tag>'+
                                                  '<h1 class="myListedPrinterHead">'+printers[n].name+'</h1>'+
                                                  '<p class="myListedPrinterAddress">'+printers[n].type+'</p>'+
                                                  '<p class="myListedPrinterPaper">'+(printers[n].width ? printers[n].width+' mm' : 'Auto')+' x '+(printers[n].height ? printers[n].height+' mm' : 'Auto')+'</p>'+

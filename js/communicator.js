@@ -2008,3 +2008,51 @@ var html_template = kot_header_content +
 }
 
 
+
+function testPrinterWorking(targetPrinter, sample_code){
+
+         var selected_printer = null;
+
+         if(!targetPrinter || targetPrinter == '' || targetPrinter == undefined){
+            showToast('Print Error: No target printer mentioned.', '#e74c3c');   
+            return '';
+         }
+         else if(targetPrinter != ''){
+            selected_printer = targetPrinter;
+         }
+
+
+          var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
+
+          if(allActivePrinters.length == 0){
+            showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+            return '';
+          }
+
+
+ var current_time = moment().format('hh:mm:ss a | Do MMMM, YYYY');
+
+
+ var html_template = ''+
+      '<table style="width: 100%; margin: 20px 0">'+
+            '<col style="width: 100%">'+
+            '<tr>'+
+               '<td style="border: 2px solid #444; padding: 6px 2px; margin: 5px 0">'+
+                     '<p style="margin: 10px 0; text-align: center; font-size: 21px; line-height: 1.5em; font-weight: bold;">Test '+targetPrinter.name+'</p>'+
+                     '<h1 style="font-size: 38px; margin:0; text-align: center; letter-spacing: 5px; font-weight: bold;">'+sample_code+'</h1>'+
+                     '<p style="margin: 5px 0; text-align: center;">'+current_time+'</p>'+
+               '</td>'+
+            '</tr>'+
+         '</table>'+
+      '</div>';
+
+
+        if(selected_printer && selected_printer != '' && selected_printer != null){
+         ipc.send("printBillDocument", html_template, selected_printer);
+        }
+        else{
+         showToast('Print Error: Print failed.', '#e74c3c');   
+         return '';
+        }
+}
+
