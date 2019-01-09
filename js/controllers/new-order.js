@@ -4681,7 +4681,11 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 								    function startRelayPrinting(index){
 
-								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
+								    	console.log('*Relay Print - Round '+index+' on '+allPrintersList[index].name)
+
+								    	if(index == 0){
+								    		showPrintingAnimation();
+								    	}
 
 										//add some delay
 				              			setTimeout(function(){ 
@@ -4701,10 +4705,16 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 								    					if(allPrintersList[index+1]){
 								    						startRelayPrinting(index+1);
 								    					}
+								    					else{
+								    						finishPrintingAnimation();
+								    					}
 								    				}
 								    				else{
 								    					if(allPrintersList[index+1]){
 								    						startRelayPrinting(index+1);
+								    					}
+								    					else{
+								    						finishPrintingAnimation();
 								    					}
 								    				}
 								    			}
@@ -5610,6 +5620,10 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
 
+										if(index == 0){
+								    		showPrintingAnimation();
+								    	}
+
 										//add some delay
 				              			setTimeout(function(){ 
 				              			
@@ -5630,10 +5644,16 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								    					if(allPrintersList[index+1]){
 								    						startRelayPrinting(index+1);
 								    					}
+								    					else{
+								    						finishPrintingAnimation();
+								    					}
 								    				}
 								    				else{
 								    					if(allPrintersList[index+1]){
 								    						startRelayPrinting(index+1);
+								    					}
+								    					else{
+								    						finishPrintingAnimation();
 								    					}
 								    				}
 								    			}

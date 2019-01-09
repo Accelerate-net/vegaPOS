@@ -268,11 +268,58 @@ function showLoading(time, text){
 
 }
 
+
+
 function hideLoading(){
   clearInterval(loadingLapsedInterval);
   document.getElementById("generalLoadingModal").style.display = 'none';
   document.getElementById("generalLoaderCount").innerHTML = '';
   document.getElementById("generalLoaderText").innerHTML = 'Loading...';
+}
+
+
+/* Printing Progress */
+function showPrintingAnimation(text){
+
+  document.getElementById("generalPrintingProgressModal").style.display = 'block';
+  $('#generalPrintingProgressModal').removeClass('fade_background'); 
+
+  if(!text || text == ''){
+    document.getElementById("generalPrintingProgressText").innerHTML = 'Printing in Progress';
+  }
+  else{
+    document.getElementById("generalPrintingProgressText").innerHTML = text;
+  }
+}
+
+
+// showPrintingAnimation();
+
+// setTimeout(function(){ 
+//   finishPrintingAnimation();
+// }, 3000);
+
+
+function finishPrintingAnimation(){
+
+  document.getElementById("printingProgressIcon").innerHTML = '<img src="images/common/flowery_done.png" class="printerLoadingDoneIcon">';
+  $('#printingProgressIcon').addClass('quick_flash');
+  
+
+  setTimeout(function(){
+    $('#generalPrintingProgressModal').addClass('fade_background'); 
+    
+    setTimeout(function(){
+      hidePrintingAnimation();
+    }, 1000);
+  }, 1000);
+
+  document.getElementById("generalPrintingProgressText").innerHTML = '';
+}
+
+function hidePrintingAnimation(){
+  document.getElementById("generalPrintingProgressModal").style.display = 'none';
+  document.getElementById("generalPrintingProgressText").innerHTML = '';
 }
 
 
