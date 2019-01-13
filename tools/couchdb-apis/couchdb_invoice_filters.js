@@ -1,65 +1,38 @@
 {
-  "_id": "_design/invoice-summary",
+  "_id": "_design/invoice-filters",
   "views": {
-    "sumbybillingmode": {
-      "reduce": "_stats",
-      "map": "function (doc) {\n  if(doc.orderDetails.mode && doc.dateStamp){\n    emit([doc.orderDetails.mode, doc.dateStamp], doc.totalAmountPaid);\n  }\n}"
+    "filterbymobile": {
+      "map": "function (doc) {\n  if(doc.customerMobile && doc.date){\n    emit([doc.customerMobile, doc.date], doc);\n  }\n}"
     },
-    "sumbypaymentmode": {
-      "reduce": "_stats",
-      "map": "function (doc) {\n  if(doc.paymentMode && doc.dateStamp){\n    emit([doc.paymentMode, doc.dateStamp], doc.totalAmountPaid);\n  }\n}"
+    "filterbybillingmode": {
+      "map": "function (doc) {\n  if(doc.orderDetails.mode && doc.date){\n    emit([doc.orderDetails.mode, doc.date], doc);\n  }\n}"
     },
-    "sumbypaymentmode_multiple": {
-      "map": "function (doc) {\n  if(doc.paymentMode == 'MULTIPLE' && doc.dateStamp){\n    var n = 0;\n    while(doc.paymentSplits[n]){\n      emit([doc.paymentSplits[n].code, doc.dateStamp], doc.paymentSplits[n].amount);\n      n++;\n    }\n    \n  }\n}",
-      "reduce": "_stats"
+    "filterbypaymentmode": {
+      "map": "function (doc) {\n  if(doc.paymentMode && doc.date){\n    emit([doc.paymentMode, doc.date], doc);\n  }\n}"
     },
-    "sumbyextras": {
-      "map": "function (doc) {\n  if(doc.extras[0].name && doc.dateStamp){\n    var n = 0;\n    while(doc.extras[n]){\n      emit([doc.extras[n].name, doc.dateStamp], doc.extras[n].amount);\n      n++;\n    }\n  }\n}",
-      "reduce": "_stats"
+    "filterbystewardname": {
+      "map": "function (doc) {\n  if(doc.stewardName && doc.date){\n    emit([doc.stewardName, doc.date], doc);\n  }\n}"
     },
-    "sumbyextras_custom": {
-      "map": "function (doc) {\n  if(doc.customExtras.type && doc.dateStamp){\n    emit([doc.customExtras.type, doc.dateStamp], doc.customExtras.amount);\n  }\n}",
-      "reduce": "_stats"
+    "filterbytable": {
+      "map": "function (doc) {\n  if(doc.table && doc.orderDetails.modeType =='DINE' && doc.table != 'None' && doc.date){\n    emit([doc.table, doc.date], doc);\n  }\n}"
     },
-    "sumbydiscounts": {
-      "map": "function (doc) {\n  if(doc.discount.type && doc.dateStamp){\n     emit([doc.discount.type, doc.dateStamp], doc.discount.amount);\n  }\n}\n",
-      "reduce": "_stats"
+    "filterbysession": {
+      "map": "function (doc) {\n  if(doc.sessionName && doc.date){\n    emit([doc.sessionName, doc.date], doc);\n  }\n}"
     },
-    "grandtotal_paidamount": {
-      "reduce": "_stats",
-      "map": "function (doc) {\n  if(doc.totalAmountPaid && doc.dateStamp){\n     emit([doc.dateStamp], doc.totalAmountPaid);\n  }\n}\n"
+    "filterbydiscount": {
+      "map": "function (doc) {\n  if(doc.date){\n    if(doc.discount.amount){\n      emit(['discounted', doc.date], doc);\n    }\n    else{\n      emit(['nondiscounted', doc.date], doc);\n    }\n  }\n}"
     },
-    "grandtotal_roundoff": {
-      "reduce": "_stats",
-      "map": "function (doc) {\n  if(doc.dateStamp && doc.roundOffAmount){\n     emit([doc.dateStamp], doc.roundOffAmount);\n  }\n}\n"
+    "filterbymachine": {
+      "map": "function (doc) {\n  if(doc.machineName && doc.date){\n    emit([doc.machineName, doc.date], doc);\n  }\n}"
     },
-    "grandtotal_discounts": {
-      "reduce": "_stats",
-      "map": "function (doc) {\n  if(doc.dateStamp && doc.discount.amount){\n     emit([doc.dateStamp], doc.discount.amount);\n  }\n}\n"
+    "showall": {
+      "map": "function (doc) {\n  if(doc.date){\n    emit([doc.date], doc);\n  }\n}"
     },
-    "grandtotal_tips": {
-      "reduce": "_stats",
-      "map": "function (doc) {\n  if(doc.dateStamp && doc.tipsAmount){\n     emit([doc.dateStamp], doc.tipsAmount);\n  }\n}\n"
+    "filterbyrefund": {
+      "map": "function (doc) {\n  if(!doc.refundDetails){\n    emit(['norefund', doc.date], doc);\n  }\n  else if(doc.refundDetails.status && doc.refundDetails.amount && doc.date){\n    if(doc.refundDetails.status == 3){\n      emit(['fullrefund', doc.date], doc);\n    }\n    else if(doc.refundDetails.status == 2){\n      emit(['partialrefund', doc.date], doc);\n    }\n  }\n}"
     },
-    "sumbybillingandpaymentmodes": {
-      "reduce": "_stats",
-      "map": "function (doc) {\n  if(doc.paymentMode && doc.dateStamp && doc.orderDetails.mode){\n    emit([doc.orderDetails.mode, doc.paymentMode, doc.dateStamp], doc.totalAmountPaid);\n  }\n}"
-    },
-    "sumbybillingandpaymentmodes_multiple": {
-      "map": "function (doc) {\n  if(doc.paymentMode == 'MULTIPLE' && doc.dateStamp && doc.orderDetails.mode){\n    var n = 0;\n    while(doc.paymentSplits[n]){\n      emit([doc.orderDetails.mode, doc.paymentSplits[n].code, doc.dateStamp], doc.paymentSplits[n].amount);\n      n++;\n    }\n    \n  }\n}\n\n",
-      "reduce": "_stats"
-    },
-    "sumbyrefundmodes_splitbyextras": {
-      "map": "function (doc) {\n  if(doc.extras[0].name && doc.orderDetails.mode && doc.dateStamp){\n    var n = 0;\n    while(doc.extras[n]){\n      emit([doc.orderDetails.mode, doc.extras[n].name, doc.dateStamp], doc.extras[n].amount);\n      n++;\n    }\n  }  \n}",
-      "reduce": "_stats"
-    },
-    "sumbyrefundmodes_splitbycustomextras": {
-      "map": "function (doc) {\n  if(doc.customExtras.type && doc.orderDetails.mode && doc.dateStamp){\n    emit([doc.orderDetails.mode, doc.customExtras.type, doc.dateStamp], doc.customExtras.amount);\n  }  \n}",
-      "reduce": "_stats"
-    },
-    "totalguests": {
-      "map": "function (doc) {\n  if(doc.guestCount && doc.dateStamp){\n     emit([doc.dateStamp], doc.guestCount);\n  }\n}\n",
-      "reduce": "_stats"
+    "cashinvoices": {
+      "map": "function (doc) {\n  if(doc.paymentMode == \"CASH\")\n  {\n    emit([doc.dateStamp], doc);\n  }\n}"
     }
   },
   "language": "javascript"

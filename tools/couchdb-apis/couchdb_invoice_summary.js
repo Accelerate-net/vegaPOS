@@ -60,6 +60,9 @@
     "totalguests": {
       "map": "function (doc) {\n  if(doc.guestCount && doc.dateStamp){\n     emit([doc.dateStamp], doc.guestCount);\n  }\n}\n",
       "reduce": "_stats"
+    },
+    "sessionwisesales": {
+      "map": "function(doc) {\n  if(doc.dateStamp) {\n      var session = \"Unknown\";\n      if(doc.sessionName && doc.sessionName != \"\"){\n        session = doc.sessionName;\n      }\n      \n      if(doc.guestCount && doc.guestCount != \"\"){\n        emit([doc.dateStamp, session, doc.guestCount], doc.totalAmountPaid);\n      }\n      else{\n        emit([doc.dateStamp, session, 0], doc.totalAmountPaid);\n      }\n  }\n}"
     }
   },
   "language": "javascript"

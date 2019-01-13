@@ -4625,6 +4625,22 @@ position: absolute;
     cursor: pointer;
 }
 
+.myListedPrinterTest{
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    text-align: right;
+    padding: 12px;  
+    cursor: pointer;
+    color: #ccc;
+}
+
+.myListedPrinterTest:hover,.myListedPrinterTest:focus,.myListedPrinterTest:active{
+  color: #1abc71;
+}
+
 .myListedPrinterHead{
     margin: 10px 0 0 0;
     font-size: 20px;

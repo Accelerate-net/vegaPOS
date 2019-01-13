@@ -24,38 +24,43 @@ echo
 echo Creating the 8 Databases...
 echo ...........................
 echo 
-echo [1/11] Creating accelerate_bills
+echo [1/12] Creating accelerate_bills
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_bills
 echo 
-echo [2/11] Creating accelerate_cancelled_invoices
+echo [2/12] Creating accelerate_cancelled_invoices
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_cancelled_invoices
 echo 
-echo [3/11] Creating accelerate_cancelled_orders
+echo [3/12] Creating accelerate_cancelled_orders
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_cancelled_orders
 echo 
-echo [4/11] Creating accelerate_invoices
+echo [4/12] Creating accelerate_invoices
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_invoices
 echo 
-echo [5/11] Creating accelerate_kot
+echo [5/12] Creating accelerate_kot
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_kot
 echo 
-echo [6/11] Creating accelerate_menu_images
+echo [6/12] Creating accelerate_menu_images
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_menu_images
 echo 
-echo [7/11] Creating accelerate_online_orders
+echo [7/12] Creating accelerate_online_orders
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_online_orders
 echo 
-echo [8/11] Creating accelerate_settings
+echo [8/12] Creating accelerate_settings
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_settings
 echo 
-echo [9/11] Creating accelerate_taps_orders
+echo [9/12] Creating accelerate_taps_orders
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_taps_orders
 echo 
-echo [10/11] Creating accelerate_users
+echo [10/12] Creating accelerate_users
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_users
 echo 
-echo [11/11] Creating accelerate_tables
+echo [11/12] Creating accelerate_tables
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_tables
+echo 
+echo [12/12] Creating accelerate_maverick
+curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_maverick
+
+
 
 
 echo

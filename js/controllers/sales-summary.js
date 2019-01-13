@@ -12,6 +12,22 @@ function setSummaryDateRange(){
 	var today = getCurrentTime('DATE_DD-MM-YY');
 	document.getElementById("reportFromDate").value = today;
 	document.getElementById("reportToDate").value = today;
+
+	//Adjust server source db
+	SELECTED_INVOICE_SOURCE_DB = 'accelerate_maverick';
+
+    // LOGGED IN USER INFO
+    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+          
+    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+      loggedInStaffInfo.name = "";
+      loggedInStaffInfo.code = "";
+      loggedInStaffInfo.role = "";
+    }	
+
+    if(loggedInStaffInfo.role == 'ADMIN' && loggedInStaffInfo.code == '9884179675'){
+    	SELECTED_INVOICE_SOURCE_DB = 'accelerate_invoices';
+    }
 }
 
 
@@ -72,7 +88,7 @@ function fetchSalesSummary() {
 	          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
 				$.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -135,7 +151,7 @@ function fetchSalesSummaryCallback(index, modes, fromDate, toDate, grandSum, gra
 
 				$.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -317,14 +333,17 @@ function fetchSalesSummaryUnbilledKOT() {
 							    	}
 							    },
 							    error: function(data){
-							    	//document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+							    	fetchSalesSummaryUnbilledBills(fromDate, toDate, 0, 0);	
 							    }
 							});  
 
 				    	}
+				    	else{
+				    		fetchSalesSummaryUnbilledBills(fromDate, toDate, 0, 0);
+				    	}
 				    },
 				    error: function(data){
-				    	//document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+				    	fetchSalesSummaryUnbilledBills(fromDate, toDate, 0, 0);
 				    }
 				});  
 
@@ -411,7 +430,7 @@ function openDetailedByMode(selectedBillingMode, fromDate, toDate){
 	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes?startkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingandpaymentmodes?startkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -427,7 +446,7 @@ function openDetailedByMode(selectedBillingMode, fromDate, toDate){
 				    		//Now check in split payments
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes_multiple?startkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingandpaymentmodes_multiple?startkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].code+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -485,7 +504,7 @@ function openDetailedByModeCallback(index, modes, fromDate, toDate, selectedBill
 	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes?startkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingandpaymentmodes?startkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -500,7 +519,7 @@ function openDetailedByModeCallback(index, modes, fromDate, toDate, selectedBill
 				    		//Now check in split payments
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingandpaymentmodes_multiple?startkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingandpaymentmodes_multiple?startkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].code+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -596,7 +615,7 @@ function fetchPaymentModeWiseSummary() {
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -611,7 +630,7 @@ function fetchPaymentModeWiseSummary() {
 				    		//Now check in split payments
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -679,7 +698,7 @@ function fetchPaymentModeWiseSummaryCallback(index, modes, fromDate, toDate, gra
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -695,7 +714,7 @@ function fetchPaymentModeWiseSummaryCallback(index, modes, fromDate, toDate, gra
 				    		//Now check in split payments
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -814,6 +833,207 @@ function renderGraph_PaymentModeWiseSummary(graphData){
 
 
 
+function fetchSessionWiseSummary() {
+
+	/*
+			Summary - SESSION wise
+	*/
+
+
+	$("#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_sessionWise").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+
+	var graphData = [];
+
+	document.getElementById("summaryRender_sessionWise").innerHTML = '';
+
+
+	$.ajax({
+		type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sessionwisesales?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]',
+		timeout: 50000,
+		success: function(data) {
+
+			var itemsList = data.rows;
+			if(itemsList.length == 0){
+				document.getElementById("summaryRender_sessionWise").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">No settled invoices found on the given dates</p>';
+				return '';
+			}
+
+
+			reduceByDate(itemsList);
+			
+			function reduceByDate(listOfItems){
+				//Reduce Function 
+				var reduced_list = listOfItems.reduce(function (accumulator, item) {
+					if(accumulator[item.key[1]]){
+						accumulator[item.key[1]].amount += item.value; //total amount
+						accumulator[item.key[1]].number_of_guests += item.key[2]; //number of guests
+						accumulator[item.key[1]].count++; //number of orders
+					}
+					else{
+						accumulator[item.key[1]] = {
+							"session": item.key[1],
+							"amount": item.value,
+							"count": 1,
+							"number_of_guests": item.key[2],
+						};
+					}
+
+				  	return accumulator;
+				}, {});
+
+
+				var formattedList = [];
+				var keysCount = Object.keys(reduced_list);
+
+				var counter = 1;
+				for (x in reduced_list) {
+				    formattedList.push({
+				    	"number_of_guests": reduced_list[x].number_of_guests,
+				    	"count": reduced_list[x].count,
+				    	"amount": reduced_list[x].amount,
+				    	"session": reduced_list[x].session
+				    });
+
+				    if(counter == keysCount.length){ //last iteration
+				    	// Ascending: Sorting
+				    	formattedList.sort(function(obj1, obj2) {
+		                	return obj2.count - obj1.count;
+		              	});
+
+				    	renderSummaryList(formattedList);
+				    }
+
+				    counter++;
+				}
+				
+			}
+
+			function renderSummaryList(itemsFilteredList){
+
+				if(itemsFilteredList.length > 0){ 
+
+					var upper_limit = 15;
+					if(itemsFilteredList.length < 15){ //max of 20 items
+						upper_limit = itemsFilteredList.length;
+					}
+
+					var renderContent = '';
+					for(var i = 0; i < upper_limit; i++){
+						renderContent += '<tr> <td>'+itemsFilteredList[i].session+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+itemsFilteredList[i].count+' Orders'+(itemsFilteredList[i].number_of_guests && itemsFilteredList[i].number_of_guests > 0 ? ' and '+itemsFilteredList[i].number_of_guests+' Guests' : '')+'</count><i class="fa fa-inr"></i>'+parseFloat(itemsFilteredList[i].amount).toFixed(2)+'</td> </tr>';
+					
+						if(itemsFilteredList[i].amount > 0 && itemsFilteredList[i].session != "Unknown"){
+						    graphData.push({
+								"name": itemsFilteredList[i].session,
+								"value": itemsFilteredList[i].amount
+							})
+						}			
+
+					}
+
+					document.getElementById("summaryRender_sessionWise").innerHTML = renderContent;
+
+					//render the graph
+					renderGraph_SessionWiseSummary(graphData);
+
+				} 
+				else{ 
+					document.getElementById("summaryRender_sessionWise").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no settled invoices on the given dates</p>';
+				}
+			}
+		},
+		error: function(data){
+			document.getElementById("summaryRender_sessionWise").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Session Summary on the given dates</p>';
+			showToast('Not Found Error: Session Summary data not found. Please contact Accelerate Support.', '#e74c3c');
+			return '';								    	
+		}
+	});  
+}
+
+
+
+function renderGraph_SessionWiseSummary(graphData){
+
+	var graph_labels = [];
+	var graph_data = [];
+	var graph_background = [];
+	var graph_border = [];
+
+	var m = 0;
+	var totalBaseSum = 0;
+	while(graphData[m]){
+		totalBaseSum += graphData[m].value;
+		m++;
+	} 
+
+	var n = 0;
+	while(graphData[n]){
+		var colorSet = random_rgba_color_set();
+
+		graph_labels.push(graphData[n].name);
+		graph_data.push(parseFloat(((graphData[n].value/totalBaseSum)*100)).toFixed(1))
+		graph_background.push(colorSet[0])
+		graph_border.push(colorSet[1])
+
+		n++;
+	}
+
+	var ctx = document.getElementById("sessionsPieChart").getContext('2d');
+	var myChart = new Chart(ctx, {
+	    type: 'pie',
+	    data: {
+	        labels: graph_labels,
+	        datasets: [{
+	            label: 'Sessions',
+	            data: graph_data,
+	            backgroundColor: graph_background,
+	            borderColor: graph_border,
+	            borderWidth: 1
+	        }]
+	    },
+	    options: {
+            tooltips: {
+                enabled: true,
+                mode: 'single',
+                callbacks: {
+                    label: function(tooltipItems) {
+                        return ' '+graph_labels[tooltipItems.index]+' '+graph_data[tooltipItems.index] + '%';
+                    }
+                }
+            },	    	
+	        scales: {
+	            yAxes: [{
+	            	display:false,
+	                ticks: {
+	                    beginAtZero:true,
+	                    display: false
+	                },
+	                gridLines: {
+                    	display:false
+                	}
+	            }]
+	        }
+	    }
+	});	
+}
+
+
+
+
+
+
+
 
 function fetchOverAllTurnOver(){
 	
@@ -859,7 +1079,7 @@ function fetchOverAllTurnOver(){
 	
 	$.ajax({
 	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 		timeout: 10000,
 		success: function(data) {
 
@@ -880,7 +1100,7 @@ function fetchOverAllTurnOver(){
 			
 			//time to render...
 			if(temp_totalOrders > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Total Sales Volume</b><tag style="position: absolute; display: block; font-size: 9px; color: #bf792d;">Refunds not Excluded</tag></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_totalPaid).toFixed(2)+'</td> </tr>';
+				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Total Sales Volume</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i><tag id="figureTotalSalesVolume">'+parseFloat(temp_totalPaid).toFixed(2)+'</tag></td> </tr>';
 				netSalesWorth = temp_totalPaid; 
 				document.getElementById("overallBarChart").style.display = 'block';
 			}
@@ -935,7 +1155,7 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -950,7 +1170,7 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 				    		//Now check in custom extras
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -1022,7 +1242,7 @@ function fetchOverAllTurnOverCallback(index, modes, fromDate, toDate, netSalesWo
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -1038,7 +1258,7 @@ function fetchOverAllTurnOverCallback(index, modes, fromDate, toDate, netSalesWo
 				    		//Now check in custom extras
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -1095,7 +1315,7 @@ function renderDiscountsOffered(fromDate, toDate, netSalesWorth, graphData){
 
 	$.ajax({
 	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 		timeout: 10000,
 		success: function(data) {
 
@@ -1140,7 +1360,7 @@ function renderRoundOffMade(fromDate, toDate, netSalesWorth, graphData){
 
 	$.ajax({
 	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 		timeout: 10000,
 		success: function(data) {
 
@@ -1187,7 +1407,7 @@ function renderTipsReceived(fromDate, toDate, netSalesWorth, graphData){
 
 	$.ajax({
 	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 		timeout: 10000,
 		success: function(data) {
 
@@ -1238,7 +1458,7 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 		//Refunded but NOT cancelled
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -1276,6 +1496,11 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 						//time to render...
 						if(temp_refundCount > 0){
 							document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_refundCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_refundSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+
+							//Adjust total sales volume
+							var x = document.getElementById("figureTotalSalesVolume");
+							var total_sales_volume_without_refund = x.innerHTML;
+							document.getElementById("figureTotalSalesVolume").innerHTML = parseFloat(total_sales_volume_without_refund - temp_refundSum).toFixed(2);
 						}
 						else{
 							document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
@@ -1449,7 +1674,7 @@ function fetchDiscountSaleSummary(){
 
 					  $.ajax({
 					    type: 'GET',
-					    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+					    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 					    timeout: 10000,
 					    success: function(data) {
 					    	
@@ -1516,7 +1741,7 @@ function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphD
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -1867,7 +2092,7 @@ function fetchRefundSummary(){
 	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -1931,7 +2156,7 @@ function fetchRefundSummaryCallback(index, modes, fromDate, toDate, grandSum, gr
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -2009,7 +2234,7 @@ function fetchItemSummary(){
 
 	$.ajax({
 		type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
 		timeout: 50000,
 		success: function(data) {
 
@@ -2128,7 +2353,7 @@ function generateOverallItemReport(){
 
 	$.ajax({
 		type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
 		timeout: 50000,
 		success: function(data) {
 
@@ -2147,18 +2372,23 @@ function generateOverallItemReport(){
 			function reduceByDate(listOfItems){
 				//Reduce Function 
 				var reduced_list = listOfItems.reduce(function (accumulator, item) {
-					if(accumulator[item.key[2]]){
-						accumulator[item.key[2]].count += item.value;
+				
+				var accumulator_item_name = item.key[3] && item.key[3] != "" ? item.key[2] + ' ('+item.key[3]+')' : item.key[2];
+
+					if(accumulator[accumulator_item_name]){
+						accumulator[accumulator_item_name].count += item.value;
 					}
 					else{
-						accumulator[item.key[2]] = {
+						accumulator[accumulator_item_name] = {
 							"category": item.key[1],
-							"count": item.value
+							"count": item.value,
+							"price": item.key[4]
 						};
 					}
 
 				  	return accumulator;
 				}, {});
+
 
 				var formattedList = [];
 				var keysCount = Object.keys(reduced_list);
@@ -2168,6 +2398,7 @@ function generateOverallItemReport(){
 				    formattedList.push({
 				    	"name": x,
 				    	"count": reduced_list[x].count,
+				    	"saleAmount": reduced_list[x].count * reduced_list[x].price,
 				    	"category": reduced_list[x].category
 				    });
 
@@ -2191,19 +2422,22 @@ function generateOverallItemReport(){
 					if(accumulator[item.category]){
 						accumulator[item.category].push({
 							"name": item.name,
-							"count": item.count
+							"count": item.count,
+							"saleAmount": item.saleAmount
 						});
 					}
 					else{
 						accumulator[item.category] = [];
 						accumulator[item.category].push({
 							"name": item.name,
-							"count": item.count
+							"count": item.count,
+							"saleAmount": item.saleAmount
 						});
 					}
 
 				  	return accumulator;
 				}, {});
+
 
 
 				var formattedCategoryList = [];
@@ -2217,7 +2451,8 @@ function generateOverallItemReport(){
 					while(categorySortedList[x][n]){
 						sub_list.push({
 					    	"name": categorySortedList[x][n].name,
-					    	"count": categorySortedList[x][n].count
+					    	"count": categorySortedList[x][n].count,
+					    	"saleAmount": categorySortedList[x][n].saleAmount
 						});
 						n++;
 					}
@@ -2239,6 +2474,9 @@ function generateOverallItemReport(){
 				
 
 				function renderAllItemsSummaryAfterProcess(categorisedItemsList){
+
+					console.log(categorisedItemsList)
+
 					if(categorisedItemsList.length > 0){ 
 
 						var renderContent = '';
@@ -2254,10 +2492,16 @@ function generateOverallItemReport(){
 								category_name = '<i style="color: #adadad">Manually Added Items</i>';
 							}
 
-							renderContent += '<tr class="summaryRowHighlight"><td style="font-size: 18px; font-weight: 600; background: #666; color: #FFF;" colspan="2">'+category_name+'</td></tr> ';
+							
+							var renderItemsList = '';
+							var itemsTotalSales = 0;
 							for(var i = 0; i < categorisedItemsList[n].items.length; i++){
-								renderContent += '<tr> <td><b style="color: #3e3e3e; font-size: 16px; font-weight: 400; }">'+categorisedItemsList[n].items[i].name+'</b></td> <td class="summaryLine3" style="text-align: center; font-size: 16px; color: #3e3e3e">'+categorisedItemsList[n].items[i].count+'</td> </tr>';
+								itemsTotalSales += categorisedItemsList[n].items[i].saleAmount;
+								renderItemsList += '<tr> <td><b style="color: #3e3e3e; font-size: 16px; font-weight: 400; }">'+categorisedItemsList[n].items[i].name+'</b></td> <td class="summaryLine3" style="text-align: center; font-size: 16px; color: #3e3e3e">'+categorisedItemsList[n].items[i].count+'</td> </tr>';
 							}
+
+							renderContent += '<tr class="summaryRowHighlight"><td style="font-size: 18px; font-weight: 600; background: #666; color: #FFF;">'+category_name+'</td> <td style="font-size: 18px; font-weight: 600; text-align: center; background: #666; color: #FFF;"><i class="fa fa-inr"></i>'+itemsTotalSales+'</td> </tr>' + renderItemsList;
+
 							n++;
 						}
 					
@@ -2329,17 +2573,20 @@ function generateOverallItemReport(){
 									category_name = '<i>Manually Added Items</i>';
 								}
 
+								var categoryWiseSum = 0;
+
 								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
 									
 									quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+categorisedItemsList[n].items[i].name+'</td><td class="tableQuickAmount">'+categorisedItemsList[n].items[i].count+'</td></tr>';
-								
+									categoryWiseSum += categorisedItemsList[n].items[i].saleAmount;
+
 									if(i == categorisedItemsList[n].items.length - 1){ //last iteration
 										
 										categorySplitRenderContent += ''+
 																  '<div class="summaryTableSectionHolder">'+
 															        '<div class="summaryTableSection">'+
 															           '<div class="tableQuickHeader">'+
-															              '<h1 class="tableQuickHeaderText">'+category_name+'</h1>'+
+															              '<h1 class="tableQuickHeaderText">'+category_name+'<tag style="float: right; margin-right: 20px; letter-spacing: unset !important"><tag style="font-size: 60%">Rs.</tag>'+categoryWiseSum+'</tag></h1>'+
 															           '</div>'+
 															           '<div class="tableQuick">'+
 															              '<table style="width: 100%">'+
@@ -2456,15 +2703,20 @@ function generateOverallItemReport(){
 									category_name = '<i>Manually Added Items</i>';
 								}
 
+								var categoryItemsAmount = 0;
+
 								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
 									
 									quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+categorisedItemsList[n].items[i].name+'</td><td style="font-size: 11px; text-align: right">'+categorisedItemsList[n].items[i].count+'</td></tr>';
-								
+									
+									categoryItemsAmount += categorisedItemsList[n].items[i].saleAmount;
+
+
 									if(i == categorisedItemsList[n].items.length - 1){ //last iteration
 										
 										categorySplitRenderContent += ''+
 										'<div class="KOTContent">'+
-								    		 '<h2 style="text-align: center; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">'+category_name+'</h2>'+
+								    		 '<h2 style="text-align: left; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">'+category_name+' <tag style="float: right">Rs. '+categoryItemsAmount+'</tag></h2>'+
 									         '<table style="width: 100%">'+
 									            '<col style="width: 85%">'+
 									            '<col style="width: 15%">'+ 
@@ -2689,7 +2941,7 @@ function fetchSingleClickReport(){
 	function singleClickTotalPaid(){
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -2734,7 +2986,7 @@ function fetchSingleClickReport(){
 
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/totalguests?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/totalguests?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -2799,7 +3051,7 @@ function fetchSingleClickReport(){
 		          	  //For a given BILLING PARAMETER, the total Sales in the given DATE RANGE
 					  $.ajax({
 					    type: 'GET',
-					    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+					    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 					    timeout: 10000,
 					    success: function(data) {
 					    	
@@ -2814,7 +3066,7 @@ function fetchSingleClickReport(){
 					    		//Now check in custom extras
 						    	$.ajax({
 									type: 'GET',
-									url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+									url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 									timeout: 10000,
 									success: function(data) {
 
@@ -2908,7 +3160,7 @@ function fetchSingleClickReport(){
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -2924,7 +3176,7 @@ function fetchSingleClickReport(){
 				    		//Now check in custom extras
 					    	$.ajax({
 								type: 'GET',
-								url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 								timeout: 10000,
 								success: function(data) {
 
@@ -2985,7 +3237,7 @@ function fetchSingleClickReport(){
 
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -3032,7 +3284,7 @@ function fetchSingleClickReport(){
 
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -3079,7 +3331,7 @@ function fetchSingleClickReport(){
 
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -3127,7 +3379,7 @@ function fetchSingleClickReport(){
 		//Refunded but NOT cancelled
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -3288,7 +3540,7 @@ function fetchSingleClickReport(){
 							          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
 										$.ajax({
 										    type: 'GET',
-										    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+										    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 										    timeout: 10000,
 										    success: function(data) {
 
@@ -3312,7 +3564,7 @@ function fetchSingleClickReport(){
 										          	//For a given Billing Mode, amount split by billing params
 													$.ajax({
 													    type: 'GET',
-													    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+													    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
 													    timeout: 10000,
 													    success: function(data) {
 													    	
@@ -3327,7 +3579,7 @@ function fetchSingleClickReport(){
 													    		//Now check in custom extras also
 														    	$.ajax({
 																	type: 'GET',
-																	url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+																	url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
 																	timeout: 10000,
 																	success: function(data) {
 
@@ -3480,7 +3732,7 @@ function fetchSingleClickReport(){
 							          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
 										$.ajax({
 										    type: 'GET',
-										    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+										    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 										    timeout: 10000,
 										    success: function(data) {
 
@@ -3503,7 +3755,7 @@ function fetchSingleClickReport(){
 										          	//For a given Billing Mode, amount split by billing params
 													$.ajax({
 													    type: 'GET',
-													    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+													    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
 													    timeout: 10000,
 													    success: function(data) {
 													    	
@@ -3518,7 +3770,7 @@ function fetchSingleClickReport(){
 													    		//Now check in custom extras also
 														    	$.ajax({
 																	type: 'GET',
-																	url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
+																	url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
 																	timeout: 10000,
 																	success: function(data) {
 
@@ -3733,7 +3985,7 @@ function fetchSingleClickReport(){
 
 						  $.ajax({
 						    type: 'GET',
-						    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+						    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 						    timeout: 10000,
 						    success: function(data) {
 						    	
@@ -3748,7 +4000,7 @@ function fetchSingleClickReport(){
 						    		//Now check in split payments
 							    	$.ajax({
 										type: 'GET',
-										url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
 										timeout: 10000,
 										success: function(data) {
 
@@ -3852,7 +4104,7 @@ function fetchSingleClickReport(){
 
 						  $.ajax({
 						    type: 'GET',
-						    url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+						    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 						    timeout: 10000,
 						    success: function(data) {
 						    	
@@ -3867,7 +4119,7 @@ function fetchSingleClickReport(){
 						    		//Now check in split payments
 							    	$.ajax({
 										type: 'GET',
-										url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
 										timeout: 10000,
 										success: function(data) {
 
@@ -4025,7 +4277,7 @@ function fetchSingleClickReport(){
 
 			$.ajax({
 			    type: 'GET',
-				url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+mydate+'"]&endkey=["'+mydate+'"]',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+mydate+'"]&endkey=["'+mydate+'"]',
 				timeout: 10000,
 				success: function(data) {
 
