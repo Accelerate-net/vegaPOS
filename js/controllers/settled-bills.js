@@ -9,7 +9,7 @@ function loadAllPendingSettlementBills(optionalSource){
 	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
 
 	//Adjust server source db
-	SELECTED_INVOICE_SOURCE_DB = 'accelerate_maverick';
+	SELECTED_INVOICE_SOURCE_DB = 'accelerate_wounded';
 
     // LOGGED IN USER INFO
     var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};

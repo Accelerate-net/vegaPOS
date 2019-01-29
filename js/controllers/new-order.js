@@ -20,7 +20,6 @@ function triggerRightPanelDisplay(){
 	
 }
 
-
 /*Add Item to Cart */
 function saveToCart(productToAdd, optionalSource){
 
@@ -5423,7 +5422,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	                                if(allConfiguredPrintersList[g].type == 'KOT'){
 		                              	for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
 		                                    if(allConfiguredPrintersList[g].list[a].name == default_set_KOT_printer){
-		                                      default_set_KOT_printer_data = allConfiguredPrintersList[g].list[a];
+		                                      	default_set_KOT_printer_data = allConfiguredPrintersList[g].list[a];
 		                                    }
 											else if(only_KOT_printer == null){
 		                                    	only_KOT_printer = allConfiguredPrintersList[g].list[a];
@@ -5504,7 +5503,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								              		var defaultKOTPrinter = window.localStorage.systemOptionsSettings_defaultKOTPrinter ? window.localStorage.systemOptionsSettings_defaultKOTPrinter : '';
 								              		
 								              		if(defaultKOTPrinter == ''){
-								              			if(isKOTRelayingEnabledOnDefault){
+								              			if(isKOTRelayingEnabledOnDefault){ //relay KOT on default printer as well. otherwise, complete order will be printed on default printer.
 								              				sendToPrinter(relay_skipped_obj, 'KOT', default_set_KOT_printer_data);
 								              			}
 								              			else{
@@ -5704,8 +5703,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 
 
-
-                          
 
                     	  //Update KOT number on server
 
