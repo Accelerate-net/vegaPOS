@@ -940,9 +940,6 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 					//to prevent changes
 				}
 			}
-
-
-
 	}
 
 

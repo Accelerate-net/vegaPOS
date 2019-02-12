@@ -26,3 +26,12 @@ Moved to Version 2:
 16. Admin Passcode (Recovery options)
 17. Takeaway -> Delivery (change mode option)
 18. Dine In, Parcel (ASSEMBLY DESK) --> new feature
+
+Critical Bugs:
+1. Table Mapping issue
+2. Settled Amount/Live Order count in Billing Modes
+3. Table Layout - first table issue
+4. Live Order issue - KOTs are not getting deleted at sometimes (mostly delivery orders)
+5. Bill not printing at rush hours
+6. KOT not printing at rush hours
+7. KOT Number issue

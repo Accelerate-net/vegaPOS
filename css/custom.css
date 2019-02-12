@@ -4594,6 +4594,7 @@ position: absolute;
 .myInlineModeSelection{
   width: initial; display: inline-block; border: none; font-size: 24px; 
   font-weight: bold; color: #19bd4d; position: relative; top: 0px; left: -5px;
+  height: auto !important;
 }
 
 
