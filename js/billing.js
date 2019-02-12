@@ -10,9 +10,6 @@ function generateBillFromKOT(kotID, optionalPageRef){
     optionalPageRef = '';
   }
 
-  console.log(optionalPageRef)
-
-
   //If there is any change in customer data w.r.t OriginalKOT, do make the changes now;
   var customerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
   if(jQuery.isEmptyObject(customerInfo)){

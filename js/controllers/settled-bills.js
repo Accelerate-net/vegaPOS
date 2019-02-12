@@ -9,7 +9,7 @@ function loadAllPendingSettlementBills(optionalSource){
 	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
 
 	//Adjust server source db
-	SELECTED_INVOICE_SOURCE_DB = 'accelerate_maverick';
+	SELECTED_INVOICE_SOURCE_DB = 'accelerate_wounded';
 
     // LOGGED IN USER INFO
     var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -156,19 +156,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td>'+bill.stewardName+'</td>'+ 
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -235,19 +236,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -314,19 +316,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -393,19 +396,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -473,19 +477,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -553,19 +558,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -631,19 +637,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -689,17 +696,18 @@ function loadAllPendingSettlementBills(optionalSource){
 
 								      var resultRender = '';
 									  resultRender 				+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+																	'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+																	'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 										                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-										                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-										                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 										                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+										                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 										                            '        <td>'+bill.stewardName+'</td>'+
 										                            '    </tr>';
 
 
-										document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-											'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-											'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+										document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+										'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+										'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 								      
 								      	renderBillPageDefault('PENDING');
 							        }
@@ -779,19 +787,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -860,19 +869,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -940,19 +950,20 @@ function loadAllPendingSettlementBills(optionalSource){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -1005,19 +1016,20 @@ function loadAllPendingSettlementBills(optionalSource){
 		      	var bill = resultsList[n].doc;
 
 				resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-				                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-				                            '        <td>'+bill.stewardName+'</td>'+
-				                            '    </tr>';
+													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
+						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td>'+bill.stewardName+'</td>'+
+						                            '    </tr>';
 		      	n++;
 		      }
 
 
-				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
-					'<th style="text-align: left">Bill No</th> <th style="text-align: left">Customer</th>'+
-					'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
 		      
 		      	renderBillPageDefault('PENDING')
 
@@ -1303,16 +1315,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1384,16 +1396,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1465,16 +1477,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1546,16 +1558,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1628,16 +1640,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1710,16 +1722,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1790,16 +1802,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1849,14 +1861,14 @@ function loadAllSettledBills(){
 							                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 							                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 							                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-							                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+							                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 							                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 							                            '    </tr>';
 
 
-										document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-									      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-									      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+										document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+									      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+									      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 						      
 							      		renderBillPageDefault('SETTLED')
 							      		
@@ -1942,16 +1954,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -2025,16 +2037,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -2108,16 +2120,16 @@ function loadAllSettledBills(){
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -2175,16 +2187,16 @@ function loadAllSettledBills(){
 	                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 	                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 	                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-	                            '        <td><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</td>'+
+	                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
 	                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
 	                            '    </tr>';
 		      	n++;
 		      }
 
 
-				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-				      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-				      						'<th style="text-align: left">Amount</th> <th style="text-align: left">Mode</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+				      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
+				      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
 	      
 		      	renderBillPageDefault('SETTLED')
 
@@ -3288,6 +3300,12 @@ function assignDeliveryAgent(billNumber, optionalPageRef){
               }
 
               document.getElementById("deliveryBoysModal").style.display = 'block';
+
+              if(renderContent == ''){
+              	renderContent = '<p style="margin: 10px; color: #f12006; font-style: italic">No Delivery Agent profile created. Please <b onclick="renderPage(\'user-settings\', \'User Settings\');" style="color: #579eda; text-decoration: underline; cursor: pointer">Create a Profile</b></p>';
+              }
+
+
               document.getElementById("deliveryBoysModalContent").innerHTML = '<div class="modal-header" style="padding: 0; border: none"> <div class="row"><h1 style="margin: 0; font-size: 14px; color: #FFF; padding: 10px 25px; text-align: left; font-weight: bold; text-transform: uppercase; background: #607e8c;">Select a Delivery Agent</h1></div> </div> </div>'+
               										'<div style="padding: 10px 10px 5px 10px">'+renderContent + '</div></div><div class="modal-footer" style="padding: 5px 0 0 0; border: none"> <div class="row"> <button class="btn btn-default" onclick="selectDeliveryBoyWindowSystemClose()" id="deliveryBoyWindowCloseButton" style="width: 100%; height: 40px; border: none">Close</button> </div> </div> </div>';
 

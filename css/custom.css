@@ -3118,6 +3118,109 @@ ol ol {
 }
 
 
+/* printer progress */
+  #printerProgress {
+    position: relative;
+    background: none !important;
+    padding: 0;
+    text-align: left;
+    -moz-transform-origin: 50% 50%;
+    -webkit-transform-origin: 50% 50%;
+    -ms-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+    -moz-transform: rotateX(0deg);
+    -webkit-transform: rotateX(0deg);
+    -ms-transform: rotateX(0deg);
+    transform: rotateX(0deg);
+    -moz-transition: opacity 1s ease, -moz-transform 1s ease;
+    -webkit-transition: opacity 1s ease, -webkit-transform 1s ease;
+    -ms-transition: opacity 1s ease, -ms-transform 1s ease;
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  #printerProgress .loadingText{
+    font-size: 14px;
+    color: #FFF;
+    display: block;
+    position: absolute;
+    bottom: 10px;
+    left: 60px;
+  }
+
+  .printerLoadingIcon{
+    width: 25px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+
+  .printerLoadingDoneIcon{
+    width: 35px;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+
+@-webkit-keyframes quick_flash {
+  from,
+  to {
+    opacity: 1;
+  }
+
+  50%{
+    opacity: 0.2;
+  }
+}
+
+@keyframes quick_flash {
+  from,
+  to {
+    opacity: 1;
+  }
+
+  50%{
+    opacity: 0.2;
+  }
+}
+
+.quick_flash {
+  -webkit-animation-name: quick_flash;
+  animation-name: quick_flash;
+  animation-duration: 1s;
+}
+
+
+
+@-webkit-keyframes fadeBG {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeBG {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+.fade_background {
+  -webkit-animation-name: fadeBG;
+  animation-name: fadeBG;
+  animation-duration: 1s;
+}
+
+
+
+
+
 /*loading */
 
   #mainLoading {
@@ -3178,7 +3281,7 @@ ol ol {
     color: #FFF;
     padding-left: 1em;
     padding-right: 1em;
- }
+  }
 
 
 
@@ -4491,6 +4594,7 @@ position: absolute;
 .myInlineModeSelection{
   width: initial; display: inline-block; border: none; font-size: 24px; 
   font-weight: bold; color: #19bd4d; position: relative; top: 0px; left: -5px;
+  height: auto !important;
 }
 
 
