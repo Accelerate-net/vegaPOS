@@ -4,9 +4,18 @@ var totalPages = 1;
 var displayType = 'PENDING';
 var filterResultsCount = 0;
 
-function loadAllPendingSettlementBills(optionalSource){
+function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 
 	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
+
+	if(optionalAnimationFlag && optionalAnimationFlag == 'LOADING_ANIMATION'){
+		//Show Animation
+		document.getElementById("billBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>';
+	}
 
 	//Adjust server source db
 	SELECTED_INVOICE_SOURCE_DB = 'accelerate_wounded';
@@ -74,6 +83,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 
 	document.getElementById("billTypeTitle").innerHTML = 'Pending Bills';
+	document.getElementById("billTypeTitle").style.color = '#f39c12';
 
 	if(currentPage == 1){
 		if(isFilterApplied){
@@ -124,7 +134,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -146,7 +156,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
 						return '';
@@ -160,16 +170,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+ 
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -204,7 +214,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -226,7 +236,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
 						return '';
@@ -240,16 +250,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -284,7 +294,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -306,7 +316,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
 						return '';
@@ -320,16 +330,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -364,7 +374,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -386,7 +396,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
 						return '';
@@ -400,16 +410,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -445,7 +455,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -467,7 +477,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
 						return '';
@@ -481,16 +491,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -526,7 +536,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -548,7 +558,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
 						return '';
@@ -562,16 +572,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -605,7 +615,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -627,7 +637,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
 						return '';
@@ -641,16 +651,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -700,21 +710,21 @@ function loadAllPendingSettlementBills(optionalSource){
 																	'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 										                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 										                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-										                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+										                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 										                            '        <td>'+bill.stewardName+'</td>'+
 										                            '    </tr>';
 
 
-										document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+										document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 										'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-										'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+										'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 								      
 								      	renderBillPageDefault('PENDING');
 							        }
 							        else{
 							        	totalPages = 0;
 							        	filterResultsCount = 0;
-									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 										renderBillPageDefault('PENDING');
 										return '';
 									    
@@ -725,7 +735,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							        showToast('Error: Bill #'+filter_key+' not found.', '#e74c3c');
 								  	totalPages = 0;
 								  	filterResultsCount = 0;
-									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 									renderBillPageDefault('PENDING');
 									return '';
 								  }
@@ -753,7 +763,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -775,7 +785,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
@@ -791,16 +801,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -835,7 +845,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -857,7 +867,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
@@ -873,16 +883,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -916,7 +926,7 @@ function loadAllPendingSettlementBills(optionalSource){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('PENDING');
@@ -938,7 +948,7 @@ function loadAllPendingSettlementBills(optionalSource){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
 						renderBillPageDefault('PENDING');
@@ -954,16 +964,16 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 				      	n++;
 				      }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 				      
 				      	renderBillPageDefault('PENDING');
 
@@ -1001,7 +1011,7 @@ function loadAllPendingSettlementBills(optionalSource){
 
 		      if(data.total_rows == 0){
 		      	document.getElementById("pendingBillsCount").innerHTML = 0;
-		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Unsettled Bills.</p>';
+		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">There are no Unsettled Bills.</p>';
 				return '';
 		      }
 
@@ -1020,23 +1030,22 @@ function loadAllPendingSettlementBills(optionalSource){
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #0296ff; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
+						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
 						                            '        <td>'+bill.stewardName+'</td>'+
 						                            '    </tr>';
 		      	n++;
 		      }
 
-
-				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
+				document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
 							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody>';
-		      
+							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
+
 		      	renderBillPageDefault('PENDING')
 
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">Somethin went wrong. Try again.</p>';
+		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Somethin went wrong. Try again.</p>';
 		    }
 
 		  });  		
@@ -1146,7 +1155,17 @@ function getPaymentCodeEquivalentName(code){
 }
 
 
-function loadAllSettledBills(){
+function loadAllSettledBills(optionalAnimationFlag){
+
+
+	if(optionalAnimationFlag && optionalAnimationFlag == 'LOADING_ANIMATION'){
+		//Show Animation
+		document.getElementById("billBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>';
+	}
 
 	/*
 		Frame the FILTER
@@ -1195,6 +1214,7 @@ function loadAllSettledBills(){
 
 
 	document.getElementById("billTypeTitle").innerHTML = 'Settled Bills';
+	document.getElementById("billTypeTitle").style.color = '#22b396';
 
 	if(currentPage == 1){
 		if(isFilterApplied){
@@ -1278,7 +1298,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -1300,7 +1320,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
 						return '';
@@ -1322,9 +1342,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1359,7 +1379,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -1381,7 +1401,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
 						return '';
@@ -1403,9 +1423,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1440,7 +1460,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -1462,7 +1482,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
 						return '';
@@ -1484,9 +1504,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1521,7 +1541,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -1543,7 +1563,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
 						return '';
@@ -1565,9 +1585,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1603,7 +1623,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -1625,7 +1645,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
 						return '';
@@ -1647,9 +1667,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1685,7 +1705,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -1707,7 +1727,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
 						return '';
@@ -1729,9 +1749,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1765,7 +1785,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -1787,7 +1807,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
 						return '';
@@ -1809,9 +1829,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1866,9 +1886,9 @@ function loadAllSettledBills(){
 							                            '    </tr>';
 
 
-										document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+										document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 									      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-									      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+									      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 						      
 							      		renderBillPageDefault('SETTLED')
 							      		
@@ -1876,7 +1896,7 @@ function loadAllSettledBills(){
 							        else{
 							        	totalPages = 0;
 							        	filterResultsCount = 0;
-									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 										renderBillPageDefault('SETTLED');
 										return '';
 									    
@@ -1887,7 +1907,7 @@ function loadAllSettledBills(){
 							        showToast('Error: Invoice #'+filter_key+' not found.', '#e74c3c');
 								  	totalPages = 0;
 								  	filterResultsCount = 0;
-									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 									renderBillPageDefault('SETTLED');
 									return '';
 								  }
@@ -1915,7 +1935,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -1937,7 +1957,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
@@ -1961,9 +1981,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -1998,7 +2018,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -2020,7 +2040,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
@@ -2044,9 +2064,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -2081,7 +2101,7 @@ function loadAllSettledBills(){
 							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
 							
 					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 								document.getElementById("filterResultsCounter").innerHTML = '';
 								filterResultsCount = 0;
 								renderBillPageDefault('SETTLED');
@@ -2103,7 +2123,7 @@ function loadAllSettledBills(){
 				      var resultRender = '';
 
 					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
 						document.getElementById("filterResultsCounter").innerHTML = '';
 						filterResultsCount = 0;
 						renderBillPageDefault('SETTLED');
@@ -2127,9 +2147,9 @@ function loadAllSettledBills(){
 					    }
 
 
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
 				      	renderBillPageDefault('SETTLED')
 
@@ -2168,7 +2188,7 @@ function loadAllSettledBills(){
 
 		      if(data.total_rows == 0){
 		      	document.getElementById("settledBillsCount").innerHTML = 0;
-		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">There are no Unsettled Bills.</p>';
+		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">There are no Unsettled Bills.</p>';
 				return '';
 		      }
 
@@ -2194,16 +2214,16 @@ function loadAllSettledBills(){
 		      }
 
 
-				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
+				document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
 				      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-				      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+				      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 	      
 		      	renderBillPageDefault('SETTLED')
 
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">Somethin went wrong. Try again.</p>';
+		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Somethin went wrong. Try again.</p>';
 		    
 		    }
 
@@ -3170,6 +3190,13 @@ function changeFilterSearchCriteria(){
 
 function filterSearchInitialize(optionalRoute){
 
+	//Show Animation
+	document.getElementById("billBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>';
+
 	var dateFrom = '', dateTo = '', searchMode = 'bill', searchKey = '';
 
 	dateFrom = document.getElementById("reportFromDate").value;
@@ -3189,6 +3216,8 @@ function filterSearchInitialize(optionalRoute){
 		}
 	}
 
+	hideFilterModal();
+
 	var searchObj = {};
 	searchObj.dateFrom = dateFrom;
 	searchObj.dateTo = dateTo;
@@ -3205,8 +3234,6 @@ function filterSearchInitialize(optionalRoute){
 	else{
 		loadAllPendingSettlementBills('EXTERNAL');
 	}
-
-	hideFilterModal();
 }
 
 function clearAppliedFilter(optionalRoute){
@@ -3495,29 +3522,33 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
             "mobile" : code
     }
 
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+
     var requestURL = 'accelerate_bills';
     var requestURLSource = 'PENDING';
-
+	var invoice_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
 
     if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
       requestURL = SELECTED_INVOICE_SOURCE_DB;
       requestURLSource = 'SETTLED';
+      invoice_request_data = accelerate_licencee_branch +"_INVOICE_"+ billNumber;
     }
 
-    var requestData = { "selector" :{ "billNumber": billNumber }}
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/'+invoice_request_data,
       timeout: 10000,
       success: function(firstdata) {
-      	console.log(firstdata)
-        if(firstdata.docs.length > 0){
+      	
+        if(firstdata._id == invoice_request_data){
 
-          var bill = firstdata.docs[0];
+          var bill = firstdata;
           bill.deliveryDetails = deliveryObject;
 
                 var encodedBill = encodeURI(JSON.stringify(bill));
