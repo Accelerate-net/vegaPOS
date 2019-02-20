@@ -2176,7 +2176,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
               success: function(data) {
                 if(data.ok){
 
-                          
+                        //PRINTING THE BILL
                         if(silentRequest == 'SILENTLY'){
                           showToast('<b>Skipped Printing!</b> Bill #'+billNumber+' generated Successfully', '#27ae60');
                         }
@@ -2190,9 +2190,12 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                           clearAllMetaDataOfBilling();
                           hideBillPreviewModal();
 
+                          var auto_settle_later_enabled = false;
+
                           if(kotfile.orderDetails.modeType == 'DINE'){
 
-                            var auto_settle_later_enabled = window.localStorage.appOtherPreferences_SettleLater && window.localStorage.appOtherPreferences_SettleLater == 1 ? true : false;
+                            auto_settle_later_enabled = window.localStorage.appOtherPreferences_SettleLater && window.localStorage.appOtherPreferences_SettleLater == 1 ? true : false;
+                            
                             /* 
                                 "Settle Later" will be pressed by default when an order is billed.
                                 Bill will automatically moved to PENDING SETTLEMENT BILLS,
@@ -2206,6 +2209,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                               billTableMapping(kotfile.table, billNumber, kotfile.payableAmount, 2, optionalPageRef);
                             }
                           }
+
                           
                           deleteKOTFromServer(memory_id, memory_rev, optionalPageRef);
 
@@ -2374,7 +2378,7 @@ function deleteKOTFromServer(id, revID, optionalPageRef){
 }
 
 function deleteBillFromServer(billNumber, optionalPageRef){
-console.log('deleteBillFromServer '+billNumber)
+  
                   billNumber = parseInt(billNumber);
 
                   //Set _id from Branch mentioned in Licence
@@ -3289,7 +3293,13 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
           url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
           timeout: 10000,
           success: function(data) {
+            console.log(data)
             if(data.rows.length == 1){
+
+                  if(data.rows[0].value.table != tableNumber){
+                    hideSettleBillAndPush();
+                    return '';
+                  }
 
                   var tableData = data.rows[0].value;
 
