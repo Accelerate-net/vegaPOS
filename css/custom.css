@@ -3266,6 +3266,41 @@ ol ol {
 
 
 
+/* TILE LOADER */
+.loaderDummyTile {
+  -webkit-animation-duration: 1s;
+  -webkit-animation-fill-mode: forwards;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-name: placeHolderShimmer;
+  -webkit-animation-timing-function: linear;
+  background: #f6f7f8;
+  background-image: -webkit-linear-gradient(left, #f6f7f8 0, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-image: linear-gradient(left, #f6f7f8 0, #edeef1 20%, #f6f7f8 40%, #f6f7f8 100%);
+  background-repeat: no-repeat;
+  height: 5em;
+  position: relative; }
+
+@-webkit-keyframes placeHolderShimmer {
+  0% {
+    background-position: -468px 0; }
+  100% {
+    background-position: 468px 0; } }
+
+.loaderDummyTile div {
+  position: absolute;
+  background: #fff;
+  overflow: hidden; }
+
+
+.loading-container{
+  margin: 0px 20px !important;
+}
+
+
+
+
+
+
   #mainLoading #loadingIcon {
     position: relative;
     display: block;

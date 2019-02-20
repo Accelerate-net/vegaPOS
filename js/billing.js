@@ -21,7 +21,7 @@ function generateBillFromKOT(kotID, optionalPageRef){
     //Set _id from Branch mentioned in Licence
     var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
     if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
       return '';
     }
 
@@ -520,19 +520,23 @@ function openApplyBillCouponWindow(kotID, optionalPageRef){
 
 function removeBillCouponOnKOT(kotID, optionalPageRef){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           if(kotfile.discount.amount){
             kotfile.discount = {};
@@ -578,20 +582,23 @@ function removeBillCouponOnKOT(kotID, optionalPageRef){
 
 function applyBillCouponOnKOT(kotID, optionalPageRef){
 
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           var userMobile = kotfile.customerMobile;
           var code = document.getElementById("applyBillCouponWindow_code").value;
@@ -799,20 +806,23 @@ function openApplyBillDiscountWindow(kotID, optionalPageRef){
 
 function removeBillDiscountOnKOT(kotID, optionalPageRef){
 
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           if(kotfile.discount.amount){
             kotfile.discount = {};
@@ -860,19 +870,23 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
 
     var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           /*Calculate Discount*/
           var type = document.getElementById("applyBillDiscountWindow_type").value;
@@ -1083,19 +1097,23 @@ function openApplyCustomExtraWindow(kotID, optionalPageRef){
 
 function removeCustomExtraOnKOT(kotID, optionalPageRef){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           if(kotfile.customExtras.amount){
             kotfile.customExtras = {};
@@ -1139,19 +1157,23 @@ function removeCustomExtraOnKOT(kotID, optionalPageRef){
 
 function savePrediscountToKOT(kotID, amount, optionalPageRef){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-              var kotfile = data.docs[0];
+              var kotfile = data;
 
               kotfile.discount.amount = amount;
               kotfile.discount.type = 'ONLINE';
@@ -1197,19 +1219,23 @@ function savePrediscountToKOT(kotID, amount, optionalPageRef){
 
 function applyCustomExtraOnKOT(kotID, optionalPageRef){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           /*Calculate Discount*/
           var type = document.getElementById("applyCustomExtraWindow_type").value;
@@ -1359,19 +1385,23 @@ function closeApplyNoCostBillWindow(kotID, optionalPageRef){
 
 function markNoCostBill(kotID, optionalPageRef){ //APPLY FULL DISCOUNT
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           /*Calculate Discount*/
           var comments = document.getElementById("applyNoCostBillWindow_comments").value;
@@ -1450,20 +1480,23 @@ function markNoCostBill(kotID, optionalPageRef){ //APPLY FULL DISCOUNT
 
 function removeNoCostBillOnKOT(kotID, optionalPageRef){
 
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           if(kotfile.discount.amount){
             kotfile.discount = {};
@@ -1509,19 +1542,23 @@ function removeNoCostBillOnKOT(kotID, optionalPageRef){
 
 function redeemPointsIfAny(kotID, optionalPageRef){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           var userMobile = kotfile.customerMobile;
           var grandSum = 0;
@@ -1637,19 +1674,23 @@ function redeemPointsIfAny(kotID, optionalPageRef){
 
 function removeRewardsOnKOT(kotID, optionalPageRef){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
 
-          var kotfile = data.docs[0];
+          var kotfile = data;
 
           if(kotfile.discount.amount){
             kotfile.discount = {};
@@ -1738,20 +1779,28 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
         alreadyEditingKOT.guestCount = modifiedKOTFile.guestCount;
         window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT); 
 
+              
+
               //Update changes on Server
-              var requestData = { "selector" :{ "KOTNumber": alreadyEditingKOT.KOTNumber }}
+              
+
+              //Set _id from Branch mentioned in Licence
+              var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+              if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                return '';
+              }
+
+              var kot_request_data = accelerate_licencee_branch +"_KOT_"+ alreadyEditingKOT.KOTNumber;
 
               $.ajax({
-                type: 'POST',
-                url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-                data: JSON.stringify(requestData),
-                contentType: "application/json",
-                dataType: 'json',
+                type: 'GET',
+                url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
                 timeout: 10000,
                 success: function(data) {
-                  if(data.docs.length > 0){
+                  if(data._id == kot_request_data){
                     
-                    var kot = data.docs[0];
+                    var kot = data;
 
                     kot.customerMobile = alreadyEditingKOT.customerMobile;
                     kot.customerName = alreadyEditingKOT.customerName;
@@ -1975,7 +2024,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
     //Set _id from Branch mentioned in Licence
     var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
     if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
       return '';
     }
 
@@ -2127,7 +2176,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
               success: function(data) {
                 if(data.ok){
 
-                          
+                        //PRINTING THE BILL
                         if(silentRequest == 'SILENTLY'){
                           showToast('<b>Skipped Printing!</b> Bill #'+billNumber+' generated Successfully', '#27ae60');
                         }
@@ -2141,9 +2190,12 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                           clearAllMetaDataOfBilling();
                           hideBillPreviewModal();
 
+                          var auto_settle_later_enabled = false;
+
                           if(kotfile.orderDetails.modeType == 'DINE'){
 
-                            var auto_settle_later_enabled = window.localStorage.appOtherPreferences_SettleLater && window.localStorage.appOtherPreferences_SettleLater == 1 ? true : false;
+                            auto_settle_later_enabled = window.localStorage.appOtherPreferences_SettleLater && window.localStorage.appOtherPreferences_SettleLater == 1 ? true : false;
+                            
                             /* 
                                 "Settle Later" will be pressed by default when an order is billed.
                                 Bill will automatically moved to PENDING SETTLEMENT BILLS,
@@ -2157,6 +2209,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                               billTableMapping(kotfile.table, billNumber, kotfile.payableAmount, 2, optionalPageRef);
                             }
                           }
+
                           
                           deleteKOTFromServer(memory_id, memory_rev, optionalPageRef);
 
@@ -2266,7 +2319,9 @@ function resetTableToFree(tableNumber){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 0;
-                tableData.lastUpdate = "";              
+                tableData.lastUpdate = "";   
+
+                appendToLog(tableNumber + ' : Resetting Table to Free');              
 
 
                     //Update
@@ -2328,23 +2383,26 @@ function deleteBillFromServer(billNumber, optionalPageRef){
 
                   billNumber = parseInt(billNumber);
 
+                  //Set _id from Branch mentioned in Licence
+                  var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+                  if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                    showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                    return '';
+                  }
 
-                  var requestData = { "selector" :{ "billNumber": billNumber }, "fields" : ["_id", "_rev"] }
+                  var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
 
                   $.ajax({
-                    type: 'POST',
-                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
-                    data: JSON.stringify(requestData),
-                    contentType: "application/json",
-                    dataType: 'json',
+                    type: 'GET',
+                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
                     timeout: 10000,
                     success: function(data) {
-                      if(data.docs.length > 0){
+                      if(data._id == bill_request_data){
 
                         //Proceed to Delete
                         $.ajax({
                           type: 'DELETE',
-                          url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+data.docs[0]._id+'?rev='+data.docs[0]._rev,
+                          url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+data._id+'?rev='+data._rev,
                           contentType: "application/json",
                           dataType: 'json',
                           timeout: 10000,
@@ -2718,20 +2776,24 @@ function preSettleBill(billNumber, optionalPageRef){
 
     billNumber = parseInt(billNumber);
 
-    var requestData = { "selector" :{ "billNumber": billNumber }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
       timeout: 10000,
       success: function(data) {
 
-        if(data.docs.length > 0){
+        if(data._id == bill_request_data){
 
-          var billfile = data.docs[0];
+          var billfile = data;
           settleBillAndPush(encodeURI(JSON.stringify(billfile)), optionalPageRef);
 
         }
@@ -2752,20 +2814,24 @@ function onlineOrderEasySettleBill(billNumber){
 
     billNumber = parseInt(billNumber);
 
-    var requestData = { "selector" :{ "billNumber": billNumber }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
       timeout: 10000,
       success: function(data) {
 
-        if(data.docs.length > 0){
+        if(data._id == bill_request_data){
 
-          var billfile = data.docs[0];
+          var billfile = data;
           settleBillAndPush(encodeURI(JSON.stringify(billfile)), 'ONLINE_ORDERS');
 
         }
@@ -3229,7 +3295,13 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
           url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
           timeout: 10000,
           success: function(data) {
+            console.log(data)
             if(data.rows.length == 1){
+
+                  if(data.rows[0].value.table != tableNumber){
+                    hideSettleBillAndPush();
+                    return '';
+                  }
 
                   var tableData = data.rows[0].value;
 
@@ -3245,7 +3317,9 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
                     tableData.remarks = "";
                     tableData.KOT = "";
                     tableData.status = 0;
-                    tableData.lastUpdate = "";              
+                    tableData.lastUpdate = "";   
+
+                    appendToLog(tableNumber+' : Settle Bill Later');           
 
 
                     //Update
@@ -3480,31 +3554,34 @@ function processRefundSettledBill(billNumber, optionalPageRef){
     }
 
     initiateRefundSettledBillHide();
-
+    
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
 
     var requestURL = 'accelerate_bills';
     var requestURLSource = 'BILL';
+    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
 
 
     if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
       requestURL = 'accelerate_invoices';
       requestURLSource = 'INVOICE';
+      bill_request_data = accelerate_licencee_branch +"_INVOICE_"+ billNumber;
     }
 
 
-    var requestData = { "selector" :{ "billNumber": billNumber }}
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/'+bill_request_data,
       timeout: 10000,
       success: function(firstdata) {
-        if(firstdata.docs.length > 0){
+        if(firstdata._id == bill_request_data){
 
-          var bill = firstdata.docs[0];
+          var bill = firstdata;
           bill.refundDetails = refundObj;
 
           if(refundObj.mode == 'ORIGINAL'){
@@ -3731,34 +3808,40 @@ function processCancelSettledBill(billNumber, optionalPageRef){
     initiateCancelSettledBillHide();
 
 
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+
+
     var requestURL = 'accelerate_bills';
     var requestURLSource = 'BILL';
+    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;    
 
+    
 
     if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
       requestURL = 'accelerate_invoices';
       requestURLSource = 'INVOICE';
+      bill_request_data = accelerate_licencee_branch +"_INVOICE_"+ billNumber;   
     }
 
-
-    var requestData = { "selector" :{ "billNumber": billNumber }}
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/'+bill_request_data,
       timeout: 10000,
       success: function(firstdata) {
-        if(firstdata.docs.length > 0){
+        if(firstdata._id == bill_request_data){
 
-          var bill = firstdata.docs[0];
+          var bill = firstdata;
 
-          var memory_rev = firstdata.docs[0]._rev;
-          var memory_id = firstdata.docs[0]._id;
-          var memory_type = firstdata.docs[0].orderDetails.modeType;
-          var memory_table = firstdata.docs[0].table;
+          var memory_rev = firstdata._rev;
+          var memory_id = firstdata._id;
+          var memory_type = firstdata.orderDetails.modeType;
+          var memory_table = firstdata.table;
           
           var cancelBillFile = bill;
           delete cancelBillFile._id;
@@ -3997,24 +4080,28 @@ function processCancelRunningOrder(kotID, optionalPageRef){
     initiateCancelOrderHide();
 
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(firstdata) {
-        if(firstdata.docs.length > 0){
+        if(firstdata._id == kot_request_data){
 
-            var kot = firstdata.docs[0];
+            var kot = firstdata;
 
-            var memory_rev = firstdata.docs[0]._rev;
-            var memory_id = firstdata.docs[0]._id;
-            var memory_type = firstdata.docs[0].orderDetails.modeType;
-            var memory_table = firstdata.docs[0].table;
+            var memory_rev = firstdata._rev;
+            var memory_id = firstdata._id;
+            var memory_type = firstdata.orderDetails.modeType;
+            var memory_table = firstdata.table;
             
             var cancelOrderFile = kot;
             delete cancelOrderFile._id;
@@ -4445,6 +4532,7 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
                 tableData.status = 0;
                 tableData.lastUpdate = "";              
 
+                appendToLog(tableID+' : Freeing Table after Order Cancellation');
 
                     //Update
                     $.ajax({
@@ -4489,21 +4577,27 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
 function openUndoSettleWarning(billNumber){
 
     showLoading(10000, 'Loading...');
-    var requestData = { "selector" :{ "billNumber": billNumber }}
+
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var bill_request_data = accelerate_licencee_branch +"_INVOICE_"+ billNumber;    
+    var new_bill_id = accelerate_licencee_branch +"_BILL_"+ billNumber;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/'+bill_request_data,
       timeout: 10000,
       success: function(firstdata) {
         hideLoading();
 
-        if(firstdata.docs.length > 0){
+        if(firstdata._id == bill_request_data){
 
-          var reversed_bill = firstdata.docs[0];
+          var reversed_bill = firstdata;
 
           //Do not allow if its a refunded order
           if(reversed_bill.refundDetails){
@@ -4524,6 +4618,9 @@ function openUndoSettleWarning(billNumber){
           delete reversed_bill.timeSettle;
           delete reversed_bill.paymentReference;
           delete reversed_bill.paymentSplits;
+
+
+          reversed_bill._id = new_bill_id;
 
 
             //Post to local Server

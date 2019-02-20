@@ -3717,93 +3717,107 @@ function showSpotlight(){
                     var orderNumber = searchKey.substring(1); //to remove '@' in the beginning
 
                     //Search for KOTs
-                    var requestData = { "selector" :{ "KOTNumber": orderNumber } }
 
-                    $.ajax({
-                      type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-                      data: JSON.stringify(requestData),
-                      contentType: "application/json",
-                      dataType: 'json',
-                      timeout: 10000,
-                      success: function(data) {
-                        if(data.docs.length > 0){
+                    //Set _id from Branch mentioned in Licence
+                    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+                    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                      return '';
+                    }
 
-                          var bill = data.docs[0];
-                          var billList = [];
-                          billList.push(bill);
+                    searchOrderForKOT();
 
-                          spotlightData = [{ "category": "Orders", "list": billList}];
+                    function searchOrderForKOT(){
 
-                          liSelected = undefined
+                        var kot_request_data = accelerate_licencee_branch +"_KOT_K"+ orderNumber;
 
-                          var renderContent = '<ul class="ng-spotlight-results-category">';
-                          var count = 0;
-                          var tabIndex = 1;
-                          var itemsList = '';
+                        $.ajax({
+                          type: 'GET',
+                          url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
+                          timeout: 10000,
+                          success: function(data) {
+                            if(data._id == kot_request_data){
 
-                          $.each(spotlightData, function(key_1, spotResult) {
+                              var bill = data;
+                              var billList = [];
+                              billList.push(bill);
 
-                            itemsList = '';
-                            count = 0;
+                              spotlightData = [{ "category": "Orders", "list": billList}];
 
-                            switch(spotResult.category){
-                              case "Orders":{
-                                  $.each(spotResult.list, function(key_2, spotItem) {
+                              liSelected = undefined
 
-                                          tabIndex = -1;
+                              var renderContent = '<ul class="ng-spotlight-results-category">';
+                              var count = 0;
+                              var tabIndex = 1;
+                              var itemsList = '';
 
-                                          var tempData = encodeURI(JSON.stringify(spotItem));
-                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><i class="fa '+(spotItem.orderStatus == 1 ? 'fa-refresh' : (spotItem.orderStatus == 2 ? 'fa-print' : (spotItem.orderStatus == 3 ? 'fa-check': '')))+'" style="float: left; display: table-cell; width: 8%; padding: 2px 0 0 0;"></i> <name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : spotItem.KOTNumber)+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
-                                          
-                                          count++;
-                                          tabIndex++;
-                                    
-                                  });
-                                  break;
-                              }
-                            }
+                              $.each(spotlightData, function(key_1, spotResult) {
+
+                                itemsList = '';
+                                count = 0;
+
+                                switch(spotResult.category){
+                                  case "Orders":{
+                                      $.each(spotResult.list, function(key_2, spotItem) {
+
+                                              tabIndex = -1;
+
+                                              var tempData = encodeURI(JSON.stringify(spotItem));
+                                              itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><name style="display: inline-block; width: 50%">#'+(spotItem.KOTNumber != '' ? spotItem.KOTNumber : '')+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
+                                              
+                                              count++;
+                                              tabIndex++;
+                                        
+                                      });
+                                      break;
+                                  }
+                                }
 
 
-                            if(count > 0){
-                              renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
-                            
-                              document.getElementById("noResultSpotlight").style.display = 'none';
-                              document.getElementById("spotlightRenderPanel").style.display = 'block';
+                                if(count > 0){
+                                  renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                                
+                                  document.getElementById("noResultSpotlight").style.display = 'none';
+                                  document.getElementById("spotlightRenderPanel").style.display = 'block';
+                                }
+                                else{
+                                  document.getElementById("noResultSpotlight").style.display = 'block';
+                                  document.getElementById("spotlightRenderPanel").style.display = 'none';                              
+                                }
+
+                              });
+
+                              renderContent += '</ul>';
+
+                              $('#spotlightResultsRenderArea').html(renderContent);
+
+                              //Refresh dropdown list
+                              li = $('#spotlightResultsRenderArea li');
+
                             }
                             else{
-                              document.getElementById("noResultSpotlight").style.display = 'block';
-                              document.getElementById("spotlightRenderPanel").style.display = 'none';                              
+                              searchOrderForBills();
                             }
-
+                          },
+                          error: function(data) {
+                            searchOrderForBills();
+                          }
                           });
+                    }
 
-                          renderContent += '</ul>';
-
-                          $('#spotlightResultsRenderArea').html(renderContent);
-
-                          //Refresh dropdown list
-                          li = $('#spotlightResultsRenderArea li');
-
-                        }
-                        else{
+                    function searchOrderForBills(){
 
                           //Search for BILLS
-
-                          orderNumber = parseInt(orderNumber);
-                          var requestDataBill = { "selector" :{ "billNumber": orderNumber } }
+                          var bill_request_data = accelerate_licencee_branch +"_BILL_"+ orderNumber;
 
                           $.ajax({
-                            type: 'POST',
-                            url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_find',
-                            data: JSON.stringify(requestDataBill),
-                            contentType: "application/json",
-                            dataType: 'json',
+                            type: 'GET',
+                            url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
                             timeout: 10000,
                             success: function(data) {
-                              if(data.docs.length > 0){
+                              if(data._id == bill_request_data){
 
-                                var bill = data.docs[0];
+                                var bill = data;
                                 bill.orderStatus = 2;
                                 var billList = [];
                                 billList.push(bill);
@@ -3829,7 +3843,7 @@ function showSpotlight(){
                                                 tabIndex = -1;
 
                                                 var tempData = encodeURI(JSON.stringify(spotItem));
-                                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><i class="fa '+(spotItem.orderStatus == 1 ? 'fa-refresh' : (spotItem.orderStatus == 2 ? 'fa-print' : (spotItem.orderStatus == 3 ? 'fa-check': '')))+'" style="float: left; display: table-cell; width: 8%; padding: 2px 0 0 0;"></i> <name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : spotItem.KOTNumber)+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
+                                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : '')+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
                                                 
                                                 count++;
                                                 tabIndex++;
@@ -3861,21 +3875,28 @@ function showSpotlight(){
 
                               }
                               else{
-                                //Search for INVOICE
+                                searchOrderForInvoices();
+                              }
+                            },
+                            error: function(data) {
+                              searchOrderForInvoices();
+                            }
+                            });
+                    }
 
-                                var requestDataInvoice = { "selector" :{ "billNumber": orderNumber } }
+                    function searchOrderForInvoices(){
+
+                                //Search for INVOICE
+                                var invoice_request_data = accelerate_licencee_branch +"_INVOICE_"+ orderNumber;
 
                                 $.ajax({
-                                  type: 'POST',
-                                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/_find',
-                                  data: JSON.stringify(requestDataInvoice),
-                                  contentType: "application/json",
-                                  dataType: 'json',
+                                  type: 'GET',
+                                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/'+invoice_request_data,
                                   timeout: 10000,
                                   success: function(data) {
-                                    if(data.docs.length > 0){
+                                    if(data._id == invoice_request_data){
 
-                                      var bill = data.docs[0];
+                                      var bill = data;
                                       bill.orderStatus = 3;
                                       var billList = [];
                                       billList.push(bill);
@@ -3901,7 +3922,7 @@ function showSpotlight(){
                                                       tabIndex = -1;
 
                                                       var tempData = encodeURI(JSON.stringify(spotItem));
-                                                      itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><i class="fa '+(spotItem.orderStatus == 1 ? 'fa-refresh' : (spotItem.orderStatus == 2 ? 'fa-print' : (spotItem.orderStatus == 3 ? 'fa-check': '')))+'" style="float: left; display: table-cell; width: 8%; padding: 2px 0 0 0;"></i> <name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : spotItem.KOTNumber)+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
+                                                      itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : '')+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
                                                       
                                                       count++;
                                                       tabIndex++;
@@ -3933,48 +3954,34 @@ function showSpotlight(){
 
                                     }
                                     else{
-                                      //Search for INVOICE
                                       spotlightData = [];
                                       document.getElementById("noResultSpotlight").style.display = 'block'; 
                                       document.getElementById("spotlightRenderPanel").style.display = 'none';
                                     }
+                                  },
+                                  error: function(data) {
+                                      spotlightData = [];
+                                      document.getElementById("noResultSpotlight").style.display = 'block'; 
+                                      document.getElementById("spotlightRenderPanel").style.display = 'none';
                                   }
                                 });  
+                    }
 
-                              } //end - search invoices
-                            }
-                          });  
-
-
-                        } //end - search bills
-                      }
-                    });  
-
-                  break;
+                  
+                    break;
                 }
                 case "CUSTOMER":{
 
                     var mobileNumber = searchKey.substring(1); //to remove '@' in the beginning
 
-                    var requestData = {
-                      "selector"  :{ 
-                                    "mobile": mobileNumber 
-                                  },
-                      "fields"    : ["name", "mobile", "savedAddresses"]
-                    }
 
                     $.ajax({
-                      type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_users/_find',
-                      data: JSON.stringify(requestData),
-                      contentType: "application/json",
-                      dataType: 'json',
+                      type: 'GET',
+                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_users/'+mobileNumber,
                       timeout: 10000,
                       success: function(data) {
-                        if(data.docs.length != 0){ //USER FOUND!!!
+                        if(data._id == mobileNumber){ //USER FOUND!!!
 
-                          console.log(data.docs[0])
-                          
                           spotlightData = JSON.parse('[{ "category": "Customers", "list": [{ "name": "Abhijith", "mobile": "9043960876", "last": "4th July, 2018", "visits": 1, "orders": 0 }, { "name": "Anas Jafry", "mobile": "9884179675", "last": "3rd July, 2018", "visits": 3, "orders": 12 }] }]');
                         
                           liSelected = undefined
@@ -5222,4 +5229,22 @@ function saveToChatLog(messageObj){
     });
 }
 
+
+//Error Logging
+function appendToLog(text){
+  var time_now = moment().format('DD-MM-YYYY hh:mm:ss');
+
+  if(fs.existsSync('log_script.txt')) {
+       fs.readFile('log_script.txt', 'utf8', function readFileCallback(err, data){
+       if (err){
+           
+       } else {
+          var file_text = data;
+          file_text = file_text + '\n'  + time_now + ' > ' + text;
+          fs.writeFile('log_script.txt', file_text, 'utf8', (err) => {
+             
+          }); 
+      }});
+  }
+}
   

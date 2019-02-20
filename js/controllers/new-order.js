@@ -1698,18 +1698,22 @@ else{
 /* To Print Current KOT View */
 function printCurrentKOTView(kotID, optionalSource){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          var kot = data.docs[0];
+        if(data._id == kot_request_data){
+          var kot = data;
           sendToPrinter(kot, 'VIEW');
 
           showToast('Items View of #'+kotID+' generated Successfully', '#27ae60');
@@ -2380,7 +2384,9 @@ function clearSavedOrderMappingFromTables(){
                   tableData[index].value.remarks = "";
                   tableData[index].value.KOT = "";
                   tableData[index].value.status = 0;
-                  tableData[index].value.lastUpdate = "";              
+                  tableData[index].value.lastUpdate = "";    
+
+                  appendToLog(tableData[index].value.table+' : Clearing Saved Order');          
 
 
                     //Update
@@ -2503,7 +2509,9 @@ function removeTableFromReserveList(tableID){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 0;
-                tableData.lastUpdate = "";              
+                tableData.lastUpdate = "";   
+
+                appendToLog(tableID + ' : Removing Table from Reserve List');           
 
 
                     //Update
@@ -3733,7 +3741,7 @@ function moveToEditKOT(kotID){
     //Set _id from Branch mentioned in Licence
     var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
     if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
       return '';
     }
 
@@ -8447,19 +8455,23 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
     	incoming_item.qty = target_quantity;
 
 
-	    var requestData = { "selector" :{ "KOTNumber": running_KOTNumber }}
+	    //Set _id from Branch mentioned in Licence
+	    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+	    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+	      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	      return '';
+	    }
+
+	    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ running_KOTNumber;
 
 	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
+	      type: 'GET',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
 	      timeout: 10000,
 	      success: function(data) {
-	        if(data.docs.length > 0){
+	        if(data._id == kot_request_data){
 	          
-	          var kot = data.docs[0];
+	          var kot = data;
 
 	          //Exit if billing modes are not matching
 	          if(kot.orderDetails.mode != billing_mode){
@@ -8613,19 +8625,23 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 	//Finally make changes in the source KOT
 	function updateSourceKOT(){
 
-	    var requestData = { "selector" :{ "KOTNumber": current_kot }}
+	    //Set _id from Branch mentioned in Licence
+	    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+	    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+	      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	      return '';
+	    }
+
+	    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ current_kot;
 
 	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
+	      type: 'GET',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
 	      timeout: 10000,
 	      success: function(data) {
-	        if(data.docs.length > 0){
+	        if(data._id == kot_request_data){
 	          
-	          var kot = data.docs[0];
+	          var kot = data;
 	          var remember_id = kot._id;
 	          var remember_rev = kot._rev;
 	          var remember_table = kot.table;
@@ -8838,7 +8854,9 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 			                tableData.remarks = "";
 			                tableData.KOT = "";
 			                tableData.status = 0;
-			                tableData.lastUpdate = "";              
+			                tableData.lastUpdate = "";    
+
+			                appendToLog(tableNumber+' : Removing Empty KOT mapping after shifting all items');            
 
 
 			                    //Update

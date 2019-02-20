@@ -49,7 +49,7 @@ function fetchInitFunctions(pageReference){
 			break;
 		}
 		case 'settled-bills':{
-			loadAllPendingSettlementBills('EXTERNAL');
+			loadAllPendingSettlementBills('EXTERNAL', 'LOADING_ANIMATION');
 			break;
 		}	
 		case 'cancelled-bills':{

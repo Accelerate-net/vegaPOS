@@ -55,7 +55,7 @@ function renderAllKOTs() {
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_all_docs',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchall',
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
@@ -68,23 +68,20 @@ function renderAllKOTs() {
             var running_count_dine = 0;
             var running_count_other = 0;
 
+
             while(runningKOTList[n]){
 
-                var requestData = { "selector" :{ "_id": runningKOTList[n].id }}
                 var tempStore = n;
 
                 $.ajax({
-                  type: 'POST',
-                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-                  data: JSON.stringify(requestData),
-                  contentType: "application/json",
-                  dataType: 'json',
+                  type: 'GET',
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+runningKOTList[n].id,
                   timeout: 10000,
                   success: function(data) {
 
-                    if(data.docs.length > 0){
+                    if(data._id != ''){
                             
-                            var kot = data.docs[0];
+                            var kot = data;
 
                             if(filterLiveOrdersFlag == 'DINE'){
 
@@ -270,18 +267,22 @@ function liveOrderOptionsNonDine(kotID){
 
 
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          var kot = data.docs[0];
+        if(data._id == kot_request_data){
+          var kot = data;
 
           if(isUserAnAdmin){
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
@@ -409,19 +410,24 @@ function liveOrderOptions(kotID){
   }
 
 
- 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
+
+
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          var kot = data.docs[0];
+        if(data._id == kot_request_data){
+          var kot = data;
 
           if(isUserAnAdmin){
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
@@ -534,25 +540,31 @@ function cancelRunningKOTOrder(kotID, pageRef){
 /* To print Duplicate KOT */
 function printDuplicateKOT(kotID, optionalSource){
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
-
     showLoading(10000, 'Fetching...');
 
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
+
+
+
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
 
         hideLoading();
         showToast('Duplicate KOT printed Successfully', '#27ae60');
 
-        if(data.docs.length > 0){
+        if(data._id == kot_request_data){
           
-                      var obj = data.docs[0];
+                      var obj = data;
                       var original_order_object_cart = obj.cart;
                       
                       var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
@@ -864,18 +876,22 @@ function pushToEditKOT(kotID){
  
     liveOrderOptionsClose();
 
-    var requestData = { "selector" :{ "KOTNumber": kotID }}
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
       timeout: 10000,
       success: function(data) {
-        if(data.docs.length > 0){
-          var kot = data.docs[0];
+        if(data._id == kot_request_data){
+          var kot = data;
 
           if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 
