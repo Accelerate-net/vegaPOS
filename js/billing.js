@@ -2319,7 +2319,9 @@ function resetTableToFree(tableNumber){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 0;
-                tableData.lastUpdate = "";              
+                tableData.lastUpdate = "";   
+
+                appendToLog(tableNumber + ' : Resetting Table to Free');              
 
 
                     //Update
@@ -2378,7 +2380,7 @@ function deleteKOTFromServer(id, revID, optionalPageRef){
 }
 
 function deleteBillFromServer(billNumber, optionalPageRef){
-  
+
                   billNumber = parseInt(billNumber);
 
                   //Set _id from Branch mentioned in Licence
@@ -3315,7 +3317,9 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
                     tableData.remarks = "";
                     tableData.KOT = "";
                     tableData.status = 0;
-                    tableData.lastUpdate = "";              
+                    tableData.lastUpdate = "";   
+
+                    appendToLog(tableNumber+' : Settle Bill Later');           
 
 
                     //Update
@@ -4094,10 +4098,10 @@ function processCancelRunningOrder(kotID, optionalPageRef){
 
             var kot = firstdata;
 
-            var memory_rev = firstdata.docs[0]._rev;
-            var memory_id = firstdata.docs[0]._id;
-            var memory_type = firstdata.docs[0].orderDetails.modeType;
-            var memory_table = firstdata.docs[0].table;
+            var memory_rev = firstdata._rev;
+            var memory_id = firstdata._id;
+            var memory_type = firstdata.orderDetails.modeType;
+            var memory_table = firstdata.table;
             
             var cancelOrderFile = kot;
             delete cancelOrderFile._id;
@@ -4528,6 +4532,7 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
                 tableData.status = 0;
                 tableData.lastUpdate = "";              
 
+                appendToLog(tableID+' : Freeing Table after Order Cancellation');
 
                     //Update
                     $.ajax({

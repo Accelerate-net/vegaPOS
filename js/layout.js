@@ -5229,4 +5229,22 @@ function saveToChatLog(messageObj){
     });
 }
 
+
+//Error Logging
+function appendToLog(text){
+  var time_now = moment().format('DD-MM-YYYY hh:mm:ss');
+
+  if(fs.existsSync('log_script.txt')) {
+       fs.readFile('log_script.txt', 'utf8', function readFileCallback(err, data){
+       if (err){
+           
+       } else {
+          var file_text = data;
+          file_text = file_text + '\n'  + time_now + ' > ' + text;
+          fs.writeFile('log_script.txt', file_text, 'utf8', (err) => {
+             
+          }); 
+      }});
+  }
+}
   
