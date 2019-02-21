@@ -675,11 +675,15 @@ function printDuplicateKOT(kotID, optionalSource){
                                     sendToPrinter(relay_skipped_obj, 'DUPLICATE_KOT');
                                     if(isKOTRelayingEnabledOnDefault){
                                         sendToPrinter(relay_skipped_obj, 'DUPLICATE_KOT', default_set_KOT_printer_data);
+                                    
+                                        printRelayedKOT(relayRuleList); 
                                     }
                                     else{
                                         var preserved_order = obj;
                                         preserved_order.cart = original_order_object_cart;
                                         sendToPrinter(preserved_order, 'DUPLICATE_KOT', default_set_KOT_printer_data);
+                                    
+                                        printRelayedKOT(relayRuleList); 
                                     }
 
                                   }
@@ -697,11 +701,15 @@ function printDuplicateKOT(kotID, optionalSource){
                                                 
                                                 if(isKOTRelayingEnabledOnDefault){
                                                   sendToPrinter(relay_skipped_obj, 'DUPLICATE_KOT', default_set_KOT_printer_data);
+                                                
+                                                  printRelayedKOT(relayRuleList); 
                                                 }
                                                 else{
                                                   var preserved_order = obj;
                                                   preserved_order.cart = original_order_object_cart;
                                                   sendToPrinter(preserved_order, 'DUPLICATE_KOT', default_set_KOT_printer_data);
+                                                
+                                                  printRelayedKOT(relayRuleList); 
                                                 }
 
                                                 break;
@@ -714,11 +722,15 @@ function printDuplicateKOT(kotID, optionalSource){
                                             if(selected_printer == ''){ //No printer found, print on default!
                                                 if(isKOTRelayingEnabledOnDefault){
                                                   sendToPrinter(relay_skipped_obj, 'DUPLICATE_KOT', default_set_KOT_printer_data);
+                                                
+                                                  printRelayedKOT(relayRuleList); 
                                                 }
                                                 else{
                                                   var preserved_order = obj;
                                                   preserved_order.cart = original_order_object_cart;
                                                   sendToPrinter(preserved_order, 'DUPLICATE_KOT', default_set_KOT_printer_data);
+                                                
+                                                  printRelayedKOT(relayRuleList); 
                                                 }
                                             }
                                           }
@@ -733,10 +745,15 @@ function printDuplicateKOT(kotID, optionalSource){
                                   preserved_order.cart = original_order_object_cart;
 
                                   sendToPrinter(preserved_order, 'DUPLICATE_KOT', default_set_KOT_printer_data);
+                                
+                                  printRelayedKOT(relayRuleList); 
                                 } 
+                                else{
+                                  printRelayedKOT(relayRuleList, 'NO_DELAY_PLEASE'); 
+                                }
                               }
 
-                              printRelayedKOT(relayRuleList); 
+                              
                               
                             }
 
@@ -744,50 +761,104 @@ function printDuplicateKOT(kotID, optionalSource){
                           }
                         }
 
-                        function printRelayedKOT(relayedList){
+                        function printRelayedKOT(relayedList, optionalRequest){
 
                           var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
                           var g = 0;
                           var allPrintersList = [];
 
                           while(allConfiguredPrintersList[g]){
+
+                              if(allConfiguredPrintersList[g].type == 'KOT'){ //filter only KOT Printers
+                                  for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+                                      allPrintersList.push({
+                                        "name": allConfiguredPrintersList[g].list[a].name,
+                                        "target": allConfiguredPrintersList[g].list[a].target,
+                                        "template": allConfiguredPrintersList[g].list[a]
+                                      });
+                                  }
+
+                                  //Start relay after some significant delay. 
+                                  //Printing of relay skipped items might not be completed yet...
+                                  if(optionalRequest == 'NO_DELAY_PLEASE'){
+                                      startRelayPrinting(0);
+                                  }
+                                  else{
+                                    setTimeout(function(){ 
+                                       startRelayPrinting(0);
+                                    }, 888);
+                                  }
+
+                              break;
+                            }
+
+                              if(g == allConfiguredPrintersList.length - 1){
+                                  if(optionalRequest == 'NO_DELAY_PLEASE'){
+                                        startRelayPrinting(0);
+                                  }
+                                  else{
+                                      setTimeout(function(){ 
+                                         startRelayPrinting(0);
+                                      }, 888);
+                                  }
+                              }
                             
-                            for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
-                              if(!isItARepeat(allConfiguredPrintersList[g].list[a].name)){
-                                allPrintersList.push({
-                                  "name": allConfiguredPrintersList[g].list[a].name,
-                                  "target": allConfiguredPrintersList[g].list[a].target,
-                                  "template": allConfiguredPrintersList[g].list[a]
-                                });
+                              g++;
+                          }
+
+
+                          function startRelayPrinting(index){
+                            
+                            console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name);
+
+                            if(index == 0){
+                              showPrintingAnimation();
+                            }
+                            
+                            var relayedItems = [];
+                            for(var i = 0; i < relayedList.length; i++){
+                              if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
+                                relayedItems = relayedItems.concat(relayedList[i].subcart)  
+                              }
+
+                              if(i == relayedList.length - 1){ //last iteration
+                                if(relayedItems.length > 0){
+                                  var relayedNewObj = obj;
+                                  relayedNewObj.cart = relayedItems;
+
+                                  sendToPrinter(relayedNewObj, 'DUPLICATE_KOT', allPrintersList[index].template);
+
+                                  if(allPrintersList[index+1]){
+                                    //go to next after some delay
+                                    setTimeout(function(){ 
+                                      startRelayPrinting(index+1);
+                                    }, 999);
+                                  }
+                                  else{
+                                    finishPrintingAnimation();
+                                  }
                                 }
-                            }
-
-                            if(g == allConfiguredPrintersList.length - 1){
-                              startRelayPrinting(0);
-                            }
-                            
-                            g++;
-                          }
-
-                          function isItARepeat(name){
-                            var h = 0;
-                            while(allPrintersList[h]){
-                              if(allPrintersList[h].name == name){
-                                return true;
+                                else{
+                                  //There are no items to relay. Go to next.
+                                  if(allPrintersList[index+1]){
+                                    startRelayPrinting(index+1);
+                                  }
+                                  else{
+                                    finishPrintingAnimation();
+                                  }
+                                }
                               }
-
-                              if(h == allPrintersList.length - 1){ // last iteration
-                                return false;
-                              }
-                              h++;
                             }
                           }
+                          
 
+
+                          /*
                           function startRelayPrinting(index){
 
                             console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
 
-                          //add some delay
+                                    //add some delay
                                     setTimeout(function(){ 
                                   
                                         var relayedItems = [];
@@ -818,6 +889,8 @@ function printDuplicateKOT(kotID, optionalSource){
 
                                     }, 999);
                           }
+                          */
+
 
                         }
                       }

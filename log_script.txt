@@ -1,2 +1,4 @@
 
 21-02-2019 10:43:26 > 2 : Resetting Table to Free
+21-02-2019 11:19:08 > 2 : Freeing Table after Order Cancellation
+21-02-2019 11:25:03 > 1 : Freeing Table after Order Cancellation
