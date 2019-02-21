@@ -47,6 +47,7 @@ var sounds = {
 
 }
 
+
 function preloadSounds() {
   for (var name in sounds) {
     if (!cache[name]) {

@@ -1447,7 +1447,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                           	  (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                           	  (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+ 	
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -1475,7 +1475,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 				document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -1500,7 +1500,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -1526,7 +1526,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 				document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -1551,7 +1551,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -4530,6 +4530,8 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 			              	if(isKOTRelayingEnabled){
 
+			              		showPrintingAnimation();
+
 			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
 			              		var relaySkippedItems = [];
 
@@ -4587,6 +4589,7 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 							              		
 							              		if(defaultKOTPrinter == ''){
 							              			sendKOTChangesToPrinter(kot, relaySkippedItems);
+							              			printRelayedKOT(relayRuleList);
 							              		}
 							              		else{
 													var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
@@ -4601,9 +4604,11 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 													        	if(isKOTRelayingEnabledOnDefault){
 													        		sendKOTChangesToPrinter(kot, relaySkippedItems, selected_printer);
+													        		printRelayedKOT(relayRuleList);	
 													        	}
 													        	else{
 													        		sendKOTChangesToPrinter(kot, compareObject, selected_printer);
+													        		printRelayedKOT(relayRuleList);	
 													        	}
 
 													        	break;
@@ -4616,9 +4621,11 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 												      	if(selected_printer == ''){ //No printer found, print on default!
 												      		if(isKOTRelayingEnabledOnDefault){
 										           				sendKOTChangesToPrinter(kot, relaySkippedItems, default_set_KOT_printer_data);
+										           				printRelayedKOT(relayRuleList);	
 										           			}
 										             		else{
 										              			sendKOTChangesToPrinter(kot, compareObject, default_set_KOT_printer_data);
+										              			printRelayedKOT(relayRuleList);	
 										              		}
 												      	}
 												      }
@@ -4631,10 +4638,14 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 				              				else{
 												if(!isKOTRelayingEnabledOnDefault){
 											        sendKOTChangesToPrinter(kot, compareObject, default_set_KOT_printer_data);
-											    }				              					
+											    	printRelayedKOT(relayRuleList);	
+											    }
+											    else{
+											    	printRelayedKOT(relayRuleList, 'NO_DELAY_PLEASE');	
+											    }			              					
 				              				}
 
-				              				printRelayedKOT(relayRuleList);	
+				              				
 				              				
 				              			}
 
@@ -4642,45 +4653,91 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 				              		}
 				              	}
 
-				              	function printRelayedKOT(relayedList){
+				              	function printRelayedKOT(relayedList, optionalRequest){
 
 				              		var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 								    var g = 0;
 								    var allPrintersList = [];
 
 								    while(allConfiguredPrintersList[g]){
-								      
-								      for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
-								        if(!isItARepeat(allConfiguredPrintersList[g].list[a].name)){
-								          allPrintersList.push({
-								            "name": allConfiguredPrintersList[g].list[a].name,
-								            "target": allConfiguredPrintersList[g].list[a].target,
-								            "template": allConfiguredPrintersList[g].list[a]
-								          });
-								          }
-								      }
 
-								      if(g == allConfiguredPrintersList.length - 1){
-								      	startRelayPrinting(0);
-								      }
+								      	if(allConfiguredPrintersList[g].type == 'KOT'){ //filter only KOT Printers
+									      for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+									          allPrintersList.push({
+									            "name": allConfiguredPrintersList[g].list[a].name,
+									            "target": allConfiguredPrintersList[g].list[a].target,
+									            "template": allConfiguredPrintersList[g].list[a]
+									          });
+									      }
+
+									      //Start relay after some significant delay. 
+									      //Printing of relay skipped items might not be completed yet...
+									      if(optionalRequest == 'NO_DELAY_PLEASE'){
+									      		startRelayPrinting(0);
+									      }
+									      else{
+					              			  setTimeout(function(){ 
+										      	 startRelayPrinting(0);
+										      }, 888);
+										  }
+
+									      break;
+									    }
+
+								      	if(g == allConfiguredPrintersList.length - 1){
+									      	if(optionalRequest == 'NO_DELAY_PLEASE'){
+									      		  startRelayPrinting(0);
+										    }
+										    else{
+						              			  setTimeout(function(){ 
+											      	 startRelayPrinting(0);
+											      }, 888);
+											}
+								      	}
 								      
-								      g++;
+								      	g++;
 								    }
 
-								    function isItARepeat(name){
-								      var h = 0;
-								      while(allPrintersList[h]){
-								        if(allPrintersList[h].name == name){
-								          return true;
-								        }
+								    function startRelayPrinting(index){
+								    	
+								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name);
 
-								        if(h == allPrintersList.length - 1){ // last iteration
-								          return false;
-								        }
-								        h++;
-								      }
+								    	var relayedItems = [];
+								    	for(var i = 0; i < relayedList.length; i++){
+								    		if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
+								    			relayedItems = relayedItems.concat(relayedList[i].subcart)	
+								    		}
+
+								    		if(i == relayedList.length - 1){ //last iteration
+								    			if(relayedItems.length > 0){
+
+								    				sendKOTChangesToPrinter(kot, relayedItems, allPrintersList[index].template);
+
+								    				if(allPrintersList[index+1]){
+								    					//go to next after some delay
+				              							setTimeout(function(){ 
+								    						startRelayPrinting(index+1);
+								    					}, 999);
+								    				}
+								    				else{
+								    					finishPrintingAnimation();
+								    				}
+								    			}
+								    			else{
+								    				//There are no items to relay. Go to next.
+								    				if(allPrintersList[index+1]){
+								    					startRelayPrinting(index+1);
+								    				}
+								    				else{
+								    					finishPrintingAnimation();
+								    				}
+								    			}
+								    		}
+								    	}
 								    }
 
+
+								    /*
 								    function startRelayPrinting(index){
 
 								    	console.log('*Relay Print - Round '+index+' on '+allPrintersList[index].name)
@@ -4724,6 +4781,7 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 								    	}, 999);
 								    }
+								    */
 
 				              	}
 			              	}
@@ -5475,6 +5533,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 			              	if(isKOTRelayingEnabled){
 
+			              		showPrintingAnimation();
+
 			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
 			              		var relaySkippedItems = [];
 
@@ -5524,7 +5584,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 					              			relaySkippedItems.push(obj.cart[m]);
 					              		}	
 
-				              			if(m == obj.cart.length - 1){
+				              			if(m == obj.cart.length - 1){ //last iteration
 
 				              				//Print Relay Skipped items (if exists)
 				              				var relay_skipped_obj = obj;
@@ -5537,12 +5597,16 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								              		if(defaultKOTPrinter == ''){
 								              			if(isKOTRelayingEnabledOnDefault){ //relay KOT on default printer as well. otherwise, complete order will be printed on default printer.
 								              				sendToPrinter(relay_skipped_obj, 'KOT', default_set_KOT_printer_data);
+								              			
+								              				printRelayedKOT(relayRuleList);
 								              			}
 								              			else{
 								              				var preserved_order = obj;
 											              	preserved_order.cart = original_order_object_cart;
 								              				
 								              				sendToPrinter(preserved_order, 'KOT', default_set_KOT_printer_data);
+								              				
+								              				printRelayedKOT(relayRuleList);
 								              			}
 								              		}
 								              		else{
@@ -5558,6 +5622,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 														        	if(isKOTRelayingEnabledOnDefault){
 											              				sendToPrinter(relay_skipped_obj, 'KOT', selected_printer);
+											              			
+											              				printRelayedKOT(relayRuleList);
 											              			}
 											              			else{
 
@@ -5565,6 +5631,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 											              				preserved_order.cart = original_order_object_cart;
 
 											              				sendToPrinter(preserved_order, 'KOT', selected_printer);
+											              				
+											              				printRelayedKOT(relayRuleList);
 											              			}
 
 														        	break;
@@ -5577,12 +5645,16 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 													      	if(selected_printer == ''){ //No printer found, print on default!
 													      		if(isKOTRelayingEnabledOnDefault){
 										              				sendToPrinter(relay_skipped_obj, 'KOT', default_set_KOT_printer_data);
+
+										              				printRelayedKOT(relayRuleList);
 										              			}
 										              			else{
 										              				var preserved_order = obj;
 											              			preserved_order.cart = original_order_object_cart;
 
 										              				sendToPrinter(preserved_order, 'KOT', default_set_KOT_printer_data);
+
+										              				printRelayedKOT(relayRuleList);
 										              			}
 													      	}
 													      }
@@ -5597,10 +5669,12 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 											        preserved_order.cart = original_order_object_cart;
 											        
 											        sendToPrinter(preserved_order, 'KOT', default_set_KOT_printer_data);
+											    	printRelayedKOT(relayRuleList);
+											    }
+											    else{
+											    	printRelayedKOT(relayRuleList, 'NO_DELAY_PLEASE');
 											    }				              					
-				              				}
-
-				              				printRelayedKOT(relayRuleList);	
+				              				}	
 				              				
 				              			}
 
@@ -5608,45 +5682,94 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 				              		}
 				              	}
 
-				              	function printRelayedKOT(relayedList){
+				              	function printRelayedKOT(relayedList, optionalRequest){
 
 				              		var allConfiguredPrintersList = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 								    var g = 0;
 								    var allPrintersList = [];
 
 								    while(allConfiguredPrintersList[g]){
-								      
-								      for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
-								        if(!isItARepeat(allConfiguredPrintersList[g].list[a].name)){
-								          allPrintersList.push({
-								            "name": allConfiguredPrintersList[g].list[a].name,
-								            "target": allConfiguredPrintersList[g].list[a].target,
-								            "template": allConfiguredPrintersList[g].list[a]
-								          });
-								          }
-								      }
 
-								      if(g == allConfiguredPrintersList.length - 1){
-								      	startRelayPrinting(0);
-								      }
+								      	if(allConfiguredPrintersList[g].type == 'KOT'){ //filter only KOT Printers
+									      for(var a = 0; a < allConfiguredPrintersList[g].list.length; a++){
+									          allPrintersList.push({
+									            "name": allConfiguredPrintersList[g].list[a].name,
+									            "target": allConfiguredPrintersList[g].list[a].target,
+									            "template": allConfiguredPrintersList[g].list[a]
+									          });
+									      }
+
+									      //Start relay after some significant delay. 
+									      //Printing of relay skipped items might not be completed yet...
+									      if(optionalRequest == 'NO_DELAY_PLEASE'){
+									      		startRelayPrinting(0);
+									      }
+									      else{
+					              			  setTimeout(function(){ 
+										      	 startRelayPrinting(0);
+										      }, 888);
+										  }
+
+									      break;
+									    }
+
+								      	if(g == allConfiguredPrintersList.length - 1){
+									      	if(optionalRequest == 'NO_DELAY_PLEASE'){
+									      		  startRelayPrinting(0);
+										    }
+										    else{
+						              			  setTimeout(function(){ 
+											      	 startRelayPrinting(0);
+											      }, 888);
+											}
+								      	}
 								      
-								      g++;
+								      	g++;
 								    }
 
-								    function isItARepeat(name){
-								      var h = 0;
-								      while(allPrintersList[h]){
-								        if(allPrintersList[h].name == name){
-								          return true;
-								        }
 
-								        if(h == allPrintersList.length - 1){ // last iteration
-								          return false;
-								        }
-								        h++;
-								      }
+								    function startRelayPrinting(index){
+								    	
+								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name);
+								    	
+								    	var relayedItems = [];
+								    	for(var i = 0; i < relayedList.length; i++){
+								    		if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
+								    			relayedItems = relayedItems.concat(relayedList[i].subcart)	
+								    		}
+
+								    		if(i == relayedList.length - 1){ //last iteration
+								    			if(relayedItems.length > 0){
+								    				var relayedNewObj = obj;
+								    				relayedNewObj.cart = relayedItems;
+								    				
+								    				sendToPrinter(relayedNewObj, 'KOT', allPrintersList[index].template);
+
+								    				if(allPrintersList[index+1]){
+								    					//go to next after some delay
+				              							setTimeout(function(){ 
+								    						startRelayPrinting(index+1);
+								    					}, 999);
+								    				}
+								    				else{
+								    					finishPrintingAnimation();
+								    				}
+								    			}
+								    			else{
+								    				//There are no items to relay. Go to next.
+								    				if(allPrintersList[index+1]){
+								    					startRelayPrinting(index+1);
+								    				}
+								    				else{
+								    					finishPrintingAnimation();
+								    				}
+								    			}
+								    		}
+								    	}
 								    }
+								    
 
+								    /*
 								    function startRelayPrinting(index){
 
 								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
@@ -5692,6 +5815,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 								    	}, 999);
 								    }
+								    */
 
 				              	}
 			              	}

@@ -1426,7 +1426,13 @@ function initialiseKeyboardShortcuts(){
 
         case "Show Spotlight Search":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            showSpotlight();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              showSpotlight();
+            }
+            
             return false;
           })
 
@@ -1434,7 +1440,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Start Text To Kitchen":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            openTalkToKitchen();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              openTalkToKitchen();
+            }
+            
             return false;
           })
 
@@ -1443,7 +1455,13 @@ function initialiseKeyboardShortcuts(){
         case "Select Billing Mode":{
           Mousetrap.bind([shortcutsData[n].value], function() {
             if(currentRunningPage == 'new-order'){
-              $('#customer_form_data_mode').click();
+              if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+                requestUserToWait();
+              }
+              else{
+                $('#customer_form_data_mode').click();
+              }
+              
             }
             
             return false;
@@ -1453,7 +1471,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Set Table/Address":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_TableAddressButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              $("#triggerClick_TableAddressButton").click();
+            }
+            
             return false;
           })
 
@@ -1477,7 +1501,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Set Special Comments":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_SpecialRequestsButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              $("#triggerClick_SpecialRequestsButton").click();
+            }
+            
             return false;
           })
 
@@ -1485,7 +1515,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Save Current Order":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_saveOrderButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              $("#triggerClick_saveOrderButton").click();
+            }
+            
             return false;
           })
 
@@ -1493,7 +1529,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Close Order":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_closeOrderButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              $("#triggerClick_closeOrderButton").click();
+            }
+            
             return false;
           })
 
@@ -1501,7 +1543,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Cancel Order":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_cancelOrderButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              $("#triggerClick_cancelOrderButton").click();
+            }
+            
             return false;
           })
 
@@ -1509,7 +1557,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Print KOT":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_PrintKOTButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+               $("#triggerClick_PrintKOTButton").click();
+            }
+           
             return false;
           })
 
@@ -1517,7 +1571,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Generate KOT Silently":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_PrintKOTSilentlyButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              $("#triggerClick_PrintKOTSilentlyButton").click();
+            }
+            
             return false;
           })
 
@@ -1525,7 +1585,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Print Bill":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_PrintBillButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              $("#triggerClick_PrintBillButton").click();
+            }
+            
             return false;
           })
           break;
@@ -1533,7 +1599,12 @@ function initialiseKeyboardShortcuts(){
         case "Generate Bill Silently":{
           Mousetrap.bind([shortcutsData[n].value], function() {
             if($('#billPreviewModal').is(':visible')) {
-              $("#billButtonAction_generateSilently").click();
+              if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+                requestUserToWait();
+              }
+              else{
+                $("#billButtonAction_generateSilently").click();
+              }
             }
             return false;
           })
@@ -1542,7 +1613,13 @@ function initialiseKeyboardShortcuts(){
         }        
         case "Print Item View":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_PrintItemViewButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              $("#triggerClick_PrintItemViewButton").click();
+            }
+            
             return false;
           })
           break;
@@ -1556,7 +1633,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Settle Bill":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_settleBillButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            } 
+            else{
+              $("#triggerClick_settleBillButton").click();
+            }
+            
             return false;
           })
           break;
@@ -1577,14 +1660,26 @@ function initialiseKeyboardShortcuts(){
         }
         case "Cancel Invoice":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#triggerClick_CancelInvoiceButton").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              $("#triggerClick_CancelInvoiceButton").click();
+            }
+            
             return false;
           })
           break;
         }
         case "Refresh Application":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            renderPage('new-order', 'Punch Order');
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              renderPage('new-order', 'Punch Order');
+            }
+            
             return false;
           })
           break;
@@ -1608,14 +1703,26 @@ function initialiseKeyboardShortcuts(){
         }
         case "Go to All Bills":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            renderPage('settled-bills', 'Generated Bills');
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              renderPage('settled-bills', 'Generated Bills');
+            }
+            
             return false;
           })
           break;
         }
         case "Switch User":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            $("#currentUserProfileDisplay").click();
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{ 
+              $("#currentUserProfileDisplay").click();
+            }
+            
             return false;
           })
 
@@ -1627,6 +1734,18 @@ function initialiseKeyboardShortcuts(){
     n++;
   }
 
+}
+
+
+
+function requestUserToWait(){
+  
+  document.getElementById("pleaseWaitWarning").style.display = 'block';
+  playNotificationSound('ENABLE');
+
+  setTimeout(function(){ 
+    document.getElementById("pleaseWaitWarning").style.display = 'none';
+  }, 1300);
 }
 
 

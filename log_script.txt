@@ -1,0 +1,14 @@
+
+21-02-2019 10:43:26 > 2 : Resetting Table to Free
+21-02-2019 11:19:08 > 2 : Freeing Table after Order Cancellation
+21-02-2019 11:25:03 > 1 : Freeing Table after Order Cancellation
+21-02-2019 11:30:42 > 2 : Resetting Table to Free
+21-02-2019 11:49:08 > T5 : Resetting Table to Free
+21-02-2019 11:51:18 > 1 : Freeing Table after Order Cancellation
+22-02-2019 12:00:37 > 11 : Freeing Table after Order Cancellation
+22-02-2019 12:01:39 > 2 : Freeing Table after Order Cancellation
+22-02-2019 12:06:23 > 3 : Freeing Table after Order Cancellation
+22-02-2019 12:07:09 > 4 : Freeing Table after Order Cancellation
+22-02-2019 12:10:40 > T2 : Freeing Table after Order Cancellation
+22-02-2019 12:11:54 > T2-A : Resetting Table to Free
+22-02-2019 12:14:30 > T3 : Freeing Table after Order Cancellation

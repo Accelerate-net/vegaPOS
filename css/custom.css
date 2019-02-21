@@ -3585,6 +3585,87 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
     background-repeat: repeat;
 }
 
+/*please wait warning*/
+#pleaseWaitWarning{
+    position: fixed; left: 0; top: 0; 
+    z-index: 2000; width: 100%; height: 100%; 
+    overflow: visible; 
+    background: none;
+}
+
+.pleaseWaitWarningText{
+    font-size: 48px;
+    color: #fff !important;
+    font-family: 'Roboto';
+    margin: 0;
+    font-weight: bold;
+}
+
+
+@-webkit-keyframes heartBeat {
+  0% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  14% {
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+  }
+
+  28% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  42% {
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+  }
+
+  70% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes heartBeat {
+  0% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  14% {
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+  }
+
+  28% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  42% {
+    -webkit-transform: scale(1.3);
+    transform: scale(1.3);
+  }
+
+  70% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+.heartBeat {
+  -webkit-animation-name: heartBeat;
+  animation-name: heartBeat;
+  -webkit-animation-duration: 1.3s;
+  animation-duration: 1.3s;
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;
+}
+
+
 /*welcome screen lock*/
 #welcomeScreenLock{
     position: fixed; left: 0; top: 0; 
