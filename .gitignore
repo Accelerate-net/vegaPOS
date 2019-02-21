@@ -4,4 +4,4 @@ dist
 data/KOT
 data/bills
 release
-log_script.txt
+./log_script.txt
