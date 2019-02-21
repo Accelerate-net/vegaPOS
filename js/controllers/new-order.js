@@ -1447,7 +1447,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 	 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                           	  (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                           	  (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+ 	
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -1475,7 +1475,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 				document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -1500,7 +1500,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -1526,7 +1526,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 				document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px;" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -1551,7 +1551,7 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		 		document.getElementById("cartActionButtons").innerHTML = '<div class="row">'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
+		                              (isUserAnAdmin ? '<button id="triggerClick_cancelOrderButton" style="margin-bottom: 4px" class="btn btn-danger btn-block btn-flat" onclick="cancelRunningOrder(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Cancel Order</button><button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>' : '<button  class="btn bg-purple btn-block btn-flat" style="background: #bdc3c7 !important; height: 71px" id="triggerClick_HideCartButton" onclick="clearCurrentEditingOrder()">Hide</button>')+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
@@ -4530,6 +4530,8 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 			              	if(isKOTRelayingEnabled){
 
+			              		showPrintingAnimation();
+
 			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
 			              		var relaySkippedItems = [];
 
@@ -4700,10 +4702,6 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 								    	
 								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name);
 
-								    	if(index == 0){
-								    		showPrintingAnimation();
-								    	}
-								    	
 								    	var relayedItems = [];
 								    	for(var i = 0; i < relayedList.length; i++){
 								    		if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
@@ -5535,6 +5533,8 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 			              	if(isKOTRelayingEnabled){
 
+			              		showPrintingAnimation();
+
 			              		var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
 			              		var relaySkippedItems = [];
 
@@ -5731,10 +5731,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								    function startRelayPrinting(index){
 								    	
 								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name);
-
-								    	if(index == 0){
-								    		showPrintingAnimation();
-								    	}
 								    	
 								    	var relayedItems = [];
 								    	for(var i = 0; i < relayedList.length; i++){

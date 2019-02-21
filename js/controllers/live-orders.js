@@ -610,6 +610,8 @@ function printDuplicateKOT(kotID, optionalSource){
 
                       if(isKOTRelayingEnabled){
 
+                        showPrintingAnimation();
+
                         var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
                         var relaySkippedItems = [];
 
@@ -810,10 +812,6 @@ function printDuplicateKOT(kotID, optionalSource){
                           function startRelayPrinting(index){
                             
                             console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name);
-
-                            if(index == 0){
-                              showPrintingAnimation();
-                            }
                             
                             var relayedItems = [];
                             for(var i = 0; i < relayedList.length; i++){

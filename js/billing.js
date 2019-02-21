@@ -4204,6 +4204,8 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
 
                       if(isKOTRelayingEnabled){
 
+                        showPrintingAnimation();
+
                         var relayRuleList = window.localStorage.custom_kot_relays ? JSON.parse(window.localStorage.custom_kot_relays) : [];
                         var relaySkippedItems = [];
 
@@ -4402,10 +4404,6 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
                               
                               console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name);
 
-                              if(index == 0){
-                                showPrintingAnimation();
-                              }
-                              
                               var relayedItems = [];
                               for(var i = 0; i < relayedList.length; i++){
                                 if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
@@ -4416,7 +4414,7 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
                                   if(relayedItems.length > 0){
                                     var relayedNewObj = obj;
                                     relayedNewObj.cart = relayedItems;
-                                    
+
                                     sendToPrinter(relayedNewObj, 'CANCELLED_KOT', allPrintersList[index].template);
 
                                     if(allPrintersList[index+1]){
