@@ -4449,11 +4449,9 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 	              	//Show minimum cooking time...
 					var display_minimum_cooking_time_flag = window.localStorage.appOtherPreferences_minimumCookingTime && window.localStorage.appOtherPreferences_minimumCookingTime == 1 ? true : false;
 
-					if(display_minimum_cooking_time_flag && minimum_cooking_time > 0){
+					  if(display_minimum_cooking_time_flag && minimum_cooking_time > 0){
 						flashMinimumCookingTime(minimum_cooking_time);
-					}
-
-
+				   	  }
 
                   	  if(silentFlag == 'SILENTLY'){ //Skip Printing..
                   	  	showToast('<b>Skipped Printing!</b> Changed KOT #'+kot.KOTNumber+' generated Successfully.', '#27ae60');
@@ -5264,6 +5262,36 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	          var kot = 'K' + num;
 
 	          var memory_revID = data.docs[0]._rev;
+
+	          updateKOTIndexOnServer(num, memory_revID);
+
+	          function updateKOTIndexOnServer(num, updateRevID){
+
+                    	  //Update KOT number on server
+                          var updateData = {
+                            "_rev": updateRevID,
+                            "identifierTag": "ACCELERATE_KOT_INDEX",
+                            "value": num
+                          }
+
+                          $.ajax({
+                            type: 'PUT',
+                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_INDEX/',
+                            data: JSON.stringify(updateData),
+                            contentType: "application/json",
+                            dataType: 'json',
+                            timeout: 10000,
+                            success: function(data) {
+                              
+                            },
+                            error: function(data) {
+                              showToast('System Error: Unable to update KOT Index. Next KOT Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+                            }
+                          });
+	          }
+
+
+	          
 	         
 	          var today = getCurrentTime('DATE');
 	          var time = getCurrentTime('TIME');
@@ -5326,7 +5354,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	            timeout: 10000,
 	            success: function(data) {
 	              if(data.ok){
-
 
 	              	//Show minimum cooking time...
 					var display_minimum_cooking_time_flag = window.localStorage.appOtherPreferences_minimumCookingTime && window.localStorage.appOtherPreferences_minimumCookingTime == 1 ? true : false;
@@ -5706,46 +5733,22 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 			        } //end - initialise KOT Prints
 
-
-
-
-                    	  //Update KOT number on server
-
-                          var updateData = {
-                            "_rev": memory_revID,
-                            "identifierTag": "ACCELERATE_KOT_INDEX",
-                            "value": num
-                          }
-
-                          $.ajax({
-                            type: 'PUT',
-                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_INDEX/',
-                            data: JSON.stringify(updateData),
-                            contentType: "application/json",
-                            dataType: 'json',
-                            timeout: 10000,
-                            success: function(data) {
-                              
-                            },
-                            error: function(data) {
-                              showToast('System Error: Unable to update KOT Index. Next KOT Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
-                            }
-                          });
-
-
 	              }
 	              else{
 	                showToast('Warning: KOT was not Generated. Try again.', '#e67e22');
 	              }
 	            },
-	            error: function(data){           
-	              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	            error: function(data){  
+	            	if(data.responseJSON.error == "conflict"){
+	            		showToast('KOT Number Conflict: <b style="color: #c9ff49; text-decoration: underline; cursor: pointer" onclick="renderPage(\'system-settings\', \'System Settings\'); openSystemSettings(\'quickFixes\');">Apply Quick Fix #1</b> and try again. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	            	} 
+	            	else{
+	            		showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+	            	}  
 	            }
 	          });  
 			  //End - post KOT to Server
 
-
-             
           }
           else{
             showToast('Not Found Error: KOT Index data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -8323,9 +8326,37 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 
 		          var num = parseInt(data.docs[0].value) + 1;
 		          var kot = 'K' + num;
-
 		          var memory_revID = data.docs[0]._rev;
 		         
+		          	updateKOTIndexOnServer(num, memory_revID)
+
+	          	  	function updateKOTIndexOnServer(num, updateRevID){
+
+                    	  //Update KOT number on server
+                          var updateData = {
+                            "_rev": updateRevID,
+                            "identifierTag": "ACCELERATE_KOT_INDEX",
+                            "value": num
+                          }
+
+                          $.ajax({
+                            type: 'PUT',
+                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_INDEX/',
+                            data: JSON.stringify(updateData),
+                            contentType: "application/json",
+                            dataType: 'json',
+                            timeout: 10000,
+                            success: function(data) {
+                              
+                            },
+                            error: function(data) {
+                              showToast('System Error: Unable to update KOT Index. Next KOT Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+                            }
+                          });
+	          		}
+
+
+
 		          var today = getCurrentTime('DATE');
 		          var time = getCurrentTime('TIME');
 
@@ -8386,32 +8417,9 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 		            timeout: 10000,
 		            success: function(data) {
 		              if(data.ok){
-
 		              		if(obj.orderDetails.modeType == 'DINE'){
 		              		  addToTableMapping(target_table, kot, "", 'ORDER_PUNCHING');
 		              		}
-	                    	  
-	                    	  //Update KOT number on server
-	                          var updateData = {
-	                            "_rev": memory_revID,
-	                            "identifierTag": "ACCELERATE_KOT_INDEX",
-	                            "value": num
-	                          }
-
-	                          $.ajax({
-	                            type: 'PUT',
-	                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_INDEX/',
-	                            data: JSON.stringify(updateData),
-	                            contentType: "application/json",
-	                            dataType: 'json',
-	                            timeout: 10000,
-	                            success: function(data) {
-	                              	updateSourceKOT();
-	                            },
-	                            error: function(data) {
-	                              showToast('System Error: Unable to update KOT Index. Next KOT Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
-	                            }
-	                          });
 		              }
 		              else{
 		                showToast('Warning: New KOT was not Modified. Try again.', '#e67e22');

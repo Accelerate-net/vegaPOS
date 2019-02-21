@@ -15,6 +15,7 @@
                         <div class="billSettingsOption" onclick="openSystemSettings('keyboardShortcuts')"> Custom Shortcuts <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('kitchenSections')"> KOT Relaying <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('personalOptions')"> Personalisations<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openSystemSettings('quickFixes')"> Quick Fixes<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('systemSecurity')"> Security<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('configureSystem')">System Configuration<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('systemOptions')"> System Options<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>                        
@@ -125,7 +126,7 @@
                           </tr> 
 
                           <tr>
-                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Reset Licence</td>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Reset Application</td>
                             <td style="padding-top:10px">
                               <div class="row">
                                 <div class="col-lg-12">
@@ -145,6 +146,58 @@
                     </div>
                 </div>
 
+
+
+                <!-- Quick Fixes -->
+                <div class="box box-primary" style="display: none" id="quickFixes">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Quick Fixes</h3>
+                        </div>
+
+                        <table style="width: 100%; display: none" id="quickFixesDetailsRender">
+                          <col width="70%">
+                          <col width="30%">
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: 600; font-family: 'Roboto'; font-size: 16px; color: #3c8dbc;">Quick Fix #1 - KOT Not Sending</td>
+                            <td style="vertical-align: middle;">
+                              <button class="btn btn-sm quickFixButton" onclick="quickFixConfirm('KOT')">Apply fix</button>
+                            </td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid #f6f6f6;">
+                            <td colspan="2" style="padding: 10px 0;">Apply this fix if you are unable to punch a new KOT and the system warning asks you to perform the Quick Fix #1. It will fix the KOT Number accordingly and you will be able to punch new orders.</td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: 600; font-family: 'Roboto'; font-size: 16px; color: #3c8dbc; padding: 10px 0 0 0;">Quick Fix #2 - Unable to Generate Bill <i class="fa fa-warning" style="color: #f3b812"></i></td>
+                            <td style="vertical-align: middle; padding: 10px 0 0 0;">
+                              <button class="btn btn-sm quickFixButton" onclick="quickFixConfirm('BILL')">Apply fix</button>
+                            </td>
+                          </tr>
+                          <tr style="border-bottom: 1px solid #f6f6f6;">
+                            <td colspan="2" style="padding: 10px 0;">Apply this fix if you are unable to generate bill for a running order and the system warning asks you to perform the Quick Fix #2. It will fix the Bill Number accordingly and you will be able to generate bills.
+                              <tag style="display: block; font-style: italic; font-size: 80%; color: #a2a2a2;"><i class="fa fa-warning" style="color: #f3b812; margin-right: 5px;"></i>Apply this fix with extreme caution, Bill Number continuity might be lost.</tag></td>
+                          </tr>
+
+
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: 600; font-family: 'Roboto'; font-size: 16px; color: #3c8dbc; padding: 10px 0 0 0;">Quick Fix #3 - Distorted Table Mapping</td>
+                            <td style="vertical-align: middle; padding: 10px 0 0 0;">
+                              <button class="btn btn-sm quickFixButton" onclick="quickFixConfirm('TABLE')">Apply fix</button>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td colspan="2" style="padding: 10px 0;">If some of the orders are not shown in the table mapping but visible under Live Orders, it could be a distorted table mapping due to network issues. Apply this fix to rectify this issue.</td>
+                          </tr>
+
+                        </table>  
+
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
 
 
 
@@ -825,6 +878,23 @@
            </div>
         </div>
 
+
+        <!-- Modal -->
+        <div id="quickFixConfirmModal" class="modal">
+           <div class="modal-dialog" style="top: 15px">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px; background: #e5e8ec">
+                  <p style="text-align: center"><img src="images/common/fixing_computer.png"></p>
+                  <h1 style="color: #656565; margin: 15px 0; font-size: 24px; font-weight: bold; text-align: center;" id="quickFixConfirmModalHead"></h1>
+                  <p style="font-size: 16px; margin: 0; color: #656565;">
+                    Proceed only if you have understood the after effects of performing this <b>Quick Fix</b>, it can not be reversed. In case you are confused, please contact Accelerate Support before you continue.
+                  </P>
+                 </div>
+                 <div class="modal-footer" id="quickFixConfirmModalConsent"></div>
+              </div>
+           </div>
+        </div>
 
 
 

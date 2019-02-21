@@ -10,6 +10,10 @@ function openSystemSettings(id, optionalHighlight){
     case "personalOptions":{
       renderPersonalisations();
       break;
+    }
+    case "quickFixes":{
+      renderQuickFixes();
+      break;
     } 
     case "systemOptions":{
       renderSystemOptions(optionalHighlight);
@@ -35,6 +39,377 @@ function openSystemSettings(id, optionalHighlight){
 }
 
 
+/* Quick fixes */
+function renderQuickFixes(){
+  document.getElementById("quickFixesDetailsRender").style.display = 'table'; 
+}
+
+function quickFixConfirm(request){
+
+  var consent_template = '';
+  var head_template = '';
+
+  if(request == 'KOT'){
+    consent_template = 'applyQuickFixKOT()';
+    head_template = 'Quick Fix #1';
+  }
+  else if(request == 'BILL'){
+    consent_template = 'applyQuickFixBill()';
+    head_template = 'Quick Fix #2';
+  }
+  else if(request == 'TABLE'){
+    consent_template = 'applyQuickFixTableMapping()';
+    head_template = 'Quick Fix #3';
+  }
+
+  document.getElementById("quickFixConfirmModalHead").innerHTML = head_template;
+  document.getElementById("quickFixConfirmModalConsent").innerHTML = '<button class="btn btn-default" onclick="quickFixConfirmHide()" style="float: left">Cancel</button> <button class="btn btn-success" onclick="'+consent_template+'">Proceed</button>';
+  document.getElementById("quickFixConfirmModal").style.display = 'block';
+}
+
+function quickFixConfirmHide(){
+  document.getElementById("quickFixConfirmModal").style.display = 'none';
+}
+
+function applyQuickFixKOT(){
+    
+    quickFixConfirmHide();
+
+    showLoading(10000, 'Applying Fix...');
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_KOT_INDEX" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_INDEX'){
+
+            var num = parseInt(data.docs[0].value) + 1;
+            var memory_revID = data.docs[0]._rev;
+
+                        //Update KOT number on server
+                          var updateData = {
+                            "_rev": memory_revID,
+                            "identifierTag": "ACCELERATE_KOT_INDEX",
+                            "value": num
+                          }
+
+                          $.ajax({
+                            type: 'PUT',
+                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_INDEX/',
+                            data: JSON.stringify(updateData),
+                            contentType: "application/json",
+                            dataType: 'json',
+                            timeout: 10000,
+                            success: function(data) {
+                              hideLoading();
+                              showToast('<b>KOT Issue</b> fixed successfully!', '#27ae60');
+                            },
+                            error: function(data) {
+                              hideLoading();
+                              showToast('System Error: Unable to update KOT Index. Please contact Accelerate Support.', '#e74c3c');
+                            }
+                          });
+          }
+          else{
+            hideLoading();
+            showToast('Not Found Error: KOT Index data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          hideLoading();
+          showToast('Not Found Error: KOT Index data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        hideLoading();
+        showToast('System Error: Unable to read KOT Index. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+function applyQuickFixBill(){
+    
+    quickFixConfirmHide();
+
+    showLoading(10000, 'Applying Fix...');
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_BILL_INDEX" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILL_INDEX'){
+
+            var num = parseInt(data.docs[0].value) + 1;
+            var memory_revID = data.docs[0]._rev;
+
+                        //Update KOT number on server
+                          var updateData = {
+                            "_rev": memory_revID,
+                            "identifierTag": "ACCELERATE_BILL_INDEX",
+                            "value": num
+                          }
+
+                          $.ajax({
+                            type: 'PUT',
+                            url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_BILL_INDEX/',
+                            data: JSON.stringify(updateData),
+                            contentType: "application/json",
+                            dataType: 'json',
+                            timeout: 10000,
+                            success: function(data) {
+                              hideLoading();
+                              showToast('<b>Bill Generation Issue</b> fixed successfully!', '#27ae60');
+                            },
+                            error: function(data) {
+                              hideLoading();
+                              showToast('System Error: Unable to update Bill Index. Please contact Accelerate Support.', '#e74c3c');
+                            }
+                          });
+          }
+          else{
+            hideLoading();
+            showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          hideLoading();
+          showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        hideLoading();
+        showToast('System Error: Unable to read Bill Index. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+function applyQuickFixTableMapping(){
+  
+  quickFixConfirmHide();
+
+  showLoading(10000, 'Applying Fix...');
+
+  cleanUpTables();
+
+  function cleanUpTables(){
+    //get all live tables
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbylive',
+      timeout: 10000,
+      success: function(data) {
+        if(data.rows.length > 0){
+
+          var activeTablesData = data.rows;
+
+          markTableFree(0);
+
+          function markTableFree(index){
+
+                var tableNumber = activeTablesData[index].value.table;
+
+                $.ajax({
+                  type: 'GET',
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
+                  timeout: 10000,
+                  success: function(data) {
+                    if(data.rows.length == 1){
+
+                          var tableData = data.rows[0].value;
+
+                          var remember_id = null;
+                          var remember_rev = null;
+
+                          if(tableData.table == tableNumber){
+
+                            remember_id = tableData._id;
+                            remember_rev = tableData._rev;
+
+                            tableData.assigned = "";
+                            tableData.remarks = "";
+                            tableData.KOT = "";
+                            tableData.status = 0;
+                            tableData.lastUpdate = "";   
+
+                                //Update
+                                $.ajax({
+                                  type: 'PUT',
+                                  url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                                  data: JSON.stringify(tableData),
+                                  contentType: "application/json",
+                                  dataType: 'json',
+                                  timeout: 10000,
+                                  success: function(data) {
+
+                                        //go to next iteration or stop!
+                                        if(activeTablesData[index + 1]){
+                                          markTableFree(index + 1);
+                                        }
+                                        else{
+                                          remapDineOrders();
+                                        }
+                                  },
+                                  error: function(data) {
+                                    remapDineOrders();
+                                  }
+                                });   
+                          }
+                          else{
+                            remapDineOrders();
+                          }
+                    }
+                    else{
+                      remapDineOrders();
+                    }
+
+                  },
+                  error: function(data) {
+                    remapDineOrders();
+                  }
+
+                });   
+          }
+        }
+        else{
+          remapDineOrders();
+        }
+      },
+      error: function(data) {
+        remapDineOrders();
+      }
+    });     
+  }
+
+  function remapDineOrders(){
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/table-mapping/_view/fetchdineorders',
+      timeout: 10000,
+      success: function(data) {
+        if(data.rows.length > 0){
+
+          var liveOrdersData = data.rows;
+          
+          processMapping(0);
+
+          //Go through each order and do table mapping accordingly.
+          function processMapping(index){
+
+                var tableNumber = liveOrdersData[index].value.table;
+
+                $.ajax({
+                  type: 'GET',
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
+                  timeout: 10000,
+                  success: function(data) {
+                    if(data.rows.length == 1){
+
+                          var tableData = data.rows[0].value;
+
+                          var remember_id = null;
+                          var remember_rev = null;
+
+                          if(tableData.table == tableNumber){
+
+                            remember_id = tableData._id;
+                            remember_rev = tableData._rev;
+
+                            tableData.assigned = liveOrdersData[index].value.stewardName;
+                            tableData.remarks = "";
+                            tableData.KOT = liveOrdersData[index].value.KOTNumber;
+                            tableData.status = 1;
+                            tableData.lastUpdate = liveOrdersData[index].value.timeKOT != "" ? liveOrdersData[index].value.timeKOT : liveOrdersData[index].value.timePunch;   
+
+                                //Update
+                                $.ajax({
+                                  type: 'PUT',
+                                  url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                                  data: JSON.stringify(tableData),
+                                  contentType: "application/json",
+                                  dataType: 'json',
+                                  timeout: 10000,
+                                  success: function(data) {
+
+                                        //go to next iteration or stop!
+                                        if(liveOrdersData[index + 1]){
+                                          processMapping(index + 1);
+                                        }
+                                        else{
+                                          hideLoading();
+                                          showToast('<b>Table Mapping</b> fixed successfully!', '#27ae60');
+                                        }
+
+                                  },
+                                  error: function(data) {
+                                    hideLoading();
+                                    showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                                  }
+                                });   
+
+
+                          }
+                          else{
+                            hideLoading();
+                            showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                          }
+                    }
+                    else{
+                      hideLoading();
+                      showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                    }
+
+                  },
+                  error: function(data) {
+                    hideLoading();
+                    showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });            
+          }
+
+        }
+        else{
+          hideLoading();
+          showToast('Warning! Quick Fix not applied as there are no running orders found.', '#e67e22');
+        }
+      },
+      error: function(data) {
+        hideLoading();
+        showToast('Quick Fix Failed: Unable to read KOTs data.', '#e74c3c');
+      }
+    }); 
+  } //remapDineOrders
+
+}
 
 
 /*read system configuration data*/

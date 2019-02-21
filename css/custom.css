@@ -6372,5 +6372,19 @@ input:checked + .slider:before {
 }
 
 
+.quickFixButton{
+    float: right;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: #e6e6e6;
+    color: #848484;  
+    padding: 0px 6px !important;
+}
 
-
+.quickFixButton:active,
+.quickFixButton:focus,
+.quickFixButton:hover{
+  background: #1abc9c;
+  color: #FFF;
+}
