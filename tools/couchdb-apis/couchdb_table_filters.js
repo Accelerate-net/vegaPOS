@@ -15,7 +15,11 @@
     },
     "filterbysavedorders": {
       "map": "function (doc) {\n  if(doc.status == 5 && doc.assigned == 'Hold Order')\n    emit([doc._id], doc);\n}"
+    },
+    "filterbylive": {
+      "map": "function (doc) {\n  if(doc.status == 1)\n    emit(doc.table, doc);\n}"
     }
   },
   "language": "javascript"
 }
+

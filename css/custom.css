@@ -1842,6 +1842,10 @@ However, delay the fade out process for 2.5 seconds */
   background-color: #7571ce;
 }
 
+.floaty-list-item--palegreen {
+  background-color: #225179;
+}
+
 
 .floaty-list-item--yellow {
   background-color: #fdb84a;
@@ -1852,6 +1856,10 @@ However, delay the fade out process for 2.5 seconds */
 }
 
 .floaty-list-item--violet > svg {
+  fill: #fff;
+}
+
+.floaty-list-item--palegreen > svg {
   fill: #fff;
 }
 
@@ -6372,5 +6380,19 @@ input:checked + .slider:before {
 }
 
 
+.quickFixButton{
+    float: right;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    background: #e6e6e6;
+    color: #848484;  
+    padding: 0px 6px !important;
+}
 
-
+.quickFixButton:active,
+.quickFixButton:focus,
+.quickFixButton:hover{
+  background: #1abc9c;
+  color: #FFF;
+}
