@@ -11,3 +11,4 @@
 22-02-2019 12:07:09 > 4 : Freeing Table after Order Cancellation
 22-02-2019 12:10:40 > T2 : Freeing Table after Order Cancellation
 22-02-2019 12:11:54 > T2-A : Resetting Table to Free
+22-02-2019 12:14:30 > T3 : Freeing Table after Order Cancellation
