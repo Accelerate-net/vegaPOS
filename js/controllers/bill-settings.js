@@ -1670,7 +1670,7 @@ function renderBillLayout(){
   }
 
   document.getElementById('billLayoutRenderArea').innerHTML = ''+
-      '<style type="text/css"> #logo{ background: url(../data/photos/brand/invoice-logo.png) no-repeat center center; min-height: 70px; width: 100%; background-color: none; } .invoiceHeader{ min-height: 105px; width: 100%; padding: 5px 0; background-color: none; border-bottom: 1px solid #7b7b7b; } .invoiceNumberArea{ min-height: 30px; width: 100%; padding: 5px 0; background-color: none; border-bottom: 1px solid #7b7b7b; } .invoiceContent{ min-height: 100px; width: 100%; background-color: none; font-size: 11px; padding-top: 6px; border-bottom: 1px dashed; } .invoiceCharges{ min-height: 90px; font-size: 11px; width: 100%; background-color: none; padding: 5px 0; border-bottom: 2px solid; } .invoicePaymentsLink{ min-height: 100px; width: 100%; background-color: none; border-bottom: 1px solid; } .invoiceCustomText{ width: 100%; background-color: none; padding: 5px 0; border-bottom: 1px solid; font-size: 12px; text-align: center; } .subLabel{ display: block; font-size: 8px; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-family: sans-serif; margin-bottom: 5px; } p{ margin: 0; } .serviceType{ border: 1px solid; padding: 4px; font-size: 12px; display: block; text-align: center; margin-bottom: 8px; } .tokenNumber{ display: block; font-size: 16px; font-weight: bold; } .billingAddress{ display: block; font-size: 12px; font-weight: 300; line-height: 1.2em; } .mobileNumber{ display: block; margin-top: 8px; font-size: 12px; } .timeStamp{ display: block; font-size: 11px; font-weight:300; } .invoiceNumber{ letter-spacing: 2px; font-size: 15px; font-weight: bold; } .timeDisplay{ font-size: 75%; display: block; } .rs{ font-size: 60%; } .paymentSubText{ font-size: 10px; font-weight: 300; display: block; } .paymentSubHead{ font-size: 12px; font-weight: bold; display: block; } .qrCode{ width: 100%; max-width: 120px; text-align: right } .addressText{ font-size: 10px; color: gray; padding: 5px 0; text-align: center; } .addressContact{ font-size: 9px; color: gray; padding: 0 0 5px 0; text-align: center; } .gstNumber{ font-weight: bold; font-size: 10px; } </style>'+
+      '<style type="text/css"> #logo{} .invoiceHeader{ min-height: 105px; width: 100%; padding: 5px 0; background-color: none; border-bottom: 1px solid #7b7b7b; } .invoiceNumberArea{ min-height: 30px; width: 100%; padding: 5px 0; background-color: none; border-bottom: 1px solid #7b7b7b; } .invoiceContent{ min-height: 100px; width: 100%; background-color: none; font-size: 11px; padding-top: 6px; border-bottom: 1px dashed; } .invoiceCharges{ min-height: 90px; font-size: 11px; width: 100%; background-color: none; padding: 5px 0; border-bottom: 2px solid; } .invoicePaymentsLink{ min-height: 100px; width: 100%; background-color: none; border-bottom: 1px solid; } .invoiceCustomText{ width: 100%; background-color: none; padding: 5px 0; border-bottom: 1px solid; font-size: 12px; text-align: center; } .subLabel{ display: block; font-size: 8px; font-weight: 300; text-transform: uppercase; letter-spacing: 2px; font-family: sans-serif; margin-bottom: 5px; } p{ margin: 0; } .serviceType{ border: 1px solid; padding: 4px; font-size: 12px; display: block; text-align: center; margin-bottom: 8px; } .tokenNumber{ display: block; font-size: 16px; font-weight: bold; } .billingAddress{ display: block; font-size: 12px; font-weight: 300; line-height: 1.2em; } .mobileNumber{ display: block; margin-top: 8px; font-size: 12px; } .timeStamp{ display: block; font-size: 11px; font-weight:300; } .invoiceNumber{ letter-spacing: 2px; font-size: 15px; font-weight: bold; } .timeDisplay{ font-size: 75%; display: block; } .rs{ font-size: 60%; } .paymentSubText{ font-size: 10px; font-weight: 300; display: block; } .paymentSubHead{ font-size: 12px; font-weight: bold; display: block; } .qrCode{ width: 100%; max-width: 120px; text-align: right } .addressText{ font-size: 10px; color: gray; padding: 5px 0; text-align: center; } .addressContact{ font-size: 9px; color: gray; padding: 0 0 5px 0; text-align: center; } .gstNumber{ font-weight: bold; font-size: 10px; } </style>'+
       '<div id="logo" style="border: 1px solid red; cursor: pointer;" onclick="viewHeaderImageContent()">'+
         '<center id="data_custom_header_image"><tag style="color: red; font-size: 24px; font-weight: bold; margin-top: 12px; display: block">'+data_custom_header_client_name+'</tag></center>'+
       '</div>'+
@@ -1985,22 +1985,78 @@ function selectLayoutInputText(element){
 }
 
 
+/* SETTING UP THE LOGO */
 
+//Photo Cropper
 function viewHeaderImageContent(){
-  var data_custom_header_image = window.localStorage.bill_custom_header_image ? window.localStorage.bill_custom_header_image : '';
 
-  document.getElementById("customImageHeaderModal").style.display = 'block';
-  $('#header_image_data_url_custom').val(data_custom_header_image);
-  $('#header_image_data_url_custom').focus().select();
+  document.getElementById("photoCropperModal").style.display = 'block';
+
+      var image;
+      
+      var cropBoxData;
+      var canvasData;
+      var cropper;
+
+      var resultImage;
+
+      var handleFileSelect = function(input) {
+
+        document.getElementById("uploadedItemImageContainer").style.display = 'block';
+
+            var file = input.files[0];
+            var reader = new FileReader();
+
+            reader.onload = function (evt) {
+                resultImage = evt.target.result;
+                $('#uploadedItemImage').attr('src', evt.target.result);
+                image = document.getElementById('uploadedItemImage');
+
+                cropper = new Cropper(image, {
+                  autoCropArea: 0.8,
+                  scalable: true,
+                  ready: function () {
+                    cropper.setCropBoxData(cropBoxData).setCanvasData(canvasData);
+                  }
+                }); 
+      
+            };
+        
+            reader.readAsDataURL(file);
+      };
+
+
+      //File Upload
+      $("#itemPhotoFileInput").change(function(){
+          handleFileSelect(this);
+      });
+
+        //Saved Cropped Image
+        $("#cropUploadedImageButton").click(function(){
+          cropBoxData = cropper.getCropBoxData();
+          canvasData = cropper.getCroppedCanvas({
+          imageSmoothingEnabled: false,
+          imageSmoothingQuality: 'high',
+        });
+
+          
+          var newFile = canvasData.toDataURL();
+          cropper.destroy();
+
+          pushLogoToServer(newFile);
+          hidePhotoCropper();
+    });
 }
 
-function viewHeaderImageContentHide(){
-  document.getElementById("customImageHeaderModal").style.display = 'none';
+function hidePhotoCropper(){
+  document.getElementById("uploadedItemImageContainer").style.display = 'none';
+  document.getElementById("photoCropperModal").style.display = 'none';
 }
 
-function headerImageContentSave(){
-  var new_url = $('#header_image_data_url_custom').val(); 
-  viewHeaderImageContentHide();
+
+function pushLogoToServer(encodedData){
+
+    var new_url = encodedData;
  
     var requestData = { "selector" :{ "identifierTag": "ACCELERATE_BILL_LAYOUT" } }
 
@@ -2047,6 +2103,81 @@ function headerImageContentSave(){
                       window.localStorage.bill_custom_header_image = new_url;
                       renderBillLayout();
                       showToast('Bill Image Header saved successfully', '#27ae60');
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Billing Layout data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+          }
+          else{
+            showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+      }
+    });
+}
+
+
+
+function removeLogoImage(){
+
+    hidePhotoCropper();
+
+    var new_url = '';
+ 
+    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_BILL_LAYOUT" } }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILL_LAYOUT'){
+
+              var layoutData = data.docs[0].value;
+
+              var n = 0;
+              while(layoutData[n]){
+                if(layoutData[n].name == 'data_custom_header_image'){
+                  layoutData[n].value = new_url;
+                  break;
+                }
+
+                n++;
+              }
+
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ACCELERATE_BILL_LAYOUT",
+                  "value": layoutData
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_BILL_LAYOUT/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      window.localStorage.bill_custom_header_image = new_url;
+                      renderBillLayout();
+                      showToast('Bill Image Header removed successfully', '#27ae60');
                   },
                   error: function(data) {
                       showToast('System Error: Unable to update Billing Layout data. Please contact Accelerate Support.', '#e74c3c');
