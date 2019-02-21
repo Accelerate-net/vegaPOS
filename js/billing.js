@@ -2276,8 +2276,13 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                   showToast('Warning: Bill was not Generated. Try again.', '#e67e22');
                 }
               },
-              error: function(data){           
-                showToast('System Error: Unable to generate the bill. Check for bill number conflict. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              error: function(data){   
+                if(data.responseJSON.error == "conflict"){
+                  showToast('Bill Number Conflict: <b style="color: #c9ff49; text-decoration: underline; cursor: pointer" onclick="renderPage(\'system-settings\', \'System Settings\'); openSystemSettings(\'quickFixes\');">Apply Quick Fix #2</b> and try again. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                } 
+                else{
+                  showToast('System Error: Unable to generate the bill. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                }       
               }
             });  
             //End - post KOT to Server

@@ -2424,6 +2424,12 @@ function openSelectedBill(encodedBill, type){
                                         '<i class="fa fa-print whiteWash"></i>'+
                                       '</tag>'+
                                       '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Print Duplicate Bill</span>'+
+                                    '</li>'+
+                                    '<li class="floaty-list-item floaty-list-item--palegreen" onclick="lateApplyDiscount(\''+encodedBill+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-bolt whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Offer Discount</span>'+
                                     '</li>'+ deliveryOrderSubOption +
                                     '<li class="floaty-list-item floaty-list-item--red" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_PENDING\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
@@ -3592,5 +3598,248 @@ function printDuplicateBill(encodedBill){
     showToast('Duplicate Bill #'+bill.billNumber+' generated Successfully', '#27ae60');
 }
 
+//Offer Discount
+function lateApplyDiscount(encodedBill){
+	
+	var bill = JSON.parse(decodeURI(encodedBill));
 
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_DISCOUNT_TYPES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
+
+              var modes = data.docs[0].value;
+              modes.sort(); //alphabetical sorting 
+              var modesTag = '';
+
+              for (var i=0; i<modes.length; i++){
+                if(i == 0)
+                    modesTag = '<option value="'+modes[i].name+'" selected="selected">'+modes[i].name+'</option>';
+                  else
+                    modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
+              }
+
+             if(!modesTag)
+               document.getElementById("applyBillDiscountLate_type").innerHTML = '<option value="OTHER" selected="selected">Other</option>';
+             else
+               document.getElementById("applyBillDiscountLate_type").innerHTML = modesTag;
+              
+              document.getElementById("applyBillDiscountLate_grandSumDisplay").innerHTML = bill.payableAmount;
+              document.getElementById("lateRefundModalActions").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" style="margin: 0; font-size: 15px; line-height: 2.5; text-transform: uppercase; border: none; border-radius: 0; width: 70%; float: right;" onclick="lateApplyDiscountConfirm(\''+bill.billNumber+'\')">Confirm</button>'+
+              								'<button class="btn btn-default tableOptionsButton breakWord" style="margin: 0; border: none; font-size: 15px; line-height: 2.5; text-transform: uppercase; border-radius: 0; width: 30%; float: left;" onclick="lateApplyDiscountHide()">Close</button>';
+        	  document.getElementById("lateRefundModal").style.display = 'block';
+
+        	  $('#applyBillDiscountLate_value').focus();
+  			  $('#applyBillDiscountLate_value').select();
+          }
+          else{
+            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+}
+
+function lateApplyDiscountHide(){
+	document.getElementById("lateRefundModal").style.display = 'none';
+}
+
+function lateApplyDiscountValueFocus(){
+	$('#applyBillDiscountLate_value').focus();
+  	$('#applyBillDiscountLate_value').select();	
+}
+
+
+function estimateDiscountDisplay(){
+
+  var tempTotal = parseFloat(document.getElementById("applyBillDiscountLate_grandSumDisplay").innerHTML).toFixed(2);
+  var discValue = parseFloat(document.getElementById("applyBillDiscountLate_value").value).toFixed(2);
+
+  if(document.getElementById("applyBillDiscountLate_value").value == ''){
+    discValue = 0;
+  }
+
+  /*Calculations*/
+  var roughDiscFigure = 0;
+  if(document.getElementById("applyBillDiscountLate_unit").value == 'PERCENTAGE'){
+    roughDiscFigure = tempTotal*discValue/100;
+  }
+  else{
+    roughDiscFigure = discValue;
+  }
+
+  roughDiscFigure = Math.round(roughDiscFigure * 100) / 100;
+
+  document.getElementById("applyBillDiscountLate_amount").innerHTML = roughDiscFigure;
+}
+
+
+function lateApplyDiscountConfirm(billNumber){
+
+                  billNumber = parseInt(billNumber);
+
+                  var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
+
+                  //Set _id from Branch mentioned in Licence
+                  var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+                  if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+                    showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                    return '';
+                  }
+
+                  var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
+
+                  $.ajax({
+                    type: 'GET',
+                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
+                    timeout: 10000,
+                    success: function(data) {
+                      if(data._id == bill_request_data){
+
+				          var billfile = data;
+
+				          var grandPayableBill = 0;
+
+				          /*Calculate Discount*/
+				          var type = document.getElementById("applyBillDiscountLate_type").value;
+				          var unit = document.getElementById("applyBillDiscountLate_unit").value;
+				          var value = document.getElementById("applyBillDiscountLate_value").value;
+
+				          var grandSum = 0;
+
+				          var n = 0;
+				          while(billfile.cart[n]){
+				            grandSum = grandSum + (billfile.cart[n].price * billfile.cart[n].qty);
+				            n++;
+				          }
+
+				          grandPayableBill += grandSum;
+
+
+				          //add extras
+				          if(!jQuery.isEmptyObject(billfile.extras)){
+				            var m = 0;
+				            while(billfile.extras[m]){
+				              grandPayableBill += billfile.extras[m].amount;
+				              m++;
+				            }
+				          } 
+
+				          //add custom extras if any
+				          if(!jQuery.isEmptyObject(billfile.customExtras)){
+				            grandPayableBill += billfile.customExtras.amount;
+				          }  
+
+
+				          var totalDiscount = 0;
+				      
+				          if(unit == 'PERCENTAGE'){
+				            totalDiscount = grandSum*value/100;
+				          }
+				          else if(unit == 'FIXED'){
+				            totalDiscount = value;
+				          }
+
+				          totalDiscount = Math.round(totalDiscount * 100) / 100;
+
+				          //Cross Check if it matches with the BILLING MODE Restriction of Discounts
+				          var g = 0;
+				          var maximumReached = false;
+				          while(billing_modes[g]){
+				            if(billing_modes[g].name == billfile.orderDetails.mode){
+
+				              if(!billing_modes[g].isDiscountable){
+				                showToast('Error: Discount can not be applied on </b>'+billing_modes[g].name+'</b> orders', '#e74c3c');
+				                return '';
+				              }
+				              else{
+				                if(totalDiscount > billing_modes[g].maxDiscount){
+				                  totalDiscount = billing_modes[g].maxDiscount;
+				                  maximumReached = true;
+				                }
+				              }
+				              break;
+				            }
+				            g++;
+				          }
+
+
+				          billfile.discount.amount = totalDiscount;
+				          billfile.discount.type = type;
+				          billfile.discount.unit = unit;
+				          billfile.discount.value = value;
+				          billfile.discount.reference = '';
+
+
+				          //substract discounts if any
+				          if(!jQuery.isEmptyObject(billfile.discount)){
+				            grandPayableBill -= billfile.discount.amount;
+				          }  
+
+				          billfile.payableAmount = properRoundOff(grandPayableBill);
+
+				          /*Save changes in Bill*/
+				                
+				                //Update
+				                var updateData = billfile;
+
+				                var encodedBill = encodeURI(JSON.stringify(billfile));
+
+				                $.ajax({
+				                  type: 'PUT',
+				                  url: COMMON_LOCAL_SERVER_IP+'accelerate_bills/'+(billfile._id)+'/',
+				                  data: JSON.stringify(updateData),
+				                  contentType: "application/json",
+				                  dataType: 'json',
+				                  timeout: 10000,
+				                  success: function(data) {
+				                    if(maximumReached){
+				                      showToast('Warning: Maximum discount (Rs. '+billing_modes[g].maxDiscount+') for </b>'+billing_modes[g].name+'</b> order reached', '#e67e22');
+				                    }
+				                    else{
+				                      showToast('Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
+				                    }
+
+				                    loadAllPendingSettlementBills();
+				                    openSelectedBill(encodedBill, 'PENDING');
+				                    lateApplyDiscountHide();
+				                  },
+				                  error: function(data) {
+				                      showToast('System Error: Unable to update the Bill. Please contact Accelerate Support.', '#e74c3c');
+				                  }
+				                }); 
+                        
+                      }
+                      else{
+                        showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                      }
+                    },
+                    error: function(data) {
+                      showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                    }
+
+                  });
+}
 
