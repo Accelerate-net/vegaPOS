@@ -1863,7 +1863,9 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 0;
-                tableData.lastUpdate = "";              
+                tableData.lastUpdate = ""; 
+
+                appendToLog(tableName + ' : Release Table after Settling');               
 
 
                     //Update
@@ -2312,13 +2314,7 @@ function resetTableToFree(tableNumber){
 
               var tableData = data.rows[0].value;
 
-              var remember_id = null;
-              var remember_rev = null;
-
               if(tableData.table == tableNumber){
-
-                remember_id = tableData._id;
-                remember_rev = tableData._rev;
 
                 tableData.assigned = "";
                 tableData.remarks = "";
@@ -2326,13 +2322,13 @@ function resetTableToFree(tableNumber){
                 tableData.status = 0;
                 tableData.lastUpdate = "";   
 
-                appendToLog(tableNumber + ' : Resetting Table to Free');              
+                appendToLog(tableNumber + ' : Resetting Table to Free (Auto Settle)');              
 
 
                     //Update
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+tableData._id+'/',
                       data: JSON.stringify(tableData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -2342,27 +2338,11 @@ function resetTableToFree(tableNumber){
                           if(window.localStorage.appCustomSettings_OrderPageRightPanelDisplay && window.localStorage.appCustomSettings_OrderPageRightPanelDisplay == 'TABLE'){
                             renderTables();
                           }
-                      },
-                      error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
                       }
                     });   
-
-
-              }
-              else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
               }
         }
-        else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
       }
-
     });
 }
 
@@ -2555,7 +2535,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                                                                '<button id="paymentOptionsListRenderClose" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Hide</button>'+
                                                             '</div>'+
                                                             '<div class="col-sm-3" style="padding: 0">'+
-                                                                '<button class="btn btn-warning" id="paymentOptionsListRenderLater" onclick="settleBillAndPushLater(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Settle Later</button>'+
+                                                                '<button class="btn btn-warning" id="paymentOptionsListRenderLater" onclick="keepInPendingBills(\''+bill.table+'\', \''+bill.orderDetails.modeType+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Settle Later</button>'+
                                                             '</div>'+
                                                             '<div class="col-sm-6" style="padding: 0">'+
                                                                 '<button class="btn btn-success" id="paymentOptionsListRenderConfirm" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Settle Now</button>'+
@@ -3042,7 +3022,6 @@ function hideSettleBillAndPush(){
 function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
   // LOGGED IN USER INFO
-
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
         
   if(jQuery.isEmptyObject(loggedInStaffInfo)){
@@ -3205,8 +3184,9 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                 deleteBillFromServer(bill.billNumber, optionalPageRef);
 
                 //Free the mapped Table
-                if(bill.orderDetails.modeType == 'DINE')
-                  releaseTableAfterBillSettle(bill.table, bill.billNumber, optionalPageRef)
+                if(bill.orderDetails.modeType == 'DINE'){
+                  releaseTableAfterBillSettle(bill.table, bill.billNumber, optionalPageRef);
+                }
 
                 //re-render page
                 if(optionalPageRef == 'GENERATED_BILLS'){
@@ -3263,8 +3243,9 @@ console.log('To update AUTO SETTLE')
                 deleteBillFromServer(bill.billNumber, optionalPageRef);
 
                 //Free the mapped Table
-                if(bill.orderDetails.modeType == 'DINE')
-                  releaseTableAfterBillSettle(bill.table, bill.billNumber, optionalPageRef)
+                if(bill.orderDetails.modeType == 'DINE'){
+                  releaseTableAfterBillSettle(bill.table, bill.billNumber, optionalPageRef);
+                }
 
                 //re-render page
                 if(optionalPageRef == 'GENERATED_BILLS'){
@@ -3287,36 +3268,21 @@ console.log('To update AUTO SETTLE')
 
 //Settle bill later --> FREE THE TABLE for time sake.
 
-function settleBillAndPushLater(encodedBill, optionalPageRef){
+function keepInPendingBills(tableNumber, billingModeType, optionalPageRef){
 
-    var bill = JSON.parse(decodeURI(encodedBill));
-
-    if(bill.orderDetails.modeType == 'DINE'){
-
-        var tableNumber = bill.table;
+  if(billingModeType == "DINE"){
 
         $.ajax({
           type: 'GET',
           url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableNumber+'"]&endkey=["'+tableNumber+'"]',
           timeout: 10000,
           success: function(data) {
-            console.log(data)
-            if(data.rows.length == 1){
 
-                  if(data.rows[0].value.table != tableNumber){
-                    hideSettleBillAndPush();
-                    return '';
-                  }
+            if(data.rows.length == 1){
 
                   var tableData = data.rows[0].value;
 
-                  var remember_id = null;
-                  var remember_rev = null;
-
                   if(tableData.table == tableNumber){
-
-                    remember_id = tableData._id;
-                    remember_rev = tableData._rev;
 
                     tableData.assigned = "";
                     tableData.remarks = "";
@@ -3326,11 +3292,10 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
 
                     appendToLog(tableNumber+' : Settle Bill Later');           
 
-
                     //Update
                     $.ajax({
                       type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+(tableData._id)+'/',
                       data: JSON.stringify(tableData),
                       contentType: "application/json",
                       dataType: 'json',
@@ -3340,6 +3305,9 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
                             if(optionalPageRef == 'ORDER_PUNCHING'){
                               triggerRightPanelDisplay();
                             }
+                      },
+                      error: function(data) {
+                        hideSettleBillAndPush();  
                       }
                     });   
                   }
@@ -3357,10 +3325,10 @@ function settleBillAndPushLater(encodedBill, optionalPageRef){
           }
 
         });    
-    }
-    else{ //Just hide the window for any other type of orders.
-      hideSettleBillAndPush();
-    }
+  }
+  else{
+    hideSettleBillAndPush();
+  }
 }
 
 

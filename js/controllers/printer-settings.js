@@ -30,7 +30,7 @@ function openTestPrinterConsent(name){
 } 
 
 function hideTestPrinterConsent(){
-  document.getElementById("testPrinterConsentModal").style.display = "none";
+  //document.getElementById("testPrinterConsentModal").style.display = "none";
 } 
 
 function testPrinterProfile(printerName, sample_code){
@@ -61,6 +61,27 @@ function testPrinterProfile(printerName, sample_code){
 }
 
 
+/* TESTING 
+
+var printer_test_code = 0;
+
+function timedTester () {
+  console.log('Code: '+(printer_test_code+1))
+
+  if((printer_test_code + 1)%2 == 0)
+    testPrinterProfile('SUPER', ++printer_test_code);
+  else
+    testPrinterProfile('BILLER', ++printer_test_code);
+
+  if(printer_test_code < 20){
+    setTimeout(timedTester, 1);
+  }
+    
+}
+
+timedTester();
+
+*/
 
 
 function openNewPrinterReRender(){
