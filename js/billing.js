@@ -1854,7 +1854,7 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
               var remember_id = null;
               var remember_rev = null;
 
-              if(tableData.table == tableName){
+              if(tableData.table == tableName && tableData.status == 2){
 
                 remember_id = tableData._id;
                 remember_rev = tableData._rev;
@@ -2314,7 +2314,7 @@ function resetTableToFree(tableNumber){
 
               var tableData = data.rows[0].value;
 
-              if(tableData.table == tableNumber){
+              if(tableData.table == tableNumber && tableData.status == 2){
 
                 tableData.assigned = "";
                 tableData.remarks = "";
@@ -3282,7 +3282,7 @@ function keepInPendingBills(tableNumber, billingModeType, optionalPageRef){
 
                   var tableData = data.rows[0].value;
 
-                  if(tableData.table == tableNumber){
+                  if(tableData.table == tableNumber && tableData.status == 2){
 
                     tableData.assigned = "";
                     tableData.remarks = "";
@@ -4506,7 +4506,7 @@ function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPag
           renderCustomerInfo();
 
           if(type == 'DINE'){
-            updateTableMappingAfterCancellation(table, 'ORDER_PUNCHING');
+            updateTableMappingAfterKOTCancellation(table, 'ORDER_PUNCHING');
           }
           
         }
@@ -4521,7 +4521,7 @@ function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPag
           renderAllKOTs();
         
           if(type == 'DINE'){
-            updateTableMappingAfterCancellation(table, 'LIVE_ORDERS');
+            updateTableMappingAfterKOTCancellation(table, 'LIVE_ORDERS');
           }
           
         }
@@ -4534,7 +4534,7 @@ function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPag
           }
         
           if(type == 'DINE'){
-            updateTableMappingAfterCancellation(table, 'SEATING_STATUS');
+            updateTableMappingAfterKOTCancellation(table, 'SEATING_STATUS');
           }
           else{
             preloadTableStatus();
@@ -4547,8 +4547,7 @@ function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPag
     });   
 }
 
-
-function updateTableMappingAfterCancellation(tableID, optionalPageRef){
+function updateTableMappingAfterKOTCancellation(tableID, optionalPageRef){
 
     $.ajax({
       type: 'GET',
@@ -4574,6 +4573,71 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
                 tableData.lastUpdate = "";              
 
                 appendToLog(tableID+' : Freeing Table after Order Cancellation');
+
+                    //Update
+                    $.ajax({
+                      type: 'PUT',
+                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
+                      data: JSON.stringify(tableData),
+                      contentType: "application/json",
+                      dataType: 'json',
+                      timeout: 10000,
+                      success: function(data) {
+                        if(optionalPageRef == 'ORDER_PUNCHING'){
+                          renderTables();
+                        }
+                        else if(optionalPageRef == 'SEATING_STATUS'){
+                          preloadTableStatus();
+                        }
+                      },
+                      error: function(data) {
+                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                      }
+                    });   
+
+              }
+              else{
+                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+              }
+        }
+        else{
+          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+}
+
+function updateTableMappingAfterCancellation(tableID, optionalPageRef){
+
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableID+'"]&endkey=["'+tableID+'"]',
+      timeout: 10000,
+      success: function(data) {
+        if(data.rows.length == 1){
+
+              var tableData = data.rows[0].value;
+
+              var remember_id = null;
+              var remember_rev = null;
+
+              if(tableData.table == tableID && tableData.status == 2){
+
+                remember_id = tableData._id;
+                remember_rev = tableData._rev;
+
+                tableData.assigned = "";
+                tableData.remarks = "";
+                tableData.KOT = "";
+                tableData.status = 0;
+                tableData.lastUpdate = "";              
+
+                appendToLog(tableID+' : Freeing Table after Bill Cancellation');
 
                     //Update
                     $.ajax({

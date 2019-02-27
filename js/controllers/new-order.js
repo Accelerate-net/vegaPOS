@@ -5296,7 +5296,49 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 			addCustomerToDatabase(customerObject);				
 		}
 	}
-   
+
+
+	//Precheck if the table is free (for DINE orders alone)
+	if(customerInfo.modeType == "DINE"){
+		
+		var table_req = customerInfo.mappedAddress;
+
+		
+		if(table_req != ""){
+
+		    $.ajax({
+		      type: 'GET',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchbytype?startkey=["'+table_req+'"]&endkey=["'+table_req+'"]',
+		      timeout: 10000,
+		      success: function(data) {
+		      	console.log(data)
+		        if(data.total_rows >= 1){
+					showToast('Warning: Table <b>'+table_req+'</b> is not free. There is an active running order.', '#e67e22');
+		            return "";
+		        }		        
+		        else{
+		          processNewKOT();
+		        }
+		      },
+		      error: function(data) {
+		        showToast('System Error: Unable to read Table info.', '#e74c3c');
+		        return "";
+		      }
+
+		    });
+		}
+		else{
+			processNewKOT();
+		}
+	}
+	else{
+		processNewKOT();	
+	}
+  
+
+  //PROCESS KOT --> All set... Punch KOT now!
+  function processNewKOT(){
+
     //Check for KOT index on Server
     var requestData = {
       "selector"  :{ 
@@ -5888,6 +5930,10 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
       }
 
     });
+  }//process KOT
+
+
+
 }
 
 
