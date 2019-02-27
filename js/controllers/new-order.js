@@ -5296,7 +5296,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 			addCustomerToDatabase(customerObject);				
 		}
 	}
-
+/*
 
 	//Precheck if the table is free (for DINE orders alone)
 	if(customerInfo.modeType == "DINE"){
@@ -5334,7 +5334,9 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	else{
 		processNewKOT();	
 	}
-  
+  */
+
+  processNewKOT();
 
   //PROCESS KOT --> All set... Punch KOT now!
   function processNewKOT(){
