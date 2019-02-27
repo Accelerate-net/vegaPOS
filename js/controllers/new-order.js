@@ -5296,7 +5296,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 			addCustomerToDatabase(customerObject);				
 		}
 	}
-/*
+
 
 	//Precheck if the table is free (for DINE orders alone)
 	if(customerInfo.modeType == "DINE"){
@@ -5308,12 +5308,11 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 		    $.ajax({
 		      type: 'GET',
-		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchbytype?startkey=["'+table_req+'"]&endkey=["'+table_req+'"]',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchbytable?startkey=["'+table_req+'"]&endkey=["'+table_req+'"]',
 		      timeout: 10000,
 		      success: function(data) {
-		      	console.log(data)
-		        if(data.total_rows >= 1){
-					showToast('Warning: Table <b>'+table_req+'</b> is not free. There is an active running order.', '#e67e22');
+		      	if(data.rows.length >= 1){
+					showToast('Warning: Table <b>'+table_req+'</b> is not free. Please check in <b>Live Orders</b>.', '#e67e22');
 		            return "";
 		        }		        
 		        else{
@@ -5334,9 +5333,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	else{
 		processNewKOT();	
 	}
-  */
-
-  processNewKOT();
+  
 
   //PROCESS KOT --> All set... Punch KOT now!
   function processNewKOT(){
