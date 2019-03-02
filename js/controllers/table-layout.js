@@ -661,7 +661,31 @@ function addNewTable() {
                        }
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                
+                            paramObj._id = (paramObj.sortIndex).toString();
+
+                            //Post to local Server
+                            $.ajax({
+                              type: 'POST',
+                              url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/',
+                              data: JSON.stringify(paramObj),
+                              contentType: "application/json",
+                              dataType: 'json',
+                              timeout: 10000,
+                              success: function(data) {
+                                if(data.ok){
+                                  hideNewTableModal();
+                                  fetchAllTables();
+                                }
+                                else{
+                                  showToast('Warning: Table was not added. Try again.', '#e67e22');
+                                }
+                              },
+                              error: function(data){           
+                                showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                              }
+                            });  
+                            //End - post KOT to Server
               }
           },
           error: function(data) {
