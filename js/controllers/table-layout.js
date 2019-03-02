@@ -584,6 +584,11 @@ function addNewTable() {
   paramObj.assigned = "";
   paramObj.remarks = "";
 
+  paramObj.guestName = ""; 
+  paramObj.guestContact = ""; 
+  paramObj.reservationMapping = ""; 
+  paramObj.guestCount = "";
+
   paramObj.capacity = parseFloat(paramObj.capacity);
 
   if(Number.isNaN(paramObj.capacity)){

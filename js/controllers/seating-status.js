@@ -360,7 +360,11 @@ function removeTableMapping(tableNumber){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 0;
-                tableData.lastUpdate = "";              
+                tableData.lastUpdate = "";  
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = ""; 
+                tableData.guestCount = "";            
 
 
                     //Update
@@ -544,8 +548,12 @@ function removeOtherKOTAfterProcess(kotList){
                   tableData.remarks = "";
                   tableData.assigned = "";
                   tableData.KOT = "";
-                  tableData.status = "";
-                  tableData.lastUpdate = "";          
+                  tableData.status = 0;
+                  tableData.lastUpdate = "";     
+                  tableData.guestName = ""; 
+                  tableData.guestContact = ""; 
+                  tableData.reservationMapping = ""; 
+                  tableData.guestCount = "";     
 
 
                     //Update
@@ -667,10 +675,10 @@ function addToReserveListConsent(tableID){
 	
 	document.getElementById("addToReservedConsentModal").style.display = 'block';
 	document.getElementById("addToReserveListConsentButton").innerHTML = '<button  onclick="addToReserveList(\''+tableID+'\')" class="btn btn-success">Proceed and Reserve</button>';
-	document.getElementById("addToReserveListConsentTitle").innerHTML = "Reserve Table #"+tableID;
-	document.getElementById("reserve_table_in_the_name_of").value = '';
+	document.getElementById("addToReserveListConsentTitle").innerHTML = "Reserve Table <b>#"+tableID+"</b>";
+	document.getElementById("reserve_table_window_name").value = '';
 
-	$('#reserve_table_in_the_name_of').focus();
+	$('#reserve_table_window_name').focus();
 
           var easyActionsTool = $(document).on('keydown',  function (e) {
             console.log('Am secretly running...')
@@ -694,7 +702,11 @@ function addToReserveListConsentClose(){
 function addToReserveList(tableNumber){
 
 	addToReserveListConsentClose();
-	var comments = document.getElementById("reserve_table_in_the_name_of").value;
+	 
+   var comments = document.getElementById("reserve_table_window_name").value;
+   var contact = document.getElementById("reserve_table_window_contact").value;
+   var count = document.getElementById("reserve_table_window_count").value;
+
 
 
     $.ajax({
@@ -715,10 +727,14 @@ function addToReserveList(tableNumber){
                 remember_rev = tableData._rev;
 
                 tableData.remarks = "";
-                tableData.assigned = comments;
+                tableData.assigned = "";
                 tableData.KOT = "";
                 tableData.status = 5;
-                tableData.lastUpdate = "";          
+                tableData.lastUpdate = "";
+                tableData.guestName = comments; 
+                tableData.guestContact = contact; 
+                tableData.reservationMapping = ""; 
+                tableData.guestCount = count != "" ? parseInt(count) : "";        
 
 
                     //Update
@@ -777,7 +793,11 @@ function removeFromReserveList(tableNumber){
                 tableData.assigned = "";
                 tableData.KOT = "";
                 tableData.status = 0;
-                tableData.lastUpdate = "";          
+                tableData.lastUpdate = "";    
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = ""; 
+                tableData.guestCount = "";      
 
 
                     //Update
@@ -1271,8 +1291,8 @@ function preloadTableStatus(mode, currentTableID){
 												else if(tableData[i].value.status == 5){
 					              				renderTableArea = renderTableArea + '<tag class="tableTileOther'+smallTableFlag+'">'+
 																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? (tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableData[i].value.assigned) : "-")+'</tag>'+
-																		            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+ (tableData[i].value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (tableData[i].value.guestName && tableData[i].value.guestName != "" ? 'For '+tableData[i].value.guestName : 'For Guest')) + '</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">'+(tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																		        	'</tag>';	
 												}																									
 												else{
@@ -1348,8 +1368,8 @@ function preloadTableStatus(mode, currentTableID){
 												else if(tableData[i].value.status == 5){
 					              				renderTableArea = renderTableArea + '<tag onclick="openReservedSeatOptions(\''+tableData[i].value.table+'\', \''+tableData[i].value.assigned+'\', '+(tableData[i].value.assigned == 'Hold Order' ? 1 : 0)+')" class="tableReserved'+smallTableFlag+'">'+
 																		            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																		            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? (tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableData[i].value.assigned) : "-")+'</tag>'+
-																		            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																		            '<tag class="tableCapacity'+smallTableFlag+'">'+ (tableData[i].value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (tableData[i].value.guestName && tableData[i].value.guestName != "" ? 'For '+tableData[i].value.guestName : 'For Guest')) + '</tag>'+
+																		            '<tag class="tableInfo'+smallTableFlag+'">'+(tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																		        	'</tag>';	
 												}									
 												else{

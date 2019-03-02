@@ -259,6 +259,10 @@ function applyQuickFixTableMapping(){
                             tableData.KOT = "";
                             tableData.status = 0;
                             tableData.lastUpdate = "";   
+                            tableData.guestName = ""; 
+                            tableData.guestContact = ""; 
+                            tableData.reservationMapping = ""; 
+                            tableData.guestCount = "";
 
                                 //Update
                                 $.ajax({
@@ -348,7 +352,11 @@ function applyQuickFixTableMapping(){
                             tableData.KOT = liveOrdersData[index].value.KOTNumber;
                             tableData.status = 1;
                             tableData.lastUpdate = liveOrdersData[index].value.timeKOT != "" ? liveOrdersData[index].value.timeKOT : liveOrdersData[index].value.timePunch;   
-
+                            tableData.guestName = liveOrdersData[index].value.customerName; 
+                            tableData.guestContact = liveOrdersData[index].value.customerMobile; 
+                            tableData.reservationMapping = ""; 
+                            tableData.guestCount = liveOrdersData[index].value.guestCount;
+                            
                                 //Update
                                 $.ajax({
                                   type: 'PUT',

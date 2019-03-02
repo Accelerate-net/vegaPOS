@@ -1452,12 +1452,12 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+ 	
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+	
 		                        '<div class="col-xs-4" style="padding: 0">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
+		                              '<button class="btn btn-success btn-block btn-flat shortcutSafe" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                     '</div>';
@@ -1485,8 +1485,8 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
-		                           	  '<button class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+		                              '<button style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+		                           	  '<button class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
 		                           '</div>'+
 		                        '</div>'+                           
 		                     '</div>';
@@ -1505,11 +1505,11 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
-		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
+		                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                        '</div>'+                            
 		                     '</div>';
 	 		}
@@ -1536,8 +1536,8 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
-		                              '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+		                              '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
 		                           '</div>'+
 		                        '</div>'+                           
 		                     '</div>';
@@ -1556,11 +1556,11 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+
-		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
+		                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                        '</div>'+                            
 		                     '</div>';
 	 		}
@@ -1589,8 +1589,8 @@ else{
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
-                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
                         '</div>'+
                      '</div>';
  	}   
@@ -1603,8 +1603,8 @@ else{
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
-                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
                         '</div>'+
                      '</div>';
  	}
@@ -1618,8 +1618,8 @@ else{
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print KOT</button>'+
-                              '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print KOT</button>'+
+                              '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
                            '</div>'+
                         '</div>'+                    
                      '</div>';
@@ -1697,6 +1697,8 @@ else{
 
 /* To Print Current KOT View */
 function printCurrentKOTView(kotID, optionalSource){
+
+	$("#triggerClick_PrintItemViewButton").removeClass("shortcutSafe"); //Shortcut safe
 
     //Set _id from Branch mentioned in Licence
     var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
@@ -1822,6 +1824,8 @@ function undoChangesInKOT(){
 
 
 function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
+
+	$("#triggerClick_PrintBillButton").removeClass("shortcutSafe"); //Shortcut safe
 
 	/*
 		Proceed to bill generation only if,
@@ -2384,9 +2388,13 @@ function clearSavedOrderMappingFromTables(){
                   tableData[index].value.remarks = "";
                   tableData[index].value.KOT = "";
                   tableData[index].value.status = 0;
-                  tableData[index].value.lastUpdate = "";    
+                  tableData[index].value.lastUpdate = ""; 
+                  tableData[index].value.guestName = ""; 
+                  tableData[index].value.guestContact = ""; 
+                  tableData[index].value.reservationMapping = "";   
+                  tableData[index].value.guestCount = "";
 
-                  appendToLog(tableData[index].value.table+' : Clearing Saved Order');          
+                  //appendToLog(tableData[index].value.table+' : Clearing Saved Order');          
 
 
                     //Update
@@ -2449,7 +2457,11 @@ function addTableToReserveList(tableID, optionalComments){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 5;
-                tableData.lastUpdate = timestamp;              
+                tableData.lastUpdate = timestamp;  
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = "";   
+                tableData.guestCount = "";         
 
 
                     //Update
@@ -2510,8 +2522,12 @@ function removeTableFromReserveList(tableID){
                 tableData.KOT = "";
                 tableData.status = 0;
                 tableData.lastUpdate = "";   
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = "";
+                tableData.guestCount = "";
 
-                appendToLog(tableID + ' : Removing Table from Reserve List');           
+                //appendToLog(tableID + ' : Removing Table from Reserve List');           
 
 
                     //Update
@@ -3422,8 +3438,7 @@ function changeCustomerInfo(type, optionalValue){
 			}										
 		}
 
-	window.localStorage.customerData = JSON.stringify(customerInfo);
-
+		window.localStorage.customerData = JSON.stringify(customerInfo);
 }
 
 function setCustomerInfoTable(tableID){
@@ -3551,15 +3566,15 @@ function renderTables(){
 															if(currentTableID != '' && currentTableID == tableData[i].value.table){
 								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tableData[i].value.table+'\', \'FREE\', \''+(tableData[i].value.assigned != "" && tableData[i].value.assigned != "Hold Order" ? tableData[i].value.assigned : '')+'\', '+(tableData[i].value.assigned != "" && tableData[i].value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? (tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableData[i].value.assigned) : "-")+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+ (tableData[i].value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (tableData[i].value.guestName && tableData[i].value.guestName != "" ? 'For '+tableData[i].value.guestName : 'For Guest')) + '</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																					        	'</tag>';	
 															}	
 															else{
 								              				renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tableData[i].value.table+'\', \'FREE\', \''+(tableData[i].value.assigned != "" && tableData[i].value.assigned != "Hold Order" ? tableData[i].value.assigned : '')+'\', '+(tableData[i].value.assigned != "" && tableData[i].value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? (tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableData[i].value.assigned) : "-")+'</tag>'+
-																					            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+ (tableData[i].value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (tableData[i].value.guestName && tableData[i].value.guestName != "" ? 'For '+tableData[i].value.guestName : 'For Guest')) + '</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">'+(tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																					        	'</tag>';	
 															}
 
@@ -3682,7 +3697,33 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 
 	}
 	else if(statusCode == 'FREE'){
-		freshOrderOnTable(tableID, optionalCustomerName, optionalSaveFlag);
+
+	    $.ajax({
+	      type: 'GET',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableID+'"]&endkey=["'+tableID+'"]',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.rows.length == 1){
+
+	              var tableData = data.rows[0].value;
+
+	              if(tableData.table == tableID){
+	              	freshOrderOnTable(tableID, tableData, optionalSaveFlag);
+	              }
+	              else{
+	                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+	              }
+	        }
+	        else{
+	          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });	
 	}
 }
 
@@ -4123,6 +4164,9 @@ function fetchImageFromServer(itemCode, vegFlag){
 */
 
 function generateKOT(silentFlag){
+
+	$("#triggerClick_PrintKOTButton").removeClass("shortcutSafe"); //Shortcut safe
+	$("#triggerClick_PrintKOTSilentlyButton").removeClass("shortcutSafe"); //Shortcut safe
 
 	//Editing Case
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
@@ -5311,6 +5355,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchbytable?startkey=["'+table_req+'"]&endkey=["'+table_req+'"]',
 		      timeout: 10000,
 		      success: function(data) {
+		      	console.log(data)
 		      	if(data.rows.length >= 1){
 					showToast('Warning: Table <b>'+table_req+'</b> is not free. Please check in <b>Live Orders</b>.', '#e67e22');
 		            return "";
@@ -5465,7 +5510,13 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 
-	              		addToTableMapping(obj.table, kot, obj.stewardName, 'ORDER_PUNCHING');
+	              		var guestObject = {
+	              			"guestName" : obj.customerName,
+	              			"guestContact" : obj.customerMobile,
+	              			"guestCount" : obj.guestCount
+	              		}
+
+	              		addToTableMapping(obj.table, kot, obj.stewardName, guestObject, 'ORDER_PUNCHING');
 	              		
 
 	              		/*
@@ -6097,7 +6148,8 @@ function clearAllMetaData(){
 }
 
 
-function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
+
+function freshOrderOnTable(TableNumber, tableObject, optionalSaveFlag){
 
 	/* skip if in Editing Mode & has unsaved changes */
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != '' && window.localStorage.hasUnsavedChangesFlag == 1){
@@ -6135,11 +6187,11 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 		}		
 	}
 
-	customerInfo.name = (optionalCustomerName && optionalCustomerName != '') ? optionalCustomerName : '';
-	customerInfo.mobile = "";
-	customerInfo.count = "";
+	customerInfo.name = (tableObject.guestName && tableObject.guestName != '') ? tableObject.guestName : '';
+	customerInfo.mobile = (tableObject.guestContact && tableObject.guestContact != '') ? tableObject.guestContact : '';
+	customerInfo.count = (tableObject.guestCount && tableObject.guestCount != '') ? tableObject.guestCount : '';
 	customerInfo.mappedAddress = TableNumber;
-	customerInfo.reference = "";
+	customerInfo.reference = (tableObject.reservationMapping && tableObject.reservationMapping != '') ? tableObject.reservationMapping : '';
 	customerInfo.isOnline = false;
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -6279,7 +6331,7 @@ function freshOrderForCustomer(customerEncoded){
 
 
 
-function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
+function addToTableMapping(tableID, kotID, assignedTo, guestObject, optionalPageRef){
 
     var today = new Date();
     var hour = today.getHours();
@@ -6318,7 +6370,21 @@ function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 	                tableData.remarks = "";
 	                tableData.KOT = kotID;
 	                tableData.status = 1;
-	                tableData.lastUpdate = hour+''+mins;  
+	                tableData.lastUpdate = hour+''+mins; 
+
+	                if(guestObject != ""){
+	                	tableData.guestName = guestObject.guestName; 
+		                tableData.guestContact = guestObject.guestContact; 
+		                tableData.guestCount = guestObject.guestCount; 
+		                tableData.reservationMapping = "";
+	                } 
+	                else{
+	                	tableData.guestName = ""; 
+		                tableData.guestContact = ""; 
+		                tableData.reservationMapping = "";
+		                tableData.guestCount = 0;
+	                }
+	                
                 }            
 
 
@@ -6529,8 +6595,8 @@ function pickTableForNewOrder(currentTableID){
 																else{
 									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="pickTableForNewOrderHide(); retrieveTableInfo(\''+mytable.value.table+'\', \'FREE\', \''+(mytable.value.assigned != "" && mytable.value.assigned != "Hold Order" ? mytable.value.assigned : '')+'\', '+(mytable.value.assigned != "" && mytable.value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.value.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned != ""? (mytable.value.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.value.assigned) : "-")+'</tag>'+
-																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (mytable.value.guestName && mytable.value.guestName != "" ? 'For '+mytable.value.guestName : 'For Guest'))+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																						        	'</tag>';	
 																}
 
@@ -6666,8 +6732,8 @@ function pickTableForNewOrder(currentTableID){
 									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableReserved'+smallTableFlag+'" onclick="pickTableForNewOrderHide(); retrieveTableInfo(\''+mytable.value.table+'\', \'FREE\', \''+(mytable.value.assigned != "" && mytable.value.assigned != "Hold Order" ? mytable.value.assigned : '')+'\', '+(mytable.value.assigned != "" && mytable.value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																						            '<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.value.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned != "" ? (mytable.value.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.value.assigned) : "-")+'</tag>'+
-																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (mytable.value.guestName && mytable.value.guestName != "" ? 'For '+mytable.value.guestName : 'For Guest'))+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																						        	'</tag>';	
 																}
 
@@ -6729,8 +6795,8 @@ function pickTableForNewOrder(currentTableID){
 																else{
 									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="pickTableForNewOrderHide(); retrieveTableInfo(\''+mytable.value.table+'\', \'FREE\', \''+(mytable.value.assigned != "" && mytable.value.assigned != "Hold Order" ? mytable.value.assigned : '')+'\', '+(mytable.value.assigned != "" && mytable.value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.value.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned != ""? (mytable.value.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.value.assigned) : "-")+'</tag>'+
-																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (mytable.value.guestName && mytable.value.guestName != "" ? 'For '+mytable.value.guestName : 'For Guest'))+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																						        	'</tag>';	
 																}
 
@@ -8587,7 +8653,8 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 		            success: function(data) {
 		              if(data.ok){
 		              		if(obj.orderDetails.modeType == 'DINE'){
-		              		  addToTableMapping(target_table, kot, "", 'ORDER_PUNCHING');
+
+		              		  addToTableMapping(target_table, kot, "", "", 'ORDER_PUNCHING');
 		              		}
 		              }
 		              else{
@@ -9031,9 +9098,13 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 			                tableData.remarks = "";
 			                tableData.KOT = "";
 			                tableData.status = 0;
-			                tableData.lastUpdate = "";    
+			                tableData.lastUpdate = "";   
+			                tableData.guestName = ""; 
+			                tableData.guestContact = ""; 
+			                tableData.reservationMapping = ""; 
+			                tableData.guestCount = ""; 
 
-			                appendToLog(tableNumber+' : Removing Empty KOT mapping after shifting all items');            
+			                //appendToLog(tableNumber+' : Removing Empty KOT mapping after shifting all items');            
 
 
 			                    //Update
