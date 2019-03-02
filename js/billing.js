@@ -1864,6 +1864,11 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
                 tableData.KOT = "";
                 tableData.status = 0;
                 tableData.lastUpdate = ""; 
+                tableData.guestName = "";
+                tableData.guestContact = "";
+                tableData.reservationMapping = "";
+                tableData.guestCount = "";
+
 
                 appendToLog(tableName + ' : Release Table after Settling');               
 
@@ -2320,7 +2325,11 @@ function resetTableToFree(tableNumber){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 0;
-                tableData.lastUpdate = "";   
+                tableData.lastUpdate = "";  
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = ""; 
+                tableData.guestCount = "";
 
                 appendToLog(tableNumber + ' : Resetting Table to Free (Auto Settle)');              
 
@@ -3289,6 +3298,10 @@ function keepInPendingBills(tableNumber, billingModeType, optionalPageRef){
                     tableData.KOT = "";
                     tableData.status = 0;
                     tableData.lastUpdate = "";   
+                    tableData.guestName = ""; 
+                    tableData.guestContact = ""; 
+                    tableData.reservationMapping = "";
+                    tableData.guestCount = "";
 
                     appendToLog(tableNumber+' : Settle Bill Later');           
 
@@ -4570,7 +4583,11 @@ function updateTableMappingAfterKOTCancellation(tableID, optionalPageRef){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 0;
-                tableData.lastUpdate = "";              
+                tableData.lastUpdate = "";  
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = "";    
+                tableData.guestCount = "";        
 
                 appendToLog(tableID+' : Freeing Table after Order Cancellation');
 
@@ -4635,7 +4652,11 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 0;
-                tableData.lastUpdate = "";              
+                tableData.lastUpdate = ""; 
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = "";     
+                tableData.guestCount = "";        
 
                 appendToLog(tableID+' : Freeing Table after Bill Cancellation');
 

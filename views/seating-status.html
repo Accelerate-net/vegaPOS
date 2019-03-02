@@ -72,9 +72,22 @@
                <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important">
              
                     <div class="row">
-                      <div class="col-lg-12">
+                      <div class="col-lg-12" style="margin-bottom: 15px">
+                        <label style="margin: 0; font-size: 12px; font-weight: 600; color: #999; letter-spacing: 1px;">NAME</label>
                         <div class="form-group">
-                          <input style="border: none; border-bottom: 1px solid" placeholder="Name of Guest (Optional)" type="text" id="reserve_table_in_the_name_of" value="" class="form-control tip">
+                          <input style="border: none; border-bottom: 1px solid #b5b5b5; height: 34px; padding: 5px 0 0 0; font-size: 21px; font-weight: bold; text-transform: uppercase;" placeholder="" type="text" id="reserve_table_window_name" value="" class="form-control tip">
+                        </div>
+                      </div>
+                      <div class="col-lg-12" style="margin-bottom: 15px">
+                        <label style="margin: 0; font-size: 12px; font-weight: 600; color: #999; letter-spacing: 1px;">CONTACT NUMBER</label>
+                        <div class="form-group">
+                          <input style="border: none; border-bottom: 1px solid #b5b5b5; height: 34px; padding: 5px 0 0 0; font-size: 24px; font-weight: bold; letter-spacing: 3px;" placeholder="" type="number" id="reserve_table_window_contact" value="" class="form-control tip">
+                        </div>
+                      </div>
+                      <div class="col-lg-12">
+                        <label style="margin: 0; font-size: 12px; font-weight: 600; color: #999; letter-spacing: 1px;">NUMBER OF GUESTS</label>
+                        <div class="form-group">
+                          <input style="border: none; border-bottom: 1px solid #b5b5b5; height: 45px; padding: 10px 0; font-size: 42px; font-weight: bold; color: #1abc9c;" type="number" id="reserve_table_window_count" value="" class="form-control tip" placeholder="0">
                         </div>
                       </div>
                     </div>
@@ -83,7 +96,7 @@
                
 
                <div class="modal-footer">
-                <button  class="btn btn-default" onclick="addToReserveListConsentClose()" style="float: left">Do Not Reserve</button>
+                <button  class="btn btn-default" onclick="addToReserveListConsentClose()" style="float: left">Close</button>
                 <div id="addToReserveListConsentButton"></div>
                </div>
             </div>

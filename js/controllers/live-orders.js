@@ -1340,6 +1340,10 @@ function swapTableMapping(old, newTable, old_kot){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.lastUpdate = "";
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = "";
+                tableData.guestCount = "";
 
                     //Update
                     $.ajax({
@@ -1402,7 +1406,11 @@ function swapTableMapping(old, newTable, old_kot){
                   tableData.remarks = old_kot.remarks;
                   tableData.KOT = old_kot.KOTNumber;
                   tableData.lastUpdate = (old_kot.timeKOT != "" ? old_kot.timeKOT : old_kot.timePunch);;
-
+                  tableData.guestName = old_kot.guestName; 
+                  tableData.guestContact = old_kot.guestContact; 
+                  tableData.reservationMapping = old_kot.reservationMapping;
+                  tableData.guestCount = old_kot.guestCount;
+                  
                       //Update
                       $.ajax({
                         type: 'PUT',

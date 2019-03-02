@@ -2384,7 +2384,11 @@ function clearSavedOrderMappingFromTables(){
                   tableData[index].value.remarks = "";
                   tableData[index].value.KOT = "";
                   tableData[index].value.status = 0;
-                  tableData[index].value.lastUpdate = "";    
+                  tableData[index].value.lastUpdate = ""; 
+                  tableData[index].value.guestName = ""; 
+                  tableData[index].value.guestContact = ""; 
+                  tableData[index].value.reservationMapping = "";   
+                  tableData[index].value.guestCount = "";
 
                   appendToLog(tableData[index].value.table+' : Clearing Saved Order');          
 
@@ -2449,7 +2453,11 @@ function addTableToReserveList(tableID, optionalComments){
                 tableData.remarks = "";
                 tableData.KOT = "";
                 tableData.status = 5;
-                tableData.lastUpdate = timestamp;              
+                tableData.lastUpdate = timestamp;  
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = "";   
+                tableData.guestCount = "";         
 
 
                     //Update
@@ -2510,6 +2518,10 @@ function removeTableFromReserveList(tableID){
                 tableData.KOT = "";
                 tableData.status = 0;
                 tableData.lastUpdate = "";   
+                tableData.guestName = ""; 
+                tableData.guestContact = ""; 
+                tableData.reservationMapping = "";
+                tableData.guestCount = "";
 
                 appendToLog(tableID + ' : Removing Table from Reserve List');           
 
@@ -3551,15 +3563,15 @@ function renderTables(){
 															if(currentTableID != '' && currentTableID == tableData[i].value.table){
 								              				renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tableData[i].value.table+'\', \'FREE\', \''+(tableData[i].value.assigned != "" && tableData[i].value.assigned != "Hold Order" ? tableData[i].value.assigned : '')+'\', '+(tableData[i].value.assigned != "" && tableData[i].value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? (tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableData[i].value.assigned) : "-")+'</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+ (tableData[i].value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (tableData[i].value.guestName && tableData[i].value.guestName != "" ? 'For '+tableData[i].value.guestName : 'For Guest')) + '</tag>'+
 																					            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
 																					        	'</tag>';	
 															}	
 															else{
 								              				renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="retrieveTableInfo(\''+tableData[i].value.table+'\', \'FREE\', \''+(tableData[i].value.assigned != "" && tableData[i].value.assigned != "Hold Order" ? tableData[i].value.assigned : '')+'\', '+(tableData[i].value.assigned != "" && tableData[i].value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																					            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-																					            '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? (tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'For '+tableData[i].value.assigned) : "-")+'</tag>'+
-																					            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																					            '<tag class="tableCapacity'+smallTableFlag+'">'+ (tableData[i].value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (tableData[i].value.guestName && tableData[i].value.guestName != "" ? 'For '+tableData[i].value.guestName : 'For Guest')) + '</tag>'+
+																					            '<tag class="tableInfo'+smallTableFlag+'">'+(tableData[i].value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																					        	'</tag>';	
 															}
 
@@ -3682,7 +3694,33 @@ function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSa
 
 	}
 	else if(statusCode == 'FREE'){
-		freshOrderOnTable(tableID, optionalCustomerName, optionalSaveFlag);
+
+	    $.ajax({
+	      type: 'GET',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+tableID+'"]&endkey=["'+tableID+'"]',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.rows.length == 1){
+
+	              var tableData = data.rows[0].value;
+
+	              if(tableData.table == tableID){
+	              	freshOrderOnTable(tableID, tableData, optionalSaveFlag);
+	              }
+	              else{
+	                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+	              }
+	        }
+	        else{
+	          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });	
 	}
 }
 
@@ -5465,7 +5503,13 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 	              	if(orderMetaInfo.modeType == 'DINE'){
 
-	              		addToTableMapping(obj.table, kot, obj.stewardName, 'ORDER_PUNCHING');
+	              		var guestObject = {
+	              			"guestName" : obj.customerName,
+	              			"guestContact" : obj.customerMobile,
+	              			"guestCount" : obj.guestCount
+	              		}
+
+	              		addToTableMapping(obj.table, kot, obj.stewardName, guestObject, 'ORDER_PUNCHING');
 	              		
 
 	              		/*
@@ -6097,7 +6141,8 @@ function clearAllMetaData(){
 }
 
 
-function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
+
+function freshOrderOnTable(TableNumber, tableObject, optionalSaveFlag){
 
 	/* skip if in Editing Mode & has unsaved changes */
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != '' && window.localStorage.hasUnsavedChangesFlag == 1){
@@ -6135,11 +6180,11 @@ function freshOrderOnTable(TableNumber, optionalCustomerName, optionalSaveFlag){
 		}		
 	}
 
-	customerInfo.name = (optionalCustomerName && optionalCustomerName != '') ? optionalCustomerName : '';
-	customerInfo.mobile = "";
-	customerInfo.count = "";
+	customerInfo.name = (tableObject.guestName && tableObject.guestName != '') ? tableObject.guestName : '';
+	customerInfo.mobile = (tableObject.guestContact && tableObject.guestContact != '') ? tableObject.guestContact : '';
+	customerInfo.count = (tableObject.guestCount && tableObject.guestCount != '') ? tableObject.guestCount : '';
 	customerInfo.mappedAddress = TableNumber;
-	customerInfo.reference = "";
+	customerInfo.reference = (tableObject.reservationMapping && tableObject.reservationMapping != '') ? tableObject.reservationMapping : '';
 	customerInfo.isOnline = false;
 
 	window.localStorage.customerData = JSON.stringify(customerInfo);
@@ -6279,7 +6324,7 @@ function freshOrderForCustomer(customerEncoded){
 
 
 
-function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
+function addToTableMapping(tableID, kotID, assignedTo, guestObject, optionalPageRef){
 
     var today = new Date();
     var hour = today.getHours();
@@ -6318,7 +6363,21 @@ function addToTableMapping(tableID, kotID, assignedTo, optionalPageRef){
 	                tableData.remarks = "";
 	                tableData.KOT = kotID;
 	                tableData.status = 1;
-	                tableData.lastUpdate = hour+''+mins;  
+	                tableData.lastUpdate = hour+''+mins; 
+
+	                if(guestObject != ""){
+	                	tableData.guestName = guestObject.guestName; 
+		                tableData.guestContact = guestObject.guestContact; 
+		                tableData.guestCount = guestObject.guestCount; 
+		                tableData.reservationMapping = "";
+	                } 
+	                else{
+	                	tableData.guestName = ""; 
+		                tableData.guestContact = ""; 
+		                tableData.reservationMapping = "";
+		                tableData.guestCount = 0;
+	                }
+	                
                 }            
 
 
@@ -6529,8 +6588,8 @@ function pickTableForNewOrder(currentTableID){
 																else{
 									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="pickTableForNewOrderHide(); retrieveTableInfo(\''+mytable.value.table+'\', \'FREE\', \''+(mytable.value.assigned != "" && mytable.value.assigned != "Hold Order" ? mytable.value.assigned : '')+'\', '+(mytable.value.assigned != "" && mytable.value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.value.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned != ""? (mytable.value.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.value.assigned) : "-")+'</tag>'+
-																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (mytable.value.guestName && mytable.value.guestName != "" ? 'For '+mytable.value.guestName : 'For Guest'))+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																						        	'</tag>';	
 																}
 
@@ -6666,8 +6725,8 @@ function pickTableForNewOrder(currentTableID){
 									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="'+(shortlistFlag ? 'temporaryTableSelection' : 'temporaryTableNotFiltered')+' tableReserved'+smallTableFlag+'" onclick="pickTableForNewOrderHide(); retrieveTableInfo(\''+mytable.value.table+'\', \'FREE\', \''+(mytable.value.assigned != "" && mytable.value.assigned != "Hold Order" ? mytable.value.assigned : '')+'\', '+(mytable.value.assigned != "" && mytable.value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																						            '<tag class="currentTableSelectionCaretIcon"><i class="fa fa-caret-right"></i></tag>'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.value.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned != "" ? (mytable.value.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.value.assigned) : "-")+'</tag>'+
-																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (mytable.value.guestName && mytable.value.guestName != "" ? 'For '+mytable.value.guestName : 'For Guest'))+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																						        	'</tag>';	
 																}
 
@@ -6729,8 +6788,8 @@ function pickTableForNewOrder(currentTableID){
 																else{
 									              				renderTableArea = renderTableArea + '<tag style="position: relative" class="tableReserved'+smallTableFlag+'" onclick="pickTableForNewOrderHide(); retrieveTableInfo(\''+mytable.value.table+'\', \'FREE\', \''+(mytable.value.assigned != "" && mytable.value.assigned != "Hold Order" ? mytable.value.assigned : '')+'\', '+(mytable.value.assigned != "" && mytable.value.assigned == "Hold Order" ? 1 : 0)+')">'+
 																						            '<tag class="tableTitle'+smallTableFlag+'">'+mytable.value.table+'</tag>'+
-																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned != ""? (mytable.value.assigned == 'Hold Order' ? 'Saved Order' : "For "+mytable.value.assigned) : "-")+'</tag>'+
-																						            '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+																						            '<tag class="tableCapacity'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? '<i class="fa fa-cloud-download"></i>' : (mytable.value.guestName && mytable.value.guestName != "" ? 'For '+mytable.value.guestName : 'For Guest'))+'</tag>'+
+																						            '<tag class="tableInfo'+smallTableFlag+'">'+(mytable.value.assigned == 'Hold Order' ? 'Saved Order' : 'Reserved')+'</tag>'+
 																						        	'</tag>';	
 																}
 
@@ -8587,7 +8646,8 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 		            success: function(data) {
 		              if(data.ok){
 		              		if(obj.orderDetails.modeType == 'DINE'){
-		              		  addToTableMapping(target_table, kot, "", 'ORDER_PUNCHING');
+
+		              		  addToTableMapping(target_table, kot, "", "", 'ORDER_PUNCHING');
 		              		}
 		              }
 		              else{
@@ -9031,7 +9091,11 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 			                tableData.remarks = "";
 			                tableData.KOT = "";
 			                tableData.status = 0;
-			                tableData.lastUpdate = "";    
+			                tableData.lastUpdate = "";   
+			                tableData.guestName = ""; 
+			                tableData.guestContact = ""; 
+			                tableData.reservationMapping = ""; 
+			                tableData.guestCount = ""; 
 
 			                appendToLog(tableNumber+' : Removing Empty KOT mapping after shifting all items');            
 
