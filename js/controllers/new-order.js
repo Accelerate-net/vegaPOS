@@ -1452,12 +1452,12 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+ 	
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+	
 		                        '<div class="col-xs-4" style="padding: 0">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button class="btn btn-success btn-block btn-flat" id="payment" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
+		                              '<button class="btn btn-success btn-block btn-flat shortcutSafe" style="height:71px;" onclick="generateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                     '</div>';
@@ -1485,8 +1485,8 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
-		                           	  '<button class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+		                              '<button style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+		                           	  '<button class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
 		                           '</div>'+
 		                        '</div>'+                           
 		                     '</div>';
@@ -1505,11 +1505,11 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0;">'+
-		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
+		                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                        '</div>'+                            
 		                     '</div>';
 	 		}
@@ -1536,8 +1536,8 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
-		                              '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+		                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print Changed KOT</button>'+
+		                              '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
 		                           '</div>'+
 		                        '</div>'+                           
 		                     '</div>';
@@ -1556,11 +1556,11 @@ if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_ori
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0 4px;">'+
 		                           '<div class="btn-group-vertical btn-block">'+
-		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
+		                              '<button id="triggerClick_PrintItemViewButton" style="margin-bottom: 4px; height:71px; background: #34495e !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="printCurrentKOTView(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')">Print View</button>'+
 		                           '</div>'+
 		                        '</div>'+
 		                        '<div class="col-xs-4" style="padding: 0">'+
-		                           '<button  class="btn btn-success btn-block btn-flat" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
+		                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" onclick="compareChangesAndGenerateBillFromKOT(\''+editingKOTContent.KOTNumber+'\', \'ORDER_PUNCHING\')" style="height:71px;" id="triggerClick_PrintBillButton">Proceed to Bill</button>'+
 		                        '</div>'+                            
 		                     '</div>';
 	 		}
@@ -1589,8 +1589,8 @@ else{
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
-                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
                         '</div>'+
                      '</div>';
  	}   
@@ -1603,8 +1603,8 @@ else{
                            '</div>'+
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
-                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
-                           '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTButton" style="height:71px;" onclick="generateKOT()">Print KOT & Bill</button>'+
+                           '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
                         '</div>'+
                      '</div>';
  	}
@@ -1618,8 +1618,8 @@ else{
                         '</div>'+
                         '<div class="col-xs-8" style="padding: 0 0 0 4px;">'+
                            '<div class="btn-group-vertical btn-block">'+
-                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print KOT</button>'+
-                              '<button  class="btn btn-success btn-block btn-flat" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
+                              '<button  style="margin-bottom: 4px; height:71px; background: #2980b9 !important" class="btn bg-purple btn-block btn-flat shortcutSafe" onclick="generateKOT()" id="triggerClick_PrintKOTButton">Print KOT</button>'+
+                              '<button  class="btn btn-success btn-block btn-flat shortcutSafe" id="triggerClick_PrintKOTSilentlyButton" style="height:5px; display: none;" onclick="generateKOT(\'SILENTLY\')">Print Silent</button>'+
                            '</div>'+
                         '</div>'+                    
                      '</div>';
@@ -1697,6 +1697,8 @@ else{
 
 /* To Print Current KOT View */
 function printCurrentKOTView(kotID, optionalSource){
+
+	$("#triggerClick_PrintItemViewButton").removeClass("shortcutSafe"); //Shortcut safe
 
     //Set _id from Branch mentioned in Licence
     var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
@@ -1822,6 +1824,8 @@ function undoChangesInKOT(){
 
 
 function compareChangesAndGenerateBillFromKOT(kotID, optionalPageRef){
+
+	$("#triggerClick_PrintBillButton").removeClass("shortcutSafe"); //Shortcut safe
 
 	/*
 		Proceed to bill generation only if,
@@ -3434,8 +3438,7 @@ function changeCustomerInfo(type, optionalValue){
 			}										
 		}
 
-	window.localStorage.customerData = JSON.stringify(customerInfo);
-
+		window.localStorage.customerData = JSON.stringify(customerInfo);
 }
 
 function setCustomerInfoTable(tableID){
@@ -4161,6 +4164,9 @@ function fetchImageFromServer(itemCode, vegFlag){
 */
 
 function generateKOT(silentFlag){
+
+	$("#triggerClick_PrintKOTButton").removeClass("shortcutSafe"); //Shortcut safe
+	$("#triggerClick_PrintKOTSilentlyButton").removeClass("shortcutSafe"); //Shortcut safe
 
 	//Editing Case
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
@@ -5349,6 +5355,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchbytable?startkey=["'+table_req+'"]&endkey=["'+table_req+'"]',
 		      timeout: 10000,
 		      success: function(data) {
+		      	console.log(data)
 		      	if(data.rows.length >= 1){
 					showToast('Warning: Table <b>'+table_req+'</b> is not free. Please check in <b>Live Orders</b>.', '#e67e22');
 		            return "";

@@ -1,6 +1,8 @@
 
 function generateBillFromKOT(kotID, optionalPageRef){
 
+  console.log('Generate Bill from KOT '+kotID)
+
 /*
   optionalPageRef -- from which page the function is called.
   Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
@@ -27,79 +29,119 @@ function generateBillFromKOT(kotID, optionalPageRef){
 
     var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
-      timeout: 10000,
-      success: function(data) {
-        if(data._id != ""){
+    readKOTFile();
 
-          var kotfile = data;
+    function readKOTFile(){
 
-          if(kotfile.customerName != customerInfo.name || kotfile.customerMobile != customerInfo.mobile || kotfile.guestCount != customerInfo.count){
-            console.log('KOT not updated on server.. please update me ***')
-            kotfile.customerName = customerInfo.name;
-            kotfile.customerMobile = customerInfo.mobile;
-            kotfile.guestCount = customerInfo.count ? parseInt(customerInfo.count) : '';
+      $.ajax({
+        type: 'GET',
+        url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
+        timeout: 10000,
+        success: function(data) {
+          if(data._id != ""){
 
-            generateBillSuccessCallback('CHANGE_CUSTOMERINFO', optionalPageRef, kotfile); 
-          }
+            console.log('am being called...')
 
-          var raw_cart = kotfile.cart;
-          var beautified_cart = [];
+            var kotfile = data;
 
-          for(var n = 0; n < raw_cart.length; n++){
-            
-            if(n == 0){
-              beautified_cart.push(raw_cart[0]);
+            if(kotfile.customerName != customerInfo.name || kotfile.customerMobile != customerInfo.mobile || kotfile.guestCount != customerInfo.count){
+              
+              kotfile.customerName = customerInfo.name;
+              kotfile.customerMobile = customerInfo.mobile;
+              kotfile.guestCount = customerInfo.count ? parseInt(customerInfo.count) : '';
+
+              var alreadyEditingKOT = [];
+              if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
+                    alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);     
+                    alreadyEditingKOT.customerName = customerInfo.customerName;
+                    alreadyEditingKOT.customerMobile = customerInfo.customerMobile;
+                    alreadyEditingKOT.guestCount = customerInfo.guestCount;
+                    window.localStorage.edit_KOT_originalCopy = JSON.stringify(alreadyEditingKOT);               
+              
+
+                                      //Update changes on Server
+                                      $.ajax({
+                                        type: 'PUT',
+                                        url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
+                                        data: JSON.stringify(kotfile),
+                                        contentType: "application/json",
+                                        dataType: 'json',
+                                        timeout: 10000,
+                                        success: function(data) {
+                                          readKOTFileAfterProcess();
+                                        },
+                                        error: function(data) {
+                                          readKOTFileAfterProcess();
+                                        }
+                                      });                              
+              }
+              else{
+                readKOTFileAfterProcess();
+              }
             }
             else{
-
-              var duplicateFound = false;
-              var k = 0;
-              while(beautified_cart[k]){
-                if(beautified_cart[k].code == raw_cart[n].code){
-                  if(beautified_cart[k].isCustom && raw_cart[n].isCustom){
-                    if(beautified_cart[k].variant == raw_cart[n].variant){
-                      beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
-                      duplicateFound = true;
-                      break;
-                    }
-                  }
-                  else{
-                    beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
-                    duplicateFound = true;
-                    break;
-                  }
-                }
-
-                k++;
-              }
-
-              if(!duplicateFound){
-                beautified_cart.push(raw_cart[n]);
-              }
-
+              readKOTFileAfterProcess();
             }
 
+
+            function readKOTFileAfterProcess(){
+              var raw_cart = kotfile.cart;
+              var beautified_cart = [];
+
+              for(var n = 0; n < raw_cart.length; n++){
+                
+                if(n == 0){
+                  beautified_cart.push(raw_cart[0]);
+                }
+                else{
+
+                  var duplicateFound = false;
+                  var k = 0;
+                  while(beautified_cart[k]){
+                    if(beautified_cart[k].code == raw_cart[n].code){
+                      if(beautified_cart[k].isCustom && raw_cart[n].isCustom){
+                        if(beautified_cart[k].variant == raw_cart[n].variant){
+                          beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
+                          duplicateFound = true;
+                          break;
+                        }
+                      }
+                      else{
+                        beautified_cart[k].qty = beautified_cart[k].qty + raw_cart[n].qty;
+                        duplicateFound = true;
+                        break;
+                      }
+                    }
+
+                    k++;
+                  }
+
+                  if(!duplicateFound){
+                    beautified_cart.push(raw_cart[n]);
+                  }
+
+                }
+
+              }
+
+
+              kotfile.cart = beautified_cart;
+
+              generateBillFromKOTAfterProcess(kotfile, optionalPageRef);
+            }//read kot after process
+            
           }
-
-
-          kotfile.cart = beautified_cart;
-
-          generateBillFromKOTAfterProcess(kotfile, optionalPageRef);
+          else{
+            showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          }
           
+        },
+        error: function(data) {
+          showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
         }
-        else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
-      }
 
-    }); 
+      }); 
+    } //read kot file
 }
 
 function properRoundOff(amount){
@@ -474,18 +516,23 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
           */
           var duplicateClick = false;
           var easyActionsTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+            console.log('Am secretly running...'+duplicateClick)
             if($('#billPreviewModal').is(':visible')) {
 
                  switch(e.which){
                   case 27:{ // Escape (Close)
                     $('#billButtonAction_cancel').click();
                     easyActionsTool.unbind();
+                    $("#triggerClick_PrintBillButton").addClass("shortcutSafe"); //to add back shortcut action
                     break;  
                   }
                   case 13:{ // Enter (Confirm)
-                    $('#billButtonAction_generate').click();
-                    e.preventDefault();
+                    if(!duplicateClick){
+                      $('#billButtonAction_generate').click();
+                      e.preventDefault();
+                    }
+
+                    duplicateClick = true;
                     easyActionsTool.unbind();
                     break;
                   }
@@ -1805,7 +1852,6 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
                     kot.customerMobile = alreadyEditingKOT.customerMobile;
                     kot.customerName = alreadyEditingKOT.customerName;
                     kot.guestCount = alreadyEditingKOT.guestCount;
-
                           //Update on Server
                           $.ajax({
                             type: 'PUT',
@@ -1817,7 +1863,7 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
                             success: function(data) {
                               console.log('Saved KOT on Server')
                             }
-                          });         
+                          });                             
                   }
                 }
               });         
@@ -2025,8 +2071,7 @@ function confirmBillGeneration(kotID, optionalPageRef, silentRequest){
 
 function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, revID, silentRequest){
 
-    var memory_id = '';
-    var memory_rev = '';
+  console.log('Generating Bill > '+billNumber+' from KOT '+kotID);
 
     //Set _id from Branch mentioned in Licence
     var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
@@ -2089,8 +2134,8 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
           kotfile.cart = beautified_cart;
 
 
-          memory_id = kotfile._id;
-          memory_rev = kotfile._rev;
+          var memory_id = kotfile._id;
+          var memory_rev = kotfile._rev;
 
           kotfile.billNumber = billNumber,
           kotfile.paymentMode = "";
@@ -2183,6 +2228,11 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
               success: function(data) {
                 if(data.ok){
 
+                        //DELETE THE KOT
+                        deleteKOTFromServer(memory_id, memory_rev, optionalPageRef);
+
+
+
                         //PRINTING THE BILL
                         if(silentRequest == 'SILENTLY'){
                           showToast('<b>Skipped Printing!</b> Bill #'+billNumber+' generated Successfully', '#27ae60');
@@ -2217,8 +2267,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                             }
                           }
 
-                          
-                          deleteKOTFromServer(memory_id, memory_rev, optionalPageRef);
 
                           //If an online order ==> Update Mapping
                           if(kotfile.orderDetails.isOnline){
@@ -2792,12 +2840,12 @@ function preSettleBill(billNumber, optionalPageRef){
 
         }
         else{
-          showToast('Not Found Error: Bill #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Bill #'+billNumber+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Bills data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('Not Found Error: Bill #'+billNumber+' not found on Server.', '#e74c3c');
       }
 
     });   
@@ -3023,6 +3071,7 @@ function adjustBillSplit(code){
 function hideSettleBillAndPush(){
   window.localStorage.billSettleSplitPlayHoldList = '';
   document.getElementById("billSettlementDetailsModal").style.display = 'none';
+
 }
 
 

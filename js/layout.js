@@ -1409,7 +1409,7 @@ function applyShortcuts(){
 function initialiseKeyboardShortcuts(){
 
   /* Default Shortcuts */
-  Mousetrap.bind(['ctrl+s'], function() {
+  Mousetrap.bind(['f1'], function() {
     showSpotlight();
     return false;
   })
@@ -1561,7 +1561,9 @@ function initialiseKeyboardShortcuts(){
               requestUserToWait();
             }
             else{
-               $("#triggerClick_PrintKOTButton").click();
+              if($('#triggerClick_PrintKOTButton').hasClass("shortcutSafe")){
+               $("#triggerClick_PrintKOTButton").click(); //to avoid double clicks
+              }
             }
            
             return false;
@@ -1571,11 +1573,13 @@ function initialiseKeyboardShortcuts(){
         }
         case "Generate KOT Silently":{
           Mousetrap.bind([shortcutsData[n].value], function() {
-            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make shortcut printing safe
               requestUserToWait();
             }
             else{
-              $("#triggerClick_PrintKOTSilentlyButton").click();
+              if($('#triggerClick_PrintKOTSilentlyButton').hasClass("shortcutSafe")){
+               $("#triggerClick_PrintKOTSilentlyButton").click(); //to avoid double clicks
+              }
             }
             
             return false;
@@ -1589,7 +1593,9 @@ function initialiseKeyboardShortcuts(){
               requestUserToWait();
             }
             else{
-              $("#triggerClick_PrintBillButton").click();
+              if($('#triggerClick_PrintBillButton').hasClass("shortcutSafe")){
+                $("#triggerClick_PrintBillButton").click(); //to avoid double clicks
+              } 
             }
             
             return false;
@@ -1617,7 +1623,10 @@ function initialiseKeyboardShortcuts(){
               requestUserToWait();
             }
             else{
-              $("#triggerClick_PrintItemViewButton").click();
+              if($('#triggerClick_PrintItemViewButton').hasClass("shortcutSafe")){
+                $("#triggerClick_PrintItemViewButton").click(); //to avoid double clicks
+              }
+              
             }
             
             return false;
