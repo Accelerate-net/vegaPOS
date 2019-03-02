@@ -1870,7 +1870,7 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
                 tableData.guestCount = "";
 
 
-                appendToLog(tableName + ' : Release Table after Settling');               
+                //appendToLog(tableName + ' : Release Table after Settling');               
 
 
                     //Update
@@ -2331,7 +2331,7 @@ function resetTableToFree(tableNumber){
                 tableData.reservationMapping = ""; 
                 tableData.guestCount = "";
 
-                appendToLog(tableNumber + ' : Resetting Table to Free (Auto Settle)');              
+                //appendToLog(tableNumber + ' : Resetting Table to Free (Auto Settle)');              
 
 
                     //Update
@@ -3303,7 +3303,7 @@ function keepInPendingBills(tableNumber, billingModeType, optionalPageRef){
                     tableData.reservationMapping = "";
                     tableData.guestCount = "";
 
-                    appendToLog(tableNumber+' : Settle Bill Later');           
+                    //appendToLog(tableNumber+' : Settle Bill Later');           
 
                     //Update
                     $.ajax({
@@ -4589,7 +4589,7 @@ function updateTableMappingAfterKOTCancellation(tableID, optionalPageRef){
                 tableData.reservationMapping = "";    
                 tableData.guestCount = "";        
 
-                appendToLog(tableID+' : Freeing Table after Order Cancellation');
+                //appendToLog(tableID+' : Freeing Table after Order Cancellation');
 
                     //Update
                     $.ajax({
@@ -4658,7 +4658,7 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
                 tableData.reservationMapping = "";     
                 tableData.guestCount = "";        
 
-                appendToLog(tableID+' : Freeing Table after Bill Cancellation');
+                //appendToLog(tableID+' : Freeing Table after Bill Cancellation');
 
                     //Update
                     $.ajax({

@@ -2390,7 +2390,7 @@ function clearSavedOrderMappingFromTables(){
                   tableData[index].value.reservationMapping = "";   
                   tableData[index].value.guestCount = "";
 
-                  appendToLog(tableData[index].value.table+' : Clearing Saved Order');          
+                  //appendToLog(tableData[index].value.table+' : Clearing Saved Order');          
 
 
                     //Update
@@ -2523,7 +2523,7 @@ function removeTableFromReserveList(tableID){
                 tableData.reservationMapping = "";
                 tableData.guestCount = "";
 
-                appendToLog(tableID + ' : Removing Table from Reserve List');           
+                //appendToLog(tableID + ' : Removing Table from Reserve List');           
 
 
                     //Update
@@ -9097,7 +9097,7 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 			                tableData.reservationMapping = ""; 
 			                tableData.guestCount = ""; 
 
-			                appendToLog(tableNumber+' : Removing Empty KOT mapping after shifting all items');            
+			                //appendToLog(tableNumber+' : Removing Empty KOT mapping after shifting all items');            
 
 
 			                    //Update
