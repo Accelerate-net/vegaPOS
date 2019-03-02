@@ -1317,11 +1317,12 @@ function preloadTableStatus(mode, currentTableID){
 					              		}
 					              	}
 
+                          if(renderTableArea != ''){
 					              	renderSectionArea = renderSectionArea + '<div class="row">'+
 															   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
-															   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
-															    '</div>'+
-															'</div>'
+															   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+'</div>'+
+															'</div>';
+                          }
 
 					              	n++;
 					              }
@@ -1394,11 +1395,12 @@ function preloadTableStatus(mode, currentTableID){
 					              		}
 					              	}
 
+                          if(renderTableArea != ''){
 					              	renderSectionArea = renderSectionArea + '<div class="row">'+
 															   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
-															   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
-															    '</div>'+
-															'</div>'
+															   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+'</div>'+
+															'</div>';
+                          }
 
 					              	n++;
 					              }
