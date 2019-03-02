@@ -3610,11 +3610,12 @@ function renderTables(){
 							              		}
 							              	}
 
+							              	if(renderTableArea != ''){
 							              	renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
-																	   '<h1 class="seatingPlanHead'+smallTableFlag+'" style="font-weight: 400; font-size: 18px; background: #f6f6f6; margin: 5px 5px; padding: 10px;">'+tableSections[n]+'</h1>'+
-																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
-																	    '</div>'+
-																	'</div>'
+																					   '<h1 class="seatingPlanHead'+smallTableFlag+'" style="font-weight: 400; font-size: 18px; background: #f6f6f6; margin: 5px 5px; padding: 10px;">'+tableSections[n]+'</h1>'+
+																					   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+'</div>'+
+																					'</div>';
+											}
 
 							              	n++;
 							              }
@@ -5348,7 +5349,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		var table_req = customerInfo.mappedAddress;
 
 		
-		if(table_req != ""){
+		if(table_req != "" && table_req != "None"){
 
 		    $.ajax({
 		      type: 'GET',
@@ -5361,7 +5362,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		            return "";
 		        }		        
 		        else{
-		          processNewKOT();
+		          	processNewKOT();
 		        }
 		      },
 		      error: function(data) {
@@ -6333,6 +6334,10 @@ function freshOrderForCustomer(customerEncoded){
 
 function addToTableMapping(tableID, kotID, assignedTo, guestObject, optionalPageRef){
 
+	if(tableID == "None"){ //Dummy Case
+		return "";
+	}
+
     var today = new Date();
     var hour = today.getHours();
     var mins = today.getMinutes();
@@ -6410,7 +6415,7 @@ function addToTableMapping(tableID, kotID, assignedTo, guestObject, optionalPage
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          //showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
         }
 
       },
@@ -6633,12 +6638,12 @@ function pickTableForNewOrder(currentTableID){
 
 								    	 });
 
-
+										if(renderTableArea != ''){
 								        renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
 																	   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+sectionName+'</h1>'+
-																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
-																	    '</div>'+
-																	'</div>'
+																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+'</div>'+
+																	'</div>';
+										}
 
 
 
@@ -6845,12 +6850,12 @@ function pickTableForNewOrder(currentTableID){
 											 $('#tableEasyInputBoxStatus').html('');
 										}
 
-
+										if(renderTableArea != ''){
 								        renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
 																	   '<h1 class="seatingPlanHead'+smallTableFlag+'">'+sectionName+'</h1>'+
-																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
-																	    '</div>'+
-																	'</div>'
+																	   '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+'</div>'+
+																	'</div>';
+										}
 
 
 								    });
