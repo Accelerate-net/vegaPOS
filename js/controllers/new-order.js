@@ -3835,12 +3835,12 @@ function moveToEditKOT(kotID){
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: KOT #'+kotID+' not found on the Server, might have billed already.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('Not Found Error: KOT #'+kotID+' not found on the Server, might have billed already.', '#e74c3c');
       }
 
     });   
