@@ -4532,8 +4532,13 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 
 
 function sendKOTChangesToPrinterPreProcess(kot, compareObject){
+	
+	/*
+		**********************************************
+		OLD - Direct Printing from Client (deprecated)
+		**********************************************
+					
 
-			              	
 			              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
 							var isKOTRelayingEnabledOnDefault = window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT ? (window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT == 1 ? true : false) : false;
 
@@ -4782,7 +4787,7 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 								    }
 
 
-								    /*
+								    //LEGACY - Start
 								    function startRelayPrinting(index){
 
 								    	console.log('*Relay Print - Round '+index+' on '+allPrintersList[index].name)
@@ -4826,7 +4831,7 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 
 								    	}, 999);
 								    }
-								    */
+								    //LEGACY - End
 
 				              	}
 			              	}
@@ -4865,6 +4870,67 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 			              		}
 			              			
 			              	}
+	*/
+
+
+
+
+			            /*
+							LATEST - Printing from Single Server (Pre-release 2019 March)
+			            */
+
+
+						  //Get staff info.
+						  var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
+						
+						  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+								loggedInStaffInfo.name = 'Default';
+								loggedInStaffInfo.code = '0000000000';
+						  }	
+
+			              var printRequestObject = kot;
+
+			              printRequestObject.printRequest = {
+			              	"KOT": printRequestObject._id,
+							"action": "KOT_EDITING",
+							"table": kot.table,
+							"staffName": loggedInStaffInfo.name,
+							"staffCode": loggedInStaffInfo.code,
+							"machine": window.localStorage.appCustomSettings_SystemName && window.localStorage.appCustomSettings_SystemName != "" ? window.localStorage.appCustomSettings_SystemName : window.localStorage.accelerate_licence_machineUID,
+							"time": moment().format('HHmm'),
+							"date": moment().format('DD-MM-YYYY'),
+							"comparison": compareObject
+			              };
+
+			              delete printRequestObject._rev;
+			              delete printRequestObject._id;
+
+				          //Post to local Server
+				          $.ajax({
+				            type: 'POST',
+				            url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot_print_requests/',
+				            data: JSON.stringify(printRequestObject),
+				            contentType: "application/json",
+				            dataType: 'json',
+				            timeout: 10000,
+				            success: function(data) {
+				              	if(data.ok){
+					          
+					          	}
+					          	else{
+					          		showToast('Print Failed: KOT was not printed.', '#e74c3c');
+					          	}
+					        },
+					        error: function(data){  
+					           	if(data.responseJSON.error == "conflict"){
+					           		showToast('The same KOT is yet to be printed. Failed!!!!!', '#e74c3c');
+					           	} 
+					            else{
+					           		showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+					           	}
+					        }
+					      });  	
+
 
 }
 
@@ -5356,7 +5422,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchbytable?startkey=["'+table_req+'"]&endkey=["'+table_req+'"]',
 		      timeout: 10000,
 		      success: function(data) {
-		      	console.log(data)
 		      	if(data.rows.length >= 1){
 					showToast('Warning: Table <b>'+table_req+'</b> is not free. Please check in <b>Live Orders</b>.', '#e67e22');
 		            return "";
@@ -5585,6 +5650,14 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              	//Send KOT for Printing
 	              	function initialiseKOTPrinting(){
 			              	
+
+	              	 /*
+						**********************************************
+						OLD - Direct Printing from Client (deprecated)
+						**********************************************
+					
+
+
 			              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
 			              	var isKOTRelayingEnabledOnDefault = window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT ? (window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT == 1 ? true : false) : false;
 
@@ -5862,7 +5935,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								    }
 								    
 
-								    /*
+								    //LEGACY Start
 								    function startRelayPrinting(index){
 
 								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
@@ -5908,7 +5981,7 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 
 								    	}, 999);
 								    }
-								    */
+								    // LEGACY End
 
 				              	}
 			              	}
@@ -5947,6 +6020,57 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 			              		}
 			              			
 			              	}
+
+
+			            */
+
+
+			            /*
+							LATEST - Printing from Single Server (Pre-release 2019 March)
+			            */
+
+			              var printRequestObject = obj;
+
+			              printRequestObject.printRequest = {
+			              	"KOT": printRequestObject._id,
+							"action": "KOT_NEW",
+							"table": obj.table,
+							"staffName": obj.stewardName,
+							"staffCode": obj.stewardCode,
+							"machine": window.localStorage.appCustomSettings_SystemName && window.localStorage.appCustomSettings_SystemName != "" ? window.localStorage.appCustomSettings_SystemName : window.localStorage.accelerate_licence_machineUID,
+							"time": moment().format('HHmm'),
+							"date": moment().format('DD-MM-YYYY'),
+							"comparison": []
+			              };
+
+			              delete printRequestObject._rev;
+			              delete printRequestObject._id;
+
+				          //Post to local Server
+				          $.ajax({
+				            type: 'POST',
+				            url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot_print_requests/',
+				            data: JSON.stringify(printRequestObject),
+				            contentType: "application/json",
+				            dataType: 'json',
+				            timeout: 10000,
+				            success: function(data) {
+				              	if(data.ok){
+					          
+					          	}
+					          	else{
+					          		showToast('Print Failed: KOT was not printed.', '#e74c3c');
+					          	}
+					        },
+					        error: function(data){  
+					           	if(data.responseJSON.error == "conflict"){
+					           		showToast('The same KOT is yet to be printed. Failed!!!!!', '#e74c3c');
+					           	} 
+					            else{
+					           		showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+					           	}
+					        }
+					      });  			             
 
 			        } //end - initialise KOT Prints
 

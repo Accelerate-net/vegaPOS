@@ -282,6 +282,7 @@ function hideLoading(){
 function showPrintingAnimation(text){
 
   document.getElementById("generalPrintingProgressModal").style.display = 'block';
+  document.getElementById("printingProgressIcon").innerHTML = '<img src="images/common/loading_oval.svg" class="printerLoadingIcon">';
   $('#generalPrintingProgressModal').removeClass('fade_background'); 
 
   if(!text || text == ''){
