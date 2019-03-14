@@ -6,6 +6,18 @@ Fixes for Version 1:
 4. CRITICAL (ADD PRINT LOGS --> to understand why printing fails) with all main events (KOT, duplicate bill, etc.)
 5. KOT Number issue
 
+> All bill wise summary (all orders) - VIEW
+> Excel Format (month wise)
+> Cloud Report generation (from account office)
+> Payment modes visible even after mode gets deleted (read from bills)
+> Refund Issue (reduce refund from billing mode/payment mode summary) - neglected as of now 
+> Sales Summary: 
+	-- add start bill number and ending)
+	-- number of cancelled bills (with bill number)
+
+> Payment mode summary:
+	-- show SGST CGST separate..
+
 Moved to Version 2:
 
 1. PHONE DELIVERY (Send SMS Updates to customers)
