@@ -234,8 +234,9 @@ function fetchAllPrintersInfo(){
       }
 
     });  
-
 }
+
+
 
 function addNewPrinterProfile(){
 

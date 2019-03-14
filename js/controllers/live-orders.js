@@ -551,8 +551,6 @@ function printDuplicateKOT(kotID, optionalSource){
 
     var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
-
-
     $.ajax({
       type: 'GET',
       url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
@@ -564,6 +562,13 @@ function printDuplicateKOT(kotID, optionalSource){
 
         if(data._id == kot_request_data){
           
+                  
+
+                  /*
+                    **********************************************
+                    OLD - Direct Printing from Client (deprecated)
+                    **********************************************
+
                       var obj = data;
                       var original_order_object_cart = obj.cart;
                       
@@ -851,7 +856,7 @@ function printDuplicateKOT(kotID, optionalSource){
                           
 
 
-                          /*
+                          //LEGACY - Start
                           function startRelayPrinting(index){
 
                             console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
@@ -887,7 +892,7 @@ function printDuplicateKOT(kotID, optionalSource){
 
                                     }, 999);
                           }
-                          */
+                          //LEGACY - End
 
 
                         }
@@ -928,6 +933,67 @@ function printDuplicateKOT(kotID, optionalSource){
                         }
                           
                       }
+
+                  */
+
+
+
+                  /*
+                      LATEST - Printing from Single Server (Pre-release 2019 March)
+                  */
+
+                    //Get staff info.
+                    var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
+                  
+                    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+                      loggedInStaffInfo.name = 'Default';
+                      loggedInStaffInfo.code = '0000000000';
+                    } 
+
+                    var printRequestObject = data;
+
+                    printRequestObject.printRequest = {
+                      "KOT": printRequestObject._id,
+                      "action": "KOT_DUPLICATE",
+                      "table": data.table,
+                      "staffName": loggedInStaffInfo.name,
+                      "staffCode": loggedInStaffInfo.code,
+                      "machine": window.localStorage.appCustomSettings_SystemName && window.localStorage.appCustomSettings_SystemName != "" ? window.localStorage.appCustomSettings_SystemName : window.localStorage.accelerate_licence_machineUID,
+                      "time": moment().format('HHmm'),
+                      "date": moment().format('DD-MM-YYYY'),
+                      "comparison": []
+                    };
+
+                    delete printRequestObject._rev;
+                    delete printRequestObject._id;
+
+                  //Post to local Server
+                  $.ajax({
+                    type: 'POST',
+                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot_print_requests/',
+                    data: JSON.stringify(printRequestObject),
+                    contentType: "application/json",
+                    dataType: 'json',
+                    timeout: 10000,
+                    success: function(data) {
+                        if(data.ok){
+                    
+                      }
+                      else{
+                        showToast('Print Failed: KOT was not printed.', '#e74c3c');
+                      }
+                    },
+                    error: function(data){  
+                        if(data.responseJSON.error == "conflict"){
+                          showToast('The same KOT is yet to be printed. Failed!!!!!', '#e74c3c');
+                        } 
+                        else{
+                          showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                        }
+                    }
+                  });   
+
+
         }
         else{
           showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
