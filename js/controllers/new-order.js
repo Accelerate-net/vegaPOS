@@ -4179,7 +4179,7 @@ function generateKOT(silentFlag){
 
 	//Editing Case
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
-		generateEditedKOT(silentFlag);
+		generateEditedKOTPreprocess(silentFlag);
 	}
 	else if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){ //New Order Case
 		generateNewKOT(silentFlag);
@@ -4187,9 +4187,65 @@ function generateKOT(silentFlag){
 }
 
 /*Generate KOT for Editing Order */
-function generateEditedKOT(silentFlag){
-	var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+function generateEditedKOTPreprocess(silentFlag){
+
+	//recheck orginal KOT data to avoid KOT PUNCHING CONFLICT
+	var originalDataCached = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 	
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var KOTNumber = originalDataCached.KOTNumber;
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ KOTNumber;
+
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
+      timeout: 10000,
+      success: function(latestData) {
+        if(latestData._id != ""){
+
+        	var cart_latest = JSON.stringify(latestData.cart);
+        	var cart_cached = JSON.stringify(originalDataCached.cart);
+          	
+
+          	if(cart_latest == cart_cached){
+          		generateEditedKOT(originalDataCached, silentFlag)
+          	}
+          	else{
+          		document.getElementById("kotUpdateConflictWarning").style.display = 'block'; 
+          		document.getElementById("kotUpdateConflictWarningConsent").innerHTML = '<button class="btn btn-default" onclick="hideKOTConflictWarning()" style="float: left">Cancel</button>'+
+                  							'<button class="btn btn-info" onclick="clearAndReopenKOT(\''+latestData.KOTNumber+'\')">Refresh KOT</button>';
+          	}
+        }
+        else{
+          showToast('Not Found Error: KOT #'+KOTNumber+' not found on the Server, might have billed already.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('Not Found Error: KOT #'+KOTNumber+' not found on the Server, might have billed already.', '#e74c3c');
+      }
+    });   
+}
+
+function clearAndReopenKOT(kot_id){
+	clearCurrentEditingOrder();
+	moveToEditKOT(kot_id);
+	hideKOTConflictWarning();
+	showToast('KOT Refreshed. You can make your changes now.', '#27ae60');
+}
+
+function hideKOTConflictWarning(){
+	document.getElementById("kotUpdateConflictWarning").style.display = 'none'; 
+}
+
+
+function generateEditedKOT(originalData, silentFlag){
+
 	var changedCustomerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
 	if(jQuery.isEmptyObject(changedCustomerInfo)){
 		showToast('Customer Details missing', '#e74c3c');
@@ -4327,6 +4383,7 @@ function generateEditedKOT(silentFlag){
 
 
 function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject, hasRestrictedEdits, silentFlag){
+
 
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
