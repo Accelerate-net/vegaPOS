@@ -163,15 +163,17 @@ function additemtocart(encodedItem, category, optionalSource){
 		}
 	}
 
-	
+
 	if(productToAdd.isCustom){
+
+		console.log(productToAdd)
 		
 		//Pop up
 		
 		var i = 0;
 		var optionList = '';
 		while(productToAdd.customOptions[i]){
-			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.category+'\', \''+productToAdd.code+'\', \''+productToAdd.cookingTime+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\')">'+
+			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.category+'\', \''+productToAdd.code+'\', \''+productToAdd.cookingTime+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\', \'\', \''+productToAdd.isPackaged+'\')">'+
 										'<a>'+productToAdd.customOptions[i].customName+'<tag class="spotlightCustomItemTick"><i class="fa fa-check"></i></tag> <tag style="float: right"><i class="fa fa-inr"></i>'+productToAdd.customOptions[i].customPrice+'</tag></a>'+
 									  '</li>';
 			i++;
@@ -280,7 +282,7 @@ function additemtocart(encodedItem, category, optionalSource){
 	$("#add_item_by_search").focus();
 }
 
-function addCustomToCart(name, category, code, cookTime, price, variant, optionalSource, encodedIngredients, cart_index){
+function addCustomToCart(name, category, code, cookTime, price, variant, optionalSource, encodedIngredients, cart_index, packagedExclusionFlag){
 
 		var ingredientsTemp = encodedIngredients && encodedIngredients != '' ? JSON.parse(decodeURI(encodedIngredients)) : '';
 
@@ -294,6 +296,10 @@ function addCustomToCart(name, category, code, cookTime, price, variant, optiona
 		productToAdd.isCustom = true;
 		productToAdd.ingredients = ingredientsTemp;
 
+		if(packagedExclusionFlag == 'true' || packagedExclusionFlag == true){
+			productToAdd.isPackaged = true;	
+		}
+
 		if(optionalSource == 'DELETE_REVERSAL'){
 			productToAdd.cartIndex = cart_index;
 			saveToCart(productToAdd, 'DELETE_REVERSAL');
@@ -303,8 +309,6 @@ function addCustomToCart(name, category, code, cookTime, price, variant, optiona
 		}
 		
 		document.getElementById("customiseItemModal").style.display ='none';
-
-		console.log(optionalSource)
 
 		if(optionalSource == 'SUGGESTION'){
 
@@ -5018,10 +5022,9 @@ function hideUndoDelete(){
 
 function revertDelete(encodedItem){
 	var item = JSON.parse(decodeURI(encodedItem));
-	console.log(item)
 
 	if(item.isCustom){
-		addCustomToCart(item.name,  item.category, item.code, item.cookingTime, item.price, item.variant, 'DELETE_REVERSAL',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "", item.cartIndex);
+		addCustomToCart(item.name,  item.category, item.code, item.cookingTime, item.price, item.variant, 'DELETE_REVERSAL',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "", item.cartIndex, item.isPackaged);
 	}
 	else{
 		additemtocart(encodedItem, 'ATTACHED_WITHIN', 'DELETE_REVERSAL');

@@ -752,10 +752,14 @@ function quickViewUnavailableItems(){
 							}
 				
 						}
-					
-
+						
 						//last iteration
 						if(i == mastermenu.length - 1){
+							
+							if(overallRenderContent == ''){
+								overallRenderContent = '<p style="margin: 25px 0; font-size: 16px; color: #737272;">There are <b>no</b> items marked as <b>Out of Stock</b> currently.</p>'
+							}
+
 	                		document.getElementById("unavailQuickViewModal").style.display = 'block';	
 	                		document.getElementById("outOfStockRenderContent").innerHTML = overallRenderContent;
 						}
