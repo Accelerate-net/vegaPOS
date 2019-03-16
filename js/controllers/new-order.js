@@ -8467,12 +8467,18 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 
 		          			//target table is free
 		          			if(tableData.status == 0){
-		          				placeNewOrder(target_table, billing_mode, encoded_item);
+		          				if($('#shiftItemWizardModal').is(':visible')) { //to prevent double entry
+		          					placeNewOrder(target_table, billing_mode, encoded_item);
+		          				}
+		          				shiftItemWizardModalHide();
 		          			}
 
 		          			//table contains running order
 		          			if(tableData.status == 1){
-		          				appendNewItem(target_table, billing_mode, encoded_item, tableData.KOT);
+		          				if($('#shiftItemWizardModal').is(':visible')) { //to prevent double entry
+		          					appendNewItem(target_table, billing_mode, encoded_item, tableData.KOT);
+		          				}
+		          				shiftItemWizardModalHide();
 		          			}
 
 		          			if(tableData.status == 2){
@@ -8774,7 +8780,6 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 		          }
 
 		          obj._id = accelerate_licencee_branch+'_KOT_'+kot;
-		          console.log(obj._id)
 		        
 		          var remember_obj = '';
 
@@ -8789,9 +8794,10 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 		            success: function(data) {
 		              if(data.ok){
 		              		if(obj.orderDetails.modeType == 'DINE'){
-
 		              		  addToTableMapping(target_table, kot, "", "", 'ORDER_PUNCHING');
 		              		}
+
+		              		updateSourceKOT();
 		              }
 		              else{
 		                showToast('Warning: New KOT was not Modified. Try again.', '#e67e22');
