@@ -3439,7 +3439,7 @@ ol ol {
 
 
 .adminUserPasscodeInput{
-  border: 1px solid #f3f3f3; 
+  border: 1px solid #728890; 
   text-align: center; font-size: 21px; height: 40px;  
   font-weight: 300; text-transform: uppercase;
 }
@@ -4247,6 +4247,10 @@ position: absolute;
 }
 
 
+.itemRowHighlighter:hover{
+  background: #fff7f7;
+}
+
 .markItemsBatchIcon{
   width: 30px;
   height: 30px;
@@ -4255,19 +4259,19 @@ position: absolute;
   color: #FFF;
   cursor: pointer;
   border-radius: 50%;
-  margin-left: 10px;
   font-size: 16px;
   display: inline-block;
-  position: absolute;
+  position: relative;
   margin-top: -5px;
-  background: #1abc9c;
+  background: #00a65a;
+  text-align: center;
+  margin-left: 2px;
 }
 
 
-.markItemsBatchWrap:hover .markItemsBatchIcon{
+.markItemsBatchIcon:hover{
   opacity: 1;
 }
-
 
 
 .specialPinkButton{

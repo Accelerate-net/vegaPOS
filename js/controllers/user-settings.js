@@ -140,12 +140,16 @@ function openChangePasscodeWindow(code, name){
                                       '<hr style="margin-bottom: 15px; margin-top: 5px;">'+
                                    '</header>'+
                                     '<div class="row" style="margin: 15px 0">'+
-                                        '<p style="font-size: 12px; letter-spacing: 4px; color: #959595;">CURRENT PASSCODE</p>'+
-                                        '<div class="col-sm-12"> <div class="form-group"> <input placeholder="" style="letter-spacing: 5px" maxlength="4" type="password" id="passcode_old" class="form-control adminUserPasscodeInput"> </div> </div>'+    
-                                        '<p style="font-size: 12px; letter-spacing: 4px; color: #959595;">NEW PASSCODE</p>'+
-                                        '<div class="col-sm-12"> <div class="form-group"> <input placeholder="" style="letter-spacing: 5px" maxlength="4" type="password" id="passcode_new_1" class="form-control adminUserPasscodeInput"> </div> </div>'+    
-                                        '<p style="font-size: 12px; letter-spacing: 4px; color: #959595;">CONFIRM PASSCODE</p>'+
-                                        '<div class="col-sm-12"> <div class="form-group"> <input placeholder="" style="letter-spacing: 5px" maxlength="4" type="password" id="passcode_new_2" class="form-control adminUserPasscodeInput"> </div> </div>'+                        
+                                        '<p style="font-size: 12px; letter-spacing: 4px; color: #728890;">CURRENT PASSCODE</p>'+
+                                        '<div class="col-sm-12"> <div class="form-group"> <input placeholder="- - - -" style="letter-spacing: 6px; font-weight: bold;" maxlength="4" type="password" id="passcode_old" class="form-control adminUserPasscodeInput"> </div> </div>'+    
+                                    '</div>'+
+                                    '<div class="row" style="margin: 15px 0">'+
+                                        '<p style="font-size: 12px; letter-spacing: 4px; color: #728890;">NEW PASSCODE</p>'+
+                                        '<div class="col-sm-12"> <div class="form-group"> <input placeholder="- - - -" style="letter-spacing: 6px; font-weight: bold;" maxlength="4" type="password" id="passcode_new_1" class="form-control adminUserPasscodeInput"> </div> </div>'+    
+                                    '</div>'+
+                                    '<div class="row" style="margin: 15px 0">'+
+                                        '<p style="font-size: 12px; letter-spacing: 4px; color: #728890;">CONFIRM PASSCODE</p>'+
+                                        '<div class="col-sm-12"> <div class="form-group"> <input placeholder="- - - -" style="letter-spacing: 6px; font-weight: bold;" maxlength="4" type="password" id="passcode_new_2" class="form-control adminUserPasscodeInput"> </div> </div>'+                        
                                     '</div>'+
                                 '</section>';
 

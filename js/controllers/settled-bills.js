@@ -1129,6 +1129,7 @@ function calculateSettledCount(){
 }
 
 function getPaymentCodeEquivalentName(code){
+
 	var list = window.localStorage.availablePaymentModes ? JSON.parse(window.localStorage.availablePaymentModes) : [];
 
 	if(code == 'MULTIPLE'){
@@ -1148,6 +1149,8 @@ function getPaymentCodeEquivalentName(code){
 			}
 			n++
 		}
+
+		return code;
 	}
 	else{
 		return 'Paid';
@@ -2464,7 +2467,7 @@ function openSelectedBill(encodedBill, type){
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag>'+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3>'+subOptions+
 												      '</div>'+
-												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
+												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at <b style="color: #f39c12">'+getFancyTime(bill.timeBill)+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> KOT Number <tag style="color: #50aade; font-weight: bold;">'+bill.KOTNumber+'</tag></time>'+
 												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
 												         '<table class="table">'+
 												         	'<col width="5%">'+
@@ -2716,7 +2719,7 @@ function openSelectedBill(encodedBill, type){
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+paymentOptionUsedButton+'</h3>'+subOptions+
 												      '</div>'+
-												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
+												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at <b style="color: #5dd2a1">'+getFancyTime(bill.timeBill)+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> KOT Number <tag style="color: #50aade; font-weight: bold;">'+bill.KOTNumber+'</tag></time>'+
 												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
 												         '<table class="table">'+
 												         	'<col width="5%">'+
@@ -2780,7 +2783,7 @@ function openRefundDetailsInfo(encodedInfo){
 
 	document.getElementById("refundReasonPrimaryModal").style.display = 'block';
 	document.getElementById("refundReasonPrimaryModalContent").innerHTML = ''+
-												      '<div class="table-responsive">'+
+												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
 												         '<table class="table">'+
 												         	'<col width="35%">'+
 												         	'<col width="65%">'+
@@ -2854,7 +2857,7 @@ function openDiscountDetailsInfo(encodedInfo){
 
 	document.getElementById("discountReasonPrimaryModal").style.display = 'block';
 	document.getElementById("discountReasonPrimaryModalContent").innerHTML = ''+
-												      '<div class="table-responsive">'+
+												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
 												         '<table class="table">'+
 												         	'<col width="35%">'+
 												         	'<col width="65%">'+

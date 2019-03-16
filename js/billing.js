@@ -1941,9 +1941,6 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
                     });   
 
               }
-              else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-              }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -2777,6 +2774,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                           }
                           else{
                             $('#paymentOptionsListRenderConfirm').click();
+                            hasEnterClicked = false;
                             e.preventDefault();
                             easySelectTool.unbind();
                           }  

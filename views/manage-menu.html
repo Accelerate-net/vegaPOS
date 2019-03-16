@@ -5,9 +5,13 @@
                      <div class="box box-primary">
                         <div class="box-body">
                            <div class="box-header" style="padding: 10px 0px">
-                              <h3 class="box-title markItemsBatchWrap" style="padding: 5px 0px; font-size: 21px;">Categories<span class="markItemsBatchIcon" onclick="batchProcessMenuAllAvailable()" title="Mark All Items Available"><i class="fa fa-check"></i></span></h3>
-                              <button class="btn btn-success btn-sm" id="openNewMenuCategoryButton" onclick="openNewMenuCategory()" style="float: right">New Category</button>
-
+                              <h3 class="box-title markItemsBatchWrap" style="padding: 5px 0px; font-size: 21px;">Categories
+                              </h3>
+                              <tag style="position: relative; float: right; top: 5px; line-height: 18px;">
+                                    <span class="markItemsBatchIcon" onclick="openBatchProcessMenuAllAvailableWindow()" title="Mark All Items Available" style="background: #fdb84a"><i class="fa fa-check"></i></span>
+                                    <span class="markItemsBatchIcon" onclick="quickViewUnavailableItems()" title="View Unavailable Items" style="background: #e74c3c"><i class="fa fa-list"></i></span>
+                                    <span class="markItemsBatchIcon" onclick="openNewMenuCategory()" title="Add New Category"><i class="fa fa-plus"></i></span>
+                              </tag>
                            </div>
                            <div class="table-responsive" id="uiBeauty_menuCategory" style="max-height: 75vh">
                               <table class="table" style="margin: 0">
@@ -71,6 +75,40 @@
             </div>
          </div>
       </div>
+
+
+
+
+      <!-- Modal -->
+      <div id="unavailQuickViewModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader" style="padding: 15px 10px; background: #e74c3c;">
+                  <button  onclick="quickViewUnavailableItemsHide()" style="float: right; font-weight: bold; position: relative; top: -3px;" class="btn clearButton">X</button>
+                  <h4 class="modal-title">Items currently <b>Out of Stock</b></h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+
+                     <div class="row" style="padding: 0; margin: 0">
+                           <div class="col-lg-12" style="padding: 0">
+                              <table class="table" style="margin: 0;">
+                                 <col width="60%">
+                                 <col width="15%">
+                                 <col width="25%">
+                                 <tbody id="outOfStockRenderContent">                                                                                                  
+                                 </tbody>
+                              </table>
+                           </div>
+                           <div class="clearfix"></div>
+                     </div>
+
+               </div>
+            </div>
+         </div>
+      </div>
+
+
 
 
       <!-- Modal -->
@@ -275,7 +313,7 @@
                <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
                   <div id="markAllItemsAvailabilityContent" style="font-size: 16px; padding: 15px;"></div>               
                </div>
-               <div class="modal-footer" style="padding: 0; border: none" id="markAllItemsAvailabilityConsent">
+               <div class="modal-footer" style="padding: 1%; border: none" id="markAllItemsAvailabilityConsent">
                </div>
             </div>
          </div>
@@ -296,5 +334,25 @@
             </div>
          </div>
       </div>
+
+
+      <!-- Modal -->
+      <div id="batchAvailabilityConfirmWindow" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header deleteConfirmationHeader" style="background: #1abc9c !important"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Mark <b>All Items</b> Available</h1> </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                <p style="font-size: 16px; margin: 10px 0; color: #444;">Do you really want to mark all the items in the menu as <b>Available</b>?</p>
+               </div>
+               <div class="modal-footer" style="border: none; padding-top: 0">
+                  <button class="btn btn-default" onclick="hideBatchProcessMenuAllAvailableWindow()" style="float: left">Close</button>
+                  <button class="btn btn-success" onclick="batchProcessMenuAllAvailable()">Proceed</button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      
 
 </template>

@@ -363,7 +363,6 @@ function addSpecialCustomItem(optionalText){
   }
 
 
-
 	var itemName = '';
 
 	if(optionalText && optionalText != ""){
@@ -374,7 +373,6 @@ function addSpecialCustomItem(optionalText){
 	$('#add_new_manual_custom_name').val(itemName);
 	$('#add_new_manual_custom_price').val(0);
 	$('#add_new_manual_custom_name').focus();
-
 
           var easyActionsTool = $(document).on('keydown',  function (e) {
             console.log('Am secretly running...')
@@ -407,17 +405,23 @@ function addManualCustomItem(){
 
 	var name = $('#add_new_manual_custom_name').val();
 	var price = $('#add_new_manual_custom_price').val();
-	price = parseInt(price);
+	var trimmed_name = name.replace(/\s/g,'');
+	var trimmed_price = price.replace(/\s/g,'');
+
+	if(trimmed_price.length > 0){
+		price = parseInt(price);
+	}
+
 
 	var tax_flag = $('#add_new_manual_custom_taxable').is(":checked") ? true : false;
 
-	if(name == ''){
-		showToast('Warning: Add a Custom Name', '#e67e22');
+	if(trimmed_name.length == 0 || name == ''){
+		showToast('Warning: Please add a name for the Item', '#e67e22');
 		return '';
 	}
 
 	if(price == '' || price < 1){
-		showToast('Warning: Add a Custom Price greater than 1', '#e67e22');
+		showToast('Warning: Please add a correct price for the Item', '#e67e22');
 		return '';
 	}
 

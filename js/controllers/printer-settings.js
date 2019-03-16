@@ -30,7 +30,7 @@ function openTestPrinterConsent(name){
 } 
 
 function hideTestPrinterConsent(){
-  //document.getElementById("testPrinterConsentModal").style.display = "none";
+  document.getElementById("testPrinterConsentModal").style.display = "none";
 } 
 
 function testPrinterProfile(printerName, sample_code){
