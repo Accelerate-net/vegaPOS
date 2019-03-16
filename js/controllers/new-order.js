@@ -3660,6 +3660,52 @@ function renderTables(){
 }
 
 
+/* AUTO REFRESH TABLES STATUS */
+
+/*Track Inactivity*/
+var TABLE_RENDER_IDLE = 15; //default time delay = 20 secs
+var idleTableSecondsCounter = 0;
+var refreshTableInterval;
+
+function AutoRenderTable(){
+
+  idleTableSecondsCounter = 0;
+  clearInterval(refreshTableInterval);
+
+  refreshTableInterval = window.setInterval(function() { CheckTablesIdleTime(); }, 1000);  
+
+  //Start Tracking Events
+  document.onclick = function() {
+   	idleTableSecondsCounter = 0;
+  };
+
+  document.onmousemove = function() {
+    idleTableSecondsCounter = 0;
+  };
+
+  document.onkeypress = function() {
+    idleTableSecondsCounter = 0;
+  };
+}
+
+AutoRenderTable();
+
+
+function CheckTablesIdleTime() {
+      
+    idleTableSecondsCounter++;
+
+    if(idleTableSecondsCounter >= TABLE_RENDER_IDLE){
+    	//re-render tables
+    	idleTableSecondsCounter = 0;
+    	renderTables();
+    }
+}
+
+
+
+
+
 function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSaveFlag){
 
 	/* warn if unsaved order (Not editing case) */
