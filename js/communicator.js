@@ -687,6 +687,7 @@ if(orderObject.refundDetails){
 //Render User Info
 var userInfo = '';
 var billHeaderRender = '';
+var billBottomRender = '';
 
 if(orderObject.orderDetails.modeType == 'DELIVERY'){
 
@@ -727,6 +728,12 @@ if(orderObject.orderDetails.modeType == 'DELIVERY'){
                      '<tag>'+'</tag>'+
                   '</td>';     
    }
+
+         //Bottom of the Bill (for Delivery and Parcel only)
+         billBottomRender =   '<div class="billBottomContainer">'+
+                                 '<div style="text-align: center; font-size:14px; font-weight: bold; background: #000; color: #FFF; padding: 3px 0">'+ orderObject.orderDetails.mode + ' - <b style="font-size: 16px;">'+orderObject.KOTNumber+'</b>'+
+                                 '</div>'+   
+                              '</div>'; 
 }
 else if(orderObject.orderDetails.modeType == 'PARCEL'){
     userInfo = '<td style="vertical-align: top; position: relative">'+
@@ -763,7 +770,13 @@ else if(orderObject.orderDetails.modeType == 'PARCEL'){
                      '</p>'+
                      '<tag>'+'</tag>'+
                   '</td>';  
-   }          
+   }   
+
+         //Bottom of the Bill (for Delivery and Parcel only)
+         billBottomRender =   '<div class="billBottomContainer">'+
+                                 '<div style="text-align: center; font-size:14px; font-weight: bold; background: #000; color: #FFF; padding: 3px 0">'+ orderObject.orderDetails.mode + ' - <b style="font-size: 16px;">'+orderObject.KOTNumber+'</b>'+
+                                 '</div>'+   
+                              '</div>';        
 }
 else{
 
@@ -876,7 +889,7 @@ var html_template = ''+
          '</table>'+
       '</div>'+
       '<p class="addressText">'+data_custom_footer_address+'</p>'+
-      '<p class="addressContact">'+data_custom_footer_contact+'</p>';
+      '<p class="addressContact">'+data_custom_footer_contact+'</p>' + billBottomRender;
 
 
       postContentToTemplate(html_template);

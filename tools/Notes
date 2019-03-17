@@ -1,37 +1,30 @@
 
 Fixes for Version 1:
-1. KOT Not going sometimes
-2. Bill not printing sometimes
-3. KOT Relay print not effecient
-4. CRITICAL (ADD PRINT LOGS --> to understand why printing fails) with all main events (KOT, duplicate bill, etc.)
-5. KOT Number issue
+> Improve Sales Summary (Excel Format)
+> Cancelled Bills Summary - Excel Format
+> Cloud Report generation (from account office)
+> Payment modes visible even after mode gets deleted (read from bills)
+> Refund Issue (reduce refund from billing mode/payment mode summary) - neglected as of now 
+> Sales Summary: 
+	-- add start bill number and ending
+	-- number of cancelled bills (with bill number)
+
+> Payment mode summary:
+	-- show SGST CGST separate..
 
 Moved to Version 2:
 
 1. PHONE DELIVERY (Send SMS Updates to customers)
 2. Take measures to avoid duplicating of online orders (Disconnected ==> Dont accept/punch order)
 3. Spotlight (Customers pending)
-4. User Access (Super Admin)
 5. Add Order Source to Bill (add to Filter Invoices and Cancelled Invoices also)
 6. User Selection pop up on default screen (idle screen)
 8. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
 9. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings.
 10. Black and White A4 Print - Reports 
-11. Optimise menu Image rendering 
 12. Update Online Menu etc. (Option in Preferences)
 12A. If an item is blocked on POS, do not accept the ONLINE ORDER. (Do a Precheck)
 13. EASY CHANGE : D for Dine Mode, T for Takeaway --> change between the billing modes
-14. Bill Cut
-15. [NEW FEATURE] Sharing Options (eg. Share Soup 1 by 2)
 16. Admin Passcode (Recovery options)
 17. Takeaway -> Delivery (change mode option)
 18. Dine In, Parcel (ASSEMBLY DESK) --> new feature
-
-Critical Bugs:
-1. Table Mapping issue
-2. Settled Amount/Live Order count in Billing Modes
-3. Table Layout - first table issue
-4. Live Order issue - KOTs are not getting deleted at sometimes (mostly delivery orders)
-5. Bill not printing at rush hours
-6. KOT not printing at rush hours
-7. KOT Number issue

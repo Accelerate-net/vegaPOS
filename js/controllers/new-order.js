@@ -163,15 +163,17 @@ function additemtocart(encodedItem, category, optionalSource){
 		}
 	}
 
-	
+
 	if(productToAdd.isCustom){
+
+		console.log(productToAdd)
 		
 		//Pop up
 		
 		var i = 0;
 		var optionList = '';
 		while(productToAdd.customOptions[i]){
-			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.category+'\', \''+productToAdd.code+'\', \''+productToAdd.cookingTime+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\')">'+
+			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCart(\''+productToAdd.name+'\', \''+productToAdd.category+'\', \''+productToAdd.code+'\', \''+productToAdd.cookingTime+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\', \'\', \''+productToAdd.isPackaged+'\')">'+
 										'<a>'+productToAdd.customOptions[i].customName+'<tag class="spotlightCustomItemTick"><i class="fa fa-check"></i></tag> <tag style="float: right"><i class="fa fa-inr"></i>'+productToAdd.customOptions[i].customPrice+'</tag></a>'+
 									  '</li>';
 			i++;
@@ -280,7 +282,7 @@ function additemtocart(encodedItem, category, optionalSource){
 	$("#add_item_by_search").focus();
 }
 
-function addCustomToCart(name, category, code, cookTime, price, variant, optionalSource, encodedIngredients, cart_index){
+function addCustomToCart(name, category, code, cookTime, price, variant, optionalSource, encodedIngredients, cart_index, packagedExclusionFlag){
 
 		var ingredientsTemp = encodedIngredients && encodedIngredients != '' ? JSON.parse(decodeURI(encodedIngredients)) : '';
 
@@ -294,6 +296,10 @@ function addCustomToCart(name, category, code, cookTime, price, variant, optiona
 		productToAdd.isCustom = true;
 		productToAdd.ingredients = ingredientsTemp;
 
+		if(packagedExclusionFlag == 'true' || packagedExclusionFlag == true){
+			productToAdd.isPackaged = true;	
+		}
+
 		if(optionalSource == 'DELETE_REVERSAL'){
 			productToAdd.cartIndex = cart_index;
 			saveToCart(productToAdd, 'DELETE_REVERSAL');
@@ -303,8 +309,6 @@ function addCustomToCart(name, category, code, cookTime, price, variant, optiona
 		}
 		
 		document.getElementById("customiseItemModal").style.display ='none';
-
-		console.log(optionalSource)
 
 		if(optionalSource == 'SUGGESTION'){
 
@@ -363,7 +367,6 @@ function addSpecialCustomItem(optionalText){
   }
 
 
-
 	var itemName = '';
 
 	if(optionalText && optionalText != ""){
@@ -374,7 +377,6 @@ function addSpecialCustomItem(optionalText){
 	$('#add_new_manual_custom_name').val(itemName);
 	$('#add_new_manual_custom_price').val(0);
 	$('#add_new_manual_custom_name').focus();
-
 
           var easyActionsTool = $(document).on('keydown',  function (e) {
             console.log('Am secretly running...')
@@ -407,17 +409,23 @@ function addManualCustomItem(){
 
 	var name = $('#add_new_manual_custom_name').val();
 	var price = $('#add_new_manual_custom_price').val();
-	price = parseInt(price);
+	var trimmed_name = name.replace(/\s/g,'');
+	var trimmed_price = price.replace(/\s/g,'');
+
+	if(trimmed_price.length > 0){
+		price = parseInt(price);
+	}
+
 
 	var tax_flag = $('#add_new_manual_custom_taxable').is(":checked") ? true : false;
 
-	if(name == ''){
-		showToast('Warning: Add a Custom Name', '#e67e22');
+	if(trimmed_name.length == 0 || name == ''){
+		showToast('Warning: Please add a name for the Item', '#e67e22');
 		return '';
 	}
 
 	if(price == '' || price < 1){
-		showToast('Warning: Add a Custom Price greater than 1', '#e67e22');
+		showToast('Warning: Please add a correct price for the Item', '#e67e22');
 		return '';
 	}
 
@@ -3652,6 +3660,52 @@ function renderTables(){
 }
 
 
+/* AUTO REFRESH TABLES STATUS */
+
+/*Track Inactivity*/
+var TABLE_RENDER_IDLE = 15; //default time delay = 20 secs
+var idleTableSecondsCounter = 0;
+var refreshTableInterval;
+
+function AutoRenderTable(){
+
+  idleTableSecondsCounter = 0;
+  clearInterval(refreshTableInterval);
+
+  refreshTableInterval = window.setInterval(function() { CheckTablesIdleTime(); }, 1000);  
+
+  //Start Tracking Events
+  document.onclick = function() {
+   	idleTableSecondsCounter = 0;
+  };
+
+  document.onmousemove = function() {
+    idleTableSecondsCounter = 0;
+  };
+
+  document.onkeypress = function() {
+    idleTableSecondsCounter = 0;
+  };
+}
+
+AutoRenderTable();
+
+
+function CheckTablesIdleTime() {
+      
+    idleTableSecondsCounter++;
+
+    if(idleTableSecondsCounter >= TABLE_RENDER_IDLE && currentRunningPage == 'new-order'){
+    	//re-render tables
+    	idleTableSecondsCounter = 0;
+    	renderTables();
+    }
+}
+
+
+
+
+
 function retrieveTableInfo(tableID, statusCode, optionalCustomerName, optionalSaveFlag){
 
 	/* warn if unsaved order (Not editing case) */
@@ -4019,8 +4073,11 @@ function renderMenu(subtype){
 	          	var itemsInSubMenu = "";
 
 				if(!subtype){
-					subtype = mastermenu[0].category;
+					window.localStorage.appPreference_categorySelected = window.localStorage.appPreference_categorySelected && window.localStorage.appPreference_categorySelected != '' ? window.localStorage.appPreference_categorySelected : mastermenu[0].category;
+					subtype = window.localStorage.appPreference_categorySelected && window.localStorage.appPreference_categorySelected != '' ? window.localStorage.appPreference_categorySelected : mastermenu[0].category;	
 				}
+
+				window.localStorage.appPreference_categorySelected = subtype;
 
 				renderCategoryTab(subtype);
 	         
@@ -4171,7 +4228,7 @@ function generateKOT(silentFlag){
 
 	//Editing Case
 	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
-		generateEditedKOT(silentFlag);
+		generateEditedKOTPreprocess(silentFlag);
 	}
 	else if(!window.localStorage.edit_KOT_originalCopy || window.localStorage.edit_KOT_originalCopy == ''){ //New Order Case
 		generateNewKOT(silentFlag);
@@ -4179,9 +4236,64 @@ function generateKOT(silentFlag){
 }
 
 /*Generate KOT for Editing Order */
-function generateEditedKOT(silentFlag){
-	var originalData = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
+function generateEditedKOTPreprocess(silentFlag){
+
+	//recheck orginal KOT data to avoid KOT PUNCHING CONFLICT
+	var originalDataCached = window.localStorage.edit_KOT_originalCopy ?  JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 	
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var KOTNumber = originalDataCached.KOTNumber;
+    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ KOTNumber;
+
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
+      timeout: 10000,
+      success: function(latestData) {
+        if(latestData._id != ""){
+
+        	var cart_latest = JSON.stringify(latestData.cart);
+        	var cart_cached = JSON.stringify(originalDataCached.cart);
+          	
+          	if(cart_latest == cart_cached){
+          		generateEditedKOT(originalDataCached, silentFlag)
+          	}
+          	else{
+          		document.getElementById("kotUpdateConflictWarning").style.display = 'block'; 
+          		document.getElementById("kotUpdateConflictWarningConsent").innerHTML = '<button class="btn btn-default" onclick="hideKOTConflictWarning()" style="float: left">Cancel</button>'+
+                  							'<button class="btn btn-info" onclick="clearAndReopenKOT(\''+latestData.KOTNumber+'\')">Refresh KOT</button>';
+          	}
+        }
+        else{
+          showToast('Not Found Error: KOT #'+KOTNumber+' not found on the Server, might have billed already.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('Not Found Error: KOT #'+KOTNumber+' not found on the Server, might have billed already.', '#e74c3c');
+      }
+    });   
+}
+
+function clearAndReopenKOT(kot_id){
+	clearCurrentEditingOrder();
+	moveToEditKOT(kot_id);
+	hideKOTConflictWarning();
+	showToast('KOT Refreshed. You can make your changes now.', '#27ae60');
+}
+
+function hideKOTConflictWarning(){
+	document.getElementById("kotUpdateConflictWarning").style.display = 'none'; 
+}
+
+
+function generateEditedKOT(originalData, silentFlag){
+
 	var changedCustomerInfo = window.localStorage.customerData ?  JSON.parse(window.localStorage.customerData) : {};
 	if(jQuery.isEmptyObject(changedCustomerInfo)){
 		showToast('Customer Details missing', '#e74c3c');
@@ -4319,6 +4431,7 @@ function generateEditedKOT(silentFlag){
 
 
 function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject, hasRestrictedEdits, silentFlag){
+
 
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -5014,10 +5127,9 @@ function hideUndoDelete(){
 
 function revertDelete(encodedItem){
 	var item = JSON.parse(decodeURI(encodedItem));
-	console.log(item)
 
 	if(item.isCustom){
-		addCustomToCart(item.name,  item.category, item.code, item.cookingTime, item.price, item.variant, 'DELETE_REVERSAL',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "", item.cartIndex);
+		addCustomToCart(item.name,  item.category, item.code, item.cookingTime, item.price, item.variant, 'DELETE_REVERSAL',  item.ingredients ? encodeURI(JSON.stringify(item.ingredients)) : "", item.cartIndex, item.isPackaged);
 	}
 	else{
 		additemtocart(encodedItem, 'ATTACHED_WITHIN', 'DELETE_REVERSAL');
@@ -8460,12 +8572,18 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 
 		          			//target table is free
 		          			if(tableData.status == 0){
-		          				placeNewOrder(target_table, billing_mode, encoded_item);
+		          				if($('#shiftItemWizardModal').is(':visible')) { //to prevent double entry
+		          					placeNewOrder(target_table, billing_mode, encoded_item);
+		          				}
+		          				shiftItemWizardModalHide();
 		          			}
 
 		          			//table contains running order
 		          			if(tableData.status == 1){
-		          				appendNewItem(target_table, billing_mode, encoded_item, tableData.KOT);
+		          				if($('#shiftItemWizardModal').is(':visible')) { //to prevent double entry
+		          					appendNewItem(target_table, billing_mode, encoded_item, tableData.KOT);
+		          				}
+		          				shiftItemWizardModalHide();
 		          			}
 
 		          			if(tableData.status == 2){
@@ -8767,7 +8885,6 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 		          }
 
 		          obj._id = accelerate_licencee_branch+'_KOT_'+kot;
-		          console.log(obj._id)
 		        
 		          var remember_obj = '';
 
@@ -8782,9 +8899,10 @@ function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item)
 		            success: function(data) {
 		              if(data.ok){
 		              		if(obj.orderDetails.modeType == 'DINE'){
-
 		              		  addToTableMapping(target_table, kot, "", "", 'ORDER_PUNCHING');
 		              		}
+
+		              		updateSourceKOT();
 		              }
 		              else{
 		                showToast('Warning: New KOT was not Modified. Try again.', '#e67e22');

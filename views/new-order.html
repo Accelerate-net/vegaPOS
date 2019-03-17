@@ -369,12 +369,12 @@
                      <div class="row">
                         <div class="col-lg-8">
                            <div class="form-group">
-                              <input type="text" value="" placeholder="Custom Name" style="border: none; border-bottom: 1px solid; font-size: 18px; font-weight: bold;" class="form-control tip" id="add_new_manual_custom_name"/>
+                              <input type="text" value="" placeholder="Item Name" style="border: none; border-bottom: 1px solid; font-size: 18px; font-weight: bold;" class="form-control tip" id="add_new_manual_custom_name"/>
                            </div>
                         </div>
                         <div class="col-lg-4">
                            <div class="form-group">
-                              <input type="number" value="" placeholder="Custom Price" style="border: none; border-bottom: 1px solid; font-size: 18px; font-weight: bold;" class="form-control tip" id="add_new_manual_custom_price"/>
+                              <input type="number" value="" placeholder="Item Price" style="border: none; border-bottom: 1px solid; font-size: 18px; font-weight: bold;" class="form-control tip" id="add_new_manual_custom_price"/>
                            </div>
                         </div>
                         <div class="col-lg-12">
@@ -501,6 +501,20 @@
    </div>
 
 
+      <!-- Conflict Detection -->
+      <div id="kotUpdateConflictWarning" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header deleteConfirmationHeader" style="background: #3c8dbc !important"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Original KOT Changed</h1> </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                <p style="font-size: 16px; margin: 0; color: #3c8dbc;">Someone has modified this KOT while you were editing the order. Please open the latest KOT and make your changes again.</p>
+               </div>
+               <div class="modal-footer" style="border: none; padding-top: 0" id="kotUpdateConflictWarningConsent">
+               </div>
+            </div>
+         </div>
+      </div>
 
 
    <!-- Shift Item : Modal -->

@@ -506,6 +506,8 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
 
           document.getElementById("billPreviewModal").style.display = 'block';
 
+          PREVENT_DUPLICATE_BILL_REQUEST = false;
+
 
 
       //Esc --> Hide
@@ -1941,9 +1943,6 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
                     });   
 
               }
-              else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
-              }
         }
         else{
           showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -2026,9 +2025,15 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
 */
 
 
-
+var PREVENT_DUPLICATE_BILL_REQUEST = false;
 
 function confirmBillGeneration(kotID, optionalPageRef, silentRequest){
+
+    if(PREVENT_DUPLICATE_BILL_REQUEST){
+      return '';
+    }
+
+    PREVENT_DUPLICATE_BILL_REQUEST = true;
 
     var requestData = {
       "selector"  :{ 
@@ -2777,6 +2782,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                           }
                           else{
                             $('#paymentOptionsListRenderConfirm').click();
+                            hasEnterClicked = false;
                             e.preventDefault();
                             easySelectTool.unbind();
                           }  

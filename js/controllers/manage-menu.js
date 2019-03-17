@@ -569,11 +569,11 @@ function openSubMenu(menuCategory, optionalHighlighItem){
 //To mark items availability -- batch process
 function markAllItemsAvailability(current){
 	document.getElementById("markAllItemsAvailabilityConsent").innerHTML = ''+
-                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_NOT_AVAIL\')" class="btn btn-danger" style="float: left; width: 50%; height: 45px; border: none; border-radius: 0; margin: 0;">Mark All NOT Available</button>'+
-                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_AVAIL\')" class="btn btn-success" style="float: right; width: 50%; height: 45px; border: none; border-radius: 0; margin: 0;">Mark All Available</button>';
+                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_NOT_AVAIL\')" class="btn btn-danger" style="float: left; width: 49.5%; height: 45px; border: none; border-radius: 0; margin: 0;">Mark All NOT Available</button>'+
+                  			'<button onclick="markAvailabilityBatch(\''+current+'\', \'ALL_AVAIL\')" class="btn btn-success" style="float: right; width: 49.5%; height: 45px; border: none; border-radius: 0; margin: 0;">Mark All Available</button>';
 	
 	document.getElementById("markAllItemsAvailabilityContent").innerHTML = '<div class="row">'+
-	                        '<div class="col-lg-12">Please select an option to mark the availability of <b>'+current+'</b> items.'+
+	                        '<div class="col-lg-12" style="padding: 0;">Please select an option to mark the availability of <b>'+current+'</b> items.'+
 	                        '</div>'+                  
 	                     '</div>';
 
@@ -677,8 +677,135 @@ function markAvailabilityBatchAfterProcess(menu, category, revID){
 }
 
 
+// Quick view un-available items
+function quickViewUnavailableItems(){
+
+	var overallRenderContent = '';
+
+	//read menu
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+
+          	  clearMenuRenderArea();
+
+	          var mastermenu = data.docs[0].value;
+	          var itemsInCategory = "";
+	          var availabilityTag = "";
+	          var menuCategory = '';
+
+	          //alphabetical sorting
+			  mastermenu.sort(function(a, b) {
+			  	if(a.category < b.category) { return -1; }
+			    if(a.category > b.category) { return 1; }
+			    return 0;
+			  });
+
+
+				for (var i=0; i<mastermenu.length; i++){
+
+						menuCategory = mastermenu[i].category;
+
+						//alphabetical sorting
+						mastermenu[i].items.sort(function(obj1, obj2) {
+			                // Ascending: first age less than the previous
+			                return obj1.code - obj2.code;
+			            });
+
+			            itemsInCategory = "";
+
+						for(var j=0; j<mastermenu[i].items.length; j++){
+
+							if(mastermenu[i].items[j].isAvailable){
+
+							}
+							else{
+								availabilityTag = '<span class="label notavailTag" style="height: 28px; line-height: 21px; font-size: 14px; min-width: 95px" id="item_avail_'+mastermenu[i].items[j].code+'" onclick="markAvailability(\''+mastermenu[i].items[j].code+'\')">Out of Stock</span>';
+							
+								itemsInCategory = itemsInCategory + '<tr class="itemRowHighlighter" id="menu_item_row_'+mastermenu[i].items[j].code+'">'+
+							                                       '<td class="deleteItemWrap" style="font-size: 16px;">'+mastermenu[i].items[j].name+'<tag style="margin-left: 10px">'+getVegIcon(mastermenu[i].items[j].vegFlag)+'</tag><span style="display: block; font-size: 10px; color: #8a8a8a; letter-spacing: 1px; margin-left: 0;">'+mastermenu[i].items[j].code+'</span></td>'+
+							                                       '<td><button class="btn btn-sm itemPriceTag" style="font-size: 16px;"><i class="fa fa-inr"></i>'+mastermenu[i].items[j].price+'</button></td>'+
+							                                       '<td>'+availabilityTag+'</td>'+
+							                                    '</tr>';
+							}
+
+							
+							//last iteration
+							if(j == mastermenu[i].items.length - 1){
+								if(itemsInCategory != ''){
+									overallRenderContent += '<h1 style="font-size: 20px; margin: 10px 0; font-weight: 400; color: #2f9fe0;">'+menuCategory+'</h1>' + itemsInCategory;
+								}
+							}
+				
+						}
+						
+						//last iteration
+						if(i == mastermenu.length - 1){
+							
+							if(overallRenderContent == ''){
+								overallRenderContent = '<p style="margin: 25px 0; font-size: 16px; color: #737272;">There are <b>no</b> items marked as <b>Out of Stock</b> currently.</p>'
+							}
+
+	                		document.getElementById("unavailQuickViewModal").style.display = 'block';	
+	                		document.getElementById("outOfStockRenderContent").innerHTML = overallRenderContent;
+						}
+				}
+
+
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    }); 
+
+}
+
+
+function quickViewUnavailableItemsHide(){
+	document.getElementById("unavailQuickViewModal").style.display = 'none';
+}
+
+function clearMenuRenderArea(){
+	document.getElementById("menuDetailsArea").style.display = 'none';
+}
+
+
+function openBatchProcessMenuAllAvailableWindow(){
+	document.getElementById("batchAvailabilityConfirmWindow").style.display = 'block';
+}
+
+function hideBatchProcessMenuAllAvailableWindow(){
+	document.getElementById("batchAvailabilityConfirmWindow").style.display = 'none';
+}	
+
 
 function batchProcessMenuAllAvailable(){
+
+	hideBatchProcessMenuAllAvailableWindow();
 
     /*to find the latest item code*/
     var requestData = {
@@ -862,7 +989,6 @@ function deleteItemFromMenuAfterProcess(encodedItem, categoryName, newMenuObj, r
 
 
 function hideNewBill(){
-	
 	document.getElementById("newBillArea").style.display = "none";
 	document.getElementById("openNewBillButton").style.display = "block";
 }
@@ -871,14 +997,11 @@ function hideNewBill(){
 /* Modal - New Category*/
 function openNewMenuCategory(){
 	document.getElementById("newMenuCategoryModal").style.display = "block";
-	document.getElementById("openNewMenuCategoryButton").style.display = "none";
 	$("#add_new_category_name").focus();
 }
 
-function hideNewMenuCategory(){
-	
+function hideNewMenuCategory(){	
 	document.getElementById("newMenuCategoryModal").style.display = "none";
-	document.getElementById("openNewMenuCategoryButton").style.display = "block";
 }
 
 

@@ -4298,7 +4298,7 @@ function showSpotlight(){
                                               $.each(spotResult.list, function(key_2, spotItem) {
 
                                                 if ((spotItem.name.search(regex) != -1)) {
-                                                      tabIndex = -1;
+                                                      tabIndex = -1;  
 
                                                       var tempData = encodeURI(JSON.stringify(spotItem));
 
@@ -4472,7 +4472,9 @@ console.log('am here 2')
 function spotlightTriggerMenuItem(tempData){
 
   if(currentRunningPage == 'new-order'){
-    additemtocart(tempData, 'ATTACHED_WITHIN')
+    if($('#spotlightSearchTool').is(':visible')) {
+      additemtocart(tempData, 'ATTACHED_WITHIN');
+    }
   }
   else if(currentRunningPage == 'manage-menu'){
     
