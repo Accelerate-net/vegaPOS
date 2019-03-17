@@ -3695,7 +3695,7 @@ function CheckTablesIdleTime() {
       
     idleTableSecondsCounter++;
 
-    if(idleTableSecondsCounter >= TABLE_RENDER_IDLE){
+    if(idleTableSecondsCounter >= TABLE_RENDER_IDLE && currentRunningPage == 'new-order'){
     	//re-render tables
     	idleTableSecondsCounter = 0;
     	renderTables();
@@ -4073,8 +4073,11 @@ function renderMenu(subtype){
 	          	var itemsInSubMenu = "";
 
 				if(!subtype){
-					subtype = mastermenu[0].category;
+					window.localStorage.appPreference_categorySelected = window.localStorage.appPreference_categorySelected && window.localStorage.appPreference_categorySelected != '' ? window.localStorage.appPreference_categorySelected : mastermenu[0].category;
+					subtype = window.localStorage.appPreference_categorySelected && window.localStorage.appPreference_categorySelected != '' ? window.localStorage.appPreference_categorySelected : mastermenu[0].category;	
 				}
+
+				window.localStorage.appPreference_categorySelected = subtype;
 
 				renderCategoryTab(subtype);
 	         
@@ -4258,7 +4261,6 @@ function generateEditedKOTPreprocess(silentFlag){
         	var cart_latest = JSON.stringify(latestData.cart);
         	var cart_cached = JSON.stringify(originalDataCached.cart);
           	
-
           	if(cart_latest == cart_cached){
           		generateEditedKOT(originalDataCached, silentFlag)
           	}
