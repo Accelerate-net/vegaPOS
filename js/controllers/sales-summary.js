@@ -31,6 +31,1117 @@ function setSummaryDateRange(){
 }
 
 
+/* To generate EXCEL REPORTS */
+function generateExcelReports(){
+	$( "#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("excelReport_RenderArea").style.display = "block";
+}
+
+function downloadExcelReport(type){
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);	
+
+	switch(type){
+
+		case "OVERALL_REPORT":{
+
+			showLoading(50000, 'Generating Report...');
+
+			var masterRowsData = [];
+			var master_serial_number = 1;
+			var masterRowsHeadings = [];
+
+			dateWiseExcelSummary(fromDate);
+
+			function dateWiseExcelSummary(request_date){
+
+
+				/*******************************************
+					LEVEL - ONE (Process Overall Summary)
+				********************************************/
+
+					var excelReportData_Overall = [];
+					excelReportTotalPaidAmount();
+
+					/*
+						Total Amount got Paid
+						Total Charges Collected
+						Total Discounts Offered
+						Total Round Off issued
+						Total Tips received
+						and the final Turnover
+					*/
+
+					
+					/*
+						totalPaid = netSalesWorth + extras - discount - roundOff + tips
+						
+						So, 
+							netSalesWorth --> totalPaid - extras - tips + discount + roundoff;
+					*/
+
+
+					//Step 1: Total Paid Amount
+					function excelReportTotalPaidAmount(){	
+						$.ajax({
+						    type: 'GET',
+							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+							timeout: 10000,
+							success: function(data) {
+
+								var temp_totalOrders = 0;
+								var temp_totalPaid = 0;
+
+								if(data.rows.length > 0){
+									temp_totalOrders = data.rows[0].value.count;
+									temp_totalPaid = data.rows[0].value.sum;
+								}
+
+								excelReportData_Overall.push({
+									"name": "Total Paid Amount",
+									"value": temp_totalPaid
+								});
+							
+								//Step 2: Total Charges collected
+								excelReportChargesCollected();
+
+							},
+							error: function(data){
+								hideLoading();
+								showToast('System Error: Failed to fetch Total Paid Amount. Please contact Accelerate Support.', '#e74c3c');
+							}
+						}); 
+					}//end - step 1
+
+
+
+
+					//Step 2: Total Charges collected
+					function excelReportChargesCollected(){
+
+					    var requestData = {
+					      "selector"  :{ 
+					                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
+					                  },
+					      "fields"    : ["identifierTag", "value"]
+					    }
+
+					    $.ajax({
+					      type: 'POST',
+					      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+					      data: JSON.stringify(requestData),
+					      contentType: "application/json",
+					      dataType: 'json',
+					      timeout: 10000,
+					      success: function(data) {
+
+					        if(data.docs.length > 0){
+					          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
+
+						          	  var modes = data.docs[0].value;
+						          	  modes.sort(); //alphabetical sorting 
+
+						          	  if(modes.length == 0){
+						          	  	//No billing parameters found, Skip to next step.
+						          	  	excelReportDiscountsOffered();
+						          	  	return '';
+						          	  }
+
+
+						          	  //For a given BILLING PARAMETER, the total Sales in the given DATE RANGE
+									  $.ajax({
+									    type: 'GET',
+									    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+request_date+'"]&endkey=["'+modes[0].name+'","'+request_date+'"]',
+									    timeout: 10000,
+									    success: function(data) {
+									    	
+									    	var temp_count = 0;
+									    	var temp_sum = 0;
+
+									    	if(data.rows.length > 0){
+									    		temp_count = data.rows[0].value.count;
+									    		temp_sum = data.rows[0].value.sum;
+									    	}
+
+									    		//Now check in custom extras
+										    	$.ajax({
+													type: 'GET',
+													url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+request_date+'"]&endkey=["'+modes[0].name+'","'+request_date+'"]',
+													timeout: 10000,
+													success: function(data) {
+
+														if(data.rows.length > 0){
+														    temp_count += data.rows[0].value.count;
+														    temp_sum += data.rows[0].value.sum;
+														}
+
+													    excelReportData_Overall.push({
+															"name": modes[0].name,
+															"value": temp_sum
+														})
+													
+												    	//Check if next mode exists...
+												    	if(modes[1]){
+												    		excelReportChargesCollectedCallback(1, modes);
+												    	}
+												    	else{
+												    		//Step 3: Total Discount offered
+												    		excelReportDiscountsOffered();
+												    	}
+
+													},
+													error: function(data){
+														hideLoading();
+														showToast('System Error: Failed to calculate custom extras. Please contact Accelerate Support.', '#e74c3c');
+													}
+												}); 
+
+
+									    },
+									    error: function(data){
+									    	hideLoading();
+									    	showToast('System Error: Failed to calculate extra charges. Please contact Accelerate Support.', '#e74c3c');
+									    }
+									  });  
+
+					          }
+					          else{
+					          	hideLoading();
+					            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+					          }
+					        }
+					        else{
+					          hideLoading();
+					          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+					        }
+					        
+					      },
+					      error: function(data) {
+					      	hideLoading();
+					        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+					      }
+
+					    });	
+					} //end step 2
+
+
+					//step 2 - callback
+					function excelReportChargesCollectedCallback(index, modes){
+
+						  $.ajax({
+						    type: 'GET',
+						    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+request_date+'"]&endkey=["'+modes[index].name+'","'+request_date+'"]',
+						    timeout: 10000,
+						    success: function(data) {
+
+						    	var temp_count = 0;
+						    	var temp_sum = 0;
+
+						    	if(data.rows.length > 0){
+						    		temp_count = data.rows[0].value.count;
+						    		temp_sum = data.rows[0].value.sum;
+						    	}
+						    	
+
+						    		//Now check in custom extras
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+request_date+'"]&endkey=["'+modes[index].name+'","'+request_date+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_count += data.rows[0].value.count;
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+										    excelReportData_Overall.push({
+												"name": modes[index].name,
+												"value": temp_sum
+											})
+											
+									    	//Check if next mode exists...
+									    	if(modes[index+1]){
+									    		excelReportChargesCollectedCallback(index+1, modes);
+									    	}
+									    	else{
+									    		//Step 3: Total Discount offered
+									    		excelReportDiscountsOffered();
+									    	}
+
+										},
+										error: function(data){
+											hideLoading();
+											showToast('System Error: Failed to calculate custom extras. Please contact Accelerate Support.', '#e74c3c');
+										}
+									}); 
+
+
+						    },
+						    error: function(data){
+						    	hideLoading();
+						    	showToast('System Error: Failed to calculate extra charges. Please contact Accelerate Support.', '#e74c3c');
+						    }
+						  }); 
+
+					}
+
+
+					//Step 3: Total Discount offered 					
+					function excelReportDiscountsOffered(){
+
+						$.ajax({
+						    type: 'GET',
+							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+							timeout: 10000,
+							success: function(data) {
+
+								var temp_discountedOrdersCount = 0;
+								var temp_discountedOrdersSum = 0;
+
+								if(data.rows.length > 0){
+									temp_discountedOrdersCount = data.rows[0].value.count;
+									temp_discountedOrdersSum = data.rows[0].value.sum;
+								}
+
+
+								excelReportData_Overall.push({
+									"name": 'Discount',
+									"value": temp_discountedOrdersSum
+								})		
+								
+								//Step 4: Total Round Off made
+								excelReportRoundOffMade();
+
+							},
+							error: function(data){
+								hideLoading();
+								showToast('System Error: Failed to calculate discounts. Please contact Accelerate Support.', '#e74c3c');
+							}
+						});  	
+					} //end - step 3
+
+
+					//Step 4: Total Round Off made
+					function excelReportRoundOffMade(){
+
+						$.ajax({
+						    type: 'GET',
+							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+							timeout: 10000,
+							success: function(data) {
+
+								var temp_roundOffCount = 0;
+								var temp_roundOffSum = 0;
+
+								if(data.rows.length > 0){
+									temp_roundOffCount = data.rows[0].value.count;
+									temp_roundOffSum = data.rows[0].value.sum;
+								}
+								
+								excelReportData_Overall.push({
+									"name": 'Round Off',
+									"value": temp_roundOffSum
+								})	
+
+								//Step 5: Total Tips received
+								excelReportTipsReceived();
+
+							},
+							error: function(data){
+								hideLoading();
+								showToast('System Error: Failed to calculate round off amounts. Please contact Accelerate Support.', '#e74c3c');
+							}
+						});  
+					} //end - step 4
+
+
+					//Step 5: Total Tips received
+					function excelReportTipsReceived(){
+
+						$.ajax({
+						    type: 'GET',
+							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+							timeout: 10000,
+							success: function(data) {
+
+								var temp_tipsCount = 0;
+								var temp_tipsSum = 0;
+
+								if(data.rows.length > 0){
+									temp_tipsCount = data.rows[0].value.count;
+									temp_tipsSum = data.rows[0].value.sum;
+								}
+
+								excelReportData_Overall.push({
+									"name": 'Tips',
+									"value": temp_tipsSum
+								})
+
+								//Step 6: Total Refunds Issued
+								excelReportRefundsIssued();
+
+							},
+							error: function(data){
+								hideLoading();
+								showToast('System Error: Failed to calculate tips amounts. Please contact Accelerate Support.', '#e74c3c');
+							}
+						}); 
+					} // end - step 5
+
+
+					//Step 6: Total Refunds Issued
+					function excelReportRefundsIssued(){
+
+						//Refunded but NOT cancelled
+						$.ajax({
+						    type: 'GET',
+							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+							timeout: 10000,
+							success: function(data) {
+
+								var temp_refundCount = 0;
+								var temp_refundSum = 0;
+
+								if(data.rows.length > 0){
+									temp_refundCount = data.rows[0].value.count;
+									temp_refundSum = data.rows[0].value.sum;
+								}
+
+								//Cancelled and Refunded Orders
+								$.ajax({
+								    type: 'GET',
+									url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+									timeout: 10000,
+									success: function(seconddata) {
+
+										if(seconddata.rows.length > 0){
+											temp_refundCount += seconddata.rows[0].value.count;
+											temp_refundSum += seconddata.rows[0].value.sum;
+										}
+
+										excelReportData_Overall.push({
+											"name": 'Refunds',
+											"value": temp_refundSum
+										})
+										
+
+										//Step 7: Process Report (Final)
+										excelReportFinal();
+
+									},
+									error: function(data){
+										hideLoading();
+										showToast('System Error: Failed to calculate refund on cancelled orders. Please contact Accelerate Support.', '#e74c3c');
+									}
+								});  
+
+
+							},
+							error: function(data){
+								hideLoading();
+								showToast('System Error: Failed to calculate refund amount. Please contact Accelerate Support.', '#e74c3c');
+							}
+						});  
+
+					} //end - step 6
+
+
+					//Step 7: Process Report (Final)
+					function excelReportFinal(){
+						excelReportSummaryByBillingModes();
+					}
+
+
+
+
+
+				/*******************************************
+					LEVEL - TWO (Summary by Billing Modes)
+				********************************************/
+
+				var excelReportData_BillingModes = [];
+
+
+				function excelReportSummaryByBillingModes() {
+
+					/*
+							Summary - BILLING MODE wise
+					*/
+
+				    var requestData = {
+				      "selector"  :{ 
+				                    "identifierTag": "ACCELERATE_BILLING_MODES" 
+				                  },
+				      "fields"    : ["identifierTag", "value"]
+				    }
+
+				    $.ajax({
+				      type: 'POST',
+				      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+				      data: JSON.stringify(requestData),
+				      contentType: "application/json",
+				      dataType: 'json',
+				      timeout: 10000,
+				      success: function(data) {
+				        if(data.docs.length > 0){
+				          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
+
+				              	var modes = data.docs[0].value;
+					          	modes.sort(); //alphabetical sorting 
+
+					          	if(modes.length == 0){
+					          		//Skip and go to next level
+					          		excelReportSummaryByPaymentModes();
+					          		return '';
+					          	}
+
+					          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
+								$.ajax({
+								    type: 'GET',
+								    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+request_date+'"]&endkey=["'+modes[0].name+'","'+request_date+'"]',
+								    timeout: 10000,
+								    success: function(data) {
+								    	
+								    	var temp_sum = 0;
+
+										if(data.rows.length > 0){
+											temp_sum = data.rows[0].value.sum;
+										}
+
+										excelReportData_BillingModes.push({
+									   		"name": modes[0].name,
+									   		"value": temp_sum
+										})
+
+
+								    	//Check if next mode exists...
+								    	if(modes[1]){
+								    		excelReportSummaryByBillingModesCallback(1, modes);
+								    	}
+								    	else{
+								    		//Go to next LEVEL THREE
+								    		excelReportSummaryByPaymentModes();
+								    	}
+
+								    },
+								    error: function(data){
+								    	hideLoading();
+								    	showToast('System Error: Failed to build billing mode summary. Please contact Accelerate Support.', '#e74c3c');	
+								    }
+								});  
+				          }
+				        }
+				      },
+				      error: function(data){
+				      	hideLoading();
+				      	showToast('System Error: Failed to read billing modes data. Please contact Accelerate Support.', '#e74c3c');
+				      }
+
+				    });
+
+				}
+
+
+				function excelReportSummaryByBillingModesCallback(index, modes){
+
+								$.ajax({
+								    type: 'GET',
+								    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+request_date+'"]&endkey=["'+modes[index].name+'","'+request_date+'"]',
+								    timeout: 10000,
+								    success: function(data) {
+								    	
+								    	var temp_sum = 0;
+
+										if(data.rows.length > 0){
+											temp_sum = data.rows[0].value.sum;
+										}
+
+										excelReportData_BillingModes.push({
+									   		"name": modes[index].name,
+									   		"value": temp_sum
+										})
+
+								    	//Check if next mode exists...
+								    	if(modes[index+1]){
+								    		excelReportSummaryByBillingModesCallback(index+1, modes);
+								    	}
+								    	else{
+								    		//Go to next LEVEL THREE
+								    		excelReportSummaryByPaymentModes();
+								    	}
+
+
+								    },
+								    error: function(data){
+								    	hideLoading();
+								    	showToast('System Error: Failed to build billing mode summary. Please contact Accelerate Support.', '#e74c3c');
+								    }
+								});  	
+				}
+
+
+
+
+				/**********************************************
+					LEVEL - THREE (Summary by Payment Modes)
+				***********************************************/
+
+				var excelReportData_PaymentModes = [];
+
+				function excelReportSummaryByPaymentModes() {
+
+					/*
+							Summary - PAYMENT MODE wise
+					*/
+
+				    var requestData = {
+				      "selector"  :{ 
+				                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
+				                  },
+				      "fields"    : ["identifierTag", "value"]
+				    }
+
+				    $.ajax({
+				      type: 'POST',
+				      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+				      data: JSON.stringify(requestData),
+				      contentType: "application/json",
+				      dataType: 'json',
+				      timeout: 10000,
+				      success: function(data) {
+
+				        if(data.docs.length > 0){
+				          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
+
+				              	var modes = data.docs[0].value;
+					          	modes.sort(); //alphabetical sorting 
+
+					          	if(modes.length == 0){
+					          		//Skip, go to next level FOUR
+					          		levelFour();
+					          		return '';
+					          	}
+
+					          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
+								  $.ajax({
+								    type: 'GET',
+								    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[0].code+'","'+request_date+'"]&endkey=["'+modes[0].code+'","'+request_date+'"]',
+								    timeout: 10000,
+								    success: function(data) {
+								    	
+								    	var temp_count = 0;
+								    	var temp_sum = 0;
+
+								    	if(data.rows.length > 0){
+								    		temp_count = data.rows[0].value.count;
+								    		temp_sum = data.rows[0].value.sum;
+								    	}
+
+								    		//Now check in split payments
+									    	$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[0].code+'","'+request_date+'"]&endkey=["'+modes[0].code+'","'+request_date+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													if(data.rows.length > 0){
+													    temp_count += data.rows[0].value.count;
+													    temp_sum += data.rows[0].value.sum;
+													}
+
+										    		excelReportData_PaymentModes.push({
+												   		"name": modes[0].name,
+												   		"value": temp_sum
+												   	})
+										    											
+
+											    	//Check if next mode exists...
+											    	if(modes[1]){
+											    		excelReportSummaryByPaymentModesCallback(1, modes);
+											    	}
+											    	else{
+											    		//Go to next LEVEL FOUR
+											    		levelFour();
+											    	}
+
+												},
+												error: function(data){
+													hideLoading();
+													showToast('System Error: Failed to build payment mode summary. Please contact Accelerate Support.', '#e74c3c');
+												}
+											}); 
+
+
+								    },
+								    error: function(data){
+								    	hideLoading();
+								    	showToast('System Error: Failed to build billing mode summary. Please contact Accelerate Support.', '#e74c3c');
+								    }
+								  });  
+
+				          }
+				          else{
+				          		hideLoading();
+				            	showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+				          }
+				        }
+				        else{
+				        	hideLoading();
+				          	showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+				        }
+				        
+				      },
+				      error: function(data) {
+				      	hideLoading();
+				        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+				      }
+
+				    });
+
+				}
+
+				
+				function excelReportSummaryByPaymentModesCallback(index, modes){
+
+					  $.ajax({
+					    type: 'GET',
+					    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode?startkey=["'+modes[index].code+'","'+request_date+'"]&endkey=["'+modes[index].code+'","'+request_date+'"]',
+					    timeout: 10000,
+					    success: function(data) {
+
+					    	var temp_count = 0;
+					    	var temp_sum = 0;
+
+					    	if(data.rows.length > 0){
+					    		temp_count = data.rows[0].value.count;
+					    		temp_sum = data.rows[0].value.sum;
+					    	}
+					    	
+
+					    		//Now check in split payments
+						    	$.ajax({
+									type: 'GET',
+									url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_multiple?startkey=["'+modes[index].code+'","'+request_date+'"]&endkey=["'+modes[index].code+'","'+request_date+'"]',
+									timeout: 10000,
+									success: function(data) {
+
+										if(data.rows.length > 0){
+										    temp_count += data.rows[0].value.count;
+										    temp_sum += data.rows[0].value.sum;
+										}
+
+							    		excelReportData_PaymentModes.push({
+									   		"name": modes[index].name,
+									  		"value": temp_sum
+									    })
+							    			
+
+								    	//Check if next mode exists...
+								    	if(modes[index+1]){
+								    		excelReportSummaryByPaymentModesCallback(index+1, modes);
+								    	}
+								    	else{
+								    		//Go to next LEVEL FOUR
+								    		levelFour();
+								    	}
+
+									},
+									error: function(data){
+										hideLoading();
+										showToast('System Error: Failed to build payment mode summary. Please contact Accelerate Support.', '#e74c3c');
+									}
+								}); 
+
+
+					    },
+					    error: function(data){
+					    	hideLoading();
+					    	showToast('System Error: Failed to build payment mode summary. Please contact Accelerate Support.', '#e74c3c');
+					    }
+					  }); 
+
+				}
+
+
+				/**********************************************
+					LEVEL - FOUR (Final Call)
+				***********************************************/
+				function levelFour(){
+
+					var summary_row_data_basic = [
+						master_serial_number, //Sl No.
+						moment(request_date, 'YYYYMMDD').format('DD-MM-YYYY'), //date
+						moment(request_date, 'YYYYMMDD').format('dddd') //day
+					]
+
+					if(master_serial_number == 1){ //only on the first iteration
+						masterRowsHeadings = ["Sl No.", "Date", "Day"];
+					}
+
+					var summary_row_data_sales = [];
+					for(var i = 0; i < excelReportData_Overall.length; i++){
+						summary_row_data_sales.push(excelReportData_Overall[i].value);
+
+						if(master_serial_number == 1){ //only on the first iteration
+							masterRowsHeadings.push(excelReportData_Overall[i].name);
+						}
+					}
+
+					var summary_row_data_billing = [];
+					for(var i = 0; i < excelReportData_BillingModes.length; i++){
+						summary_row_data_billing.push(excelReportData_BillingModes[i].value);
+						
+						if(master_serial_number == 1){ //only on the first iteration
+							masterRowsHeadings.push(excelReportData_BillingModes[i].name);
+						}
+					}
+
+					var summary_row_data_payment = [];
+					for(var i = 0; i < excelReportData_PaymentModes.length; i++){
+						summary_row_data_payment.push(excelReportData_PaymentModes[i].value);
+					
+						if(master_serial_number == 1){ //only on the first iteration
+							masterRowsHeadings.push(excelReportData_PaymentModes[i].name);
+						}
+					}
+
+					var summary_row_data_final = summary_row_data_basic.concat(summary_row_data_sales);
+					summary_row_data_final = summary_row_data_final.concat(summary_row_data_billing);
+					summary_row_data_final = summary_row_data_final.concat(summary_row_data_payment);
+
+					masterRowsData.push(summary_row_data_final);
+
+					if(request_date < toDate){ //next date exists
+						//iterate to next date
+						var next_date = moment(request_date, "YYYYMMDD").add(1, 'days').format("YYYYMMDD");
+						
+						master_serial_number++;
+						dateWiseExcelSummary(next_date);
+					}
+					else{
+						//proceed to report generation
+						hideLoading();
+						showToast('Sales Summary generated successfully!', '#27ae60');
+
+						generateExcel();
+					}
+
+				}
+
+
+
+
+				//generate report
+				function generateExcel(){
+
+				      		var main_header_title_nulls = [];
+				      		var q = 0;
+				      		while(masterRowsData[q]){
+				      			main_header_title_nulls.push("");
+				      			q++;
+				      		}
+
+							var report_date_range = moment(fromDate, 'YYYYMMDD').format('DD-MM-YYYY');
+							var report_date_title = ' on ' + moment(fromDate, 'YYYYMMDD').format('D MMM, YYYY');
+							if(fromDate != toDate){
+								report_date_range += '_to_' + moment(toDate, 'YYYYMMDD').format('DD-MM-YYYY');
+								report_date_title = ' from ' + moment(fromDate, 'YYYYMMDD').format('D MMM, YYYY') + ' to ' + moment(toDate, 'YYYYMMDD').format('D MMM, YYYY');
+							}
+
+
+				      		var temp_branch_name = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : 'UNKNOWN_BRANCH';
+				      		var temp_client_name = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : 'UNKNOWN_CLIENT'; 
+
+				      		temp_branch_name = temp_branch_name.toUpperCase();
+				      		temp_client_name = temp_client_name.toUpperCase();
+				      		report_date_title = report_date_title.toUpperCase();
+
+							var header = []; //main head
+							header.push(["SALES SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title].concat(main_header_title_nulls));
+							header.push(masterRowsHeadings);
+
+							var data = header.concat(masterRowsData); //all other data
+
+							/* merge cells A1:I1 */
+							var mergeBoundaryIndex = header[1].length - 1;
+							var mergeBoundary = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
+							var merge = XLSX.utils.decode_range("A1:"+mergeBoundary[mergeBoundaryIndex]);
+
+							/* generate worksheet */
+							var ws = XLSX.utils.aoa_to_sheet(data);
+
+							/* add merges */
+							if(!ws['!merges']) ws['!merges'] = [];
+							ws['!merges'].push(merge);
+
+							/* generate workbook */
+							var wb = XLSX.utils.book_new();
+							XLSX.utils.book_append_sheet(wb, ws, "Sales Summary");
+
+							/* generate file and download */
+							const wbout = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+							saveAs(new Blob([wbout], { type: "application/octet-stream" }), "sales_summary_"+temp_client_name.toLowerCase()+"_"+temp_branch_name.toLowerCase()+"_"+report_date_range+".xlsx");
+							
+
+				}
+
+
+
+			}
+
+			break;
+
+		} // end - OVERALL_SUMMARY
+
+
+
+		case "INVOICE_REPORT":{
+
+			showLoading(50000, 'Generating Report...');
+
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
+		                  },
+		      "fields"    : ["identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
+
+			          	var params = data.docs[0].value;
+
+			          	dateWiseAllInvoicesExcel(fromDate, toDate, params);	
+
+		          }
+		          else{
+		            hideLoading();
+		            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          hideLoading();
+		          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+		        
+		      },
+		      error: function(data) {
+		      	hideLoading();
+		        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+		      }
+
+		    });
+
+
+					
+
+			function dateWiseAllInvoicesExcel(request_date_start, request_date_end, billingParameters){
+
+				//format the date to DD-MM-YYYY format
+				request_date_start = moment(request_date_start, 'YYYYMMDD').format('DD-MM-YYYY');
+				request_date_end = moment(request_date_end, 'YYYYMMDD').format('DD-MM-YYYY');
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/showall?startkey=["'+request_date_start+'"]&endkey=["'+request_date_end+'"]&descending=false&include_docs=true',
+					timeout: 10000,
+					success: function(data) {
+						
+						var resultsList = data.rows;
+						var invoiceList = [];
+
+			            resultsList.sort(function(doc1, doc2) { //sort by bill number
+							if (doc1.id < doc2.id)
+    							return -1;
+  
+  							if (doc1.id > doc2.id)
+    							return 1;
+  
+  							return 0;
+			            });
+
+				      	var n = 0;
+				      	while(resultsList[n]){ //iterating through each invoice
+
+				      		//Get formatted cart items
+				      		var cart_items_formatted = '';
+				      		var sub_total = 0;
+				      		for(var i = 0; i < resultsList[n].doc.cart.length; i++){
+
+				      			var current_item = resultsList[n].doc.cart[i];
+				      			var beautified_item = current_item.name;
+
+				      			sub_total += current_item.price * current_item.qty;
+
+				      			if(current_item.isCustom){
+				      				beautified_item += ' ('+current_item.variant+')';
+				      			}
+
+				      			beautified_item += ' x '+ current_item.qty;
+
+				      			if(cart_items_formatted == ''){
+				      				cart_items_formatted = beautified_item;
+				      			}
+				      			else{
+				      				cart_items_formatted += ', ' + beautified_item;
+				      			}
+				      		}
+
+
+
+				      		//Get extras
+				      		var all_extras = [];
+				      		for(var i = 0; i < resultsList[n].doc.extras.length; i++){
+				      			all_extras[resultsList[n].doc.extras[i].name] = resultsList[n].doc.extras[i].amount;
+				      		}
+
+				      		//Get custom extras, if any.
+				      		if(resultsList[n].doc.customExtras){
+				      			if(resultsList[n].doc.customExtras.amount != 0){
+				      				all_extras[resultsList[n].doc.customExtras.type] += resultsList[n].doc.customExtras.amount;
+				      			}
+				      		}
+
+				      		var invoice_info_extras = [];
+				      		var m = 0;
+				      		while(billingParameters[m]){
+				      			if(all_extras[billingParameters[m].name] && all_extras[billingParameters[m].name] != ''){
+				      				invoice_info_extras.push(all_extras[billingParameters[m].name]);
+				      			}
+				      			else{
+				      				invoice_info_extras.push(0);
+				      			}
+				      			m++;
+				      		}
+
+				      		
+				      		var invoice_info_basic = [
+				      			n + 1, //Sl No.
+				      			resultsList[n].doc.billNumber, //Bill Number
+				      			resultsList[n].doc.date, //Invoice Date
+				      			moment(resultsList[n].doc.date, 'DD-MM-YYYY').format('dddd'), //Day
+				      			moment(resultsList[n].doc.timeBill, 'hhmm').format('hh:mm A'), //Time
+				      			resultsList[n].doc.orderDetails.mode, //Billing Mode
+				      			resultsList[n].doc.orderDetails.modeType, //Type of Mode (DINE, PARCEL etc.)
+				      			cart_items_formatted, //items list
+				      			sub_total //sub_total
+				      		];
+
+				      		var invoice_info_payment = [
+				      			resultsList[n].doc.discount.amount ? resultsList[n].doc.discount.amount : 0, //Discounts 
+				      			resultsList[n].doc.calculatedRoundOff ? resultsList[n].doc.calculatedRoundOff : 0, //Round offs
+				      			resultsList[n].doc.payableAmount, //payable amount
+				      			resultsList[n].doc.totalAmountPaid, //amount paid
+				      			resultsList[n].doc.paymentMode, //mode of payment
+				      			resultsList[n].doc.refundDetails ? resultsList[n].doc.refundDetails.amount : 0, //refunded amounts
+				      			resultsList[n].doc.refundDetails ? (parseFloat((resultsList[n].doc.totalAmountPaid - resultsList[n].doc.refundDetails.amount)).toFixed(2)) : resultsList[n].doc.totalAmountPaid //gross amount
+				      		];
+
+				      		var invoice_info_formatted = invoice_info_basic.concat(invoice_info_extras);
+				      		invoice_info_formatted = invoice_info_formatted.concat(invoice_info_payment);
+
+				      		invoiceList.push(invoice_info_formatted);
+
+				      		if(n == resultsList.length - 1){ //last iteration
+
+				      			hideLoading();
+				      			showToast('Invoice Summary generated successfully!', '#27ae60');
+
+				      			generateExcel(invoiceList, billingParameters);
+				      		}
+
+				      		n++;
+				      	}
+
+
+				      	function generateExcel(invoiceData, billingParameters){
+
+				      		var main_header_title_nulls = []; 
+				      		var extras_header_titles = [];
+				      		var q = 0;
+				      		while(billingParameters[q]){
+				      			extras_header_titles.push(billingParameters[q].name + ' (' + (billingParameters[q].unit == 'PERCENTAGE' ? billingParameters[q].value + '%' : 'Rs. '+billingParameters[q].value)+ ')');
+				      			main_header_title_nulls.push("");
+				      			q++;
+				      		}
+
+							var report_date_range = request_date_start;
+							var report_date_title = ' on ' + moment(request_date_start, 'DD-MM-YYYY').format('D MMM, YYYY');
+							if(request_date_start != request_date_end){
+								report_date_range += '_to_' + request_date_end;
+								report_date_title = ' from ' + moment(request_date_start, 'DD-MM-YYYY').format('D MMM, YYYY') + ' to ' + moment(request_date_end, 'DD-MM-YYYY').format('D MMM, YYYY');
+							}
+
+
+				      		var temp_branch_name = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : 'UNKNOWN_BRANCH';
+				      		var temp_client_name = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : 'UNKNOWN_CLIENT'; 
+
+				      		temp_branch_name = temp_branch_name.toUpperCase();
+				      		temp_client_name = temp_client_name.toUpperCase();
+				      		report_date_title = report_date_title.toUpperCase();
+
+							var header = [
+							  ["INVOICE SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", ""].concat(main_header_title_nulls.concat(["", "", "", "", "", "", ""])),
+							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Round Off", "Payable Amount", "Amount Paid", "Mode of Payment", "Refunds", "Gross Amount"]))
+							];
+
+							var data = header.concat(invoiceData);
+
+							/* merge cells A1:I1 */
+							var mergeBoundaryIndex = header[1].length - 1;
+							var mergeBoundary = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
+							var merge = XLSX.utils.decode_range("A1:"+mergeBoundary[mergeBoundaryIndex]);
+
+							/* generate worksheet */
+							var ws = XLSX.utils.aoa_to_sheet(data);
+
+							/* add merges */
+							if(!ws['!merges']) ws['!merges'] = [];
+							ws['!merges'].push(merge);
+
+							/* generate workbook */
+							var wb = XLSX.utils.book_new();
+							XLSX.utils.book_append_sheet(wb, ws, "Invoice Summary");
+
+							/* generate file and download */
+							const wbout = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+							saveAs(new Blob([wbout], { type: "application/octet-stream" }), "invoice_summary_"+temp_client_name.toLowerCase()+"_"+temp_branch_name.toLowerCase()+"_"+report_date_range+".xlsx");
+							
+
+				      	}
+
+					},
+					error: function(data){
+						hideLoading();
+						showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+					}
+				});  
+
+			}
+
+			break;
+		} // end - INVOICE_REPORT
+
+	}
+}
+
+
 
 function fetchSalesSummary() {
 	/*

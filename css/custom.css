@@ -6542,3 +6542,50 @@ input:checked + .slider:before {
   animation: LogoFlipIn 4s infinite;
 }
 
+/*Excel Reports*/
+.excelDownloadTag{
+    width: 100%;
+    background: #c1dacd;
+    display: block;
+    position: absolute;
+    bottom: 0;
+    height: 40px;
+    font-size: 12px;
+    text-transform: uppercase;
+    line-height: 40px;
+    font-weight: 400;
+    cursor: pointer;
+    color: #55716c;
+}
+
+.excelDownloadTag:hover, .excelDownloadTag:active, .excelDownloadTag:focus{
+  background: #59a27c;
+  color: #FFF;
+}
+
+.excelDownloadIcon{
+  margin-top: 10px;
+  opacity: 0.4;
+}
+
+.excelTitleName{
+    margin: 0;
+    color: #568677;
+    font-size: 16px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 0 5px;
+    line-height: 30px;  
+}
+
+.excelDownloadBlock{
+    width: 140px;
+    background: #effdf6;
+    height: 180px;
+    display: inline-block;
+    margin-right: 10px;
+    text-align: center;
+    position: relative;
+    border-radius: 6px;
+}
