@@ -6589,3 +6589,22 @@ input:checked + .slider:before {
     position: relative;
     border-radius: 6px;
 }
+
+.modalPrintButton{
+    color: #d2d6de;
+    position: absolute;
+    right: 15px;
+    top: 64px;
+    z-index: 10;
+    font-size: 12px;
+    width: 140px;
+    text-align: right;
+    cursor: pointer;
+    height: 30px;
+    font-weight: bold;
+    text-transform: uppercase;  
+}
+
+.modalPrintButton:hover, .modalPrintButton:active, .modalPrintButton:focus{
+  color: #64acd6;
+}

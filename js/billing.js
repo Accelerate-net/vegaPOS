@@ -2372,7 +2372,7 @@ function resetTableToFree(tableNumber){
 
               var tableData = data.rows[0].value;
 
-              if(tableData.table == tableNumber && tableData.status == 2){
+              if(tableData.table == tableNumber){
 
                 tableData.assigned = "";
                 tableData.remarks = "";
@@ -2503,6 +2503,14 @@ function clearAllMetaDataOfBilling(){
 }
 
 
+/* QUICK PRINT DEUPLICATE BILL */
+//Print Duplicate Bill
+function quickPrintDuplicateBill(encodedBill){ 
+  var bill = JSON.parse(decodeURI(encodedBill));
+  sendToPrinter(bill, 'DUPLICATE_BILL');
+  showToast('Duplicate Bill #'+bill.billNumber+' generated Successfully', '#27ae60');
+}
+
 
 /* SETTLE BILL */
 function settleBillAndPush(encodedBill, optionalPageRef){
@@ -2551,6 +2559,7 @@ function settleBillAndPush(encodedBill, optionalPageRef){
   document.getElementById("billSettlementDetailsModal").style.display = 'block';
   document.getElementById("billSettlementPreviewContentTitle").innerHTML = 'Settle Bill <b>#'+bill.billNumber+'</b>'+ (bill.orderDetails.modeType == 'DINE' ? '<tag style="float: right">Table <b>#'+bill.table+'</b></tag>' : '') + (bill.orderDetails.modeType == 'TOKEN' ? '<tag style="float: right">Token <b>#'+bill.table+'</b></tag>' : '');
 
+  document.getElementById("innerModalButtonContent").innerHTML = '<tag class="modalPrintButton" id="triggerClick_PrintDuplicateBillButton" onclick="quickPrintDuplicateBill(\''+encodedBill+'\')"><i class="fa fa-print" style="margin-right: 3px"></i> Print Duplicate</tag>';
 
   var optionsList = '';
 
@@ -3253,8 +3262,27 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                 }
 
                 //re-render page
-                if(optionalPageRef == 'GENERATED_BILLS'){
-                  //Handled in deleteBillFromServer() with >> loadAllPendingSettlementBills('EXTERNAL');
+                if(optionalPageRef == 'ORDER_PUNCHING'){
+
+                  var customerInfo = window.localStorage.customerData ? JSON.parse(window.localStorage.customerData) : {};
+
+                  if(customerInfo.modeType == 'PARCEL' || customerInfo.modeType == 'DELIVERY'){
+                      
+                    var dummy_mobile = $("#customer_form_data_mobile").val();
+                    var dummy_name = $("#customer_form_data_name").val();
+                    var dummy_count = $("#customer_form_data_count").val();
+
+                    if(dummy_mobile == '' && dummy_name == '' && dummy_count == ''){
+                      $("#customer_form_data_mobile").focus();
+                    }
+                    else{
+                      $('#add_item_by_search').focus();
+                    }
+                  }
+                  else{
+                    $('#add_item_by_search').focus();
+                  }
+
                 }
 
               }

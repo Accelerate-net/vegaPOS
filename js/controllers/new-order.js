@@ -2647,6 +2647,8 @@ function openBillingModeSelector(content){
           var li = $('#billingModesModalList .easySelectTool_chooseBillingMode');
           var liSelected = li.eq(0).addClass('selectedMode');
 
+          var hasEnterClicked = false;
+
           var easySelectTool = $(document).on('keydown',  function (e) {
             console.log('Am secretly running...')
             if($('#billingModesModalList').is(':visible')) {
@@ -2690,14 +2692,16 @@ function openBillingModeSelector(content){
                     break;  
                   }
                   case 13:{ // Enter (Confirm)
-
-                    $("#billingModesModalList .easySelectTool_chooseBillingMode").each(function(){
-                      if($(this).hasClass("selectedMode")){
-                        $(this).click();
-                        e.preventDefault(); 
-                        easySelectTool.unbind();   
-                      }
-                    });    
+                  	if(!hasEnterClicked){
+	                  	hasEnterClicked = true;
+	                    $("#billingModesModalList .easySelectTool_chooseBillingMode").each(function(){
+	                      if($(this).hasClass("selectedMode")){
+	                        $(this).click();
+	                        e.preventDefault(); 
+	                        easySelectTool.unbind();   
+	                      }
+	                    });   
+	                }
 
                     break;
                   }
@@ -3124,7 +3128,7 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="number" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+      			                           
 			                                 '<div class="col-xs-5" style="padding: 0; padding-left: 2px">'+
@@ -3134,7 +3138,7 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			                                 '</div>'+ 
 			                                 '<div class="col-xs-2" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="number" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Cover" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
 			                                    '</div>'+
 			                                 '</div>'+               
 			                           '</div>';
@@ -3152,7 +3156,7 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			                           '<div class="row" style="padding: 0 15px">'+
 			                                 '<div class="col-xs-5" style="padding: 0; padding-right: 2px">'+
 			                                   ' <div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="number" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
+			                                       '<input type="text" onchange="changeCustomerInfo(\'mobile\')" value="'+customerInfo.mobile+'" id="customer_form_data_mobile" onkeyup="suggestCustomerInfoFromMobile(\'GENERIC\', this)" class="form-control kb-text" placeholder="Guest Mobile" />'+
 			                                    '</div>'+
 			                                 '</div>   '+    			                           
 			                                 '<div class="col-xs-5" style="padding: 0; padding-left: 2px">'+
@@ -3162,7 +3166,7 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 			                                 '</div>'+ 
 			                                 '<div class="col-xs-2" style="padding: 0; padding-left: 2px">'+
 			                                    '<div class="form-group" style="margin-bottom:5px;">'+
-			                                       '<input type="number" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Count" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
+			                                       '<input type="number" onchange="changeCustomerInfo(\'count\')" value="'+customerInfo.count+'" id="customer_form_data_count" class="form-control kb-text" placeholder="Cover" '+(tempModeType == 'DINE' ? '' : 'disabled')+'/>'+
 			                                    '</div>'+
 			                                 '</div>'+                 
 			                           '</div>';
@@ -3180,8 +3184,24 @@ function renderCustomerInfoAfterProcess(isEditingKOT, customerInfo, selectMapped
 
 			        window.localStorage.customerData = JSON.stringify(customerInfo);
 
+			        if(!isEditingKOT && (customerInfo.modeType == 'PARCEL' || customerInfo.modeType == 'DELIVERY')){
+			        		
+			        	var dummy_mobile = $("#customer_form_data_mobile").val();
+			        	var dummy_name = $("#customer_form_data_name").val();
+			        	var dummy_count = $("#customer_form_data_count").val();
+
+			        	if(dummy_mobile == '' && dummy_name == '' && dummy_count == ''){
+			        		$("#customer_form_data_mobile").focus();
+			        	}
+			        }
+
+
 			        if(optionalSource == "FOCUS_GUEST_COUNT"){
 			        	$("#customer_form_data_count").focus();
+			        }
+			        else if(optionalSource == "FORCE_FOCUS_GUEST_NUMBER"){
+			        	$("#customer_form_data_mobile").focus();
+			        	$("#customer_form_data_mobile").select();
 			        }
 
 			        renderCart();
@@ -3266,6 +3286,11 @@ function suggestCustomerInfoFromMobile(mode, inputElement, optionalRequest){
 	else if(mode == 'DIRECT'){
 		mobileNumber = inputElement;
 	}
+
+	if(mobileNumber == ''){
+		return '';
+	}
+
 
 	//auto search if mobile length is 10, or if ENTER clicked..
 	if(mobileNumber.length == 10 || optionalRequest == 'FORCE_SEARCH'){
@@ -3407,7 +3432,9 @@ function changeCustomerInfo(type, optionalValue){
 				break;
 			}	
 			case "mode":{
+				
 				customerInfo.mode = value;
+				var force_flag = '';
 
 				//Set mode type
 				var n = 0;
@@ -3424,6 +3451,11 @@ function changeCustomerInfo(type, optionalValue){
 						}
 
 						customerInfo.modeType = billing_modes[n].type;
+						
+						if(billing_modes[n].type == 'PARCEL' || billing_modes[n].type == 'DELIVERY'){
+							force_flag = 'FORCE_FOCUS_GUEST_NUMBER';
+						}
+
 						break;
 					}
 					n++;
@@ -3433,7 +3465,7 @@ function changeCustomerInfo(type, optionalValue){
 
 				window.localStorage.customerData = JSON.stringify(customerInfo);
 				renderCart();
-				renderCustomerInfo();
+				renderCustomerInfo(force_flag);
 				renderTables();
 
 				$("#add_item_by_search").focus();

@@ -4183,178 +4183,202 @@ function showSpotlight(){
 
                     var mobileNumber = searchKey;
 
+                    preloadTablesData();
+
                     //Preload TABLES data
-                    $.ajax({
-                      type: 'GET',
-                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
-                      timeout: 10000,
-                      success: function(data) {
-                        if(data.total_rows > 0){
+                    function preloadTablesData(){
+                      $.ajax({
+                        type: 'GET',
+                        url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
+                        timeout: 10000,
+                        success: function(data) {
+                          if(data.total_rows > 0){
 
-                            var tableData = data.rows;
-                            tableData.sort(function(obj1, obj2) {
-                              return obj1.key - obj2.key; //Key is equivalent to sortIndex
-                            });
+                              var tableData = data.rows;
+                              tableData.sort(function(obj1, obj2) {
+                                return obj1.key - obj2.key; //Key is equivalent to sortIndex
+                              });
 
-                            //Process data to required format
-                            var tableMapping = [];
-                            for(var q = 0; q < tableData.length; q++){
-                              tableMapping.push(tableData[q].value);
-                            }
-
-
-                            //Preload MENU data
-                            var requestMenuData = {
-                              "selector"  :{ 
-                                            "identifierTag": "ACCELERATE_MASTER_MENU" 
-                                          },
-                              "fields"    : ["_rev", "identifierTag", "value"]
-                            }
-
-                            $.ajax({
-                              type: 'POST',
-                              url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-                              data: JSON.stringify(requestMenuData),
-                              contentType: "application/json",
-                              dataType: 'json',
-                              timeout: 10000,
-                              success: function(menudata) {
-                                if(menudata.docs.length > 0){
-                                  if(menudata.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-                                      var mastermenu = menudata.docs[0].value; 
-                                      var menuitems = [];
-                                      var menu_index = 0;
-                                      var n = 0;
-                                      while(mastermenu[n]){
-
-                                        for(var i = 0; i < mastermenu[n].items.length; i++){
-                                          menuitems[menu_index] = mastermenu[n].items[i];
-                                          menuitems[menu_index].category = mastermenu[n].category;
-                                          menu_index++;
-                                        }
-
-                                        n++;
-                                      }
-
-                                      isMenuAndTablesLoaded = true;
-
-                                      spotlightData = [{
-                                                          "category": "Tables",
-                                                          "list": tableMapping
-                                                        },
-                                                        {
-                                                          "category": "Menu",
-                                                          "list": menuitems
-                                                        }];
-
-                                      liSelected = undefined
-
-                                      var renderContent = '<ul class="ng-spotlight-results-category">';
-                                      var count = 0;
-                                      var tabIndex = 1;
-                                      var itemsList = '';
-
-                                      var regex = new RegExp(searchKey, "i"); //NB: Not for Order or Customer Search
-
-                                      var general_query_atleast_one_result = false;
-
-                                      $.each(spotlightData, function(key_1, spotResult) {
-
-                                        itemsList = '';
-                                        count = 0;
-
-                                        switch(spotResult.category){
-                                          case "Tables":{
-                                              $.each(spotResult.list, function(key_2, spotItem) {
-
-                                                if ((spotItem.table.search(regex) != -1)) {
-                                                      tabIndex = -1;
-
-                                                      var tempData = encodeURI(JSON.stringify(spotItem));
-
-                                                      if(spotItem.status == 0){
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
-                                                      }
-                                                      else if(spotItem.status == 1){
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
-                                                      }
-                                                      else if(spotItem.status == 2){
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #ef9912"></i> Table #'+(spotItem.table)+'</li>';
-                                                      }
-                                                      else if(spotItem.status == 5){
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\'))> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
-                                                      }
-                                                      
-                                                      count++;
-                                                      tabIndex++;
-
-                                                      general_query_atleast_one_result = true;
-                                                }
-                                              });
-                                              break;
-                                          }
-                                          case "Menu":{
-                                              $.each(spotResult.list, function(key_2, spotItem) {
-
-                                                if ((spotItem.name.search(regex) != -1)) {
-                                                      tabIndex = -1;  
-
-                                                      var tempData = encodeURI(JSON.stringify(spotItem));
-
-                                                      if(spotItem.isAvailable){ //Item Available
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="spotlightTriggerMenuItem(\''+tempData+'\')"> <i class="fa fa-check" style="color: #2ecc71; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
-                                                      }
-                                                      else{
-                                                        itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="spotlightTriggerMenuItem(\''+tempData+'\')"> <i class="fa fa-times" style="color: #e74c3c; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
-                                                      } //Not available
-
-                                                      count++;
-                                                      tabIndex++;
-
-                                                      general_query_atleast_one_result = true;
-                                                }
-                                              });
-                                              break;
-                                          }
-                                        }
-
-console.log('am here')
-                                        if(count > 0){
-                                          renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
-                                        }
-
-                                        if(general_query_atleast_one_result){
-                                          document.getElementById("noResultSpotlight").style.display = 'none'; 
-                                          document.getElementById("spotlightRenderPanel").style.display = 'block';
-                                        }
-                                        else{
-                                          document.getElementById("noResultSpotlight").style.display = 'block'; 
-                                          document.getElementById("spotlightRenderPanel").style.display = 'none';
-                                        }
-
-                                      });
-
-                                      renderContent += '</ul>';
-
-                                      $('#spotlightResultsRenderArea').html(renderContent);
-
-                                      //Refresh dropdown list
-                                      li = $('#spotlightResultsRenderArea li');                                      
-
-                                  }
-                                }
+                              //Process data to required format
+                              var tableMapping = [];
+                              for(var q = 0; q < tableData.length; q++){
+                                tableMapping.push(tableData[q].value);
                               }
 
-                            }); 
-                            //End - Menu data
+                              preloadMenuData(tableMapping);
 
-                                
-                          
+                          }
+                          else{
+                            preloadMenuData([]);
+                          }
+                        },
+                        error: function(data) {
+                          preloadMenuData([]);
                         }
-                      }
-                    });
+                      });
+                    
                     //End - Tables data
+                    }
+
+
+                    function preloadMenuData(tableMapping){
+
+                              //Preload MENU data
+                              var requestMenuData = {
+                                "selector"  :{ 
+                                              "identifierTag": "ACCELERATE_MASTER_MENU" 
+                                            },
+                                "fields"    : ["_rev", "identifierTag", "value"]
+                              }
+
+                              $.ajax({
+                                type: 'POST',
+                                url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+                                data: JSON.stringify(requestMenuData),
+                                contentType: "application/json",
+                                dataType: 'json',
+                                timeout: 10000,
+                                success: function(menudata) {
+                                  if(menudata.docs.length > 0){
+                                    if(menudata.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+
+                                        var mastermenu = menudata.docs[0].value; 
+                                        var menuitems = [];
+                                        var menu_index = 0;
+                                        var n = 0;
+                                        while(mastermenu[n]){
+
+                                          for(var i = 0; i < mastermenu[n].items.length; i++){
+                                            menuitems[menu_index] = mastermenu[n].items[i];
+                                            menuitems[menu_index].category = mastermenu[n].category;
+                                            menu_index++;
+                                          }
+
+                                          n++;
+                                        }  
+
+                                        populateSpotlightData(tableMapping, menuitems); 
+
+                                    }
+                                  }
+                                },
+                                error: function(data){
+                                  populateSpotlightData(tableMapping, []);
+                                }
+
+                              }); 
+                              //End - Menu data
+
+                    }
+
+                    function populateSpotlightData(tableMapping, menuitems){
+
+                                        isMenuAndTablesLoaded = true;
+
+                                        spotlightData = [{
+                                                            "category": "Tables",
+                                                            "list": tableMapping
+                                                          },
+                                                          {
+                                                            "category": "Menu",
+                                                            "list": menuitems
+                                                          }];
+
+                                        liSelected = undefined
+
+                                        var renderContent = '<ul class="ng-spotlight-results-category">';
+                                        var count = 0;
+                                        var tabIndex = 1;
+                                        var itemsList = '';
+
+                                        var regex = new RegExp(searchKey, "i"); //NB: Not for Order or Customer Search
+
+                                        var general_query_atleast_one_result = false;
+
+                                        $.each(spotlightData, function(key_1, spotResult) {
+
+                                          itemsList = '';
+                                          count = 0;
+
+                                          switch(spotResult.category){
+                                            case "Tables":{
+                                                $.each(spotResult.list, function(key_2, spotItem) {
+
+                                                  if ((spotItem.table.search(regex) != -1)) {
+                                                        tabIndex = -1;
+
+                                                        var tempData = encodeURI(JSON.stringify(spotItem));
+
+                                                        if(spotItem.status == 0){
+                                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #2ecc71"></i> Table #'+(spotItem.table)+'</li>';
+                                                        }
+                                                        else if(spotItem.status == 1){
+                                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #e74c3c"></i> Table #'+(spotItem.table)+'</li>';
+                                                        }
+                                                        else if(spotItem.status == 2){
+                                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\')"> <i class="fa fa-circle" style="color: #ef9912"></i> Table #'+(spotItem.table)+'</li>';
+                                                        }
+                                                        else if(spotItem.status == 5){
+                                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Tables" spot-preview-data="'+tempData+'" onclick="spotlightTriggerTable(\''+tempData+'\'))> <i class="fa fa-circle" style="color: #ecaa40"></i> Table #'+(spotItem.table)+'</li>';
+                                                        }
+                                                        
+                                                        count++;
+                                                        tabIndex++;
+
+                                                        general_query_atleast_one_result = true;
+                                                  }
+                                                });
+                                                break;
+                                            }
+                                            case "Menu":{
+                                                $.each(spotResult.list, function(key_2, spotItem) {
+
+                                                  if ((spotItem.name.search(regex) != -1)) {
+                                                        tabIndex = -1;  
+
+                                                        var tempData = encodeURI(JSON.stringify(spotItem));
+
+                                                        if(spotItem.isAvailable){ //Item Available
+                                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="spotlightTriggerMenuItem(\''+tempData+'\')"> <i class="fa fa-check" style="color: #2ecc71; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                                        }
+                                                        else{
+                                                          itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Menu" spot-preview-data="'+tempData+'" onclick="spotlightTriggerMenuItem(\''+tempData+'\')"> <i class="fa fa-times" style="color: #e74c3c; float: left; display: table-cell; width: 8%; padding: 3px 0 0 0;"></i> <name style="display: inline-block; width: 65%">'+spotItem.name+'</name><tag style="float: right; padding: 2px 3px 0 0; font-size: 85%;"> <i class="fa fa-inr" style="font-size: 85% !important"></i>'+spotItem.price+'</tag></li>';
+                                                        } //Not available
+
+                                                        count++;
+                                                        tabIndex++;
+
+                                                        general_query_atleast_one_result = true;
+                                                  }
+                                                });
+                                                break;
+                                            }
+                                          }
+
+  console.log('am here')
+                                          if(count > 0){
+                                            renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
+                                          }
+
+                                          if(general_query_atleast_one_result){
+                                            document.getElementById("noResultSpotlight").style.display = 'none'; 
+                                            document.getElementById("spotlightRenderPanel").style.display = 'block';
+                                          }
+                                          else{
+                                            document.getElementById("noResultSpotlight").style.display = 'block'; 
+                                            document.getElementById("spotlightRenderPanel").style.display = 'none';
+                                          }
+
+                                        });
+
+                                        renderContent += '</ul>';
+
+                                        $('#spotlightResultsRenderArea').html(renderContent);
+
+                                        //Refresh dropdown list
+                                        li = $('#spotlightResultsRenderArea li');                                      
+
+                    }
                   
                   }//!isMenuAndTablesLoaded
                   else{

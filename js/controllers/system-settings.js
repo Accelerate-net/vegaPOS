@@ -2534,7 +2534,82 @@ function systemOptionPrepaidKeyword(){
   //Update
   window.localStorage.systemOptionsSettings_defaultPrepaidName = optName;
   changeSystemOptionsFile("defaultPrepaidName", optName); 
+
+  if(optName != ''){
+    changePrepaidNameOnPaymentMethods(optName);
+  }
 }
+
+function changePrepaidNameOnPaymentMethods(name){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
+
+             var paymentTypesList = data.docs[0].value;
+     
+             for (var i=0; i<paymentTypesList.length; i++) {
+               if (paymentTypesList[i].code == 'PREPAID'){
+                  paymentTypesList[i].name = name;
+                  break;
+               }
+             }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ACCELERATE_PAYMENT_MODES",
+                  "value": paymentTypesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_PAYMENT_MODES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
 
 
 function systemOptionEmailListValidator(){
