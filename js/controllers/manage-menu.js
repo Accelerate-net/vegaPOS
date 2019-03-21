@@ -212,7 +212,7 @@ function editItemPrice(encodedItem, inCateogry){
 	var customRow = '';
 
 	document.getElementById("editMenuItemPriceModal").style.display = "block";
-	document.getElementById("editItemPriceModalTitle").innerHTML = 'Edit <b>'+item.name+'</b>';
+	document.getElementById("editItemPriceModalTitle").innerHTML = 'Edit <b id="editItemTitleName">'+item.name+'</b>';
 	document.getElementById("editPriceModalActions").innerHTML = '<button class="btn btn-default" onclick="hideEditMenuItemPrice()" style="float: left">Cancel</button>'+
                   												   '<button onclick="reviewItemPrice(\''+inCateogry+'\')" class="btn btn-success">Save</button>';
 
@@ -228,6 +228,13 @@ function editItemPrice(encodedItem, inCateogry){
     	}
     	else{
     		document.getElementById("edit_more_options_customCode").value = '';
+    	}
+
+    	if(item.shortNumber && item.shortNumber != ''){
+    		document.getElementById("edit_more_options_customNumber").value = item.shortNumber;
+    	}
+    	else{
+    		document.getElementById("edit_more_options_customNumber").value = '';
     	}
 
     	if(item.cookingTime && item.cookingTime != ''){
@@ -246,14 +253,15 @@ function editItemPrice(encodedItem, inCateogry){
     		edit_addMoreOptions('RELOAD');
     	}
 
-		document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button>';
+		document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button> <button class="btn btn-sm btn-default changeCategoryButton" onclick="changeCategoryOfItem(\''+item.code+'\', \''+item.name+'\')">Change Category <i class="fa fa-exchange"></i></button>';
     }
     else{
     	document.getElementById("edit_moreOptionsArea").style.display = 'none';
     	document.getElementById("edit_more_options_customCode").value = '';
+    	document.getElementById("edit_more_options_customNumber").value = '';
     	document.getElementById("edit_more_options_cookingTime").value = '';
     	document.getElementById("edit_more_options_ingredients").value = '';
-    	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>';
+    	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button> <button class="btn btn-sm btn-default changeCategoryButton" onclick="changeCategoryOfItem(\''+item.code+'\', \''+item.name+'\')">Change Category <i class="fa fa-exchange"></i></button>';
     }
 	
 	if(item.isCustom){
@@ -1096,6 +1104,7 @@ function addMoreOptions(optionalSource){
 	else{
 		document.getElementById("more_options_cookingTime").value = '';
 		document.getElementById("more_options_customCode").value = '';
+		document.getElementById("more_options_customNumber").value = '';
 		document.getElementById("more_options_ingredients").value = '';
 		$("#more_options_customCode").focus();
 	}
@@ -1173,7 +1182,10 @@ function addIngredientToInput(name, id){
 /*view more options - EDIT */
 function edit_addMoreOptions(optionalSource){
 
-	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button>';
+	var temp_item_code = $('#edit_item_manual_code').val();
+	var temp_item_name = $('#editItemTitleName').html();
+
+	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default specialPinkButton" onclick="edit_removeMoreOptions()">Remove Options</button><button class="btn btn-sm btn-default changeCategoryButton" onclick="changeCategoryOfItem(\''+temp_item_code+'\', \''+temp_item_name+'\')">Change Category <i class="fa fa-exchange"></i></button>';
 
 	document.getElementById("edit_moreOptionsArea").style.display = 'block';
 
@@ -1187,6 +1199,7 @@ function edit_addMoreOptions(optionalSource){
 	else{
 		document.getElementById("edit_more_options_cookingTime").value = '';
 		document.getElementById("edit_more_options_customCode").value = '';
+		document.getElementById("edit_more_options_customNumber").value = '';
 		document.getElementById("edit_more_options_ingredients").value = '';
 		document.getElementById("packagedItemFlagEdit").checked = false;
 		
@@ -1260,6 +1273,186 @@ function edit_addIngredientToInput(name, id){
 }
 
 
+/* move item to different category */
+function changeCategoryOfItem (item_code, item_name) {
+	
+	if($('#editMenuItemPriceModal').is(':visible')) {
+		document.getElementById("editMenuItemPriceModal").style.display = 'none';
+	}
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
+
+               var categoryList = data.docs[0].value;
+               categoryList.sort();
+
+               var renderContent = '';
+               var n = 0;
+               while(categoryList[n]){
+
+               		renderContent += '<button class="btn btn-primary" style="margin: 0 5px 5px 0; font-size: 16px;" onclick="moveItemToCategory(\''+item_code+'\', \''+item_name+'\', \''+categoryList[n]+'\')">'+categoryList[n]+'</button>';
+
+               		n++;
+               }
+
+               document.getElementById("selectNewCategoryForItemWindow").style.display = 'block';
+               document.getElementById("selectNewCategoryForItemWindowTitle").innerHTML = 'Select a New Category for <b>'+item_name+'</b>';
+               document.getElementById("selectNewCategoryForItemWindowRenderContent").innerHTML = renderContent;
+
+          }
+          else{
+            showToast('Not Found Error: Categories data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Categories data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Categories data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+
+}
+
+function selectNewCategoryForItemWindowHide() {
+	document.getElementById("selectNewCategoryForItemWindow").style.display = 'none';
+}
+
+function moveItemToCategory(item_code, item_name, item_category){
+
+	if(item_code == "" || item_name == "" || item_category == ""){
+		selectNewCategoryForItemWindowHide();
+		showToast('Warning! Invalid Parameters.', '#e67e22');
+		return '';
+	}
+
+	selectNewCategoryForItemWindowHide();
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+
+             			var mastermenu = data.docs[0].value;
+             			var remember_item = '';
+
+             			var n = 0;
+             			var isItemFound = false;
+             			while(mastermenu[n] && !isItemFound){
+             				for(var i = 0; i < mastermenu[n].items.length; i++){
+             					if(mastermenu[n].items[i].code == item_code){
+             						remember_item = mastermenu[n].items[i];
+									mastermenu[n].items.splice(i, 1); //remove item from this category        						
+             						isItemFound = true;
+             						addItemToNewCategory();
+
+             						break;
+             					}
+             				}
+             				n++;
+             			}
+
+
+             			function addItemToNewCategory(){
+	             			var k = 0;
+	             			while(mastermenu[k]){
+	             				if(mastermenu[k].category == item_category){
+	             					mastermenu[k].items.push(remember_item);
+	             					saveUpdates();
+	             					break;
+	             				}
+
+	             				if(k == mastermenu.length - 1){ //last iteration and no category found ==> Create new cat
+	             					var newItemsList = [];
+				                	newItemsList.push(remember_item);
+
+				                	mastermenu.push({
+				                		"category": item_category,
+				                        "items": newItemsList
+				                    });
+
+				                    saveUpdates();
+				                    break;
+	             				}
+
+	             				k++;
+	             			}             				
+             			}
+                    	
+
+                    	function saveUpdates() {
+                     		//Update
+			                var updateData = {
+			                  "_rev": data.docs[0]._rev,
+			                  "identifierTag": "ACCELERATE_MASTER_MENU",
+			                  "value": mastermenu
+			                }
+
+			                $.ajax({
+			                  type: 'PUT',
+			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
+			                  data: JSON.stringify(updateData),
+			                  contentType: "application/json",
+			                  dataType: 'json',
+			                  timeout: 10000,
+			                  success: function(data) {
+			                  	showToast('Success! <b>' + item_name + '</b> has been move to '+item_category, '#27ae60');
+			                  	openSubMenu(item_category);
+			                  },
+			                  error: function(data) {
+			                    showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+			                  }
+
+			                });  
+                    	}
+          }
+          else{
+            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
 
 
 
@@ -1272,7 +1465,10 @@ function removeMoreOptions(){
 function edit_removeMoreOptions(){
 	document.getElementById("edit_ingredientsResetButton").style.display = 'none';
 	document.getElementById("edit_moreOptionsArea").style.display = 'none';
-	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>';	
+
+	var temp_item_code = $('#edit_item_manual_code').val();
+	var temp_item_name = $('#editItemTitleName').html();
+	document.getElementById("edit_moreOptionsButtonWrap").innerHTML = '<button style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button><button class="btn btn-sm btn-default changeCategoryButton" onclick="changeCategoryOfItem(\''+temp_item_code+'\', \''+temp_item_name+'\')">Change Category <i class="fa fa-exchange"></i></button>';	
 }
 
 /* add new choice*/
@@ -2085,6 +2281,10 @@ function readNewItem(category){
 			item.shortCode = document.getElementById("more_options_customCode").value;
 		}
 
+		if(document.getElementById("more_options_customNumber") && document.getElementById("more_options_customNumber").value != ''){
+			item.shortNumber = document.getElementById("more_options_customNumber").value;
+		}
+
 		if(document.getElementById("more_options_cookingTime") && document.getElementById("more_options_cookingTime").value != ''){
 			item.cookingTime = parseInt(document.getElementById("more_options_cookingTime").value);
 		}
@@ -2171,6 +2371,15 @@ function reviewItemPrice(category){
 		else{
 			if(item.shortCode){
 				delete item.shortCode;
+			}
+		}
+
+		if(document.getElementById("edit_more_options_customNumber") && document.getElementById("edit_more_options_customNumber").value != ''){
+			item.shortNumber = document.getElementById("edit_more_options_customNumber").value;
+		}
+		else{
+			if(item.shortNumber){
+				delete item.shortNumber;
 			}
 		}
 

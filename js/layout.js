@@ -123,6 +123,12 @@ function renderSideNavigation(){
                           '<span class="navSideName">Generated Bills</span>'+
                         '</a>'+
                     '</li>'+
+                    '<li onclick="renderPage(\'expenses-and-payments\', \'Expenses & Payments\')">'+
+                        '<a href="#">'+
+                          '<img src="images/navigation/navigate_expenses.png" width="32px">'+
+                          '<span class="navSideName">Expenses & Payments</span>'+
+                        '</a>'+
+                    '</li>'+
                      '<li id="sidebarTools" class="treeview mm_products" onclick="activateSidebarElement(\'sidebarTools\')">'+
                         '<a href="#">'+
                           '<img src="images/navigation/navigate_tools.png" width="32px">'+
@@ -4355,7 +4361,6 @@ function showSpotlight(){
                                             }
                                           }
 
-  console.log('am here')
                                           if(count > 0){
                                             renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
                                           }

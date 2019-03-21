@@ -2602,7 +2602,9 @@ function settleBillAndPush(encodedBill, optionalPageRef){
 
               document.getElementById("billSettlementSplitDetailsContent").innerHTML = "";
 
-              document.getElementById("billSettlementPreviewContentActions").innerHTML = '<div class="col-sm-3" style="padding: 0">'+
+
+              if(bill.orderDetails.modeType == 'DINE'){
+                document.getElementById("billSettlementPreviewContentActions").innerHTML = '<div class="col-sm-3" style="padding: 0">'+
                                                                '<button id="paymentOptionsListRenderClose" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Hide</button>'+
                                                             '</div>'+
                                                             '<div class="col-sm-3" style="padding: 0">'+
@@ -2611,6 +2613,15 @@ function settleBillAndPush(encodedBill, optionalPageRef){
                                                             '<div class="col-sm-6" style="padding: 0">'+
                                                                 '<button class="btn btn-success" id="paymentOptionsListRenderConfirm" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Settle Now</button>'+
                                                             '</div>';
+              }
+              else{
+                document.getElementById("billSettlementPreviewContentActions").innerHTML = '<div class="col-sm-4" style="padding: 0">'+
+                                                               '<button id="paymentOptionsListRenderClose" class="btn btn-default" onclick="hideSettleBillAndPush()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Hide</button>'+
+                                                            '</div>'+
+                                                            '<div class="col-sm-8" style="padding: 0">'+
+                                                                '<button class="btn btn-success" id="paymentOptionsListRenderConfirm" onclick="settleBillAndPushAfterProcess(\''+encodedBill+'\', \''+optionalPageRef+'\')" style="width: 100%; border: none; border-radius: 0; height: 50px;">Settle Now</button>'+
+                                                            '</div>';
+              }
 
 
 

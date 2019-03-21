@@ -6608,3 +6608,22 @@ input:checked + .slider:before {
 .modalPrintButton:hover, .modalPrintButton:active, .modalPrintButton:focus{
   color: #64acd6;
 }
+
+.changeCategoryButton{
+    float: right;
+    margin-right: 10px;
+    background: none;
+    color: #1e7967;
+    border-color: #14987e;  
+}
+
+.changeCategoryButton .fa{
+  margin-left: 6px; position: relative; top: 1px;
+}
+
+.changeCategoryButton:hover, .changeCategoryButton:active, .changeCategoryButton:focus{
+   background: #14987e !important;
+   border-color: #14987e !important;  
+   color: #FFF !important;
+}
+

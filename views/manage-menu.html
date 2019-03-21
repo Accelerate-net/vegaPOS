@@ -77,6 +77,27 @@
       </div>
 
 
+      <!-- Modal -->
+      <div id="selectNewCategoryForItemWindow" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <button  onclick="selectNewCategoryForItemWindowHide()" style="float: right;" class="btn clearButton">X</button>
+                  <h4 class="modal-title" id="selectNewCategoryForItemWindowTitle">Change Item Category</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+
+                     <div class="row" style="padding: 5px 20px;" id="selectNewCategoryForItemWindowRenderContent">
+                        
+                     </div>
+
+               </div>
+            </div>
+         </div>
+      </div>
+
+
 
 
       <!-- Modal -->
@@ -190,7 +211,12 @@
                         </div>
                         <div class="col-lg-12">
                            <div class="form-group">
-                              <label>Custom Short Code</label> <input type="text" value="" class="form-control tip" id="more_options_customCode" required="required" />
+                              <label>Custom Short Code <tag style="font-weight: 400; color: #f39c12">(Letters)</tag></label> <input type="text" value="" class="form-control tip" id="more_options_customCode" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Custom Short Number <tag style="font-weight: 400; color: #f39c12">(Digits)</tag></label> <input type="text" value="" class="form-control tip" id="more_options_customNumber" required="required" />
                            </div>
                         </div>
                         <div class="col-lg-12">
@@ -260,7 +286,12 @@
                         </div>                        
                         <div class="col-lg-12">
                            <div class="form-group">
-                              <label>Custom Short Code</label> <input type="text" value="" class="form-control tip" id="edit_more_options_customCode" required="required" />
+                              <label>Custom Short Code <tag style="font-weight: 400; color: #f39c12">(Letters)</tag></label> <input type="text" value="" class="form-control tip" id="edit_more_options_customCode" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Custom Short Number <tag style="font-weight: 400; color: #f39c12">(Digits)</tag></label> <input type="text" value="" class="form-control tip" id="edit_more_options_customNumber" required="required" />
                            </div>
                         </div>
                         <div class="col-lg-12">

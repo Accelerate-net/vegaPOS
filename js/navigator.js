@@ -52,6 +52,10 @@ function fetchInitFunctions(pageReference){
 			loadAllPendingSettlementBills('EXTERNAL', 'LOADING_ANIMATION');
 			break;
 		}	
+		case 'expenses-and-payments':{
+			loadAllAddedExpenses('EXTERNAL', 'LOADING_ANIMATION');
+			break;
+		}	
 		case 'cancelled-bills':{
 			loadAllCancelledUnbilled('EXTERNAL');
 			break;
@@ -150,6 +154,10 @@ function renderPage(pageReference, title){
 			}
 			case 'settled-bills':{
 				title = 'Generated Bills';
+				break;
+			}
+			case 'expenses-and-payments':{
+				title = 'Expenses & Payments';
 				break;
 			}	
 			case 'cancelled-bills':{
