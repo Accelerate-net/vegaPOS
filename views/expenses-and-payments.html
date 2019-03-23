@@ -3,24 +3,14 @@
             <div class="col-xs-5">
               
                 <div class="row">
-                    <div class="col-xs-6" onclick="loadAllPendingSettlementBills('', 'LOADING_ANIMATION')" style="cursor: pointer">
+                    <div class="col-xs-12">
                         <div class="box box-primary">
-                            <div class="box-body" id="billSelection_pending">
-                                <div id="pendingBillsCount" class="rewardsCount">..</div>
-                                <div class="rewardsName">PENDING SETTLEMENT</div>
+                            <div class="box-body billTypeSelectionBox">
+                                <div id="addedExpensesCount" class="rewardsCount">..</div>
+                                <div class="rewardsName">RECORDS ADDED</div>
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-xs-6" onclick="loadAllSettledBills('LOADING_ANIMATION')" style="cursor: pointer">
-                        <div class="box box-primary">
-                            <div class="box-body" id="billSelection_settled">
-                                <div id="settledBillsCount" class="rewardsCount">..</div>
-                                <div class="rewardsName">SETTLED BILLS</div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
 
@@ -30,14 +20,14 @@
 
                         
                         <div class="box-header" style="padding: 10px 0px">
-                           <h3 class="box-title" style="min-width: 115px; padding: 5px 0px; font-size: 24px; font-family: 'Oswald'" id="billTypeTitle">Bills</h3>
-                           <span id="billTypeTitleButton"><button class="billsFilterButton" onclick="openFilterModal()">Filter</button></span>
+                           <h3 class="box-title" style="min-width: 115px; padding: 5px 0px; font-size: 24px; font-family: 'Oswald'; color: #888">Records</h3>
+                           <span id="billTypeTitleButton"><button class="billsFilterButton" onclick="openDateFilterModal()">Filter</button></span>
                            <tag style="float: right" id="navigationAssitantBills">
                            </tag>
                         </div>
 
                             <div class="table-responsive" style="overflow-x: hidden !important">
-                              <div id="billBriefDisplayRender">
+                              <div id="expenseBriefDisplayRender">
 
 <!-- Loading Animation -->
 
@@ -76,30 +66,86 @@
 
 
    <!-- Modal -->
-   <div id="addressViewFromBillModal" class="modal">
+   <div id="issueSalaryModal" class="modal" style="z-index: 2;">
       <div class="modal-dialog" style="top: 15px">
          <!-- Modal content-->
          <div class="modal-content">
 
             <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
-                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px">Address
+                  <h1 style="margin: 0 130px 15px 0; font-size: 24px; font-weight: 400; padding-left: 10px; color: #39acef; border-bottom: 1px solid #f1f1f1; padding: 10px 0; font-family: 'Oswald'">Issue Salary Slip
                   </h1>
 
-                     <div class="row" style="padding: 5px 30px 20px 15px;" id="addressViewFromBillModalContent">
+                     <div id="issueSalaryModalContent">
                         
                      </div>
 
             </div>
             <div class="modal-footer" style="padding: 0">
-                <button  class="btn btn-default" onclick="viewDeliveryAddressFromBillHide()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Close</button>                
+                <button  class="btn btn-default" onclick="hideIssueSalarySlipModal()" style="width: 40%; border: none; border-radius: 0; height: 50px; float: left;">CLOSE</button>  
+                <button  class="btn btn-success" onclick="proceedToIssueSalarySlip()" style="width: 60%; border: none; border-radius: 0; height: 50px; margin: 0; text-transform: uppercase; font-size: 14px; background: #39acef"><b>Generate Slip</b></button>                
             </div>
          </div>
       </div>
    </div>
 
 
+
+
    <!-- Modal -->
-   <div id="searchFilterModal" class="modal">
+   <div id="issuePurchaseSlipModal" class="modal" style="z-index: 2;">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 480px; overflow-y: auto !important; overflow-x: none !important;">
+                  <h1 style="margin: 0 0 15px 0; font-size: 24px; font-weight: 400; padding-left: 10px; color: #ED4C67; border-bottom: 1px solid #f1f1f1; padding: 10px 0; font-family: 'Oswald'">Add Purchase Entry
+                  </h1>
+
+                     <div id="issuePurchaseSlipModalContent">
+                        
+                     </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+                <button  class="btn btn-default" onclick="hideIssuePurchaseSlipModal()" style="width: 40%; border: none; border-radius: 0; height: 50px; float: left;">CLOSE</button>  
+                <button  class="btn btn-success" onclick="proceedToGeneratePurchaseEntry()" style="width: 60%; border: none; border-radius: 0; height: 50px; margin: 0; text-transform: uppercase; font-size: 14px; background: #ED4C67"><b>Add Purchase Entry</b></button>                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+
+   <!-- Modal -->
+   <div id="recordExpenseModal" class="modal" style="z-index: 2;">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 480px; overflow-y: auto !important; overflow-x: none !important;">
+                  <h1 style="margin: 0 0 15px 0; font-size: 24px; font-weight: 400; padding-left: 10px; color: #f39c12; border-bottom: 1px solid #f1f1f1; padding: 10px 0; font-family: 'Oswald'">Add Expense Record
+                  </h1>
+
+                     <div id="recordExpenseModalContent">
+                        
+                     </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+                <button  class="btn btn-default" onclick="hideRecordExpenseModal()" style="width: 40%; border: none; border-radius: 0; height: 50px; float: left;">CLOSE</button>  
+                <button  class="btn btn-success" onclick="proceedToRecordExpense()" style="width: 60%; border: none; border-radius: 0; height: 50px; margin: 0; text-transform: uppercase; font-size: 14px; background: #f39c12"><b>Save Expense</b></button>                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+   <!-- Modal -->
+   <div id="searchExpensesFilterModal" class="modal">
       <div class="modal-dialog" style="top: 15px">
          <!-- Modal content-->
          <div class="modal-content">
@@ -109,7 +155,7 @@
                                  <div class="form-group">
                                     <label style="margin: 0; font-size: 24px; font-weight: 300;">Filter & Search</label>
                                     <hr style="margin: 5px 0 10px 0">
-                                   <div id="filterSearchArea" style="margin: 0 0 10px 0; padding: 15px 5px 40px 5px;">
+                                   <div id="filterExpensesSearchArea" style="margin: 0 0 10px 0; padding: 15px 5px 40px 5px;">
                                     <input type="text" value="" class="form-control tip" id="filter_search_key" style="border: none; border-bottom: 2px solid; font-size: 36px; height: 60px; font-weight: 300; padding: 10px 3px;" placeholder="Search Here" required="required" />
                                   </div>
 
@@ -117,18 +163,12 @@
                                        <div class="row" style="border: 1px solid #eeeeee; padding: 6px 0 2px 0;">
                                           <div class="col-sm-4">
                                             <label style="font-size: 10px">SEARCH USING</label>
-                                            <select id="filterSearchCriteria" class="form-control mySearchSelector" onchange="changeFilterSearchCriteria()">
-                                              <option value="bill">Bill Number</option>
-                                              <option value="all">All Bills</option>
-                                              <option value="steward">Attended Staff</option>
-                                              <option value="machine">Billing Machine</option>
-                                              <option value="type">Billing Modes</option>
-                                              <option value="customer">Customer Mobile</option>
-                                              <option value="session">Dine Session</option>
-                                              <option value="discount">Discounted Orders</option>
-                                              <option value="payment">Payment Modes</option>
-                                              <option value="refund">Refunded Orders</option>
-                                              <option value="table">Table Number</option>
+                                            <select id="filterSearchCriteria" class="form-control mySearchSelector" onchange="changeExpenseFilterSearchCriteria()">
+                                              <option value="uid">Expense ID</option>
+                                              <option value="all">All Expense</option>
+                                              <option value="admin">Issued Admin</option>
+                                              <option value="issuedto">Issued To</option>
+                                              <option value="type">Type of Expense</option>
                                             </select>
                                           </div>                                        
                                           <div class="col-sm-4">
@@ -150,12 +190,16 @@
                      </div>
             </div>
             <div class="modal-footer">
-               <button  class="btn btn-default" onclick="hideFilterModal()" style="float: left">Cancel</button>
+               <button  class="btn btn-default" onclick="hideExpensesFilterModal()" style="float: left">Cancel</button>
                <span id="actionButtonSearch"><button  class="btn btn-success" onclick="filterSearchInitialize()" style="float: right">Proceed</button></span>
             </div>
          </div>
       </div>
    </div>
+
+
+
+
 
 
    <!-- Modal -->

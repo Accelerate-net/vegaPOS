@@ -1,7 +1,6 @@
 
 var currentPage = 1;
 var totalPages = 1;
-var displayType = 'PENDING';
 var filterResultsCount = 0;
 
 function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
@@ -10,16 +9,12 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 
 	if(optionalAnimationFlag && optionalAnimationFlag == 'LOADING_ANIMATION'){
 		//Show Animation
-		document.getElementById("billBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+		document.getElementById("expenseBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
 										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
 										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
 										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
 										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>';
 	}
-
-	//Adjust server source db
-	SELECTED_INVOICE_SOURCE_DB = 'accelerate_wounded';
-
     // LOGGED IN USER INFO
     var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
           
@@ -29,12 +24,6 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
       loggedInStaffInfo.role = "";
     }	
 
-    if(loggedInStaffInfo.role == 'ADMIN' && loggedInStaffInfo.code == '9884179675'){
-    	SELECTED_INVOICE_SOURCE_DB = 'accelerate_invoices';
-    }
-
-
-
 
 	/*
 		Frame the FILTER
@@ -45,12 +34,10 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 		  
 	var filter_start = '';
 	var filter_end = '';
-	var filter_key = '';
 
-
-	if(window.localStorage.billFilterCriteria && window.localStorage.billFilterCriteria != ''){
+	if(window.localStorage.expensesFilterCriteria && window.localStorage.expensesFilterCriteria != ''){
 		isFilterApplied = true;
-		filterObject = JSON.parse(window.localStorage.billFilterCriteria);
+		filterObject = JSON.parse(window.localStorage.expensesFilterCriteria);
 
 		if(filterObject.dateFrom == ''){
 			filter_start = '01-01-2018'; //Since the launch of Vega POS
@@ -64,2177 +51,100 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 		}
 		else{
 			filter_end = filterObject.dateTo;
-		}
-
-		if(filterObject.searchKey == ''){
-			filter_end = '';
-		}	
-		else{
-			filter_key = filterObject.searchKey;
-		}				
+		}			
 	}
 
 
+	var sampleData = [{ "uid": "12", "type": "SALARY", "reference": "SAL19139", "issuedBy": "Sahadudheen", "issuedTo": "Muhammed Ameen", "issuedToType": "Staff", "amount": "2000", "paymentStatus": "PAID", "modeOfPayment": "TRANSFER", "dateOfPayment": "21-03-2019", "date": "13-03-2019", "time": "12:10 PM", "details": { "salaryIssuingMonth": "February 2019", "staffCode": "9043960876", "comments": "Advance" } }, { "uid": "13", "type": "PURCHASE", "reference": "PU1129", "issuedBy": "Sahadudheen", "issuedTo": "Ali Mutton Stall", "issuedToType": "Vendor", "amount": "1200", "paymentStatus": "PAID", "modeOfPayment": "CASH", "dateOfPayment": "21-03-2019", "date": "13-03-2019", "time": "12:10 PM", "details": { "itemsPurchased": "1 Kg Mutton Legs" } }, { "uid": "13", "type": "EXPENSE", "reference": "", "issuedBy": "Sahadudheen", "issuedTo": "Abhijith", "issuedToType": "Staff", "amount": "300", "paymentStatus": "PAID", "modeOfPayment": "CASH", "dateOfPayment": "21-03-2019", "date": "13-03-2019", "time": "12:10 PM", "details": { "purpose": "Transfer", "authorizedBy": "Manager" } }, { "uid": "13", "type": "CREDIT", "reference": "239_PAY", "issuedBy": "Sahadudheen", "issuedTo": "Account", "issuedToType": "Account", "amount": "300", "paymentStatus": "PAID", "modeOfPayment": "CASH", "dateOfPayment": "21-03-2019", "date": "13-03-2019", "time": "12:10 PM", "details": { "purpose": "Transfer", "receivedFrom": "Abhijith", "receivedType": "Staff", "receivedCode": "9043960876" } }]
 
-
-	$("#billSelection_settled").removeClass("billTypeSelectionBox");
-	$("#billSelection_pending").addClass("billTypeSelectionBox");
-	document.getElementById("billDetailedDisplayRender").innerHTML = ''
-
-
-	document.getElementById("billTypeTitle").innerHTML = 'Pending Bills';
-	document.getElementById("billTypeTitle").style.color = '#f39c12';
 
 	if(currentPage == 1){
 		if(isFilterApplied){
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
+			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearFilterModalExpenses()"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
 		}
 		else{
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModalBills(\'PENDING\')">Apply Filter</button>';
+			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModalExpenses()">Apply Filter</button>';
 		}
 	}
 
-	
-	//reset pagination counter
-	if(displayType != 'PENDING'){
-		totalPages = 0;
-		currentPage = 1;
-		displayType = 'PENDING';
-		renderBillPageDefault();
-	}
+	fetchExpensesFromCloudServer(0);	
 
-	//to load settled bills count
-	if(optionalSource && optionalSource == 'EXTERNAL'){
-		renderBillPageDefault();
-		calculateSettledCount();
-	}
+	function fetchExpensesFromCloudServer(index){
 
-	if(isFilterApplied){
-
-		//just to get the COUNT
-		updatePendingCount();
-
-		switch(filterObject.searchMode){
-
-			case "customer":{
-				/*
-					FILTER USING CUSTOMER MOBILE NUMBER 
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+ 
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');					
-					}
-				});  
-
-
-				break;
-			}
-
-			case "steward":{
-				/*
-					FILTER USING STEWARD NAME
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
-					}
-				});  
-
-
-				break;
-			}
-
-			case "machine":{
-				/*
-					FILTER USING MACHINE NAME
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
-					}
-				});  
-
-
-				break;
-			}
-
-			case "session":{
-				/*
-					FILTER USING DINE SESSION NAME
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "discount":{
-				/*
-					FILTER DISCOUNTED OR NON-DISCOUNTED ORDERS
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbydiscount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbydiscount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "refund":{
-				/*
-					FILTER REFUNDED OR NON ORDERS
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
-					}
-				});  
-
-
-				break;
-			}
-
-			case "table":{
-				/*
-					FILTER USING TABLE NUMBER 
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "bill":{
-
-				/*
-					FILTER USING BILL NUMBER 
-				*/
-								filter_key = parseInt(filter_key);
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-
-						    //Set _id from Branch mentioned in Licence
-						    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
-						    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-						      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						      return '';
-						    }
-
-						    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ filter_key;
-
-						    $.ajax({
-						      type: 'GET',
-						      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
-						      timeout: 10000,
-						      success: function(data) {
-						        if(data._id != ""){
-
-							          var bill = data;
-
-								      var resultRender = '';
-									  resultRender 				+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-																	'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-																	'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-										                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-										                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-										                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-										                            '        <td>'+bill.stewardName+'</td>'+
-										                            '    </tr>';
-
-
-										document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-										'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-										'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-								      
-								      	renderBillPageDefault('PENDING');
-							        }
-							        else{
-							        	totalPages = 0;
-							        	filterResultsCount = 0;
-									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-										renderBillPageDefault('PENDING');
-										return '';
-									    
-							        }
-
-							      },
-							      error: function(data) {
-							        showToast('Error: Bill #'+filter_key+' not found.', '#e74c3c');
-								  	totalPages = 0;
-								  	filterResultsCount = 0;
-									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-									renderBillPageDefault('PENDING');
-									return '';
-								  }
-
-							    });
-
-				break;
-			}
-
-			case "type":{
-				/*
-					FILTER USING BILLING MODE
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-							
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						document.getElementById("filterResultsCounter").innerHTML = '';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "payment":{
-				/*
-					FILTER USING PAYMENT MODE
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-							
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						document.getElementById("filterResultsCounter").innerHTML = '';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');					
-					}
-				});  
-
-
-				break;
-			}
-
-			case "all":{
-				/*
-					FILTER ALL BILLS
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-							
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('PENDING');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						document.getElementById("filterResultsCounter").innerHTML = '';
-						filterResultsCount = 0;
-						renderBillPageDefault('PENDING');
-						return '';
-					  }
-
-
-				      var n = 0;
-				      while(resultsList[n]){
-				      	var bill = resultsList[n].value;
-						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
-						                            '    </tr>';
-				      	n++;
-				      }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-				      
-				      	renderBillPageDefault('PENDING');
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('PENDING');
-					}
-				});  
-
-
-				break;
-			}			
-
-			default:{
-				showToast('System Error: Filter criteria did not found. Please contact Accelerate Support if problem persists.', '#e74c3c');
-				document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-				renderBillPageDefault('PENDING');			
-			}
-			
+		var data = {
+			"token": window.localStorage.loggedInAdmin,
+			"id": index
 		}
 
+		showLoading(10000, 'Searching...');
 
-	}
-	else{ //Filter Not Applied
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.accelerateengine.app/apis/possearchrewards.php',
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			dataType: 'json',
+			timeout: 10000,
+			success: function(data) {
+			  
+			  hideLoading();
 
-		  $.ajax({
-		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bills/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-		    contentType: "application/json",
-		    dataType: 'json',
-		    timeout: 10000,
-		    success: function(data) {
+			  var expensesData = sampleData;
+			  var expensesDataTotal = 120;
 
-		      if(data.total_rows == 0){
-		      	document.getElementById("pendingBillsCount").innerHTML = 0;
-		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">There are no Unsettled Bills.</p>';
+		      if(expensesData.length == 0){
+		      	document.getElementById("addedExpensesCount").innerHTML = 0;
+		      	document.getElementById("expenseBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">There are no Unsettled Bills.</p>';
 				return '';
 		      }
 
-		      document.getElementById("pendingBillsCount").innerHTML = data.total_rows;
-		      totalPages = Math.ceil(data.total_rows/10);
+		      document.getElementById("addedExpensesCount").innerHTML = expensesData.length;
+		      totalPages = Math.ceil(expensesDataTotal/10);
 		      
-		      var resultsList = data.rows;
 		      var resultRender = '';
 		      var n = 0;
-		      while(resultsList[n]){
+		      while(expensesData[n]){
 
-		      	var bill = resultsList[n].doc;
-
-				resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
-						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
-						                            '        <td><b style="color: #f39c12; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+bill.payableAmount+'</b></td>'+
-						                            '        <td>'+bill.stewardName+'</td>'+
+				resultRender +=  					'   <tr role="row" class="billsListSingle" onclick="openSelectedExpense(\''+encodeURI(JSON.stringify(expensesData[n]))+'\')">'+
+													'        <td><b style="color: '+getTypeColor(expensesData[n].type)+'">#'+expensesData[n].uid+'</b></td>'+
+													'        <td>'+expensesData[n].time+'<br><tag style="font-size: 85%">'+expensesData[n].date+'</tag></td>'+
+						                            '        <td><tag style="font-size: 15px; font-weight: bold; color: '+getTypeColor(expensesData[n].type)+'">'+expensesData[n].type+'</tag>'+(expensesData[n].reference && expensesData[n].reference != "" ? '<tag style="display: block; font-size: 11px; color: #888;">'+expensesData[n].reference+'</tag>' : '')+'</td>'+
+						                            '        <td>'+expensesData[n].issuedTo+(expensesData[n].issuedToType && expensesData[n].issuedToType != '' ? '<tag style="display: block; font-size: 11px; color: #888;">'+expensesData[n].issuedToType+'</tag>' : '')+'</td>'+
+						                            '        <td><b style="color: '+getTypeColor(expensesData[n].type)+'; font-family:\'Oswald\'; font-size: 135%;"><i class="fa fa-inr"></i>'+expensesData[n].amount+'</b></td>'+
+						                            '        <td>'+expensesData[n].issuedBy+'</td>'+
 						                            '    </tr>';
 		      	n++;
 		      }
 
-				document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">Bill</th><th style="text-align: left">Date</th>'+
-							'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th> <th style="text-align: left">Amount Payable</th>'+
-							'<th style="text-align: left">Steward</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
-
-		      	renderBillPageDefault('PENDING')
-
-		    },
-		    error: function(data){
-		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Somethin went wrong. Try again.</p>';
-		    }
-
-		  });  		
-	}
+				document.getElementById("expenseBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr><th style="text-align: left">#ID</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Type</th> <th style="text-align: left">Issued To</th> <th style="text-align: left">Amount</th>'+
+							'<th style="text-align: left">Admin</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 
 
-}
-
-function updatePendingCount(){
-
-		  $.ajax({
-		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bills/_view/all?descending=true&include_docs=false',
-		    contentType: "application/json",
-		    dataType: 'json',
-		    timeout: 10000,
-		    success: function(data) {
-
-		      if(data.total_rows == 0){
-		      	document.getElementById("pendingBillsCount").innerHTML = 0;
-				return '';
-		      }
-
-		      document.getElementById("pendingBillsCount").innerHTML = data.total_rows;
-		    },
-		    error: function(data){
-		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    }
-
-		  });
-}
-
-function updateSettledCount(){
-
-		  $.ajax({
-		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB,
-		    timeout: 10000,
-		    success: function(data) {
-
-		      if(data.db_name == SELECTED_INVOICE_SOURCE_DB){
-		      	document.getElementById("settledBillsCount").innerHTML = parseInt(data.doc_count) - 5; // 5 other docs (VERY IMP!!!)
-		      	console.log('~ minus 5 : THIS IS VERY IMPORTANT!')
-		      }
-		      else{
-		      	document.getElementById("settledBillsCount").innerHTML = 0;
-				return '';
-		      }
-
-		      
-		    },
-		    error: function(data){
-		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    }
-
-		  });
-}
-
-function calculateSettledCount(){
-
-
-		  $.ajax({
-		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB,
-		    timeout: 10000,
-		    success: function(data) {
-
-		      if(data.db_name == SELECTED_INVOICE_SOURCE_DB){
-		      	document.getElementById("settledBillsCount").innerHTML = parseInt(data.doc_count) - 5; // 5 other docs (VERY IMP!!!)
-		      	console.log('~ minus 5 : THIS IS VERY IMPORTANT!')
-		      }
-		      else{
-		      	document.getElementById("settledBillsCount").innerHTML = 0;
-				return '';
-		      }
-
-		      
-		    }
-		    
-		  });
-}
-
-function getPaymentCodeEquivalentName(code){
-
-	var list = window.localStorage.availablePaymentModes ? JSON.parse(window.localStorage.availablePaymentModes) : [];
-
-	if(code == 'MULTIPLE'){
-		return 'Multiple';
-	}
-
-	if(!code || code == ''){
-		return 'Paid';
-	}
-
-	if(list.length > 0){
-		var n = 0;
-		while(list[n]){
-			if(list[n].code == code)
-			{
-				return list[n].name;
+			},
+			error: function(data){
+				hideLoading();
+				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
 			}
-			n++
-		}
+		});	
 
-		return code;
-	}
-	else{
-		return 'Paid';
 	}
 }
 
-
-function loadAllSettledBills(optionalAnimationFlag){
-
-
-	if(optionalAnimationFlag && optionalAnimationFlag == 'LOADING_ANIMATION'){
-		//Show Animation
-		document.getElementById("billBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
-										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
-										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
-										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
-										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>';
+function getTypeColor(type){
+	if(type == "PURCHASE"){
+		return "#ED4C67"; //pink
 	}
-
-	/*
-		Frame the FILTER
-	*/
-
-	var isFilterApplied = false;
-	var filterObject;
-		  
-	var filter_start = '';
-	var filter_end = '';
-	var filter_key = '';
-
-
-	if(window.localStorage.billFilterCriteria && window.localStorage.billFilterCriteria != ''){
-		isFilterApplied = true;
-		filterObject = JSON.parse(window.localStorage.billFilterCriteria);
-
-		if(filterObject.dateFrom == ''){
-			filter_start = '01-01-2018'; //Since the launch of Vega POS
-		}
-		else{
-			filter_start = filterObject.dateFrom;
-		}
-
-		if(filterObject.dateTo == ''){
-			filter_end = getCurrentTime('DATE_DD-MM-YY'); //Today
-		}
-		else{
-			filter_end = filterObject.dateTo;
-		}
-
-		if(filterObject.searchKey == ''){
-			filter_end = '';
-		}	
-		else{
-			filter_key = filterObject.searchKey;
-		}				
+	else if(type == "SALARY"){
+		return "#39acef"; //blue
 	}
-
-
-
-
-	$("#billSelection_settled").addClass("billTypeSelectionBox");
-	$("#billSelection_pending").removeClass("billTypeSelectionBox");
-	document.getElementById("billDetailedDisplayRender").innerHTML = ''
-
-
-	document.getElementById("billTypeTitle").innerHTML = 'Settled Bills';
-	document.getElementById("billTypeTitle").style.color = '#22b396';
-
-	if(currentPage == 1){
-		if(isFilterApplied){
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearAppliedFilter(\'SETTLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
-		}
-		else{
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModalBills(\'SETTLED\')">Apply Filter</button>';
-		}
+	else if(type == "EXPENSE"){
+		return "#f39c12"; //yellow
 	}
-
-
-	//reset pagination counter
-	if(displayType != 'SETTLED'){
-		totalPages = 0;
-		currentPage = 1;
-		displayType = 'SETTLED';
-		renderBillPageDefault();
+	else if(type == "CREDIT"){
+		return "#1abc9c"; //green
 	}
-
-		//Preload payment modes
-		if(currentPage == 1)
-		{
-
-
-		    var requestData = {
-		      "selector"  :{ 
-		                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
-		                  },
-		      "fields"    : ["identifierTag", "value"]
-		    }
-
-		    $.ajax({
-		      type: 'POST',
-		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-		      data: JSON.stringify(requestData),
-		      contentType: "application/json",
-		      dataType: 'json',
-		      timeout: 10000,
-		      success: function(data) {
-
-		        if(data.docs.length > 0){
-		          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
-
-		              var modes = data.docs[0].value;
-		              if(modes.length > 0)
-		              	window.localStorage.availablePaymentModes = JSON.stringify(modes);
-		          }
-		        }
-		      }
-
-		    });
-
-		}
-
-
-
-
-	if(isFilterApplied){
-
-		//just to get the COUNT
-		updateSettledCount();
-
-
-		switch(filterObject.searchMode){
-
-			case "customer":{
-				/*
-					FILTER USING CUSTOMER MOBILE NUMBER 
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbymobile?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');					
-					}
-				});  
-
-
-				break;
-			}
-
-			case "steward":{
-				/*
-					FILTER USING STEWARD NAME
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbystewardname?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
-					}
-				});  
-
-
-				break;
-			}
-
-			case "machine":{
-				/*
-					FILTER USING MACHINE NAME
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbymachine?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
-					}
-				});  
-
-
-				break;
-			}
-
-			case "session":{
-				/*
-					FILTER USING DINE SESSION NAME
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbysession?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "discount":{
-				/*
-					FILTER DISCOUNTED OR NON-DISCOUNTED ORDERS
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbydiscount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbydiscount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "refund":{
-				/*
-					FILTER REFUNDED OR NON ORDERS
-				*/
-
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
-					}
-				});  
-
-
-				break;
-			}
-
-			case "table":{
-				/*
-					FILTER USING TABLE NUMBER 
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbytable?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "bill":{
-				/*
-					FILTER USING BILL NUMBER 
-				*/
-								filter_key = parseInt(filter_key);
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-
-						    //Set _id from Branch mentioned in Licence
-						    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
-						    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-						      showToast('Invalid Licence Error: KOT can not be generated. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						      return '';
-						    }
-
-						    var bill_request_data = accelerate_licencee_branch +"_INVOICE_"+ filter_key;
-
-						    $.ajax({
-						      type: 'GET',
-						      url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/'+bill_request_data,
-						      timeout: 10000,
-						      success: function(data) {
-						        if(data._id != ""){
-
-							          	var bill = data;
-										totalPages = 1;
-
-								      	var resultRender = '';
-								      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-							                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-							                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-							                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-							                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-							                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-							                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-							                            '    </tr>';
-
-
-										document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-									      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-									      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-						      
-							      		renderBillPageDefault('SETTLED')
-							      		
-							        }
-							        else{
-							        	totalPages = 0;
-							        	filterResultsCount = 0;
-									    document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-										renderBillPageDefault('SETTLED');
-										return '';
-									    
-							        }
-
-							      },
-							      error: function(data) {
-							        showToast('Error: Invoice #'+filter_key+' not found.', '#e74c3c');
-								  	totalPages = 0;
-								  	filterResultsCount = 0;
-									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-									renderBillPageDefault('SETTLED');
-									return '';
-								  }
-
-							    });
-
-				break;
-			}
-
-			case "type":{
-				/*
-					FILTER USING BILLING MODE
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-							
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbybillingmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						document.getElementById("filterResultsCounter").innerHTML = '';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "payment":{
-				/*
-					FILTER USING PAYMENT MODE
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-							
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/filterbypaymentmode?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						document.getElementById("filterResultsCounter").innerHTML = '';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');					
-					}
-				});  
-
-
-				break;
-			}
-
-
-			case "all":{
-				/*
-					FILTER ALL
-				*/
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-							
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderBillPageDefault('SETTLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
-						document.getElementById("filterResultsCounter").innerHTML = '';
-						filterResultsCount = 0;
-						renderBillPageDefault('SETTLED');
-						return '';
-					  }
-
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-				                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-			      
-				      	renderBillPageDefault('SETTLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderBillPageDefault('SETTLED');					
-					}
-				});  
-
-
-				break;
-			}
-
-
-			default:{
-				showToast('System Error: Filter criteria did not found. Please contact Accelerate Support if problem persists.', '#e74c3c');
-				document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-				renderBillPageDefault('SETTLED');			
-			}
-
-		}
-
-
-	}
-	else{ //Filter Not Applied
-
-		  $.ajax({
-		    type: 'GET',
-		    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoices/_view/all?descending=true&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-		    contentType: "application/json",
-		    dataType: 'json',
-		    timeout: 10000,
-		    success: function(data) {
-
-		      if(data.total_rows == 0){
-		      	document.getElementById("settledBillsCount").innerHTML = 0;
-		      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">There are no Unsettled Bills.</p>';
-				return '';
-		      }
-
-		      document.getElementById("settledBillsCount").innerHTML = data.total_rows;
-		      totalPages = Math.ceil(data.total_rows/10);
-		      
-		      var resultsList = data.rows;
-		      var resultRender = '';
-		      var n = 0;
-		      while(resultsList[n]){
-
-		      	var bill = resultsList[n].doc;
-
-		      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-	                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-	                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-	                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-	                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-	                            '        <td><b style="color:#22b396; font-family:\'Oswald\'; font-size: 135%"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</b></td>'+
-	                            '        <td>'+getPaymentCodeEquivalentName(bill.paymentMode)+(bill.refundDetails ? '<tag style="display: block; color: #f59d13; font-size: 11px;"><i class="fa fa-inr"></i>'+bill.refundDetails.amount+' refunded</tag>' : '')+'</td>'+
-	                            '    </tr>';
-		      	n++;
-		      }
-
-
-				document.getElementById("billBriefDisplayRender").innerHTML = '<table class="table"><thead style="background: #f4f4f4;"><tr> <th style="text-align: left">Invoice</th> <th style="text-align: left">Date</th>'+
-				      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
-				      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
-	      
-		      	renderBillPageDefault('SETTLED')
-
-		    },
-		    error: function(data){
-		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Somethin went wrong. Try again.</p>';
-		    
-		    }
-
-		  });  		
-	}
-
 }
-
 
 
 function renderBillPageDefault(target){
@@ -2298,10 +208,9 @@ function viewDeliveryAddressFromBillHide() {
 	document.getElementById("addressViewFromBillModal").style.display = 'none';
 }
 
-function openSelectedBill(encodedBill, type){
+function openSelectedExpense(encodedExpense){
 
   // LOGGED IN USER INFO
-
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
         
   if(jQuery.isEmptyObject(loggedInStaffInfo)){
@@ -2317,173 +226,321 @@ function openSelectedBill(encodedBill, type){
   }
 
 
+		var expensesData = JSON.parse(decodeURI(encodedExpense));
 
 
-	var bill = JSON.parse(decodeURI(encodedBill));
+		var mainContent = '';
+        var subOptions = ''; //Submenu options
 
-	if(type == 'PENDING'){
+		if(expensesData.type == 'SALARY'){
 
-		var itemsList = '';
-		var n = 0;
-		var subTotal = 0;
-		var grandSumCalculated = 0;
-		while(bill.cart[n]){
-			if(bill.cart[n].isCustom)
-				itemsList += '<tr> <td>'+(n+1)+'</td> <td>'+bill.cart[n].name+' ('+bill.cart[n].variant+')</td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
-			else
-				itemsList += '<tr> <td>'+(n+1)+'</td> <td>'+bill.cart[n].name+'</td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
-			
-			subTotal += bill.cart[n].price * bill.cart[n].qty;
-
-			n++;
-		}
-
-		var otherCharges = '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
-
-
-		var charges_extra = 0;
-		if(!jQuery.isEmptyObject(bill.extras)){
-			var m = 0;
-			while(bill.extras[m]){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.extras[m].name+' ('+(bill.extras[m].unit == 'PERCENTAGE' ? bill.extras[m].value+'%' : 'Rs. '+bill.extras[m].value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(Math.round(bill.extras[m].amount * 100) / 100)+'</td> </tr>';
-				charges_extra += bill.extras[m].amount;
-				m++;
-			}
-		}
-
-		if(!jQuery.isEmptyObject(bill.customExtras)){
-			if(bill.customExtras.amount && bill.customExtras.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(Math.round(bill.customExtras.amount * 100) / 100)+'</td> </tr>';
-				charges_extra += bill.customExtras.amount;
-			}
-		}
-
-		if(!jQuery.isEmptyObject(bill.discount)){
-			if(bill.discount.amount && bill.discount.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts<tag onclick="openDiscountDetailsInfo(\''+encodeURI(JSON.stringify(bill.discount))+'\')" class="refundIssueSmallButton"><i class="fa fa-question"></i></tag></td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+(Math.round(bill.discount.amount * 100) / 100)+'</tag>' : '0')+'</td> </tr>';
-				charges_extra = charges_extra - bill.discount.amount;
-			}
-		}
-
-		grandSumCalculated = subTotal + charges_extra;
-		grandSumCalculated = parseFloat(grandSumCalculated).toFixed(2);
-
-		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Grand Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
+		 	mainContent = 	'<tr class="blueOdd">'+
+							   '<td colspan="2"><b>Entry Info</b></td>'+
+							'</tr>'+
+							'<tr class="blueEven	">'+
+							   '<td>Salary Added Date</td>'+
+							   '<td>'+expensesData.time+' on '+expensesData.date+'</td>'+
+							'</tr>'+
+							'<tr class="blueEven">'+
+							   '<td>Reference Number</td>'+
+							   '<td>'+(expensesData.reference && expensesData.reference != '' ? expensesData.reference : '-')+'</td>'+
+							'</tr>'+
+							'<tr class="blueEven">'+
+							   '<td>Added by</td>'+
+							   '<td>'+expensesData.issuedBy+'</td>'+
+							'</tr>'+
+							'<tr class="blueOdd">'+
+							   '<td colspan="2"><b>Salary Details</b></td>'+
+							'</tr>'+
+							'<tr class="blueEven">'+
+							   '<td>Issued To</td>'+
+							   '<td>'+expensesData.issuedTo+' <tag style="font-size: 85%; color: gray">(Staff ID: <b>'+expensesData.details.staffCode+'</b>)</tag></td>'+
+							'</tr>'+
+							'<tr class="blueEven">'+
+							   '<td>Month</td>'+
+							   '<td><b>'+expensesData.details.salaryIssuingMonth+'</b></td>'+
+							'</tr>'+
+							(expensesData.details.comments && expensesData.details.comments != "" ? '<tr class="blueEven">'+ '<td>Comments</td>'+ '<td><b>'+expensesData.details.comments+'</b></td>'+ '</tr>' : '')+ //comments if any
+							'<tr class="blueEven">'+
+							   '<td>Salary Amount</td>'+
+							   '<td><b><i class="fa fa-inr"></i> '+expensesData.amount+'</b></td>'+
+							'</tr>'+
+							'<tr class="blueOdd">'+
+							   '<td colspan="2"><b>Payment Details</b></td>'+
+							'</tr>'+
+							'<tr class="blueEven">'+
+							   '<td>Date of Payment</td>'+
+							   '<td>'+(expensesData.paymentStatus == 'PAID' ? expensesData.dateOfPayment : '<i>Not Paid Yet</i>')+'</td>'+
+							'</tr>'+
+							'<tr class="blueEven">'+
+							   '<td>Mode of Payment</td>'+
+							   '<td>'+(expensesData.paymentStatus == 'PAID' ? expensesData.modeOfPayment : '<i>Not Paid Yet</i>')+'</td>'+
+							'</tr>';
 		
-		if(bill.calculatedRoundOff != 0){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
-		}
 
-		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Payable Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.payableAmount).toFixed(2)+'</td> </tr>';
-
-
-
-		var deliveryOrderSubOption = '';
-		var deliveryAgentDetailsContent = '';
-
-		if(bill.orderDetails.modeType == 'DELIVERY'){
-			if(jQuery.isEmptyObject(bill.deliveryDetails)){
-					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" id="triggerClick_AssignAgentButton" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS\')">'+
-			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
-			                                        '<i class="fa fa-truck"></i>'+
-			                                      '</tag>'+
-			                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Assign Delivery Agent</span>'+
-			                                    '</li>';
-			}
-			else{
-				if(bill.deliveryDetails.name == '' && bill.deliveryDetails.mobile == ''){
-					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" id="triggerClick_AssignAgentButton" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS\')">'+
-			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
-			                                        '<i class="fa fa-truck"></i>'+
-			                                      '</tag>'+
-			                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Assign Delivery Agent</span>'+
-			                                    '</li>';
-				}		
-				else{
-					deliveryAgentDetailsContent = '<div class="deliveryAddress"> <p class="deliveryTitle">Delivery Details</p>'+( bill.deliveryDetails.name != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.deliveryDetails.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.deliveryDetails.mobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.deliveryDetails.mobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div>';
-				}		
-			}
-        }
-
-
-        //Submenu options
-        var subOptions = '';
-
-        if(isUserAnAdmin){
         	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
-                                  '<div class="floaty-btn small" id="triggerClick_settleBillButton" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
+                                  '<div class="floaty-btn small" id="triggerClick_settleBillButton" style="box-shadow: none; background: #39acef" onclick="addNewExpense(\'SALARY\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
     									'<path d="M0-.75h24v24H0z" fill="none"/>'+
                                     '</svg>'+
                                     '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
-                                      '<i class="fa fa-check"></i>'+
+                                      '<i class="fa fa-plus"></i>'+
                                     '</tag>'+
-                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Settle Bill</span>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Add New Salary</span>'+
                                   '</div>'+
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
-                                    '<li class="floaty-list-item floaty-list-item--violet" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
+                                    '<li class="floaty-list-item floaty-list-item--violet" onclick="printExpenseSlip(\''+encodedExpense+'\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
                                         '<i class="fa fa-print whiteWash"></i>'+
                                       '</tag>'+
-                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Print Duplicate Bill</span>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Print Salary Slip</span>'+
                                     '</li>'+
-                                    '<li class="floaty-list-item floaty-list-item--palegreen" onclick="lateApplyDiscount(\''+encodedBill+'\')">'+
-                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
-                                        '<i class="fa fa-bolt whiteWash"></i>'+
-                                      '</tag>'+
-                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Offer Discount</span>'+
-                                    '</li>'+ deliveryOrderSubOption +
-                                    '<li class="floaty-list-item floaty-list-item--red" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_PENDING\')">'+
+                                    '<li class="floaty-list-item floaty-list-item--red" onclick="initiateRemoveExpenseRecord(\''+encodedExpense+'\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
                                         '<i class="fa fa-trash-o whiteWash"></i>'+
                                       '</tag>'+
-                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Cancel Bill</span>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Remove Record</span>'+
                                     '</li>'+     
                                   '</ul>'+
                                 '</div>';
-        }
-        else{
-            subOptions = '<div class="floaty" style="right: -10px; top: 0">' +
-        					'<div class="floaty-btn small" style="box-shadow: none; background: #7571ce" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
+
+		}
+		else if(expensesData.type == 'PURCHASE'){
+
+		 	mainContent = 	'<tr class="pinkOdd">'+
+							   '<td colspan="2"><b>Entry Info</b></td>'+
+							'</tr>'+
+							'<tr class="pinkEven">'+
+							   '<td>Purchase Added Date</td>'+
+							   '<td>'+expensesData.time+' on '+expensesData.date+'</td>'+
+							'</tr>'+
+							'<tr class="pinkEven">'+
+							   '<td>Reference Number</td>'+
+							   '<td>'+(expensesData.reference && expensesData.reference != '' ? expensesData.reference : '-')+'</td>'+
+							'</tr>'+
+							'<tr class="pinkEven">'+
+							   '<td>Added by</td>'+
+							   '<td>'+expensesData.issuedBy+'</td>'+
+							'</tr>'+
+							'<tr class="pinkOdd">'+
+							   '<td colspan="2"><b>Purchase Details</b></td>'+
+							'</tr>'+
+							'<tr class="pinkEven">'+
+							   '<td>Purchased From</td>'+
+							   '<td>'+expensesData.issuedTo+' <tag style="font-size: 85%; color: gray">('+expensesData.issuedToType+')</tag></td>'+
+							'</tr>'+
+							'<tr class="pinkEven">'+
+							   '<td>Inventory Purchased</td>'+
+							   '<td><b>'+expensesData.details.itemsPurchased+'</b></td>'+
+							'</tr>'+
+							'<tr class="pinkEven">'+
+							   '<td>Total Amount</td>'+
+							   '<td><b><i class="fa fa-inr"></i> '+expensesData.amount+'</b></td>'+
+							'</tr>'+
+							'<tr class="pinkOdd">'+
+							   '<td colspan="2"><b>Payment Details</b></td>'+
+							'</tr>'+
+							'<tr class="pinkEven">'+
+							   '<td>Date of Payment</td>'+
+							   '<td>'+(expensesData.paymentStatus == 'PAID' ? expensesData.dateOfPayment : '<i>Not Paid Yet</i>')+'</td>'+
+							'</tr>'+
+							'<tr class="pinkEven">'+
+							   '<td>Mode of Payment</td>'+
+							   '<td>'+(expensesData.paymentStatus == 'PAID' ? expensesData.modeOfPayment : '<i>Not Paid Yet</i>')+'</td>'+
+							'</tr>';
+		
+
+        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+                                  '<div class="floaty-btn small" id="triggerClick_settleBillButton" style="box-shadow: none; background: #ED4C67" onclick="addNewExpense(\'PURCHASE\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
     									'<path d="M0-.75h24v24H0z" fill="none"/>'+
                                     '</svg>'+
                                     '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
-                                      '<i class="fa fa-print"></i>'+
+                                      '<i class="fa fa-plus"></i>'+
                                     '</tag>'+
-                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Print Duplicate Bill</span>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Add Purchase Record</span>'+
                                   '</div>'+
-                         '</div>';      	
-        }
+                                  '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
+                                    '<li class="floaty-list-item floaty-list-item--violet" onclick="printExpenseSlip(\''+encodedExpense+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-print whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Print Purchase Slip</span>'+
+                                    '</li>'+
+                                    '<li class="floaty-list-item floaty-list-item--red" onclick="initiateRemoveExpenseRecord(\''+encodedExpense+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-trash-o whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Remove Record</span>'+
+                                    '</li>'+     
+                                  '</ul>'+
+                                '</div>';
+		}
+		else if(expensesData.type == 'EXPENSE'){
+
+		 	mainContent = 	'<tr class="brownOdd">'+
+							   '<td colspan="2"><b>Entry Info</b></td>'+
+							'</tr>'+
+							'<tr class="brownEven">'+
+							   '<td>Expense Added Date</td>'+
+							   '<td>'+expensesData.time+' on '+expensesData.date+'</td>'+
+							'</tr>'+
+							'<tr class="brownEven">'+
+							   '<td>Reference Number</td>'+
+							   '<td>'+(expensesData.reference && expensesData.reference != '' ? expensesData.reference : '-')+'</td>'+
+							'</tr>'+
+							'<tr class="brownEven">'+
+							   '<td>Added by</td>'+
+							   '<td>'+expensesData.issuedBy+'</td>'+
+							'</tr>'+
+							'<tr class="brownOdd">'+
+							   '<td colspan="2"><b>Expense Details</b></td>'+
+							'</tr>'+
+							'<tr class="brownEven">'+
+							   '<td>Issued To</td>'+
+							   '<td>'+expensesData.issuedTo+' <tag style="font-size: 85%; color: gray">('+expensesData.issuedToType+')</tag></td>'+
+							'</tr>'+
+							'<tr class="brownEven">'+
+							   '<td>Details</td>'+
+							   '<td><b>'+expensesData.details.purpose+'</b></td>'+
+							'</tr>'+
+							'<tr class="brownEven">'+
+							   '<td>Total Amount</td>'+
+							   '<td><b><i class="fa fa-inr"></i> '+expensesData.amount+'</b></td>'+
+							'</tr>'+
+							'<tr class="brownEven">'+
+							   '<td>Approver</td>'+
+							   '<td>'+expensesData.details.authorizedBy+'</td>'+
+							'</tr>'+
+							'<tr class="brownOdd">'+
+							   '<td colspan="2"><b>Payment Details</b></td>'+
+							'</tr>'+
+							'<tr class="brownEven">'+
+							   '<td>Date of Payment</td>'+
+							   '<td>'+(expensesData.paymentStatus == 'PAID' ? expensesData.dateOfPayment : '<i>Not Paid Yet</i>')+'</td>'+
+							'</tr>'+
+							'<tr class="brownEven">'+
+							   '<td>Mode of Payment</td>'+
+							   '<td>'+(expensesData.paymentStatus == 'PAID' ? expensesData.modeOfPayment : '<i>Not Paid Yet</i>')+'</td>'+
+							'</tr>';
+		
+
+        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+                                  '<div class="floaty-btn small" id="triggerClick_settleBillButton" style="box-shadow: none; background: #f39c12" onclick="addNewExpense(\'EXPENSE\')">'+
+                                    '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
+										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
+    									'<path d="M0-.75h24v24H0z" fill="none"/>'+
+                                    '</svg>'+
+                                    '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
+                                      '<i class="fa fa-plus"></i>'+
+                                    '</tag>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Add Expense</span>'+
+                                  '</div>'+
+                                  '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
+                                    '<li class="floaty-list-item floaty-list-item--violet" onclick="printExpenseSlip(\''+encodedExpense+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-print whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Print Expense Slip</span>'+
+                                    '</li>'+
+                                    '<li class="floaty-list-item floaty-list-item--red" onclick="initiateRemoveExpenseRecord(\''+encodedExpense+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-trash-o whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Remove Record</span>'+
+                                    '</li>'+     
+                                  '</ul>'+
+                                '</div>';
+		}
+		else if(expensesData.type == 'CREDIT'){
+
+		 	mainContent = 	'<tr class="greenOdd">'+
+							   '<td colspan="2"><b>Entry Info</b></td>'+
+							'</tr>'+
+							'<tr class="greenEven">'+
+							   '<td>Credit Added Date</td>'+
+							   '<td>'+expensesData.time+' on '+expensesData.date+'</td>'+
+							'</tr>'+
+							'<tr class="greenEven">'+
+							   '<td>Reference Number</td>'+
+							   '<td>'+(expensesData.reference && expensesData.reference != '' ? expensesData.reference : '-')+'</td>'+
+							'</tr>'+
+							'<tr class="greenEven">'+
+							   '<td>Added by</td>'+
+							   '<td>'+expensesData.issuedBy+'</td>'+
+							'</tr>'+
+							'<tr class="greenOdd">'+
+							   '<td colspan="2"><b>Credit Amount Details</b></td>'+
+							'</tr>'+
+							'<tr class="greenEven">'+
+							   '<td>Received From</td>'+
+							   '<td>'+expensesData.details.receivedFrom+' <tag style="font-size: 85%; color: gray">('+expensesData.details.receivedType+')</tag></td>'+
+							'</tr>'+
+							'<tr class="greenEven">'+
+							   '<td>Details</td>'+
+							   '<td><b>'+expensesData.details.purpose+'</b></td>'+
+							'</tr>'+
+							'<tr class="greenEven">'+
+							   '<td>Total Amount</td>'+
+							   '<td><b><i class="fa fa-inr"></i> '+expensesData.amount+'</b></td>'+
+							'</tr>'+
+							'<tr class="greenOdd">'+
+							   '<td colspan="2"><b>Payment Details</b></td>'+
+							'</tr>'+
+							'<tr class="greenEven">'+
+							   '<td>Date of Payment</td>'+
+							   '<td>'+(expensesData.paymentStatus == 'PAID' ? expensesData.dateOfPayment : '<i>Not Paid Yet</i>')+'</td>'+
+							'</tr>'+
+							'<tr class="greenEven">'+
+							   '<td>Mode of Payment</td>'+
+							   '<td>'+(expensesData.paymentStatus == 'PAID' ? expensesData.modeOfPayment : '<i>Not Paid Yet</i>')+'</td>'+
+							'</tr>';
 
 
-
+        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+                                  '<div class="floaty-btn small" id="triggerClick_settleBillButton" style="box-shadow: none; background: #1abc9c" onclick="addNewExpense(\'CREDIT\')">'+
+                                    '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
+										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
+    									'<path d="M0-.75h24v24H0z" fill="none"/>'+
+                                    '</svg>'+
+                                    '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
+                                      '<i class="fa fa-plus"></i>'+
+                                    '</tag>'+
+                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Add Credit Slip</span>'+
+                                  '</div>'+
+                                  '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
+                                    '<li class="floaty-list-item floaty-list-item--violet" onclick="printExpenseSlip(\''+encodedExpense+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-print whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Print Credit Slip</span>'+
+                                    '</li>'+
+                                    '<li class="floaty-list-item floaty-list-item--red" onclick="initiateRemoveExpenseRecord(\''+encodedExpense+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-trash-o whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Remove Record</span>'+
+                                    '</li>'+     
+                                  '</ul>'+
+                                '</div>';						
+		}
+        
 
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
 												'<div class="box box-primary">'+
 												'   <div class="box-body">'+ 
 												      '<div class="box-header" style="padding: 10px 0px">'+
-												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag>'+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3>'+subOptions+
+												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+expensesData.uid+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag> <tag class="billTypeSmallBox viewAddressBox" style="width: 85px !important; display: inline-block; text-align: center; font-weight: bold; background: '+getTypeColor(expensesData.type)+'">'+expensesData.type+'</b></tag> </h3>'+subOptions+
 												      '</div>'+
-												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at <b style="color: #f39c12">'+getFancyTime(bill.timeBill)+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> KOT Number <tag style="color: #50aade; font-weight: bold;">'+bill.KOTNumber+'</tag></time>'+
+												      '<time class="billSettleDate">'+expensesData.date+' at <b style="color: #a26969">'+expensesData.time+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> Added by <tag style="color: #a26969; font-weight: bold;">'+expensesData.issuedBy+'</tag></time>'+
 												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
 												         '<table class="table">'+
-												         	'<col width="5%">'+
-												         	'<col width="50%">'+
-												         	'<col width="15%">'+
-												         	'<col width="15%">'+
-												         	'<col width="15%">'+												         
-												            '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left">#</th> <th style="text-align: left">Item</th> <th style="text-align: cetner">Quantity</th> <th style="text-align: center">Unit Price</th> <th style="text-align: right">Total</th> </tr> </thead>'+
-												            '<tbody>'+itemsList+'</tbody><tbody class="billRowOtherCharges" style="border-top: 1px solid">'+otherCharges+
-												            '</tbody>'+
+												         	'<col width="40%">'+
+												         	'<col width="60%">'+
+												            '<tbody>'+mainContent+'</tbody>'+
 												         '</table>'+
-												         '<div class="row" style="margin-top: 40px">'+
-												            '<div class="col-xs-4"> <div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+((bill.customerName == '' && bill.customerMobile == '') ? '<p class="deliveryText" style="color: #ff8787">Not Available</p>' : '')+( bill.customerName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.customerName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.customerMobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.customerMobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
-												            '<div class="col-xs-4">'+deliveryAgentDetailsContent+'</div>'+
-												            '<div class="col-xs-4"> <div class="deliveryAddress"> <p class="deliveryTitle">Steward Details</p>'+( bill.stewardName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.stewardName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.stewardCode != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.stewardCode+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
-												         '</div>'+
 												      '</div>'+
 												      '<div class="clearfix"></div>'+
 												'   </div>'+
@@ -2506,264 +563,688 @@ function openSelectedBill(encodedBill, type){
 				$('.container').on('click', function() {
 				  $floaty.removeClass('is-active');
 				});
+}
 
-				
+
+/* Expense Actions */
+
+function addNewExpense(type) {
+	
+	if(type == 'SALARY'){
+
+		var data = {
+			"token": window.localStorage.loggedInAdmin
+		}
+
+		showLoading(10000, 'Loading...');
+
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.zaitoon.online/services/erpfetchstafflistsalary.php',
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			dataType: 'json',
+			timeout: 10000,
+			success: function(data) {
+			  
+			  hideLoading();
+
+			  if(data.status){
+
+			  	var staffMasterList = data.response;
+
+			  	if(staffMasterList.length == 0){
+			  		showToast('Warning! There are no staff accounts added on Desk Portal.', '#e67e22');
+			  		return '';
+			  	}
+
+			  	var staffSelectionContent = '';
+			  	var seletectedSalaryProfilePhoto = '';
+			  	var seletectedSalaryProfileAmount = 0;
+
+			  	var n = 0;
+			  	while(staffMasterList[n]){
+
+			  		var staffList = '';
+
+			  		for(var i = 0; i < staffMasterList[n].staff.length; i++){
+
+			  			if(n == 0 && i == 0){ //default profile
+			  				if(staffMasterList[n].staff[i].photoURL != ''){
+			  					seletectedSalaryProfilePhoto = '<img src="'+staffMasterList[n].staff[i].photoURL+'" width="120px" style="border: 2px solid #e9e9e9; right: 15px; top: -62px; padding: 2px; position: absolute; max-height: 120px;">';
+			  				}
+			  				else{
+			  					seletectedSalaryProfilePhoto = '<img src="images/common/dummy_person.png" width="120px" style="border: 2px solid #e9e9e9; right: 15px; top: -62px; padding: 2px; position: absolute; max-height: 120px;">';
+			  				}
+
+			  				seletectedSalaryProfileAmount = staffMasterList[n].staff[i].payAmountDue;
+			  			}
+
+			  			staffList += '<option data-holder="'+encodeURI(JSON.stringify(staffMasterList[n].staff[i]))+'" value="'+staffMasterList[n].staff[i].employeeID+'">'+staffMasterList[n].staff[i].fName+' '+staffMasterList[n].staff[i].lName+' ('+staffMasterList[n].staff[i].employeeID+')</option>';
+
+			  			if(i == staffMasterList[n].staff.length - 1){ //last iteration	
+			  				staffSelectionContent += '<optgroup label="'+staffMasterList[n].role+'">'+staffList+'</optgroup>';
+			  			}
+			  		}
+			  		
+			  		n++;
+			  	}
+
+			  	document.getElementById("issueSalaryModal").style.display = 'block';
+			  	document.getElementById("issueSalaryModalContent").innerHTML = '<div class="row" style="margin-top: 15px;">'+
+									  	'<div class="col-sm-8">'+
+						                  '<label class="myReservationLabel">Staff</label>'+
+						                  '<select class="form-control" onchange="adjustSalaryValues()" id="selectedStaffProfileOption">'+staffSelectionContent+'</select>'+
+						               	'</div>'+
+						               	'<div class="col-sm-4" id="selectedSalaryProfilePhoto">'+seletectedSalaryProfilePhoto+'</div>'+
+							            '</div>'+
+							            '<div class="row" style="margin-top: 15px;"> <div class="col-sm-6"> <label class="myReservationLabel">Date of Payment</label> <div class="input-group date"> <input type="text"class="form-control" id="salary_date_of_payment"> <span class="input-group-addon" style="line-height: 22px;"><i class="fa fa-calendar"></i></span> </div> </div> <div class="col-sm-6"> <label class="myReservationLabel">Issuing Month</label> <div class="input-group date"> <input type="text" id="salary_month" class="form-control"> <span class="input-group-addon" style="line-height: 22px;"><i class="fa fa-calendar"></i></span> </div> </div> </div>'+
+							            '<div class="row" style="margin-top: 15px;"> <div class="col-sm-6"> <label class="myReservationLabel">Amount</label> <input type="number" value="'+seletectedSalaryProfileAmount+'" id="salary_amount" class="form-control input-lg" placeholder="0" style="font-weight: bold; font-size: 24px;"> </div> <div class="col-sm-6"> <label class="myReservationLabel">Payment Mode</label> <select class="form-control" id="salary_mode_of_payment"> <option value="CASH">Cash</option> <option value="CHEQUE">Cheque</option> <option value="TRANSFER">Bank Transfer</option> </select> </div> </div>'+
+							            '<div class="row" style="margin-top: 15px;"> <div class="col-sm-6"> <label class="myReservationLabel">Transaction Reference</label> <input type="text" id="salary_transaction_reference" class="form-control input-lg" placeholder="Reference"> </div> <div class="col-sm-6"> <label class="myReservationLabel">Comments</label> <textarea class="form-control input-lg" id="salary_comments" placeholder="Comments"></textarea> </div> </div>'+
+							         	'</div>';
+
+
+					var dateoptions = {
+						maxDate: "+0D", 
+						dateFormat: "dd-mm-yy" 
+					};
+
+					var monthoptions = {
+				        changeMonth: true,
+				        changeYear: true,
+				        dateFormat: 'MM yy'
+					}
+
+					var $j = jQuery.noConflict();
+					$j("#salary_date_of_payment").datepicker(dateoptions);
+					$j("#salary_month").datepicker(monthoptions);
+
+			  }
+			  else{
+			  	showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			  }
+
+			},
+			error: function(data){
+				hideLoading();
+				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			}
+		});	
+
+
 	}
-	else if(type == 'SETTLED'){
+	else if(type == 'PURCHASE'){
 
-		var itemsList = '';
-		var n = 0;
-		var subTotal = 0;
-		var grandSumCalculated = 0;
-		while(bill.cart[n]){
-			if(bill.cart[n].isCustom)
-				itemsList += '<tr> <td>'+(n+1)+'</td> <td>'+bill.cart[n].name+' ('+bill.cart[n].variant+')</td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
-			else
-				itemsList += '<tr> <td>'+(n+1)+'</td> <td>'+bill.cart[n].name+'</td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
-			
-			subTotal += bill.cart[n].price * bill.cart[n].qty;
-
-			n++;
+		var data = {
+			"token": window.localStorage.loggedInAdmin
 		}
 
-		var otherCharges = '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
+		showLoading(10000, 'Loading...');
+
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.zaitoon.online/services/erpnewstockmetadata.php',
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			dataType: 'json',
+			timeout: 10000,
+			success: function(data) {
 		
-		var charges_extra = 0;
-		if(!jQuery.isEmptyObject(bill.extras)){
-			var m = 0;
-			while(bill.extras[m]){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.extras[m].name+' ('+(bill.extras[m].unit == 'PERCENTAGE' ? bill.extras[m].value+'%' : 'Rs. '+bill.extras[m].value)+')</td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+(Math.round(bill.extras[m].amount * 100) / 100)+'</td> </tr>';
-				charges_extra += bill.extras[m].amount;
-				m++;
+			  hideLoading();
+
+			  if(data.status){
+
+				var metaVendorsList = data.vendors;
+                var metaInventoryList = data.inventories;
+
+			  	if(metaVendorsList.length == 0){
+			  		showToast('Warning! There are no staff accounts added on Desk Portal.', '#e67e22');
+			  		return '';
+			  	}
+
+			  	if(metaInventoryList.length == 0){
+			  		showToast('Warning! There are no vendors added on Desk Portal.', '#e67e22');
+			  		return '';
+			  	}
+
+			  	var vendorSelectionContent = '';
+			  	var inventorySelectionContent = '';
+
+			  	var m = 0;
+			  	while(metaVendorsList[m]){
+			  		vendorSelectionContent += '<option value="'+metaVendorsList[m].code+'">'+metaVendorsList[m].name+'</option>';
+			  		m++;
+			  	}
+
+
+			  	var n = 0;
+			  	var defaultInventoryUnit = '';
+			  	while(metaInventoryList[n]){
+
+			  		var inventoryList = '';
+
+			  		for(var i = 0; i < metaInventoryList[n].items.length; i++){
+
+			  			if(n == 0 && i == 0){
+			  				defaultInventoryUnit = metaInventoryList[n].items[i].unit;
+			  			}
+
+			  			inventoryList += '<option data-holder="'+encodeURI(JSON.stringify(metaInventoryList[n].items[i]))+'" value="'+metaInventoryList[n].items[i].code+'">'+metaInventoryList[n].items[i].name+'</option>';
+
+			  			if(i == metaInventoryList[n].items.length - 1){ //last iteration	
+			  				inventorySelectionContent += '<optgroup label="'+metaInventoryList[n].category+'">'+inventoryList+'</optgroup>';
+			  			}
+			  		}
+			  		
+			  		n++;
+			  	}
+
+
+			  	document.getElementById("issuePurchaseSlipModal").style.display = 'block';
+			  	document.getElementById("issuePurchaseSlipModalContent").innerHTML = ''+
+                                       '<div class="row">'+
+                                          '<div class="col-md-12">'+
+                                             '<form class="form-horizontal tabular-form">'+
+                                                '<div class="form-group">'+
+                                                   '<label class="col-sm-3 control-label">Vendor</label>'+
+                                                   '<div style="padding: 0 0 0 16px; display: inline-block; width: 60%">'+
+                                                      '<select id="purchase_name_of_vendor" class="form-control" class="form-control" style="padding: 0">'+ vendorSelectionContent + 
+                                                      '</select>' +
+                                                   '</div>'+
+                                                '</div>'+
+                                                '<div class="form-group">'+
+                                                   '<label for="form-name" class="col-sm-3 control-label">Inventory</label>'+
+                                                   '<div style="padding: 0 0 0 16px; display: inline-block; width: 60%">'+
+                                                      '<select id="purchase_name_of_inventory" onchange="adjustInventoryUnit()" class="form-control" class="form-control" style="padding: 0">'+ inventorySelectionContent +
+                                                      '</select>'+
+                                                   '</div>'+
+                                                '</div>'+
+                                                '<div class="form-group"> <label for="form-name" class="col-sm-3 control-label">Purchased Quantity</label> <div class="col-sm-6"> <input type="number" value="0" class="form-control" id="purchase_quantity_of_inventory" style="font-size: 24px; height: 48px; font-weight: bold; letter-spacing: 3px; padding: 0 12px;"> </div> <label class="col-sm-2 control-label" style="padding-left: 0; text-align: left; color: #ff9e01; font-size: 24px;" id="purchase_unit_of_inventory">'+defaultInventoryUnit+'</label> </div>'+
+                                                '<div class="form-group"> <label for="form-name" class="col-sm-3 control-label">Date of Purchase</label> <div class="col-sm-8"> <input type="text" id="purchase_date_of_purchase" class="form-control"> </div> </div>'+
+                                                '<div class="form-group"> <label for="form-name" class="col-sm-3 control-label" style="margin-top: 8px;">Total Amount</label> <div class="col-sm-8"> <input type="number" id="purchase_total_amount" class="form-control" value="0" style="font-size: 24px; height: 48px; font-weight: bold; letter-spacing: 3px; padding: 0 12px;"> </div> </div>'+
+                                                '<div class="form-group"> <label for="form-name" class="col-sm-3 control-label">Mode of Payment</label> <div class="col-sm-8"> <select class="form-control" style="height: 40px" id="purchase_mode_of_payment"> <option value="CREDIT">Credit</option> <option value="CHEQUE">Cheque</option> <option value="CASH">Cash</option> </select> </div> </div>'+
+                                                '<div class="form-group"> <label for="form-name" class="col-sm-3 control-label">Remarks</label> <div class="col-sm-8"> <input type="text" id="purchase_comments" class="form-control"> </div> </div>'+    
+                                             '</form>'+
+                                          '</div>'+
+                                       '</div>';
+
+
+					var dateoptions = {
+						maxDate: "+0D", 
+						dateFormat: "dd-mm-yy" 
+					};
+
+					var $j = jQuery.noConflict();
+					$j("#purchase_date_of_purchase").datepicker(dateoptions);
+
+			  }
+			  else{
+			  	showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			  }
+
+			},
+			error: function(data){
+				hideLoading();
+				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
 			}
-		}
+		});	
+	}
+	else if(type == 'EXPENSE'){
 
-		if(!jQuery.isEmptyObject(bill.customExtras)){
-			if(bill.customExtras.amount && bill.customExtras.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">'+bill.customExtras.type+' ('+(bill.customExtras.unit == 'PERCENTAGE' ? bill.customExtras.value+'%' : 'Rs. '+bill.customExtras.value)+')</td>  <td style="text-align: right"><i class="fa fa-inr"></i>'+(Math.round(bill.customExtras.amount * 100) / 100)+'</td> </tr>';
-				charges_extra += bill.customExtras.amount;
-			}
-		}
+			  	document.getElementById("recordExpenseModal").style.display = 'block';
+			  	document.getElementById("recordExpenseModalContent").innerHTML = ''+
+			  							'<div class="row" style="margin-top: 15px;"> <div class="col-sm-6" id="expense_beneficiary_content"> <label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Beneficiary Name"> </div> <div class="col-sm-6"> <label class="myReservationLabel">Beneficiary Type</label> <select class="form-control" id="expense_issued_to_type" onchange="adjustBeneficiaryInfo()"> <option value="OTHER">Others</option> <option value="STAFF">Staff</option> <option value="AGENT">Agent</option> <option value="VENDOR">Vendor</option>  </select> </div> </div>'+
+							            '<div class="row" style="margin-top: 15px;"> <div class="col-sm-6"> <label class="myReservationLabel">Date of Payment</label> <div class="input-group date"> <input type="text"class="form-control" id="expense_date_of_payment"> <span class="input-group-addon" style="line-height: 21px;"><i class="fa fa-calendar"></i></span> </div> </div> <div class="col-sm-6"> <label class="myReservationLabel">Approver</label> <select class="form-control" id="expense_approver"> <option value="SELF">Self</option> <option value="MANAGER">Branch Manager</option> <option value="ACCOUNTANT">Accounts Head</option> <option value="DIRECTOR">Director</option> </select> </div> </div>'+
+							            '<div class="row" style="margin-top: 15px;"> <div class="col-sm-6"> <label class="myReservationLabel">Amount</label> <input type="number" value="0" id="expense_amount" class="form-control input-lg" placeholder="0" style="font-weight: bold; font-size: 24px;"> </div> <div class="col-sm-6"> <label class="myReservationLabel">Payment Mode</label> <select class="form-control" id="expense_mode_of_payment"> <option value="CASH">Cash</option> <option value="CHEQUE">Cheque</option> <option value="TRANSFER">Bank Transfer</option> </select> </div> </div>'+
+							            '<div class="row" style="margin-top: 15px;"> <div class="col-sm-6"> <label class="myReservationLabel">Purpose</label> <input type="text" id="expense_purpose" class="form-control input-lg" placeholder="Purpose"> </div> <div class="col-sm-6"> <label class="myReservationLabel">Comments</label> <textarea class="form-control input-lg" id="expense_comments" placeholder="Comments"></textarea> </div> </div>';
 
-		if(!jQuery.isEmptyObject(bill.discount)){
-			if(bill.discount.amount && bill.discount.amount != 0){
-				otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Discounts<tag onclick="openDiscountDetailsInfo(\''+encodeURI(JSON.stringify(bill.discount))+'\')" class="refundIssueSmallButton"><i class="fa fa-question"></i></tag></td> <td style="text-align: right">'+(bill.discount.amount && bill.discount.amount != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+(Math.round(bill.discount.amount * 100) / 100)+'</tag>' : '0')+'</td> </tr>';
-				charges_extra = charges_extra - bill.discount.amount;
-			}
-		}
+					var dateoptions = {
+						maxDate: "+0D", 
+						dateFormat: "dd-mm-yy" 
+					};
 
-		grandSumCalculated = subTotal + charges_extra;
-		grandSumCalculated = parseFloat(grandSumCalculated).toFixed(2);
-		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Grand Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
+					var $j = jQuery.noConflict();
+					$j("#expense_date_of_payment").datepicker(dateoptions);
+	}
+}
 
-		if(bill.calculatedRoundOff != 0){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
-		}
+function hideIssueSalarySlipModal(){
+	document.getElementById("issueSalaryModal").style.display = 'none';
+}
 
-		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Total Payable Amount</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.payableAmount).toFixed(2)+'</td> </tr>';
-		
+function hideIssuePurchaseSlipModal(){
+	document.getElementById("issuePurchaseSlipModal").style.display = 'none';
+}
 
-		
-		//check if any tips/round off added
-		if(bill.tipsAmount && bill.tipsAmount != 0){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Tips</td>  <td style="text-align: right"><tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+bill.tipsAmount+'</tag></td> </tr>';
-		}
+function hideRecordExpenseModal(){
+	document.getElementById("recordExpenseModal").style.display = 'none';
+}
 
-		if(bill.roundOffAmount && bill.roundOffAmount != 0){
-			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Waived Round Off</td>  <td style="text-align: right"><tag style="color: #f15959">- <i class="fa fa-inr"></i>'+bill.roundOffAmount+'</tag></td> </tr>';
-		}
+function adjustSalaryValues(){
+	var e = document.getElementById("selectedStaffProfileOption");
+	var optionSelected = e.options[e.selectedIndex];
+	var staffSelected = JSON.parse(decodeURI($(optionSelected).attr("data-holder")));
 
-		//Check for Refunds issued if any
-		var isDone = false;
-		var issued_refund = 0;
-		if(!jQuery.isEmptyObject(bill.refundDetails)){
-			if(bill.refundDetails.amount && bill.refundDetails.amount != 0){
-				issued_refund = bill.refundDetails.amount;
-				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
-				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Refund Issued</b><tag onclick="openRefundDetailsInfo(\''+encodeURI(JSON.stringify(bill.refundDetails))+'\')" class="refundIssueSmallButton"><i class="fa fa-info"></i></tag></td> <td style="font-weight: bold; text-align: right">'+(issued_refund != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+parseFloat(issued_refund).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
-				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Gross Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat((bill.totalAmountPaid - issued_refund)).toFixed(2)+'</td> </tr>';
-				
-				isDone = true;
-			}
-		}
-
-		if(!isDone){
-			otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
-		}
-
-
-		//Payment Splits, if applicable
-		var paymentSplitList = '';
-		var paymentOptionUsedButton = '';
-
-		if(!jQuery.isEmptyObject(bill.paymentSplits)){
-			var n = 0;
-			while(bill.paymentSplits[n]){
-				paymentSplitList += '<a href="#"><p class="splitPayListTitle">'+bill.paymentSplits[n].name+' <tag style="float: right; font-weight: bold;"><i class="fa fa-inr"></i>'+bill.paymentSplits[n].amount+'</tag>'+
-										'<p class="splitPayListRef">'+(bill.paymentSplits[n].reference && bill.paymentSplits[n].reference != '' ? bill.paymentSplits[n].reference : '')+'</p>'+
-									'</a>';
-				n++;
-			}
-
-			//Undo Button
-			if(isUserAnAdmin){
-				paymentSplitList += '<a href="#" style="padding: 2px 16px; min-height: unset !important; height: 40px; font-size: 12px; color: #f39c12;" onclick="openUndoSettleWarning('+bill.billNumber+')">'+
-										'<p class="splitPayListTitle"><i class="fa fa-warning"></i> Unsettle</p>'+
-									'</a>';
-			}
-
-			paymentOptionUsedButton =  	'<div class="splitPayListDropdown">'+
-										 	'<div class="splitPayListButton">Multiple Payments</div>'+
-											'<div class="splitPayListDropdown-content"><div class="holdContentArea">'+paymentSplitList+'</div>'+
-										 	'</div>'+
-										'</div>';										
-		}
-		else{
-			paymentSplitList = '<a href="#"><p class="splitPayListTitle">'+getPaymentCodeEquivalentName(bill.paymentMode)+' <tag style="float: right; font-weight: bold;"><i class="fa fa-inr"></i>'+bill.totalAmountPaid+'</tag>'+
-									'<p class="splitPayListRef">'+(bill.paymentReference && bill.paymentReference != '' ? bill.paymentReference : '')+'</p>'+
-								'</a>';
-
-			//Undo Button
-			if(isUserAnAdmin){
-				paymentSplitList += '<a href="#" style="padding: 2px 16px; min-height: unset !important; height: 40px; font-size: 12px; color: #f39c12;" onclick="openUndoSettleWarning('+bill.billNumber+')">'+
-										'<p class="splitPayListTitle"><i class="fa fa-warning"></i> Unsettle</p>'+
-									'</a>';
-			}
-
-			paymentOptionUsedButton =  	'<div class="splitPayListDropdown">'+
-										 	'<div class="splitPayListButton">'+getPaymentCodeEquivalentName(bill.paymentMode)+'</div>'+
-											'<div class="splitPayListDropdown-content"><div class="holdContentArea">'+paymentSplitList+'</div>'+
-										 	'</div>'+
-										'</div>';	
-		}
-
-
-		var deliveryOrderSubOption = '';
-		var deliveryAgentDetailsContent = '';
-		
-		if(bill.orderDetails.modeType == 'DELIVERY'){
-			if(jQuery.isEmptyObject(bill.deliveryDetails)){
-					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" id="triggerClick_AssignAgentButton" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS_SETTLED\')">'+
-			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
-			                                        '<i class="fa fa-truck"></i>'+
-			                                      '</tag>'+
-			                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Assign Delivery Agent</span>'+
-			                                    '</li>';
-			}
-			else{
-				if(bill.deliveryDetails.name == '' && bill.deliveryDetails.mobile == ''){
-					deliveryOrderSubOption = 	'<li class="floaty-list-item floaty-list-item--blue" id="triggerClick_AssignAgentButton" onclick="assignDeliveryAgent(\''+bill.billNumber+'\', \'GENERATED_BILLS_SETTLED\')">'+
-			                                      '<tag style="color: #FFF; text-align: center; padding-top: 5px; font-size: 20px;" class="absolute-center">'+
-			                                        '<i class="fa fa-truck"></i>'+
-			                                      '</tag>'+
-			                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Assign Delivery Agent</span>'+
-			                                    '</li>';
-				}		
-				else{
-					deliveryAgentDetailsContent = '<div class="deliveryAddress" style="position: relative"> <p class="deliveryTitle">Delivery Details<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')" style="float: right; position: absolute; top: 4px; right: 4px;"><i class="fa fa-home"></i></tag></p>'+( bill.deliveryDetails.name != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.deliveryDetails.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.deliveryDetails.mobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.deliveryDetails.mobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div>';
-				}				
-			}
-        }
-
-        //Submenu options
-        var subOptions = '';
-
-        if(isUserAnAdmin){
-        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
-                                  '<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
-                                    '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
-										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
-    									'<path d="M0-.75h24v24H0z" fill="none"/>'+
-                                    '</svg>'+
-                                    '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
-                                      '<i class="fa fa-print"></i>'+
-                                    '</tag>'+
-                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Print Duplicate Invoice</span>'+
-                                  '</div>'+
-                                  '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
-                                    deliveryOrderSubOption+
-                                    '<li class="floaty-list-item floaty-list-item--yellow" id="triggerClick_IssueRefundButton" onclick="initiateRefundSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
-                                      '<tag style="color: #FFF; text-align: center; padding-top: 0px; font-size: 26px;" class="absolute-center">'+
-                                        '<i class="fa fa-inr"></i>'+
-                                      '</tag>'+
-                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Issue Refund</span>'+
-                                    '</li>'+
-                                    '<li class="floaty-list-item floaty-list-item--red" id="triggerClick_CancelInvoiceButton" onclick="initiateCancelSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
-                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
-                                        '<i class="fa fa-trash-o whiteWash"></i>'+
-                                      '</tag>'+
-                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Cancel Invoice</span>'+
-                                    '</li>'+     
-                                  '</ul>'+
-                                '</div>';
-        }
-        else{
-        	subOptions = '<div class="floaty" style="right: -10px; top: 0">' +
-        					'<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
-                                    '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
-										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
-    									'<path d="M0-.75h24v24H0z" fill="none"/>'+
-                                    '</svg>'+
-                                    '<tag style="color: #FFF; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-btn-icon floaty-btn-icon-create absolute-center">'+
-                                      '<i class="fa fa-print"></i>'+
-                                    '</tag>'+
-                                    '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Print Duplicate Invoice</span>'+
-                                  '</div>'+
-                         '</div>';      	
-        }
-
-
-		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
-												'<div class="box box-primary">'+
-												'   <div class="box-body">'+
-												      '<div class="box-header" style="padding: 10px 0px">'+
-												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+paymentOptionUsedButton+'</h3>'+subOptions+
-												      '</div>'+
-												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at <b style="color: #5dd2a1">'+getFancyTime(bill.timeBill)+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> KOT Number <tag style="color: #50aade; font-weight: bold;">'+bill.KOTNumber+'</tag></time>'+
-												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
-												         '<table class="table">'+
-												         	'<col width="5%">'+
-												         	'<col width="50%">'+
-												         	'<col width="15%">'+
-												         	'<col width="15%">'+
-												         	'<col width="15%">'+
-												            '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left">#</th> <th style="text-align: left">Item</th> <th style="text-align: center">Quantity</th> <th style="text-align: center">Unit Price</th> <th style="text-align: right">Total</th> </tr> </thead>'+
-												            '<tbody>'+itemsList+'</tbody><tbody class="billRowOtherCharges" style="border-top: 1px solid">'+otherCharges+
-												            '</tbody>'+
-												         '</table>'+
-												         '<div class="row" style="margin-top: 40px">'+
-												            '<div class="col-xs-4"> <div class="deliveryAddress"> <p class="deliveryTitle">Customer Details</p>'+((bill.customerName == '' && bill.customerMobile == '') ? '<p class="deliveryText" style="color: #ff8787">Not Available</p>' : '')+( bill.customerName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.customerName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.customerMobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.customerMobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
-												            '<div class="col-xs-4">'+deliveryAgentDetailsContent+'</div>'+
-												            '<div class="col-xs-4"> <div class="deliveryAddress"> <p class="deliveryTitle">Steward Details</p>'+( bill.stewardName != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.stewardName+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.stewardCode != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.stewardCode+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div> </div>'+
-												         '</div>'+
-												      '</div>'+
-												      '<div class="clearfix"></div>'+
-												'   </div>'+
-												'</div>';
-
-
-				//Floating Button Animation
-				var $floaty = $('.floaty');
-
-				$floaty.on('mouseover click', function(e) {
-				  $floaty.addClass('is-active');
-				  e.stopPropagation();
-				});
-
-				$floaty.on('mouseout', function() {
-				  $floaty.removeClass('is-active');
-				});
-
-				$('.container').on('click', function() {
-				  $floaty.removeClass('is-active');
-				});
-
+	if(staffSelected.photoURL != ''){
+		document.getElementById("selectedSalaryProfilePhoto").innerHTML = '<img src="'+staffSelected.photoURL+'" width="120px" style="border: 2px solid #e9e9e9; right: 15px; top: -62px; padding: 2px; position: absolute; max-height: 120px;">';
 	}
 	else{
-		showToast('System Error: Failed to Render. Please contact Accelerate Support if problem persists.', '#e74c3c');
-		return '';
-	}	
+		document.getElementById("selectedSalaryProfilePhoto").innerHTML = '<img src="images/common/dummy_person.png" width="120px" style="border: 2px solid #e9e9e9; right: 15px; top: -62px; padding: 2px; position: absolute; max-height: 120px;">';
+	}
+
+	$('#salary_amount').val(staffSelected.payAmountDue);
 }
+
+function adjustInventoryUnit(){
+	var e = document.getElementById("purchase_name_of_inventory");
+	var optionSelected = e.options[e.selectedIndex];
+	var inventorySelected = JSON.parse(decodeURI($(optionSelected).attr("data-holder")));
+
+	$('#purchase_unit_of_inventory').html(inventorySelected.unit);
+	$('#purchase_quantity_of_inventory').focus();
+	$('#purchase_quantity_of_inventory').select();
+}
+
+function adjustBeneficiaryInfo(){
+	var e = document.getElementById("expense_issued_to_type");
+	var optionSelected = e.options[e.selectedIndex];
+	var beneficiarySelected = $(optionSelected).val();
+	
+	if(beneficiarySelected == 'STAFF'){
+
+		var data = {
+			"token": window.localStorage.loggedInAdmin
+		}
+
+		showLoading(10000, 'Loading...');
+
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.zaitoon.online/services/erpfetchstafflistsalary.php',
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			dataType: 'json',
+			timeout: 10000,
+			success: function(data) {
+			  
+			  hideLoading();
+
+			  if(data.status){
+
+			  	var staffMasterList = data.response;
+
+			  	if(staffMasterList.length == 0){
+			  		showToast('Warning! There are no staff accounts added on Desk Portal.', '#e67e22');
+			  		document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Beneficiary Name">';
+			  		return '';
+			  	}
+
+			  	var staffSelectionContent = '';
+
+			  	var n = 0;
+			  	while(staffMasterList[n]){
+
+			  		var staffList = '';
+
+			  		for(var i = 0; i < staffMasterList[n].staff.length; i++){
+			  			staffList += '<option value="'+staffMasterList[n].staff[i].employeeID+'">'+staffMasterList[n].staff[i].fName+' '+staffMasterList[n].staff[i].lName+' ('+staffMasterList[n].staff[i].employeeID+')</option>';
+
+			  			if(i == staffMasterList[n].staff.length - 1){ //last iteration	
+			  				staffSelectionContent += '<optgroup label="'+staffMasterList[n].role+'">'+staffList+'</optgroup>';
+			  			}
+			  		}
+			  		
+			  		n++;
+			  	}
+
+			  	document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label>'+
+			  				'<select class="form-control" id="expense_issued_to">'+staffSelectionContent+'</select>';
+
+			  }
+			  else{
+			  	showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			  	document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Beneficiary Name">';
+			  }
+
+			},
+			error: function(data){
+				hideLoading();
+				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Beneficiary Name">';
+			}
+		});			
+	}
+	else if(beneficiarySelected == 'VENDOR'){
+
+		var data = {
+			"token": window.localStorage.loggedInAdmin
+		}
+
+		showLoading(10000, 'Loading...');
+
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.zaitoon.online/services/erpnewstockmetadata.php',
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			dataType: 'json',
+			timeout: 10000,
+			success: function(data) {
+		
+			  hideLoading();
+
+			  if(data.status){
+
+				var metaVendorsList = data.vendors;
+
+			  	if(metaVendorsList.length == 0){
+			  		showToast('Warning! There are no staff accounts added on Desk Portal.', '#e67e22');
+			  		document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Beneficiary Name">';
+			  		return '';
+			  	}
+
+			  	var vendorSelectionContent = '';
+
+			  	var m = 0;
+			  	while(metaVendorsList[m]){
+			  		vendorSelectionContent += '<option value="'+metaVendorsList[m].code+'">'+metaVendorsList[m].name+'</option>';
+			  		m++;
+			  	}
+
+			  	document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label>'+
+			  				'<select class="form-control" id="expense_issued_to">'+vendorSelectionContent+'</select>';
+
+			  }
+			  else{
+			  	showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			  	document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Beneficiary Name">';
+			  }
+
+			},
+			error: function(data){
+				hideLoading();
+				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Beneficiary Name">';
+			}
+		});	
+	}	
+	else if(beneficiarySelected == 'AGENT'){
+		document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Agent Name">';
+	}	
+	else if(beneficiarySelected == 'OTHER'){
+		document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Beneficiary Name">';
+	}	
+	else{
+		document.getElementById("expense_beneficiary_content").innerHTML = '<label class="myReservationLabel">Issued To (Beneficiary)</label> <input type="text" value="" id="expense_issued_to" class="form-control input-lg" placeholder="Beneficiary Name">';
+	}
+}
+
+
+function proceedToIssueSalarySlip(){
+
+		var newSalarySlip = {};
+
+		newSalarySlip.month = document.getElementById("salary_month").value;
+		newSalarySlip.date = document.getElementById("salary_date_of_payment").value;
+		newSalarySlip.mode = document.getElementById("salary_mode_of_payment").value;
+		newSalarySlip.employeeCode = document.getElementById("selectedStaffProfileOption").value;
+		newSalarySlip.amount = document.getElementById("salary_amount").value;
+     	newSalarySlip.reference = document.getElementById("salary_transaction_reference").value;
+     	newSalarySlip.comments = document.getElementById("salary_comments").value;
+
+		if(newSalarySlip.employeeCode == ""){
+			showToast('Warning! Select Employee', '#e67e22');
+		}
+		else if(newSalarySlip.amount == "" || newSalarySlip.amount == 0){
+			showToast('Warning! Invalid Amount', '#e67e22');
+		}
+		else if(newSalarySlip.date == "" || newSalarySlip.month == ""){
+			showToast('Warning! Add Date and Issuing Month', '#e67e22');
+		}
+		else if(newSalarySlip.mode == ""){
+			showToast('Warning! Select Payment Mode', '#e67e22');
+		}
+		else{
+
+			
+			newSalarySlip.month = standardiseMonth(newSalarySlip.month);
+								
+			var data = {};
+	    	data.details = newSalarySlip;
+		    data.token = window.localStorage.loggedInAdmin;
+
+		    showLoading(10000, 'Saving...');
+            
+
+			$.ajax({
+				type: 'POST',
+				url: 'https://www.zaitoon.online/services/erpaddsalaryslip.php',
+				data: JSON.stringify(data),
+				contentType: "application/json",
+				dataType: 'json',
+				timeout: 10000,
+				success: function(data) {
+				  
+				  hideLoading();
+
+				  if(data.status){	
+				  	hideIssueSalarySlipModal();
+				  	showToast('Payment Slip generated Successfully!', '#27ae60');
+				  	loadAllAddedExpenses('EXTERNAL', 'LOADING_ANIMATION');
+				  }
+				  else{
+				  	showToast('Error: '+data.error, '#e74c3c');
+				  }
+				},
+				error: function(data){
+					hideLoading();
+					showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				}
+			});	
+
+
+		}
+
+
+		function standardiseMonth(input){
+			var temp = input.split(' ');
+			var month = temp[0];
+
+			return temp[1]+''+getMonthDigit(month)
+
+		}
+
+
+		function getMonthDigit(text){
+		    switch(text) {
+		        case 'January':
+		            return '01'
+		        case 'February':
+		            return '02'
+		        case 'March':
+		            return '03'
+		        case 'April':
+		            return '04'
+		        case 'May':
+		            return '05'
+		        case 'June':
+		            return '06'
+		        case 'July':
+		            return '07'
+		        case 'August':
+		            return '08'   
+		        case 'September':
+		            return '09'
+		        case 'October':
+		            return '10'
+		        case 'November':
+		            return '11'
+		        case 'December':
+		            return '12'                
+		    }
+		}
+
+}
+
+
+
+function proceedToGeneratePurchaseEntry(){
+
+		var newPurchaseEntry = {};
+
+		newPurchaseEntry.vendorId = document.getElementById("purchase_name_of_vendor").value;
+		newPurchaseEntry.item = document.getElementById("purchase_name_of_inventory").value;
+		newPurchaseEntry.units = document.getElementById("purchase_quantity_of_inventory").value;
+		newPurchaseEntry.paymentMode = document.getElementById("purchase_mode_of_payment").value;
+		newPurchaseEntry.remarks = document.getElementById("purchase_comments").value;
+		newPurchaseEntry.amount = document.getElementById("purchase_total_amount").value;
+		newPurchaseEntry.date = document.getElementById("purchase_date_of_purchase").value;
+		
+
+		if(newPurchaseEntry.vendorId == ""){
+			showToast('Warning! Choose a Vendor', '#e67e22');
+	  	}      
+	  	else if(newPurchaseEntry.item == ""){
+	  	    showToast('Warning! Choose an Inventory', '#e67e22'); 
+		}
+		else if(newPurchaseEntry.units == "" || newPurchaseEntry.units < 1){
+		    showToast('Warning! Enter the purchased quantity', '#e67e22');  		
+		}
+		else if(newPurchaseEntry.date == ""){
+		    showToast('Warning! Enter purchase date', '#e67e22'); 
+		}
+		else if(newPurchaseEntry.paymentMode == ""){
+		    showToast('Warning! Choose a payment method', '#e67e22');
+		}
+		else if(newPurchaseEntry.amount == "" || newPurchaseEntry.totalAmount < 1){
+		    showToast('Warning! Enter the total amount', '#e67e22'); 
+		}
+		else{
+
+		    newPurchaseEntry.token = window.localStorage.loggedInAdmin;
+
+		    showLoading(10000, 'Saving...');
+            
+			$.ajax({
+				type: 'POST',
+				url: 'https://www.zaitoon.online/services/erpaddinventorypurchasehistory.php',
+				data: JSON.stringify(newPurchaseEntry),
+				contentType: "application/json",
+				dataType: 'json',
+				timeout: 10000,
+				success: function(data) {
+				  
+				  hideLoading();
+
+				  if(data.status){	
+				  	hideIssuePurchaseSlipModal();
+				  	showToast('Purchase Entry added Successfully!', '#27ae60');
+				  	loadAllAddedExpenses('EXTERNAL', 'LOADING_ANIMATION');
+				  }
+				  else{
+				  	showToast('Error: '+data.error, '#e74c3c');
+				  }
+				},
+				error: function(data){
+					hideLoading();
+					showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				}
+			});	
+
+
+		}
+
+}
+
+
+
+function proceedToRecordExpense(){
+
+		var newExpenseObject = {};
+
+		newExpenseObject.date = document.getElementById("expense_date_of_payment").value;
+		newExpenseObject.mode = document.getElementById("expense_mode_of_payment").value;
+		newExpenseObject.amount = document.getElementById("expense_amount").value;
+		newExpenseObject.approver = document.getElementById("expense_approver").value;
+     	newExpenseObject.purpose = document.getElementById("expense_purpose").value;
+     	newExpenseObject.issuedTo = document.getElementById("expense_issued_to").value;
+     	newExpenseObject.issuedToType = document.getElementById("expense_issued_to_type").value;
+
+		if(newExpenseObject.approver == ""){
+			showToast('Warning! Select an Approver', '#e67e22');
+		}
+		else if(newExpenseObject.issuedTo == ""){
+			showToast('Warning! Add a Beneficiary', '#e67e22');
+		}
+		else if(newExpenseObject.issuedToType == ""){
+			showToast('Warning! Select Beneficiary Type', '#e67e22');
+		}
+		else if(newExpenseObject.amount == "" || newExpenseObject.amount < 1){
+			showToast('Warning! Invalid Amount', '#e67e22');
+		}
+		else if(newExpenseObject.date == ""){
+			showToast('Warning! Add the Date', '#e67e22');
+		}
+		else if(newExpenseObject.mode == ""){
+			showToast('Warning! Select the Payment Mode', '#e67e22');
+		}
+		else if(newExpenseObject.purpose == ""){
+			showToast('Warning! Add Purpose', '#e67e22');
+		}
+		else{
+			console.log(newExpenseObject)
+			return '';
+
+			var data = {};
+	    	data.details = newExpenseObject;
+		    data.token = window.localStorage.loggedInAdmin;
+
+		    showLoading(10000, 'Saving...');
+            
+
+			$.ajax({
+				type: 'POST',
+				url: 'https://www.zaitoon.online/services/erpaddsalaryslip.php',
+				data: JSON.stringify(data),
+				contentType: "application/json",
+				dataType: 'json',
+				timeout: 10000,
+				success: function(data) {
+				  
+				  hideLoading();
+
+				  if(data.status){	
+				  	hideRecordExpenseModal();
+				  	showToast('Expense Record saved Successfully!', '#27ae60');
+				  	loadAllAddedExpenses('EXTERNAL', 'LOADING_ANIMATION');
+				  }
+				  else{
+				  	showToast('Error: '+data.error, '#e74c3c');
+				  }
+				},
+				error: function(data){
+					hideLoading();
+					showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				}
+			});	
+
+
+		}
+}
+
+
+
+
+
+function printExpenseSlip(encodedExpense){
+	var expensesData = JSON.parse(decodeURI(encodedExpense));
+}
+
+
+function initiateRemoveExpenseRecord(encodedExpense){
+	var expensesData = JSON.parse(decodeURI(encodedExpense));
+}
+
 
 
 function getPrimaryRefundStatus(status, amount){
@@ -2877,18 +1358,11 @@ function openDiscountDetailsInfoHide(){
 
 
 
-/* SEARCH AND FILTER */
 
-function openFilterModalBills(optionalRoute){
 
-	document.getElementById("searchFilterModal").style.display = 'block';
+function openFilterModalExpenses(){
 
-	if(optionalRoute == 'PENDING'){
-		document.getElementById("actionButtonSearch").innerHTML = '<button  class="btn btn-success" onclick="filterSearchInitialize(\'PENDING\')" style="float: right">Proceed</button>';
-	}
-	else if(optionalRoute == 'SETTLED'){
-		document.getElementById("actionButtonSearch").innerHTML = '<button  class="btn btn-success" onclick="filterSearchInitialize(\'SETTLED\')" style="float: right">Proceed</button>';
-	}
+	document.getElementById("searchExpensesFilterModal").style.display = 'block';
 
 
 	var options = {
@@ -2904,11 +1378,11 @@ function openFilterModalBills(optionalRoute){
 	$("#filter_search_key").focus();
 }
 
-function hideFilterModal(){
-	document.getElementById("searchFilterModal").style.display = 'none';
+function hideExpensesFilterModal(){
+	document.getElementById("searchExpensesFilterModal").style.display = 'none';
 }
 
-function changeFilterSearchCriteria(){
+function changeExpenseFilterSearchCriteria(){
 
 	var tempValue = '';
 	if(document.getElementById("filter_search_key") != null){
@@ -2954,7 +1428,7 @@ function changeFilterSearchCriteria(){
 	              	return '';
 	              }
 
-	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Payments</p>';
+	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Payments</p>';
 	          }
 	          else{
 	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -3007,7 +1481,7 @@ function changeFilterSearchCriteria(){
 	              	return '';
 	              }
 
-	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Orders</p>';
+	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Orders</p>';
 	          }
 	          else{
 	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -3060,7 +1534,7 @@ function changeFilterSearchCriteria(){
 	              	return '';
 	              }
 
-	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Session alone</p>';
+	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Session alone</p>';
 	          }
 	          else{
 	            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -3112,7 +1586,7 @@ function changeFilterSearchCriteria(){
 	              	return '';
 	              }
 
-	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders billed on <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>only</p>';
+	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders billed on <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>only</p>';
 	          }
 	          else{
 	            showToast('Not Found Error: Registered Machines data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -3165,7 +1639,7 @@ function changeFilterSearchCriteria(){
 	              	return '';
 	              }
 
-	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders punched by <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select></p>';
+	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders punched by <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select></p>';
 	          }
 	          else{
 	            showToast('Not Found Error: Staff data not found. Please contact Accelerate Support.', '#e74c3c');
@@ -3183,24 +1657,25 @@ function changeFilterSearchCriteria(){
 	    });
 	}
 	else if(criteria == 'discount'){
-	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="discounted">Discounted</option><option value="nondiscounted">Non Discounted</option></select>Orders</p>';
+	    document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="discounted">Discounted</option><option value="nondiscounted">Non Discounted</option></select>Orders</p>';
 	}
 	else if(criteria == 'refund'){
-	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show Order with <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="norefund">No Refunds</option><option value="partialrefund">Partial Refund</option><option value="fullrefund">Full Refund</option></select>issued</p>';
+	    document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show Order with <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="norefund">No Refunds</option><option value="partialrefund">Partial Refund</option><option value="fullrefund">Full Refund</option></select>issued</p>';
 	}
 	else if(criteria == 'all'){
-	    document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Showing <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="all">All the Orders</option></select></p>';
+	    document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Showing <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="all">All the Orders</option></select></p>';
 	}
 	else{
-		document.getElementById("filterSearchArea").innerHTML = '<input type="text" value="'+tempValue+'" class="form-control tip" id="filter_search_key" style="border: none; border-bottom: 2px solid; font-size: 36px; height: 60px; font-weight: 300; padding: 10px 3px;" placeholder="Search Here" required="required" />';
+		document.getElementById("filterExpensesSearchArea").innerHTML = '<input type="text" value="'+tempValue+'" class="form-control tip" id="filter_search_key" style="border: none; border-bottom: 2px solid; font-size: 36px; height: 60px; font-weight: 300; padding: 10px 3px;" placeholder="Search Here" required="required" />';
 		$("#filter_search_key").focus();
 	}
 }
 
-function filterSearchInitialize(optionalRoute){
+
+function filterByDateInitialize(optionalRoute){
 
 	//Show Animation
-	document.getElementById("billBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+	document.getElementById("expenseBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
 										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
 										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
 										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
@@ -3235,7 +1710,7 @@ function filterSearchInitialize(optionalRoute){
 
 	window.localStorage.billFilterCriteria = JSON.stringify(searchObj);
 
-	document.getElementById("billBriefDisplayRender").innerHTML = '';
+	document.getElementById("expenseBriefDisplayRender").innerHTML = '';
 
 	if(optionalRoute == 'SETTLED'){
 		loadAllSettledBills();
@@ -3245,24 +1720,13 @@ function filterSearchInitialize(optionalRoute){
 	}
 }
 
-function clearAppliedFilter(optionalRoute){
+function clearFilterModalExpenses(optionalRoute){
 
-	window.localStorage.billFilterCriteria = '';
+	window.localStorage.expensesFilterCriteria = '';
 
-	if(optionalRoute == 'SETTLED'){
-		totalPages = 0;
-		currentPage = 1;
-		displayType = 'SETTLED';
-
-		loadAllSettledBills();
-	}
-	else{
-		totalPages = 0;
-		currentPage = 1;
-		displayType = 'PENDING';
-
-		loadAllPendingSettlementBills('EXTERNAL');
-	}	
+	totalPages = 0;
+	currentPage = 1;
+	loadAllAddedExpenses();	
 }
 
 

@@ -124,7 +124,6 @@ function searchRequest(){
 
 	var user = document.getElementById("rewardsSearchInput").value;
 
-
 	var data = {
 		"token": window.localStorage.loggedInAdmin,
 		"id": 0,
