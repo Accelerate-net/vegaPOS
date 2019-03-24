@@ -500,14 +500,26 @@ function viewServerURL(){
   
   document.getElementById("serverConnectionURLDisplayModal").style.display = 'block';
 
-  var default_url = 'http://admin:admin@127.0.0.1:5984/';
-  var saved_url = window.localStorage.serverConnectionURL ? window.localStorage.serverConnectionURL : '';
+  var default_ip = '127.0.0.1';
+  var default_port = '5984';
+  var default_username = 'admin';
+  var default_password = 'admin';
+
+  var saved_url = window.localStorage.serverConnectionURL ? JSON.parse(decodeURI(window.localStorage.serverConnectionURL)) : '';
+
+  console.log(saved_url)
 
   if(saved_url == ''){
-    $('#add_custom_server_url').val(default_url);
+    $('#add_custom_server_ip').val(default_ip);
+    $('#add_custom_server_port').val(default_port);
+    $('#add_custom_server_username').val(default_username);
+    $('#add_custom_server_password').val(default_password);
   }
   else{
-    $('#add_custom_server_url').val(saved_url);
+    $('#add_custom_server_ip').val(saved_url.ip);
+    $('#add_custom_server_port').val(saved_url.portNumber);
+    $('#add_custom_server_username').val(saved_url.username);
+    $('#add_custom_server_password').val(saved_url.password);
   }
 }
 
@@ -517,20 +529,38 @@ function viewServerURLHide(){
 
 function setServerConnectionURL(){
 
-  var url = $('#add_custom_server_url').val();
-  url = url.replace(/\s/g,'');
+  var userURL = {
+    'ip' : $('#add_custom_server_ip').val(),
+    'portNumber' : $('#add_custom_server_port').val(),
+    'username': $('#add_custom_server_username').val(),
+    'password': $('#add_custom_server_password').val()
+  };
+
+  userURL.ip = (userURL.ip).replace(/\s/g,'');
+  userURL.portNumber = (userURL.portNumber).replace(/\s/g,'');
+  userURL.username = (userURL.username).replace(/\s/g,'');
+  userURL.password = (userURL.password).replace(/\s/g,'');
+
+  console.log(userURL)
 
   var default_url = 'http://admin:admin@127.0.0.1:5984/';
 
-  if(url != ''){
-    window.localStorage.serverConnectionURL = url;
-    COMMON_LOCAL_SERVER_IP = url;
+  if(userURL.ip != '' && userURL.portNumber != ''){
+    
+    window.localStorage.serverConnectionURL = encodeURI(JSON.stringify(userURL));
+    
+    if(userURL.username != '' && userURL.password != ''){
+      COMMON_LOCAL_SERVER_IP = 'http://'+userURL.username+':'+userURL.password+'@'+userURL.ip+':'+userURL.portNumber+'/';
+    }
+    else{
+      COMMON_LOCAL_SERVER_IP = 'http://'+userURL.ip+':'+userURL.portNumber+'/';
+    }
 
     viewServerURLHide();
   }
   else{
     COMMON_LOCAL_SERVER_IP = default_url;
-    showToast('Error: Add a Server URL', '#e74c3c');
+    showToast('Error: Add valid Server Credentials', '#e74c3c');
   }
 }
 
@@ -568,7 +598,6 @@ function goProceedToActivation(){
           hideLoading();
 
           if(data.status){
-            console.log(data.response)
             pushLicenseToLocaServerFromHome(data.response);
           }
           else{
@@ -633,7 +662,7 @@ function pushLicenseToLocaServerFromHome(licenceObject){
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read System Configurations data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('Server Connection Error: Unable to read System Configurations. Check Server Credentials.', '#e74c3c');
       }
 
     });  

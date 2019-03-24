@@ -176,21 +176,41 @@
             <div class="modal-content">
                <div class="modal-header defaultModalColoredHeader" style="background: #cc4333">
                   <button  onclick="viewServerURLHide()" style="float: right;" class="btn clearButton">X</button>
-                  <h4 class="modal-title"><i class="fa fa-desktop" style="margin-right: 8px"></i>Server Address</h4>
+                  <h4 class="modal-title"><i class="fa fa-desktop" style="margin-right: 8px"></i>Server Credentials</h4>
                </div>
                <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 20px;">
 
                      <div class="row">
                         <div class="col-lg-12">
                            <div class="form-group">
-                              <input type="text" value="" placeholder="Server URL" style="border: none; border-bottom: 1px solid #ddd" class="form-control tip" id="add_custom_server_url"/>
+                              <label style="font-size: 12px; text-transform: uppercase;">Server IP Address</label>
+                              <input type="text" placeholder="Server IP" style="border: none; border-bottom: 1px solid #ddd; padding-left: 0" class="form-control tip" id="add_custom_server_ip"/>
                            </div>
                         </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label style="font-size: 12px; text-transform: uppercase;">Server Port</label>
+                              <input type="number" placeholder="Server Port" style="border: none; border-bottom: 1px solid #ddd; padding-left: 0" class="form-control tip" id="add_custom_server_port"/>
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label style="font-size: 12px; text-transform: uppercase;">User Name</label>
+                              <input type="text" placeholder="Username" style="border: none; border-bottom: 1px solid #ddd; padding-left: 0" class="form-control tip" id="add_custom_server_username"/>
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label style="font-size: 12px; text-transform: uppercase;">Password</label>
+                              <input type="password" placeholder="Password" style="border: none; border-bottom: 1px solid #ddd; padding-left: 0" class="form-control tip" id="add_custom_server_password"/>
+                           </div>
+                        </div>
+
                      </div>
 
                </div>
                <div class="modal-footer" style="padding: 0">
-                  <button style="width: 100%; border: none; border-radius: 0; height: 45px; outline: none !important;" class="btn btn-warning" onclick="setServerConnectionURL()">Save Server Address</button>
+                  <button style="width: 100%; border: none; border-radius: 0; height: 45px; outline: none !important; font-size: 16px" class="btn btn-warning" onclick="setServerConnectionURL()">Save Credentials</button>
                </div>
             </div>
          </div>

@@ -490,13 +490,22 @@ function renderConfigureSystem(){
                 
                 //Server IP Address
                 var default_url = 'http://admin:admin@127.0.0.1:5984/';
-                var saved_url = window.localStorage.serverConnectionURL ? window.localStorage.serverConnectionURL : '';
+                var saved_url = window.localStorage.serverConnectionURL ? JSON.parse(decodeURI(window.localStorage.serverConnectionURL)) : '';
+                var saved_url_string = '';
 
-                if(saved_url == ''){
+                if(saved_url.ip != '' && saved_url.portNumber != ''){
+                  saved_url_string = 'http://'+saved_url.ip+':'+saved_url.portNumber+'/';
+                }
+                else{
+                  saved_url_string = '';
+                }
+
+
+                if(saved_url_string == ''){
                   $('#system_configure_server_address').val(default_url);
                 }
                 else{
-                  $('#system_configure_server_address').val(saved_url);
+                  $('#system_configure_server_address').val(saved_url_string);
                 }
 
               }
