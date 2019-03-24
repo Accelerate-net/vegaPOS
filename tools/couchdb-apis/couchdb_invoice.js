@@ -9,6 +9,9 @@
     },
     "filterbymode": {
       "map": "function (doc) {\n  if(doc.paymentMode){\n    emit(doc.paymentMode, doc);\n  }\n  \n}"
+    },
+    "getlastbill": {
+      "map": "function (doc) {\n  if(doc.dateStamp){\n    emit([doc.dateStamp], doc.billNumber);\n  }\n}"
     }
   },
   "language": "javascript"

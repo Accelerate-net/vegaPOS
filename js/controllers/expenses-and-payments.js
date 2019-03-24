@@ -85,8 +85,10 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 			dataType: 'json',
 			timeout: 10000,
 			success: function(data) {
-			  
+
 			  hideLoading();
+
+			if(data.status){
 		     
 			  var expensesData = data.response;
 			  var expensesDataTotal = data.totalCount;
@@ -119,9 +121,7 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 
 		      renderExpensePageDefault();
 
-		      
-
-
+		     
 		      var resultRender = '';
 		      var n = 0;
 		      while(expensesData[n]){
@@ -142,11 +142,18 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 							'<th style="text-align: left">Admin</th></tr></thead><tbody>'+resultRender+'</tbody></table>';
 
 
-			},
-			error: function(data){
+			}
+			else{
+				showToast('Cloud Server Error: '+data.error, '#e74c3c');
+				document.getElementById("expenseBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Connection Error. Unable to load data from the cloud server.<p style="text-align: center"><tag style="color: #999; border: 1px solid #999; padding: 0 10px; font-size: 12px; border-radius: 3px; text-transform: uppercase; cursor: pointer; display: inline-block;" onclick="loadAllAddedExpenses(); checkLogin();">Refresh</tag></p></p>';
+			}
+
+		  },
+		  error: function(data){
 				hideLoading();
 				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
-			}
+		  		document.getElementById("expenseBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Connection Error. Unable to load data from the cloud server.</p>';
+		  }
 		});	
 
 	}

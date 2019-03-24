@@ -4040,6 +4040,10 @@ function fetchSingleClickReport(){
 	var paymentGraphData = []; //For payment graphs
 	var billsGraphData = []; //For bills graphs
 
+	var startingBillNumber = '-';
+	var endingBillNumber = '-';
+	var netCancelledBills = 0;
+
 
 	//Net Sales Worth = Total Paid - (All the other charges) - (Discounts & Refunds) + (Tips)
 
@@ -4105,8 +4109,8 @@ function fetchSingleClickReport(){
 					netGuestsCount = data.rows[0].value.sum;
 				}
 
-				//Step 2:
-				singleClickExtraCharges();
+				//Step 1-3:
+				singleClickLastInvoiceNumbers();
 
 			},
 			error: function(data){
@@ -4119,11 +4123,41 @@ function fetchSingleClickReport(){
 		});  
 	}		
 
+	//Step 1-3: First and last invoice number
+	function singleClickLastInvoiceNumbers(){
+
+		runReportAnimation(4); //of Step 1-2 which takes 1 units
+
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoices/_view/getlastbill?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				if(data.rows.length > 0){
+					startingBillNumber = data.rows[0].value;
+					endingBillNumber = data.rows[data.rows.length - 1].value;
+				}
+
+				//Step 2:
+				singleClickExtraCharges();
+
+			},
+			error: function(data){
+				completeErrorList.push({
+				    "step": 1.3,
+					"error": "Failed to find the starting and ending invoice numbers"
+				});
+				return '';
+			}
+		});  
+	}		
+
 
 	//Step 2: 
 	function singleClickExtraCharges(){
 
-		runReportAnimation(5); //of Step 1-2 which takes 2 units
+		runReportAnimation(5); //of Step 1-3 which takes 1 units
 
 	    var requestData = {
 	      "selector"  :{ 
@@ -4485,7 +4519,7 @@ function fetchSingleClickReport(){
 	//Step 6: Total Refunds Issued
 	function singleClickRefundsIssued(){
 
-		runReportAnimation(30); //of Step 5 which takes 5 units
+		runReportAnimation(28); //of Step 5 which takes 3 units
 
 		//Refunded but NOT cancelled
 		$.ajax({
@@ -4525,8 +4559,8 @@ function fetchSingleClickReport(){
 								"count": temp_refundCount
 						});	
 
-						//Step 7: Render everything 
-						singleClickSummaryFinal();
+						//Step 6.1 : Get cancelled invoices count
+						singleClickCancelledInvoices();
 
 					},
 					error: function(data){
@@ -4535,8 +4569,8 @@ function fetchSingleClickReport(){
 							"error": "Failed to read refunds issued"
 						});				
 
-						//Skip and go to next step
-						singleClickSummaryFinal(); 
+						//Step 6.1 : Get cancelled invoices count
+						singleClickCancelledInvoices(); 
 						return '';
 					}
 				});  
@@ -4549,11 +4583,47 @@ function fetchSingleClickReport(){
 					"error": "Failed to read refunds issued"
 				});				
 
-				//Skip and go to next step
-				singleClickSummaryFinal(); 
+				//Step 6.1 : Get cancelled invoices count
+				singleClickCancelledInvoices(); 
 				return '';
 			}
 		});  		
+	}
+
+
+	//Step 6.1 : Get cancelled invoices count
+	function singleClickCancelledInvoices(){
+
+		runReportAnimation(30); //of Step 6 which takes 2 units
+	
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoices/_view/getcount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				if(data.rows.length > 0){
+					netCancelledBills = data.rows[0].value;
+				}
+
+				//Step 7: Render everything 
+				singleClickSummaryFinal();
+
+			},
+			error: function(data){
+				completeErrorList.push({
+				    "step": 6.1,
+					"error": "Failed to find the number of cancelled invoices"
+				});
+				
+				//Step 7: Render everything 
+				singleClickSummaryFinal();
+
+				return '';
+			}
+		});  
+
+		
 	}
 
 
@@ -6208,7 +6278,10 @@ function fetchSingleClickReport(){
 				            '<col style="width: 85%">'+
 				            '<col style="width: 15%">'+ 
 				            '<tr><td style="font-size: 10px">Total Guests</td><td style="font-size: 13px">'+netGuestsCount+'</td></tr>'+
+				            '<tr><td style="font-size: 10px">First Bill No.</td><td style="font-size: 13px">'+startingBillNumber+'</td></tr>'+
+				            '<tr><td style="font-size: 10px">Last Bill No.</td><td style="font-size: 13px">'+endingBillNumber+'</td></tr>'+
 				            '<tr><td style="font-size: 10px">Total Bills</td><td style="font-size: 13px">'+completeReportInfo[0].count+'</td></tr>'+
+				            '<tr><td style="font-size: 10px">Cancelled Bills</td><td style="font-size: 13px">'+netCancelledBills+'</td></tr>'+
 				         '</table>'+
 				    '</div>';
 

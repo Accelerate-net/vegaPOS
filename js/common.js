@@ -3,7 +3,24 @@
 */
 
 var default_server_url_common = 'http://admin:admin@127.0.0.1:5984/';
-var saved_server_url_manual = window.localStorage.serverConnectionURL ? window.localStorage.serverConnectionURL : '';
+
+var serverURL = window.localStorage.serverConnectionURL ? JSON.parse(decodeURI(window.localStorage.serverConnectionURL)) : '';
+var saved_server_url_manual = '';
+
+  if(serverURL.ip != '' && serverURL.portNumber != ''){
+    if(serverURL.username != '' && serverURL.password != ''){
+      saved_server_url_manual = 'http://'+serverURL.username+':'+serverURL.password+'@'+serverURL.ip+':'+serverURL.portNumber+'/';
+    }
+    else{
+      saved_server_url_manual = 'http://'+serverURL.ip+':'+serverURL.portNumber+'/';
+    }
+  }
+  else{
+    saved_server_url_manual = '';
+  }
+
+
+
 
 let COMMON_LOCAL_SERVER_IP = saved_server_url_manual != '' ? saved_server_url_manual : default_server_url_common;
 let NOTIFICATION_FILTER = 'ALL';
