@@ -1,11 +1,11 @@
 
-var currentPage = 1;
-var totalPages = 1;
-var filterResultsCount = 0;
+var currentExpensePage = 1;
+var totalExpensePages = 1;
+var filterExpenseResultsCount = 0;
 
 function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 
-	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
+	console.log('*** Rendering Page: '+currentExpensePage+" (of "+totalExpensePages+")")
 
 	if(optionalAnimationFlag && optionalAnimationFlag == 'LOADING_ANIMATION'){
 		//Show Animation
@@ -30,14 +30,15 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 	*/
 
 	var isFilterApplied = false;
-	var filterObject;
+	var filterObject = '';
 		  
 	var filter_start = '';
 	var filter_end = '';
 
-	if(window.localStorage.expensesFilterCriteria && window.localStorage.expensesFilterCriteria != ''){
+	if(window.localStorage.expenseFilterCriteria && window.localStorage.expenseFilterCriteria != ''){
 		isFilterApplied = true;
-		filterObject = JSON.parse(window.localStorage.expensesFilterCriteria);
+		filterObject = JSON.parse(window.localStorage.expenseFilterCriteria);
+		currentExpensePage = 1;
 
 		if(filterObject.dateFrom == ''){
 			filter_start = '01-01-2018'; //Since the launch of Vega POS
@@ -55,32 +56,30 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 	}
 
 
-	var sampleData = [{ "uid": "12", "type": "SALARY", "reference": "SAL19139", "issuedBy": "Sahadudheen", "issuedTo": "Muhammed Ameen", "issuedToType": "Staff", "amount": "2000", "paymentStatus": "PAID", "modeOfPayment": "TRANSFER", "dateOfPayment": "21-03-2019", "date": "13-03-2019", "time": "12:10 PM", "details": { "salaryIssuingMonth": "February 2019", "staffCode": "9043960876", "comments": "Advance" } }, { "uid": "13", "type": "PURCHASE", "reference": "PU1129", "issuedBy": "Sahadudheen", "issuedTo": "Ali Mutton Stall", "issuedToType": "Vendor", "amount": "1200", "paymentStatus": "PAID", "modeOfPayment": "CASH", "dateOfPayment": "21-03-2019", "date": "13-03-2019", "time": "12:10 PM", "details": { "itemsPurchased": "1 Kg Mutton Legs" } }, { "uid": "13", "type": "EXPENSE", "reference": "", "issuedBy": "Sahadudheen", "issuedTo": "Abhijith", "issuedToType": "Staff", "amount": "300", "paymentStatus": "PAID", "modeOfPayment": "CASH", "dateOfPayment": "21-03-2019", "date": "13-03-2019", "time": "12:10 PM", "details": { "purpose": "Transfer", "authorizedBy": "Manager" } }, { "uid": "13", "type": "CREDIT", "reference": "239_PAY", "issuedBy": "Sahadudheen", "issuedTo": "Account", "issuedToType": "Account", "amount": "300", "paymentStatus": "PAID", "modeOfPayment": "CASH", "dateOfPayment": "21-03-2019", "date": "13-03-2019", "time": "12:10 PM", "details": { "purpose": "Transfer", "receivedFrom": "Abhijith", "receivedType": "Staff", "receivedCode": "9043960876" } }]
-
-
-	if(currentPage == 1){
+	if(currentExpensePage == 1){
 		if(isFilterApplied){
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearFilterModalExpenses()"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterResultsCounter"></count></button>';
+			document.getElementById("expenseTypeTitleButton").innerHTML = '<button class="billsFilterButton" onclick="clearFilterModalExpenses()"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Applied<count id="filterExpenseResultsCounter"></count></button>';
 		}
 		else{
-			document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModalExpenses()">Apply Filter</button>';
+			document.getElementById("expenseTypeTitleButton").innerHTML = '<button class="billsFilterApplyButton" onclick="openFilterModalExpenses()">Apply Filter</button>';
 		}
 	}
 
-	fetchExpensesFromCloudServer(0);	
+	fetchExpensesFromCloudServer(currentExpensePage);	
 
 	function fetchExpensesFromCloudServer(index){
 
 		var data = {
 			"token": window.localStorage.loggedInAdmin,
-			"id": index
+			"index": index, //1 (for first 10), 2 (for 10 to 20) etc...
+			"filter": filterObject
 		}
 
-		showLoading(10000, 'Searching...');
+		showLoading(10000, 'Loading...');
 
 		$.ajax({
 			type: 'POST',
-			url: 'https://www.accelerateengine.app/apis/possearchrewards.php',
+			url: 'https://www.accelerateengine.app/apis/posfetchexpensesmaster.php',
 			data: JSON.stringify(data),
 			contentType: "application/json",
 			dataType: 'json',
@@ -88,19 +87,41 @@ function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 			success: function(data) {
 			  
 			  hideLoading();
-
-			  var expensesData = sampleData;
-			  var expensesDataTotal = 120;
+		     
+			  var expensesData = data.response;
+			  var expensesDataTotal = data.totalCount;
+			  var filterResultsCount = data.filterCount ? data.filterCount : 0;
 
 		      if(expensesData.length == 0){
 		      	document.getElementById("addedExpensesCount").innerHTML = 0;
-		      	document.getElementById("expenseBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">There are no Unsettled Bills.</p>';
+		      	document.getElementById("expenseBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">There are no Expense Records found.</p>';
 				return '';
 		      }
 
-		      document.getElementById("addedExpensesCount").innerHTML = expensesData.length;
-		      totalPages = Math.ceil(expensesDataTotal/10);
+		      document.getElementById("addedExpensesCount").innerHTML = expensesDataTotal;
+		      totalExpensePages = Math.ceil(expensesDataTotal/10);
 		      
+			 
+		      if(isFilterApplied){ //Filter applied case
+		      	
+		      	totalExpensePages = Math.ceil(filterResultsCount/10);
+
+		      	document.getElementById("filterExpenseResultsCounter").innerHTML = ' ('+filterResultsCount+')';
+		      
+				if(totalExpensePages == 0){
+					document.getElementById("expenseBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching records found in Expenses. Modify the filter and try again.</p>';
+					document.getElementById("filterExpenseResultsCounter").innerHTML = '';
+					filterResultsCount = 0;
+					renderExpensePageDefault();
+					return '';
+			    }
+		      }
+
+		      renderExpensePageDefault();
+
+		      
+
+
 		      var resultRender = '';
 		      var n = 0;
 		      while(expensesData[n]){
@@ -147,66 +168,42 @@ function getTypeColor(type){
 }
 
 
-function renderBillPageDefault(target){
+function renderExpensePageDefault(){
 
-	if(totalPages == 0){
-		document.getElementById("navigationAssitantBills").innerHTML = '';
+	if(totalExpensePages == 0){
+		document.getElementById("navigationAssitantExpenses").innerHTML = '';
 	}
-	else if(totalPages == 1){
-		document.getElementById("navigationAssitantBills").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">1 of 1</button>';
+	else if(totalExpensePages == 1){
+		document.getElementById("navigationAssitantExpenses").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">1 of 1</button>';
 	}
-	else if(totalPages > 1){
-		if(currentPage == 1){
-			document.getElementById("navigationAssitantBills").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">'+currentPage+' of '+totalPages+'</button>'+                    
-	                            '<button class="btn btn-success btn-sm" style="float: right;  border: none; border-radius: 0;" onclick="gotoBillPage(\''+(currentPage+1)+'\', \''+target+'\')"><i class="fa fa-chevron-right"></i></button>';	
+	else if(totalExpensePages > 1){
+		if(currentExpensePage == 1){
+			document.getElementById("navigationAssitantExpenses").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">'+currentExpensePage+' of '+totalExpensePages+'</button>'+                    
+	                            '<button class="btn btn-success btn-sm" style="float: right;  border: none; border-radius: 0;" onclick="gotoExpensePage(\''+(currentExpensePage+1)+'\')"><i class="fa fa-chevron-right"></i></button>';	
 		}
-		else if(currentPage == totalPages){
-			document.getElementById("navigationAssitantBills").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">'+currentPage+' of '+totalPages+'</button>'+
-	                            '<button class="btn btn-success btn-sm" style="float: right; border: none; border-radius: 0;" onclick="gotoBillPage(\''+(currentPage-1)+'\', \''+target+'\')"><i class="fa fa-chevron-left"></i></button>';		
+		else if(currentExpensePage == totalExpensePages){
+			document.getElementById("navigationAssitantExpenses").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">'+currentExpensePage+' of '+totalExpensePages+'</button>'+
+	                            '<button class="btn btn-success btn-sm" style="float: right; border: none; border-radius: 0;" onclick="gotoExpensePage(\''+(currentExpensePage-1)+'\')"><i class="fa fa-chevron-left"></i></button>';		
 		}
 		else{
-			document.getElementById("navigationAssitantBills").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">'+currentPage+' of '+totalPages+'</button>'+                    
-	                            '<button class="btn btn-success btn-sm" style="float: right;  border: none; border-radius: 0;" onclick="gotoBillPage(\''+(currentPage+1)+'\', \''+target+'\')"><i class="fa fa-chevron-right"></i></button>'+
-	                            '<button class="btn btn-success btn-sm" style="float: right; border: none; border-radius: 0;" onclick="gotoBillPage(\''+(currentPage-1)+'\', \''+target+'\')"><i class="fa fa-chevron-left"></i></button>';	
+			document.getElementById("navigationAssitantExpenses").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">'+currentExpensePage+' of '+totalExpensePages+'</button>'+                    
+	                            '<button class="btn btn-success btn-sm" style="float: right;  border: none; border-radius: 0;" onclick="gotoExpensePage(\''+(currentExpensePage+1)+'\')"><i class="fa fa-chevron-right"></i></button>'+
+	                            '<button class="btn btn-success btn-sm" style="float: right; border: none; border-radius: 0;" onclick="gotoExpensePage(\''+(currentExpensePage-1)+'\')"><i class="fa fa-chevron-left"></i></button>';	
 		}
 	}
 	else{
-		document.getElementById("navigationAssitantBills").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">1 of 1</button>'+                    
+		document.getElementById("navigationAssitantExpenses").innerHTML = '<button class="btn btn-success btn-sm" style="background: none; color: black; border: none; border-radius: 0;">1 of 1</button>'+                    
                             '<button class="btn btn-success btn-sm" style="float: right;  border: none; border-radius: 0;"><i class="fa fa-chevron-right"></i></button>'+
                             '<button class="btn btn-success btn-sm" style="float: right; border: none; border-radius: 0;"><i class="fa fa-chevron-left"></i></button>';
 	}
 }
 
 
-function gotoBillPage(toPageID, target){
-	currentPage = parseInt(toPageID);
-
-	if(target == 'PENDING'){
-		loadAllPendingSettlementBills();
-	}
-	else if(target == 'SETTLED'){
-		loadAllSettledBills();
-	}
-
-	renderBillPageDefault(target);
+function gotoExpensePage(toPageID){
+	currentExpensePage = parseInt(toPageID);
+	loadAllAddedExpenses();
 }
 
-
-function viewDeliveryAddressFromBill(addressContent) {
-	var address = JSON.parse(decodeURI(addressContent));
-	document.getElementById("addressViewFromBillModal").style.display = 'block';
-
-	document.getElementById("addressViewFromBillModalContent").innerHTML = ''+
-		'<p style="font-size: 16px; padding-left: 10px; margin: 0;"><b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+address.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>'+
-		'<p style="font-size: 16px; padding-left: 10px; margin: 0;">'+address.flatNo+(address.flatName && address.flatName != '' ? ', '+address.flatName : '')+'</p>'+
-		'<p style="font-size: 16px; padding-left: 10px; margin: 0;">'+address.landmark+'</p>'+
-		'<p style="font-size: 16px; padding-left: 10px; margin: 0 0 5px 0;">'+address.area+'</p>'+
-		'<p style="font-size: 16px; padding-left: 10px; margin: 0;">'+(address.contact && address.contact != '' ? 'Mob. <tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+address.contact+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>' : '')+'</p>';
-}
-
-function viewDeliveryAddressFromBillHide() {
-	document.getElementById("addressViewFromBillModal").style.display = 'none';
-}
 
 function openSelectedExpense(encodedExpense){
 
@@ -580,7 +577,7 @@ function addNewExpense(type) {
 
 		$.ajax({
 			type: 'POST',
-			url: 'https://www.zaitoon.online/services/erpfetchstafflistsalary.php',
+			url: 'https://www.accelerateengine.app/apis/erpfetchstafflistsalary.php',
 			data: JSON.stringify(data),
 			contentType: "application/json",
 			dataType: 'json',
@@ -683,7 +680,7 @@ function addNewExpense(type) {
 
 		$.ajax({
 			type: 'POST',
-			url: 'https://www.zaitoon.online/services/erpnewstockmetadata.php',
+			url: 'https://www.accelerateengine.app/apis/erpnewstockmetadata.php',
 			data: JSON.stringify(data),
 			contentType: "application/json",
 			dataType: 'json',
@@ -698,12 +695,12 @@ function addNewExpense(type) {
                 var metaInventoryList = data.inventories;
 
 			  	if(metaVendorsList.length == 0){
-			  		showToast('Warning! There are no staff accounts added on Desk Portal.', '#e67e22');
+			  		showToast('Warning! There are no vendor accounts added on Desk Portal.', '#e67e22');
 			  		return '';
 			  	}
 
 			  	if(metaInventoryList.length == 0){
-			  		showToast('Warning! There are no vendors added on Desk Portal.', '#e67e22');
+			  		showToast('Warning! There are no inventories added on Desk Portal.', '#e67e22');
 			  		return '';
 			  	}
 
@@ -806,6 +803,22 @@ function addNewExpense(type) {
 					var $j = jQuery.noConflict();
 					$j("#expense_date_of_payment").datepicker(dateoptions);
 	}
+	else if(type == 'CREDIT'){
+
+			  	document.getElementById("recordCreditModal").style.display = 'block';
+			  	document.getElementById("recordCreditModalContent").innerHTML = ''+
+			  							'<div class="row" style="margin-top: 15px;"> <div class="col-sm-6" id="amount_payer_content"> <label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Payer Name"> </div> <div class="col-sm-6"> <label class="myReservationLabel">Payer Type</label> <select class="form-control" id="credit_received_from_type" onchange="adjustPayerInfo()"> <option value="OTHER">Others</option> <option value="STAFF">Staff</option> <option value="AGENT">Agent</option> <option value="VENDOR">Vendor</option>  </select> </div> </div>'+
+							            '<div class="row" style="margin-top: 15px;"> <div class="col-sm-6"> <label class="myReservationLabel">Date of Payment</label> <div class="input-group date"> <input type="text"class="form-control" id="credit_date_of_payment"> <span class="input-group-addon" style="line-height: 21px;"><i class="fa fa-calendar"></i></span> </div> </div>  <div class="col-sm-6"> <label class="myReservationLabel">Payment Mode</label> <select class="form-control" id="credit_mode_of_payment"> <option value="CASH">Cash</option> <option value="CHEQUE">Cheque</option> <option value="TRANSFER">Bank Transfer</option> </select> </div>  </div>'+
+							            '<div class="row" style="margin-top: 15px;"> <div class="col-sm-6"> <label class="myReservationLabel">Amount Received</label> <input type="number" value="0" id="credit_amount" class="form-control input-lg" placeholder="0" style="font-weight: bold; font-size: 24px;"> </div> <div class="col-sm-6"> <label class="myReservationLabel">Purpose</label> <input type="text" id="credit_purpose" class="form-control input-lg" placeholder="Purpose"> </div></div>';
+
+					var dateoptions = {
+						maxDate: "+0D", 
+						dateFormat: "dd-mm-yy" 
+					};
+
+					var $j = jQuery.noConflict();
+					$j("#credit_date_of_payment").datepicker(dateoptions);
+	}
 }
 
 function hideIssueSalarySlipModal(){
@@ -818,6 +831,10 @@ function hideIssuePurchaseSlipModal(){
 
 function hideRecordExpenseModal(){
 	document.getElementById("recordExpenseModal").style.display = 'none';
+}
+
+function hideRecordCreditModal(){
+	document.getElementById("recordCreditModal").style.display = 'none';
 }
 
 function adjustSalaryValues(){
@@ -860,7 +877,7 @@ function adjustBeneficiaryInfo(){
 
 		$.ajax({
 			type: 'POST',
-			url: 'https://www.zaitoon.online/services/erpfetchstafflistsalary.php',
+			url: 'https://www.accelerateengine.app/apis/erpfetchstafflistsalary.php',
 			data: JSON.stringify(data),
 			contentType: "application/json",
 			dataType: 'json',
@@ -924,7 +941,7 @@ function adjustBeneficiaryInfo(){
 
 		$.ajax({
 			type: 'POST',
-			url: 'https://www.zaitoon.online/services/erpnewstockmetadata.php',
+			url: 'https://www.accelerateengine.app/apis/erpnewstockmetadata.php',
 			data: JSON.stringify(data),
 			contentType: "application/json",
 			dataType: 'json',
@@ -980,6 +997,142 @@ function adjustBeneficiaryInfo(){
 }
 
 
+
+function adjustPayerInfo(){
+	var e = document.getElementById("credit_received_from_type");
+	var optionSelected = e.options[e.selectedIndex];
+	var beneficiarySelected = $(optionSelected).val();
+	
+	if(beneficiarySelected == 'STAFF'){
+
+		var data = {
+			"token": window.localStorage.loggedInAdmin
+		}
+
+		showLoading(10000, 'Loading...');
+
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.accelerateengine.app/apis/erpfetchstafflistsalary.php',
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			dataType: 'json',
+			timeout: 10000,
+			success: function(data) {
+			  
+			  hideLoading();
+
+			  if(data.status){
+
+			  	var staffMasterList = data.response;
+
+			  	if(staffMasterList.length == 0){
+			  		showToast('Warning! There are no staff accounts added on Desk Portal.', '#e67e22');
+			  		document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Payer Name">';
+			  		return '';
+			  	}
+
+			  	var staffSelectionContent = '';
+
+			  	var n = 0;
+			  	while(staffMasterList[n]){
+
+			  		var staffList = '';
+
+			  		for(var i = 0; i < staffMasterList[n].staff.length; i++){
+			  			staffList += '<option value="'+staffMasterList[n].staff[i].employeeID+'">'+staffMasterList[n].staff[i].fName+' '+staffMasterList[n].staff[i].lName+' ('+staffMasterList[n].staff[i].employeeID+')</option>';
+
+			  			if(i == staffMasterList[n].staff.length - 1){ //last iteration	
+			  				staffSelectionContent += '<optgroup label="'+staffMasterList[n].role+'">'+staffList+'</optgroup>';
+			  			}
+			  		}
+			  		
+			  		n++;
+			  	}
+
+			  	document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label>'+
+			  				'<select class="form-control" id="credit_received_from">'+staffSelectionContent+'</select>';
+
+			  }
+			  else{
+			  	showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			  	document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Payer Name">';
+			  }
+
+			},
+			error: function(data){
+				hideLoading();
+				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Payer Name">';
+			}
+		});			
+	}
+	else if(beneficiarySelected == 'VENDOR'){
+
+		var data = {
+			"token": window.localStorage.loggedInAdmin
+		}
+
+		showLoading(10000, 'Loading...');
+
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.accelerateengine.app/apis/erpnewstockmetadata.php',
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			dataType: 'json',
+			timeout: 10000,
+			success: function(data) {
+		
+			  hideLoading();
+
+			  if(data.status){
+
+				var metaVendorsList = data.vendors;
+
+			  	if(metaVendorsList.length == 0){
+			  		showToast('Warning! There are no staff accounts added on Desk Portal.', '#e67e22');
+			  		document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Payer Name">';
+			  		return '';
+			  	}
+
+			  	var vendorSelectionContent = '';
+
+			  	var m = 0;
+			  	while(metaVendorsList[m]){
+			  		vendorSelectionContent += '<option value="'+metaVendorsList[m].code+'">'+metaVendorsList[m].name+'</option>';
+			  		m++;
+			  	}
+
+			  	document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label>'+
+			  				'<select class="form-control" id="credit_received_from">'+vendorSelectionContent+'</select>';
+
+			  }
+			  else{
+			  	showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			  	document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Payer Name">';
+			  }
+
+			},
+			error: function(data){
+				hideLoading();
+				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Payer Name">';
+			}
+		});	
+	}	
+	else if(beneficiarySelected == 'AGENT'){
+		document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Agent Name">';
+	}	
+	else if(beneficiarySelected == 'OTHER'){
+		document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Payer Name">';
+	}	
+	else{
+		document.getElementById("amount_payer_content").innerHTML = '<label class="myReservationLabel">Received From (Payer)</label> <input type="text" value="" id="credit_received_from" class="form-control input-lg" placeholder="Payer Name">';
+	}
+}
+
+
 function proceedToIssueSalarySlip(){
 
 		var newSalarySlip = {};
@@ -1018,7 +1171,7 @@ function proceedToIssueSalarySlip(){
 
 			$.ajax({
 				type: 'POST',
-				url: 'https://www.zaitoon.online/services/erpaddsalaryslip.php',
+				url: 'https://www.accelerateengine.app/apis/erpaddsalaryslip.php',
 				data: JSON.stringify(data),
 				contentType: "application/json",
 				dataType: 'json',
@@ -1127,7 +1280,7 @@ function proceedToGeneratePurchaseEntry(){
             
 			$.ajax({
 				type: 'POST',
-				url: 'https://www.zaitoon.online/services/erpaddinventorypurchasehistory.php',
+				url: 'https://www.accelerateengine.app/apis/erpaddinventorypurchasehistory.php',
 				data: JSON.stringify(newPurchaseEntry),
 				contentType: "application/json",
 				dataType: 'json',
@@ -1192,8 +1345,6 @@ function proceedToRecordExpense(){
 			showToast('Warning! Add Purpose', '#e67e22');
 		}
 		else{
-			console.log(newExpenseObject)
-			return '';
 
 			var data = {};
 	    	data.details = newExpenseObject;
@@ -1204,7 +1355,7 @@ function proceedToRecordExpense(){
 
 			$.ajax({
 				type: 'POST',
-				url: 'https://www.zaitoon.online/services/erpaddsalaryslip.php',
+				url: 'https://www.accelerateengine.app/apis/posaddexpenserecord.php',
 				data: JSON.stringify(data),
 				contentType: "application/json",
 				dataType: 'json',
@@ -1235,135 +1386,132 @@ function proceedToRecordExpense(){
 
 
 
+function proceedToRecordCredit(){
 
+		var newCreditObject = {};
+
+		newCreditObject.date = document.getElementById("credit_date_of_payment").value;
+		newCreditObject.mode = document.getElementById("credit_mode_of_payment").value;
+		newCreditObject.amount = document.getElementById("credit_amount").value;
+		newCreditObject.purpose = document.getElementById("credit_purpose").value;
+     	newCreditObject.creditFrom = document.getElementById("credit_received_from").value;
+     	newCreditObject.creditFromType = document.getElementById("credit_received_from_type").value;
+
+		if(newCreditObject.creditFrom == ""){
+			showToast('Warning! Add a Payer', '#e67e22');
+		}
+		else if(newCreditObject.creditFromType == ""){
+			showToast('Warning! Select Payer Type', '#e67e22');
+		}
+		else if(newCreditObject.amount == "" || newCreditObject.amount < 1){
+			showToast('Warning! Invalid Amount', '#e67e22');
+		}
+		else if(newCreditObject.date == ""){
+			showToast('Warning! Add the Date', '#e67e22');
+		}
+		else if(newCreditObject.mode == ""){
+			showToast('Warning! Select the Payment Mode', '#e67e22');
+		}
+		else if(newCreditObject.purpose == ""){
+			showToast('Warning! Add Purpose', '#e67e22');
+		}
+		else{
+
+			var data = {};
+	    	data.details = newCreditObject;
+		    data.token = window.localStorage.loggedInAdmin;
+
+		    showLoading(10000, 'Saving...');
+            
+
+			$.ajax({
+				type: 'POST',
+				url: 'https://www.accelerateengine.app/apis/posaddcreditrecord.php',
+				data: JSON.stringify(data),
+				contentType: "application/json",
+				dataType: 'json',
+				timeout: 10000,
+				success: function(data) {
+				  
+				  hideLoading();
+
+				  if(data.status){	
+				  	hideRecordExpenseModal();
+				  	showToast('Credit Record saved Successfully!', '#27ae60');
+				  	loadAllAddedExpenses('EXTERNAL', 'LOADING_ANIMATION');
+				  }
+				  else{
+				  	showToast('Error: '+data.error, '#e74c3c');
+				  }
+				},
+				error: function(data){
+					hideLoading();
+					showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				}
+			});	
+
+
+		}
+}
+
+
+
+
+//Print Slip
 function printExpenseSlip(encodedExpense){
 	var expensesData = JSON.parse(decodeURI(encodedExpense));
+	sendToPrinter(expensesData, 'EXPENSE_SLIP');
+	showToast('Slip generated Successfully', '#27ae60');
 }
-
 
 function initiateRemoveExpenseRecord(encodedExpense){
-	var expensesData = JSON.parse(decodeURI(encodedExpense));
-}
+	
+		var expensesData = JSON.parse(decodeURI(encodedExpense));
 
-
-
-function getPrimaryRefundStatus(status, amount){
-	if(status == 2){
-		return 'Partial Refund of <b><i class="fa fa-inr"></i>'+amount+'</b> issued';
-	}
-	else if(status == 3){
-		return 'Full Refund of <b><i class="fa fa-inr"></i>'+amount+'</b> issued';
-	}
-	else{
-		return '-';
-	}
-}
-
-function openRefundDetailsInfo(encodedInfo){
-	var info = JSON.parse(decodeURI(encodedInfo));
-
-	document.getElementById("refundReasonPrimaryModal").style.display = 'block';
-	document.getElementById("refundReasonPrimaryModalContent").innerHTML = ''+
-												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
-												         '<table class="table">'+
-												         	'<col width="35%">'+
-												         	'<col width="65%">'+
-												            (info.reason && info.reason != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Reason</td> <td>'+info.reason+'</td> </tr>' : '' )+
-												            (info.comments && info.comments != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Comments</td> <td style="font-style: italic; font-weight: bold;">'+info.comments+'</td> </tr>' : '')+
-												            (info.refundedBy && info.refundedBy != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Refunded By</td> <td>'+info.refundedBy+'</td> </tr>' : '')+
-												            (info.timeRefund && info.timeRefund != '--:--' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Time</td> <td>'+getFancyTime(info.timeRefund)+'</td> </tr>' : '')+
-												            '<tr><td style="color: #6f90b1; font-weight: bold;">Refund Status</td> <td>'+getPrimaryRefundStatus(info.status, info.amount)+'</td> </tr>'+
-												            '<tr><td style="color: #6f90b1; font-weight: bold;">Refund Mode</td> <td>'+(info.mode == 'CASH' ? 'Cash' : 'Original Mode ('+info.mode+')')+'</td> </tr>'+
-												            '</tbody>'+
-												         '</table>'+
-												      '</div>';
-
-}
-
-function openRefundDetailsInfoHide(){
-	document.getElementById("refundReasonPrimaryModal").style.display = 'none';
-}
-
-
-function getDiscountTypeName(type){
-	switch(type){
-		case "COUPON":{
-			return "Coupon Applied";
+		var data = {
+			"token": window.localStorage.loggedInAdmin,
+			"type": expensesData.type,
+			"uid": expensesData.uid
 		}
-		case "VOUCHER":{
-			return "Voucher Redeemed";
-		}
-		case "NOCOSTBILL":{
-			return "Marked as No Cost Bill";
-		}
-		case "REWARDS":{
-			return "Redeemed Reward Points";
-		}
-		case "ONLINE":{
-			return "Pre-applied Online Discount";
-		}
-		default:{
-			return type;
-		}
-	}
-}
 
-function getDiscountRefName(type){
-	switch(type){
-		case "COUPON":{
-			return "Coupon Code";
-		}
-		case "VOUCHER":{
-			return "Voucher Code";
-		}
-		case "NOCOSTBILL":{
-			return "Comments";
-		}
-		case "REWARDS":{
-			return "Reference";
-		}
-		case "ONLINE":{
-			return "Reference";
-		}
-		default:{
-			return 'Reference';
-		}
-	}	
-}
+		showLoading(10000, 'Deleting...');
 
-function openDiscountDetailsInfo(encodedInfo){
-	var info = JSON.parse(decodeURI(encodedInfo));
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.accelerateengine.app/apis/posremoveexpenserecord.php',
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			dataType: 'json',
+			timeout: 10000,
+			success: function(data) {
+		
+			  hideLoading();
 
-	console.log(info)
+			  if(data.status){
+			  	showToast('Expense record removed Successfully', '#27ae60');
+			  }
+			  else{
+			  	showToast('Error: '+data.error, '#e74c3c');
+			  }
 
-	document.getElementById("discountReasonPrimaryModal").style.display = 'block';
-	document.getElementById("discountReasonPrimaryModalContent").innerHTML = ''+
-												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
-												         '<table class="table">'+
-												         	'<col width="35%">'+
-												         	'<col width="65%">'+
-												            (info.type && info.type != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Type</td> <td>'+getDiscountTypeName(info.type)+'</td> </tr>' : '' )+
-												            (info.amount && info.amount != 0 ? '<tr><td style="color: #6f90b1; font-weight: bold;">Amount</td> <td style="font-weight: bold;"><i class="fa fa-inr"></i>'+info.amount+'</td> </tr>' : '')+
-												            '<tr><td style="color: #6f90b1; font-weight: bold;">Discount Value</td> <td>'+(info.unit == 'PERCENTAGE' ? info.value+'%' : (info.unit == 'FIXED' ? '<i class="fa fa-inr"></i>'+info.value : '-'))+'</td> </tr>'+
-												            (info.reference && info.reference != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">'+getDiscountRefName(info.type)+'</td> <td><b>'+info.reference+'</b></td> </tr>' : '')+
-												            '</tbody>'+
-												         '</table>'+
-												      '</div>';
+			},
+			error: function(data){
+				hideLoading();
+				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			}
+		});	
 
 }
 
-function openDiscountDetailsInfoHide(){
-	document.getElementById("discountReasonPrimaryModal").style.display = 'none';
-}
+/*
 
+FILTERS
 
-
-
+*/
 
 function openFilterModalExpenses(){
 
 	document.getElementById("searchExpensesFilterModal").style.display = 'block';
-
 
 	var options = {
 		maxDate: "+0D", 
@@ -1373,7 +1521,6 @@ function openFilterModalExpenses(){
 	var $j = jQuery.noConflict();
 	$j( "#reportFromDate" ).datepicker(options);
 	$j( "#reportToDate" ).datepicker(options);
-
 
 	$("#filter_search_key").focus();
 }
@@ -1392,11 +1539,11 @@ function changeExpenseFilterSearchCriteria(){
 
 	var criteria = document.getElementById("filterSearchCriteria").value;
 
-	if(criteria == 'payment'){
+	if(criteria == 'admin'){
 
 	    var requestData = {
 	      "selector"  :{ 
-	                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
+	                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
 	                  },
 	      "fields"    : ["identifierTag", "value"]
 	    }
@@ -1411,145 +1558,183 @@ function changeExpenseFilterSearchCriteria(){
 	      success: function(data) {
 
 	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
-	              var modes = data.docs[0].value;
-	              modes.sort(); //alphabetical sorting 
+	              var staffMasterList = data.docs[0].value;
+	              var staffList = [];
+
+	              var q = 0;
+	              while(staffMasterList[q]){
+	              	if(staffMasterList[q].role == 'ADMIN'){
+	              		staffList.push(staffMasterList[q])
+	              	}
+	              	q++;
+	              }
+	              
+
+
 	              var modesTag = '';
 
 
-	              for (var i=0; i<modes.length; i++){
-	                modesTag = modesTag + '<option value="'+modes[i].code+'">'+modes[i].name+'</option>';
+	              for (var i=0; i<staffList.length; i++){
+	                modesTag = modesTag + '<option value="'+staffList[i].code+'">'+staffList[i].name+'</option>';
 	              }
 
-	              if(modes.length == 0){
-	              	showToast('Error: No Payment Modes added.', '#e74c3c');
-	              	hideFilterModal();
+	              if(staffList.length == 0){
+	              	showToast('Error: No Admin Profiles added.', '#e74c3c');
+	              	hideExpensesFilterModal();
 	              	return '';
 	              }
 
-	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Payments</p>';
+	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show expenses added by <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select></p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Staff Profiles data not found. Please contact Accelerate Support.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Staff Profiles data not found. Please contact Accelerate Support.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Staff Profiles data. Please contact Accelerate Support.', '#e74c3c');
 	      }
 
 	    });
 	}
 	else if(criteria == 'type'){
 
-	    var requestData = {
-	      "selector"  :{ 
-	                    "identifierTag": "ACCELERATE_BILLING_MODES" 
-	                  },
-	      "fields"    : ["identifierTag", "value"]
-	    }
-
-	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
-	      timeout: 10000,
-	      success: function(data) {
-
-	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
-
-	              var modes = data.docs[0].value;
-	              modes.sort(); //alphabetical sorting 
-	              var modesTag = '';
-
-
-	              for (var i=0; i<modes.length; i++){
-	                modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
-	              }
-
-	              if(modes.length == 0){
-	              	showToast('Error: No Billing Modes added.', '#e74c3c');
-	              	hideFilterModal();
-	              	return '';
-	              }
-
-	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Orders</p>';
-	          }
-	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
-	          }
-	        }
-	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
-	        }
-	        
-	      },
-	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
-	      }
-
-	    });
+	    document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+
+	    							'<option value="CREDIT">Credit</option>'+
+	    							'<option value="EXPENSE">Expense</option>'+
+	    							'<option value="PURCHASE">Purchase</option>'+
+	    							'<option value="SALARY">Salary</option>'+
+	    						'</select>Records</p>';
+	          
 	}
-	else if(criteria == 'session'){
+	else if(criteria == 'issuedto'){
 
-	    var requestData = {
-	      "selector"  :{ 
-	                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
-	                  },
-	      "fields"    : ["identifierTag", "value"]
-	    }
+		var data = {
+			"token": window.localStorage.loggedInAdmin
+		}
 
-	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
-	      timeout: 10000,
-	      success: function(data) {
+		showLoading(10000, 'Loading...');
 
-	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
+		$.ajax({
+			type: 'POST',
+			url: 'https://www.accelerateengine.app/apis/erpnewstockmetadata.php',
+			data: JSON.stringify(data),
+			contentType: "application/json",
+			dataType: 'json',
+			timeout: 10000,
+			success: function(data) {
+		
+			  hideLoading();
 
-	              var modes = data.docs[0].value;
-	              modes.sort(); //alphabetical sorting 
-	              var modesTag = '';
+			  if(data.status){
+
+				var metaVendorsList = data.vendors;
+
+			  	if(metaVendorsList.length == 0){
+			  		showToast('Warning! There are no vendors accounts added on Desk Portal.', '#e67e22');
+			  	}
+
+			  	var vendorSelectionContent = '';
+
+			  	var m = 0;
+			  	while(metaVendorsList[m]){
+			  		vendorSelectionContent += '<option value="VENDOR_'+metaVendorsList[m].code+'">'+metaVendorsList[m].name+'</option>';
+			  		m++;
+			  	}
+
+			  	vendorSelectionContent = '<optgroup label="Vendors">'+vendorSelectionContent+'</optgroup>' + '';
+			  	
+			  	loadStaffData(vendorSelectionContent);
+
+			  }
+			  else{
+			  	loadStaffData('');
+			  	showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			  }
+
+			},
+			error: function(data){
+				hideLoading();
+				loadStaffData('');
+				showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+			}
+		});	
 
 
-	              for (var i=0; i<modes.length; i++){
-	                modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
-	              }
+		function loadStaffData(vendorContent){
+			
+			var data = {
+				"token": window.localStorage.loggedInAdmin
+			}
 
-	              if(modes.length == 0){
-	              	showToast('Error: No Dine Sessions created.', '#e74c3c');
-	              	hideFilterModal();
-	              	return '';
-	              }
+			showLoading(10000, 'Loading...');
 
-	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Session alone</p>';
-	          }
-	          else{
-	            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
-	          }
-	        }
-	        else{
-	          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
-	        }
-	        
-	      },
-	      error: function(data) {
-	        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
-	      }
+			$.ajax({
+				type: 'POST',
+				url: 'https://www.accelerateengine.app/apis/erpfetchstafflistsalary.php',
+				data: JSON.stringify(data),
+				contentType: "application/json",
+				dataType: 'json',
+				timeout: 10000,
+				success: function(data) {
+				  
+				  hideLoading();
 
-	    });
+				  if(data.status){
+
+				  	var staffMasterList = data.response;
+
+				  	if(staffMasterList.length == 0){
+				  		showToast('Warning! There are no staff accounts added on Desk Portal.', '#e67e22');
+				  	}
+
+				  	var staffSelectionContent = '';
+
+				  	var n = 0;
+				  	while(staffMasterList[n]){
+
+				  		var staffList = '';
+
+				  		for(var i = 0; i < staffMasterList[n].staff.length; i++){
+
+				  			staffList += '<option value="STAFF_'+staffMasterList[n].staff[i].employeeID+'">'+staffMasterList[n].staff[i].fName+' '+staffMasterList[n].staff[i].lName+' ('+staffMasterList[n].staff[i].employeeID+')</option>';
+
+				  			if(i == staffMasterList[n].staff.length - 1){ //last iteration	
+				  				staffSelectionContent += '<optgroup label="'+staffMasterList[n].role+'">'+staffList+'</optgroup>';
+				  			}
+				  		}
+				  		
+				  		n++;
+				  	}
+
+				  	renderOptions(vendorContent, staffSelectionContent);
+				  
+				  }
+				  else{
+				  	renderOptions(vendorContent, '');
+				  	showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				  }
+
+				},
+				error: function(data){
+					hideLoading();
+					renderOptions(vendorContent, '');
+					showToast('Error! Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+				}
+			});	
+		}
+
+		function renderOptions(vendorContent, staffContent){
+			document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show expenses issued to <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+vendorContent+''+staffContent+'</select> only</p>';
+		}
+
+
 	}
 	else if(criteria == 'machine'){
 
@@ -1582,7 +1767,7 @@ function changeExpenseFilterSearchCriteria(){
 
 	              if(modes.length == 0){
 	              	showToast('Error: No Machines registered.', '#e74c3c');
-	              	hideFilterModal();
+	              	hideExpensesFilterModal();
 	              	return '';
 	              }
 
@@ -1635,7 +1820,7 @@ function changeExpenseFilterSearchCriteria(){
 
 	              if(modes.length == 0){
 	              	showToast('Error: No Staff profiles created.', '#e74c3c');
-	              	hideFilterModal();
+	              	hideExpensesFilterModal();
 	              	return '';
 	              }
 
@@ -1663,7 +1848,7 @@ function changeExpenseFilterSearchCriteria(){
 	    document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show Order with <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="norefund">No Refunds</option><option value="partialrefund">Partial Refund</option><option value="fullrefund">Full Refund</option></select>issued</p>';
 	}
 	else if(criteria == 'all'){
-	    document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Showing <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="all">All the Orders</option></select></p>';
+	    document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Showing <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection"><option value="all">All Expenses</option></select></p>';
 	}
 	else{
 		document.getElementById("filterExpensesSearchArea").innerHTML = '<input type="text" value="'+tempValue+'" class="form-control tip" id="filter_search_key" style="border: none; border-bottom: 2px solid; font-size: 36px; height: 60px; font-weight: 300; padding: 10px 3px;" placeholder="Search Here" required="required" />';
@@ -1672,23 +1857,16 @@ function changeExpenseFilterSearchCriteria(){
 }
 
 
-function filterByDateInitialize(optionalRoute){
+function filterExpenseSearchInitialize(optionalRoute){
 
-	//Show Animation
-	document.getElementById("expenseBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
-										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
-										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
-										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
-										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>';
-
-	var dateFrom = '', dateTo = '', searchMode = 'bill', searchKey = '';
+	var dateFrom = '', dateTo = '', searchMode = 'uid', searchKey = '';
 
 	dateFrom = document.getElementById("reportFromDate").value;
 	dateTo = document.getElementById("reportToDate").value;
 
 	searchMode = document.getElementById("filterSearchCriteria").value;
 
-	if(searchMode == 'payment' || searchMode == 'type' || searchMode == 'steward' || searchMode == 'session' || searchMode == 'machine' || searchMode == 'discount' || searchMode == 'refund' || searchMode == 'all'){
+	if(searchMode == 'all' || searchMode == 'admin' || searchMode == 'issuedto' || searchMode == 'type'){
 		searchKey = document.getElementById("filterSearchCriteriaSelected").value;
 	}
 	else{
@@ -1700,7 +1878,15 @@ function filterByDateInitialize(optionalRoute){
 		}
 	}
 
-	hideFilterModal();
+	//Show Animation
+	document.getElementById("expenseBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
+										'<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>';
+
+
+	hideExpensesFilterModal();
 
 	var searchObj = {};
 	searchObj.dateFrom = dateFrom;
@@ -1708,605 +1894,18 @@ function filterByDateInitialize(optionalRoute){
 	searchObj.searchMode = searchMode;
 	searchObj.searchKey = searchKey;
 
-	window.localStorage.billFilterCriteria = JSON.stringify(searchObj);
+	window.localStorage.expenseFilterCriteria = JSON.stringify(searchObj);
 
 	document.getElementById("expenseBriefDisplayRender").innerHTML = '';
 
-	if(optionalRoute == 'SETTLED'){
-		loadAllSettledBills();
-	}
-	else{
-		loadAllPendingSettlementBills('EXTERNAL');
-	}
+	loadAllAddedExpenses();
 }
 
 function clearFilterModalExpenses(optionalRoute){
 
-	window.localStorage.expensesFilterCriteria = '';
+	window.localStorage.expenseFilterCriteria = '';
 
-	totalPages = 0;
-	currentPage = 1;
+	totalExpensePages = 0;
+	currentExpensePage = 1;
 	loadAllAddedExpenses();	
 }
-
-
-
-/* Assign Delivery Agent */
-function assignDeliveryAgent(billNumber, optionalPageRef){
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
-
-              var users = data.docs[0].value;
-              users.sort(); //alphabetical sorting 
-
-              if(users.length == 0){
-                showToast('Warning: No User registered yet.', '#e67e22');
-                return '';
-              }
-
-              var n = 0;
-              var renderContent = '';
-              var isRendered = false;
-              var actualCounter = 0;
-
-              while(users[n]){
-
-              	if(users[n].role == 'AGENT'){
-
-	                isRendered = false;
-
-	                if(actualCounter == 0){
-	                  isRendered = true;
-	                  renderContent = '<div class="row" style="margin: 0">';
-	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="assignDeliveryAgentAfterProcess(\''+billNumber+'\', \''+users[n].code+'\', \''+users[n].name+'\', \''+optionalPageRef+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
-	                }
-	                else if(actualCounter == 1){
-	                  isRendered = true;
-	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="assignDeliveryAgentAfterProcess(\''+billNumber+'\', \''+users[n].code+'\', \''+users[n].name+'\', \''+optionalPageRef+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
-	                  renderContent += '</div>';
-	                }
-	                else if(actualCounter > 1 && actualCounter%2 == 0){
-	                  renderContent += '<div class="row" style="margin: 4px 0 0 0">';
-	                }
-
-	                if(!isRendered){
-	                  renderContent += '<div class="col-sm-6" style="margin: 0; padding: 0"> <div onclick="assignDeliveryAgentAfterProcess(\''+billNumber+'\', \''+users[n].code+'\', \''+users[n].name+'\', \''+optionalPageRef+'\')" class="stewardProfile easySelectTool_StewardProfile" id="user_switch_'+users[n].code+'"> <h1 class="stewardName">'+users[n].name+'</h1> <div class="stewardIcon">'+getImageCode(users[n].name)+'</div> </div> </div>';
-	                }
-
-	                if(actualCounter > 1 && actualCounter%2 == 1){
-	                  renderContent += '</div>';
-	                }
-
-	                actualCounter++;
-	            }
-
-                n++;
-              }
-
-              document.getElementById("deliveryBoysModal").style.display = 'block';
-
-              if(renderContent == ''){
-              	renderContent = '<p style="margin: 10px; color: #f12006; font-style: italic">No Delivery Agent profile created. Please <b onclick="renderPage(\'user-settings\', \'User Settings\');" style="color: #579eda; text-decoration: underline; cursor: pointer">Create a Profile</b></p>';
-              }
-
-
-              document.getElementById("deliveryBoysModalContent").innerHTML = '<div class="modal-header" style="padding: 0; border: none"> <div class="row"><h1 style="margin: 0; font-size: 14px; color: #FFF; padding: 10px 25px; text-align: left; font-weight: bold; text-transform: uppercase; background: #607e8c;">Select a Delivery Agent</h1></div> </div> </div>'+
-              										'<div style="padding: 10px 10px 5px 10px">'+renderContent + '</div></div><div class="modal-footer" style="padding: 5px 0 0 0; border: none"> <div class="row"> <button class="btn btn-default" onclick="selectDeliveryBoyWindowSystemClose()" id="deliveryBoyWindowCloseButton" style="width: 100%; height: 40px; border: none">Close</button> </div> </div> </div>';
-
-              //<div class="row"><button>Close</button><tag >X</tag>Hello</div>';
-
-              /*
-                EasySelect Tool (TWO COLUMN - MULTI ROW GRID)
-              */
-              var tiles = $('#deliveryBoysModalContent .easySelectTool_StewardProfile');
-              var tileSelected = undefined; //Check for active selection
-              var i = 0;
-              var currentIndex = 0;
-              var lastIndex = 0;
-
-              $.each(tiles, function() {
-                if($(tiles[i]).hasClass("selectUserProfile")){
-                  tileSelected = tiles.eq(i);
-                  currentIndex = i;
-                }
-
-                lastIndex = i;
-                i++;
-              });  
-
-              var easySelectTool = $(document).on('keydown',  function (e) {
-
-                console.log('Am secretly running...')
-                if($('#deliveryBoysModal').is(':visible')) {
-
-                  console.log(e.which)
-
-                     switch(e.which){
-                      case 37:{ //  < Left Arrow
-
-                          if(tileSelected){
-                              tileSelected.removeClass('selectUserProfile');
-
-                              currentIndex--;
-                              if(currentIndex < 0){
-                                currentIndex = lastIndex;
-                              }
-
-                              if(tiles.eq(currentIndex)){
-                                  tileSelected = tiles.eq(currentIndex);
-                                  tileSelected = tileSelected.addClass('selectUserProfile');
-                              }
-                          }else{
-                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                          }      
-
-                        break;
-                      }
-                      case 38:{ //  ^ Up Arrow 
-                  
-                          if(tileSelected){
-                              tileSelected.removeClass('selectUserProfile');
-
-                              if(currentIndex < 2){
-                                if(currentIndex == 0){ //First Col. (FIRST ROW)
-                                    if(lastIndex%2 == 1){ //Last Col.
-                                      currentIndex = lastIndex - 1;
-                                    }
-                                    else if(lastIndex%2 == 0){ //First Col.
-                                      currentIndex = lastIndex;
-                                    }
-                                }
-                                else if(currentIndex == 1){ //Last Col. (FIRST ROW)
-                                    if(lastIndex%2 == 1){ //Last Col.
-                                      currentIndex = lastIndex;
-                                    }
-                                    else if(lastIndex%2 == 0){ //First Col.
-                                      currentIndex = lastIndex - 1;
-                                    }
-                                }
-                              }
-                              else{
-                                currentIndex = currentIndex - 2;
-                              }
-
-                              if(tiles.eq(currentIndex)){
-                                  tileSelected = tiles.eq(currentIndex);
-                                  tileSelected = tileSelected.addClass('selectUserProfile');
-                              }
-                          }else{
-                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                          }      
-
-                        break;
-                      }
-                      case 39:{ // Right Arrow >
-
-                          if(tileSelected){
-                              tileSelected.removeClass('selectUserProfile');
-
-                              currentIndex++;
-                              if(currentIndex > lastIndex){
-                                currentIndex = 0;
-                              }
-
-                              if(tiles.eq(currentIndex)){
-                                  tileSelected = tiles.eq(currentIndex);
-                                  tileSelected = tileSelected.addClass('selectUserProfile');
-                              }
-                          }else{
-                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                          }      
-
-                        break;
-                      }
-                      case 40:{ // Down Arrow \/ 
-
-                          if(tileSelected){
-                              tileSelected.removeClass('selectUserProfile');
-
-                              currentIndex = currentIndex + 2;
-                              if(currentIndex > lastIndex){
-                                currentIndex = currentIndex % 2;
-                              }
-
-                              if(tiles.eq(currentIndex)){
-                                  tileSelected = tiles.eq(currentIndex);
-                                  tileSelected = tileSelected.addClass('selectUserProfile');
-                              }
-                          }else{
-                              tileSelected = tiles.eq(0).addClass('selectUserProfile');
-                          }      
-
-                        break;
-                      }
-                      case 27:{ // Escape (Close)
-                        $('#deliveryBoyWindowCloseButton').click();
-                        easySelectTool.unbind();
-                        break;  
-                      }
-                      case 13:{ // Enter (Confirm)
-
-                        $("#deliveryBoysModalContent .easySelectTool_StewardProfile").each(function(){
-                          if($(this).hasClass("selectUserProfile")){
-                            $(this).click();
-                            e.preventDefault(); 
-                            easySelectTool.unbind();   
-                          }
-                        });    
-
-                                   
-                        
-                        break;
-                      }
-                     }
-                }
-              });
-
-
-          }
-          else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
-      }
-
-    });  
-
-}
-
-function selectDeliveryBoyWindowSystemClose(){
-  document.getElementById("deliveryBoysModal").style.display = 'none';
-}
-
-function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef){
-
-	selectDeliveryBoyWindowSystemClose();
-
-	billNumber = parseInt(billNumber);
-
-	var current_time = getCurrentTime('TIME');
-
-    var deliveryObject = {
-            "timeDelivery" : current_time,
-            "name" : name,
-            "mobile" : code
-    }
-
-    //Set _id from Branch mentioned in Licence
-    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
-    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
-      return '';
-    }
-
-
-    var requestURL = 'accelerate_bills';
-    var requestURLSource = 'PENDING';
-	var invoice_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
-
-    if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
-      requestURL = SELECTED_INVOICE_SOURCE_DB;
-      requestURLSource = 'SETTLED';
-      invoice_request_data = accelerate_licencee_branch +"_INVOICE_"+ billNumber;
-    }
-
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/'+invoice_request_data,
-      timeout: 10000,
-      success: function(firstdata) {
-      	
-        if(firstdata._id == invoice_request_data){
-
-          var bill = firstdata;
-          bill.deliveryDetails = deliveryObject;
-
-                var encodedBill = encodeURI(JSON.stringify(bill));
-
-                //Update Bill/Invoice on Server
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+requestURL+'/'+(bill._id)+'/',
-                  data: JSON.stringify(bill),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                      showToast('Delivery agent <b>'+name+'</b> assigned', '#27ae60');
-                      openSelectedBill(encodedBill, requestURLSource);
-                  },
-                  error: function(data) {
-                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
-                  }
-                }); 
-          
-        }
-        else{
-          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
-        }
-        
-      },
-      error: function(firstdata) {
-        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
-      }
-
-    });  
-}
-
-
-//Print Duplicate Bill
-function printDuplicateBill(encodedBill){
-	
-	var bill = JSON.parse(decodeURI(encodedBill));
-    sendToPrinter(bill, 'DUPLICATE_BILL');
-    showToast('Duplicate Bill #'+bill.billNumber+' generated Successfully', '#27ae60');
-}
-
-//Offer Discount
-function lateApplyDiscount(encodedBill){
-	
-	var bill = JSON.parse(decodeURI(encodedBill));
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_DISCOUNT_TYPES" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
-
-              var modes = data.docs[0].value;
-              modes.sort(); //alphabetical sorting 
-              var modesTag = '';
-
-              for (var i=0; i<modes.length; i++){
-                if(i == 0)
-                    modesTag = '<option value="'+modes[i].name+'" selected="selected">'+modes[i].name+'</option>';
-                  else
-                    modesTag = modesTag + '<option value="'+modes[i].name+'">'+modes[i].name+'</option>';
-              }
-
-             if(!modesTag)
-               document.getElementById("applyBillDiscountLate_type").innerHTML = '<option value="OTHER" selected="selected">Other</option>';
-             else
-               document.getElementById("applyBillDiscountLate_type").innerHTML = modesTag;
-              
-              document.getElementById("applyBillDiscountLate_grandSumDisplay").innerHTML = bill.payableAmount;
-              document.getElementById("lateRefundModalActions").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" style="margin: 0; font-size: 15px; line-height: 2.5; text-transform: uppercase; border: none; border-radius: 0; width: 70%; float: right;" onclick="lateApplyDiscountConfirm(\''+bill.billNumber+'\')">Confirm</button>'+
-              								'<button class="btn btn-default tableOptionsButton breakWord" style="margin: 0; border: none; font-size: 15px; line-height: 2.5; text-transform: uppercase; border-radius: 0; width: 30%; float: left;" onclick="lateApplyDiscountHide()">Close</button>';
-        	  document.getElementById("lateRefundModal").style.display = 'block';
-
-        	  $('#applyBillDiscountLate_value').focus();
-  			  $('#applyBillDiscountLate_value').select();
-          }
-          else{
-            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
-      }
-
-    });
-}
-
-function lateApplyDiscountHide(){
-	document.getElementById("lateRefundModal").style.display = 'none';
-}
-
-function lateApplyDiscountValueFocus(){
-	$('#applyBillDiscountLate_value').focus();
-  	$('#applyBillDiscountLate_value').select();	
-}
-
-
-function estimateDiscountDisplay(){
-
-  var tempTotal = parseFloat(document.getElementById("applyBillDiscountLate_grandSumDisplay").innerHTML).toFixed(2);
-  var discValue = parseFloat(document.getElementById("applyBillDiscountLate_value").value).toFixed(2);
-
-  if(document.getElementById("applyBillDiscountLate_value").value == ''){
-    discValue = 0;
-  }
-
-  /*Calculations*/
-  var roughDiscFigure = 0;
-  if(document.getElementById("applyBillDiscountLate_unit").value == 'PERCENTAGE'){
-    roughDiscFigure = tempTotal*discValue/100;
-  }
-  else{
-    roughDiscFigure = discValue;
-  }
-
-  roughDiscFigure = Math.round(roughDiscFigure * 100) / 100;
-
-  document.getElementById("applyBillDiscountLate_amount").innerHTML = roughDiscFigure;
-}
-
-
-function lateApplyDiscountConfirm(billNumber){
-
-                  billNumber = parseInt(billNumber);
-
-                  var billing_modes = window.localStorage.billingModesData ? JSON.parse(window.localStorage.billingModesData): [];
-
-                  //Set _id from Branch mentioned in Licence
-                  var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
-                  if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-                    showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
-                    return '';
-                  }
-
-                  var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
-
-                  $.ajax({
-                    type: 'GET',
-                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
-                    timeout: 10000,
-                    success: function(data) {
-                      if(data._id == bill_request_data){
-
-				          var billfile = data;
-
-				          var grandPayableBill = 0;
-
-				          /*Calculate Discount*/
-				          var type = document.getElementById("applyBillDiscountLate_type").value;
-				          var unit = document.getElementById("applyBillDiscountLate_unit").value;
-				          var value = document.getElementById("applyBillDiscountLate_value").value;
-
-				          var grandSum = 0;
-
-				          var n = 0;
-				          while(billfile.cart[n]){
-				            grandSum = grandSum + (billfile.cart[n].price * billfile.cart[n].qty);
-				            n++;
-				          }
-
-				          grandPayableBill += grandSum;
-
-
-				          //add extras
-				          if(!jQuery.isEmptyObject(billfile.extras)){
-				            var m = 0;
-				            while(billfile.extras[m]){
-				              grandPayableBill += billfile.extras[m].amount;
-				              m++;
-				            }
-				          } 
-
-				          //add custom extras if any
-				          if(!jQuery.isEmptyObject(billfile.customExtras)){
-				            grandPayableBill += billfile.customExtras.amount;
-				          }  
-
-
-				          var totalDiscount = 0;
-				      
-				          if(unit == 'PERCENTAGE'){
-				            totalDiscount = grandSum*value/100;
-				          }
-				          else if(unit == 'FIXED'){
-				            totalDiscount = value;
-				          }
-
-				          totalDiscount = Math.round(totalDiscount * 100) / 100;
-
-				          //Cross Check if it matches with the BILLING MODE Restriction of Discounts
-				          var g = 0;
-				          var maximumReached = false;
-				          while(billing_modes[g]){
-				            if(billing_modes[g].name == billfile.orderDetails.mode){
-
-				              if(!billing_modes[g].isDiscountable){
-				                showToast('Error: Discount can not be applied on </b>'+billing_modes[g].name+'</b> orders', '#e74c3c');
-				                return '';
-				              }
-				              else{
-				                if(totalDiscount > billing_modes[g].maxDiscount){
-				                  totalDiscount = billing_modes[g].maxDiscount;
-				                  maximumReached = true;
-				                }
-				              }
-				              break;
-				            }
-				            g++;
-				          }
-
-
-				          billfile.discount.amount = totalDiscount;
-				          billfile.discount.type = type;
-				          billfile.discount.unit = unit;
-				          billfile.discount.value = value;
-				          billfile.discount.reference = '';
-
-
-				          //substract discounts if any
-				          if(!jQuery.isEmptyObject(billfile.discount)){
-				            grandPayableBill -= billfile.discount.amount;
-				          }  
-
-				          billfile.payableAmount = properRoundOff(grandPayableBill);
-
-				          /*Save changes in Bill*/
-				                
-				                //Update
-				                var updateData = billfile;
-
-				                var encodedBill = encodeURI(JSON.stringify(billfile));
-
-				                $.ajax({
-				                  type: 'PUT',
-				                  url: COMMON_LOCAL_SERVER_IP+'accelerate_bills/'+(billfile._id)+'/',
-				                  data: JSON.stringify(updateData),
-				                  contentType: "application/json",
-				                  dataType: 'json',
-				                  timeout: 10000,
-				                  success: function(data) {
-				                    if(maximumReached){
-				                      showToast('Warning: Maximum discount (Rs. '+billing_modes[g].maxDiscount+') for </b>'+billing_modes[g].name+'</b> order reached', '#e67e22');
-				                    }
-				                    else{
-				                      showToast('Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
-				                    }
-
-				                    loadAllPendingSettlementBills();
-				                    openSelectedBill(encodedBill, 'PENDING');
-				                    lateApplyDiscountHide();
-				                  },
-				                  error: function(data) {
-				                      showToast('System Error: Unable to update the Bill. Please contact Accelerate Support.', '#e74c3c');
-				                  }
-				                }); 
-                        
-                      }
-                      else{
-                        showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
-                      }
-                    },
-                    error: function(data) {
-                      showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
-                    }
-
-                  });
-}
-

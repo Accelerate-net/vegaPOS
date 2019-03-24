@@ -21,8 +21,8 @@
                         
                         <div class="box-header" style="padding: 10px 0px">
                            <h3 class="box-title" style="min-width: 115px; padding: 5px 0px; font-size: 24px; font-family: 'Oswald'; color: #888">Records</h3>
-                           <span id="billTypeTitleButton"><button class="billsFilterButton" onclick="openDateFilterModal()">Filter</button></span>
-                           <tag style="float: right" id="navigationAssitantBills">
+                           <span id="expenseTypeTitleButton"><button class="billsFilterButton" onclick="openDateFilterModal()">Filter</button></span>
+                           <tag style="float: right" id="navigationAssitantExpenses">
                            </tag>
                         </div>
 
@@ -145,6 +145,32 @@
 
 
    <!-- Modal -->
+   <div id="recordCreditModal" class="modal" style="z-index: 2;">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 480px; overflow-y: auto !important; overflow-x: none !important;">
+                  <h1 style="margin: 0 0 15px 0; font-size: 24px; font-weight: 400; padding-left: 10px; color: #1abc9c; border-bottom: 1px solid #f1f1f1; padding: 10px 0; font-family: 'Oswald'">Add Credit Record
+                  </h1>
+
+                     <div id="recordCreditModalContent">
+                        
+                     </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+                <button  class="btn btn-default" onclick="hideRecordCreditModal()" style="width: 40%; border: none; border-radius: 0; height: 50px; float: left;">CLOSE</button>  
+                <button  class="btn btn-success" onclick="proceedToRecordCredit()" style="width: 60%; border: none; border-radius: 0; height: 50px; margin: 0; text-transform: uppercase; font-size: 14px; background: #1abc9c"><b>Save Credit</b></button>                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+   <!-- Modal -->
    <div id="searchExpensesFilterModal" class="modal">
       <div class="modal-dialog" style="top: 15px">
          <!-- Modal content-->
@@ -165,7 +191,7 @@
                                             <label style="font-size: 10px">SEARCH USING</label>
                                             <select id="filterSearchCriteria" class="form-control mySearchSelector" onchange="changeExpenseFilterSearchCriteria()">
                                               <option value="uid">Expense ID</option>
-                                              <option value="all">All Expense</option>
+                                              <option value="all">All Expenses</option>
                                               <option value="admin">Issued Admin</option>
                                               <option value="issuedto">Issued To</option>
                                               <option value="type">Type of Expense</option>
@@ -191,131 +217,11 @@
             </div>
             <div class="modal-footer">
                <button  class="btn btn-default" onclick="hideExpensesFilterModal()" style="float: left">Cancel</button>
-               <span id="actionButtonSearch"><button  class="btn btn-success" onclick="filterSearchInitialize()" style="float: right">Proceed</button></span>
+               <span id="actionButtonSearch"><button  class="btn btn-success" onclick="filterExpenseSearchInitialize()" style="float: right">Proceed</button></span>
             </div>
          </div>
       </div>
    </div>
-
-
-
-
-
-
-   <!-- Modal -->
-   <div id="refundReasonPrimaryModal" class="modal">
-      <div class="modal-dialog" style="top: 15px">
-         <!-- Modal content-->
-         <div class="modal-content">
-
-            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
-                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #f59d13">Refund Details
-                  </h1>
-
-                     <div class="row" style="padding: 10px 25px 5px 25px;" id="refundReasonPrimaryModalContent">
-                        
-                     </div>
-
-            </div>
-            <div class="modal-footer" style="padding: 0">
-                <button  class="btn btn-default" onclick="openRefundDetailsInfoHide()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Close</button>                
-            </div>
-         </div>
-      </div>
-   </div>
-
-   <!-- Modal -->
-   <div id="discountReasonPrimaryModal" class="modal">
-      <div class="modal-dialog" style="top: 15px">
-         <!-- Modal content-->
-         <div class="modal-content">
-
-            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
-                  <h1 style="margin: 10px 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #16a085">Discount Details
-                  </h1>
-
-                     <div class="row" style="padding: 10px 25px 5px 25px;" id="discountReasonPrimaryModalContent">
-                        
-                     </div>
-
-            </div>
-            <div class="modal-footer" style="padding: 0">
-                <button  class="btn btn-default" onclick="openDiscountDetailsInfoHide()" style="width: 100%; border: none; border-radius: 0; height: 50px;">Close</button>                
-            </div>
-         </div>
-      </div>
-   </div>
-
-
-   <!-- APPLY LATE DISCOUNT -->
-   <div id="lateRefundModal" class="modal">
-      <div class="modal-dialog" style="top: 25px">
-         <!-- Modal content-->
-         <div class="modal-content">
-
-            <div class="modal-header" style="border: none; background: #225179">  
-                <h1 style="margin: 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #FFF">Apply Discount
-                  <tag style="position: absolute; right: 20px; top: 10px; opacity: 0.8;"><i class="fa fa-inr"></i><tag id="applyBillDiscountLate_grandSumDisplay" style="font-size: 150%; font-weight: bold;">0</tag></tag>
-                </h1>              
-            </div>
-            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
-                  
-                  <div class="row" style="padding: 5px 25px;">
-                          <div class="row">
-                            <div class="col-sm-6">
-                               <div class="form-group">
-                                  <label style="font-weight: bold; color: #828282; font-size: 12px;">DISCOUNT TYPE</label>
-                                  <select id="applyBillDiscountLate_type" onchange="lateApplyDiscountValueFocus()" class="form-control">
-                                    <option value="OTHER" selected="selected">Other</option>
-                                  </select>
-                               </div>
-                            </div>
-                          </div>
-                          <div class="row">
-                            <div class="col-sm-6">
-                               <div class="form-group">
-                                  <label style="font-weight: bold; color: #828282; font-size: 12px;">DISCOUNT VALUE</label>
-                                  <input type="number" value="0" placeholder="0" class="form-control tip" id="applyBillDiscountLate_value" onkeyup="estimateDiscountDisplay()" style="border: none; border-bottom: 1px dashed #eee; padding: 0; height: 50px; font-size: 36px; font-weight: bold;"/>
-                               </div>
-                            </div>
-                            <div class="col-sm-4">
-                               <div class="form-group">
-                                  <label style="font-weight: bold; color: #828282; font-size: 12px;">UNIT</label>
-                                  <select name="unit" id="applyBillDiscountLate_unit" class="form-control" onchange="estimateDiscountDisplay()" style="margin-top: 10px;">
-                                    <option value="PERCENTAGE" selected="selected">Percentage (%)</option>
-                                    <option value="FIXED">Fixed Amount (Rs)</option>
-                                  </select>
-                               </div>
-                            </div>
-                          </div>
-
-                          <div class="row">
-                            <div class="col-lg-12">
-                              <p style="font-size: 14px; color: #2ecc71; margin: -10px 0 0 0;">Discount Amount: <tag id="applyBillDiscountLate_amount">0</tag></p>
-                            </div>
-                          </div>
-                  </div>
-            </div>
-            <div class="modal-footer" style="padding: 0; border-top: none;" id="lateRefundModalActions">                
-            </div>
-         </div>
-      </div>
-   </div>
-
-
-
-
-        <!-- DELIVERY AGENT MODAL -->
-        <div id="deliveryBoysModal" class="modal">
-             <div class="modal-dialog" style="width: 27em !important;">
-                <!-- Modal content-->
-                <div class="modal-content">
-                  <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; max-height: 480px; padding: 0" id="deliveryBoysModalContent">
-                    
-                  </div>  
-                </div>
-             </div>
-        </div>
 
 
  </template>       
