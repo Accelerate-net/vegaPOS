@@ -31,6 +31,10 @@ function openSystemSettings(id, optionalHighlight){
       renderCurrentKOTRelays();
       break;
     } 
+    case "menuCatalog":{
+      renderMenuCatalog();
+      break;
+    } 
     case "systemSecurity":{
       renderSecurityOptions();
       break;
@@ -2534,7 +2538,82 @@ function systemOptionPrepaidKeyword(){
   //Update
   window.localStorage.systemOptionsSettings_defaultPrepaidName = optName;
   changeSystemOptionsFile("defaultPrepaidName", optName); 
+
+  if(optName != ''){
+    changePrepaidNameOnPaymentMethods(optName);
+  }
 }
+
+function changePrepaidNameOnPaymentMethods(name){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        console.log(data)
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
+
+             var paymentTypesList = data.docs[0].value;
+     
+             for (var i=0; i<paymentTypesList.length; i++) {
+               if (paymentTypesList[i].code == 'PREPAID'){
+                  paymentTypesList[i].name = name;
+                  break;
+               }
+             }
+
+                //Update
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ACCELERATE_PAYMENT_MODES",
+                  "value": paymentTypesList
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_PAYMENT_MODES/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                    
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+
+                });  
+                
+          }
+          else{
+            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
 
 
 function systemOptionEmailListValidator(){
@@ -2591,6 +2670,341 @@ function systemOptionOnlineOrderDefaultTakeaway(){
   window.localStorage.systemOptionsSettings_defaultTakeawayMode = optName;
   changeSystemOptionsFile("defaultTakeawayMode", optName); 
 }
+
+
+
+//MENU CATALOG (for Taps devices)
+
+function renderMenuCatalog(){
+
+    //Preload menu categories
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
+
+              var categories = data.docs[0].value;
+              categories.sort(); //alphabetical sorting 
+
+              loadCatalogData(categories);
+          }
+          else{
+            showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu Category data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });    
+}
+
+
+function loadCatalogData(categoriesList) {
+
+    if(categoriesList.length == 0){
+      document.getElementById("menuCatalogRenderPlane").innerHTML = '<p style="margin: 10px; color: #f12006; font-style: italic">No categories added yet. Please <b onclick="renderPage(\'manage-menu\', \'Manage Menu\');" style="color: #579eda; text-decoration: underline; cursor: pointer">Add a Category</b> and try again.</p>';
+      return '';
+    }
+
+    //Preload menu catalog
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_MENU_CATALOG" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATALOG'){
+
+              var catalogData = data.docs[0].value;
+
+              catalogData.sort(function(doc1, doc2) { //sort by name
+                if (doc1.name < doc2.name)
+                  return -1;
+  
+                if (doc1.name > doc2.name)
+                  return 1;
+  
+                return 0;
+              });
+
+              
+              var renderContent = '';
+
+              var n = 0;
+              while(categoriesList[n]){
+
+                      var registered_top_level_category = getTopLevelCategory(categoriesList[n]);
+                      
+                      renderContent += '<div class="row" style="margin-top: 5px">'+
+                                          '<div class="col-sm-8">'+
+                                             '<p style="color: #000; font-weight: 500; margin: 0; padding: 5px 0;">'+categoriesList[n]+'</p>'+
+                                          '</div>'+
+                                          '<div class="col-sm-4">'+
+                                             (registered_top_level_category != '' ? '<tag class="removeShortCutIcon" onclick="removeCategoryFromMenuCatalog(\''+categoriesList[n]+'\')"><i class="fa fa-minus-circle"></i></tag>' : '')+
+                                             '<button class="btn btn-sm btn-default" onclick="openMenuCatalogAssigner(\''+categoriesList[n]+'\', \''+registered_top_level_category+'\')" style="width: 100%; font-weight: bold; color: #dd397d">'+(registered_top_level_category != '' ? registered_top_level_category : '<tag style="font-style: italic; text-transform: initial; color: #5d5d5d; font-weight: initial;">Not Classified</tag>')+'</button>'+
+                                          '</div>'+
+                                      '</div>';
+                      
+                      n++;
+              }
+
+              function getTopLevelCategory(category_name) {
+                for(var i = 0; i < catalogData.length; i++){
+                  if(catalogData[i].name == category_name){
+                    return catalogData[i].mainType;
+                    break;
+                  }
+                }
+
+                return "";
+              }
+
+
+              document.getElementById("menuCatalogRenderPlane").innerHTML = renderContent;
+          }
+          else{
+            showToast('Not Found Error: Menu Catalog data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Menu Catalog data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Menu Catalog data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+function removeCategoryFromMenuCatalog(category_name) {
+
+
+      var requestData = {
+        "selector"  :{ 
+                      "identifierTag": "ACCELERATE_MENU_CATALOG" 
+                    },
+        "fields"    : ["identifierTag", "value", "_rev"]
+      }
+
+      $.ajax({
+        type: 'POST',
+        url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+        data: JSON.stringify(requestData),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+          if(data.docs.length > 0){
+            if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATALOG'){
+
+                var catalogData = data.docs[0].value;
+
+                var n = 0;
+                while(catalogData[n]){
+                  if(catalogData[n].name == category_name){ 
+                    catalogData.splice(n, 1);
+                    break;
+                  }
+                  n++;
+                }
+
+                //Update 
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ACCELERATE_MENU_CATALOG",
+                  "value": catalogData
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MENU_CATALOG/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      openSystemSettings('menuCatalog');
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Menu Catalog data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });  
+
+                
+            }
+            else{
+              showToast('Not Found Error: Menu Catalog data not found. Please contact Accelerate Support.', '#e74c3c');
+            }
+          }
+          else{
+            showToast('Not Found Error: Menu Catalog data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        },
+        error: function(data) {
+          showToast('System Error: Unable to read Menu Catalog data. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      });  
+
+  
+      document.getElementById("addCatalogNameModal").style.display = 'none'; 
+}
+
+function openMenuCatalogAssigner(category_name, current_value) {
+  
+  document.getElementById("addCatalogNameModal").style.display = 'block';  
+  document.getElementById("addCatalogNameModalBrief").innerHTML = 'Set Top Level Category for <b>'+category_name+'</b> as'; 
+  document.getElementById("addCatalogNameModalConsent").innerHTML = '<button class="btn btn-default" style="width: 100%; border: none; border-radius: 0" onclick="setMenuCatalogAssigner(\''+category_name+'\', \''+current_value+'\')">Set</button>';
+
+
+  if(current_value && current_value != ''){
+    $('#addCatalogNameModalInput').val(current_value);
+    $('#addCatalogNameModalInput').focus();
+    $('#addCatalogNameModalInput').select();
+  }
+  else{
+    $('#addCatalogNameModalInput').val('');
+    $('#addCatalogNameModalInput').focus();
+  }
+}
+
+function setMenuCatalogAssigner(category_name, current_value) {
+
+  var updated_name = $('#addCatalogNameModalInput').val();
+  var trimmed_name = updated_name.replace(/\s/g,'');
+
+  if(trimmed_name.length == 0){
+    updated_name = '';
+  }
+
+  if(current_value == updated_name){
+    document.getElementById("addCatalogNameModal").style.display = 'none'; 
+    return '';
+  }
+
+  if(updated_name == ''){ //remove category from catalog
+    removeCategoryFromMenuCatalog(category_name);
+  }
+  else{ //update category in catalog
+
+      updated_name = updated_name.toUpperCase();
+
+      var requestData = {
+        "selector"  :{ 
+                      "identifierTag": "ACCELERATE_MENU_CATALOG" 
+                    },
+        "fields"    : ["identifierTag", "value", "_rev"]
+      }
+
+      $.ajax({
+        type: 'POST',
+        url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+        data: JSON.stringify(requestData),
+        contentType: "application/json",
+        dataType: 'json',
+        timeout: 10000,
+        success: function(data) {
+          if(data.docs.length > 0){
+            if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATALOG'){
+
+                var catalogData = data.docs[0].value;
+
+                var n = 0;
+                while(catalogData[n]){
+                  if(catalogData[n].name == category_name){ 
+                    catalogData[n].mainType = updated_name;
+                    break;
+                  }
+
+
+                  //if not found in catalog, add as a new entry
+                  if(n == catalogData.length - 1){ //last iteration
+                    var newEntry =     {
+                      "name": category_name,
+                      "mainType": updated_name
+                    }
+
+                    catalogData.push(newEntry);
+
+                    break;
+                  }
+
+                  n++;
+                }
+
+                //Update 
+                var updateData = {
+                  "_rev": data.docs[0]._rev,
+                  "identifierTag": "ACCELERATE_MENU_CATALOG",
+                  "value": catalogData
+                }
+
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MENU_CATALOG/',
+                  data: JSON.stringify(updateData),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      openSystemSettings('menuCatalog');
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update Menu Catalog data. Please contact Accelerate Support.', '#e74c3c');
+                  }
+                });  
+
+                
+            }
+            else{
+              showToast('Not Found Error: Menu Catalog data not found. Please contact Accelerate Support.', '#e74c3c');
+            }
+          }
+          else{
+            showToast('Not Found Error: Menu Catalog data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        },
+        error: function(data) {
+          showToast('System Error: Unable to read Menu Catalog data. Please contact Accelerate Support.', '#e74c3c');
+        }
+
+      });  
+
+  }
+
+  document.getElementById("addCatalogNameModal").style.display = 'none'; 
+}
+
 
 
 // KITCHEN SECTIONS (for KOT relaying)
@@ -2863,7 +3277,7 @@ function openKOTRelaySelectionModal(brief, current_printer){
     }
 
 
-  document.getElementById("selectKOTRelayPrinterModal").style.display = 'block'; 
+  document.getElementById("selectKOTRelayPrinterModal").style.display = 'block';
   document.getElementById("selectKOTRelayPrinterBrief").innerHTML = 'Relay all <b>'+brief+'</b> items to the Printer'; 
   document.getElementById("selectKOTRelayPrinterActions").innerHTML = '<button class="btn btn-default" style="width: 100%; border: none; border-radius: 0" onclick="selectKOTRelayModalHide()">Cancel</button>';
 

@@ -6589,3 +6589,104 @@ input:checked + .slider:before {
     position: relative;
     border-radius: 6px;
 }
+
+.modalPrintButton{
+    color: #d2d6de;
+    position: absolute;
+    right: 15px;
+    top: 64px;
+    z-index: 10;
+    font-size: 12px;
+    width: 140px;
+    text-align: right;
+    cursor: pointer;
+    height: 30px;
+    font-weight: bold;
+    text-transform: uppercase;  
+}
+
+.modalPrintButton:hover, .modalPrintButton:active, .modalPrintButton:focus{
+  color: #64acd6;
+}
+
+.changeCategoryButton{
+    float: right;
+    margin-right: 10px;
+    background: none;
+    color: #1e7967;
+    border-color: #14987e;  
+}
+
+.changeCategoryButton .fa{
+  margin-left: 6px; position: relative; top: 1px;
+}
+
+.changeCategoryButton:hover, .changeCategoryButton:active, .changeCategoryButton:focus{
+   background: #14987e !important;
+   border-color: #14987e !important;  
+   color: #FFF !important;
+}
+
+
+/*for expenses*/
+.brownOdd{
+  background: #fff5e4; color: #a75739;
+}
+
+.brownEven{
+  background: #fffcf7; color: #a75739;
+}
+
+.brownOdd td, .brownEven td{
+  border: none !important;
+}
+
+
+.greenOdd{
+  background: #d7f5e5; color: #427b70;
+}
+
+.greenEven{
+  background: #f4fffa; color: #427b70;
+}
+
+.greenOdd td, .greenEven td{
+  border: none !important;
+}
+
+
+.pinkOdd{
+  background: #ffc8c8; color: #a93c56;
+}
+
+.pinkEven{
+  background: #ffeaef; color: #a93c56;
+}
+
+.pinkOdd td, .pinkEven td{
+  border: none !important;
+}
+
+.blueOdd{
+  background: #bae0f7; color: #377fa9;
+}
+
+.blueEven{
+  background: #e4f5ff; color: #377fa9;
+}
+
+.blueOdd td, .blueEven td{
+  border: none !important;
+}
+
+.myReservationLabel{
+    margin-bottom: 4px;
+    font-weight: 400;
+    text-transform: uppercase;
+    color: #bdc3c7;
+    font-size: 12px;
+}
+
+#mySpecialMonth .ui-datepicker-calendar{
+    display: none !important;
+}

@@ -898,6 +898,132 @@ var html_template = ''+
 
 
 
+
+
+/*
+   PRINTING EXPENSE SLIP
+*/
+
+if(type == 'EXPENSE_SLIP'){
+
+   var titleContent = '';
+   var mainContent = '';
+
+   switch(orderObject.type){
+      case "EXPENSE":{
+         titleContent = '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">EXPENSE SLIP</div>';
+      
+         mainContent = '<tr> <td style="font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Reference No.</tag> '+orderObject.reference+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Issued To</tag> '+orderObject.issuedTo+' ('+orderObject.issuedToType+')</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Details</tag> '+orderObject.details.purpose+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Total Amount</tag> '+orderObject.amount+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Approver</tag> '+orderObject.details.authorizedBy+'</td> </tr>';
+
+         if(orderObject.paymentStatus == 'PAID'){
+            mainContent +=    '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Date of Payment</tag> '+orderObject.dateOfPayment+'</td> </tr>'+
+                              '<tr> <td style="padding-top: 10px; padding-bottom: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Mode of Payment</tag> '+orderObject.modeOfPayment+'</td> </tr>';
+         }
+         else{
+            mainContent +=    '<tr> <td style="padding-top: 10px; padding-bottom: 10px; font-size: 14px; font-style: italic">*Payment is Pending</td> </tr>';
+         }
+
+         break;
+      }
+      case "SALARY":{
+         titleContent = '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">SALARY SLIP</div>';
+      
+         mainContent = '<tr> <td style="font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Reference No.</tag> '+orderObject.reference+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Issued To</tag> '+orderObject.issuedTo+' ('+orderObject.details.staffCode+')</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Month</tag> '+orderObject.details.salaryIssuingMonth+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Total Amount</tag> '+orderObject.amount+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Comments</tag> '+orderObject.details.comments+'</td> </tr>';
+
+         if(orderObject.paymentStatus == 'PAID'){
+            mainContent +=    '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Date of Payment</tag> '+orderObject.dateOfPayment+'</td> </tr>'+
+                              '<tr> <td style="padding-top: 10px; padding-bottom: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Mode of Payment</tag> '+orderObject.modeOfPayment+'</td> </tr>';
+         }
+         else{
+            mainContent +=    '<tr> <td style="padding-top: 10px; padding-bottom: 10px; font-size: 14px; font-style: italic">*Payment is Pending</td> </tr>';
+         }
+
+         break;
+      }
+      case "CREDIT":{
+         titleContent = '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">CREDIT SLIP</div>';
+      
+         mainContent = '<tr> <td style="font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Reference No.</tag> '+orderObject.reference+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Received From</tag> '+orderObject.details.receivedFrom+' ('+orderObject.details.receivedType+')</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Purpose</tag> '+orderObject.details.purpose+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Total Amount</tag> '+orderObject.amount+'</td> </tr>';
+
+         if(orderObject.paymentStatus == 'PAID'){
+            mainContent +=    '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Date of Payment</tag> '+orderObject.dateOfPayment+'</td> </tr>'+
+                              '<tr> <td style="padding-top: 10px; padding-bottom: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Mode of Payment</tag> '+orderObject.modeOfPayment+'</td> </tr>';
+         }
+         else{
+            mainContent +=    '<tr> <td style="padding-top: 10px; padding-bottom: 10px; font-size: 14px; font-style: italic">*Payment is Pending</td> </tr>';
+         }
+
+         break;
+      }
+      case "PURCHASE":{
+         titleContent = '<div style="text-align: center; font-size:14px; font-weight: bold; margin: 5px 0; background: #000; color: #FFF; padding: 4px 0">PURCHASE SLIP</div>';
+      
+         mainContent = '<tr> <td style="font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Reference No.</tag> '+orderObject.reference+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Purchased From</tag> '+orderObject.issuedTo+' ('+orderObject.issuedToType+')</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Inventory</tag> '+orderObject.details.itemsPurchased+'</td> </tr>'+
+                       '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Total Amount</tag> '+orderObject.amount+'</td> </tr>';
+
+         if(orderObject.paymentStatus == 'PAID'){
+            mainContent +=    '<tr> <td style="padding-top: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Date of Payment</tag> '+orderObject.dateOfPayment+'</td> </tr>'+
+                              '<tr> <td style="padding-top: 10px; padding-bottom: 10px; font-size: 14px;"> <tag style="display: block; text-transform: uppercase; font-size: 11px; font-weight: bold;">Mode of Payment</tag> '+orderObject.modeOfPayment+'</td> </tr>';
+         }
+         else{
+            mainContent +=    '<tr> <td style="padding-top: 10px; padding-bottom: 10px; font-size: 14px; font-style: italic">*Payment is Pending</td> </tr>';
+         }
+
+         break;
+      }  
+
+   }
+
+  
+
+var html_template = ''+
+      '<div id="logo">'+
+        (data_custom_header_image != '' ? '<center><img style="max-width: 90%" src=\''+data_custom_header_image+'\'/></center>' : '<h1 style="text-align: center">'+data_custom_header_client_name+'</h1>')+
+      '</div>'+ titleContent +
+      '<div class="invoiceContent">'+
+         '<table style="width: 100%">'+ mainContent +
+         '</table>'+
+      '</div>'+
+      '<div class="invoiceCharges">'+
+         '<table style="width: 100%">'+
+            '<col style="width: 50%">'+
+            '<col style="width: 50%">'+
+            '<tr>'+
+               '<td colspan="2">The above computer generated details has been verified against the records.</td>'+
+            '</tr>'+
+            '<tr>'+
+               '<td></td>'+
+               '<td></td>'+
+            '</tr>'+ 
+            '<tr>'+
+               '<td>.............</td>'+
+               '<td style="text-align: right;">.............</td>'+
+            '</tr>'+ 
+            '<tr>'+
+               '<td style="font-weight: bold;">Date</td>'+
+               '<td style="text-align: right; font-weight: bold;">Sign</td>'+
+            '</tr>'+ 
+         '</table>'+
+      '</div>';
+
+      postContentToTemplate(html_template);
+}
+
+
+
 /*
    PRINTING KOT
 */
@@ -1646,8 +1772,13 @@ var html_template = view_header_content +
 
    function postContentToTemplate(html_template){
 
-        if(type == 'DUPLICATE_KOT' || type == 'CANCELLED_KOT') //TWEAK -- Redirect Cancelled Order KOTs and Duplicate KOTs to Kitchen.
+        if(type == 'DUPLICATE_KOT' || type == 'CANCELLED_KOT'){ //TWEAK -- Redirect Cancelled Order KOTs and Duplicate KOTs to Kitchen.
             type = 'KOT';
+        }
+
+        if(type == 'EXPENSE_SLIP'){
+            type = 'REPORT';
+        }
 
         //ipc.send('print-to-pdf', html_template);
         var selected_printer = null;

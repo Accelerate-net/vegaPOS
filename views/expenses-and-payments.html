@@ -1,0 +1,227 @@
+<template class="task-template">
+<div class="row">
+            <div class="col-xs-5">
+              
+                <div class="row">
+                    <div class="col-xs-12">
+                        <div class="box box-primary">
+                            <div class="box-body billTypeSelectionBox">
+                                <div id="addedExpensesCount" class="rewardsCount">..</div>
+                                <div class="rewardsName">RECORDS ADDED</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="box box-primary" >
+
+                    <div class="box-body">
+
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="min-width: 115px; padding: 5px 0px; font-size: 24px; font-family: 'Oswald'; color: #888">Records</h3>
+                           <span id="expenseTypeTitleButton"><button class="billsFilterButton" onclick="openDateFilterModal()">Filter</button></span>
+                           <tag style="float: right" id="navigationAssitantExpenses">
+                           </tag>
+                        </div>
+
+                            <div class="table-responsive" style="overflow-x: hidden !important">
+                              <div id="expenseBriefDisplayRender">
+
+<!-- Loading Animation -->
+
+<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>
+
+<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>
+
+<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>
+
+<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>
+
+<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>
+
+<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>
+
+<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>
+
+<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>
+
+                              </div>
+                            </div>
+                            <div class="clearfix"></div>
+
+                    
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-7" id="billDetailedDisplayRender">
+
+            </div>
+        </div>
+
+
+
+
+   <!-- Modal -->
+   <div id="issueSalaryModal" class="modal" style="z-index: 2;">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                  <h1 style="margin: 0 130px 15px 0; font-size: 24px; font-weight: 400; padding-left: 10px; color: #39acef; border-bottom: 1px solid #f1f1f1; padding: 10px 0; font-family: 'Oswald'">Issue Salary Slip
+                  </h1>
+
+                     <div id="issueSalaryModalContent">
+                        
+                     </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+                <button  class="btn btn-default" onclick="hideIssueSalarySlipModal()" style="width: 40%; border: none; border-radius: 0; height: 50px; float: left;">CLOSE</button>  
+                <button  class="btn btn-success" onclick="proceedToIssueSalarySlip()" style="width: 60%; border: none; border-radius: 0; height: 50px; margin: 0; text-transform: uppercase; font-size: 14px; background: #39acef"><b>Generate Slip</b></button>                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+   <!-- Modal -->
+   <div id="issuePurchaseSlipModal" class="modal" style="z-index: 2;">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 480px; overflow-y: auto !important; overflow-x: none !important;">
+                  <h1 style="margin: 0 0 15px 0; font-size: 24px; font-weight: 400; padding-left: 10px; color: #ED4C67; border-bottom: 1px solid #f1f1f1; padding: 10px 0; font-family: 'Oswald'">Add Purchase Entry
+                  </h1>
+
+                     <div id="issuePurchaseSlipModalContent">
+                        
+                     </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+                <button  class="btn btn-default" onclick="hideIssuePurchaseSlipModal()" style="width: 40%; border: none; border-radius: 0; height: 50px; float: left;">CLOSE</button>  
+                <button  class="btn btn-success" onclick="proceedToGeneratePurchaseEntry()" style="width: 60%; border: none; border-radius: 0; height: 50px; margin: 0; text-transform: uppercase; font-size: 14px; background: #ED4C67"><b>Add Purchase Entry</b></button>                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+
+   <!-- Modal -->
+   <div id="recordExpenseModal" class="modal" style="z-index: 2;">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 480px; overflow-y: auto !important; overflow-x: none !important;">
+                  <h1 style="margin: 0 0 15px 0; font-size: 24px; font-weight: 400; padding-left: 10px; color: #f39c12; border-bottom: 1px solid #f1f1f1; padding: 10px 0; font-family: 'Oswald'">Add Expense Record
+                  </h1>
+
+                     <div id="recordExpenseModalContent">
+                        
+                     </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+                <button  class="btn btn-default" onclick="hideRecordExpenseModal()" style="width: 40%; border: none; border-radius: 0; height: 50px; float: left;">CLOSE</button>  
+                <button  class="btn btn-success" onclick="proceedToRecordExpense()" style="width: 60%; border: none; border-radius: 0; height: 50px; margin: 0; text-transform: uppercase; font-size: 14px; background: #f39c12"><b>Save Expense</b></button>                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+   <!-- Modal -->
+   <div id="recordCreditModal" class="modal" style="z-index: 2;">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="max-height: 480px; overflow-y: auto !important; overflow-x: none !important;">
+                  <h1 style="margin: 0 0 15px 0; font-size: 24px; font-weight: 400; padding-left: 10px; color: #1abc9c; border-bottom: 1px solid #f1f1f1; padding: 10px 0; font-family: 'Oswald'">Add Credit Record
+                  </h1>
+
+                     <div id="recordCreditModalContent">
+                        
+                     </div>
+
+            </div>
+            <div class="modal-footer" style="padding: 0">
+                <button  class="btn btn-default" onclick="hideRecordCreditModal()" style="width: 40%; border: none; border-radius: 0; height: 50px; float: left;">CLOSE</button>  
+                <button  class="btn btn-success" onclick="proceedToRecordCredit()" style="width: 60%; border: none; border-radius: 0; height: 50px; margin: 0; text-transform: uppercase; font-size: 14px; background: #1abc9c"><b>Save Credit</b></button>                
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+   <!-- Modal -->
+   <div id="searchExpensesFilterModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding-bottom: 15px">
+                     <div class="row">
+                        <div class="col-lg-12">
+                                 <div class="form-group">
+                                    <label style="margin: 0; font-size: 24px; font-weight: 300;">Filter & Search</label>
+                                    <hr style="margin: 5px 0 10px 0">
+                                   <div id="filterExpensesSearchArea" style="margin: 0 0 10px 0; padding: 15px 5px 40px 5px;">
+                                    <input type="text" value="" class="form-control tip" id="filter_search_key" style="border: none; border-bottom: 2px solid; font-size: 36px; height: 60px; font-weight: 300; padding: 10px 3px;" placeholder="Search Here" required="required" />
+                                  </div>
+
+                                    <div class="col-lg-12">
+                                       <div class="row" style="border: 1px solid #eeeeee; padding: 6px 0 2px 0;">
+                                          <div class="col-sm-4">
+                                            <label style="font-size: 10px">SEARCH USING</label>
+                                            <select id="filterSearchCriteria" class="form-control mySearchSelector" onchange="changeExpenseFilterSearchCriteria()">
+                                              <option value="uid">Expense ID</option>
+                                              <option value="all">All Expenses</option>
+                                              <option value="admin">Issued Admin</option>
+                                              <option value="issuedto">Issued To</option>
+                                              <option value="type">Type of Expense</option>
+                                            </select>
+                                          </div>                                        
+                                          <div class="col-sm-4">
+                                             <label style="font-size: 10px">FROM DATE</label><br>
+                                             <input type="text" id="reportFromDate" class="myDatePicker" style="width: 100%" placeholder="From Date">
+                                          </div>
+                                          <div class="col-sm-4">
+                                             <label style="font-size: 10px">TO DATE</label><br>
+                                             <input type="text" id="reportToDate" class="myDatePicker" style="width: 100%" placeholder="To Date">
+                                          </div>
+
+                                       </div>
+
+                                   </div>
+
+
+                                 </div>                                 
+                        </div>
+                     </div>
+            </div>
+            <div class="modal-footer">
+               <button  class="btn btn-default" onclick="hideExpensesFilterModal()" style="float: left">Cancel</button>
+               <span id="actionButtonSearch"><button  class="btn btn-success" onclick="filterExpenseSearchInitialize()" style="float: right">Proceed</button></span>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+ </template>       
