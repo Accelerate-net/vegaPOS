@@ -6613,8 +6613,8 @@ input:checked + .slider:before {
     float: right;
     margin-right: 10px;
     background: none;
-    color: #1e7967;
-    border-color: #14987e;  
+    color: #FFF;
+    border-color: #FFF;  
 }
 
 .changeCategoryButton .fa{
@@ -6622,9 +6622,9 @@ input:checked + .slider:before {
 }
 
 .changeCategoryButton:hover, .changeCategoryButton:active, .changeCategoryButton:focus{
-   background: #14987e !important;
-   border-color: #14987e !important;  
-   color: #FFF !important;
+   background: #FFF !important;
+   border-color: #FFF !important;  
+   color: #444 !important;
 }
 
 
