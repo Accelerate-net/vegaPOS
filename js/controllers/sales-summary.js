@@ -6783,5 +6783,6 @@ function reportActionPrint(){
 	var htmlContentEncoded = $('#reportActionButtonPrint').attr('data-hold');
 	var htmlContent = decodeURI(htmlContentEncoded);
 
+	showToast('Printing Report', '#27ae60');
 	printPDFReport(htmlContent);
 }

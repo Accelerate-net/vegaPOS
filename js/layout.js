@@ -507,8 +507,6 @@ function viewServerURL(){
 
   var saved_url = window.localStorage.serverConnectionURL ? JSON.parse(decodeURI(window.localStorage.serverConnectionURL)) : '';
 
-  console.log(saved_url)
-
   if(saved_url == ''){
     $('#add_custom_server_ip').val(default_ip);
     $('#add_custom_server_port').val(default_port);
