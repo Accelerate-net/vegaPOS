@@ -3666,6 +3666,43 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 }
 
 
+@-webkit-keyframes lightFlashing {
+  0%, 49% {
+      background: #8151d6;
+  }
+  50%, 100% {
+      background: #e5007f;
+  }
+}
+
+
+
+/*kot jamming warning*/
+#KOTJammingWarning{
+    position: fixed; left: 0; top: 0; 
+    z-index: 2000; width: 100%; height: 100%; 
+    overflow: visible; 
+
+    -webkit-animation: lightFlashing 1s infinite; /* Safari 4+ */
+    -moz-animation: lightFlashing 1s infinite; /* Fx 5+ */
+    -o-animation: lightFlashing 1s infinite; /* Opera 12+ */
+    animation: lightFlashing 1s infinite; /* IE 10+, Fx 29+ */
+}
+
+#KOTJammingWarning h1{
+    margin: 0;
+    font-size: 64px;
+    font-family: 'Oswald';
+    color: #FFF;
+    text-align: center;
+    padding: 30px;
+    cursor: pointer;
+    opacity: 0.2;
+    text-transform: uppercase;
+    font-weight: bold;  
+}
+
+
 /*welcome screen lock*/
 #welcomeScreenLock{
     position: fixed; left: 0; top: 0; 

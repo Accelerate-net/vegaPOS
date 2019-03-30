@@ -769,7 +769,7 @@ function createFirstTimeActivationStubsFromSettings(licenceObject, machinesList,
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "YES" }, { "name": "defaultKOTPrinter", "value": "Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "YES" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "KOTJammingWarning", "value": "NO" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "YES" }, { "name": "defaultKOTPrinter", "value": "Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "YES" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -1321,6 +1321,15 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }
                           else{
                             document.getElementById("systemOptionEditingAllowed").value = 'NO';
+                          }
+                          break;
+                        }
+                        case "KOTJammingWarning": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionKOTJammingWarning").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionKOTJammingWarning").value = 'NO';
                           }
                           break;
                         }
@@ -2467,6 +2476,15 @@ function changeSystemOptionExpectedReadyTime(){
 
 
 
+function changeSystemOptionKOTJamming(){
+  var optName = document.getElementById("systemOptionKOTJammingWarning").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_KOTJammingWarning = (optName == 'YES' ? true : false);
+  changeSystemOptionsFile("KOTJammingWarning", optName);
+}
+
+
 function changeSystemOptionEditingKOTAllowed(){
   var optName = document.getElementById("systemOptionEditingAllowed").value;
 
@@ -2474,6 +2492,8 @@ function changeSystemOptionEditingKOTAllowed(){
   window.localStorage.appOtherPreferences_orderEditingAllowed = (optName == 'YES' ? 1 : 0);
   changeSystemOptionsFile("orderEditingAllowed", optName);
 }
+
+
 
 
 function changeSystemOptionKOTRelaying(){
