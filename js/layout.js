@@ -5447,7 +5447,7 @@ function appendToLog(text){
 
 
 
-/* KOT Jamming Warnings */
+/* KOT Jamming Flash Alert */
 function checkForJammedKOTs() {
 
   var pending_orders = 0;
@@ -5504,7 +5504,7 @@ function checkForJammedKOTs() {
   }
 
   
-  setTimeout(checkForJammedKOTs, 120000); //check every 2 minutes
+  setTimeout(checkForJammedKOTs, 150000); //check every 2m 30s
 
 }
 
