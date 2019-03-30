@@ -5,43 +5,43 @@ var cache = {}
 
 var sounds = {
   ADD: {
-    url: './data/sounds/add.wav',
+    url: './assets/sounds/add.wav',
     volume: VOLUME
   },
   DELETE: {
-    url: './data/sounds/delete.wav',
+    url: './assets/sounds/delete.wav',
     volume: VOLUME
   },
   DISABLE: {
-    url: './data/sounds/disable.wav',
+    url: './assets/sounds/disable.wav',
     volume: VOLUME
   },
   DONE: {
-    url: './data/sounds/done.wav',
+    url: './assets/sounds/done.wav',
     volume: VOLUME
   },
   ENABLE: {
-    url: './data/sounds/enable.wav',
+    url: './assets/sounds/enable.wav',
     volume: VOLUME
   },
   ERROR: {
-    url: './data/sounds/error.wav',
+    url: './assets/sounds/error.wav',
     volume: VOLUME
   },
   PLAY: {
-    url: './data/sounds/play.wav',
+    url: './assets/sounds/play.wav',
     volume: VOLUME
   },
   SEND: {
-    url: './data/sounds/send.wav',
+    url: './assets/sounds/send.wav',
     volume: VOLUME * 2
   },
   BELL: {
-    url: './data/sounds/bell.wav',
+    url: './assets/sounds/bell.wav',
     volume: VOLUME * 5
   },
   STARTUP: {
-    url: './data/sounds/startup.wav',
+    url: './assets/sounds/startup.wav',
     volume: VOLUME * 5
   }
 

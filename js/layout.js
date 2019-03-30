@@ -2389,7 +2389,7 @@ function checkLogin(){
   if(loggedInAdminInfo.name == '' || loggedInAdminInfo.branch == ''){ //Not logged in
     document.getElementById("loginModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                    '<header>'+
-                                      '<span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>'+
+                                      '<span class="avatar"><img src="brand/brand-square.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login to Cloud Server</h1>'+
                                    '</header>'+
                                     '<div class="row" style="margin: 15px 0">'+
@@ -2407,7 +2407,7 @@ function checkLogin(){
 
     document.getElementById("loginModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                    '<header>'+
-                                      '<span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>'+
+                                      '<span class="avatar"><img src="brand/brand-square.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 24px; margin-bottom: 0; color: #3e5b6b; font-family: \'Roboto\';">'+loggedInAdminInfo.branch+'</h1>'+
                                       '<p style="font-size: 14px; color: #72767d;">Logged In as <b>'+loggedInAdminInfo.name+'</b></p>'+
                                    '</header>'+
@@ -2428,7 +2428,7 @@ function recoveryLogin(){
 
     document.getElementById("loginModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                    '<header>'+
-                                      '<span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>'+
+                                      '<span class="avatar"><img src="brand/brand-square.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login to the Server</h1>'+
                                    '</header>'+
                                    '<div style="margin: 0">'+
@@ -3286,7 +3286,7 @@ function renderCurrentUserDisplay(){
     document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: 400">'+loggedInStaffInfo.name+'</span>';
   }
   else{
-    document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/default_user.png" class="user-image" alt="Avatar" /> <span style="font-style: italic; font-weight: 300">Profile Not Selected</span>';
+    document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/common/default_user.png" class="user-image" alt="Avatar" /> <span style="font-style: italic; font-weight: 300">Profile Not Selected</span>';
   }
 }
 
