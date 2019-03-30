@@ -348,6 +348,17 @@
                             <td colspan="2" style="padding: 10px 0 5px 0;">KOT/Bill Defaults</td>
                           </tr> 
                           <tr>
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Server based KOT Printing<tag style="display: block; font-size: 80%; color: #949393;">All KOTs will be printed by the Server. Enable only if the <b>Orders Aggregator</b> tool is supported.</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionServerBasedKOTPrinting()" id="systemOptionServerBasedKOTPrinting" class="form-control" style="width:100%;">
+                                      <option value="NO">Disabled</option>
+                                      <option value="YES">Enabled</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+                          <tr>
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">KOT Jamming Flash Alert<tag style="display: block; font-size: 80%; color: #949393;">Alert message will be displayed if KOTs are jammed and not getting printed due to various reasons</tag></td>
                             <td style="padding-top:10px">
                                 <div class="form-group">

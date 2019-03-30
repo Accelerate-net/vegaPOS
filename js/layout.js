@@ -795,7 +795,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "KOTJammingWarning", "value": "NO" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "YES" }, { "name": "defaultKOTPrinter", "value": "Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "YES" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "KOTJammingWarning", "value": "NO" }, { "name": "ServerBasedKOTPrinting", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "YES" }, { "name": "defaultKOTPrinter", "value": "Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "YES" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -1843,12 +1843,17 @@ function applySystemOptionSettings(){
                         var tempVal = params[i].value == 'YES'? true: false;
 
                         if(tempVal){
-                          console.log(tempVal)
                           checkForJammedKOTs();
                         }
 
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_KOTJammingWarning = tempVal;
+                      }
+                      else if(params[i].name == "ServerBasedKOTPrinting"){
+                        var tempVal = params[i].value == 'YES'? 1: 0;
+
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_serverBasedKOTPrinting = tempVal;
                       }
                       else if(params[i].name == "resetCountersAfterReport"){
 
@@ -5495,16 +5500,17 @@ function checkForJammedKOTs() {
           document.getElementById("KOTJammingWarning").style.display = 'block';
           document.getElementById("KOTJammingWarningText").innerHTML = '<b style="font-size: 120%">'+pending_requests+'</b> KOTs '+(pending_orders > 0 ? '& <b style="font-size: 120%">'+pending_orders+'</b> Orders ': '')+'Pending';
         }
+
+        setTimeout(checkForJammedKOTs, 10000); //check every 10s
     }
     else{
         if($('#KOTJammingWarning').is(':visible')) {
           document.getElementById("KOTJammingWarning").style.display = 'none';
         }
+
+        setTimeout(checkForJammedKOTs, 120000); //check every 2m
     }    
   }
-
-  
-  setTimeout(checkForJammedKOTs, 150000); //check every 2m 30s
 
 }
 

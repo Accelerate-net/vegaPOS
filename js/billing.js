@@ -4233,12 +4233,15 @@ function processCancelRunningOrder(kotID, optionalPageRef){
 
 /* To print Cancellation Note to Kitchen */
 function sendCancelledKOTNotice(kot, optionalPageRef){
-  
-  /*
-    **********************************************
-    OLD - Direct Printing from Client (deprecated)
-    **********************************************
-          
+
+  var server_based_printing = window.localStorage.systemOptionsSettings_serverBasedKOTPrinting ? window.localStorage.systemOptionsSettings_serverBasedKOTPrinting : 0;
+            
+  if(server_based_printing == 0){          
+          /*
+            **********************************************
+            OLD - Direct Printing from Client (deprecated)
+            **********************************************
+          */
                       var obj = kot;
                       var original_order_object_cart = kot.cart;
                       
@@ -4521,46 +4524,6 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
                             }
                             
 
-
-
-                          //LEGACY - Start
-                          function startRelayPrinting(index){
-
-                            console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
-
-                          //add some delay
-                                    setTimeout(function(){ 
-                                  
-                                        var relayedItems = [];
-                                        for(var i = 0; i < relayedList.length; i++){
-                                          if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
-                                            relayedItems = relayedItems.concat(relayedList[i].subcart)  
-                                          }
-
-                                          if(i == relayedList.length - 1){ //last iteration
-                                            var relayedNewObj = obj;
-                                            relayedNewObj.cart = relayedItems;
-
-                                            if(relayedItems.length > 0){
-                                              
-                                              sendToPrinter(relayedNewObj, 'CANCELLED_KOT', allPrintersList[index].template);
-                                              
-                                              if(allPrintersList[index+1]){
-                                                startRelayPrinting(index+1);
-                                              }
-                                            }
-                                            else{
-                                              if(allPrintersList[index+1]){
-                                                startRelayPrinting(index+1);
-                                              }
-                                            }
-                                          }
-                                        }
-
-                                    }, 999);
-                          }
-                          //LEGACY - End
-
                         }
                       }
                       else{ //no relay (normal case)
@@ -4599,13 +4562,11 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
                         }
                           
                       }
-    */
-
-
-
-    /*
-        LATEST - Printing from Single Server (Pre-release 2019 March)
-    */
+    }
+    else{
+                  /*
+                      LATEST - Printing from Single Server (Pre-release 2019 March)
+                  */
 
                     //Get staff info.
                     var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
@@ -4657,7 +4618,7 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
                         }
                     }
                   });   
-
+    }
 
 }
 

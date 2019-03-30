@@ -23,39 +23,7 @@ function triggerRightPanelDisplay(){
 /*Add Item to Cart */
 function saveToCart(productToAdd, optionalSource){
 
-		var cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
-
-
-		/*
-
-		********************************
-		OLD - Compact Cart (deprecated)
-		********************************
-
-		var i = 0;
-		var flag = -1;
-
-		while(i < cart_products.length){
-          if(cart_products[i].code == productToAdd.code){
-
-              if(cart_products[i].variant == productToAdd.variant){
-                flag = i;
-                break;
-              }         	
-          }
-
-          i++;
-        }
-
-
-      if(flag != -1){
-         	cart_products[flag].qty +=1;
-      }
-      else{
-      		cart_products.push({"name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "ingredients": productToAdd.ingredients ? productToAdd.ingredients : "", "qty": 1});
-      }
-
-      */
+	  var cart_products = window.localStorage.accelerate_cart ?  JSON.parse(window.localStorage.accelerate_cart) : [];
 
       var maxCartIndex = 0;
 
@@ -602,184 +570,6 @@ console.log('qty changes....')
 
     $('#add_item_by_search').focus();
 }
-
-
-/*
-
-********************************
-OLD - Compact Cart (deprecated)
-********************************
-
-function deleteItem(item, isCustom, variant){
-
-	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
-	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
-		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
-
-		if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
-
-		}
-		else{
-			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
-				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
-				return '';
-			}		
-		}
-
-		
-	}
-
-
-	var itemCode = JSON.parse(decodeURI(item))
-	var cart_products = JSON.parse(window.localStorage.accelerate_cart)
-
-		if(isCustom == 'true'){
-
-				var i = 0;
-					while(i < cart_products.length){
-
-							if(cart_products[i].code == itemCode && cart_products[i].variant == variant){
-								cart_products.splice(i,1);
-								break;
-							}
-				        i++;
-				    }
-
-
-		}
-        else{
-				var i = 0;
-
-					while(i < cart_products.length){
-
-						if(cart_products[i].code == itemCode){
-							cart_products.splice(i,1);
-							break;
-						}
-				        i++;
-				    }
-
-        }
-
-    if(cart_products.length == 0){
-    	window.localStorage.accelerate_cart = '';
-    }
-    else{
-    	window.localStorage.accelerate_cart = JSON.stringify(cart_products)
-    }
-    
-    renderCart()
-
-}
-
-
-
-function senseQuantityChange(event, item, isCustom, variant){
-
-	if(isCustom != 'true'){
-		variant = '';	
-	}
-
-	if(event.which === 40){ //Decrease Qty
-
-		if(document.getElementById("qty"+item+variant).value == 1){
-			return '';
-		}
-
-		document.getElementById("qty"+item+variant).value = parseInt(document.getElementById("qty"+item+variant).value) - 1;
-	}
-	else if(event.which === 38){ //Increase Qty
-		document.getElementById("qty"+item+variant).value = parseInt(document.getElementById("qty"+item+variant).value) + 1;
-	}
-	else{
-		//Do nothing if not UP or DOWN key pressed.
-		return '';
-
-	}
-
-	var optionalFocusKey = "qty"+item+variant;
-
-	changeqty(item, isCustom, variant, optionalFocusKey);
-}
-
-
-function changeqty(item, isCustom, variant, optionalFocusKey){
-
-
-	//Prevent if in editing mode and its a Prebilled order (delivery/takeaway)
-	if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){ //Editing Mode
-		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
-		
-
-		if(window.localStorage.appOtherPreferences_orderEditingAllowed && window.localStorage.appOtherPreferences_orderEditingAllowed == 1){
-
-		}
-		else{
-			if(calculableOriginalKOT.orderDetails.modeType == 'PARCEL' || calculableOriginalKOT.orderDetails.modeType == 'TOKEN' || calculableOriginalKOT.orderDetails.modeType == 'DELIVERY'){
-				showToast('Warning: This order can not be edited. KOT already printed.', '#e67e22');
-				return '';
-			}	
-		}
-
-	}
-
-
-	var itemCode = JSON.parse(decodeURI(item))
-	var cart_products = JSON.parse(window.localStorage.accelerate_cart)
-	
-
-		if(isCustom == 'true'){
-
-				var i = 0;
-					while(i < cart_products.length){
-
-							if(cart_products[i].code == itemCode && cart_products[i].variant == variant){
-								var temp = document.getElementById("qty"+cart_products[i].code+cart_products[i].variant).value;
-								if(temp == '' || isNaN(temp) || temp == 0){
-									temp = 1;
-									break;
-								}
-								cart_products[i].qty = parseInt(temp);
-								break;
-							}
-				        i++;
-				    }
-
-
-		}
-        else{
-				var i = 0;
-
-					while(i < cart_products.length){
-
-						if(cart_products[i].code == itemCode){
-							temp = document.getElementById("qty"+cart_products[i].code).value;
-								if(temp == '' || isNaN(temp) || temp == 0){
-									//temp = 1;
-									//break;
-
-									//Remove the item
-									deleteItem(item, isCustom, variant);
-									$('#add_item_by_search').focus();
-									return '';
-								}
-							cart_products[i].qty = parseInt(temp);
-							break;
-						}
-				        i++;
-				    }
-
-        }
-
-
-
-    window.localStorage.accelerate_cart = JSON.stringify(cart_products)
-    renderCart();
-
-    $('#add_item_by_search').focus();
-}
-
-*/
 
 
 function renderCart(optionalFocusKey, forceRequest){ //optionalFocusKey --> Which input field to be focused
@@ -4677,13 +4467,17 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 
 
 function sendKOTChangesToPrinterPreProcess(kot, compareObject){
-	
-	/*
-		**********************************************
-		OLD - Direct Printing from Client (deprecated)
-		**********************************************
-					
 
+	var server_based_printing = window.localStorage.systemOptionsSettings_serverBasedKOTPrinting ? window.localStorage.systemOptionsSettings_serverBasedKOTPrinting : 0;
+	
+	if(server_based_printing == 0){
+
+						/*
+							**********************************************
+							OLD - Direct Printing from Client (deprecated)
+							**********************************************
+						*/		
+			
 			              	var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
 							var isKOTRelayingEnabledOnDefault = window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT ? (window.localStorage.appOtherPreferences_KOTRelayEnabledDefaultKOT == 1 ? true : false) : false;
 
@@ -4931,53 +4725,6 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 								    	}
 								    }
 
-
-								    //LEGACY - Start
-								    function startRelayPrinting(index){
-
-								    	console.log('*Relay Print - Round '+index+' on '+allPrintersList[index].name)
-
-								    	if(index == 0){
-								    		showPrintingAnimation();
-								    	}
-
-										//add some delay
-				              			setTimeout(function(){ 
-				              			
-								    		var relayedItems = [];
-								    		for(var i = 0; i < relayedList.length; i++){
-								    			if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
-								    				relayedItems = relayedItems.concat(relayedList[i].subcart)	
-								    			}
-
-								    			if(i == relayedList.length - 1){ //last iteration
-
-								    				if(relayedItems.length > 0){
-								    					
-								    					sendKOTChangesToPrinter(kot, relayedItems, allPrintersList[index].template);
-								    					
-								    					if(allPrintersList[index+1]){
-								    						startRelayPrinting(index+1);
-								    					}
-								    					else{
-								    						finishPrintingAnimation();
-								    					}
-								    				}
-								    				else{
-								    					if(allPrintersList[index+1]){
-								    						startRelayPrinting(index+1);
-								    					}
-								    					else{
-								    						finishPrintingAnimation();
-								    					}
-								    				}
-								    			}
-								    		}
-
-								    	}, 999);
-								    }
-								    //LEGACY - End
-
 				              	}
 			              	}
 			              	else{ //no relay (normal case)
@@ -5015,10 +4762,8 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 			              		}
 			              			
 			              	}
-	*/
-
-
-
+	}
+	else{
 
 			            /*
 							LATEST - Printing from Single Server (Pre-release 2019 March)
@@ -5075,7 +4820,7 @@ function sendKOTChangesToPrinterPreProcess(kot, compareObject){
 					           	}
 					        }
 					      });  	
-
+	}
 
 }
 
@@ -5795,10 +5540,15 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	              	function initialiseKOTPrinting(){
 			              	
 
-	              	 /*
-						**********************************************
-						OLD - Direct Printing from Client (deprecated)
-						**********************************************
+						var server_based_printing = window.localStorage.systemOptionsSettings_serverBasedKOTPrinting ? window.localStorage.systemOptionsSettings_serverBasedKOTPrinting : 0;
+						
+						if(server_based_printing == 0){
+
+		              	 /*
+							**********************************************
+							OLD - Direct Printing from Client (deprecated)
+							**********************************************
+						 */
 					
 
 
@@ -6078,55 +5828,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 								    	}
 								    }
 								    
-
-								    //LEGACY Start
-								    function startRelayPrinting(index){
-
-								    	console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
-
-										if(index == 0){
-								    		showPrintingAnimation();
-								    	}
-
-										//add some delay
-				              			setTimeout(function(){ 
-				              			
-								    		var relayedItems = [];
-								    		for(var i = 0; i < relayedList.length; i++){
-								    			if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
-								    				relayedItems = relayedItems.concat(relayedList[i].subcart)	
-								    			}
-
-								    			if(i == relayedList.length - 1){ //last iteration
-								    				var relayedNewObj = obj;
-								    				relayedNewObj.cart = relayedItems;
-
-								    				if(relayedItems.length > 0){
-								    					
-								    					sendToPrinter(relayedNewObj, 'KOT', allPrintersList[index].template);
-								    					
-								    					if(allPrintersList[index+1]){
-								    						startRelayPrinting(index+1);
-								    					}
-								    					else{
-								    						finishPrintingAnimation();
-								    					}
-								    				}
-								    				else{
-								    					if(allPrintersList[index+1]){
-								    						startRelayPrinting(index+1);
-								    					}
-								    					else{
-								    						finishPrintingAnimation();
-								    					}
-								    				}
-								    			}
-								    		}
-
-								    	}, 999);
-								    }
-								    // LEGACY End
-
 				              	}
 			              	}
 			              	else{ //no relay (normal case)
@@ -6166,12 +5867,13 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 			              	}
 
 
-			            */
+			            }
+			            else{
 
 
-			            /*
+			              /*
 							LATEST - Printing from Single Server (Pre-release 2019 March)
-			            */
+			              */
 
 			              var printRequestObject = obj;
 
@@ -6214,7 +5916,11 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 					           		showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
 					           	}
 					        }
-					      });  			             
+					      });
+
+					    }
+
+
 
 			        } //end - initialise KOT Prints
 
