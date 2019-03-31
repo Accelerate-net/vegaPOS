@@ -530,8 +530,16 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
                   }
                   case 13:{ // Enter (Confirm)
                     if(!duplicateClick){
-                      $('#billButtonAction_generate').click();
-                      e.preventDefault();
+
+                      if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+                        requestUserToWait();
+                        return '';
+                      }
+                      else{
+                        $('#billButtonAction_generate').click();
+                        e.preventDefault();
+                      }
+            
                     }
 
                     duplicateClick = true;
@@ -2028,6 +2036,11 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
 var PREVENT_DUPLICATE_BILL_REQUEST = false;
 
 function confirmBillGeneration(kotID, optionalPageRef, silentRequest){
+
+    if($('#generalPrintingProgressModal').is(':visible')) { //to make KOT printing safe
+      requestUserToWait();
+      return "";
+    }
 
     if(PREVENT_DUPLICATE_BILL_REQUEST){
       return '';
