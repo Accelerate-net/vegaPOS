@@ -4935,3 +4935,663 @@ function openUndoSettleWarning(billNumber){
 
     });  
 }
+
+
+
+// SHOW LAST 3 BILLS
+
+let RECENT_BILLS_PREVIEW_INDEX = 0;
+let easySelectTool_Pending;
+let easySelectTool_Settled;
+
+function switchToPending(){
+  RECENT_BILLS_PREVIEW_INDEX = 0;
+  easySelectTool_Settled.unbind();
+
+  showBundledRecentBills('PENDING', 'PREVIOUS');
+}
+
+function switchToSettled(){
+  RECENT_BILLS_PREVIEW_INDEX = 0;
+  easySelectTool_Pending.unbind();
+
+  showBundledRecentBills('SETTLED', 'PREVIOUS');
+}
+
+
+function showBundledRecentBills(type, handle){
+
+  if(type == 'SETTLED'){
+
+      //format the button
+      $("#lastThreeBillsPreviewFilter").text("Settled Bills Only"); 
+      $("#lastThreeBillsPreviewFilter").attr("onclick","switchToPending()");
+      
+
+
+      if(handle == 'NEXT'){
+        RECENT_BILLS_PREVIEW_INDEX++;
+      }
+      else if(handle == 'PREVIOUS'){
+        RECENT_BILLS_PREVIEW_INDEX--;
+
+        if(RECENT_BILLS_PREVIEW_INDEX < 0){
+          RECENT_BILLS_PREVIEW_INDEX = 0;
+        }
+      }
+
+        var lastSettledBills = '';
+
+        $.ajax({
+          type: 'GET',
+          url: COMMON_LOCAL_SERVER_IP+'accelerate_invoices/_design/invoices/_view/all?descending=true&include_docs=true&limit=3&skip='+ RECENT_BILLS_PREVIEW_INDEX * 3,
+          timeout: 10000,
+          success: function(data) {
+              lastSettledBills = data.rows;
+              renderPreview();
+          },
+          error: function(data){
+              showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              renderPreview(); 
+          }
+        }); 
+
+
+        function renderPreview(){
+
+          if(lastSettledBills.length == 0){
+            
+            if(handle == 'NEXT'){
+
+                showToast('Ohoo! That was the last Settled Bill found on the system.', '#27ae60');
+                RECENT_BILLS_PREVIEW_INDEX--;
+            
+                var duplicate_previous_click = false;
+                easySelectTool_Settled = $(document).on('keydown',  function (e) {
+                  if($('#lastThreeBillsPreviewModal').is(':visible')) {
+                      if(e.which == 27 || e.which == 13){
+                          document.getElementById("lastThreeBillsPreviewModal").style.display ='none';
+                          easySelectTool_Settled.unbind();
+                          e.preventDefault();
+                      }
+                      else if(e.which == 37){ //previous 3
+                        if(!duplicate_previous_click){
+                          showBundledRecentBills(type, 'PREVIOUS');
+                        }
+
+                        duplicate_previous_click = true;
+                        easySelectTool_Settled.unbind();
+                      }
+                  }
+                });
+            }
+
+            
+            return "";
+          }
+
+          var filteredBills = lastSettledBills;
+
+          var renderContent = '';
+
+          var n = 0;
+          while(filteredBills[n]){
+
+            var billData = filteredBills[n].value;
+
+            var cart_items = '';
+            for(var i = 0; i < billData.cart.length; i++){
+              cart_items += '<tr class="success"> <td class="text-center">'+(i+1)+'</td> <td>'+billData.cart[i].name+(billData.cart[i].isCustom ? ' ('+billData.cart[i].variant+')' : '')+'</td> <td class="text-center"> <span class="text-center sprice"><i class="fa fa-inr"></i>'+billData.cart[i].price+'</span> </td> <td class="text-center">x '+billData.cart[i].qty+'</td> <td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+(billData.cart[i].price * billData.cart[i].qty)+'</span> </td> </tr>';
+            }
+
+            var extras_content = '';
+            for(var i = 0; i < billData.extras.length; i++){
+              extras_content += '<tr class="info"> <td class="cartSummaryRow">'+billData.extras[i].name+'  ('+(billData.extras[i].unit == 'PERCENTAGE'? billData.extras[i].value + '%': '<i class="fa fa-inr"></i>'+billData.extras[i].value)+')</td> <td class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+billData.extras[i].amount+'</td> </tr>';
+            }
+
+            //Custom Extras
+            if(billData.customExtras.amount && billData.customExtras.amount != 0){
+              extras_content += '<tr class="info"> <td class="cartSummaryRow">'+billData.customExtras.type+'  ('+(billData.customExtras.unit == 'PERCENTAGE'? billData.customExtras.value + '%': '<i class="fa fa-inr"></i>'+billData.customExtras.value)+')</td> <td class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+billData.customExtras.amount+'</td> </tr>';
+            }
+
+            //Discounts
+            if(billData.discount.amount && billData.discount.amount != 0){
+              extras_content += '<tr class="info"> <td class="cartSummaryRow">Discounts ('+(billData.discount.unit == 'PERCENTAGE'? billData.discount.value + '%': '<i class="fa fa-inr"></i>'+billData.discount.value)+')</td> <td class="text-right cartSummaryRow" style="color: #e74c3c !important"">- <i class="fa fa-inr"></i>'+billData.discount.amount+'</td> </tr>';
+            }
+
+            var bill_brief = '';
+            if(billData.orderDetails.modeType == 'DINE'){
+              bill_brief = 'Table #'+billData.table;
+            }
+            else if(billData.orderDetails.modeType == 'PARCEL'){
+              bill_brief = billData.orderDetails.mode+' #'+billData.table;
+            }
+            else if(billData.orderDetails.modeType == 'DELIVERY'){
+              bill_brief = billData.orderDetails.mode+' '+billData.customerMobile;
+            }
+            else if(billData.orderDetails.modeType == 'TOKEN'){
+              bill_brief = 'Token #'+billData.table;
+            }
+
+
+            var bill_status_class = '';
+            var bill_actions = '';
+
+            var isSettledBill = false;
+            var encodedBill = encodeURI(JSON.stringify(billData));
+
+            if(billData.totalAmountPaid != ''){
+              bill_status_class = "settledBill";
+              bill_actions = '<tag class="modalPrintButton" style="position: initial; letter-spacing: 0px; font-size: 11px; display: block; width: 100%; text-align: center; line-height: 28px;" onclick="quickPrintDuplicateBill(\''+encodedBill+'\')"><i class="fa fa-print" style="margin-right: 3px"></i> Print Duplicate</tag>';
+              
+              isSettledBill = true;
+            }
+            else{
+              bill_status_class = "pendingBill";
+              bill_actions = '<tag style="display: block; width: 100%;">'+
+                      '<tag class="modalPrintButton" style="position: initial; letter-spacing: 0px; font-size: 11px; display: inline-block; width: 50%; text-align: center; line-height: 28px;" onclick="quickPrintDuplicateBill(\''+encodedBill+'\')"><i class="fa fa-print" style="margin-right: 3px"></i> Print Duplicate</tag>'+
+                      '<tag class="modalPrintButton" style="position: initial; letter-spacing: 0px; font-size: 11px; display: inline-block; width: 50%; text-align: center; line-height: 28px; float: right" onclick="hideLastThreeBillsPreview(); preSettleBill(\''+billData.billNumber+'\')"><i class="fa fa-check" style="margin-right: 3px"></i> Settle Bill</tag>'+
+                      '</tag>';
+            }
+
+
+            renderContent += ''+
+                '<div class="col-sm-4 filteredBills '+bill_status_class+'">'+
+                  '<div class="lastBillHolder">'+
+                    '<tag class="cartTitleRow lastBillNumber">'+billData.billNumber+(isSettledBill ? '<tag class="lastBillSettledIcon"><i class="fa fa-check"></i></tag>' : '')+'</tag>'+
+                    '<tag class="cartTitleRow lastBillBrief" style="font-size: 21px">'+bill_brief+'</tag>'+
+                    '<div style="max-height: 270px; overflow-y: scroll;">'+
+                    '<table class="table table-striped table-condensed table-hover list-table" style="margin:0px;">'+
+                      '<colgroup> <col width="10%"> <col width="40%"> <col width="15%"> <col width="20%"> <col width="15%"> </colgroup>'+
+                      '<tbody>'+cart_items+'</tbody>'+
+                    '</table>'+
+                    '<table class="table table-condensed totals" style="margin: 0">'+
+                      '<colgroup> <col width="70%"> <col width="30%"> </colgroup>'+
+                      '<tbody>'+ extras_content + '</tbody>'+
+                    '</table>'+
+                    '</div>'+
+                    '<div class="cartSumRow" style="font-weight: 400 !important; font-size: 18px; position: absolute; bottom: 0; margin-left: -5px; width: 100%; padding: 8px;">Grand Total <tag style="font-weight: bold; font-size: 120%; float: right;"><i class="fa fa-inr"></i>'+billData.payableAmount+'</tag></div>'+
+                  '</div>'+
+                  '<p style="margin: 5px 0 0 0; text-align: center; font-size: 11px; color: #b1b1b1;">By '+(billData.stewardName != "" ? billData.stewardName : "Unknown")+' at '+getFancyTime(billData.timeBill)+' on '+billData.date+'</p>'+ bill_actions +
+                '</div>';      
+
+            n++;
+          }
+
+          document.getElementById("lastThreeBillsPreviewModal").style.display = 'block';
+          document.getElementById("lastThreeBillsPreviewRenderContent").innerHTML = renderContent;
+
+
+                var duplicate_previous_click = false;
+                var duplicate_next_click = false;
+                
+                easySelectTool_Settled = $(document).on('keydown',  function (e) {
+                  if($('#lastThreeBillsPreviewModal').is(':visible')) {
+                      if(e.which == 27 || e.which == 13){
+                          document.getElementById("lastThreeBillsPreviewModal").style.display ='none';
+                          easySelectTool_Settled.unbind();
+                          e.preventDefault();
+                      }
+                      else if(e.which == 37){ //previous 3
+                        if(!duplicate_previous_click){
+                          showBundledRecentBills(type, 'PREVIOUS');
+                        }
+
+                        duplicate_previous_click = true;
+                        easySelectTool_Settled.unbind();
+                      }
+                      else if(e.which == 39){ //next 3
+                        if(!duplicate_next_click){
+                          showBundledRecentBills(type, 'NEXT');
+                        }
+
+                        duplicate_next_click = true;
+                        easySelectTool_Settled.unbind();
+                      }
+
+                  }
+                });
+        }
+  }
+  else if(type == 'PENDING'){
+
+      //format the button
+      $("#lastThreeBillsPreviewFilter").text("Pending Bills Only"); 
+      $("#lastThreeBillsPreviewFilter").attr("onclick","switchToSettled()");
+      
+
+      if(handle == 'NEXT'){
+        RECENT_BILLS_PREVIEW_INDEX++;
+      }
+      else if(handle == 'PREVIOUS'){
+        RECENT_BILLS_PREVIEW_INDEX--;
+
+        if(RECENT_BILLS_PREVIEW_INDEX < 0){
+          RECENT_BILLS_PREVIEW_INDEX = 0;
+        }
+      }
+
+        var lastPendingBills = '';
+
+        $.ajax({
+          type: 'GET',
+          url: COMMON_LOCAL_SERVER_IP+'accelerate_bills/_design/bills/_view/all?descending=true&include_docs=true&limit=3&skip='+ RECENT_BILLS_PREVIEW_INDEX * 3,
+          timeout: 10000,
+          success: function(data) {
+              lastPendingBills = data.rows;
+              renderPreview();
+          },
+          error: function(data){
+              showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              renderPreview(); 
+          }
+        }); 
+
+
+        function renderPreview(){
+
+          if(lastPendingBills.length == 0){
+            
+            if(handle == 'NEXT'){
+
+                RECENT_BILLS_PREVIEW_INDEX--;
+            
+                var duplicate_previous_click = false;
+                easySelectTool_Pending = $(document).on('keydown',  function (e) {
+                  if($('#lastThreeBillsPreviewModal').is(':visible')) {
+                      if(e.which == 27 || e.which == 13){
+                          document.getElementById("lastThreeBillsPreviewModal").style.display ='none';
+                          easySelectTool_Pending.unbind();
+                          e.preventDefault();
+                      }
+                      else if(e.which == 37){ //previous 3
+                        if(!duplicate_previous_click){
+                          showBundledRecentBills(type, 'PREVIOUS');
+                        }
+
+                        duplicate_previous_click = true;
+                        easySelectTool_Pending.unbind();
+                      }
+                  }
+                });
+            }
+
+            
+            return "";
+          }
+
+          var filteredBills = lastPendingBills;
+
+          var renderContent = '';
+
+          var n = 0;
+          while(filteredBills[n]){
+
+            var billData = filteredBills[n].value;
+
+            var cart_items = '';
+            for(var i = 0; i < billData.cart.length; i++){
+              cart_items += '<tr class="success"> <td class="text-center">'+(i+1)+'</td> <td>'+billData.cart[i].name+(billData.cart[i].isCustom ? ' ('+billData.cart[i].variant+')' : '')+'</td> <td class="text-center"> <span class="text-center sprice"><i class="fa fa-inr"></i>'+billData.cart[i].price+'</span> </td> <td class="text-center">x '+billData.cart[i].qty+'</td> <td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+(billData.cart[i].price * billData.cart[i].qty)+'</span> </td> </tr>';
+            }
+
+            var extras_content = '';
+            for(var i = 0; i < billData.extras.length; i++){
+              extras_content += '<tr class="info"> <td class="cartSummaryRow">'+billData.extras[i].name+'  ('+(billData.extras[i].unit == 'PERCENTAGE'? billData.extras[i].value + '%': '<i class="fa fa-inr"></i>'+billData.extras[i].value)+')</td> <td class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+billData.extras[i].amount+'</td> </tr>';
+            }
+
+            //Custom Extras
+            if(billData.customExtras.amount && billData.customExtras.amount != 0){
+              extras_content += '<tr class="info"> <td class="cartSummaryRow">'+billData.customExtras.type+'  ('+(billData.customExtras.unit == 'PERCENTAGE'? billData.customExtras.value + '%': '<i class="fa fa-inr"></i>'+billData.customExtras.value)+')</td> <td class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+billData.customExtras.amount+'</td> </tr>';
+            }
+
+            //Discounts
+            if(billData.discount.amount && billData.discount.amount != 0){
+              extras_content += '<tr class="info"> <td class="cartSummaryRow">Discounts ('+(billData.discount.unit == 'PERCENTAGE'? billData.discount.value + '%': '<i class="fa fa-inr"></i>'+billData.discount.value)+')</td> <td class="text-right cartSummaryRow" style="color: #e74c3c !important"">- <i class="fa fa-inr"></i>'+billData.discount.amount+'</td> </tr>';
+            }
+
+            var bill_brief = '';
+            if(billData.orderDetails.modeType == 'DINE'){
+              bill_brief = 'Table #'+billData.table;
+            }
+            else if(billData.orderDetails.modeType == 'PARCEL'){
+              bill_brief = billData.orderDetails.mode+' #'+billData.table;
+            }
+            else if(billData.orderDetails.modeType == 'DELIVERY'){
+              bill_brief = billData.orderDetails.mode+' '+billData.customerMobile;
+            }
+            else if(billData.orderDetails.modeType == 'TOKEN'){
+              bill_brief = 'Token #'+billData.table;
+            }
+
+
+            var bill_status_class = '';
+            var bill_actions = '';
+
+            var isSettledBill = false;
+            var encodedBill = encodeURI(JSON.stringify(billData));
+
+            if(billData.totalAmountPaid != ''){
+              bill_status_class = "settledBill";
+              bill_actions = '<tag class="modalPrintButton" style="position: initial; letter-spacing: 0px; font-size: 11px; display: block; width: 100%; text-align: center; line-height: 28px;" onclick="quickPrintDuplicateBill(\''+encodedBill+'\')"><i class="fa fa-print" style="margin-right: 3px"></i> Print Duplicate</tag>';
+              
+              isSettledBill = true;
+            }
+            else{
+              bill_status_class = "pendingBill";
+              bill_actions = '<tag style="display: block; width: 100%;">'+
+                      '<tag class="modalPrintButton" style="position: initial; letter-spacing: 0px; font-size: 11px; display: inline-block; width: 50%; text-align: center; line-height: 28px;" onclick="quickPrintDuplicateBill(\''+encodedBill+'\')"><i class="fa fa-print" style="margin-right: 3px"></i> Print Duplicate</tag>'+
+                      '<tag class="modalPrintButton" style="position: initial; letter-spacing: 0px; font-size: 11px; display: inline-block; width: 50%; text-align: center; line-height: 28px; float: right" onclick="hideLastThreeBillsPreview(); preSettleBill(\''+billData.billNumber+'\')"><i class="fa fa-check" style="margin-right: 3px"></i> Settle Bill</tag>'+
+                      '</tag>';
+            }
+
+            renderContent += ''+
+                '<div class="col-sm-4 filteredBills '+bill_status_class+'">'+
+                  '<div class="lastBillHolder">'+
+                    '<tag class="cartTitleRow lastBillNumber">'+billData.billNumber+(isSettledBill ? '<tag class="lastBillSettledIcon"><i class="fa fa-check"></i></tag>' : '')+'</tag>'+
+                    '<tag class="cartTitleRow lastBillBrief" style="font-size: 21px">'+bill_brief+'</tag>'+
+                    '<div style="max-height: 270px; overflow-y: scroll;">'+
+                    '<table class="table table-striped table-condensed table-hover list-table" style="margin:0px;">'+
+                      '<colgroup> <col width="10%"> <col width="40%"> <col width="15%"> <col width="20%"> <col width="15%"> </colgroup>'+
+                      '<tbody>'+cart_items+'</tbody>'+
+                    '</table>'+
+                    '<table class="table table-condensed totals" style="margin: 0">'+
+                      '<colgroup> <col width="70%"> <col width="30%"> </colgroup>'+
+                      '<tbody>'+ extras_content + '</tbody>'+
+                    '</table>'+
+                    '</div>'+
+                    '<div class="cartSumRow" style="font-weight: 400 !important; font-size: 18px; position: absolute; bottom: 0; margin-left: -5px; width: 100%; padding: 8px;">Grand Total <tag style="font-weight: bold; font-size: 120%; float: right;"><i class="fa fa-inr"></i>'+billData.payableAmount+'</tag></div>'+
+                  '</div>'+
+                  '<p style="margin: 5px 0 0 0; text-align: center; font-size: 11px; color: #b1b1b1;">By '+(billData.stewardName != "" ? billData.stewardName : "Unknown")+' at '+getFancyTime(billData.timeBill)+' on '+billData.date+'</p>'+ bill_actions +
+                '</div>';      
+
+            n++;
+          }
+
+          document.getElementById("lastThreeBillsPreviewModal").style.display = 'block';
+          document.getElementById("lastThreeBillsPreviewRenderContent").innerHTML = renderContent;
+
+
+                var duplicate_previous_click = false;
+                var duplicate_next_click = false;
+                easySelectTool_Pending = $(document).on('keydown',  function (e) {
+                  if($('#lastThreeBillsPreviewModal').is(':visible')) {
+                      if(e.which == 27 || e.which == 13){
+                          document.getElementById("lastThreeBillsPreviewModal").style.display ='none';
+                          easySelectTool_Pending.unbind();
+                          e.preventDefault();
+                      }
+                      else if(e.which == 37){ //previous 3
+                        if(!duplicate_previous_click){
+                          showBundledRecentBills(type, 'PREVIOUS');
+                        }
+
+                        duplicate_previous_click = true;
+                        easySelectTool_Pending.unbind();
+                      }
+                      else if(e.which == 39){ //next 3
+                        if(!duplicate_next_click){
+                          showBundledRecentBills(type, 'NEXT');
+                        }
+
+                        duplicate_next_click = true;
+                        easySelectTool_Pending.unbind();
+                      }
+
+                  }
+                });
+        }
+  }
+
+
+}
+
+
+function showRecentBillsPreview(){
+
+  RECENT_BILLS_PREVIEW_INDEX = 0;
+
+  var lastSettledBills = '';
+  var lastPendingBills = '';
+
+  getPending();
+
+  function getPending(){
+
+        $.ajax({
+          type: 'GET',
+          url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bills/_view/all?descending=true&include_docs=true&limit=3',
+          timeout: 10000,
+          success: function(data) {
+              lastPendingBills = data.rows;
+
+              if(lastPendingBills.length == 0){
+                showToast('Yay! There are no Pending Bills!', '#27ae60');
+              }
+
+              getSettled();
+          },
+          error: function(data){
+              showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              getSettled();
+          }
+        });  
+  }
+
+  function getSettled(){
+
+        $.ajax({
+          type: 'GET',
+          url: COMMON_LOCAL_SERVER_IP+'accelerate_invoices/_design/invoices/_view/all?descending=true&include_docs=true&limit=3',
+          timeout: 10000,
+          success: function(data) {
+              lastSettledBills = data.rows;
+              renderPreview();
+          },
+          error: function(data){
+              showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              renderPreview(); 
+          }
+        });  
+  }
+
+  function renderPreview(){
+    var filteredBills = lastPendingBills.concat(lastSettledBills);
+
+    filteredBills.sort(function(obj1, obj2) {
+      return obj2.value.billNumber - obj1.value.billNumber; 
+    });
+
+    var renderContent = '';
+
+    var n = 0;
+    while(filteredBills[n]){
+
+      var billData = filteredBills[n].value;
+
+      var cart_items = '';
+      for(var i = 0; i < billData.cart.length; i++){
+        cart_items += '<tr class="success"> <td class="text-center">'+(i+1)+'</td> <td>'+billData.cart[i].name+(billData.cart[i].isCustom ? ' ('+billData.cart[i].variant+')' : '')+'</td> <td class="text-center"> <span class="text-center sprice"><i class="fa fa-inr"></i>'+billData.cart[i].price+'</span> </td> <td class="text-center">x '+billData.cart[i].qty+'</td> <td class="text-right"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+(billData.cart[i].price * billData.cart[i].qty)+'</span> </td> </tr>';
+      }
+
+      var extras_content = '';
+      for(var i = 0; i < billData.extras.length; i++){
+        extras_content += '<tr class="info"> <td class="cartSummaryRow">'+billData.extras[i].name+'  ('+(billData.extras[i].unit == 'PERCENTAGE'? billData.extras[i].value + '%': '<i class="fa fa-inr"></i>'+billData.extras[i].value)+')</td> <td class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+billData.extras[i].amount+'</td> </tr>';
+      }
+
+      //Custom Extras
+      if(billData.customExtras.amount && billData.customExtras.amount != 0){
+        extras_content += '<tr class="info"> <td class="cartSummaryRow">'+billData.customExtras.type+'  ('+(billData.customExtras.unit == 'PERCENTAGE'? billData.customExtras.value + '%': '<i class="fa fa-inr"></i>'+billData.customExtras.value)+')</td> <td class="text-right cartSummaryRow"><i class="fa fa-inr"></i>'+billData.customExtras.amount+'</td> </tr>';
+      }
+
+      //Discounts
+      if(billData.discount.amount && billData.discount.amount != 0){
+        extras_content += '<tr class="info"> <td class="cartSummaryRow">Discounts ('+(billData.discount.unit == 'PERCENTAGE'? billData.discount.value + '%': '<i class="fa fa-inr"></i>'+billData.discount.value)+')</td> <td class="text-right cartSummaryRow" style="color: #e74c3c !important"">- <i class="fa fa-inr"></i>'+billData.discount.amount+'</td> </tr>';
+      }
+
+      var bill_brief = '';
+      if(billData.orderDetails.modeType == 'DINE'){
+        bill_brief = 'Table #'+billData.table;
+      }
+      else if(billData.orderDetails.modeType == 'PARCEL'){
+        bill_brief = billData.orderDetails.mode+' #'+billData.table;
+      }
+      else if(billData.orderDetails.modeType == 'DELIVERY'){
+        bill_brief = billData.orderDetails.mode+' '+billData.customerMobile;
+      }
+      else if(billData.orderDetails.modeType == 'TOKEN'){
+        bill_brief = 'Token #'+billData.table;
+      }
+
+
+      var bill_status_class = '';
+      var bill_actions = '';
+
+      var isSettledBill = false;
+      var encodedBill =encodeURI(JSON.stringify(billData));
+
+      if(billData.totalAmountPaid != ''){
+        bill_status_class = "settledBill";
+        bill_actions = '<tag class="modalPrintButton" style="position: initial; letter-spacing: 0px; font-size: 11px; display: block; width: 100%; text-align: center; line-height: 28px;" onclick="quickPrintDuplicateBill(\''+encodedBill+'\')"><i class="fa fa-print" style="margin-right: 3px"></i> Print Duplicate</tag>';
+        
+        isSettledBill = true;
+      }
+      else{
+        bill_status_class = "pendingBill";
+        bill_actions = '<tag style="display: block; width: 100%;">'+
+                '<tag class="modalPrintButton" style="position: initial; letter-spacing: 0px; font-size: 11px; display: inline-block; width: 50%; text-align: center; line-height: 28px;" onclick="quickPrintDuplicateBill(\''+encodedBill+'\')"><i class="fa fa-print" style="margin-right: 3px"></i> Print Duplicate</tag>'+
+                '<tag class="modalPrintButton" style="position: initial; letter-spacing: 0px; font-size: 11px; display: inline-block; width: 50%; text-align: center; line-height: 28px; float: right" onclick="hideLastThreeBillsPreview(); preSettleBill(\''+billData.billNumber+'\')"><i class="fa fa-check" style="margin-right: 3px"></i> Settle Bill</tag>'+
+                '</tag>';
+      }
+
+      renderContent += ''+
+          '<div class="col-sm-4 filteredBills '+bill_status_class+'">'+
+            '<div class="lastBillHolder">'+
+              '<tag class="cartTitleRow lastBillNumber">'+billData.billNumber+(isSettledBill ? '<tag class="lastBillSettledIcon"><i class="fa fa-check"></i></tag>' : '')+'</tag>'+
+              '<tag class="cartTitleRow lastBillBrief" style="font-size: 21px">'+bill_brief+'</tag>'+
+              '<div style="max-height: 270px; overflow-y: scroll;">'+
+              '<table class="table table-striped table-condensed table-hover list-table" style="margin:0px;">'+
+                '<colgroup> <col width="10%"> <col width="40%"> <col width="15%"> <col width="20%"> <col width="15%"> </colgroup>'+
+                '<tbody>'+cart_items+'</tbody>'+
+              '</table>'+
+              '<table class="table table-condensed totals" style="margin: 0">'+
+                '<colgroup> <col width="70%"> <col width="30%"> </colgroup>'+
+                '<tbody>'+ extras_content + '</tbody>'+
+              '</table>'+
+              '</div>'+
+              '<div class="cartSumRow" style="font-weight: 400 !important; font-size: 18px; position: absolute; bottom: 0; margin-left: -5px; width: 100%; padding: 8px;">Grand Total <tag style="font-weight: bold; font-size: 120%; float: right;"><i class="fa fa-inr"></i>'+billData.payableAmount+'</tag></div>'+
+            '</div>'+
+            '<p style="margin: 5px 0 0 0; text-align: center; font-size: 11px; color: #b1b1b1;">By '+(billData.stewardName != "" ? billData.stewardName : "Unknown")+' at '+getFancyTime(billData.timeBill)+' on '+billData.date+'</p>'+ bill_actions +
+          '</div>';      
+
+      n++;
+    }
+
+    document.getElementById("lastThreeBillsPreviewModal").style.display = 'block';
+    document.getElementById("lastThreeBillsPreviewRenderContent").innerHTML = renderContent;
+
+    //display only first 3
+    var list = $('#lastThreeBillsPreviewRenderContent .filteredBills');
+    for(var i = 0; i < list.length; i++){
+      if(i > 2){
+        $(list[i]).addClass('lastBillsHidden');
+      }
+    }    
+
+          var duplicate_next_click = false;
+          var duplicate_previous_click = false;
+          var easySelectTool = $(document).on('keydown',  function (e) {
+
+            var current_filter = document.getElementById("lastThreeBillsPreviewFilter").innerHTML;
+            if(current_filter == "Both Pending and Settled" || current_filter == "Pending Bills Only"){
+              current_filter = "PENDING";
+            }
+            else if(current_filter == "Settled Bills Only"){
+              current_filter = "SETTLED";
+            }
+
+
+            if($('#lastThreeBillsPreviewModal').is(':visible')) {
+                if(e.which == 27 || e.which == 13){
+                    document.getElementById("lastThreeBillsPreviewModal").style.display ='none';
+                    easySelectTool.unbind();
+                    e.preventDefault();
+                }
+                else if(e.which == 37){ //previous 3
+                  if(!duplicate_previous_click){
+                    showBundledRecentBills(current_filter, 'PREVIOUS');
+                  }
+
+                  duplicate_previous_click = true;
+                  easySelectTool.unbind();
+                }
+                else if(e.which == 39){ //next 3
+                  if(!duplicate_next_click){
+                    showBundledRecentBills(current_filter, 'NEXT');
+                  }
+
+                  duplicate_next_click = true; 
+                  easySelectTool.unbind();
+                }
+
+            }
+          });
+  }
+
+}
+
+
+function filterLastBillsPreview(){
+  var x = document.getElementById("lastThreeBillsPreviewFilter");
+
+  if(x.innerHTML == 'Both Pending and Settled'){
+    x.innerHTML = 'Pending Bills Only';
+
+    //remove hidden from all
+    var list = $('#lastThreeBillsPreviewRenderContent .filteredBills');
+    for(var i = 0; i < list.length; i++){
+      $(list[i]).removeClass('lastBillsHidden');
+    }
+
+    //add lastBillsHidden to settled bills
+    var list = $('#lastThreeBillsPreviewRenderContent .settledBill');
+    for(var i = 0; i < list.length; i++){
+      $(list[i]).addClass('lastBillsHidden');
+    }
+
+  }
+  else if(x.innerHTML == 'Pending Bills Only'){
+    x.innerHTML = 'Settled Bills Only';
+
+    //remove hidden from all
+    var list = $('#lastThreeBillsPreviewRenderContent .filteredBills');
+    for(var i = 0; i < list.length; i++){
+      $(list[i]).removeClass('lastBillsHidden');
+    }
+
+    //add lastBillsHidden to pending bills
+    var list = $('#lastThreeBillsPreviewRenderContent .pendingBill');
+    for(var i = 0; i < list.length; i++){
+      $(list[i]).addClass('lastBillsHidden');
+    }
+  }
+  else if(x.innerHTML == 'Settled Bills Only'){
+    x.innerHTML = 'Pending Bills Only';
+  
+    //remove hidden from all
+    var list = $('#lastThreeBillsPreviewRenderContent .filteredBills');
+    for(var i = 0; i < list.length; i++){
+      $(list[i]).removeClass('lastBillsHidden');
+    }
+
+    //add lastBillsHidden to settled bills
+    var list = $('#lastThreeBillsPreviewRenderContent .settledBill');
+    for(var i = 0; i < list.length; i++){
+      $(list[i]).addClass('lastBillsHidden');
+    }
+
+  }
+}
+
+function hideLastThreeBillsPreview(){
+  document.getElementById("lastThreeBillsPreviewModal").style.display = 'none';
+}

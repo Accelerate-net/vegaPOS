@@ -505,17 +505,42 @@
             <div class="modal-content">
                <div class="modal-body" id="billPreviewContent" style="height: 60vh; overflow-y: auto !important; overflow-x: hidden !important; padding: 10px 10px 5px 10px">
 
-            </div>
-            <div class="modal-footer">
-                <div class="row">
-                    <div class="col-sm-12" id="billPreviewContentActions">
+              </div>
+              <div class="modal-footer">
+                  <div class="row">
+                      <div class="col-sm-12" id="billPreviewContentActions">
 
-                    </div>
-                </div>
-               </div>
+                      </div>
+                  </div>
+              </div>
             </div>
          </div>
       </div>  
+
+
+
+    <!-- LAST 3 BILLS PREVIEW -->
+    <div id="lastThreeBillsPreviewModal" class="modal" style="display: none;">
+         <div class="modal-dialog" style="top: 25px; width: 80%">
+            <div class="modal-header cartTitleRow">
+              <h1 style="font-size: 24px; margin: 0; text-align: left; font-family: 'Oswald';">Recent Bills Preview<button class="btn btn-clear previewBillsButton" id="lastThreeBillsPreviewFilter" onclick="filterLastBillsPreview()">Both Pending and Settled</button></h1>
+            </div>
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-body" id="lastThreeBillsPreviewContent" style="height: 60vh; overflow-y: auto !important; overflow-x: hidden !important; padding: 10px 10px 5px 10px">
+                <div class="row" id="lastThreeBillsPreviewRenderContent">
+
+
+                </div>
+               </div>
+               <div class="modal-footer" style="padding: 0; border: none;">
+                <button class="btn btn-default" style="border: none; border-radius: 0; width: 100%; font-size: 16px; height: 45px; text-transform: uppercase; color: #a5a1a1;" onclick="hideLastThreeBillsPreview()">Hide Preview</button>
+               </div>
+            </div>
+         </div>
+    </div> 
+
+
 
 
 
