@@ -539,8 +539,6 @@ function setServerConnectionURL(){
   userURL.username = (userURL.username).replace(/\s/g,'');
   userURL.password = (userURL.password).replace(/\s/g,'');
 
-  console.log(userURL)
-
   var default_url = 'http://admin:admin@127.0.0.1:5984/';
 
   if(userURL.ip != '' && userURL.portNumber != ''){
