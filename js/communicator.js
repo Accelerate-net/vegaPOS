@@ -524,7 +524,7 @@ if(type == 'BILL'){
                      '</td>'+
                      '<td style="vertical-align: top">'+
                         '<p style=" text-align: right; float: right">'+
-                           '<tag class="subLabel">INOVICE DATE</tag>'+
+                           '<tag class="subLabel">INVOICE DATE</tag>'+
                            '<tag class="timeStamp">'+orderObject.date+'<time class="timeDisplay">'+getFancyTime(orderObject.timeBill)+'</time></tag>'+
                         '</p>'+
                         '<tag>'+'</tag>'+
@@ -849,7 +849,7 @@ var html_template = ''+
                '</td>'+
                '<td style="vertical-align: top">'+
                   '<p style=" text-align: right; float: right">'+
-                     '<tag class="subLabel">INOVICE DATE</tag>'+
+                     '<tag class="subLabel">INVOICE DATE</tag>'+
                      '<tag class="timeStamp">'+orderObject.date+'<time class="timeDisplay">'+getFancyTime(orderObject.timeBill)+'</time></tag>'+
                   '</p>'+
                   '<tag>'+'</tag>'+

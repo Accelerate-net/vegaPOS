@@ -206,7 +206,7 @@ function renderHistory(data, userID){
 
 	document.getElementById("renderAreaUserInfo").innerHTML = '<div class="box box-primary">'+
                     '<div class="box-body" style="padding: 30px 10px 30px 10px; text-align: center">'+
-                        '<img src="data/photos/users/default_customer.png">'+
+                        '<img src="images/common/default_customer.png">'+
                         '<h1 style="font-size: 24px; font-weight: 400">'+data.response.name+'</h1>'+
                         '<p style="margin: 0; color: #3498db"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+data.response.mobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>'+
                         '<p style="margin: 0; color: #7f8c8d"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+data.response.email+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>'+   

@@ -7,7 +7,11 @@
       "data": [
         {
           "name": "Show Spotlight Search",
-          "value": ""
+          "value": "shift+f"
+        },
+        {
+          "name": "Show Recent Bills",
+          "value": "shift+r"
         },
         {
           "name": "Start Text To Kitchen",
@@ -15,11 +19,11 @@
         },
         {
           "name": "Select Billing Mode",
-          "value": ""
+          "value": "shift+m"
         },
         {
           "name": "Set Table/Address",
-          "value": ""
+          "value": "shift+t"
         },
         {
           "name": "Focus Guest Details",
@@ -47,7 +51,7 @@
         },
         {
           "name": "Print KOT",
-          "value": ""
+          "value": "shift+k"
         },
         {
           "name": "Generate KOT Silently",
@@ -55,19 +59,19 @@
         },
         {
           "name": "Print Item View",
-          "value": ""
+          "value": "shift+v"
         },
         {
           "name": "Print Bill",
-          "value": ""
+          "value": "shift+b"
         },
         {
           "name": "Generate Bill Silently",
           "value": ""
-        },        
+        },
         {
           "name": "Print Duplicate Bill",
-          "value": ""
+          "value": "shift+d"
         },
         {
           "name": "Settle Bill",
@@ -99,7 +103,7 @@
         },
         {
           "name": "Switch User",
-          "value": ""
+          "value": "shift+u"
         }
       ]
     }

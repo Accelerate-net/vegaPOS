@@ -26,7 +26,7 @@ timedUpdate();
 //Disable ' key --> JSON Safe
 function enableJSONSafe(){
           $(document).on('keydown',  function (e) {
-                 if(e.which == 222){
+                if(e.which == 222){
                   e.preventDefault();
                 }
           });  
@@ -507,8 +507,6 @@ function viewServerURL(){
 
   var saved_url = window.localStorage.serverConnectionURL ? JSON.parse(decodeURI(window.localStorage.serverConnectionURL)) : '';
 
-  console.log(saved_url)
-
   if(saved_url == ''){
     $('#add_custom_server_ip').val(default_ip);
     $('#add_custom_server_port').val(default_port);
@@ -540,8 +538,6 @@ function setServerConnectionURL(){
   userURL.portNumber = (userURL.portNumber).replace(/\s/g,'');
   userURL.username = (userURL.username).replace(/\s/g,'');
   userURL.password = (userURL.password).replace(/\s/g,'');
-
-  console.log(userURL)
 
   var default_url = 'http://admin:admin@127.0.0.1:5984/';
 
@@ -797,7 +793,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "YES" }, { "name": "defaultKOTPrinter", "value": "Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "YES" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "KOTJammingWarning", "value": "YES" }, { "name": "ServerBasedKOTPrinting", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "NO" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "" }, { "name": "defaultTakeawayMode", "value": "" }, { "name": "defaultDineMode", "value": "" }, { "name": "KOTRelayEnabled", "value": "NO" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://www.accelerate.net.in" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -886,7 +882,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Show Spotlight Search", "value": "" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Generate KOT Silently", "value": "" }, { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Generate Bill Silently", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "" }, { "name": "Assign Delivery Agent", "value": "" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Show Spotlight Search", "value": "shift+f" }, { "name": "Show Recent Bills", "value": "shift+r" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "shift+m" }, { "name": "Set Table/Address", "value": "shift+t" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "shift+k" }, { "name": "Generate KOT Silently", "value": "" }, { "name": "Print Item View", "value": "shift+v" }, { "name": "Print Bill", "value": "shift+b" }, { "name": "Generate Bill Silently", "value": "" }, { "name": "Print Duplicate Bill", "value": "shift+d" }, { "name": "Settle Bill", "value": "" }, { "name": "Assign Delivery Agent", "value": "" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "shift+u" } ] }
                 settingsList.push(new_stub);
               
                 //Update
@@ -1472,6 +1468,20 @@ function initialiseKeyboardShortcuts(){
           })
 
           break;
+        } 
+        case "Show Recent Bills":{
+          Mousetrap.bind([shortcutsData[n].value], function() {
+            if($('#generalPrintingProgressModal').is(':visible')) { //to make printing safe
+              requestUserToWait();
+            }
+            else{
+              showRecentBillsPreview();
+            }
+            
+            return false;
+          })
+
+          break;
         }
         case "Start Text To Kitchen":{
           Mousetrap.bind([shortcutsData[n].value], function() {
@@ -1840,6 +1850,22 @@ function applySystemOptionSettings(){
 
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_OnlineOrders = tempVal;
+                      }
+                      else if(params[i].name == "KOTJammingWarning"){
+                        var tempVal = params[i].value == 'YES'? true: false;
+
+                        if(tempVal){
+                          checkForJammedKOTs();
+                        }
+
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_KOTJammingWarning = tempVal;
+                      }
+                      else if(params[i].name == "ServerBasedKOTPrinting"){
+                        var tempVal = params[i].value == 'YES'? 1: 0;
+
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_serverBasedKOTPrinting = tempVal;
                       }
                       else if(params[i].name == "resetCountersAfterReport"){
 
@@ -2391,7 +2417,7 @@ function checkLogin(){
   if(loggedInAdminInfo.name == '' || loggedInAdminInfo.branch == ''){ //Not logged in
     document.getElementById("loginModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                    '<header>'+
-                                      '<span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>'+
+                                      '<span class="avatar"><img src="brand/brand-square.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login to Cloud Server</h1>'+
                                    '</header>'+
                                     '<div class="row" style="margin: 15px 0">'+
@@ -2409,7 +2435,7 @@ function checkLogin(){
 
     document.getElementById("loginModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                    '<header>'+
-                                      '<span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>'+
+                                      '<span class="avatar"><img src="brand/brand-square.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 24px; margin-bottom: 0; color: #3e5b6b; font-family: \'Roboto\';">'+loggedInAdminInfo.branch+'</h1>'+
                                       '<p style="font-size: 14px; color: #72767d;">Logged In as <b>'+loggedInAdminInfo.name+'</b></p>'+
                                    '</header>'+
@@ -2430,7 +2456,7 @@ function recoveryLogin(){
 
     document.getElementById("loginModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                    '<header>'+
-                                      '<span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>'+
+                                      '<span class="avatar"><img src="brand/brand-square.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login to the Server</h1>'+
                                    '</header>'+
                                    '<div style="margin: 0">'+
@@ -3288,7 +3314,7 @@ function renderCurrentUserDisplay(){
     document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: 400">'+loggedInStaffInfo.name+'</span>';
   }
   else{
-    document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/default_user.png" class="user-image" alt="Avatar" /> <span style="font-style: italic; font-weight: 300">Profile Not Selected</span>';
+    document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/common/default_user.png" class="user-image" alt="Avatar" /> <span style="font-style: italic; font-weight: 300">Profile Not Selected</span>';
   }
 }
 
@@ -5355,7 +5381,7 @@ function hideTalkToKitchen(){
 
 function saveToChatLog(messageObj){
 
-  console.log('save...')
+    console.log('save...')
 
     var requestData = { "selector" :{ "identifierTag": "ACCELERATE_TEXT_TO_KITCHEN_LOG" } }
 
@@ -5435,4 +5461,75 @@ function appendToLog(text){
       }});
   }
 }
+
+
+
+/* KOT Jamming Flash Alert */
+function checkForJammedKOTs() {
+
+  var pending_orders = 0;
+  var pending_requests = 0;
+
+  checkForOrders();
+
+  function checkForOrders(){
+        $.ajax({
+            type: 'GET',
+            url: COMMON_LOCAL_SERVER_IP+'/accelerate_taps_orders/_design/orders/_view/view',
+            timeout: 10000,
+            success: function(data) {
+              pending_orders = data.total_rows;
+              checkForRequests();
+            },
+            error: function() {
+              checkForRequests();
+            }
+        }); 
+  }
+
+  function checkForRequests(){
+        $.ajax({
+            type: 'GET',
+            url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot_print_requests/_design/print-requests/_view/fetchall',
+            timeout: 10000,
+            success: function(data) {
+              pending_requests = data.total_rows;
+              renderWarnings();
+            },
+            error: function() {
+              renderWarnings();
+            }
+        }); 
+  }  
+
+  function renderWarnings(){
+    if(pending_orders > 3 || pending_requests > 6){
+        if(pending_orders >= pending_requests){
+          document.getElementById("KOTJammingWarning").style.display = 'block';
+          document.getElementById("KOTJammingWarningText").innerHTML = '<b style="font-size: 120%">'+pending_orders+'</b> Orders '+(pending_requests > 0 ? '& <b style="font-size: 120%">'+pending_requests+'</b> KOTs ': '')+'Pending';
+        }
+        else{
+          document.getElementById("KOTJammingWarning").style.display = 'block';
+          document.getElementById("KOTJammingWarningText").innerHTML = '<b style="font-size: 120%">'+pending_requests+'</b> KOTs '+(pending_orders > 0 ? '& <b style="font-size: 120%">'+pending_orders+'</b> Orders ': '')+'Pending';
+        }
+
+        setTimeout(checkForJammedKOTs, 10000); //check every 10s
+    }
+    else{
+        if($('#KOTJammingWarning').is(':visible')) {
+          document.getElementById("KOTJammingWarning").style.display = 'none';
+        }
+
+        setTimeout(checkForJammedKOTs, 120000); //check every 2m
+    }    
+  }
+
+}
+
+function pauseJammedKOTWarning(){
+    var warn_text = document.getElementById("KOTJammingWarningText").innerHTML;
+    showToast('Warning Ignored: '+warn_text+'. Please contact Accelerate Support if problem persists.', '#e67e22');
+    document.getElementById("KOTJammingWarning").style.display = 'none';
+}
+
   

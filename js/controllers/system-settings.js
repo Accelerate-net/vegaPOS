@@ -769,7 +769,7 @@ function createFirstTimeActivationStubsFromSettings(licenceObject, machinesList,
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "Delivery - Zatioon App" }, { "name": "defaultTakeawayMode", "value": "NONE" }, { "name": "defaultDineMode", "value": "NONE" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "YES" }, { "name": "defaultKOTPrinter", "value": "Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "https://zaitoon.online/" }, { "name": "showDefaultQRCode", "value": "YES" }, { "name": "showDefaultQRTarget", "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "KOTJammingWarning", "value": "YES" }, { "name": "ServerBasedKOTPrinting", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "NO" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "" }, { "name": "defaultTakeawayMode", "value": "" }, { "name": "defaultDineMode", "value": "" }, { "name": "KOTRelayEnabled", "value": "NO" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://www.accelerate.net.in" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -858,7 +858,7 @@ function createFirstTimeActivationStubsFromSettings(licenceObject, machinesList,
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Show Spotlight Search", "value": "" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "" }, { "name": "Set Table/Address", "value": "" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "" }, { "name": "Generate KOT Silently", "value": "" }, { "name": "Print Item View", "value": "" }, { "name": "Print Bill", "value": "" }, { "name": "Generate Bill Silently", "value": "" }, { "name": "Print Duplicate Bill", "value": "" }, { "name": "Settle Bill", "value": "" }, { "name": "Assign Delivery Agent", "value": "" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "Show Spotlight Search", "value": "shift+f" }, { "name": "Show Recent Bills", "value": "shift+r" }, { "name": "Start Text To Kitchen", "value": "" }, { "name": "Select Billing Mode", "value": "shift+m" }, { "name": "Set Table/Address", "value": "shift+t" }, { "name": "Focus Guest Details", "value": "" }, { "name": "Focus Item Search", "value": "" }, { "name": "Set Special Comments", "value": "" }, { "name": "Save Current Order", "value": "" }, { "name": "Close Order", "value": "" }, { "name": "Cancel Order", "value": "" }, { "name": "Print KOT", "value": "shift+k" }, { "name": "Generate KOT Silently", "value": "" }, { "name": "Print Item View", "value": "shift+v" }, { "name": "Print Bill", "value": "shift+b" }, { "name": "Generate Bill Silently", "value": "" }, { "name": "Print Duplicate Bill", "value": "shift+d" }, { "name": "Settle Bill", "value": "" }, { "name": "Assign Delivery Agent", "value": "" }, { "name": "Issue Refund", "value": "" }, { "name": "Cancel Invoice", "value": "" }, { "name": "Refresh Application", "value": "" }, { "name": "Refresh Online Orders", "value": "" }, { "name": "Go to All Bills", "value": "" }, { "name": "Switch User", "value": "shift+u" } ] }
                 settingsList.push(new_stub);
               
                 //Update
@@ -1321,6 +1321,24 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }
                           else{
                             document.getElementById("systemOptionEditingAllowed").value = 'NO';
+                          }
+                          break;
+                        }
+                        case "ServerBasedKOTPrinting": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionServerBasedKOTPrinting").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionServerBasedKOTPrinting").value = 'NO';
+                          }
+                          break;
+                        }
+                        case "KOTJammingWarning": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionKOTJammingWarning").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionKOTJammingWarning").value = 'NO';
                           }
                           break;
                         }
@@ -2333,7 +2351,7 @@ function recoveryPasscodeLogin(){
 
     document.getElementById("loginModalResetCodeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                    '<header>'+
-                                      '<span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>'+
+                                      '<span class="avatar"><img src="brand/brand-square.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login to the Server</h1>'+
                                    '</header>'+
                                    '<form style="margin: 0">'+
@@ -2465,6 +2483,21 @@ function changeSystemOptionExpectedReadyTime(){
 
 
 
+function changeSystemOptionServerBasedKOTPrinting(){
+  var optName = document.getElementById("systemOptionServerBasedKOTPrinting").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_serverBasedKOTPrinting = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("ServerBasedKOTPrinting", optName);
+}
+
+function changeSystemOptionKOTJamming(){
+  var optName = document.getElementById("systemOptionKOTJammingWarning").value;
+
+  //Update
+  window.localStorage.systemOptionsSettings_KOTJammingWarning = (optName == 'YES' ? true : false);
+  changeSystemOptionsFile("KOTJammingWarning", optName);
+}
 
 
 function changeSystemOptionEditingKOTAllowed(){
@@ -2474,6 +2507,8 @@ function changeSystemOptionEditingKOTAllowed(){
   window.localStorage.appOtherPreferences_orderEditingAllowed = (optName == 'YES' ? 1 : 0);
   changeSystemOptionsFile("orderEditingAllowed", optName);
 }
+
+
 
 
 function changeSystemOptionKOTRelaying(){

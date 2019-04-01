@@ -562,13 +562,16 @@ function printDuplicateKOT(kotID, optionalSource){
 
         if(data._id == kot_request_data){
           
+                
+            var server_based_printing = window.localStorage.systemOptionsSettings_serverBasedKOTPrinting ? window.localStorage.systemOptionsSettings_serverBasedKOTPrinting : 0;
+            
+            if(server_based_printing == 0){
                   
-
                   /*
                     **********************************************
                     OLD - Direct Printing from Client (deprecated)
                     **********************************************
-
+                  */
                       var obj = data;
                       var original_order_object_cart = obj.cart;
                       
@@ -854,47 +857,6 @@ function printDuplicateKOT(kotID, optionalSource){
                             }
                           }
                           
-
-
-                          //LEGACY - Start
-                          function startRelayPrinting(index){
-
-                            console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name)
-
-                                    //add some delay
-                                    setTimeout(function(){ 
-                                  
-                                        var relayedItems = [];
-                                        for(var i = 0; i < relayedList.length; i++){
-                                          if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
-                                            relayedItems = relayedItems.concat(relayedList[i].subcart)  
-                                          }
-
-                                          if(i == relayedList.length - 1){ //last iteration
-                                            var relayedNewObj = obj;
-                                            relayedNewObj.cart = relayedItems;
-
-                                            if(relayedItems.length > 0){
-                                              
-                                              sendToPrinter(relayedNewObj, 'DUPLICATE_KOT', allPrintersList[index].template);
-                                              
-                                              if(allPrintersList[index+1]){
-                                                startRelayPrinting(index+1);
-                                              }
-                                            }
-                                            else{
-                                              if(allPrintersList[index+1]){
-                                                startRelayPrinting(index+1);
-                                              }
-                                            }
-                                          }
-                                        }
-
-                                    }, 999);
-                          }
-                          //LEGACY - End
-
-
                         }
                       }
                       else{ //no relay (normal case)
@@ -934,9 +896,8 @@ function printDuplicateKOT(kotID, optionalSource){
                           
                       }
 
-                  */
-
-
+            }
+            else{
 
                   /*
                       LATEST - Printing from Single Server (Pre-release 2019 March)
@@ -991,7 +952,9 @@ function printDuplicateKOT(kotID, optionalSource){
                           showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
                         }
                     }
-                  });   
+                  }); 
+
+            }  
 
 
         }

@@ -67,7 +67,6 @@
 
 
 
-
     <!-- LOADER -->
     <!-- <div id="preloader"></div> -->
 
@@ -79,7 +78,7 @@
     <div id="inactivity" style="display: none">
         <div class="track">
           <div class="albumArt left">
-            <img src="data/photos/brand/brand-square.jpg" style="width: 110px; border-radius: 5px">
+            <img src="brand/brand-square.jpg" style="width: 110px; border-radius: 5px">
         </div>
           <div class="trackInfo left">
             <h4 class="screensaverTitle">Zaitoon <tag id="inactivityBranchName"><b>Restaurants</b></tag></h4>
@@ -94,7 +93,7 @@
         <div id="wrapper">
             <section id="mainLock" style="padding: 35px 44px 20px 44px">
                 <header>
-                    <span class="avatar"><img src="data/photos/brand/brand-square.jpg" alt=""></span>
+                    <span class="avatar"><img src="brand/brand-square.jpg" alt=""></span>
                     <h1 style="font-size: 32px; color: #948f92; font-family: 'Roboto';">Locked</h1>
                 </header>
 
@@ -107,6 +106,22 @@
             </section>
         </div>
     </div> 
+
+
+
+    <!-- KOT JAMMING WARNING -->
+    <div id="KOTJammingWarning" style="display: none;" onclick="pauseJammedKOTWarning()">
+        <div id="wrapper" style="padding: 0">
+            <h1 id="KOTJammingWarningText">A Few KOTs Pending</h1>
+            <section id="mainLock" style="padding: 35px 44px 20px 44px; background: none; position: absolute; bottom: 0; opacity: 0.2;">
+                <center class="">
+                    <img src="brand/logo_main_bright.png" class="" width="100%" style="max-width: 200px;">
+                </center>
+            </section>
+        </div>
+    </div> 
+
+
 
     <!-- SERVER CONNECTION FAILURE : SCREEN LOCK -->
     <div id="serverConnectionFailureLock" style="display: none">
@@ -278,7 +293,7 @@
                         
                         <li class="dropdown user user-menu" tabindex="-1">
                             <a tabindex="-1" href="#" onclick="selectStewardWindow()" id="currentUserProfileDisplay" style="font-size: 18px; font-weight: 400;">
-                                <img src="images/default_user.png" class="user-image" alt="Avatar" />
+                                <img src="images/common/default_user.png" class="user-image" alt="Avatar" />
                                 <span>Profile Not Selected</span>
                             </a>
                         </li>
@@ -490,17 +505,42 @@
             <div class="modal-content">
                <div class="modal-body" id="billPreviewContent" style="height: 60vh; overflow-y: auto !important; overflow-x: hidden !important; padding: 10px 10px 5px 10px">
 
-            </div>
-            <div class="modal-footer">
-                <div class="row">
-                    <div class="col-sm-12" id="billPreviewContentActions">
+              </div>
+              <div class="modal-footer">
+                  <div class="row">
+                      <div class="col-sm-12" id="billPreviewContentActions">
 
-                    </div>
-                </div>
-               </div>
+                      </div>
+                  </div>
+              </div>
             </div>
          </div>
       </div>  
+
+
+
+    <!-- LAST 3 BILLS PREVIEW -->
+    <div id="lastThreeBillsPreviewModal" class="modal" style="display: none;">
+         <div class="modal-dialog" style="top: 25px; width: 80%">
+            <div class="modal-header cartTitleRow">
+              <h1 style="font-size: 24px; margin: 0; text-align: left; font-family: 'Oswald';">Recent Bills Preview<button class="btn btn-clear previewBillsButton" id="lastThreeBillsPreviewFilter" onclick="filterLastBillsPreview()">Both Pending and Settled</button></h1>
+            </div>
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-body" id="lastThreeBillsPreviewContent" style="height: 60vh; overflow-y: auto !important; overflow-x: hidden !important; padding: 10px 10px 5px 10px">
+                <div class="row" id="lastThreeBillsPreviewRenderContent">
+
+
+                </div>
+               </div>
+               <div class="modal-footer" style="padding: 0; border: none;">
+                <button class="btn btn-default" style="border: none; border-radius: 0; width: 100%; font-size: 16px; height: 45px; text-transform: uppercase; color: #a5a1a1;" onclick="hideLastThreeBillsPreview()">Hide Preview</button>
+               </div>
+            </div>
+         </div>
+    </div> 
+
+
 
 
 

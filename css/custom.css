@@ -3501,7 +3501,7 @@ ol ol {
    position: fixed; left: 0; top: 0; 
   z-index: 100001; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../data/photos/brand/pattern.jpg");
+    background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
 }
 
@@ -3581,7 +3581,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
    position: fixed; left: 0; top: 0; 
   z-index: 2000; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../data/photos/brand/pattern.jpg");
+    background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
 }
 
@@ -3666,6 +3666,43 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 }
 
 
+@-webkit-keyframes lightFlashing {
+  0%, 49% {
+      background: #8151d6;
+  }
+  50%, 100% {
+      background: #e5007f;
+  }
+}
+
+
+
+/*kot jamming warning*/
+#KOTJammingWarning{
+    position: fixed; left: 0; top: 0; 
+    z-index: 2000; width: 100%; height: 100%; 
+    overflow: visible; 
+
+    -webkit-animation: lightFlashing 1s infinite; /* Safari 4+ */
+    -moz-animation: lightFlashing 1s infinite; /* Fx 5+ */
+    -o-animation: lightFlashing 1s infinite; /* Opera 12+ */
+    animation: lightFlashing 1s infinite; /* IE 10+, Fx 29+ */
+}
+
+#KOTJammingWarning h1{
+    margin: 0;
+    font-size: 64px;
+    font-family: 'Oswald';
+    color: #FFF;
+    text-align: center;
+    padding: 30px;
+    cursor: pointer;
+    opacity: 0.2;
+    text-transform: uppercase;
+    font-weight: bold;  
+}
+
+
 /*welcome screen lock*/
 #welcomeScreenLock{
     position: fixed; left: 0; top: 0; 
@@ -3686,7 +3723,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
    position: fixed; left: 0; top: 0; 
   z-index: 2000; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../data/photos/brand/pattern.jpg");
+    background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
 }
 
@@ -3696,7 +3733,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
    position: fixed; left: 0; top: 0; 
   z-index: 2000; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../data/photos/brand/pattern.jpg");
+    background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
 }
 
@@ -3704,7 +3741,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
    position: fixed; left: 0; top: 0; 
   z-index: 2000; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../data/photos/brand/pattern.jpg");
+    background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
 }
 
@@ -6613,8 +6650,8 @@ input:checked + .slider:before {
     float: right;
     margin-right: 10px;
     background: none;
-    color: #1e7967;
-    border-color: #14987e;  
+    color: #FFF;
+    border-color: #FFF;  
 }
 
 .changeCategoryButton .fa{
@@ -6622,9 +6659,9 @@ input:checked + .slider:before {
 }
 
 .changeCategoryButton:hover, .changeCategoryButton:active, .changeCategoryButton:focus{
-   background: #14987e !important;
-   border-color: #14987e !important;  
-   color: #FFF !important;
+   background: #FFF !important;
+   border-color: #FFF !important;  
+   color: #444 !important;
 }
 
 
@@ -6689,4 +6726,64 @@ input:checked + .slider:before {
 
 #mySpecialMonth .ui-datepicker-calendar{
     display: none !important;
+}
+
+
+.lastBillHolder{
+    width: 100%; 
+    padding: 5px;
+    box-shadow: #f4f4f4 2px 3px 2px;
+    border: 1px solid #f4f4f4;
+    height: 420px;
+    position: relative;
+}
+
+.lastBillBrief{
+    font-size: 21px !important;
+    font-family: 'Oswald' !important;
+    font-weight: bold;
+    display: block;
+    background: #FFF;
+    color: #FFF;
+    padding: 2px 6px 8px 6px;
+    text-align: center;
+    margin-bottom: 2px;  
+}
+
+.lastBillNumber{
+    font-size: 28px;
+    font-family: 'Roboto' !important;
+    font-weight: bold !important;
+    display: block;
+    color: #FFF !important;
+    padding: 5px 6px 2px 6px;
+    text-align: center;
+    border-bottom: 2px solid #ffffff;
+}
+
+.previewBillsButton{
+  float: right;
+  top: -4px;
+  position: relative;
+  color: #000;
+  text-transform: uppercase;
+  opacity: 0.3;
+}
+
+.lastBillSettledIcon{
+    position: absolute;
+    right: 12px;
+    top: 15px;
+    background: #1abc9c;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    line-height: 30px;
+}
+
+.lastBillsHidden{
+  display: none;
 }

@@ -5,10 +5,6 @@ Fixes for Version 1:
 > Cloud Report generation (from account office)
 > Payment modes visible even after mode gets deleted (read from bills)
 > Refund Issue (reduce refund from billing mode/payment mode summary) - neglected as of now 
-> Sales Summary: 
-	-- add start bill number and ending
-	-- number of cancelled bills (with bill number)
-
 > Payment mode summary:
 	-- show SGST CGST separate..
 

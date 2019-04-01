@@ -2,9 +2,6 @@
   "_id": "ACCELERATE_SYSTEM_OPTIONS",
   "identifierTag": "ACCELERATE_SYSTEM_OPTIONS",
   "value": [
-    {
-      "systemName": "Any",
-      "data": [
         {
           "name": "notifications",
           "value": "ALL"
@@ -16,11 +13,19 @@
         {
           "name": "minimumCookingTime",
           "value": "NO"
-        }, 
+        },
         {
           "name": "expectedReadyTime",
           "value": "NO"
-        },         
+        },
+        {
+          "name": "KOTJammingWarning",
+          "value": "YES"
+        },
+        {
+          "name": "ServerBasedKOTPrinting",
+          "value": "NO"
+        },
         {
           "name": "orderEditingAllowed",
           "value": "YES"
@@ -43,7 +48,7 @@
         },
         {
           "name": "onlineOrders",
-          "value": "YES"
+          "value": "NO"
         },
         {
           "name": "defaultPrepaidName",
@@ -55,27 +60,27 @@
         },
         {
           "name": "defaultDeliveryMode",
-          "value": "Delivery - Zatioon App"
+          "value": ""
         },
         {
           "name": "defaultTakeawayMode",
-          "value": "NONE"
+          "value": ""
         },
         {
           "name": "defaultDineMode",
-          "value": "NONE"
+          "value": ""
         },
         {
           "name": "KOTRelayEnabled",
-          "value": "YES"
+          "value": "NO"
         },
         {
           "name": "KOTRelayEnabledDefaultKOT",
-          "value": "YES"
+          "value": "NO"
         },
         {
           "name": "defaultKOTPrinter",
-          "value": "Kitchen"
+          "value": ""
         },
         {
           "name": "scanPayEnabled",
@@ -83,15 +88,15 @@
         },
         {
           "name": "scanPayAPI",
-          "value": "https://zaitoon.online/"
+          "value": ""
         },
         {
           "name": "showDefaultQRCode",
-          "value": "YES"
+          "value": "NO"
         },
         {
           "name": "showDefaultQRTarget",
-          "value": "https://play.google.com/store/apps/details?id=com.accelerate.zaitoon"
+          "value": "https://www.accelerate.net.in"
         },
         {
           "name": "sendMetadataToQR",
