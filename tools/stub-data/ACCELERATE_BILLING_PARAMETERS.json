@@ -22,13 +22,6 @@
       "value": 5,
       "unit": "PERCENTAGE",
       "unitName": "Percentage (%)"
-    },
-    {
-      "name": "Parcel Charges",
-      "excludePackagedFoods": false,
-      "value": 10,
-      "unit": "FIXED",
-      "unitName": "Fixed Amount (Rs)"
     }
   ]
 }
