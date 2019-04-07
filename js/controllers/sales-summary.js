@@ -1941,6 +1941,376 @@ function renderGraph_PaymentModeWiseSummary(graphData){
 
 
 
+function fetchTimeSlotWiseSummary(){
+	
+	/*
+			Summary - TIME SLOT wise
+	*/	
+
+	$("#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_timeSlotWise").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+
+	/* check for filters */
+	var filter_type = document.getElementById("timeslotSummaryOrderTypeButton").innerHTML;
+	var custom_filter_url = '';
+	
+	if(filter_type == "All Orders"){
+		custom_filter_url = COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/timeslotwise_countoverall?startkey=["ANY_MODE","'+fromDate+'", 0]&endkey=["ANY_MODE","'+toDate+'", 23]';
+	}	
+	else{
+		custom_filter_url = COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/timeslotwise_countbymode?startkey=["'+filter_type+'", "'+fromDate+'", 0]&endkey=["'+filter_type+'", "'+toDate+'", 23]';
+	}
+
+
+
+	var graphData = [];
+
+	document.getElementById("summaryRender_timeSlotWise").innerHTML = '';
+	document.getElementById("timeSlotBarChartHolder").innerHTML = '<canvas id="timeSlotBarChart" width="100" height="100"></canvas>';
+	
+
+	showLoading(50000, 'Rendering Graph...');
+
+	$.ajax({
+		type: 'GET',
+		url: custom_filter_url,
+		timeout: 50000,
+		success: function(data) {
+
+			hideLoading();
+
+
+			var itemsList = data.rows;
+			if(itemsList.length == 0){
+				document.getElementById("summaryRender_timeSlotWise").innerHTML = '<p style="margin:80px 0 0 0; color: #a9a9a9; text-align: center;">No settled invoices found on the given dates</p>';
+				return '';
+			}
+
+
+
+			var master_filter_type = 'BILLS';
+			if(document.getElementById("timeslotSummaryDisplayFilterButton").innerHTML == 'Number of Guests'){
+				master_filter_type = 'GUESTS';
+			}
+
+
+			reduceBySlot(itemsList);
+			
+			function reduceBySlot(listOfItems){
+
+				//Reduce Function 
+				var reduced_list = listOfItems.reduce(function (accumulator, item) {
+					if(accumulator[item.key[2]]){
+						accumulator[item.key[2]].number_of_guests += item.value; //number of guests
+						accumulator[item.key[2]].count++; //number of such orders
+					}
+					else{
+						accumulator[item.key[2]] = {
+							"hour_slot": item.key[2],
+							"count": 1,
+							"number_of_guests": item.value,
+						};
+					}
+
+				  	return accumulator;
+				}, {});
+
+
+				var formattedList = [];
+				var keysCount = Object.keys(reduced_list);
+
+				var counter = 1;
+				for (x in reduced_list) {
+				    formattedList.push({
+				    	"number_of_guests": reduced_list[x].number_of_guests,
+				    	"count": reduced_list[x].count,
+				    	"hour_slot": reduced_list[x].hour_slot
+				    });
+
+				    if(counter == keysCount.length){ //last iteration
+				    	renderSummaryList(formattedList);
+				    }
+
+				    counter++;
+				}
+				
+			}
+
+
+
+			function renderSummaryList(itemsFilteredList){
+
+				//Final formatting of the list.
+				//Add zero values for all other times slots which are not in the list.
+
+				for(var g = 0; g < 24; g++){
+					
+					var n = 0;
+					while(itemsFilteredList[n]){
+						if(itemsFilteredList[n].hour_slot == g){
+							//Already added slot
+							break;
+						}
+
+						if(n == itemsFilteredList.length - 1){ //last iteration, slot not present
+							itemsFilteredList.push({
+						    	"number_of_guests": 0,
+						    	"count": 0,
+						    	"hour_slot": g
+						    });
+						}
+
+						n++;
+					}
+
+				}
+
+
+					// Ascending: Sorting
+					itemsFilteredList.sort(function(obj1, obj2) {
+			            return obj1.hour_slot - obj2.hour_slot;
+			        });
+			        
+
+			        //Remove 12:00 Midnight to 11:00 Midnight (if all zeros in between)
+			        var midnightEmptyCheck = true;
+			        var m = 0;
+			        while(itemsFilteredList[m] && m <= 11){
+
+			        	if(itemsFilteredList[m].count != 0){
+			        		midnightEmptyCheck = false;
+			        		break;
+			        	}
+			        	m++;
+			        }
+
+			        if(midnightEmptyCheck){
+			        	itemsFilteredList = itemsFilteredList.splice(11, 23);	
+			        }
+
+
+					for(var i = 0; i < itemsFilteredList.length; i++){
+
+						var fancy_slot = '';
+
+						if(itemsFilteredList[i].hour_slot == 0){
+							fancy_slot = 'Midnight';
+						}
+						else if(itemsFilteredList[i].hour_slot < 12){
+							fancy_slot = itemsFilteredList[i].hour_slot +'am';
+						}
+						else{
+							if(itemsFilteredList[i].hour_slot != 12){
+								fancy_slot = (itemsFilteredList[i].hour_slot-12) +'pm';
+							}
+							else{
+								fancy_slot = "12 Noon";
+							}
+						}
+
+						graphData.push({
+							"name": fancy_slot,
+							"value": itemsFilteredList[i].number_of_guests,
+							"bills": itemsFilteredList[i].count
+						})
+					}
+
+
+					renderGraph_TimeSlotWiseSummary(graphData, master_filter_type);
+			}
+
+		},
+		error: function(data){
+			hideLoading();
+			document.getElementById("summaryRender_timeSlotWise").innerHTML = '<p style="margin:80px 0 0 0; color: #a9a9a9; text-align: center;">Unable to generate the Time Slot Summary on the given dates</p>';
+			showToast('Not Found Error: Time Slot Summary data not found. Please contact Accelerate Support.', '#e74c3c');
+			return '';								    	
+		}
+	});  
+
+}
+
+
+function renderGraph_TimeSlotWiseSummary(graphData, requestType){
+
+	var graph_labels = [];
+	var graph_data = [];
+	var graph_background = [];
+	var graph_border = [];
+
+	var n = 0;
+	while(graphData[n]){
+		
+		graph_labels.push(graphData[n].name);
+		
+		if(requestType == 'BILLS'){
+			graph_data.push(graphData[n].bills);
+		}
+		else{
+			graph_data.push(graphData[n].value);
+		}
+
+		graph_background.push("rgba(2, 208, 255, 1)") //bright blue color
+		graph_border.push("rgba(2, 208, 255, 1)") //bright blue color
+
+		n++;
+	}
+
+	var ctx = document.getElementById("timeSlotBarChart").getContext('2d');
+	var myChart = new Chart(ctx, {
+	    type: 'bar',
+	    data: {
+	        labels: graph_labels,
+	        datasets: [{
+	            label: requestType == 'BILLS' ? 'Number of Bills' : 'Number of Guests',
+	            data: graph_data,
+	            backgroundColor: graph_background,
+	            borderColor: graph_border,
+	            borderWidth: 1
+	        }]
+	    },
+	    options: {
+            tooltips: {
+                enabled: true,
+                mode: 'single',
+                callbacks: {
+                    label: function(tooltipItems) {
+                        if(graph_labels[tooltipItems.index+1]){
+                        	return ' '+graph_data[tooltipItems.index]+' '+(requestType == 'BILLS' ? 'bills' : 'guests')+' between '+graph_labels[tooltipItems.index]+' and '+graph_labels[tooltipItems.index+1];
+                        }
+                        else{
+                        	return ' '+graph_data[tooltipItems.index]+' '+(requestType == 'BILLS' ? 'bills' : 'guests')+' between '+graph_labels[tooltipItems.index]+' and '+graph_labels[0];
+                        }
+                    }
+                }
+            },	    	
+	        scales: {
+	            yAxes: [{
+	            	display:false,
+	                ticks: {
+	                    beginAtZero:true,
+	                    display: false
+	                },
+	                gridLines: {
+                    	display:false
+                	}
+	            }],
+	            xAxes: [{
+	                gridLines: {
+                    	display:false
+                	}
+	            }]
+	        }
+	    }
+	});		
+}
+
+
+//Filters
+function changeTimeslotSummaryDisplayFilter(){
+
+	var x = document.getElementById("timeslotSummaryDisplayFilterButton");
+
+	if(x.innerHTML == 'Number of Guests'){
+		x.innerHTML = 'Generated Bills';
+	}
+	else if(x.innerHTML == 'Generated Bills'){
+		x.innerHTML = 'Number of Guests';
+	}
+
+	refreshTimeSlotGraph();
+}
+
+function changeTimeslotSummaryOrderType(){
+
+	if($('#billingModesModalHome').is(':visible')){
+		document.getElementById("billingModesModalHome").style.display = "none";
+		return '';
+	}
+
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_BILLING_MODES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
+
+
+				var billingModes = data.docs[0].value;
+				document.getElementById("billingModesModalHome").style.display = "block";
+
+				var renderContent = '<button class="billModeListedButton" onclick="setTimeSlotOrderType(\'All Orders\')">All Orders<span class="modeSelectionBrief">DEFAULT</span></button>';
+				var n = 0;
+				while(billingModes[n]){
+					renderContent += '<button class="billModeListedButton" onclick="setTimeSlotOrderType(\''+billingModes[n].name+'\')">'+billingModes[n].name+'<span class="modeSelectionBrief">'+billingModes[n].type+'</span></button>';
+					n++;
+				}
+
+				document.getElementById("billingModesModalHomeContent").innerHTML = '<div id="billingModesModalList">'+renderContent+'</div>';
+
+          }
+          else{
+            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });
+
+
+}
+
+
+function setTimeSlotOrderType(type){
+	if(type != ''){
+		document.getElementById("timeslotSummaryOrderTypeButton").innerHTML = type;
+	}
+	
+	document.getElementById("billingModesModalHome").style.display = "none";
+
+
+	refreshTimeSlotGraph();
+}
+
+
+function refreshTimeSlotGraph(){
+	fetchTimeSlotWiseSummary();
+}
+
+
+
+
+
 
 
 
@@ -1980,7 +2350,6 @@ function fetchSessionWiseSummary() {
 				document.getElementById("summaryRender_sessionWise").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">No settled invoices found on the given dates</p>';
 				return '';
 			}
-
 
 			reduceByDate(itemsList);
 			

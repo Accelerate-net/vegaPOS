@@ -33,6 +33,9 @@
     },
     "cashinvoices": {
       "map": "function (doc) {\n  if(doc.paymentMode == \"CASH\")\n  {\n    emit([doc.dateStamp], doc);\n  }\n}"
+    },
+    "filterbyamount": {
+      "map": "function (doc) {\n  if(doc.date && doc.totalAmountPaid){\n    emit([(doc.totalAmountPaid).toString(), doc.date], doc);\n  }\n}"
     }
   },
   "language": "javascript"

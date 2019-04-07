@@ -27,6 +27,9 @@
     },
     "filterbyrefund": {
       "map": "function (doc) {\n  if(doc.cancelDetails.refundStatus && doc.date){\n    if(doc.cancelDetails.refundStatus == 3){\n      emit(['fullrefund', doc.date], doc);\n    }\n    else if(doc.cancelDetails.refundStatus == 2){\n      emit(['partialrefund', doc.date], doc);\n    }\n    else{\n      emit(['norefund', doc.date], doc);\n    }\n  }\n}"
+    },
+    "filterbyamount": {
+      "map": "function (doc) {\n  if(doc.date && doc.payableAmount){\n    emit([(doc.payableAmount).toString(), doc.date], doc);\n  }\n}"
     }
   },
   "language": "javascript"

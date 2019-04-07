@@ -4968,7 +4968,6 @@ function showBundledRecentBills(type, handle){
       $("#lastThreeBillsPreviewFilter").attr("onclick","switchToPending()");
       
 
-
       if(handle == 'NEXT'){
         RECENT_BILLS_PREVIEW_INDEX++;
       }
@@ -5191,7 +5190,7 @@ function showBundledRecentBills(type, handle){
         function renderPreview(){
 
           if(lastPendingBills.length == 0){
-            
+
             if(handle == 'NEXT'){
 
                 RECENT_BILLS_PREVIEW_INDEX--;
@@ -5504,6 +5503,11 @@ function showRecentBillsPreview(){
             var current_filter = document.getElementById("lastThreeBillsPreviewFilter").innerHTML;
             if(current_filter == "Both Pending and Settled" || current_filter == "Pending Bills Only"){
               current_filter = "PENDING";
+
+              if(lastPendingBills.length == 0){ //there are no pending bills
+                current_filter = "SETTLED";
+              }
+
             }
             else if(current_filter == "Settled Bills Only"){
               current_filter = "SETTLED";
@@ -5526,7 +5530,7 @@ function showRecentBillsPreview(){
                 }
                 else if(e.which == 39){ //next 3
                   if(!duplicate_next_click){
-                    showBundledRecentBills(current_filter, 'NEXT');
+                    showBundledRecentBills(current_filter, 'PREVIOUS');
                   }
 
                   duplicate_next_click = true; 

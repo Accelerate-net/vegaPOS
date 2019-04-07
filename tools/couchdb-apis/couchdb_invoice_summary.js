@@ -63,6 +63,15 @@
     },
     "sessionwisesales": {
       "map": "function(doc) {\n  if(doc.dateStamp) {\n      var session = \"Unknown\";\n      if(doc.sessionName && doc.sessionName != \"\"){\n        session = doc.sessionName;\n      }\n      \n      if(doc.guestCount && doc.guestCount != \"\"){\n        emit([doc.dateStamp, session, doc.guestCount], doc.totalAmountPaid);\n      }\n      else{\n        emit([doc.dateStamp, session, 0], doc.totalAmountPaid);\n      }\n  }\n}"
+    },
+    "timeslotwise_averagetimespent": {
+      "map": "function(doc) {\n  \n  /*\n    To find the avg. time spent in the restaurant. \n    Applicable only for DINE orders.\n  */\n  if(doc.orderDetails.modeType == \"DINE\"){\n    var time_in = (doc.timePunch).toString();\n    var time_out = (doc.timeBill).toString();\n   \n    var time_in_hour = time_in.substr(0, 2);\n    var time_in_min = time_in.substr(2, 2);\n    \n    var time_out_hour = time_out.substr(0, 2);\n    var time_out_min = time_out.substr(2, 2);\n    \n    var inDate = new Date(\"October 13, 2014 \"+time_in_hour+\":\"+time_in_min+\":00\");\n    var outDate;\n    \n    if(time_out_hour < time_in_hour){ //add next day\n      outDate = new Date(\"October 14, 2014 \"+time_out_hour+\":\"+time_out_min+\":00\");\n    }\n    else{\n      outDate = new Date(\"October 13, 2014 \"+time_out_hour+\":\"+time_out_min+\":00\");\n    }\n    \n    var difference = (outDate.getTime() - inDate.getTime()) / 1000;\n    difference = difference / 60;\n    \n    difference = difference == 0 ? 1 : difference;\n    \n    var parts = (doc.date).split('-');\n    var billDate = new Date(parts[2], parts[1] - 1, parts[0]); \n\n\n    emit([doc.dateStamp, billDate.getDay()], difference);\n  }\n}"
+    },
+    "timeslotwise_countoverall": {
+      "map": "function(doc) {\n  \n  var time_in = (doc.timePunch).toString();\n  var time_in_hour = parseInt(time_in.substr(0, 2));\n  \n  var count = 0;\n  if(doc.guestCount && doc.guestCount != \"\"){\n    count = doc.guestCount;\n  }\n  \n  emit([\"ANY_MODE\", doc.dateStamp, time_in_hour], count);\n}"
+    },
+    "timeslotwise_countbymode": {
+      "map": "function(doc) {\n  \n  var time_in = (doc.timePunch).toString();\n  var time_in_hour = parseInt(time_in.substr(0, 2));\n  \n  var count = 0;\n  if(doc.guestCount && doc.guestCount != \"\"){\n    count = doc.guestCount;\n  }\n  \n  emit([doc.orderDetails.mode, doc.dateStamp, time_in_hour], count);\n}"
     }
   },
   "language": "javascript"

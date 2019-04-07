@@ -59,6 +59,12 @@
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchTimeSlotWiseSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text-o"></i></tag>Summary by Time Slots</button>
+                                  </div>
+                               </div>
+
+                               <div class="row" style="margin-top: 10px">
+                                  <div class="col-sm-12">
                                 <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchDiscountSaleSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text-o"></i></tag>Discount Summary</button>
                                   </div>
                                </div>
@@ -230,6 +236,46 @@
                                 <div class="col-sm-6" style="padding: 0 0 15px 15px">
                                   <center><div style="width: 75%">
                                     <canvas id="sessionsPieChart" width="100" height="100"></canvas>
+                                  </div></center>
+                                </div>
+                            </div>
+
+                        </div>
+                     </div>
+
+
+
+
+                     <div class="box box-primary" id="summaryRenderArea_timeSlotWise" style="display: none">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Summary by <b>Time Slots</b></h3>
+
+                              <div class="timeSlotSummaryButtons">
+                                <p style="margin: 10px 0 0 0;">Showing <button class="timeSlotFilterButton" onclick="changeTimeslotSummaryDisplayFilter()" id="timeslotSummaryDisplayFilterButton">Generated Bills</button> from <button class="timeSlotFilterButton" onclick="changeTimeslotSummaryOrderType()" id="timeslotSummaryOrderTypeButton">All Orders</button>
+                                </p>
+
+                                <div style="width: 50%; position: absolute; left: 210px; top: 30px;">
+                                  <div id="billingModesModalHome" class="modal billModalSelect">
+                                    <div class="modal-dialog" style="width: 100%; margin: 0">
+                                      <div class="modal-content" id="billingModesModalHomeContent"></div>
+                                    </div>
+                                  </div>
+                                </div> 
+
+                                  
+                              </div>
+
+
+                           </div>
+
+
+                            <div class="row" style="margin: 0">
+                                <div class="col-sm-12" style="padding: 0" id="summaryRender_timeSlotWise">
+                                </div>
+                                <div class="col-sm-12" style="padding: 0 0 15px 15px">
+                                  <center><div style="width: 75%" id="timeSlotBarChartHolder">
+                                    <canvas id="timeSlotBarChart" width="100" height="100"></canvas>
                                   </div></center>
                                 </div>
                             </div>

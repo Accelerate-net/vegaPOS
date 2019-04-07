@@ -6787,3 +6787,32 @@ input:checked + .slider:before {
 .lastBillsHidden{
   display: none;
 }
+
+.timeSlotSummaryButtons{
+  position: relative;
+}
+
+.timeSlotFilterButton{
+    outline: none;
+    box-shadow: none;
+    border: none;
+    border-bottom: 1px dashed #424242;
+    border-radius: 2px;
+    font-weight: bold;
+    padding: 0;
+    margin: 0 5px;
+    color: #1da7f7;
+}
+
+.timeSlotRefreshGraph{
+    background: #40c356;
+    border: none;
+    outline: 0;
+    box-shadow: none;
+    color: #FFF;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 20px;
+    padding: 1px 8px;
+    display: none;
+}
