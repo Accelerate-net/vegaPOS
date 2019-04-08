@@ -415,34 +415,21 @@ function downloadExcelReport(type){
 									temp_refundSum = data.rows[0].value.sum;
 								}
 
-								//Cancelled and Refunded Orders
-								$.ajax({
-								    type: 'GET',
-									url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
-									timeout: 10000,
-									success: function(seconddata) {
 
-										if(seconddata.rows.length > 0){
-											temp_refundCount += seconddata.rows[0].value.count;
-											temp_refundSum += seconddata.rows[0].value.sum;
-										}
-
-										excelReportData_Overall.push({
-											"name": 'Refunds',
-											"value": temp_refundSum
-										})
+								excelReportData_Overall.push({
+									"name": 'Refunds',
+									"value": temp_refundSum
+								})
 										
 
-										//Step 7: Process Report (Final)
-										excelReportFinal();
+								//Step 7: Process Report (Final)
+								excelReportFinal();
 
-									},
-									error: function(data){
-										hideLoading();
-										showToast('System Error: Failed to calculate refund on cancelled orders. Please contact Accelerate Support.', '#e74c3c');
-									}
-								});  
 
+								/*
+									Cancelled and Refunded Orders (Neglected)
+									Note: removed the concept of Refund on Cancelled Invoices 
+								*/
 
 							},
 							error: function(data){
@@ -2950,51 +2937,30 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 					temp_refundSum = data.rows[0].value.sum;
 				}
 
+				netRefundsProcessed = temp_refundSum;
 
-				//Cancelled and Refunded Orders
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
-					timeout: 10000,
-					success: function(seconddata) {
+				if(temp_refundSum > 0){
+					graphData.push({
+						"name": 'Refunds',
+						"value": temp_refundSum
+					})
+				}		
 
-						if(seconddata.rows.length > 0){
-							temp_refundCount += seconddata.rows[0].value.count;
-							temp_refundSum += seconddata.rows[0].value.sum;
-						}
+				//time to render...
+				if(temp_refundCount > 0){
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_refundCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_refundSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 
-						//netSalesWorth -= temp_refundSum; <-- Refunds not included in Net Sales
-						netRefundsProcessed = temp_refundSum;
+					//Adjust total sales volume
+					var x = document.getElementById("figureTotalSalesVolume");
+					var total_sales_volume_without_refund = x.innerHTML;
+					document.getElementById("figureTotalSalesVolume").innerHTML = parseFloat(total_sales_volume_without_refund - temp_refundSum).toFixed(2);
+				}
+				else{
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
 
-						if(temp_refundSum > 0){
-							graphData.push({
-								"name": 'Refunds',
-								"value": temp_refundSum
-							})
-						}		
-
-						//time to render...
-						if(temp_refundCount > 0){
-							document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_refundCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_refundSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-
-							//Adjust total sales volume
-							var x = document.getElementById("figureTotalSalesVolume");
-							var total_sales_volume_without_refund = x.innerHTML;
-							document.getElementById("figureTotalSalesVolume").innerHTML = parseFloat(total_sales_volume_without_refund - temp_refundSum).toFixed(2);
-						}
-						else{
-							document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-						}
-
-						//Step 7: Summarize Totals
-						renderSummaryFinal(netSalesWorth, graphData);
-
-					},
-					error: function(data){
-
-					}
-				});  
-
+				//Step 7: Summarize Totals
+				renderSummaryFinal(netSalesWorth, graphData);
 
 			},
 			error: function(data){
@@ -4088,7 +4054,7 @@ function generateOverallItemReport(){
 
 							var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
 
-						    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+						    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 						    
 						    var finalReport_downloadContent = cssData+
 							    '<body>'+
@@ -4495,7 +4461,7 @@ function fetchSingleClickReport(){
 	//Step 1-3: First and last invoice number
 	function singleClickLastInvoiceNumbers(){
 
-		runReportAnimation(4); //of Step 1-2 which takes 1 units
+		runReportAnimation(5); //of Step 1-2 which takes 1 units
 
 		$.ajax({
 		    type: 'GET',
@@ -4526,7 +4492,7 @@ function fetchSingleClickReport(){
 	//Step 2: 
 	function singleClickExtraCharges(){
 
-		runReportAnimation(5); //of Step 1-3 which takes 1 units
+		runReportAnimation(9); //of Step 1-3 which takes 1 units
 
 	    var requestData = {
 	      "selector"  :{ 
@@ -4905,45 +4871,24 @@ function fetchSingleClickReport(){
 					temp_refundSum = data.rows[0].value.sum;
 				}
 
+				netRefundsProcessed = temp_refundSum;
 
-				//Cancelled and Refunded Orders
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
-					timeout: 10000,
-					success: function(seconddata) {
+				completeReportInfo.push({
+					"name": "Refunds Issued",
+					"type": "NEGATIVE",
+					"value": temp_refundSum,
+					"count": temp_refundCount
+				});	
 
-						if(seconddata.rows.length > 0){
-							temp_refundCount += seconddata.rows[0].value.count;
-							temp_refundSum += seconddata.rows[0].value.sum;
-						}
+				//Step 6.1 : Get cancelled invoices count
+				singleClickCancelledInvoices();
 
-						//netSalesWorth -= temp_refundSum;
-						netRefundsProcessed = temp_refundSum;
 
-						completeReportInfo.push({
-								"name": "Refunds Issued",
-								"type": "NEGATIVE",
-								"value": temp_refundSum,
-								"count": temp_refundCount
-						});	
-
-						//Step 6.1 : Get cancelled invoices count
-						singleClickCancelledInvoices();
-
-					},
-					error: function(data){
-						completeErrorList.push({
-						    "step": 6,
-							"error": "Failed to read refunds issued"
-						});				
-
-						//Step 6.1 : Get cancelled invoices count
-						singleClickCancelledInvoices(); 
-						return '';
-					}
-				});  
-
+				/*
+					Cancelled and Refunded Orders 
+					(neglected and moved to under different header)
+				*/
+				 
 
 			},
 			error: function(data){
@@ -5020,39 +4965,8 @@ function fetchSingleClickReport(){
 
 		billsGraphData = [];
 
-		//Preload Billing Parameters
-	    var requestParamData = {
-	      "selector"  :{ 
-	                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
-	                  },
-	      "fields"    : ["identifierTag", "value"]
-	    }
 
-	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-	      data: JSON.stringify(requestParamData),
-	      contentType: "application/json",
-	      dataType: 'json',
-	      timeout: 10000,
-	      success: function(data) {
 
-	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
-
-		          	var billingExtras = data.docs[0].value;
-
-		          	if(billingExtras.length == 0){
-						completeErrorList.push({
-						    "step": 8,
-							"error": "Failed to calculate sales by different billing modes"
-						});				
-
-						//Skip and go to next step
-						singleClickDetailedByPayment(); 
-						return '';
-		          	}
-		          	else{
 
 
 					    var requestData = {
@@ -5101,109 +5015,56 @@ function fetchSingleClickReport(){
 										    		preserved_count = data.rows[0].value.count;
 										    	}
 
-										    	//Extras in this given Billing Mode
-										    	var splitExtrasInGivenMode = [];
 
-										    	if(billingExtras[0]){
-										    		preProcessBillingSplits(0, billingExtras, splitExtrasInGivenMode)
-										    	}
+										    	//Check for any refunds in this mode.
+										    	//For this given BILLING MODE, Check for any refunds in this mode.
+									          	$.ajax({
+												    type: 'GET',
+												    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode_refundedamounts?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+												    timeout: 10000,
+												    success: function(data) {
 
-										    	function preProcessBillingSplits(splitIndex, paramsList, formedSplitList){
-
-
-										          	//For a given Billing Mode, amount split by billing params
-													$.ajax({
-													    type: 'GET',
-													    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
-													    timeout: 10000,
-													    success: function(data) {
-													    	
-													    	var temp_count = 0;
-													    	var temp_sum = 0;
-
-													    	if(data.rows.length > 0){
-													    		temp_count = data.rows[0].value.count;
-													    		temp_sum = data.rows[0].value.sum;
-													    	}
-
-													    		//Now check in custom extras also
-														    	$.ajax({
-																	type: 'GET',
-																	url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
-																	timeout: 10000,
-																	success: function(data) {
-
-																		if(data.rows.length > 0){
-																		    temp_count += data.rows[0].value.count;
-																		    temp_sum += data.rows[0].value.sum;
-																		}
-
-																		//Finally, push it
-															    		splitExtrasInGivenMode.push({
-															    			"name": paramsList[splitIndex].name,
-															    			"value": temp_sum,
-															    			"count": temp_count
-															    		});
-
-															    		//Check if next exists in params list:
-															    		if(paramsList[splitIndex + 1]){
-															    			preProcessBillingSplits(splitIndex + 1, paramsList, splitExtrasInGivenMode);
-															    		}
-															    		else{ 	//Proceed to next BILLING MODE
-															    			
-																		    	detailedListByBillingMode.push({
-																				    "name": modes[0].name,
-																				   	"value": preserved_sum,
-																				   	"count": preserved_count,
-																				   	"split": splitExtrasInGivenMode
-																				})
-
-																				billsGraphData.push({
-																					"name": modes[0].name,
-																					"value": preserved_sum 
-																				});
-
-																		    	//Check if next exits in BILLING_MODES
-																		    	if(modes[1]){
-																		    		singleClickDetailedByModesCallback(1, modes, paramsList);
-																		    	}
-																		    	else{
-																		    		singleClickRenderBillsGraph();
-																		    	}															    			
-
-															    		}
-
-																	},
-																	error: function(data){
-																		completeErrorList.push({
-																		    "step": 8,
-																			"error": "Failed to calculate sales by different billing modes"
-																		});				
-
-																		//Skip and go to next step
-																		singleClickDetailedByPayment(); 
-																		return '';
-																	}
-																}); 
+												    	var refunded_sum = 0;
+												    	if(data.rows.length > 0){
+												    		refunded_sum = data.rows[0].value.sum;
+												    	}
 
 
-													    },
-													    error: function(data){
-															completeErrorList.push({
-															    "step": 8,
-																"error": "Failed to calculate sales by different billing modes"
-															});				
-
-															//Skip and go to next step
-															singleClickDetailedByPayment(); 
-															return '';
-													    }
-													
-													});  
-										    	} //end - pre process
+														detailedListByBillingMode.push({
+															"name": modes[0].name,
+															"value": preserved_sum - refunded_sum,
+															"count": preserved_count
+														});
 
 
+														billsGraphData.push({
+															"name": modes[0].name,
+															"value": preserved_sum - refunded_sum 
+														});
 
+														//Check if next exits in BILLING_MODES
+														if(modes[1]){
+															singleClickDetailedByModesCallback(1, modes);
+														}
+														else{
+															singleClickRenderBillsGraph();
+														}	
+
+
+												    },
+												    error: function(data){
+														completeErrorList.push({
+														    "step": 8,
+															"error": "Failed to calculate refunds in different billing modes"
+														});				
+
+														//Skip and go to next step
+														singleClickDetailedByPayment(); 
+														return '';										    	
+												    }
+												});  
+												
+	
 
 
 										    },
@@ -5233,51 +5094,11 @@ function fetchSingleClickReport(){
 								return '';
 					      }
 					    });
-
-
-		          	}
-	          }
-	          else{
-				completeErrorList.push({
-				    "step": 8,
-					"error": "Failed to calculate sales by different billing modes"
-				});				
-
-				//Skip and go to next step
-				singleClickDetailedByPayment(); 
-				return '';
-	          }
-	        }
-	        else{
-				completeErrorList.push({
-				    "step": 8,
-					"error": "Failed to calculate sales by different billing modes"
-				});				
-
-				//Skip and go to next step
-				singleClickDetailedByPayment(); 
-				return '';
-	        }
-	        
-	      },
-	      error: function(data) {
-				completeErrorList.push({
-				    "step": 8,
-					"error": "Failed to calculate sales by different billing modes"
-				});				
-
-				//Skip and go to next step
-				singleClickDetailedByPayment(); 
-				return '';
-	      }
-
-	    });	
-
 	}
 
 
 	//Step 8 : Callback
-	function singleClickDetailedByModesCallback(index, modes, paramsList){
+	function singleClickDetailedByModesCallback(index, modes){
 
 							          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
 										$.ajax({
@@ -5293,107 +5114,55 @@ function fetchSingleClickReport(){
 										    		preserved_count = data.rows[0].value.count;
 										    	}
 
-										    	//Extras in this given Billing Mode
-										    	var splitExtrasInGivenMode = [];
 
-										    	if(paramsList[0]){
-										    		preProcessBillingSplits(0, paramsList, splitExtrasInGivenMode)
-										    	}
+										    	//Check for any refunds in this mode.
+										    	//For this given BILLING MODE, Check for any refunds in this mode.
+									          	$.ajax({
+												    type: 'GET',
+												    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode_refundedamounts?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+												    timeout: 10000,
+												    success: function(data) {
 
-										    	function preProcessBillingSplits(splitIndex, paramsList, formedSplitList){
+												    	var refunded_sum = 0;
+												    	if(data.rows.length > 0){
+												    		refunded_sum = data.rows[0].value.sum;
+												    	}
 
-										          	//For a given Billing Mode, amount split by billing params
-													$.ajax({
-													    type: 'GET',
-													    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyrefundmodes_splitbyextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
-													    timeout: 10000,
-													    success: function(data) {
-													    	
-													    	var temp_count = 0;
-													    	var temp_sum = 0;
-
-													    	if(data.rows.length > 0){
-													    		temp_count = data.rows[0].value.count;
-													    		temp_sum = data.rows[0].value.sum;
-													    	}
-
-													    		//Now check in custom extras also
-														    	$.ajax({
-																	type: 'GET',
-																	url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyrefundmodes_splitbycustomextras?startkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'", "'+paramsList[splitIndex].name+'","'+toDate+'"]',
-																	timeout: 10000,
-																	success: function(data) {
-
-																		if(data.rows.length > 0){
-																		    temp_count += data.rows[0].value.count;
-																		    temp_sum += data.rows[0].value.sum;
-																		}
+														detailedListByBillingMode.push({
+															"name": modes[index].name,
+															"value": preserved_sum - refunded_sum,
+															"count": preserved_count
+														});
 
 
-																		//Finally, push it
-															    		splitExtrasInGivenMode.push({
-															    			"name": paramsList[splitIndex].name,
-															    			"value": temp_sum,
-															    			"count": temp_count
-															    		});
+														billsGraphData.push({
+															"name": modes[index].name,
+															"value": preserved_sum - refunded_sum 
+														});
 
-															    		//Check if next exists in params list:
-															    		if(paramsList[splitIndex + 1]){
-															    			preProcessBillingSplits(splitIndex + 1, paramsList, splitExtrasInGivenMode);
-															    		}
-															    		else{ 	//Proceed to next BILLING MODE
-															    			
-																		    	detailedListByBillingMode.push({
-																				    "name": modes[index].name,
-																				   	"value": preserved_sum,
-																				   	"count": preserved_count,
-																				   	"split": splitExtrasInGivenMode
-																				})
-
-																				billsGraphData.push({
-																					"name": modes[index].name,
-																					"value": preserved_sum 
-																				});
-
-																		    	//Check if next exits in BILLING_MODES
-																		    	if(modes[index+1]){
-																		    		singleClickDetailedByModesCallback(index+1, modes, paramsList);
-																		    	}
-																		    	else{
-																		    		singleClickRenderBillsGraph();
-																		    	}															    			
-
-															    		}
-
-																	},
-																	error: function(data){
-																		completeErrorList.push({
-																		    "step": 8,
-																			"error": "Failed to calculate sales by different billing modes"
-																		});				
-
-																		//Skip and go to next step
-																		singleClickDetailedByPayment(); 
-																		return '';
-																	}
-																}); 
+														//Check if next exits in BILLING_MODES
+														if(modes[index+1]){
+															singleClickDetailedByModesCallback(index+1, modes);
+														}
+														else{
+															singleClickRenderBillsGraph();
+														}	
 
 
-													    },
-													    error: function(data){
-															completeErrorList.push({
-															    "step": 8,
-																"error": "Failed to calculate sales by different billing modes"
-															});				
+												    },
+												    error: function(data){
+														completeErrorList.push({
+														    "step": 8,
+															"error": "Failed to calculate refunds in different billing modes"
+														});				
 
-															//Skip and go to next step
-															singleClickDetailedByPayment(); 
-															return '';
-													    }
-													
-													});  
-										    	} //end - pre process
+														//Skip and go to next step
+														singleClickDetailedByPayment(); 
+														return '';										    	
+												    }
+												});  
 
+		
 
 										    },
 										    error: function(data){
@@ -5559,28 +5328,57 @@ function fetchSingleClickReport(){
 											    temp_sum += data.rows[0].value.sum;
 											}
 
-								    		if(temp_sum > 0){
-								    			paymentGraphData.push({
-										    		"name": modes[0].name,
-										    		"value": temp_sum
-										    	})
-								    		}	
 
-								    		detailedListByPaymentMode.push({
-								    			"name": modes[0].name,
-								    			"value": temp_sum,
-								    			"count": temp_count
-								    		});									
+											//Check if any refunds issued 
+											$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_refundedamounts?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													var refund_amount = 0;
+
+													if(data.rows.length > 0){
+													    refund_amount = data.rows[0].value.sum;
+													}
+
+										    		if(temp_sum > 0){
+										    			paymentGraphData.push({
+												    		"name": modes[0].name,
+												    		"value": temp_sum - refund_amount
+												    	})
+										    		}	
+
+										    		detailedListByPaymentMode.push({
+										    			"name": modes[0].name,
+										    			"value": temp_sum - refund_amount,
+										    			"count": temp_count
+										    		});									
 
 
-									    	//Check if next mode exists...
-									    	if(modes[1]){
-									    		singleClickDetailedByPaymentCallback(1, modes, paymentGraphData);
-									    	}
-									    	else{
-									    		//Step 10: Weekly Progress
-									    		singleClickWeeklyProgress();
-									    	}
+											    	//Check if next mode exists...
+											    	if(modes[1]){
+											    		singleClickDetailedByPaymentCallback(1, modes, paymentGraphData);
+											    	}
+											    	else{
+											    		//Step 10: Weekly Progress
+											    		singleClickWeeklyProgress();
+											    	}
+
+												},
+												error: function(data){
+													completeErrorList.push({
+													    "step": 9,
+														"error": "Failed to calculate sales by different payment modes"
+													});				
+
+													//Skip and go to next step
+													singleClickWeeklyProgress(); 
+													return '';
+												}
+											}); 
+
+
 
 										},
 										error: function(data){
@@ -5678,28 +5476,57 @@ function fetchSingleClickReport(){
 											    temp_sum += data.rows[0].value.sum;
 											}
 
-								    		if(temp_sum > 0){
-								    			paymentGraphData.push({
-										    		"name": modes[index].name,
-										    		"value": temp_sum
-										    	})
-								    		}	
-
-								    		detailedListByPaymentMode.push({
-								    			"name": modes[index].name,
-								    			"value": temp_sum,
-								    			"count": temp_count
-								    		});									
 
 
-									    	//Check if next mode exists...
-									    	if(modes[index+1]){
-									    		singleClickDetailedByPaymentCallback(index+1, modes, paymentGraphData);
-									    	}
-									    	else{
-									    		//Step 9-10: Render the Payment Graph 
-									    		singleClickRenderPaymentsGraph();
-									    	}
+											//Check if any refunds issued 
+											$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_refundedamounts?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													var refund_amount = 0;
+
+													if(data.rows.length > 0){
+													    refund_amount = data.rows[0].value.sum;
+													}
+
+										    		if(temp_sum > 0){
+										    			paymentGraphData.push({
+												    		"name": modes[index].name,
+												    		"value": temp_sum - refund_amount
+												    	})
+										    		}	
+
+										    		detailedListByPaymentMode.push({
+										    			"name": modes[index].name,
+										    			"value": temp_sum - refund_amount,
+										    			"count": temp_count
+										    		});									
+
+
+											    	//Check if next mode exists...
+											    	if(modes[index+1]){
+											    		singleClickDetailedByPaymentCallback(index+1, modes, paymentGraphData);
+											    	}
+											    	else{
+											    		//Step 10: Weekly Progress
+											    		singleClickWeeklyProgress();
+											    	}
+
+												},
+												error: function(data){
+													completeErrorList.push({
+													    "step": 9,
+														"error": "Failed to calculate sales by different payment modes"
+													});				
+
+													//Skip and go to next step
+													singleClickWeeklyProgress(); 
+													return '';
+												}
+											}); 
+
 
 										},
 										error: function(data){
@@ -6178,7 +6005,7 @@ function fetchSingleClickReport(){
 		    var billSharePercentage = 0;
 		    while(detailedListByBillingMode[c]){
 		      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
-		      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+		      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #000">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
 		      c++;
 		    }
 
@@ -6237,7 +6064,7 @@ function fetchSingleClickReport(){
 		    var paymentSharePercentage = 0;
 		    while(detailedListByPaymentMode[d]){
 		      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
-		      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+		      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #000">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
 		      d++;
 		    }
 
@@ -6290,7 +6117,7 @@ function fetchSingleClickReport(){
 		    }
 
 		    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
-		    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+		    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 		    
 		    var finalReport_downloadContent = cssData+
 			    '<body>'+
@@ -6421,7 +6248,7 @@ function fetchSingleClickReport(){
 			    var billSharePercentage = 0;
 			    while(detailedListByBillingMode[c]){
 			      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
-			      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+			      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #000">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
 			      c++;
 			    }
 
@@ -6457,7 +6284,7 @@ function fetchSingleClickReport(){
 			    var paymentSharePercentage = 0;
 			    while(detailedListByPaymentMode[d]){
 			      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
-			      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+			      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #000">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
 			      d++;
 			    }
 
@@ -6481,7 +6308,7 @@ function fetchSingleClickReport(){
 			    }
 
 			    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
-			    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+			    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 			    
 			    var finalReport_emailContent = '<html>'+cssData+
 				    '<body>'+
@@ -6598,7 +6425,7 @@ function fetchSingleClickReport(){
 		    var billSharePercentage = 0;
 		    while(detailedListByBillingMode[c]){
 		      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
-		      printSummaryBillsContent += '<tr><td style="font-size: 11px">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span style="font-style:italic; font-size: 60%; display: block;">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+		      printSummaryBillsContent += '<tr><td style="font-size: 11px">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #000">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span style="font-weight:bold; font-size: 60%; display: block;">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
 		      c++;
 		    }
 
@@ -6622,7 +6449,7 @@ function fetchSingleClickReport(){
 		    var paymentSharePercentage = 0;
 		    while(detailedListByPaymentMode[d]){
 		      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
-		      printSummaryPaymentContent += '<tr><td style="font-size: 11px">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span style="font-style:italic; font-size: 60%; display: block;">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>'; 
+		      printSummaryPaymentContent += '<tr><td style="font-size: 11px">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #000">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span style="font-weight:bold; font-size: 60%; display: block;">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>'; 
 		      d++;
 		    }
 
@@ -6806,7 +6633,7 @@ function fetchSingleClickReport(){
 	    var billSharePercentage = 0;
 	    while(detailedListByBillingMode[c]){
 	      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
-	      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+	      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #000">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
 	      c++;
 	    }
 
@@ -6835,7 +6662,7 @@ function fetchSingleClickReport(){
 	    var paymentSharePercentage = 0;
 	    while(detailedListByPaymentMode[d]){
 	      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
-	      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+	      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #000">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
 	      d++;
 	    }
 
@@ -6862,7 +6689,7 @@ function fetchSingleClickReport(){
 
 
 	    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
-	    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px 25px;text-align:center}.factsBox{margin-right: 5px; width:20%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#aba9a9;font-style:italic;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:30%;display:inline-block;text-align:center;float:right;margin-top:30px}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:65%;display:inline-block}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+	    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px 25px;text-align:center}.factsBox{margin-right: 5px; width:20%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:30%;display:inline-block;text-align:center;float:right;margin-top:30px}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:65%;display:inline-block}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 	    
 
 	    var finalReport_emailContent = '<html>'+cssData+
