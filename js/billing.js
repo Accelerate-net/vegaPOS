@@ -3899,6 +3899,9 @@ function processCancelSettledBill(billNumber, optionalPageRef){
             //Remove Refunds if any.
             delete cancelBillFile.refundDetails;
 
+            //Add date stamp
+            cancelBillFile.dateStamp = moment(cancelBillFile.date, 'DD-MM-YYYY').format('YYYYMMDD');
+
             deleteCancelledInvoiceFromServer(memory_id, memory_rev, memory_type, memory_table, requestURLSource, optionalPageRef);
 
             //Post to local Server

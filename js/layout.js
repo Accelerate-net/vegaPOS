@@ -135,8 +135,8 @@ function renderSideNavigation(){
                           '<span class="navSideName">Tools</span>'+
                         '</a>'+
                         '<ul class="treeview-menu">'+
-                            '<li onclick="renderPage(\'cancelled-bills\', \'Cancelled Orders\')">'+
-                                '<a href="#"><i class="fa fa-circle-o"></i>Cancelled Orders</a></li>'+
+                            '<li onclick="renderPage(\'cancelled-bills\', \'Cancellations\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Cancellations</a></li>'+
                             '<li onclick="renderPage(\'manage-menu\', \'Manage Menu\')">'+
                                 '<a href="#"><i class="fa fa-circle-o"></i>Manage Menu</a></li>'+
                             '<li onclick="renderPage(\'photos-manager\', \'Photos Manager\')">'+
@@ -2857,7 +2857,7 @@ function initAdminIdle(){
 }
 
 function AdminCheckIdleTime(){
-      console.log(admin_idleSecondsCounter)
+      
       admin_idleSecondsCounter++;
 
       if(!window.localStorage.appOtherPreferences_AdminIdleLogout || window.localStorage.appOtherPreferences_AdminIdleLogout != 1){

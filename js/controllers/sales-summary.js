@@ -1171,7 +1171,6 @@ function fetchSalesSummary() {
           if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
               	var modes = data.docs[0].value;
-	          	modes.sort(); //alphabetical sorting 
 
 	          	if(modes.length == 0){
 	          		document.getElementById("summaryRender_billingMode").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">Oho! There are no billing modes added</tag>';
@@ -1183,6 +1182,8 @@ function fetchSalesSummary() {
 	          	var grandSum = 0;
 	          	var grandCount = 0;
 
+
+
 	          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
 				$.ajax({
 				    type: 'GET',
@@ -1190,46 +1191,86 @@ function fetchSalesSummary() {
 				    timeout: 10000,
 				    success: function(data) {
 
-
 				    	if(data.rows.length > 0){
-				    		var result = data.rows[0].value;
-				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr onclick="openDetailedByMode(\''+modes[0].name+'\', \''+fromDate+'\', \''+toDate+'\')" class="detailedByMode"> <td>'+modes[0].name+'<tag class="viewOptionsIcon">View Details</tag></td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+(result.count != 0? result.count+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(result.sum).toFixed(2)+'</td> </tr>';
 				    		
-				    		grandSum += result.sum;
-				    		grandCount += result.count;
+				    		var result = data.rows[0].value;
 
-				    		if(result.sum > 0){
-				    			graphData.push({
-						    		"name": modes[0].name,
-						    		"value": result.sum
-						    	})
-				    		}
+							//Check for any refunds in this mode.
+							$.ajax({
+								type: 'GET',
+							    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode_refundedamounts?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+							    timeout: 10000,
+								success: function(data) {
+
+									var refunded_sum = 0;
+									if(data.rows.length > 0){
+										refunded_sum = data.rows[0].value.sum;
+									}
+
+						    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr onclick="openDetailedByMode(\''+modes[0].name+'\', \''+fromDate+'\', \''+toDate+'\')" class="detailedByMode"> <td>'+modes[0].name+'<tag class="viewOptionsIcon">View Details</tag></td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+(result.count != 0? result.count+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(result.sum - refunded_sum).toFixed(2)+'</td> </tr>';
+						    		
+						    		grandSum += (result.sum - refunded_sum);
+						    		grandCount += result.count;
+
+						    		if(result.sum - refunded_sum > 0){
+						    			graphData.push({
+								    		"name": modes[0].name,
+								    		"value": result.sum - refunded_sum
+								    	})
+						    		}
+
+							    	
+
+							    	//Check if next mode exists...
+							    	if(modes[1]){
+							    		fetchSalesSummaryCallback(1, modes, fromDate, toDate, grandSum, grandCount, graphData);
+							    	}
+							    	else{
+							    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
+																	                                       '<td>Overall</td>'+
+																	                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
+																	                                      '</tr> '
+										renderGraph_SalesSummary(graphData);
+
+										//if today's summary
+										var std_today = getCurrentTime('DATE_STAMP');
+										if(fromDate == toDate && fromDate == std_today){
+											fetchSalesSummaryUnbilledKOT();
+										}
+							    	}
+
+								},
+								error: function(data){
+									document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';													    	
+								}
+							});  
 
 				    	}
 				    	else{
-				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+				    				
+				    				document.getElementById("summaryRender_billingMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+				    	
+
+							    	//Check if next mode exists...
+							    	if(modes[1]){
+							    		fetchSalesSummaryCallback(1, modes, fromDate, toDate, grandSum, grandCount, graphData);
+							    	}
+							    	else{
+							    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
+																	                                       '<td>Overall</td>'+
+																	                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
+																	                                      '</tr> '
+										renderGraph_SalesSummary(graphData);
+
+										//if today's summary
+										var std_today = getCurrentTime('DATE_STAMP');
+										if(fromDate == toDate && fromDate == std_today){
+											fetchSalesSummaryUnbilledKOT();
+										}
+							    	}
 				    	}
 
 
-
-
-				    	//Check if next mode exists...
-				    	if(modes[1]){
-				    		fetchSalesSummaryCallback(1, modes, fromDate, toDate, grandSum, grandCount, graphData);
-				    	}
-				    	else{
-				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
-														                                       '<td>Over All</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
-														                                      '</tr> '
-							renderGraph_SalesSummary(graphData);
-
-							//if today's summary
-							var std_today = getCurrentTime('DATE_STAMP');
-							if(fromDate == toDate && fromDate == std_today){
-								fetchSalesSummaryUnbilledKOT();
-							}
-				    	}
 
 				    },
 				    error: function(data){
@@ -1254,42 +1295,88 @@ function fetchSalesSummaryCallback(index, modes, fromDate, toDate, grandSum, gra
 				    success: function(data) {
 
 				    	if(data.rows.length > 0){
-				    		var result = data.rows[0].value;
-				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr onclick="openDetailedByMode(\''+modes[index].name+'\', \''+fromDate+'\', \''+toDate+'\')" class="detailedByMode"> <td>'+modes[index].name+'<tag class="viewOptionsIcon">View Details</tag></td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+(result.count != 0? result.count+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(result.sum).toFixed(2)+'</td> </tr>';
 				    		
-				    		grandSum += result.sum;
-				    		grandCount += result.count;
+				    		var result = data.rows[0].value;
 
-				    		if(result.sum > 0){
-				    			graphData.push({
-						    		"name": modes[index].name,
-						    		"value": result.sum
-						    	})
-				    		}				    		
+							//Check for any refunds in this mode.
+							$.ajax({
+								type: 'GET',
+							    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode_refundedamounts?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+							    timeout: 10000,
+								success: function(data) {
 
+									var refunded_sum = 0;
+									if(data.rows.length > 0){
+										refunded_sum = data.rows[0].value.sum;
+									}
+
+
+									document.getElementById("summaryRender_billingMode").innerHTML += '<tr onclick="openDetailedByMode(\''+modes[index].name+'\', \''+fromDate+'\', \''+toDate+'\')" class="detailedByMode"> <td>'+modes[index].name+'<tag class="viewOptionsIcon">View Details</tag></td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+(result.count != 0? result.count+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(result.sum- refunded_sum).toFixed(2)+'</td> </tr>';
+				    		
+						    		grandSum += (result.sum - refunded_sum);
+						    		grandCount += result.count;
+
+
+						    		if(result.sum - refunded_sum > 0){
+						    			graphData.push({
+								    		"name": modes[index].name,
+								    		"value": result.sum - refunded_sum
+								    	})
+						    		}	
+
+
+
+							    	//Check if next mode exists...
+							    	if(modes[index+1]){
+							    		fetchSalesSummaryCallback(index+1, modes, fromDate, toDate, grandSum, grandCount, graphData);
+							    	}
+							    	else{
+							    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
+																	                                       '<td>Total Settled Amount</td>'+
+																	                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i><b>'+parseFloat(grandSum).toFixed(2)+'</b></td>'+
+																	                                      '</tr> '
+										renderGraph_SalesSummary(graphData);
+
+										//if today's summary
+										var std_today = getCurrentTime('DATE_STAMP');
+										if(fromDate == toDate && fromDate == std_today){
+											fetchSalesSummaryUnbilledKOT();
+										}
+							    	}
+
+
+
+								},
+								error: function(data){
+									document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';													    	
+								}
+							});  
+
+		
 				    	}
 				    	else{
-				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
-				    	}
+				    		
+				    				document.getElementById("summaryRender_billingMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+				    	
 
-				    	//Check if next mode exists...
-				    	if(modes[index+1]){
-				    		fetchSalesSummaryCallback(index+1, modes, fromDate, toDate, grandSum, grandCount, graphData);
-				    	}
-				    	else{
-				    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
-														                                       '<td>Total Settled Amount</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i><b>'+parseFloat(grandSum).toFixed(2)+'</b></td>'+
-														                                      '</tr> '
-							renderGraph_SalesSummary(graphData);
+							    	//Check if next mode exists...
+							    	if(modes[index+1]){
+							    		fetchSalesSummaryCallback(index+1, modes, fromDate, toDate, grandSum, grandCount, graphData);
+							    	}
+							    	else{
+							    		document.getElementById("summaryRender_billingMode").innerHTML += '<tr class="summaryRowHighlight">'+
+																	                                       '<td>Total Settled Amount</td>'+
+																	                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i><b>'+parseFloat(grandSum).toFixed(2)+'</b></td>'+
+																	                                      '</tr> '
+										renderGraph_SalesSummary(graphData);
 
-							//if today's summary
-							var std_today = getCurrentTime('DATE_STAMP');
-							if(fromDate == toDate && fromDate == std_today){
-								fetchSalesSummaryUnbilledKOT();
-							}
+										//if today's summary
+										var std_today = getCurrentTime('DATE_STAMP');
+										if(fromDate == toDate && fromDate == std_today){
+											fetchSalesSummaryUnbilledKOT();
+										}
+							    	}
 				    	}
-
 
 				    },
 				    error: function(data){
@@ -1725,6 +1812,7 @@ function fetchPaymentModeWiseSummary() {
 				    		temp_sum = data.rows[0].value.sum;
 				    	}
 
+
 				    		//Now check in split payments
 					    	$.ajax({
 								type: 'GET',
@@ -1737,33 +1825,57 @@ function fetchPaymentModeWiseSummary() {
 									    temp_sum += data.rows[0].value.sum;
 									}
 
-						    		if(temp_sum > 0){
-						    			graphData.push({
-								    		"name": modes[0].name,
-								    		"value": temp_sum
-								    	})
-						    		}										
-
-									//time to render...
-							    	if(temp_count > 0){
-							    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
-							    	}
-							    	else{
-							    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
-							    	}
 
 
-							    	//Check if next mode exists...
-							    	if(modes[1]){
-							    		fetchPaymentModeWiseSummaryCallback(1, modes, fromDate, toDate, graphData);
-							    	}
-							    	else{
-							    		renderGraph_PaymentModeWiseSummary(graphData);
-							    	}
+											//Check if any refunds issued 
+											$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_refundedamounts?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													var refund_amount = 0;
+													if(data.rows.length > 0){
+													    refund_amount = data.rows[0].value.sum;
+													}
+
+										    		if(temp_sum-refund_amount > 0){
+										    			graphData.push({
+												    		"name": modes[0].name,
+												    		"value": temp_sum-refund_amount
+												    	})
+										    		}			
+
+
+													//time to render...
+											    	if(temp_count > 0){
+											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
+											    	}
+											    	else{
+											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+											    	}
+
+
+											    	//Check if next mode exists...
+											    	if(modes[1]){
+											    		fetchPaymentModeWiseSummaryCallback(1, modes, fromDate, toDate, graphData);
+											    	}
+											    	else{
+											    		renderGraph_PaymentModeWiseSummary(graphData);
+											    	}
+
+
+												},
+												error: function(data){
+													document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+												}
+											}); 
+
+							
 
 								},
 								error: function(data){
-
+									document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
 								}
 							}); 
 
@@ -1821,40 +1933,64 @@ function fetchPaymentModeWiseSummaryCallback(index, modes, fromDate, toDate, gra
 									    temp_sum += data.rows[0].value.sum;
 									}
 
-						    		if(temp_sum > 0){
-						    			graphData.push({
-								    		"name": modes[index].name,
-								    		"value": temp_sum
-								    	})
-						    		}										
-
-									//time to render...
-							    	if(temp_count > 0){
-							    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
-							    	}
-							    	else{
-							    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
-							    	}
 
 
-							    	//Check if next mode exists...
-							    	if(modes[index+1]){
-							    		fetchPaymentModeWiseSummaryCallback(index+1, modes, fromDate, toDate, graphData);
-							    	}
-							    	else{
-							    		renderGraph_PaymentModeWiseSummary(graphData);
-							    	}
+
+											//Check if any refunds issued 
+											$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_refundedamounts?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													var refund_amount = 0;
+													if(data.rows.length > 0){
+													    refund_amount = data.rows[0].value.sum;
+													}
+
+										    		if(temp_sum-refund_amount > 0){
+										    			graphData.push({
+												    		"name": modes[index].name,
+												    		"value": temp_sum-refund_amount
+												    	})
+										    		}			
+
+
+													//time to render...
+											    	if(temp_count > 0){
+											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
+											    	}
+											    	else{
+											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+											    	}
+
+
+											    	//Check if next mode exists...
+											    	if(modes[index+1]){
+											    		fetchPaymentModeWiseSummaryCallback(index+1, modes, fromDate, toDate, graphData);
+											    	}
+											    	else{
+											    		renderGraph_PaymentModeWiseSummary(graphData);
+											    	}
+
+
+												},
+												error: function(data){
+													document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+												}
+											}); 
+
 
 								},
 								error: function(data){
-
+									document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
 								}
 							}); 
 
 
 				    },
 				    error: function(data){
-
+				    	document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
 				    }
 				  }); 
 
@@ -2324,6 +2460,7 @@ function fetchSessionWiseSummary() {
 	var graphData = [];
 
 	document.getElementById("summaryRender_sessionWise").innerHTML = '';
+	document.getElementById("sessionsPieChartHolder").innerHTML = '<canvas id="sessionsPieChart" width="100" height="100"></canvas>';
 
 
 	$.ajax({
@@ -2409,7 +2546,7 @@ function fetchSessionWiseSummary() {
 
 					}
 
-					document.getElementById("summaryRender_sessionWise").innerHTML = renderContent;
+					document.getElementById("summaryRender_sessionWise").innerHTML = renderContent + '<p style=" margin: 0 0 0 5px; font-size: 11px; font-style: italic; color: #777; ">*Refunds might <b>not</b> have been reduced from the above figures.</p>';
 
 					//render the graph
 					renderGraph_SessionWiseSummary(graphData);
@@ -3163,7 +3300,7 @@ function fetchDiscountSaleSummary(){
 							}
 							else{
 					    		document.getElementById("summaryRender_discountSummary").innerHTML += '<tr class="summaryRowHighlight">'+
-															                                       '<td>Over All</td>'+
+															                                       '<td>Overall</td>'+
 															                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(total_Sum).toFixed(2)+'</td>'+
 															                                      '</tr> '
 
@@ -3234,7 +3371,7 @@ function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphD
 						else{
 
 							document.getElementById("summaryRender_discountSummary").innerHTML += '<tr class="summaryRowHighlight">'+
-														                                       '<td>Over All</td>'+
+														                                       '<td>Overall</td>'+
 														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+total_Count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(total_Sum).toFixed(2)+'</td>'+
 														                                      '</tr> '
 							renderGraph_DiscountSummary(graphData)
@@ -3323,12 +3460,12 @@ function renderGraph_DiscountSummary(graphData){
 
 
 function fetchCancellationSummary(){
-	
+
 	/*
-		Total Refunds issued for CANCELLED INVOICES in given date range
+		All the CANCELLED INVOICES in given date range
 	*/
 
-	//$( "#summaryRenderArea" ).children().css( "display", "none" );
+	$( "#summaryRenderArea" ).children().css( "display", "none" );
 	document.getElementById("summaryRenderArea_cancellationSummary").style.display = "block";
 
 	//Note: Dates in YYYYMMDD format
@@ -3345,7 +3482,7 @@ function fetchCancellationSummary(){
 
     var requestData = {
       "selector"  :{ 
-                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
+                    "identifierTag": "ACCELERATE_BILLING_MODES" 
                   },
       "fields"    : ["identifierTag", "value"]
     }
@@ -3360,23 +3497,22 @@ function fetchCancellationSummary(){
       success: function(data) {
 
         if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
+          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
               	var modes = data.docs[0].value;
-	          	modes.sort(); //alphabetical sorting 
 
 	          	if(modes.length == 0){
-	          		document.getElementById("summaryRender_cancellationSummary").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no payments modes added</tag>';
+	          		document.getElementById("summaryRender_cancellationSummary").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no billing modes added</tag>';
 	          		return '';
 	          	}
 
 	          	var grandSum = 0;
 	          	var grandCount = 0;
 
-	          	  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
+	          	  //For a given BILLING MODE, the total cancelled bills in the given DATE RANGE
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[0].code+'","'+fromDate+'"]&endkey=["'+modes[0].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 				    	
@@ -3388,14 +3524,14 @@ function fetchCancellationSummary(){
 				    		grandCount += temp_count;
 
 							if(temp_count > 0){
-								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
+								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right; color: #dd4b39"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Bills</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
 							}
 							else{
-								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right; color: #dd4b39"><i class="fa fa-inr"></i>0</td> </tr>';
 							}
 						}
 						else{
-							document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+							document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right; color: #dd4b39"><i class="fa fa-inr"></i>0</td> </tr>';
 						}
 						
 						if(modes[1]){
@@ -3403,8 +3539,8 @@ function fetchCancellationSummary(){
 				    	}
 				    	else{
 				    		document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr class="summaryRowHighlight">'+
-														                                       '<td>Over All</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
+														                                       '<td>Overall</td>'+
+														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Bills' : 'No Bills')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
 														                                      '</tr> '
 				    	}
 
@@ -3416,16 +3552,16 @@ function fetchCancellationSummary(){
 
           }
           else{
-            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
       }
 
     });
@@ -3436,7 +3572,7 @@ function fetchCancellationSummaryCallback(index, modes, fromDate, toDate, grandS
 
 				  $.ajax({
 				    type: 'GET',
-				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/refund-summary/_view/sumbyrefundmodes?startkey=["'+modes[index].code+'","'+fromDate+'"]&endkey=["'+modes[index].code+'","'+toDate+'"]',
+				    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
 				    timeout: 10000,
 				    success: function(data) {
 
@@ -3449,14 +3585,14 @@ function fetchCancellationSummaryCallback(index, modes, fromDate, toDate, grandS
 				    		grandCount += temp_count;
 
 							if(temp_count > 0){
-								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
+								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right; color: #dd4b39"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Bills</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
 							}
 							else{
-								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+								document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right; color: #dd4b39"><i class="fa fa-inr"></i>0</td> </tr>';
 							}
 						}
 						else{
-							document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
+							document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right; color: #dd4b39"><i class="fa fa-inr"></i>0</td> </tr>';
 						}
 						
 				    	//Check if next mode exists...
@@ -3464,10 +3600,86 @@ function fetchCancellationSummaryCallback(index, modes, fromDate, toDate, grandS
 				    		fetchCancellationSummaryCallback(index+1, modes, fromDate, toDate, grandSum, grandCount);
 				    	}
 				    	else{
-				    		document.getElementById("summaryRender_cancellationSummary").innerHTML += '<tr class="summaryRowHighlight">'+
-														                                       '<td>Over All</td>'+
-														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
-														                                      '</tr> '
+				    		
+							appendTotalFigures();
+
+							//append UNPAID & PAID total figures
+							function appendTotalFigures(){
+
+								var total_paid_sum = 0;
+								var total_paid_count = 0;
+								var total_unpaid_sum = 0;
+								var total_unpaid_count = 0;
+
+								findPaidFigure();
+
+								function findPaidFigure(){
+
+									$.ajax({
+									    type: 'GET',
+									    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbypaymentstatus?startkey=["PAID", "'+fromDate+'"]&endkey=["PAID", "'+toDate+'"]',
+									    timeout: 10000,
+									    success: function(data) {
+
+									    	if(data.rows.length > 0){
+										    	total_paid_count = data.rows[0].value.count;
+										    	total_paid_sum = data.rows[0].value.sum;
+											}
+
+											findUnpaidFigure();
+											
+									    },
+									    error: function(data) {
+									    	findUnpaidFigure();
+									    }
+									}); 
+								} 	
+
+
+								function findUnpaidFigure(){
+
+									$.ajax({
+									    type: 'GET',
+									    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbypaymentstatus?startkey=["UNPAID","'+fromDate+'"]&endkey=["UNPAID","'+toDate+'"]',
+									    timeout: 10000,
+									    success: function(data) {
+
+									    	if(data.rows.length > 0){
+										    	total_unpaid_count = data.rows[0].value.count;
+										    	total_unpaid_sum = data.rows[0].value.sum;
+											}
+
+											renderTotals();
+											
+									    },
+									    error: function(data) {
+									    	renderTotals();
+									    }
+									}); 
+
+								}	
+
+								function renderTotals(){
+								
+									document.getElementById("summaryRender_cancellationSummary").innerHTML += ''+
+													'<tr class="summaryRowHighlight" style="background: #eee;">'+
+														'<td>Cancelled before Settlement</td>'+
+														'<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(total_unpaid_count != 0 ? total_unpaid_count+' Bills' : 'No Bills')+'</count><i class="fa fa-inr"></i>'+parseFloat(total_unpaid_sum).toFixed(2)+'</td>'+
+													'</tr>'+
+													'<tr class="summaryRowHighlight" style="background: #eee;">'+
+														'<td>Cancelled after Settlement</td>'+
+														'<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(total_paid_count != 0 ? total_paid_count+' Bills' : 'No Bills')+'</count><i class="fa fa-inr"></i>'+parseFloat(total_paid_sum).toFixed(2)+'</td>'+
+													'</tr>'+
+													'<tr class="summaryRowHighlight">'+
+														'<td>Overall Cancellations</td>'+
+														'<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Bills' : 'No Bills')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
+													'</tr>';
+
+								}						
+							}
+
+
+
 				    	}
 				    },
 				    error: function(data){
@@ -3476,8 +3688,6 @@ function fetchCancellationSummaryCallback(index, modes, fromDate, toDate, grandS
 				  });  
 
 }
-
-
 
 
 
@@ -3565,7 +3775,7 @@ function fetchRefundSummary(){
 				    	}
 				    	else{
 				    		document.getElementById("summaryRender_refundSummary").innerHTML += '<tr class="summaryRowHighlight">'+
-														                                       '<td>Over All</td>'+
+														                                       '<td>Overall</td>'+
 														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
 														                                      '</tr> '
 				    	}
@@ -3592,7 +3802,6 @@ function fetchRefundSummary(){
 
     });
 
-	fetchCancellationSummary();
 }
 
 
@@ -3631,7 +3840,7 @@ function fetchRefundSummaryCallback(index, modes, fromDate, toDate, grandSum, gr
 				    	}
 				    	else{
 				    		document.getElementById("summaryRender_refundSummary").innerHTML += '<tr class="summaryRowHighlight">'+
-														                                       '<td>Over All</td>'+
+														                                       '<td>Overall</td>'+
 														                                       '<td class="summaryLine1" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">'+(grandCount != 0 ? grandCount+' Orders' : 'No Orders')+'</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td>'+
 														                                      '</tr> '
 				    	}
@@ -4273,6 +4482,42 @@ function itemReportActionPrint(){
 
 function fetchSingleClickReport(){
 
+	/*
+		Allow to generate report only if 
+		there are no bills pending for settlement
+	*/
+
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : '01-01-2018'; //Since the launch of Vega POS
+	
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	
+
+				  	$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/showall?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]&descending=false',
+						timeout: 10000,
+						success: function(data) {
+
+							if(data.rows.length > 0){
+								showToast('Warning: Please settle all the pending bills on the given dates to continue.', '#e67e22');
+							}
+							else{
+								fetchSingleClickReportAfterApproval();
+							}
+						},
+						error: function(data) {
+							showToast('Error: Unable to generate the report. Please try again.', '#e74c3c');
+						}
+					});  
+
+}
+
+function fetchSingleClickReportAfterApproval(){	
+
 
 	$( "#summaryRenderArea" ).children().css( "display", "none" );
 	document.getElementById("singleClickReport_RenderArea").style.display = "block";
@@ -4364,12 +4609,13 @@ function fetchSingleClickReport(){
 
 	var completeReportInfo = [];
 	var netSalesWorth = 0;
-	var netGuestsCount = '###';
+	var netGuestsCount = '-';
 	var netRefundsProcessed = 0;
 	var reportInfoExtras = [];
 	var completeErrorList = []; //In case any API call causes Error
 	var detailedListByBillingMode = []; //Billing mode wise
 	var detailedListByPaymentMode = []; //Payment mode wise
+
 	var weeklyProgressThisWeek = []; //This Week sales
 	var weeklyProgressLastWeek = []; //Last Week sales
 	var paymentGraphData = []; //For payment graphs
@@ -4378,7 +4624,7 @@ function fetchSingleClickReport(){
 	var startingBillNumber = '-';
 	var endingBillNumber = '-';
 	var netCancelledBills = 0;
-
+	var netCancelledBillsSum = 0;
 
 	//Net Sales Worth = Total Paid - (All the other charges) - (Discounts & Refunds) + (Tips)
 
@@ -4917,7 +5163,8 @@ function fetchSingleClickReport(){
 			success: function(data) {
 
 				if(data.rows.length > 0){
-					netCancelledBills = data.rows[0].value;
+					netCancelledBills = data.rows[0].value.count;
+					netCancelledBillsSum = data.rows[0].value.sum;
 				}
 
 				//Step 7: Render everything 
@@ -5295,7 +5542,7 @@ function fetchSingleClickReport(){
 						});				
 
 						//Skip and go to next step
-						singleClickWeeklyProgress(); 
+						singleClickCancellationSummary(); 
 						return '';
 		          	}
 		          	else{
@@ -5362,7 +5609,7 @@ function fetchSingleClickReport(){
 											    	}
 											    	else{
 											    		//Step 10: Weekly Progress
-											    		singleClickWeeklyProgress();
+											    		singleClickCancellationSummary();
 											    	}
 
 												},
@@ -5373,7 +5620,7 @@ function fetchSingleClickReport(){
 													});				
 
 													//Skip and go to next step
-													singleClickWeeklyProgress(); 
+													singleClickCancellationSummary(); 
 													return '';
 												}
 											}); 
@@ -5388,7 +5635,7 @@ function fetchSingleClickReport(){
 											});				
 
 											//Skip and go to next step
-											singleClickWeeklyProgress(); 
+											singleClickCancellationSummary(); 
 											return '';
 										}
 									}); 
@@ -5416,7 +5663,7 @@ function fetchSingleClickReport(){
 				});				
 
 				//Skip and go to next step
-				singleClickWeeklyProgress(); 
+				singleClickCancellationSummary(); 
 				return '';
 	          }
 	        }
@@ -5427,7 +5674,7 @@ function fetchSingleClickReport(){
 				});				
 
 				//Skip and go to next step
-				singleClickWeeklyProgress(); 
+				singleClickCancellationSummary(); 
 				return '';
 	        }
 	      },
@@ -5438,7 +5685,7 @@ function fetchSingleClickReport(){
 				});				
 
 				//Skip and go to next step
-				singleClickWeeklyProgress(); 
+				singleClickCancellationSummary(); 
 				return '';
 	      }
 
@@ -5511,7 +5758,7 @@ function fetchSingleClickReport(){
 											    	}
 											    	else{
 											    		//Step 10: Weekly Progress
-											    		singleClickWeeklyProgress();
+											    		singleClickCancellationSummary();
 											    	}
 
 												},
@@ -5522,7 +5769,7 @@ function fetchSingleClickReport(){
 													});				
 
 													//Skip and go to next step
-													singleClickWeeklyProgress(); 
+													singleClickCancellationSummary(); 
 													return '';
 												}
 											}); 
@@ -5536,7 +5783,7 @@ function fetchSingleClickReport(){
 											});				
 
 											//Skip and go to next step
-											singleClickWeeklyProgress(); 
+											singleClickCancellationSummary(); 
 											return '';
 										}
 									}); 
@@ -5548,21 +5795,21 @@ function fetchSingleClickReport(){
 								});				
 
 								//Skip and go to next step
-								singleClickWeeklyProgress(); 
+								singleClickCancellationSummary(); 
 								return '';					        	
 					      	}
 					    });
 	}
 
 
-	//Step 9-10: Render Graph (Payments)
+	//Step 9.1: Render Graph (Payments)
 	function singleClickRenderPaymentsGraph(){
 
 			window.localStorage.graphImageDataPayments = '';
 
 			if(paymentGraphData.length == 0){
 				//Skip and go to next step
-				singleClickWeeklyProgress(); 
+				singleClickCancellationSummary(); 
 				return '';
 			}
 
@@ -5627,16 +5874,24 @@ function fetchSingleClickReport(){
 
 				window.localStorage.graphImageDataPayments = temp_graph;
 
-				//Go to Step 10
-				singleClickWeeklyProgress();
+				//Go to Step 9.2
+				singleClickCancellationSummary();
 			}
+	}
+
+
+	//Step 9.2: Cancellation Summary
+	function singleClickCancellationSummary(){
+		runReportAnimation(70); //of Step 9.1 which takes 5 units
+	
+		singleClickWeeklyProgress();
 	}
 
 
 	//Step 10: Weekly Progress
 	function singleClickWeeklyProgress(){
 
-		runReportAnimation(75); //of Step 9 which takes 10 units
+		runReportAnimation(75); //of Step 9 which takes 5 units
 		
 		/*
 			Note: Rough figure only, refunds not included.
@@ -6467,17 +6722,41 @@ function fetchSingleClickReport(){
 		    }
 
 
+		    //Bill Cancellations
+		    var printSummaryCancellations = '';
+		    if(netCancelledBills > 0){
+		    	printSummaryCancellations = ''+
+			    	'<div class="KOTContent">'+
+			    		 '<h2 style="text-align: center; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">BILL CANCELLATIONS</h2>'+
+				         '<table style="width: 100%">'+
+				            '<col style="width: 85%">'+
+				            '<col style="width: 15%">'+ 
+				            	'<tr>'+
+				            		'<td style="font-size: 11px">Number of Bills</td>'+
+				            		'<td style="font-size: 11px; text-align: right">'+netCancelledBills+'</td>'+
+				            	'</tr>'+
+				            	'<tr>'+
+				            		'<td style="font-size: 11px">Cancelled Amount</td>'+
+				            		'<td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(netCancelledBillsSum).toFixed(0)+'</td>'+
+				            	'</tr>'+
+				         '</table>'+
+				    '</div>';			    	
+		    }
+
+
+
+		    //Other Details
 		    var printSummaryCounts = ''+
 			    	'<div class="KOTContent">'+
 			    		 '<h2 style="text-align: center; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">OTHER DETAILS</h2>'+
 				         '<table style="width: 100%">'+
 				            '<col style="width: 85%">'+
 				            '<col style="width: 15%">'+ 
-				            '<tr><td style="font-size: 10px">Total Guests</td><td style="font-size: 13px">'+netGuestsCount+'</td></tr>'+
-				            '<tr><td style="font-size: 10px">First Bill No.</td><td style="font-size: 13px">'+startingBillNumber+'</td></tr>'+
-				            '<tr><td style="font-size: 10px">Last Bill No.</td><td style="font-size: 13px">'+endingBillNumber+'</td></tr>'+
-				            '<tr><td style="font-size: 10px">Total Bills</td><td style="font-size: 13px">'+completeReportInfo[0].count+'</td></tr>'+
-				            '<tr><td style="font-size: 10px">Cancelled Bills</td><td style="font-size: 13px">'+netCancelledBills+'</td></tr>'+
+				            '<tr><td style="font-size: 10px">Total Guests</td><td style="font-size: 13px; text-align: right;">'+netGuestsCount+'</td></tr>'+
+				            '<tr><td style="font-size: 10px">First Bill No.</td><td style="font-size: 13px; text-align: right;">'+startingBillNumber+'</td></tr>'+
+				            '<tr><td style="font-size: 10px">Last Bill No.</td><td style="font-size: 13px; text-align: right;">'+endingBillNumber+'</td></tr>'+
+				            '<tr><td style="font-size: 10px">Total Bills</td><td style="font-size: 13px; text-align: right;">'+completeReportInfo[0].count+'</td></tr>'+
+				            (netCancelledBills == 0 ? '<tr><td style="font-size: 10px">Cancelled Bills</td><td style="font-size: 13px; text-align: right;">0</td></tr>' : '')+
 				         '</table>'+
 				    '</div>';
 
@@ -6522,7 +6801,7 @@ function fetchSingleClickReport(){
 			         '</table>'+
 			      '</div>'+
 			      '<h1 style="margin: 6px 3px; padding-bottom: 5px; font-weight: 400; text-align: center; font-size: 15px; border-bottom: 2px solid; }">'+reportInfo_title+'</h1>'+
-			   	  printSummaryAll+printSummaryBills+printSummaryPayment+printSummaryCounts+
+			   	  printSummaryAll + printSummaryBills + printSummaryPayment + printSummaryCancellations + printSummaryCounts +
 			   	'</body>';
 
 				var finalContent_EncodedPrint = encodeURI(finalReport_printContent);
