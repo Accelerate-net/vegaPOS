@@ -135,8 +135,8 @@ function renderSideNavigation(){
                           '<span class="navSideName">Tools</span>'+
                         '</a>'+
                         '<ul class="treeview-menu">'+
-                            '<li onclick="renderPage(\'cancelled-bills\', \'Cancelled Orders\')">'+
-                                '<a href="#"><i class="fa fa-circle-o"></i>Cancelled Orders</a></li>'+
+                            '<li onclick="renderPage(\'cancelled-bills\', \'Cancellations\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Cancellations</a></li>'+
                             '<li onclick="renderPage(\'manage-menu\', \'Manage Menu\')">'+
                                 '<a href="#"><i class="fa fa-circle-o"></i>Manage Menu</a></li>'+
                             '<li onclick="renderPage(\'photos-manager\', \'Photos Manager\')">'+
@@ -1832,6 +1832,8 @@ function applySystemOptionSettings(){
                 machineName = 'Any';
               }
 
+              var isServerBasedKOTPrintingEnabled = false;
+
               for(var n=0; n<settingsList.length; n++){
 
                 if(settingsList[n].systemName == machineName){
@@ -1851,21 +1853,26 @@ function applySystemOptionSettings(){
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_OnlineOrders = tempVal;
                       }
+                      
+                      else if(params[i].name == "ServerBasedKOTPrinting"){
+                        var tempVal = params[i].value == 'YES'? 1: 0;
+
+                        if(tempVal == 1){
+                          isServerBasedKOTPrintingEnabled = true;
+                        }
+
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_serverBasedKOTPrinting = tempVal;
+                      }
                       else if(params[i].name == "KOTJammingWarning"){
                         var tempVal = params[i].value == 'YES'? true: false;
 
-                        if(tempVal){
+                        if(tempVal && isServerBasedKOTPrintingEnabled){
                           checkForJammedKOTs();
                         }
 
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_KOTJammingWarning = tempVal;
-                      }
-                      else if(params[i].name == "ServerBasedKOTPrinting"){
-                        var tempVal = params[i].value == 'YES'? 1: 0;
-
-                        /*update localstorage*/             
-                        window.localStorage.systemOptionsSettings_serverBasedKOTPrinting = tempVal;
                       }
                       else if(params[i].name == "resetCountersAfterReport"){
 
@@ -2850,7 +2857,7 @@ function initAdminIdle(){
 }
 
 function AdminCheckIdleTime(){
-      console.log(admin_idleSecondsCounter)
+      
       admin_idleSecondsCounter++;
 
       if(!window.localStorage.appOtherPreferences_AdminIdleLogout || window.localStorage.appOtherPreferences_AdminIdleLogout != 1){
@@ -5513,7 +5520,7 @@ function checkForJammedKOTs() {
           document.getElementById("KOTJammingWarningText").innerHTML = '<b style="font-size: 120%">'+pending_requests+'</b> KOTs '+(pending_orders > 0 ? '& <b style="font-size: 120%">'+pending_orders+'</b> Orders ': '')+'Pending';
         }
 
-        setTimeout(checkForJammedKOTs, 10000); //check every 10s
+        setTimeout(checkForJammedKOTs, 5000); //check every 5s
     }
     else{
         if($('#KOTJammingWarning').is(':visible')) {

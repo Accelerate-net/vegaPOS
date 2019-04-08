@@ -11,8 +11,8 @@
       "map": "function (doc) {\n  if(doc.paymentMode){\n    emit(doc.paymentMode, doc);\n  }\n  \n}"
     },
     "getcount": {
-      "map": "function (doc) {\n  if(doc.dateStamp){\n    emit([doc.dateStamp], doc.billNumber);\n  }\n}",
-      "reduce": "_count"
+      "map": "function (doc) {\n  if(doc.dateStamp){\n    emit([doc.dateStamp], doc.payableAmount);\n  }\n}",
+      "reduce": "_stats"
     }
   },
   "language": "javascript"

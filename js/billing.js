@@ -3678,6 +3678,12 @@ function processRefundSettledBill(billNumber, optionalPageRef){
           bill.refundDetails = refundObj;
 
           if(refundObj.mode == 'ORIGINAL'){
+
+              if(bill.paymentMode == 'MULTIPLE'){
+                showToast('Warning! This bill was settled as multiple payments. Refund can be issued as Cash only.', '#e67e22');
+                return '';
+              }
+
               bill.refundDetails.mode = bill.paymentMode;
           }
 
@@ -3783,21 +3789,9 @@ function initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentSta
 
   document.getElementById("bill_cancel_why_reason").innerHTML = reasonRender;
 
-  if(paymentStatus == 'PAID'){ //Order is PAID
-    document.getElementById("refundCancelOrderBar").style.display = 'block';
-    document.getElementById("refundCancelOrderBar").innerHTML = '<label>Refund Status</label> <select id="bill_cancel_why_isrefund" class="form-control" onchange="changeBillCancelWhyIsRefunding('+totalPaid+')"> <option value="1" selected>No Refund</option> <option value="2">Partial Refund</option> <option value="3">Full Refund</option> </select>';
-    $('#bill_cancel_why_isrefund').val(1);
-  }
-  else{
-    document.getElementById("refundCancelOrderBar").style.display = 'none';
-  }
-
-  document.getElementById("refundCancelOrderAmountBar").style.display = 'none';
-  document.getElementById("refundCancelOrderModeBar").style.display = 'none';
 
   $('#bill_cancel_why_comments').val('');
   $('#bill_cancel_why_comments').focus();
-
 
 
           var easyActionTool = $(document).on('keydown',  function (e) {
@@ -3818,22 +3812,6 @@ function initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentSta
           });
 
 
-}
-
-
-function changeBillCancelWhyIsRefunding(totalPaid){
-  if($('#bill_cancel_why_isrefund').val() > 1){
-    document.getElementById("refundCancelOrderAmountBar").style.display = 'block';
-    document.getElementById("refundCancelOrderModeBar").style.display = 'block';
-
-    document.getElementById("bill_cancel_why_refundamount").value = totalPaid;
-    $('#bill_cancel_why_refundamount').focus();
-    $('#bill_cancel_why_refundamount').select();
-  } 
-  else{
-    document.getElementById("refundCancelOrderAmountBar").style.display = 'none';
-    document.getElementById("refundCancelOrderModeBar").style.display = 'none';
-  }
 }
 
 
@@ -3860,42 +3838,18 @@ function processCancelSettledBill(billNumber, optionalPageRef){
       return '';      
     }
 
-    var refund_status = 0;
-    var refund_amount = '';
-    var refund_mode = '';
-
-    if(document.getElementById("refundCancelOrderBar").style.display == 'block'){
-      //Discount Part
-      refund_status = $('#bill_cancel_why_isrefund').val();
-      
-      if(refund_status > 1){
-        refund_mode = $('#bill_cancel_why_refundmode').val();
-        refund_amount = $('#bill_cancel_why_refundamount').val();
-
-        if(refund_amount == 0 || refund_amount == ''){
-          showToast('Warning! Please mention the Refund Amount issued.', '#e67e22');
-          return '';     
-        }
-      }
-    }
-
-
     var refund_status_flag = 5;
     if(optionalPageRef == 'GENERATED_BILLS_SETTLED'){
       refund_status_flag = 6;
     }
 
-    refund_amount = Math.round(refund_amount * 100)/100;
 
     var cancelObj = {
             "timeCancel" : current_time,
             "cancelledBy" : staffData.name,
             "reason" : why_reason,
             "comments" : why_comments,
-            "status" : refund_status_flag, //SETTLED BILL or PENDING BILL
-            "refundStatus" : refund_status,
-            "refundAmount" : refund_amount,
-            "refundMode" : refund_mode
+            "status" : refund_status_flag //SETTLED BILL or PENDING BILL
     }
 
     initiateCancelSettledBillHide();
@@ -3940,27 +3894,13 @@ function processCancelSettledBill(billNumber, optionalPageRef){
           delete cancelBillFile._id;
           delete cancelBillFile._rev;
 
-          cancelBillFile.cancelDetails = cancelObj;
+            cancelBillFile.cancelDetails = cancelObj;
 
-          //Refund Object
-          if(cancelObj.refundAmount && cancelObj.refundAmount != '' && cancelObj.refundAmount > 0){
-            
-            var refund_obj_mode = 'CASH';
-            if(cancelObj.refundMode == 'ORIGINAL'){
-              refund_obj_mode = bill.paymentMode;
-            }
+            //Remove Refunds if any.
+            delete cancelBillFile.refundDetails;
 
-            cancelBillFile.refundDetails = {
-              "timeRefund" : current_time,
-              "refundedBy" : staffData.name,
-              "reason" : why_reason,
-              "comments" : why_comments,
-              "status" : refund_status,
-              "amount" : cancelObj.refundAmount,
-              "mode" : refund_obj_mode
-            }
-
-          }
+            //Add date stamp
+            cancelBillFile.dateStamp = moment(cancelBillFile.date, 'DD-MM-YYYY').format('YYYYMMDD');
 
             deleteCancelledInvoiceFromServer(memory_id, memory_rev, memory_type, memory_table, requestURLSource, optionalPageRef);
 
@@ -4164,10 +4104,7 @@ function processCancelRunningOrder(kotID, optionalPageRef){
             "cancelledBy" : staffData.name,
             "reason" : why_reason,
             "comments" : why_comments,
-            "status" : why_food_status, //FOOD WASTED or NOT
-            "refundStatus" : 0,
-            "refundAmount" : '',
-            "refundMode" : ''
+            "status" : why_food_status //FOOD WASTED or NOT
     }
 
     initiateCancelOrderHide();
@@ -4968,7 +4905,6 @@ function showBundledRecentBills(type, handle){
       $("#lastThreeBillsPreviewFilter").attr("onclick","switchToPending()");
       
 
-
       if(handle == 'NEXT'){
         RECENT_BILLS_PREVIEW_INDEX++;
       }
@@ -5191,7 +5127,7 @@ function showBundledRecentBills(type, handle){
         function renderPreview(){
 
           if(lastPendingBills.length == 0){
-            
+
             if(handle == 'NEXT'){
 
                 RECENT_BILLS_PREVIEW_INDEX--;
@@ -5504,6 +5440,11 @@ function showRecentBillsPreview(){
             var current_filter = document.getElementById("lastThreeBillsPreviewFilter").innerHTML;
             if(current_filter == "Both Pending and Settled" || current_filter == "Pending Bills Only"){
               current_filter = "PENDING";
+
+              if(lastPendingBills.length == 0){ //there are no pending bills
+                current_filter = "SETTLED";
+              }
+
             }
             else if(current_filter == "Settled Bills Only"){
               current_filter = "SETTLED";
@@ -5526,7 +5467,7 @@ function showRecentBillsPreview(){
                 }
                 else if(e.which == 39){ //next 3
                   if(!duplicate_next_click){
-                    showBundledRecentBills(current_filter, 'NEXT');
+                    showBundledRecentBills(current_filter, 'PREVIOUS');
                   }
 
                   duplicate_next_click = true; 

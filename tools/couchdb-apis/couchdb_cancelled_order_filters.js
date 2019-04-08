@@ -24,6 +24,9 @@
     },
     "showall": {
       "map": "function (doc) {\n  if(doc.date){\n    emit([doc.date], doc);\n  }\n}"
+    },
+    "filterbyamount": {
+      "map": "function (doc) {\n  if(doc.date && doc.payableAmount){\n    emit([(doc.payableAmount).toString(), doc.date], doc);\n  }\n}"
     }
   },
   "language": "javascript"

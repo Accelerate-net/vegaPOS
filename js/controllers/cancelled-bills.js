@@ -15,11 +15,6 @@ timeCancel:
 cancelledBy:
 reason:
 comments:
-status:
-refundStatus:
-refundAmount:
-refundMode:
-
 */
 
 
@@ -187,6 +182,87 @@ function loadAllCancelledUnbilled(optionalSource){
 
 				break;
 			}
+
+
+
+			case "amount":{
+				/*
+					FILTER USING BILL AMOUNT 
+				*/
+
+			  	//TWEAK -- Get the count for Pagination
+			  	if(currentPage == 1){
+				  	$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbyamount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						timeout: 10000,
+						success: function(data) {
+
+							totalPages = Math.ceil(data.rows.length/10);
+							filterResultsCount = data.rows.length;
+							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
+
+					    	if(totalPages == 0){
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
+								document.getElementById("filterResultsCounter").innerHTML = '';
+								filterResultsCount = 0;
+								renderCancelledPageDefault('UNBILLED');
+								return '';
+						    }
+
+
+						}
+					});  
+				}
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/filterbyamount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					timeout: 10000,
+					success: function(data) {
+
+				      var resultsList = data.rows;
+				      var resultRender = '';
+
+					  if(resultsList.length == 0){
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Orders. Modify the filter and try again.</p>';
+						filterResultsCount = 0;
+						renderCancelledPageDefault('UNBILLED');
+						return '';
+					  }
+
+				      var n = 0;
+				      while(resultsList[n]){
+				      	var bill = resultsList[n].value;
+						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'UNBILLED\')">'+
+						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
+						                            '        <td>'+getFancyTime(bill.timePunch)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+						                            '        <td><b style="color: #ED4C67">#'+bill.KOTNumber+'</b></td>'+
+						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
+						                            '        <td>'+bill.stewardName+'</td>'+
+						                            '    </tr>';
+				      	n++;
+				      }
+
+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr><th style="text-align: left">Table</th><th style="text-align: left">Date</th>'+
+							'<th style="text-align: left">Order No</th> <th style="text-align: left">Customer</th>'+
+							'<th style="text-align: left">Attended By</th></tr></thead><tbody>'+resultRender+'</tbody>';
+				      
+				      	renderCancelledPageDefault('UNBILLED');
+
+					},
+					error: function(data){
+						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('UNBILLED');					
+					}
+				});  
+
+
+				break;
+			}
+
 
 			case "steward":{
 				/*
@@ -425,20 +501,6 @@ function loadAllCancelledUnbilled(optionalSource){
 				break;
 			}
 
-			case "refund":{
-				/*
-					FILTER REFUNDED OR NON-REFUNDED ORDERS
-				*/
-
-			  	//TWEAK: No refund for Unbilled orders!
-
-				document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-				document.getElementById("filterResultsCounter").innerHTML = '';
-				filterResultsCount = 0;
-				renderBillPageDefault('UNBILLED');
-
-				break;
-			}
 
 			case "table":{
 				/*
@@ -1149,7 +1211,6 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1157,7 +1218,87 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
+			      
+				      	renderCancelledPageDefault('CANCELLED')
+
+					},
+					error: function(data){
+						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilterCancelled(\'UNBILLED\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
+						renderCancelledPageDefault('CANCELLED');					
+					}
+				});  
+
+
+				break;
+			}
+
+
+			case "amount":{
+				/*
+					FILTER USING BILL AMOUNT
+				*/
+
+			  	//TWEAK -- Get the count for Pagination
+			  	if(currentPage == 1){
+				  	$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbyamount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
+						timeout: 10000,
+						success: function(data) {
+
+							totalPages = Math.ceil(data.rows.length/10);
+							filterResultsCount = data.rows.length;
+							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
+
+					    	if(totalPages == 0){
+						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
+								document.getElementById("filterResultsCounter").innerHTML = '';
+								filterResultsCount = 0;
+								renderCancelledPageDefault('CANCELLED');
+								return '';
+						    }
+
+
+						}
+					});  
+				}
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbyamount?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
+					timeout: 10000,
+					success: function(data) {
+
+				      var resultsList = data.rows;
+				      var resultRender = '';
+
+					  if(resultsList.length == 0){
+					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Cancelled Invoices. Modify the filter and try again.</p>';
+						filterResultsCount = 0;
+						renderCancelledPageDefault('CANCELLED');
+						return '';
+					  }
+
+					    var n = 0;
+					    while(resultsList[n]){
+					      	var bill = resultsList[n].doc;
+
+					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
+				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
+				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
+				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
+				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
+				                            '    </tr>';
+					      	n++;
+					    }
+
+
+						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
+						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
+						      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1229,7 +1370,6 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1239,7 +1379,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1311,7 +1451,6 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1320,7 +1459,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1393,7 +1532,6 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1401,7 +1539,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1416,90 +1554,6 @@ function loadAllCancelledInvoices(){
 
 				break;
 			}
-
-
-			case "refund":{
-				/*
-					FILTER REFUNDED OR NON-REFUNDED ORDERS
-				*/
-
-				console.log('am here')
-
-			  	//TWEAK -- Get the count for Pagination
-			  	if(currentPage == 1){
-				  	$.ajax({
-					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false',
-						timeout: 10000,
-						success: function(data) {
-
-							totalPages = Math.ceil(data.rows.length/10);
-							filterResultsCount = data.rows.length;
-							document.getElementById("filterResultsCounter").innerHTML = ' ('+filterResultsCount+')';
-
-					    	if(totalPages == 0){
-						      	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-								document.getElementById("filterResultsCounter").innerHTML = '';
-								filterResultsCount = 0;
-								renderCancelledPageDefault('CANCELLED');
-								return '';
-						    }
-
-
-						}
-					});  
-				}
-
-				$.ajax({
-				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/filterbyrefund?startkey=["'+filter_key+'", "'+filter_start+'"]&endkey=["'+filter_key+'", "'+filter_end+'"]&descending=false&include_docs=true&limit=10&skip='+((currentPage-1)*10),
-					timeout: 10000,
-					success: function(data) {
-
-				      var resultsList = data.rows;
-				      var resultRender = '';
-
-					  if(resultsList.length == 0){
-					  	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
-						filterResultsCount = 0;
-						renderCancelledPageDefault('CANCELLED');
-						return '';
-					  }
-
-					    var n = 0;
-					    while(resultsList[n]){
-					      	var bill = resultsList[n].doc;
-
-					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedCancelledBill(\''+encodeURI(JSON.stringify(bill))+'\', \'CANCELLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
-				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
-				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
-				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
-				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
-				                            '    </tr>';
-					      	n++;
-					    }
-
-
-						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
-						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
-			      
-				      	renderCancelledPageDefault('CANCELLED')
-
-					},
-					error: function(data){
-						showToast('System Error: Unable to fetch data from the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-						document.getElementById("billTypeTitleButton").innerHTML = '<button class="billsFilterButton" style="background: #ef1717 !important" onclick="clearAppliedFilter(\'PENDING\')"><span class="clearFilterInsideButton"><i class="fa fa-times"></i></span>Filter Error!<count id="filterResultsCounter"></count></button>';
-						renderCancelledPageDefault('CANCELLED');
-					}
-				});  
-
-
-				break;
-			}
-
 
 			case "table":{
 				/*
@@ -1557,7 +1611,6 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1565,7 +1618,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1612,13 +1665,12 @@ function loadAllCancelledInvoices(){
 							                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 							                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 							                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-							                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 							                            '    </tr>';
 
 
 										document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 									      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-									      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+									      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 						      
 							      		renderCancelledPageDefault('CANCELLED')
 							      		
@@ -1705,7 +1757,6 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1713,7 +1764,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1788,7 +1839,6 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1796,7 +1846,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1871,7 +1921,6 @@ function loadAllCancelledInvoices(){
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 				                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-				                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 				                            '    </tr>';
 					      	n++;
 					    }
@@ -1879,7 +1928,7 @@ function loadAllCancelledInvoices(){
 
 						document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 						      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+						      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 			      
 				      	renderCancelledPageDefault('CANCELLED')
 
@@ -1938,14 +1987,13 @@ function loadAllCancelledInvoices(){
 	                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 	                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
 	                            '        <td>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? '<i class="fa fa-inr"></i>'+bill.totalAmountPaid : 'Unpaid')+'</td>'+
-	                            '        <td>'+(bill.cancelDetails.refundStatus > 1 ? '<i class="fa fa-inr"></i>'+bill.cancelDetails.refundAmount+'<br>Refunded' : '<tag style="color: #dcdcdc">No Refund</tag>')+'</td>'+
 	                            '    </tr>';
 		      	n++;
 		      }
 
 				document.getElementById("billBriefDisplayRender").innerHTML = '<thead style="background: #f4f4f4;"><tr> <th style="text-align: left">#</th> <th style="text-align: left">Date</th>'+
 				      						'<th style="text-align: left">Table</th> <th style="text-align: left">Customer</th>'+
-				      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Status</th> </tr></thead><tbody>'+resultRender+'<tbody>';
+				      						'<th style="text-align: left">Paid Amount</th>  </tr></thead><tbody>'+resultRender+'<tbody>';
 	      
 		      	renderCancelledPageDefault('CANCELLED')
 
@@ -2139,50 +2187,14 @@ function openSelectedCancelledBill(encodedBill, type){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Waived Round Off</td>  <td style="text-align: right"><tag style="color: #f15959">- <i class="fa fa-inr"></i>'+bill.roundOffAmount+'</tag></td> </tr>';
 		}
 
-		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? parseFloat(bill.totalAmountPaid).toFixed(2) : '0')+'</td> </tr>';
+		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? parseFloat(bill.totalAmountPaid).toFixed(2) : '0')+'</td> </tr>';
 		
-		//Refunds
-		var net_refund = 0;
-		if(!jQuery.isEmptyObject(bill.refundDetails)){
-			otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Refunds</b></td> <td style="font-weight: bold; text-align: right">'+(bill.refundDetails.amount && bill.refundDetails.amount != 0 ? '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+parseFloat(bill.refundDetails.amount).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
-			net_refund = bill.refundDetails.amount;
-		}
-
-		var gross_calculated_amount = 0;
-		
-		if(bill.totalAmountPaid && bill.totalAmountPaid != ''){
-			gross_calculated_amount = bill.totalAmountPaid - net_refund;
-		}
-		else{
-			gross_calculated_amount = net_refund - bill.payableAmount;
-		}
-
-		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Gross Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right">'+(gross_calculated_amount < 0 ? '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+parseFloat(Math.abs(gross_calculated_amount)).toFixed(2)+'</tag>' : '<i class="fa fa-inr"></i>'+parseFloat(gross_calculated_amount).toFixed(2))+'</td> </tr>';
-		
-
-		//Payment Splits, if applicable
-		var paymentSplitList = '';
-		var paymentOptionUsedButton = '';
-
-		if(bill.cancelDetails.refundStatus == 2){
-
-			paymentOptionUsedButton =  	'<div class="splitPayListDropdown">'+
-										 	'<div class="splitPayListButton">Partial Refund</div>'+
-										'</div>';	
-		}
-		else if(bill.cancelDetails.refundStatus == 3){
-
-			paymentOptionUsedButton =  	'<div class="splitPayListDropdown">'+
-										 	'<div class="splitPayListButton">Full Refund</div>'+
-										'</div>';	
-		}
-
 
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
 												'<div class="box box-primary">'+
 												'   <div class="box-body">'+
 												      '<div class="box-header" style="padding: 10px 0px">'+
-												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+paymentOptionUsedButton+'</h3><button class="btn btn-danger" onclick="cancelDetailsDisplay(\''+(encodeURI(JSON.stringify(bill.cancelDetails)))+'\')" style="float: right">Cancellation Details</button>'+
+												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></h3><button class="btn btn-danger" onclick="cancelDetailsDisplay(\''+(encodeURI(JSON.stringify(bill.cancelDetails)))+'\')" style="float: right">Cancellation Details</button>'+
 												      '</div>'+
 												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at '+getFancyTime(bill.timeBill)+'</time>'+
 												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
@@ -2670,8 +2682,6 @@ function cancelDetailsDisplay(encodedReason){
 												            (cancelObj.cancelledBy && cancelObj.cancelledBy != '' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Cancelled By</td> <td>'+cancelObj.cancelledBy+'</td> </tr>' : '')+
 												            (cancelObj.timeCancel && cancelObj.timeCancel != '--:--' ? '<tr><td style="color: #6f90b1; font-weight: bold;">Time</td> <td>'+getFancyTime(cancelObj.timeCancel)+'</td> </tr>' : '')+
 												            (cancelObj.status ? '<tr><td style="color: #6f90b1; font-weight: bold;">Order Status</td> <td>'+getCancelledOrderStatus(cancelObj.status)+'</td> </tr>' : '')+
-												            (cancelObj.refundStatus ? '<tr><td style="color: #6f90b1; font-weight: bold;">Refund Status</td> <td>'+getCancelledRefundStatus(cancelObj.refundStatus, cancelObj.refundAmount)+'</td> </tr>' : '')+
-												            (cancelObj.refundStatus && cancelObj.refundStatus > 1  ? '<tr><td style="color: #6f90b1; font-weight: bold;">Refund Mode</td> <td>'+(cancelObj.refundMode == 'CASH' ? 'Cash' : 'Original Mode')+'</td> </tr>' : '')+
 												            '</tbody>'+
 												         '</table>'+
 												      '</div>';

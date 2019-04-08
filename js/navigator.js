@@ -161,7 +161,7 @@ function renderPage(pageReference, title){
 				break;
 			}	
 			case 'cancelled-bills':{
-				title = 'Cancelled Orders';
+				title = 'Cancellations';
 				break;
 			}			
 			case 'seating-status':{
