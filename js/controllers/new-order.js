@@ -4251,8 +4251,115 @@ function generateEditedKOT(originalData, silentFlag){
 
 }
 
+/* UX Functions : Item cancellation reason modal */
+function getPossibleSuggestions(inputElement){
+	$('#itemCancellationReasonContent .itemCancellationEasyPickHolder').addClass('noDisplay'); 
+	
+	var siblings = $(inputElement).siblings();
+	$(siblings[0]).removeClass('noDisplay');
+
+	if($(inputElement).val() != ""){
+		$(inputElement).select();
+	}
+}
+
+function addCancellationComment(buttonElement){
+	var text = $(buttonElement).text();
+	var buttonHolderParent = $(buttonElement).parent();
+	var siblings = $(buttonHolderParent).siblings();
+	$(siblings[0]).val(text);
+
+	//remove suggestions
+	$('#itemCancellationReasonContent .itemCancellationEasyPickHolder').addClass('noDisplay'); 
+	$(siblings[0]).blur();
+
+	//go to next input
+	var current_index = $(siblings[0]).attr('index-data');
+	current_index = parseInt(current_index);
+	goToNextCancelItem(current_index + 1);
+}
+
+function goToNextCancelItem(index){
+	var allInputs = $('#itemCancellationReasonContent .cancelItemComment');
+	$(allInputs[index]).focus();
+}
+
+
+
+function saveAllCancellationReasons(encodedData){
+
+	document.getElementById("itemDeleteReasonModal").style.display = 'none';
+
+	var orderContent = JSON.parse(decodeURI(encodedData));
+	var itemsList = orderContent.itemsRemoved;
+
+	var addedComments =  $('#itemCancellationReasonContent .cancelItemComment');
+	for(var i = 0; i< itemsList.length; i++){
+		itemsList[i].comments = $(addedComments[i]).val();
+	}
+
+	orderContent.itemsRemoved = itemsList;
+
+	//post content
+    $.ajax({
+      type: 'POST', 
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_item_cancellations/', 
+      data: JSON.stringify(orderContent), 
+      contentType: "application/json", 
+      dataType: 'json', 
+      timeout: 10000,
+      success: function(data) {
+      	
+      }
+    })
+
+}
+
+
+
+
 
 function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, compareObject, hasRestrictedEdits, silentFlag){
+
+  /*
+	ITEM CANCELLATIONS SUMMARY
+  */
+
+  var item_delete_track = [];
+  var e = 0;
+  while(compareObject[e]){
+  	
+  	if(compareObject[e].change == 'QUANTITY_DECREASE'){
+  		var trackItem = {
+  		  "code": compareObject[e].code,
+	      "name": compareObject[e].name,
+	      "category": compareObject[e].category,
+	      "price": compareObject[e].price,
+	      "isCustom": compareObject[e].isCustom,
+	      "variant": compareObject[e].isCustom ? compareObject[e].variant : "",
+	      "qty": compareObject[e].oldValue - compareObject[e].qty
+  		}
+
+  		item_delete_track.push(trackItem);
+  	}
+  	else if(compareObject[e].change == 'ITEM_DELETED'){
+  		var trackItem = {
+  		  "code": compareObject[e].code,
+	      "name": compareObject[e].name,
+	      "category": compareObject[e].category,
+	      "price": compareObject[e].price,
+	      "isCustom": compareObject[e].isCustom,
+	      "variant": compareObject[e].isCustom ? compareObject[e].variant : "",
+	      "qty": compareObject[e].qty
+  		}
+
+  		item_delete_track.push(trackItem);
+  	}
+
+  	e++;
+  }
+
+
 
 
   // LOGGED IN USER INFO
@@ -4447,6 +4554,85 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
                   	  */
 
                   	  pushCurrentOrderAsEditKOT(kot);
+
+
+                  	  /*
+                  	  	ITEM CANCELLATION SUMMARY
+                  	  */
+                  	  //Popup for cancellation reasons (if any item is deleted)
+                  	  if(item_delete_track.length > 0){
+
+						  document.getElementById("itemDeleteReasonModal").style.display = 'block';
+
+						  var renderContent = '';
+
+						  var t = 0;
+						  while(item_delete_track[t]){
+
+						  	renderContent += '<tr>'+
+						                        '<td class="itemCancelReasonNameCol">'+
+						                           '<tag class="itemCancelReasonNameTag">'+item_delete_track[t].qty+' x '+item_delete_track[t].name+(item_delete_track[t].isCustom ? ' ('+item_delete_track[t].variant+')' : '')+'</tag>'+
+						                        '</td>'+
+						                        '<td class="itemCancelReasonCommentCol">'+
+						                           '<input type="text" value="" class="form-control tip cancelItemComment" id="add_item_wise_cancel_comment" placeholder="Add any Comment" onfocus="getPossibleSuggestions(this)" index-data="'+t+'"/>'+
+						                           '<div id="itemCancellationEasyPick" class="itemCancellationEasyPickHolder noDisplay">'+
+						                              '<button onclick="addCancellationComment(this)">Guest Complained</button>'+
+						                              '<button onclick="addCancellationComment(this)">Guest Requested</button>'+
+						                              '<button onclick="addCancellationComment(this)">Guest wanted Replacement</button>'+
+						                              '<button onclick="addCancellationComment(this)">Item not Available</button>'+
+						                           '</div>'+
+						                        '</td>'+
+						                     '</tr>';  	
+
+						  	t++;
+						  }
+
+						  document.getElementById("itemCancellationReasonContent").innerHTML = '<colgroup width="40%"></colgroup> <colgroup width="60%"></colgroup>' + renderContent;
+						  var allInputs = $('#itemCancellationReasonContent .cancelItemComment');
+						  $(allInputs[0]).focus();
+
+
+						  var orderData = {
+							  "dateStamp": moment(kot.date, 'DD-MM-YYYY').format('YYYYMMDD'),
+							  "KOTNumber": kot.KOTNumber,
+							  "customerName": kot.customerName,
+							  "customerMobile": kot.customerMobile,
+							  "guestCount": kot.guestCount,
+							  "stewardName": kot.stewardName,
+							  "stewardCode": kot.stewardCode,
+							  "adminName": loggedInStaffInfo.name,
+							  "date": kot.date,
+							  "time": getCurrentTime('TIME'),
+							  "mode": kot.orderDetails.mode,
+							  "modeType": kot.orderDetails.modeType,
+							  "table": kot.table,
+							  "itemsRemoved": item_delete_track
+						  };
+
+						  var encodedItems = encodeURI(JSON.stringify(orderData));
+						  document.getElementById("itemCancellationReasonConsent").innerHTML = '<button id="itemCancellationReasonConfirmButton" class="btn btn-default" style="font-size: 16px; color: #444; text-transform: uppercase; letter-spacing: 2px; border: none; border-radius: 0; height: 50px; width: 100%; outline: none;" onclick="saveAllCancellationReasons(\''+encodedItems+'\')">Save Comments</button>';
+                  	  
+						  var duplicateClick = false;
+
+				          var easyActionTool = $(document).on('keydown',  function (e) {
+				            if($('#itemDeleteReasonModal').is(':visible')) {
+				                 switch(e.which){
+				                  case 13:{ // Enter (Confirm)
+				                  	
+				                  	if(!duplicateClick){
+				                    	$('#itemCancellationReasonConfirmButton').click();
+				                    	easyActionTool.unbind();
+				                    }
+				                    
+				                    duplicateClick = true;
+
+				                    break;
+				                  }
+				                 }
+				            }
+				          });
+
+                  	  }
 
                   },
                   error: function(data) {

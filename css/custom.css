@@ -6816,3 +6816,60 @@ input:checked + .slider:before {
     padding: 1px 8px;
     display: none;
 }
+
+.noDisplay{
+  display: none !important;
+}
+
+.itemCancelReasonNameTag{
+    color: #FFF;
+    background: #e62e18;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 18px;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    float: right;
+    max-width: 280px;
+}
+
+.cancelItemComment{
+    border: none;
+    border-bottom: 1px solid;
+    font-size: 18px;
+    padding: 6px 0px;
+    color: #e62e18;
+}
+
+.itemCancelReasonNameCol{
+    text-align: right !important;
+    padding: 15px 5px !important;
+    border: none !important;
+}
+
+.itemCancelReasonCommentCol{
+    padding: 15px 5px 15px 5px !important;
+    border: none !important;
+}
+
+.itemCancellationEasyPickHolder{
+    position: fixed;
+    background: #605ca8;
+    padding: 5px;
+    width: 320px;
+    margin-top: 2px;
+    border-radius: 4px;
+}
+
+.itemCancellationEasyPickHolder button{
+    background: #FFF;
+    border: none;
+    padding: 4px 8px;
+    margin: 0 4px 4px 0;
+    border-radius: 4px;
+    color: #46428c;
+    outline: none;
+    box-shadow: none;  
+}

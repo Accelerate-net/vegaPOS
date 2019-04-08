@@ -3,8 +3,6 @@ Fixes for Version 1:
 > Improve Sales Summary (Excel Format)
 > Cancelled Bills Summary - Excel Format
 > Cloud Report generation (from account office)
-> Payment modes visible even after mode gets deleted (read from bills)
-> Refund Issue (reduce refund from billing mode/payment mode summary) - neglected as of now 
 > Payment mode summary:
 	-- show SGST CGST separate..
 
@@ -13,6 +11,7 @@ Moved to Version 2:
 1. PHONE DELIVERY (Send SMS Updates to customers)
 2. Take measures to avoid duplicating of online orders (Disconnected ==> Dont accept/punch order)
 3. Spotlight (Customers pending)
+4. Payment modes visible even after mode gets deleted (read from bills)
 5. Add Order Source to Bill (add to Filter Invoices and Cancelled Invoices also)
 6. User Selection pop up on default screen (idle screen)
 8. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
