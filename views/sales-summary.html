@@ -23,7 +23,7 @@
 
                                <div class="row" style="margin-top: 25px">
                                   <div class="col-sm-12">
-                                <button class="btn-primary btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSingleClickReport()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text"></i></tag>Overall Report</button>
+                                <button class="btn-primary btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSingleClickReport()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text"></i></tag>Generate Sales Report</button>
                                   </div>
                                </div>
 
@@ -35,60 +35,61 @@
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchOverAllTurnOver()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text-o"></i></tag>Sales Summary</button>
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchOverAllTurnOver()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-star"></i></tag>Quick Summary</button>
                                   </div>
                                </div>
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSalesSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text-o"></i></tag>Summary by Billing Modes</button>
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSalesSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-pie-chart"></i></tag>Summary by Billing Modes</button>
                                   </div>
                                </div>
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchPaymentModeWiseSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text-o"></i></tag>Summary by Payment Modes</button>
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchPaymentModeWiseSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-pie-chart"></i></tag>Summary by Payment Modes</button>
                                   </div>
                                </div>
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSessionWiseSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text-o"></i></tag>Summary by Sessions</button>
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchSessionWiseSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-pie-chart"></i></tag>Summary by Sessions</button>
                                   </div>
                                </div>
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchTimeSlotWiseSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text-o"></i></tag>Summary by Time Slots</button>
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchTimeSlotWiseSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-bar-chart"></i></tag>Hourly Sales Trend</button>
                                   </div>
                                </div>
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchDiscountSaleSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-file-text-o"></i></tag>Discount Summary</button>
-                                  </div>
-                               </div>
-
-
-                               <div class="row" style="margin-top: 10px">
-                                  <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchRefundSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-list-ul"></i></tag>Refund Summary</button>
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchDiscountSaleSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-bars"></i></tag>Discounts Offered</button>
                                   </div>
                                </div>
 
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchCancellationSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-list-ul"></i></tag>Bill Cancellations</button>
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchRefundSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-bars"></i></tag>Refunds Issued</button>
                                   </div>
                                </div>
-
 
                                <div class="row" style="margin-top: 10px">
                                   <div class="col-sm-12">
-                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchItemSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-list-ul"></i></tag>Item Wise Sales</button>
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchItemSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-bars"></i></tag>Item Wise Sales</button>
                                   </div>
                                </div>
+
+                               <div class="row" style="margin-top: 10px">
+                                  <div class="col-sm-12">
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchCancellationSummary()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-exclamation-circle"></i></tag>Bill Cancellations</button>
+                                  </div>
+                               </div>
+
+
+                               
 
 
                            </div>
