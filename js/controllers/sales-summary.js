@@ -3853,6 +3853,370 @@ function fetchRefundSummaryCallback(index, modes, fromDate, toDate, grandSum, gr
 }
 
 
+//ITEM CANCELLATION REPORT
+function fetchItemCancellations(){
+
+	/*
+		Top Items cancelled from different orders in given date range
+	*/
+
+
+	$( "#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_itemCancellationSummary").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+	document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9; text-align: center" class="blink_me">Please Wait! The Report is being generated.</p>';
+	document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+
+	document.getElementById("itemCancellationSummaryReportOptions").innerHTML = ''+
+									'<div id="itemCancellationSummaryReportActions" style="display: none">'+
+                                        '<button data-hold="" text-hold="" id="itemCancellationSummaryReportAction_Download" onclick="itemCancellationReportActionDownload()" style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-download"></i> Download</button>'+
+                                      '</div></center>';	
+
+	
+
+	showLoading(50000, 'Generating Report...');
+
+	$.ajax({
+		type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_item_cancellations/_design/cancellation-summary/_view/itemscount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
+		timeout: 50000,
+		success: function(data) {
+
+			hideLoading();
+
+			var itemsList = data.rows;
+			if(itemsList.length == 0){
+				document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items cancelled on the given dates</p>';
+				document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+				return '';
+			}
+
+			reduceByDate(itemsList);
+			
+			function reduceByDate(listOfItems){
+				//Reduce Function 
+				var reduced_list = listOfItems.reduce(function (accumulator, item) {
+					if(accumulator[item.key[2]]){
+						accumulator[item.key[2]].count += item.value;
+					}
+					else{
+						accumulator[item.key[2]] = {
+							"category": item.key[1],
+							"count": item.value
+						};
+					}
+
+				  	return accumulator;
+				}, {});
+
+				var formattedList = [];
+				var keysCount = Object.keys(reduced_list);
+
+				var counter = 1;
+				for (x in reduced_list) {
+				    formattedList.push({
+				    	"name": x,
+				    	"count": reduced_list[x].count,
+				    	"category": reduced_list[x].category
+				    });
+
+				    if(counter == keysCount.length){ //last iteration
+				    	// Ascending: Sorting
+				    	formattedList.sort(function(obj1, obj2) {
+		                	return obj2.count - obj1.count;
+		              	});
+
+				    	renderMostCancelledItems(formattedList);
+				    }
+
+				    counter++;
+				}
+				
+			}
+
+			function renderMostCancelledItems(itemsFilteredList){
+
+				if(itemsFilteredList.length > 0){ 
+
+					var upper_limit = 15;
+					if(itemsFilteredList.length < 15){ //max of 20 items
+						upper_limit = itemsFilteredList.length;
+					}
+
+					var renderContent = '';
+					for(var i = 0; i < upper_limit; i++){
+						renderContent += '<tr> <td><i class="fa fa-circle" style="color: #dd4b39; font-size: 12px; margin-right: 10px; top: -1px; position: relative;"></i><b style="color: #dd4b39; font-size: 17px; font-weight: 500; }">'+itemsFilteredList[i].name+(itemsFilteredList[i].category != '' && itemsFilteredList[i].category != 'UNKNOWN' ? '<tag style="color: gray; margin-left: 6px; font-size: 12px;">'+itemsFilteredList[i].category+'</tag>' : '')+'</b></td> <td class="summaryLine3" style="text-align: center; color: #dd4b39">'+itemsFilteredList[i].count+'</td> </tr>';
+					}
+
+					document.getElementById("summaryRender_itemCancellationSummary").innerHTML = renderContent;
+					document.getElementById("completeItemCancellationSummaryButton").style.display = 'inline-block';
+				} 
+				else{ 
+					document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items cancelled on the given dates</p>';
+					document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+				}
+			}
+		},
+		error: function(data){
+			hideLoading();
+			document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Cancellations Summary on the given dates</p>';
+			showToast('Not Found Error: Item Cancellations data not found. Please contact Accelerate Support.', '#e74c3c');
+			document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+			return '';								    	
+		}
+	});  
+
+}
+
+
+
+function generateOverallItemCancellationReport(){
+	/*
+		Items cancelled from orders in given date range
+	*/
+
+	$( "#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_itemCancellationSummary").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+	document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9; text-align: center" class="blink_me">Please Wait! The Report is being generated.</p>';
+	document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+	document.getElementById("itemCancellationSummaryReportActions").style.display = 'none';
+
+
+	showLoading(50000, 'Generating Report...');
+
+	$.ajax({
+		type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_item_cancellations/_design/cancellation-summary/_view/fetchall?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]&descending=false',
+		timeout: 50000,
+		success: function(data) {
+
+			hideLoading();
+
+			var itemsList = data.rows;
+
+			if(itemsList.length == 0){
+				document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items cancelled on the given dates</p>';
+				document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+				return '';
+			}
+
+
+						//render data
+						var renderContent = '';
+
+						var n = 0;
+						while(itemsList[n]){
+
+							var cancelledData = itemsList[n].value;
+							
+							for(var i = 0; i < cancelledData.itemsRemoved.length; i++){
+								renderContent += ''+
+										'<tr>'+
+											'<td>'+
+												'<tag style="font-size: 12px">'+moment(cancelledData.time, 'hhmm').format('hh:mm A')+'</tag>'+
+												'<tag style="color: #9c9c9c; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+											'</td>'+
+											'<td style="font-weight: bold; font-family: \'Oswald\'; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].qty+' <tag style="font-weight: 300;">x</tag></td>'+
+											'<td>'+
+												'<tag style="font-weight: 600; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].name+'</tag>'+
+												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.itemsRemoved[i].comments+'</tag>'+
+											'</td>'+
+											'<td>'+(cancelledData.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.mode)+'</td>'+
+											'<td>'+
+												'<tag>by '+cancelledData.stewardName+'</tag>'+
+												'<tag style="display: block; font-size: 11px; color: #999;">'+cancelledData.adminName+' approved</tag>'+
+											'</td>'+
+										'</tr>';
+							}
+
+							n++;
+						}
+					
+						document.getElementById("summaryRender_itemCancellationSummary").innerHTML = renderContent;
+						document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+						document.getElementById("itemCancellationSummaryReportActions").style.display = 'block';
+					
+
+						//Build Content for actions
+						generateItemReportContentDownload();
+
+						function generateItemReportContentDownload(){
+
+
+							//Get staff info.
+							var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
+							
+							if(jQuery.isEmptyObject(loggedInStaffInfo)){
+								loggedInStaffInfo.name = 'Staff';
+								loggedInStaffInfo.code = '0000000000';
+							}	
+
+
+							var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
+								
+							if(reportInfo_branch == ''){
+								showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+								return '';
+							}
+
+
+							var temp_address_modified = (window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '') + ' - ' + (window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '');  
+
+							var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
+
+							var reportInfo_admin = loggedInStaffInfo.name;
+							var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
+							var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : temp_address_modified;
+
+
+
+							var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
+
+							var reportInfo_title = 'Item Cancellations on <b>'+fancy_from_date+'</b>';
+							var temp_report_title = 'Item Cancellations on '+fancy_from_date;
+							if(fromDate != toDate){
+								fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
+								var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
+
+								reportInfo_title = 'Item Cancellations from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
+								temp_report_title = 'Item Cancellations from '+fancy_from_date+' to '+fancy_to_date;
+							}
+
+						    var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
+
+
+							var quickRendererContent = '';
+							var n = 0;
+							while(itemsList[n]){ 
+
+								var cancelledData = itemsList[n].value;
+								
+								for(var i = 0; i < cancelledData.itemsRemoved.length; i++){
+									quickRendererContent += ''+
+											'<tr>'+
+												'<td style="padding: 6px 0">'+
+													'<tag style="font-size: 12px">'+moment(cancelledData.time, 'hhmm').format('hh:mm A')+'</tag>'+
+													'<tag style="color: #9c9c9c; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+												'</td>'+
+												'<td style="padding: 6px 0; font-weight: bold; font-family: \'Oswald\'; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].qty+' <tag style="font-weight: 300;">x</tag></td>'+
+												'<td style="padding: 6px 0">'+
+													'<tag style="font-size: 13px; font-weight: 400; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].name+'</tag>'+
+													'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.itemsRemoved[i].comments+'</tag>'+
+												'</td>'+
+												'<td style="text-align: center; padding: 6px 0; font-size: 12px;">'+(cancelledData.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.mode)+'</td>'+
+												'<td style="text-align: center; padding: 6px 0; font-size: 12px;">'+cancelledData.stewardName+'</td>'+
+												'<td style="text-align: center; padding: 6px 0; font-size: 12px;">'+cancelledData.adminName+'</td>'+
+											'</tr>';
+								}
+
+								n++;
+							}
+
+
+							var downloadRenderContent = ''+
+																  '<div class="summaryTableSectionHolder">'+
+															        '<div class="summaryTableSection">'+
+															           '<div class="tableQuickHeader">'+
+															              '<h1 class="tableQuickHeaderText">Item Cancellations</h1>'+
+															           '</div>'+
+															           '<div class="tableQuick">'+
+															              '<table style="width: 100%">'+
+															              	'<tr>'+
+															              		'<td style="color: #FFF; background: #3c5163; padding: 10px 0 10px 4px; font-size: 15px;"></td>'+
+															              		'<td colspan="2" style="color: #FFF; background: #3c5163; padding: 10px 0; font-size: 15px;">Item</td>'+
+															              		'<td style="text-align: center; color: #FFF; background: #3c5163; padding: 10px 0; font-size: 15px;">Source</td>'+
+															              		'<td style="text-align: center; color: #FFF; background: #3c5163; padding: 10px 0; font-size: 15px;">Captain</td>'+
+															              		'<td style="text-align: center; color: #FFF; background: #3c5163; padding: 10px 0; font-size: 15px;">Approver</td>'+
+															              	'<tr>'+ quickRendererContent+
+															              '</table>'+
+															           '</div>'+
+															        '</div>'+
+															      '</div>';
+
+
+							var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+
+						    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+						    
+						    var finalReport_downloadContent = cssData+
+							    '<body>'+
+							      '<div class="mainHeader">'+
+							         '<div class="headerLeftBox">'+
+							            '<div id="logo">'+
+							               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
+							            '</div>'+
+							            '<p class="headerAddress">'+reportInfo_address+'</p>'+
+							         '</div>'+
+							         '<div class="headerRightBox">'+
+							            '<h1 class="headerBranch">'+reportInfo_branch+'</h1>'+
+							            '<p class="headerAdmin">'+reportInfo_admin+'</p>'+
+							            '<p class="headerTimestamp">'+reportInfo_time+'</p>'+
+							         '</div>'+
+							      '</div>'+
+							      '<div class="introFacts" style="min-height: 0; margin-bottom: -25px;">'+
+							         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
+							      '</div>'+
+							      downloadRenderContent +
+							      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
+							         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
+							      '</div>'+
+							    '</body>';
+
+								var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
+								$('#itemCancellationSummaryReportAction_Download').attr('data-hold', finalContent_EncodedDownload);
+
+								var finalContent_EncodedText = encodeURI(fancy_report_title_name);
+								$('#itemCancellationSummaryReportAction_Download').attr('text-hold', finalContent_EncodedText);
+
+						}
+
+			
+		},
+		error: function(data){
+			hideLoading();
+			document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Cancellation Summary on the given dates</p>';
+			showToast('Not Found Error: Item Cancellations data not found. Please contact Accelerate Support.', '#e74c3c');
+			return '';								    	
+		}
+	});  
+}
+
+
+//ITEM REPORT ACTIONS
+function itemCancellationReportActionDownload(){
+	
+	var htmlContentEncoded = $('#itemCancellationSummaryReportAction_Download').attr('data-hold');
+	var htmlContent = decodeURI(htmlContentEncoded);
+
+	var textContentEncoded = $('#itemCancellationSummaryReportAction_Download').attr('text-hold');
+	var textContent = decodeURI(textContentEncoded);
+
+	showToast('Downloading Report', '#27ae60');
+	generatePDFReport(htmlContent, textContent);
+}
+
+
+
+
 
 //ITEM WISE REPORT
 function fetchItemSummary(){
@@ -3984,7 +4348,6 @@ function generateOverallItemReport(){
 	/*
 		Items sold in given date range
 	*/
-
 
 	$( "#summaryRenderArea" ).children().css( "display", "none" );
 	document.getElementById("summaryRenderArea_itemSummary").style.display = "block";

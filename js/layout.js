@@ -141,8 +141,8 @@ function renderSideNavigation(){
                                 '<a href="#"><i class="fa fa-circle-o"></i>Manage Menu</a></li>'+
                             '<li onclick="renderPage(\'photos-manager\', \'Photos Manager\')">'+
                                 '<a href="#"><i class="fa fa-circle-o"></i>Photos Manager</a></li>'+
-                            '<li onclick="renderPage(\'sales-summary\', \'Sales Summary\')">'+
-                                '<a href="#"><i class="fa fa-circle-o"></i>Sales Summary</a></li>'+
+                            '<li onclick="renderPage(\'sales-summary\', \'Reports & Summary\')">'+
+                                '<a href="#"><i class="fa fa-circle-o"></i>Reports & Summary</a></li>'+
                             '<li onclick="renderPage(\'table-layout\', \'Table Layout\')">'+
                                 '<a href="#"><i class="fa fa-circle-o"></i>Table Layout</a></li>'+
                         '</ul>'+

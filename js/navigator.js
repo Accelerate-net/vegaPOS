@@ -173,7 +173,7 @@ function renderPage(pageReference, title){
 				break;
 			}				
 			case 'sales-summary':{
-				title = 'Sales Summary';
+				title = 'Reports & Summary';
 				break;
 			}
 			case 'manage-menu':{

@@ -88,6 +88,12 @@
                                   </div>
                                </div>
 
+                               <div class="row" style="margin-top: 10px">
+                                  <div class="col-sm-12">
+                                <button class="btn-default btn btn-block" style="text-transform: none; text-align: left" onclick="fetchItemCancellations()"><tag style="width: 20px; display: inline-block; text-align: center; margin-right: 10px;"><i class="fa fa-exclamation-circle"></i></tag>Item Cancellations</button>
+                                  </div>
+                               </div>
+
 
                                
 
@@ -446,6 +452,34 @@
 
                         </div>
                      </div>
+
+
+
+                     <div class="box box-primary" id="summaryRenderArea_itemCancellationSummary" style="display: none">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Most Cancelled Items</h3>
+                              <button class="btn-success btn btn-sm" style="display: inline-block; position: absolute; top: 11px; right: 0;" id="completeItemCancellationSummaryButton" onclick="generateOverallItemCancellationReport()">Complete Report</button>
+                              <div id="itemCancellationSummaryReportOptions" style="display: block; position: absolute; top: 10px; right: -5px;"></div>
+                           </div>
+
+                            <div class="row" style="margin: 0">
+                                <div class="col-sm-12" style="padding: 0">
+                                     <div class="table-responsive">
+                                        <table class="table" style="margin: 0">
+                                          <tbody id="summaryRender_itemCancellationSummary">
+
+                                          </tbody>                                 
+                                        </table>
+                                     </div>
+                                </div>
+                            </div>
+
+                        </div>
+                     </div>
+
+
+
 
 
                   </div>
