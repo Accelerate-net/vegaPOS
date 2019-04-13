@@ -6791,6 +6791,7 @@ input:checked + .slider:before {
     text-align: center;
     position: relative;
     border-radius: 6px;
+    margin-top: 20px;
 }
 
 .modalPrintButton{

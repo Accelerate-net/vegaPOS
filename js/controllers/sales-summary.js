@@ -87,6 +87,8 @@ function downloadExcelReport(type){
 							netSalesWorth --> totalPaid - extras - tips + discount + roundoff;
 					*/
 
+					var netSalesWorth = 0;
+
 
 					//Step 1: Total Paid Amount
 					function excelReportTotalPaidAmount(){	
@@ -105,9 +107,12 @@ function downloadExcelReport(type){
 								}
 
 								excelReportData_Overall.push({
-									"name": "Total Paid Amount",
+									"name": "Total Sales",
 									"value": temp_totalPaid
 								});
+
+								netSalesWorth = temp_totalPaid;
+
 							
 								//Step 2: Total Charges collected
 								excelReportChargesCollected();
@@ -186,6 +191,8 @@ function downloadExcelReport(type){
 															"name": modes[0].name,
 															"value": temp_sum
 														})
+
+														netSalesWorth -= temp_sum;
 													
 												    	//Check if next mode exists...
 												    	if(modes[1]){
@@ -266,6 +273,8 @@ function downloadExcelReport(type){
 												"name": modes[index].name,
 												"value": temp_sum
 											})
+
+											netSalesWorth -= temp_sum;
 											
 									    	//Check if next mode exists...
 									    	if(modes[index+1]){
@@ -315,7 +324,9 @@ function downloadExcelReport(type){
 								excelReportData_Overall.push({
 									"name": 'Discount',
 									"value": temp_discountedOrdersSum
-								})		
+								})	
+
+								netSalesWorth += temp_discountedOrdersSum;	
 								
 								//Step 4: Total Round Off made
 								excelReportRoundOffMade();
@@ -351,6 +362,8 @@ function downloadExcelReport(type){
 									"value": temp_roundOffSum
 								})	
 
+								netSalesWorth += temp_roundOffSum;
+
 								//Step 5: Total Tips received
 								excelReportTipsReceived();
 
@@ -384,6 +397,8 @@ function downloadExcelReport(type){
 									"name": 'Tips',
 									"value": temp_tipsSum
 								})
+
+								netSalesWorth -= temp_tipsSum;
 
 								//Step 6: Total Refunds Issued
 								excelReportRefundsIssued();
@@ -420,7 +435,22 @@ function downloadExcelReport(type){
 									"name": 'Refunds',
 									"value": temp_refundSum
 								})
+
+
+								/*
+									Process Figures
+								*/
+
+								var grandTotalPaid = excelReportData_Overall[0].value;
+								excelReportData_Overall[0].value = netSalesWorth; //Gross Sales
 										
+
+								excelReportData_Overall.push({
+									"name": 'Net Sales',
+									"value": grandTotalPaid - temp_refundSum
+								})
+
+
 
 								//Step 7: Process Report (Final)
 								excelReportFinal();
@@ -503,20 +533,58 @@ function downloadExcelReport(type){
 											temp_sum = data.rows[0].value.sum;
 										}
 
-										excelReportData_BillingModes.push({
-									   		"name": modes[0].name,
-									   		"value": temp_sum
-										})
+
+										//Check for any refunds in this mode.
+										$.ajax({
+											type: 'GET',
+										    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode_refundedamounts?startkey=["'+modes[0].name+'","'+request_date+'"]&endkey=["'+modes[0].name+'","'+request_date+'"]',
+										    timeout: 10000,
+											success: function(data) {
+
+												var refunded_sum = 0;
+												if(data.rows.length > 0){
+													refunded_sum = data.rows[0].value.sum;
+												}
 
 
-								    	//Check if next mode exists...
-								    	if(modes[1]){
-								    		excelReportSummaryByBillingModesCallback(1, modes);
-								    	}
-								    	else{
-								    		//Go to next LEVEL THREE
-								    		excelReportSummaryByPaymentModes();
-								    	}
+
+
+												excelReportData_BillingModes.push({
+											   		"name": modes[0].name,
+											   		"value": temp_sum - refunded_sum
+												})
+
+
+										    	//Check if next mode exists...
+										    	if(modes[1]){
+										    		excelReportSummaryByBillingModesCallback(1, modes);
+										    	}
+										    	else{
+
+													//Process Figures
+										    		var billingModesGrandTotal = 0;
+													for(var i = 0; i < excelReportData_BillingModes.length; i++){
+													    billingModesGrandTotal += excelReportData_BillingModes[i].value;
+													}
+
+													excelReportData_BillingModes.push({
+														"name": "Total by Billing Modes",
+														"value": billingModesGrandTotal
+												   	})
+
+
+										    		//Go to next LEVEL THREE
+										    		excelReportSummaryByPaymentModes();
+										    	}
+
+
+											},
+											error: function(data){
+												document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';													    	
+											}
+										});  
+
+
 
 								    },
 								    error: function(data){
@@ -551,19 +619,57 @@ function downloadExcelReport(type){
 											temp_sum = data.rows[0].value.sum;
 										}
 
-										excelReportData_BillingModes.push({
-									   		"name": modes[index].name,
-									   		"value": temp_sum
-										})
 
-								    	//Check if next mode exists...
-								    	if(modes[index+1]){
-								    		excelReportSummaryByBillingModesCallback(index+1, modes);
-								    	}
-								    	else{
-								    		//Go to next LEVEL THREE
-								    		excelReportSummaryByPaymentModes();
-								    	}
+
+										//Check for any refunds in this mode.
+										$.ajax({
+											type: 'GET',
+										    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode_refundedamounts?startkey=["'+modes[index].name+'","'+request_date+'"]&endkey=["'+modes[index].name+'","'+request_date+'"]',
+										    timeout: 10000,
+											success: function(data) {
+
+												var refunded_sum = 0;
+												if(data.rows.length > 0){
+													refunded_sum = data.rows[0].value.sum;
+												}
+
+
+												excelReportData_BillingModes.push({
+											   		"name": modes[index].name,
+											   		"value": temp_sum - refunded_sum
+												})
+
+
+										    	//Check if next mode exists...
+										    	if(modes[index+1]){
+										    		excelReportSummaryByBillingModesCallback(index+1, modes);
+										    	}
+										    	else{
+
+													//Process Figures
+										    		var billingModesGrandTotal = 0;
+													for(var i = 0; i < excelReportData_BillingModes.length; i++){
+													    billingModesGrandTotal += excelReportData_BillingModes[i].value;
+													}
+
+													excelReportData_BillingModes.push({
+														"name": "Total by Billing Modes",
+														"value": billingModesGrandTotal
+												   	})
+
+
+
+										    		//Go to next LEVEL THREE
+										    		excelReportSummaryByPaymentModes();
+										    	}
+
+
+											},
+											error: function(data){
+												document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';													    	
+											}
+										});  
+
 
 
 								    },
@@ -644,20 +750,59 @@ function downloadExcelReport(type){
 													    temp_sum += data.rows[0].value.sum;
 													}
 
-										    		excelReportData_PaymentModes.push({
-												   		"name": modes[0].name,
-												   		"value": temp_sum
-												   	})
-										    											
 
-											    	//Check if next mode exists...
-											    	if(modes[1]){
-											    		excelReportSummaryByPaymentModesCallback(1, modes);
-											    	}
-											    	else{
-											    		//Go to next LEVEL FOUR
-											    		levelFour();
-											    	}
+
+
+													//Check if any refunds issued 
+													$.ajax({
+														type: 'GET',
+														url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_refundedamounts?startkey=["'+modes[0].code+'","'+request_date+'"]&endkey=["'+modes[0].code+'","'+request_date+'"]',
+														timeout: 10000,
+														success: function(data) {
+
+															var refund_amount = 0;
+															if(data.rows.length > 0){
+															    refund_amount = data.rows[0].value.sum;
+															}
+
+
+												    		excelReportData_PaymentModes.push({
+														   		"name": modes[0].name,
+														   		"value": temp_sum - refund_amount
+														   	})
+												    											
+
+													    	//Check if next mode exists...
+													    	if(modes[1]){
+													    		excelReportSummaryByPaymentModesCallback(1, modes);
+													    	}
+													    	else{
+
+													    		//Process Figures
+													    		var paymentGrandTotal = 0;
+													    		for(var i = 0; i < excelReportData_PaymentModes.length; i++){
+													    			paymentGrandTotal += excelReportData_PaymentModes[i].value;
+													    		}
+
+													    		excelReportData_PaymentModes.push({
+															   		"name": "Total by Payment Modes",
+															   		"value": paymentGrandTotal
+															   	})
+
+
+													    		//Go to next LEVEL FOUR
+													    		levelFour();
+													    	}
+
+
+														},
+														error: function(data){
+															document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+														}
+													}); 
+
+
+
 
 												},
 												error: function(data){
@@ -725,20 +870,55 @@ function downloadExcelReport(type){
 										    temp_sum += data.rows[0].value.sum;
 										}
 
-							    		excelReportData_PaymentModes.push({
-									   		"name": modes[index].name,
-									  		"value": temp_sum
-									    })
-							    			
 
-								    	//Check if next mode exists...
-								    	if(modes[index+1]){
-								    		excelReportSummaryByPaymentModesCallback(index+1, modes);
-								    	}
-								    	else{
-								    		//Go to next LEVEL FOUR
-								    		levelFour();
-								    	}
+
+													//Check if any refunds issued 
+													$.ajax({
+														type: 'GET',
+														url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_refundedamounts?startkey=["'+modes[index].code+'","'+request_date+'"]&endkey=["'+modes[index].code+'","'+request_date+'"]',
+														timeout: 10000,
+														success: function(data) {
+
+															var refund_amount = 0;
+															if(data.rows.length > 0){
+															    refund_amount = data.rows[0].value.sum;
+															}
+
+
+												    		excelReportData_PaymentModes.push({
+														   		"name": modes[index].name,
+														   		"value": temp_sum - refund_amount
+														   	})
+												    											
+
+													    	//Check if next mode exists...
+													    	if(modes[index+1]){
+													    		excelReportSummaryByPaymentModesCallback(index+1, modes);
+													    	}
+													    	else{
+
+													    		//Process Figures
+													    		var paymentGrandTotal = 0;
+													    		for(var i = 0; i < excelReportData_PaymentModes.length; i++){
+													    			paymentGrandTotal += excelReportData_PaymentModes[i].value;
+													    		}
+
+													    		excelReportData_PaymentModes.push({
+															   		"name": "Total by Payment Modes",
+															   		"value": paymentGrandTotal
+															   	})
+
+
+													    		//Go to next LEVEL FOUR
+													    		levelFour();
+													    	}
+
+
+														},
+														error: function(data){
+															document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+														}
+													}); 
 
 									},
 									error: function(data){
@@ -853,21 +1033,76 @@ function downloadExcelReport(type){
 
 							var header = []; //main head
 							header.push(["SALES SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title].concat(main_header_title_nulls));
+							
+
+
+							//Sub Headings
+							var sub_heading = ["Date", "", ""];
+							for(var a = 0; a < excelReportData_Overall.length; a++){
+								if(a == 0)
+									sub_heading.push("Overall Summary");
+								else
+									sub_heading.push("");
+							}
+
+							for(var a = 0; a < excelReportData_BillingModes.length; a++){
+								if(a == 0)
+									sub_heading.push("Summary by Billing Modes");
+								else
+									sub_heading.push("");
+							}
+
+							for(var a = 0; a < excelReportData_PaymentModes.length; a++){
+								if(a == 0)
+									sub_heading.push("Summary by Payment Modes");
+								else
+									sub_heading.push("");
+							}
+
+
+
+							header.push(sub_heading);
 							header.push(masterRowsHeadings);
+
 
 							var data = header.concat(masterRowsData); //all other data
 
-							/* merge cells A1:I1 */
-							var mergeBoundaryIndex = header[1].length - 1;
-							var mergeBoundary = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
-							var merge = XLSX.utils.decode_range("A1:"+mergeBoundary[mergeBoundaryIndex]);
+
+							/* CELL MERGES */
+
+							var mergeList = [];
+							
+							var mainHeadingMergeIndex = header[1].length - 1;
+							var mainHeadingMergeRange = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
+							mergeList[0] = XLSX.utils.decode_range("A1:"+mainHeadingMergeRange[mainHeadingMergeIndex]);
+							
+							//A1.s = {fill:{fgColor: {rgb:"86BC25"}}};
+
+							var subHeadingMergeRange = ["A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2", "I2", "J2", "K2", "L2", "M2", "N2", "O2", "P2", "Q2", "R2", "S2", "T2", "U2", "V2", "W2", "X2", "Y2", "Z2", "AA2", "AB2", "AC2", "AD2", "AE2", "AF2", "AG2", "AH2", "AI2", "AJ2"];
+							
+							mergeList[1] = XLSX.utils.decode_range("A2:C2");
+							
+							var overall_end_index = 3 + (excelReportData_Overall.length - 1);
+							mergeList[2] = XLSX.utils.decode_range("D2:" + subHeadingMergeRange[overall_end_index]);
+
+							var billing_end_index = 3 + (excelReportData_Overall.length) + (excelReportData_BillingModes.length - 1);
+							mergeList[3] = XLSX.utils.decode_range(subHeadingMergeRange[overall_end_index + 1] +':'+ subHeadingMergeRange[billing_end_index]);
+						
+							var payments_end_index = 3 + (excelReportData_Overall.length) + (excelReportData_BillingModes.length) + (excelReportData_PaymentModes.length - 1);
+							mergeList[4] = XLSX.utils.decode_range(subHeadingMergeRange[billing_end_index + 1] +':'+ subHeadingMergeRange[payments_end_index]);
+							
 
 							/* generate worksheet */
 							var ws = XLSX.utils.aoa_to_sheet(data);
 
 							/* add merges */
 							if(!ws['!merges']) ws['!merges'] = [];
-							ws['!merges'].push(merge);
+
+							for(var w = 0; w < mergeList.length; w++){
+								ws['!merges'].push(mergeList[w]);
+							}
+							
+							
 
 							/* generate workbook */
 							var wb = XLSX.utils.book_new();
@@ -940,18 +1175,21 @@ function downloadExcelReport(type){
 
 			function dateWiseAllInvoicesExcel(request_date_start, request_date_end, billingParameters){
 
-				//format the date to DD-MM-YYYY format
-				request_date_start = moment(request_date_start, 'YYYYMMDD').format('DD-MM-YYYY');
-				request_date_end = moment(request_date_end, 'YYYYMMDD').format('DD-MM-YYYY');
-
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/showall?startkey=["'+request_date_start+'"]&endkey=["'+request_date_end+'"]&descending=false&include_docs=true',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/fetchall?startkey=["'+request_date_start+'"]&endkey=["'+request_date_end+'"]&descending=false&include_docs=true',
 					timeout: 10000,
 					success: function(data) {
 						
 						var resultsList = data.rows;
 						var invoiceList = [];
+
+						if(resultsList.length == 0){
+							hideLoading();
+							showToast('Warning: There are no invoices found on the given dates.', '#e67e22');
+							return "";
+						}
+
 
 			            resultsList.sort(function(doc1, doc2) { //sort by bill number
 							if (doc1.id < doc2.id)
@@ -1069,10 +1307,10 @@ function downloadExcelReport(type){
 				      		}
 
 							var report_date_range = request_date_start;
-							var report_date_title = ' on ' + moment(request_date_start, 'DD-MM-YYYY').format('D MMM, YYYY');
+							var report_date_title = ' on ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY');
 							if(request_date_start != request_date_end){
 								report_date_range += '_to_' + request_date_end;
-								report_date_title = ' from ' + moment(request_date_start, 'DD-MM-YYYY').format('D MMM, YYYY') + ' to ' + moment(request_date_end, 'DD-MM-YYYY').format('D MMM, YYYY');
+								report_date_title = ' from ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY') + ' to ' + moment(request_date_end, 'YYYYMMDD').format('D MMM, YYYY');
 							}
 
 
@@ -1104,7 +1342,7 @@ function downloadExcelReport(type){
 
 							/* generate workbook */
 							var wb = XLSX.utils.book_new();
-							XLSX.utils.book_append_sheet(wb, ws, "Invoice Summary");
+							XLSX.utils.book_append_sheet(wb, ws, "All Invoices");
 
 							/* generate file and download */
 							const wbout = XLSX.write(wb, { type: "array", bookType: "xlsx" });
@@ -1124,6 +1362,378 @@ function downloadExcelReport(type){
 
 			break;
 		} // end - INVOICE_REPORT
+
+
+		case "BILL_CANCELLATIONS":{
+
+			showLoading(50000, 'Generating Report...');
+
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
+		                  },
+		      "fields"    : ["identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
+
+			          	var params = data.docs[0].value;
+
+			          	dateWiseAllInvoicesExcel(fromDate, toDate, params);	
+
+		          }
+		          else{
+		            hideLoading();
+		            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          hideLoading();
+		          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+		        
+		      },
+		      error: function(data) {
+		      	hideLoading();
+		        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+		      }
+
+		    });
+
+
+					
+
+			function dateWiseAllInvoicesExcel(request_date_start, request_date_end, billingParameters){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/fetchall?startkey=["'+request_date_start+'"]&endkey=["'+request_date_end+'"]&descending=false&include_docs=true',
+					timeout: 10000,
+					success: function(data) {
+						
+						var resultsList = data.rows;
+						var invoiceList = [];
+						
+						if(resultsList.length == 0){
+							hideLoading();
+							showToast('Warning: There are no cancelled invoices found on the given dates.', '#e67e22');
+							return "";
+						}
+
+			            resultsList.sort(function(doc1, doc2) { //sort by bill number
+							if (doc1.id < doc2.id)
+    							return -1;
+  
+  							if (doc1.id > doc2.id)
+    							return 1;
+  
+  							return 0;
+			            });
+
+				      	var n = 0;
+				      	while(resultsList[n]){ //iterating through each invoice
+
+				      		//Get formatted cart items
+				      		var cart_items_formatted = '';
+				      		var sub_total = 0;
+				      		for(var i = 0; i < resultsList[n].doc.cart.length; i++){
+
+				      			var current_item = resultsList[n].doc.cart[i];
+				      			var beautified_item = current_item.name;
+
+				      			sub_total += current_item.price * current_item.qty;
+
+				      			if(current_item.isCustom){
+				      				beautified_item += ' ('+current_item.variant+')';
+				      			}
+
+				      			beautified_item += ' x '+ current_item.qty;
+
+				      			if(cart_items_formatted == ''){
+				      				cart_items_formatted = beautified_item;
+				      			}
+				      			else{
+				      				cart_items_formatted += ', ' + beautified_item;
+				      			}
+				      		}
+
+
+				      		//Get extras
+				      		var all_extras = [];
+				      		for(var i = 0; i < resultsList[n].doc.extras.length; i++){
+				      			all_extras[resultsList[n].doc.extras[i].name] = resultsList[n].doc.extras[i].amount;
+				      		}
+
+				      		//Get custom extras, if any.
+				      		if(resultsList[n].doc.customExtras){
+				      			if(resultsList[n].doc.customExtras.amount != 0){
+				      				all_extras[resultsList[n].doc.customExtras.type] += resultsList[n].doc.customExtras.amount;
+				      			}
+				      		}
+
+				      		var invoice_info_extras = [];
+				      		var m = 0;
+				      		while(billingParameters[m]){
+				      			if(all_extras[billingParameters[m].name] && all_extras[billingParameters[m].name] != ''){
+				      				invoice_info_extras.push(all_extras[billingParameters[m].name]);
+				      			}
+				      			else{
+				      				invoice_info_extras.push(0);
+				      			}
+				      			m++;
+				      		}
+
+				      		
+				      		var invoice_info_basic = [
+				      			n + 1, //Sl No.
+				      			resultsList[n].doc.billNumber, //Bill Number
+				      			resultsList[n].doc.date, //Invoice Date
+				      			moment(resultsList[n].doc.date, 'DD-MM-YYYY').format('dddd'), //Day
+				      			moment(resultsList[n].doc.cancelDetails.timeCancel, 'hhmm').format('hh:mm A'), //Time
+				      			resultsList[n].doc.orderDetails.mode, //Billing Mode
+				      			resultsList[n].doc.orderDetails.modeType, //Type of Mode (DINE, PARCEL etc.)
+				      			cart_items_formatted, //items list
+				      			resultsList[n].doc.cancelDetails.status == 5 ? "Unsettled" : "Settled",
+				      			resultsList[n].doc.cancelDetails.cancelledBy, //cancelled by
+				      			resultsList[n].doc.cancelDetails.reason, // reason for cancellation
+				      			resultsList[n].doc.cancelDetails.comments, //comments
+				      			sub_total //sub_total
+				      		];
+
+				      		var invoice_info_payment = [
+				      			resultsList[n].doc.discount.amount ? resultsList[n].doc.discount.amount : 0, //Discounts 
+				      			resultsList[n].doc.calculatedRoundOff ? resultsList[n].doc.calculatedRoundOff : 0, //Round offs
+				      			resultsList[n].doc.payableAmount, //payable amount
+				      			resultsList[n].doc.totalAmountPaid, //amount paid
+				      			resultsList[n].doc.paymentMode, //mode of payment
+				      			resultsList[n].doc.refundDetails ? resultsList[n].doc.refundDetails.amount : 0, //refunded amounts
+				      			resultsList[n].doc.refundDetails ? (parseFloat((resultsList[n].doc.totalAmountPaid - resultsList[n].doc.refundDetails.amount)).toFixed(2)) : resultsList[n].doc.totalAmountPaid //gross amount
+				      		];
+
+				      		var invoice_info_formatted = invoice_info_basic.concat(invoice_info_extras);
+				      		invoice_info_formatted = invoice_info_formatted.concat(invoice_info_payment);
+
+				      		invoiceList.push(invoice_info_formatted);
+
+				      		if(n == resultsList.length - 1){ //last iteration
+
+				      			hideLoading();
+				      			showToast('Cancelled Invoices Summary generated successfully!', '#27ae60');
+
+				      			generateExcel(invoiceList, billingParameters);
+				      		}
+
+				      		n++;
+				      	}
+
+
+				      	function generateExcel(invoiceData, billingParameters){
+
+				      		var main_header_title_nulls = []; 
+				      		var extras_header_titles = [];
+				      		var q = 0;
+				      		while(billingParameters[q]){
+				      			extras_header_titles.push(billingParameters[q].name + ' (' + (billingParameters[q].unit == 'PERCENTAGE' ? billingParameters[q].value + '%' : 'Rs. '+billingParameters[q].value)+ ')');
+				      			main_header_title_nulls.push("");
+				      			q++;
+				      		}
+
+							var report_date_range = request_date_start;
+							var report_date_title = ' on ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY');
+							if(request_date_start != request_date_end){
+								report_date_range += '_to_' + request_date_end;
+								report_date_title = ' from ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY') + ' to ' + moment(request_date_end, 'YYYYMMDD').format('D MMM, YYYY');
+							}
+
+
+				      		var temp_branch_name = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : 'UNKNOWN_BRANCH';
+				      		var temp_client_name = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : 'UNKNOWN_CLIENT'; 
+
+				      		temp_branch_name = temp_branch_name.toUpperCase();
+				      		temp_client_name = temp_client_name.toUpperCase();
+				      		report_date_title = report_date_title.toUpperCase();
+
+							var header = [
+							  ["CANCELLED INVOICES SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", "", "", "", "", ""].concat(main_header_title_nulls.concat(["", "", "", "", "", "", ""])),
+							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Status", "Cancelled By", "Reason", "Remarks", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Round Off", "Payable Amount", "Paid Amount", "Mode of Payment", "Refunds", "Gross Amount"]))
+							];
+
+							var data = header.concat(invoiceData);
+
+							/* merge cells A1:I1 */
+							var mergeBoundaryIndex = header[1].length - 1;
+							var mergeBoundary = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
+							var merge = XLSX.utils.decode_range("A1:"+mergeBoundary[mergeBoundaryIndex]);
+
+							/* generate worksheet */
+							var ws = XLSX.utils.aoa_to_sheet(data);
+
+							/* add merges */
+							if(!ws['!merges']) ws['!merges'] = [];
+							ws['!merges'].push(merge);
+
+							/* generate workbook */
+							var wb = XLSX.utils.book_new();
+							XLSX.utils.book_append_sheet(wb, ws, "Cancelled Invoices");
+
+							/* generate file and download */
+							const wbout = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+							saveAs(new Blob([wbout], { type: "application/octet-stream" }), "cancelled_invoices_summary_"+temp_client_name.toLowerCase()+"_"+temp_branch_name.toLowerCase()+"_"+report_date_range+".xlsx");
+							
+
+				      	}
+
+					},
+					error: function(data){
+						hideLoading();
+						showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+					}
+				});  
+
+			}
+
+			break;
+		} // end - BILL_CANCELLATIONS
+
+
+
+		case "ITEM_CANCELLATIONS":{
+
+			showLoading(50000, 'Generating Report...');
+
+			dateWiseCancelledItemsExcel(fromDate, toDate);
+
+
+			function dateWiseCancelledItemsExcel(request_date_start, request_date_end){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_item_cancellations/_design/cancellation-summary/_view/fetchall?startkey=["'+request_date_start+'"]&endkey=["'+request_date_end+'"]&descending=false',
+					timeout: 10000,
+					success: function(data) {
+						
+						var resultsList = data.rows;
+						var cancelledItemsList = [];
+						
+						if(resultsList.length == 0){
+							hideLoading();
+							showToast('Warning: There are no items cancelled on the given dates.', '#e67e22');
+							return "";
+						}
+
+
+				      	
+				      	var itemCounter = 1;
+
+				      	var n = 0;
+				      	while(resultsList[n]){ //iterating through each item
+
+				      		var cancelledItem = resultsList[n].value;
+				      		
+				      		for(var c = 0; c < cancelledItem.itemsRemoved.length; c++){
+					      		
+					      		cancelledItemsList.push([
+									itemCounter, //Sl No.
+					      			cancelledItem.date, //Date
+					      			moment(cancelledItem.time, 'hhmm').format('hh:mm A'), //Time
+					      			cancelledItem.mode, //Billing Mode
+					      			cancelledItem.modeType, //Type of Mode (DINE, PARCEL etc.)
+					      			cancelledItem.itemsRemoved[c].name + (cancelledItem.itemsRemoved[c].isCustom ? ' ('+cancelledItem.itemsRemoved[c].variant+')' : ''), //item
+					      			cancelledItem.itemsRemoved[c].qty,
+					      			cancelledItem.stewardName, //requested by
+					      			cancelledItem.itemsRemoved[c].comments, // reason for cancellation
+					      			cancelledItem.adminName, //approved by
+					      			cancelledItem.customerName,
+					      			cancelledItem.customerMobile,
+					      			cancelledItem.guestCount,
+					      			cancelledItem.KOTNumber,
+					      			(cancelledItem.modeType == 'DINE' ? cancelledItem.table : '')
+					      		]);
+
+					      		itemCounter++;
+				      		}
+
+
+				      		if(n == resultsList.length - 1){ //last iteration
+
+				      			hideLoading();
+				      			showToast('Cancelled Items Summary generated successfully!', '#27ae60');
+
+				      			generateExcel(cancelledItemsList);
+				      		}
+
+				      		n++;
+				      	}
+
+
+				      	function generateExcel(cancelledItemsData){
+
+							var report_date_range = request_date_start;
+							var report_date_title = ' on ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY');
+							if(request_date_start != request_date_end){
+								report_date_range += '_to_' + request_date_end;
+								report_date_title = ' from ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY') + ' to ' + moment(request_date_end, 'YYYYMMDD').format('D MMM, YYYY');
+							}
+
+
+				      		var temp_branch_name = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : 'UNKNOWN_BRANCH';
+				      		var temp_client_name = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : 'UNKNOWN_CLIENT'; 
+
+				      		temp_branch_name = temp_branch_name.toUpperCase();
+				      		temp_client_name = temp_client_name.toUpperCase();
+				      		report_date_title = report_date_title.toUpperCase();
+
+							var header = [
+							  ["CANCELLED ITEMS DETAILS - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+							  ["Sl. No.", "Date", "Time", "Billing Mode", "Type", "Item", "Quantity", "Requested By", "Comments", "Approver", "Guest Name", "Guest Mobile", "Number of Guests", "KOT Number", "Table Reference"]
+							];
+
+							var data = header.concat(cancelledItemsData);
+
+							/* merge cells A1:I1 */
+							var mergeBoundaryIndex = header[1].length - 1;
+							var mergeBoundary = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
+							var merge = XLSX.utils.decode_range("A1:"+mergeBoundary[mergeBoundaryIndex]);
+
+							/* generate worksheet */
+							var ws = XLSX.utils.aoa_to_sheet(data);
+
+							/* add merges */
+							if(!ws['!merges']) ws['!merges'] = [];
+							ws['!merges'].push(merge);
+
+							/* generate workbook */
+							var wb = XLSX.utils.book_new();
+							XLSX.utils.book_append_sheet(wb, ws, "Cancelled Items");
+
+							/* generate file and download */
+							const wbout = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+							saveAs(new Blob([wbout], { type: "application/octet-stream" }), "cancelled_items_summary_"+temp_client_name.toLowerCase()+"_"+temp_branch_name.toLowerCase()+"_"+report_date_range+".xlsx");
+							
+
+				      	}
+
+					},
+					error: function(data){
+						hideLoading();
+						showToast('System Error: Unable to read Cancelled Items data. Please contact Accelerate Support.', '#e74c3c');
+					}
+				});  
+
+			}
+
+			break;
+		} // end - ITEM_CANCELLATIONS
+
 
 	}
 }
