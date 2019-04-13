@@ -2459,7 +2459,7 @@ function fetchPaymentModeWiseSummary() {
 
 													//time to render...
 											    	if(temp_count > 0){
-											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
+											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr onclick="openDetailedByExtras(\''+modes[0].code+'\', \''+fromDate+'\', \''+toDate+'\', \''+temp_count+'\', \''+(temp_sum-refund_amount)+'\')" class="detailedByMode"> <td>'+modes[0].name+'<tag class="viewOptionsIcon">View Details</tag></td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
 											    	}
 											    	else{
 											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
@@ -2568,7 +2568,7 @@ function fetchPaymentModeWiseSummaryCallback(index, modes, fromDate, toDate, gra
 
 													//time to render...
 											    	if(temp_count > 0){
-											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
+											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr onclick="openDetailedByExtras(\''+modes[index].code+'\', \''+fromDate+'\', \''+toDate+'\', \''+temp_count+'\', \''+(temp_sum-refund_amount)+'\')" class="detailedByMode"> <td>'+modes[index].name+'<tag class="viewOptionsIcon">View Details</tag></td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
 											    	}
 											    	else{
 											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
@@ -2671,6 +2671,280 @@ function renderGraph_PaymentModeWiseSummary(graphData){
 	    }
 	});	
 }
+
+
+
+
+function openDetailedByExtras(selectedPaymentMode, fromDate, toDate, grandCount, grandSum){
+		
+		//given this mode of payment, render the extras comings under this
+
+		document.getElementById("summaryRenderArea_paymentMode_detailed").style.display = "block";
+		document.getElementById("summaryRenderArea_paymentMode_detailed_title").innerHTML = 'Detailed Summary for <b>'+selectedPaymentMode+'</b>';
+
+
+		document.getElementById("summaryRender_paymentMode_detailed").innerHTML = '';
+
+		var cumulativeSum = 0;
+
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
+
+	            var modes = data.docs[0].value;
+
+	          	if(modes.length == 0){
+	          		document.getElementById("summaryRender_paymentMode_detailed").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no billing parameters added.</tag>';
+	          		return '';
+	          	}
+
+	          	  //For a given EXTRAS, the total Sales in the given DATE RANGE
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
+
+				    	if(data.rows.length > 0){
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
+				    	}
+
+
+				    		//Now check in custom Extras
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_custom?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+
+									//Now check in split payments
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+											//Now check in split payments with custom extras
+									    	$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple_custom?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													if(data.rows.length > 0){
+													    temp_sum += data.rows[0].value.sum;
+													}
+
+													
+													//time to render...
+											    	if(temp_sum > 0){
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right">'+(temp_count > 0 ? '<count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count>' : '')+'<i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
+											    	}
+
+											    	cumulativeSum += temp_sum;
+
+											    	//Check if next mode exists...
+											    	if(modes[1]){
+											    		openDetailedByExtrasCallback(1, modes, fromDate, toDate, selectedPaymentMode, grandCount, grandSum, cumulativeSum);
+											    	}
+											    	else{
+											    		
+											    		if(cumulativeSum > 0){
+											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Sales Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(2)+'</td> </tr>';
+											    		}
+
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Grand Total</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
+											    	}
+													
+
+												},
+												error: function(data){
+
+												}
+											}); //split payments with custom extras
+
+
+
+										},
+										error: function(data){
+
+										}
+									}); //split payments
+
+
+
+								},
+								error: function(data){
+
+								}
+							}); 
+
+
+				    },
+				    error: function(data){
+
+				    }
+				  });  
+
+	          }
+	          else{
+	            showToast('Not Found Error: Payments data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Payments data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });
+}
+
+
+function openDetailedByExtrasCallback(index, modes, fromDate, toDate, selectedPaymentMode, grandCount, grandSum, cumulativeSum){
+	          	
+	          	  //For a given PAYMENT MODE, the extras in the given DATE RANGE
+				  
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+				    	
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
+
+				    	if(data.rows.length > 0){
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
+				    	}
+
+				    		//Now check in custom extras
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_custom?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+
+						    		//Now check in split payments
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+								    		//Now check in split payments with custom extras
+									    	$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple_custom?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													if(data.rows.length > 0){
+													    temp_sum += data.rows[0].value.sum;
+													}
+
+
+													//time to render...
+											    	if(temp_sum > 0){
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right">'+(temp_count > 0 ? '<count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count>' : '')+'<i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';	
+											    	}
+
+											    	cumulativeSum += temp_sum;
+
+											    	//Check if next mode exists...
+											    	if(modes[index+1]){
+											    		openDetailedByExtrasCallback(index+1, modes, fromDate, toDate, selectedPaymentMode, grandCount, grandSum, cumulativeSum);
+											    	}
+											    	else{
+											    		
+											    		if(cumulativeSum > 0){
+											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Sales Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(2)+'</td> </tr>';
+											    		}
+
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Grand Total</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
+											    	}													
+
+												},
+												error: function(data){
+
+												}
+											}); //split payments with custom extras
+										
+
+
+
+										},
+										error: function(data){
+
+										}
+									}); //split payments
+
+
+
+
+								},
+								error: function(data){
+
+								}
+							}); 
+
+
+				    },
+				    error: function(data){
+
+				    }
+				  });  
+}
+
+
+
+
+
 
 
 
