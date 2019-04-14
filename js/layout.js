@@ -3666,7 +3666,7 @@ function renderSpotlightPreview(type, encodedData){
       }
       else if(info.orderStatus == 2){ //Bill Printed
           renderTemplate = '<div style="height: 96px"><img src="images/common/spotlight_billed.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">'+info.orderDetails.mode+(info.orderDetails.modeType == 'TOKEN' ? '<p class="spotlightOrderTag">Token #'+info.table+'</p>' : (info.orderDetails.modeType == 'DINE' ? '<p class="spotlightOrderTag">Table #'+info.table+'</p>' : ''))+'</div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Billed #'+info.billNumber+'</div><p class="spotlightOrderTime">Billed at '+getFancyTime(info.timeBill)+(info.stewardName != '' ? ' by <b>'+info.stewardName+'</b>' : '')+'</p>'; 
-          renderTemplate += '<div style="margin-top: 10px;"><button onclick="preSettleBill(\''+info.billNumber+'\', \'ORDER_PUNCHING\')" class="btn btn-success">Settle Bill</button></div>';
+          renderTemplate += '<div style="margin-top: 10px;"><button onclick="preSettleBill(\''+info.billNumber+'\', \'ORDER_PUNCHING\'); hideSpotlight();" class="btn btn-success">Settle Bill</button></div>';
       }
       else if(info.orderStatus == 3){ //Settled or Completed
         if(info.orderDetails.modeType == 'DINE' || info.orderDetails.modeType == 'TOKEN'){
@@ -3679,7 +3679,7 @@ function renderSpotlightPreview(type, encodedData){
           renderTemplate = '<div style="height: 96px; position: relative; display: inline-block;"><img src="images/common/spotlight_order_delivery.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">'+info.orderDetails.mode+'<p class="spotlightOrderTag">Bill <b>#'+info.billNumber+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> Dated '+info.date+'</p></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Completed</div><p class="spotlightOrderTime">Order placed at '+getFancyTime(info.timePunch)+'</p>'+(info.orderDetails.reference ? '<p class="spotlightOrderTime">Ref. '+info.orderDetails.reference+' <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> '+info.customerName+' <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; color: #7b7a7a;"></i> '+info.customerMobile+' </p>' : '');
         }
 
-        renderTemplate += '<div style="margin-top: 10px;"><button onlclick="printDuplicateBill(\''+info.billNumber+'\')" class="btn btn-default">Print Duplicate Bill</button></div>';
+        renderTemplate += '<div style="margin-top: 10px;"><button onclick="printSettledDuplicateBill(\''+info.billNumber+'\'); hideSpotlight();" class="btn btn-default">Print Duplicate Bill</button></div>';
 
       }
       else{
@@ -3921,85 +3921,7 @@ function showSpotlight(){
                       return '';
                     }
 
-                    searchOrderForKOT();
-
-                    function searchOrderForKOT(){
-
-                        var kot_request_data = accelerate_licencee_branch +"_KOT_K"+ orderNumber;
-
-                        $.ajax({
-                          type: 'GET',
-                          url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
-                          timeout: 10000,
-                          success: function(data) {
-                            if(data._id == kot_request_data){
-
-                              var bill = data;
-                              var billList = [];
-                              billList.push(bill);
-
-                              spotlightData = [{ "category": "Orders", "list": billList}];
-
-                              liSelected = undefined
-
-                              var renderContent = '<ul class="ng-spotlight-results-category">';
-                              var count = 0;
-                              var tabIndex = 1;
-                              var itemsList = '';
-
-                              $.each(spotlightData, function(key_1, spotResult) {
-
-                                itemsList = '';
-                                count = 0;
-
-                                switch(spotResult.category){
-                                  case "Orders":{
-                                      $.each(spotResult.list, function(key_2, spotItem) {
-
-                                              tabIndex = -1;
-
-                                              var tempData = encodeURI(JSON.stringify(spotItem));
-                                              itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><name style="display: inline-block; width: 50%">#'+(spotItem.KOTNumber != '' ? spotItem.KOTNumber : '')+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
-                                              
-                                              count++;
-                                              tabIndex++;
-                                        
-                                      });
-                                      break;
-                                  }
-                                }
-
-
-                                if(count > 0){
-                                  renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
-                                
-                                  document.getElementById("noResultSpotlight").style.display = 'none';
-                                  document.getElementById("spotlightRenderPanel").style.display = 'block';
-                                }
-                                else{
-                                  document.getElementById("noResultSpotlight").style.display = 'block';
-                                  document.getElementById("spotlightRenderPanel").style.display = 'none';                              
-                                }
-
-                              });
-
-                              renderContent += '</ul>';
-
-                              $('#spotlightResultsRenderArea').html(renderContent);
-
-                              //Refresh dropdown list
-                              li = $('#spotlightResultsRenderArea li');
-
-                            }
-                            else{
-                              searchOrderForBills();
-                            }
-                          },
-                          error: function(data) {
-                            searchOrderForBills();
-                          }
-                          });
-                    }
+                    searchOrderForBills();
 
                     function searchOrderForBills(){
 
@@ -4039,7 +3961,7 @@ function showSpotlight(){
                                                 tabIndex = -1;
 
                                                 var tempData = encodeURI(JSON.stringify(spotItem));
-                                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : '')+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
+                                                itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\', \'PENDING\')"><name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : '')+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
                                                 
                                                 count++;
                                                 tabIndex++;
@@ -4118,7 +4040,7 @@ function showSpotlight(){
                                                       tabIndex = -1;
 
                                                       var tempData = encodeURI(JSON.stringify(spotItem));
-                                                      itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\')"><name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : '')+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
+                                                      itemsList += '<li class="ng-spotlight-results-list-item" spot-preview-type="Orders" spot-preview-data="'+tempData+'" onclick="openPastOrder(\''+tempData+'\', \'SETTLED\')"><name style="display: inline-block; width: 50%">#'+(spotItem.billNumber != '' ? spotItem.billNumber : '')+'<date style="font-size: 80%; color: #737475; padding-left: 5px">'+spotItem.date+'</date></name><tag style="float: right; padding: 1px 3px 0 0; font-size: 85%;"> '+spotItem.customerName+'</tag></li>';
                                                       
                                                       count++;
                                                       tabIndex++;
@@ -4178,7 +4100,16 @@ function showSpotlight(){
                       success: function(data) {
                         if(data._id == mobileNumber){ //USER FOUND!!!
 
-                          spotlightData = JSON.parse('[{ "category": "Customers", "list": [{ "name": "Abhijith", "mobile": "9043960876", "last": "4th July, 2018", "visits": 1, "orders": 0 }, { "name": "Anas Jafry", "mobile": "9884179675", "last": "3rd July, 2018", "visits": 3, "orders": 12 }] }]');
+                          spotlightData = [{ 
+                                  "category": "Customers", 
+                                  "list": [{ 
+                                    "name": data.name, 
+                                    "mobile": data.mobile, 
+                                    "last": "", 
+                                    "visits": 0, 
+                                    "orders": 0 
+                                  }]
+                                }];
                         
                           liSelected = undefined
 
@@ -5066,6 +4997,26 @@ function markSpotlightMenuItemAvailability(code, type){
       }
 
 }
+
+
+
+function openPastOrder(encodedData, type){
+  var billData = JSON.parse(decodeURI(encodedData));
+  
+  if(type == 'PENDING'){
+    renderPage('settled-bills', 'Generated Bills');
+    loadAllPendingSettlementBills('EXTERNAL', 'LOADING_ANIMATION');
+    openSelectedBill(encodedData, 'PENDING');
+  }
+  else if(type == 'SETTLED'){
+    renderPage('settled-bills', 'Generated Bills');
+    loadAllSettledBills('LOADING_ANIMATION');
+    openSelectedBill(encodedData, 'SETTLED');
+  }
+
+}
+
+
 
 
 /* Apply KOT Relays */

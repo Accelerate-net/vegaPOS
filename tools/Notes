@@ -1,13 +1,4 @@
-
-Fixes for Version 1:
-> Improve Sales Summary (Excel Format)
-> Cancelled Bills Summary - Excel Format
-> Cloud Report generation (from account office)
-> Payment mode summary:
-	-- show SGST CGST separate..
-
 Moved to Version 2:
-
 1. PHONE DELIVERY (Send SMS Updates to customers)
 2. Take measures to avoid duplicating of online orders (Disconnected ==> Dont accept/punch order)
 3. Spotlight (Customers pending)

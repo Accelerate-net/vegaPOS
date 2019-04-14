@@ -2525,6 +2525,47 @@ function quickPrintDuplicateBill(encodedBill){
 }
 
 
+function printSettledDuplicateBill(billNumber){
+
+    billNumber = parseInt(billNumber);
+
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var invoice_request_data = accelerate_licencee_branch +"_INVOICE_"+ billNumber;
+    
+
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/'+invoice_request_data,
+      timeout: 10000,
+      success: function(firstdata) {
+        
+        if(firstdata._id == invoice_request_data){
+          var bill = firstdata;
+          sendToPrinter(bill, 'DUPLICATE_BILL');
+          showToast('Duplicate Bill #'+bill.billNumber+' generated Successfully', '#27ae60');
+        }
+        else{
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+        }
+        
+      },
+      error: function(firstdata) {
+        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+      }
+
+    });    
+}
+
+
+
+
+
 /* SETTLE BILL */
 function settleBillAndPush(encodedBill, optionalPageRef){
 
