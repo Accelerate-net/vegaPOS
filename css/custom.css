@@ -1959,6 +1959,172 @@ However, delay the fade out process for 2.5 seconds */
   transform: rotate(0deg);
 }
 
+
+
+/* Floating Button */
+.absolute-center {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+}
+.floaty-alternative {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+}
+.floaty-alternative-list {
+  margin: 0;
+  margin-top: 70px;
+  padding: 0 0 0 6px;
+  list-style: none;
+  opacity: 0;
+  transition: opacity .2s ease-out;
+}
+.floaty-alternative:hover .floaty-alternative-list {
+  opacity: 1;
+}
+.floaty-alternative-list-item {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin: 15px 0;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,.25);
+}
+.floaty-alternative-list-item > img {
+  border-radius: 50%;
+}
+.floaty-alternative-list-item--red {
+  background-color: #e74c3c;
+}
+
+.floaty-alternative-list-item--violet {
+  background-color: #7571ce;
+}
+
+.floaty-alternative-list-item--palegreen {
+  background-color: #225179;
+}
+
+
+.floaty-alternative-list-item--yellow {
+  background-color: #fdb84a;
+}
+
+.floaty-alternative-list-item--red > svg {
+  fill: #fff;
+}
+
+.floaty-alternative-list-item--violet > svg {
+  fill: #fff;
+}
+
+.floaty-alternative-list-item--palegreen > svg {
+  fill: #fff;
+}
+
+.floaty-alternative-list-item--blue {
+  background-color: #3498db;
+}
+.floaty-alternative-list-item--blue > svg {
+  fill: #fff;
+}
+.floaty-alternative-list-item--yellow > svg {
+  fill: #fff;
+}
+
+.floaty-alternative-list-item-label {
+  position: absolute;
+  top: 8px;
+ /* right: 120%;*/
+ left: 50px;
+  padding: 4px 8px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #424242;
+  border-radius: 2px;
+  opacity: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity .2s ease-out;
+}
+.floaty-alternative-list-item:hover > .floaty-alternative-list-item-label {
+  opacity: 1;
+}
+.floaty-alternative-btn {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  float: right;
+  margin-right: 15px;
+  cursor: pointer;
+  background-color: #00a65a;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,.25);
+}
+
+.floaty-alternative-btn.small {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  float: right;
+  margin-right: 15px;
+  cursor: pointer;
+  background-color: #00a65a;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0,0,0,.25);
+}
+
+
+.floaty-alternative-btn:hover .floaty-alternative-btn-label {
+  opacity: 1;
+}
+.floaty-alternative-btn-label {
+  position: absolute;
+  top: 14px;
+ /* right: 115%; */
+ left: 66px;
+  padding: 4px 8px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #424242;
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: opacity .2s ease-out;
+}
+.floaty-alternative-btn-icon {
+  transition: all .2s;
+}
+.floaty-alternative-btn-icon-plus {
+  /*
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+  */
+}
+.floaty-alternative.is-active .floaty-alternative-btn-icon-plus {
+  opacity: 0;
+  -webkit-transform: rotate(13deg);
+  transform: rotate(130deg);
+}
+.floaty-alternative-btn-icon-create {
+  opacity: 0;
+  -webkit-transform: rotate(-60deg);
+  transform: rotate(-60deg);
+}
+.floaty-alternative.is-active .floaty-alternative-btn-icon-create {
+  opacity: 1;
+  -webkit-transform: rotate(0deg);
+  transform: rotate(0deg);
+}
+
+
 /*For Choice Modal*/
 
 ol {
@@ -6625,6 +6791,7 @@ input:checked + .slider:before {
     text-align: center;
     position: relative;
     border-radius: 6px;
+    margin-top: 20px;
 }
 
 .modalPrintButton{
@@ -6815,4 +6982,67 @@ input:checked + .slider:before {
     border-radius: 20px;
     padding: 1px 8px;
     display: none;
+}
+
+.noDisplay{
+  display: none !important;
+}
+
+.itemCancelReasonNameTag{
+    color: #FFF;
+    background: #e62e18;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 18px;
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    float: right;
+    max-width: 280px;
+}
+
+.cancelItemComment{
+    border: none;
+    border-bottom: 1px solid;
+    font-size: 18px;
+    padding: 6px 0px;
+    color: #e62e18;
+}
+
+.itemCancelReasonNameCol{
+    text-align: right !important;
+    padding: 15px 5px !important;
+    border: none !important;
+}
+
+.itemCancelReasonCommentCol{
+    padding: 15px 5px 15px 5px !important;
+    border: none !important;
+}
+
+.itemCancellationEasyPickHolder{
+    position: fixed;
+    background: #605ca8;
+    padding: 5px;
+    width: 320px;
+    margin-top: 2px;
+    border-radius: 4px;
+}
+
+.itemCancellationEasyPickHolder button{
+    background: #FFF;
+    border: none;
+    padding: 4px 8px;
+    margin: 0 4px 4px 0;
+    border-radius: 4px;
+    color: #46428c;
+    outline: none;
+    box-shadow: none;  
+}
+
+.addNewExpenseHolder{
+    position: absolute;
+    right: 24px;
+    top: 29px;
 }

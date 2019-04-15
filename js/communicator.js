@@ -1812,6 +1812,8 @@ var html_template = view_header_content +
 
 
 function sendKOTChangesToPrinter(orderObject, compareObject, optionalTargetPrinter){
+
+ console.log('hilll...')
  
  var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
@@ -2065,7 +2067,40 @@ var html_template = kot_header_content +
 
 
         if(selected_printer && selected_printer != '' && selected_printer != null){
+         
          ipc.send("printBillDocument", html_template, selected_printer);
+
+
+         /* For Zamrud : AUTO PRINT VIEW */
+         if(0){
+            setTimeout(function(){
+
+               postContentToView(html_template);
+
+               function postContentToView(html_template){
+                  var selected_printer_view = null;
+                  var b = 0;
+                  while(allActivePrinters[b]){
+                        if(allActivePrinters[b].type == 'VIEW'){
+                           selected_printer_view = allActivePrinters[b].list[0];
+                           break;
+                        }
+                        b++;
+                  }
+
+                  if(selected_printer_view && selected_printer_view != '' && selected_printer_view != null){
+                     ipc.send("printBillDocument", html_template, selected_printer_view);
+                  }
+                  else{
+                     showToast('Print Error: Print failed. No printer configured for printing Views', '#e74c3c');   
+                     return '';
+                  }
+               }
+            }, 2000);
+         }
+            
+
+
         }
         else{
          showToast('Print Error: Print failed. No printer configured for '+type, '#e74c3c');   

@@ -37,6 +37,18 @@ function getFormattedTime(time){
     return tempTime;
 }
 
+
+function getFormattedTimeWithDate(time, date){
+    var tempTime = moment(date+' '+time, 'DD-MM-YYYY hhmm').fromNow(true);
+    tempTime = tempTime.replace("seconds", "s");
+    tempTime = tempTime.replace("a few s", "seconds");
+    tempTime = tempTime.replace("a minute", "1m");
+    tempTime = tempTime.replace(" minutes", "m");
+    tempTime = tempTime.replace("an hour", "1h");
+    tempTime = tempTime.replace(" hours", "h");
+    return tempTime;
+}
+
 function getFancyTime(time){
   var fancy = moment(time, 'hhmm').format('hh:mm A');
   return fancy == 'Invalid date' ? '--:--' : fancy;

@@ -10,7 +10,7 @@
       "map": "function (doc) {\n  if(doc.paymentMode && doc.dateStamp){\n    emit([doc.paymentMode, doc.dateStamp], doc.totalAmountPaid);\n  }\n}"
     },
     "sumbypaymentmode_multiple": {
-      "map": "function (doc) {\n  if(doc.paymentMode == 'MULTIPLE' && doc.dateStamp){\n    var n = 0;\n    while(doc.paymentSplits[n]){\n      emit([doc.paymentSplits[n].code, doc.dateStamp], doc.paymentSplits[n].amount);\n      n++;\n    }\n    \n  }\n}",
+      "map": "function (doc) {\n  if(doc.paymentMode && doc.dateStamp){\n    var n = 0;\n    while(doc.paymentSplits[n]){\n      emit([doc.paymentSplits[n].code, doc.dateStamp], doc.paymentSplits[n].amount);\n      n++;\n    }\n    \n  }\n}",
       "reduce": "_stats"
     },
     "sumbyextras": {
@@ -46,7 +46,7 @@
       "map": "function (doc) {\n  if(doc.paymentMode && doc.dateStamp && doc.orderDetails.mode){\n    emit([doc.orderDetails.mode, doc.paymentMode, doc.dateStamp], doc.totalAmountPaid);\n  }\n}"
     },
     "sumbybillingandpaymentmodes_multiple": {
-      "map": "function (doc) {\n  if(doc.paymentMode == 'MULTIPLE' && doc.dateStamp && doc.orderDetails.mode){\n    var n = 0;\n    while(doc.paymentSplits[n]){\n      emit([doc.orderDetails.mode, doc.paymentSplits[n].code, doc.dateStamp], doc.paymentSplits[n].amount);\n      n++;\n    }\n    \n  }\n}\n\n",
+      "map": "function (doc) {\n  if(doc.paymentMode == \"MULTIPLE\" && doc.dateStamp && doc.orderDetails.mode){\n    var n = 0;\n    while(doc.paymentSplits[n]){\n      emit([doc.orderDetails.mode, doc.paymentSplits[n].code, doc.dateStamp], doc.paymentSplits[n].amount);\n      n++;\n    }\n    \n  }\n}\n\n",
       "reduce": "_stats"
     },
     "sumbyrefundmodes_splitbyextras": {
@@ -72,6 +72,33 @@
     },
     "timeslotwise_countbymode": {
       "map": "function(doc) {\n  \n  var time_in = (doc.timePunch).toString();\n  var time_in_hour = parseInt(time_in.substr(0, 2));\n  \n  var count = 0;\n  if(doc.guestCount && doc.guestCount != \"\"){\n    count = doc.guestCount;\n  }\n  \n  emit([doc.orderDetails.mode, doc.dateStamp, time_in_hour], count);\n}"
+    },
+    "sumbybillingmode_refundedamounts": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n  if(doc.orderDetails.mode && doc.dateStamp && doc.refundDetails.amount){\n    emit([doc.orderDetails.mode, doc.dateStamp], doc.refundDetails.amount);\n  }\n}"
+    },
+    "sumbypaymentmode_refundedamounts": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n  if(doc.refundDetails.amount && doc.dateStamp){\n    emit([doc.refundDetails.mode, doc.dateStamp], doc.refundDetails.amount);\n  }\n}\n\n"
+    },
+    "fetchall": {
+      "map": "function (doc) {\n  if(doc.dateStamp){\n    emit([doc.dateStamp], doc);\n  }\n}"
+    },
+    "sumbypaymentmodeandextras": {
+      "map": "\n\nfunction (doc) {\n  if(doc.paymentMode != \"MULTIPLE\" && doc.dateStamp && doc.extras){\n    var n = 0;\n    while(doc.extras[n]){\n      emit([doc.paymentMode, doc.extras[n].name, doc.dateStamp], doc.extras[n].amount);\n      n++;\n    }\n    \n  }\n}\n\n\n\n",
+      "reduce": "_stats"
+    },
+    "sumbypaymentmodeandextras_custom": {
+      "map": "\nfunction (doc) {\n  if(doc.paymentMode != \"MULTIPLE\" && doc.dateStamp && doc.customExtras.amount){\n      emit([doc.paymentMode, doc.customExtras.type, doc.dateStamp], doc.customExtras.amount);\n  }\n}\n\n\n\n",
+      "reduce": "_stats"
+    },
+    "sumbypaymentmodeandextras_multiple": {
+      "map": "\n\nfunction (doc) {\n  if(doc.paymentMode == \"MULTIPLE\" && doc.dateStamp && doc.extras){\n\n    \n    var m = 0;\n    while(doc.paymentSplits[m]){\n      \n      var n = 0;\n      while(doc.extras[n]){\n        var totalShare = (doc.paymentSplits[m].amount/doc.totalAmountPaid) * doc.extras[n].amount;\n        totalShare = parseFloat(totalShare).toFixed(2);\n        totalShare = parseFloat(totalShare);\n        emit([doc.paymentSplits[m].code, doc.extras[n].name, doc.dateStamp], totalShare);\n        n++;\n      }    \n    \n      m++;\n    }\n    \n    \n    \n  }\n}\n\n\n\n",
+      "reduce": "_stats"
+    },
+    "sumbypaymentmodeandextras_multiple_custom": {
+      "map": "\n\nfunction (doc) {\n  if(doc.paymentMode == \"MULTIPLE\" && doc.dateStamp && doc.extras && doc.customExtras.amount){\n\n    \n    var m = 0;\n    while(doc.paymentSplits[m]){\n       \n        var totalShare = (doc.paymentSplits[m].amount/doc.totalAmountPaid) * doc.customExtras.amount;\n        totalShare = parseFloat(totalShare).toFixed(2);\n        totalShare = parseFloat(totalShare);\n        emit([doc.paymentSplits[m].code, doc.customExtras.type, doc.dateStamp], totalShare);\n\n      m++;\n    }\n    \n    \n    \n  }\n}\n\n\n\n\n",
+      "reduce": "_stats"
     }
   },
   "language": "javascript"

@@ -161,7 +161,7 @@ function renderAllKOTs() {
                                     var tableList =               '<tr style="font-size: 16px;" class="liveOrderNonDine" onclick="liveOrderOptionsNonDine(\''+kot.KOTNumber+'\')">'+
                                                                       '<td><b>#'+kot.KOTNumber+'</b><tag style="display: block; color: #dc2e6f; font-size: 12px;">'+kot.orderDetails.modeType+'</tag>'+(kot.orderDetails.reference != '' ? '<tag style="display: block; color: gray">Ref. <b>'+kot.orderDetails.reference+'</b></tag>' : '')+'</td>'+
                                                                       '<td style="font-size: 95%">'+itemsList+'</td>'+
-                                                                      '<td style="text-align: center">'+getFormattedTime(kot.timePunch)+' ago</td>'+
+                                                                      '<td style="text-align: center">'+getFormattedTimeWithDate(kot.timePunch, kot.date)+' ago</td>'+
                                                                       '<td style="text-align: left; font-size: 14px;">'+getAddressFormattedLive(kot)+'</td>'+
                                                                   '</tr>';
  

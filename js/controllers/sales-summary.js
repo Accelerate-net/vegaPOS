@@ -87,6 +87,8 @@ function downloadExcelReport(type){
 							netSalesWorth --> totalPaid - extras - tips + discount + roundoff;
 					*/
 
+					var netSalesWorth = 0;
+
 
 					//Step 1: Total Paid Amount
 					function excelReportTotalPaidAmount(){	
@@ -105,9 +107,12 @@ function downloadExcelReport(type){
 								}
 
 								excelReportData_Overall.push({
-									"name": "Total Paid Amount",
+									"name": "Total Sales",
 									"value": temp_totalPaid
 								});
+
+								netSalesWorth = temp_totalPaid;
+
 							
 								//Step 2: Total Charges collected
 								excelReportChargesCollected();
@@ -186,6 +191,8 @@ function downloadExcelReport(type){
 															"name": modes[0].name,
 															"value": temp_sum
 														})
+
+														netSalesWorth -= temp_sum;
 													
 												    	//Check if next mode exists...
 												    	if(modes[1]){
@@ -266,6 +273,8 @@ function downloadExcelReport(type){
 												"name": modes[index].name,
 												"value": temp_sum
 											})
+
+											netSalesWorth -= temp_sum;
 											
 									    	//Check if next mode exists...
 									    	if(modes[index+1]){
@@ -315,7 +324,9 @@ function downloadExcelReport(type){
 								excelReportData_Overall.push({
 									"name": 'Discount',
 									"value": temp_discountedOrdersSum
-								})		
+								})	
+
+								netSalesWorth += temp_discountedOrdersSum;	
 								
 								//Step 4: Total Round Off made
 								excelReportRoundOffMade();
@@ -351,6 +362,8 @@ function downloadExcelReport(type){
 									"value": temp_roundOffSum
 								})	
 
+								netSalesWorth += temp_roundOffSum;
+
 								//Step 5: Total Tips received
 								excelReportTipsReceived();
 
@@ -384,6 +397,8 @@ function downloadExcelReport(type){
 									"name": 'Tips',
 									"value": temp_tipsSum
 								})
+
+								netSalesWorth -= temp_tipsSum;
 
 								//Step 6: Total Refunds Issued
 								excelReportRefundsIssued();
@@ -420,7 +435,22 @@ function downloadExcelReport(type){
 									"name": 'Refunds',
 									"value": temp_refundSum
 								})
+
+
+								/*
+									Process Figures
+								*/
+
+								var grandTotalPaid = excelReportData_Overall[0].value;
+								excelReportData_Overall[0].value = netSalesWorth; //Gross Sales
 										
+
+								excelReportData_Overall.push({
+									"name": 'Net Sales',
+									"value": grandTotalPaid - temp_refundSum
+								})
+
+
 
 								//Step 7: Process Report (Final)
 								excelReportFinal();
@@ -503,20 +533,58 @@ function downloadExcelReport(type){
 											temp_sum = data.rows[0].value.sum;
 										}
 
-										excelReportData_BillingModes.push({
-									   		"name": modes[0].name,
-									   		"value": temp_sum
-										})
+
+										//Check for any refunds in this mode.
+										$.ajax({
+											type: 'GET',
+										    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode_refundedamounts?startkey=["'+modes[0].name+'","'+request_date+'"]&endkey=["'+modes[0].name+'","'+request_date+'"]',
+										    timeout: 10000,
+											success: function(data) {
+
+												var refunded_sum = 0;
+												if(data.rows.length > 0){
+													refunded_sum = data.rows[0].value.sum;
+												}
 
 
-								    	//Check if next mode exists...
-								    	if(modes[1]){
-								    		excelReportSummaryByBillingModesCallback(1, modes);
-								    	}
-								    	else{
-								    		//Go to next LEVEL THREE
-								    		excelReportSummaryByPaymentModes();
-								    	}
+
+
+												excelReportData_BillingModes.push({
+											   		"name": modes[0].name,
+											   		"value": temp_sum - refunded_sum
+												})
+
+
+										    	//Check if next mode exists...
+										    	if(modes[1]){
+										    		excelReportSummaryByBillingModesCallback(1, modes);
+										    	}
+										    	else{
+
+													//Process Figures
+										    		var billingModesGrandTotal = 0;
+													for(var i = 0; i < excelReportData_BillingModes.length; i++){
+													    billingModesGrandTotal += excelReportData_BillingModes[i].value;
+													}
+
+													excelReportData_BillingModes.push({
+														"name": "Total by Billing Modes",
+														"value": billingModesGrandTotal
+												   	})
+
+
+										    		//Go to next LEVEL THREE
+										    		excelReportSummaryByPaymentModes();
+										    	}
+
+
+											},
+											error: function(data){
+												document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';													    	
+											}
+										});  
+
+
 
 								    },
 								    error: function(data){
@@ -551,19 +619,57 @@ function downloadExcelReport(type){
 											temp_sum = data.rows[0].value.sum;
 										}
 
-										excelReportData_BillingModes.push({
-									   		"name": modes[index].name,
-									   		"value": temp_sum
-										})
 
-								    	//Check if next mode exists...
-								    	if(modes[index+1]){
-								    		excelReportSummaryByBillingModesCallback(index+1, modes);
-								    	}
-								    	else{
-								    		//Go to next LEVEL THREE
-								    		excelReportSummaryByPaymentModes();
-								    	}
+
+										//Check for any refunds in this mode.
+										$.ajax({
+											type: 'GET',
+										    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmode_refundedamounts?startkey=["'+modes[index].name+'","'+request_date+'"]&endkey=["'+modes[index].name+'","'+request_date+'"]',
+										    timeout: 10000,
+											success: function(data) {
+
+												var refunded_sum = 0;
+												if(data.rows.length > 0){
+													refunded_sum = data.rows[0].value.sum;
+												}
+
+
+												excelReportData_BillingModes.push({
+											   		"name": modes[index].name,
+											   		"value": temp_sum - refunded_sum
+												})
+
+
+										    	//Check if next mode exists...
+										    	if(modes[index+1]){
+										    		excelReportSummaryByBillingModesCallback(index+1, modes);
+										    	}
+										    	else{
+
+													//Process Figures
+										    		var billingModesGrandTotal = 0;
+													for(var i = 0; i < excelReportData_BillingModes.length; i++){
+													    billingModesGrandTotal += excelReportData_BillingModes[i].value;
+													}
+
+													excelReportData_BillingModes.push({
+														"name": "Total by Billing Modes",
+														"value": billingModesGrandTotal
+												   	})
+
+
+
+										    		//Go to next LEVEL THREE
+										    		excelReportSummaryByPaymentModes();
+										    	}
+
+
+											},
+											error: function(data){
+												document.getElementById("summaryRender_billingMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';													    	
+											}
+										});  
+
 
 
 								    },
@@ -644,20 +750,59 @@ function downloadExcelReport(type){
 													    temp_sum += data.rows[0].value.sum;
 													}
 
-										    		excelReportData_PaymentModes.push({
-												   		"name": modes[0].name,
-												   		"value": temp_sum
-												   	})
-										    											
 
-											    	//Check if next mode exists...
-											    	if(modes[1]){
-											    		excelReportSummaryByPaymentModesCallback(1, modes);
-											    	}
-											    	else{
-											    		//Go to next LEVEL FOUR
-											    		levelFour();
-											    	}
+
+
+													//Check if any refunds issued 
+													$.ajax({
+														type: 'GET',
+														url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_refundedamounts?startkey=["'+modes[0].code+'","'+request_date+'"]&endkey=["'+modes[0].code+'","'+request_date+'"]',
+														timeout: 10000,
+														success: function(data) {
+
+															var refund_amount = 0;
+															if(data.rows.length > 0){
+															    refund_amount = data.rows[0].value.sum;
+															}
+
+
+												    		excelReportData_PaymentModes.push({
+														   		"name": modes[0].name,
+														   		"value": temp_sum - refund_amount
+														   	})
+												    											
+
+													    	//Check if next mode exists...
+													    	if(modes[1]){
+													    		excelReportSummaryByPaymentModesCallback(1, modes);
+													    	}
+													    	else{
+
+													    		//Process Figures
+													    		var paymentGrandTotal = 0;
+													    		for(var i = 0; i < excelReportData_PaymentModes.length; i++){
+													    			paymentGrandTotal += excelReportData_PaymentModes[i].value;
+													    		}
+
+													    		excelReportData_PaymentModes.push({
+															   		"name": "Total by Payment Modes",
+															   		"value": paymentGrandTotal
+															   	})
+
+
+													    		//Go to next LEVEL FOUR
+													    		levelFour();
+													    	}
+
+
+														},
+														error: function(data){
+															document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+														}
+													}); 
+
+
+
 
 												},
 												error: function(data){
@@ -725,20 +870,55 @@ function downloadExcelReport(type){
 										    temp_sum += data.rows[0].value.sum;
 										}
 
-							    		excelReportData_PaymentModes.push({
-									   		"name": modes[index].name,
-									  		"value": temp_sum
-									    })
-							    			
 
-								    	//Check if next mode exists...
-								    	if(modes[index+1]){
-								    		excelReportSummaryByPaymentModesCallback(index+1, modes);
-								    	}
-								    	else{
-								    		//Go to next LEVEL FOUR
-								    		levelFour();
-								    	}
+
+													//Check if any refunds issued 
+													$.ajax({
+														type: 'GET',
+														url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmode_refundedamounts?startkey=["'+modes[index].code+'","'+request_date+'"]&endkey=["'+modes[index].code+'","'+request_date+'"]',
+														timeout: 10000,
+														success: function(data) {
+
+															var refund_amount = 0;
+															if(data.rows.length > 0){
+															    refund_amount = data.rows[0].value.sum;
+															}
+
+
+												    		excelReportData_PaymentModes.push({
+														   		"name": modes[index].name,
+														   		"value": temp_sum - refund_amount
+														   	})
+												    											
+
+													    	//Check if next mode exists...
+													    	if(modes[index+1]){
+													    		excelReportSummaryByPaymentModesCallback(index+1, modes);
+													    	}
+													    	else{
+
+													    		//Process Figures
+													    		var paymentGrandTotal = 0;
+													    		for(var i = 0; i < excelReportData_PaymentModes.length; i++){
+													    			paymentGrandTotal += excelReportData_PaymentModes[i].value;
+													    		}
+
+													    		excelReportData_PaymentModes.push({
+															   		"name": "Total by Payment Modes",
+															   		"value": paymentGrandTotal
+															   	})
+
+
+													    		//Go to next LEVEL FOUR
+													    		levelFour();
+													    	}
+
+
+														},
+														error: function(data){
+															document.getElementById("summaryRender_paymentMode").innerHTML = '<p style="margin: 25px 0 25px 5px; font-size: 18px; color: #949494; font-weight: 300;"><img src="images/common/smiley_confused.png" width="50px"> Something went wrong!</p>';
+														}
+													}); 
 
 									},
 									error: function(data){
@@ -853,21 +1033,76 @@ function downloadExcelReport(type){
 
 							var header = []; //main head
 							header.push(["SALES SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title].concat(main_header_title_nulls));
+							
+
+
+							//Sub Headings
+							var sub_heading = ["Date", "", ""];
+							for(var a = 0; a < excelReportData_Overall.length; a++){
+								if(a == 0)
+									sub_heading.push("Overall Summary");
+								else
+									sub_heading.push("");
+							}
+
+							for(var a = 0; a < excelReportData_BillingModes.length; a++){
+								if(a == 0)
+									sub_heading.push("Summary by Billing Modes");
+								else
+									sub_heading.push("");
+							}
+
+							for(var a = 0; a < excelReportData_PaymentModes.length; a++){
+								if(a == 0)
+									sub_heading.push("Summary by Payment Modes");
+								else
+									sub_heading.push("");
+							}
+
+
+
+							header.push(sub_heading);
 							header.push(masterRowsHeadings);
+
 
 							var data = header.concat(masterRowsData); //all other data
 
-							/* merge cells A1:I1 */
-							var mergeBoundaryIndex = header[1].length - 1;
-							var mergeBoundary = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
-							var merge = XLSX.utils.decode_range("A1:"+mergeBoundary[mergeBoundaryIndex]);
+
+							/* CELL MERGES */
+
+							var mergeList = [];
+							
+							var mainHeadingMergeIndex = header[1].length - 1;
+							var mainHeadingMergeRange = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
+							mergeList[0] = XLSX.utils.decode_range("A1:"+mainHeadingMergeRange[mainHeadingMergeIndex]);
+							
+							//A1.s = {fill:{fgColor: {rgb:"86BC25"}}};
+
+							var subHeadingMergeRange = ["A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2", "I2", "J2", "K2", "L2", "M2", "N2", "O2", "P2", "Q2", "R2", "S2", "T2", "U2", "V2", "W2", "X2", "Y2", "Z2", "AA2", "AB2", "AC2", "AD2", "AE2", "AF2", "AG2", "AH2", "AI2", "AJ2"];
+							
+							mergeList[1] = XLSX.utils.decode_range("A2:C2");
+							
+							var overall_end_index = 3 + (excelReportData_Overall.length - 1);
+							mergeList[2] = XLSX.utils.decode_range("D2:" + subHeadingMergeRange[overall_end_index]);
+
+							var billing_end_index = 3 + (excelReportData_Overall.length) + (excelReportData_BillingModes.length - 1);
+							mergeList[3] = XLSX.utils.decode_range(subHeadingMergeRange[overall_end_index + 1] +':'+ subHeadingMergeRange[billing_end_index]);
+						
+							var payments_end_index = 3 + (excelReportData_Overall.length) + (excelReportData_BillingModes.length) + (excelReportData_PaymentModes.length - 1);
+							mergeList[4] = XLSX.utils.decode_range(subHeadingMergeRange[billing_end_index + 1] +':'+ subHeadingMergeRange[payments_end_index]);
+							
 
 							/* generate worksheet */
 							var ws = XLSX.utils.aoa_to_sheet(data);
 
 							/* add merges */
 							if(!ws['!merges']) ws['!merges'] = [];
-							ws['!merges'].push(merge);
+
+							for(var w = 0; w < mergeList.length; w++){
+								ws['!merges'].push(mergeList[w]);
+							}
+							
+							
 
 							/* generate workbook */
 							var wb = XLSX.utils.book_new();
@@ -940,18 +1175,21 @@ function downloadExcelReport(type){
 
 			function dateWiseAllInvoicesExcel(request_date_start, request_date_end, billingParameters){
 
-				//format the date to DD-MM-YYYY format
-				request_date_start = moment(request_date_start, 'YYYYMMDD').format('DD-MM-YYYY');
-				request_date_end = moment(request_date_end, 'YYYYMMDD').format('DD-MM-YYYY');
-
 				$.ajax({
 				    type: 'GET',
-					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-filters/_view/showall?startkey=["'+request_date_start+'"]&endkey=["'+request_date_end+'"]&descending=false&include_docs=true',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/fetchall?startkey=["'+request_date_start+'"]&endkey=["'+request_date_end+'"]&descending=false&include_docs=true',
 					timeout: 10000,
 					success: function(data) {
 						
 						var resultsList = data.rows;
 						var invoiceList = [];
+
+						if(resultsList.length == 0){
+							hideLoading();
+							showToast('Warning: There are no invoices found on the given dates.', '#e67e22');
+							return "";
+						}
+
 
 			            resultsList.sort(function(doc1, doc2) { //sort by bill number
 							if (doc1.id < doc2.id)
@@ -1069,10 +1307,10 @@ function downloadExcelReport(type){
 				      		}
 
 							var report_date_range = request_date_start;
-							var report_date_title = ' on ' + moment(request_date_start, 'DD-MM-YYYY').format('D MMM, YYYY');
+							var report_date_title = ' on ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY');
 							if(request_date_start != request_date_end){
 								report_date_range += '_to_' + request_date_end;
-								report_date_title = ' from ' + moment(request_date_start, 'DD-MM-YYYY').format('D MMM, YYYY') + ' to ' + moment(request_date_end, 'DD-MM-YYYY').format('D MMM, YYYY');
+								report_date_title = ' from ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY') + ' to ' + moment(request_date_end, 'YYYYMMDD').format('D MMM, YYYY');
 							}
 
 
@@ -1104,7 +1342,7 @@ function downloadExcelReport(type){
 
 							/* generate workbook */
 							var wb = XLSX.utils.book_new();
-							XLSX.utils.book_append_sheet(wb, ws, "Invoice Summary");
+							XLSX.utils.book_append_sheet(wb, ws, "All Invoices");
 
 							/* generate file and download */
 							const wbout = XLSX.write(wb, { type: "array", bookType: "xlsx" });
@@ -1124,6 +1362,378 @@ function downloadExcelReport(type){
 
 			break;
 		} // end - INVOICE_REPORT
+
+
+		case "BILL_CANCELLATIONS":{
+
+			showLoading(50000, 'Generating Report...');
+
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
+		                  },
+		      "fields"    : ["identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
+
+			          	var params = data.docs[0].value;
+
+			          	dateWiseAllInvoicesExcel(fromDate, toDate, params);	
+
+		          }
+		          else{
+		            hideLoading();
+		            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		          }
+		        }
+		        else{
+		          hideLoading();
+		          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		        }
+		        
+		      },
+		      error: function(data) {
+		      	hideLoading();
+		        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+		      }
+
+		    });
+
+
+					
+
+			function dateWiseAllInvoicesExcel(request_date_start, request_date_end, billingParameters){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/fetchall?startkey=["'+request_date_start+'"]&endkey=["'+request_date_end+'"]&descending=false&include_docs=true',
+					timeout: 10000,
+					success: function(data) {
+						
+						var resultsList = data.rows;
+						var invoiceList = [];
+						
+						if(resultsList.length == 0){
+							hideLoading();
+							showToast('Warning: There are no cancelled invoices found on the given dates.', '#e67e22');
+							return "";
+						}
+
+			            resultsList.sort(function(doc1, doc2) { //sort by bill number
+							if (doc1.id < doc2.id)
+    							return -1;
+  
+  							if (doc1.id > doc2.id)
+    							return 1;
+  
+  							return 0;
+			            });
+
+				      	var n = 0;
+				      	while(resultsList[n]){ //iterating through each invoice
+
+				      		//Get formatted cart items
+				      		var cart_items_formatted = '';
+				      		var sub_total = 0;
+				      		for(var i = 0; i < resultsList[n].doc.cart.length; i++){
+
+				      			var current_item = resultsList[n].doc.cart[i];
+				      			var beautified_item = current_item.name;
+
+				      			sub_total += current_item.price * current_item.qty;
+
+				      			if(current_item.isCustom){
+				      				beautified_item += ' ('+current_item.variant+')';
+				      			}
+
+				      			beautified_item += ' x '+ current_item.qty;
+
+				      			if(cart_items_formatted == ''){
+				      				cart_items_formatted = beautified_item;
+				      			}
+				      			else{
+				      				cart_items_formatted += ', ' + beautified_item;
+				      			}
+				      		}
+
+
+				      		//Get extras
+				      		var all_extras = [];
+				      		for(var i = 0; i < resultsList[n].doc.extras.length; i++){
+				      			all_extras[resultsList[n].doc.extras[i].name] = resultsList[n].doc.extras[i].amount;
+				      		}
+
+				      		//Get custom extras, if any.
+				      		if(resultsList[n].doc.customExtras){
+				      			if(resultsList[n].doc.customExtras.amount != 0){
+				      				all_extras[resultsList[n].doc.customExtras.type] += resultsList[n].doc.customExtras.amount;
+				      			}
+				      		}
+
+				      		var invoice_info_extras = [];
+				      		var m = 0;
+				      		while(billingParameters[m]){
+				      			if(all_extras[billingParameters[m].name] && all_extras[billingParameters[m].name] != ''){
+				      				invoice_info_extras.push(all_extras[billingParameters[m].name]);
+				      			}
+				      			else{
+				      				invoice_info_extras.push(0);
+				      			}
+				      			m++;
+				      		}
+
+				      		
+				      		var invoice_info_basic = [
+				      			n + 1, //Sl No.
+				      			resultsList[n].doc.billNumber, //Bill Number
+				      			resultsList[n].doc.date, //Invoice Date
+				      			moment(resultsList[n].doc.date, 'DD-MM-YYYY').format('dddd'), //Day
+				      			moment(resultsList[n].doc.cancelDetails.timeCancel, 'hhmm').format('hh:mm A'), //Time
+				      			resultsList[n].doc.orderDetails.mode, //Billing Mode
+				      			resultsList[n].doc.orderDetails.modeType, //Type of Mode (DINE, PARCEL etc.)
+				      			cart_items_formatted, //items list
+				      			resultsList[n].doc.cancelDetails.status == 5 ? "Unsettled" : "Settled",
+				      			resultsList[n].doc.cancelDetails.cancelledBy, //cancelled by
+				      			resultsList[n].doc.cancelDetails.reason, // reason for cancellation
+				      			resultsList[n].doc.cancelDetails.comments, //comments
+				      			sub_total //sub_total
+				      		];
+
+				      		var invoice_info_payment = [
+				      			resultsList[n].doc.discount.amount ? resultsList[n].doc.discount.amount : 0, //Discounts 
+				      			resultsList[n].doc.calculatedRoundOff ? resultsList[n].doc.calculatedRoundOff : 0, //Round offs
+				      			resultsList[n].doc.payableAmount, //payable amount
+				      			resultsList[n].doc.totalAmountPaid, //amount paid
+				      			resultsList[n].doc.paymentMode, //mode of payment
+				      			resultsList[n].doc.refundDetails ? resultsList[n].doc.refundDetails.amount : 0, //refunded amounts
+				      			resultsList[n].doc.refundDetails ? (parseFloat((resultsList[n].doc.totalAmountPaid - resultsList[n].doc.refundDetails.amount)).toFixed(2)) : resultsList[n].doc.totalAmountPaid //gross amount
+				      		];
+
+				      		var invoice_info_formatted = invoice_info_basic.concat(invoice_info_extras);
+				      		invoice_info_formatted = invoice_info_formatted.concat(invoice_info_payment);
+
+				      		invoiceList.push(invoice_info_formatted);
+
+				      		if(n == resultsList.length - 1){ //last iteration
+
+				      			hideLoading();
+				      			showToast('Cancelled Invoices Summary generated successfully!', '#27ae60');
+
+				      			generateExcel(invoiceList, billingParameters);
+				      		}
+
+				      		n++;
+				      	}
+
+
+				      	function generateExcel(invoiceData, billingParameters){
+
+				      		var main_header_title_nulls = []; 
+				      		var extras_header_titles = [];
+				      		var q = 0;
+				      		while(billingParameters[q]){
+				      			extras_header_titles.push(billingParameters[q].name + ' (' + (billingParameters[q].unit == 'PERCENTAGE' ? billingParameters[q].value + '%' : 'Rs. '+billingParameters[q].value)+ ')');
+				      			main_header_title_nulls.push("");
+				      			q++;
+				      		}
+
+							var report_date_range = request_date_start;
+							var report_date_title = ' on ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY');
+							if(request_date_start != request_date_end){
+								report_date_range += '_to_' + request_date_end;
+								report_date_title = ' from ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY') + ' to ' + moment(request_date_end, 'YYYYMMDD').format('D MMM, YYYY');
+							}
+
+
+				      		var temp_branch_name = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : 'UNKNOWN_BRANCH';
+				      		var temp_client_name = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : 'UNKNOWN_CLIENT'; 
+
+				      		temp_branch_name = temp_branch_name.toUpperCase();
+				      		temp_client_name = temp_client_name.toUpperCase();
+				      		report_date_title = report_date_title.toUpperCase();
+
+							var header = [
+							  ["CANCELLED INVOICES SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", "", "", "", "", ""].concat(main_header_title_nulls.concat(["", "", "", "", "", "", ""])),
+							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Status", "Cancelled By", "Reason", "Remarks", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Round Off", "Payable Amount", "Paid Amount", "Mode of Payment", "Refunds", "Gross Amount"]))
+							];
+
+							var data = header.concat(invoiceData);
+
+							/* merge cells A1:I1 */
+							var mergeBoundaryIndex = header[1].length - 1;
+							var mergeBoundary = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
+							var merge = XLSX.utils.decode_range("A1:"+mergeBoundary[mergeBoundaryIndex]);
+
+							/* generate worksheet */
+							var ws = XLSX.utils.aoa_to_sheet(data);
+
+							/* add merges */
+							if(!ws['!merges']) ws['!merges'] = [];
+							ws['!merges'].push(merge);
+
+							/* generate workbook */
+							var wb = XLSX.utils.book_new();
+							XLSX.utils.book_append_sheet(wb, ws, "Cancelled Invoices");
+
+							/* generate file and download */
+							const wbout = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+							saveAs(new Blob([wbout], { type: "application/octet-stream" }), "cancelled_invoices_summary_"+temp_client_name.toLowerCase()+"_"+temp_branch_name.toLowerCase()+"_"+report_date_range+".xlsx");
+							
+
+				      	}
+
+					},
+					error: function(data){
+						hideLoading();
+						showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+					}
+				});  
+
+			}
+
+			break;
+		} // end - BILL_CANCELLATIONS
+
+
+
+		case "ITEM_CANCELLATIONS":{
+
+			showLoading(50000, 'Generating Report...');
+
+			dateWiseCancelledItemsExcel(fromDate, toDate);
+
+
+			function dateWiseCancelledItemsExcel(request_date_start, request_date_end){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_item_cancellations/_design/cancellation-summary/_view/fetchall?startkey=["'+request_date_start+'"]&endkey=["'+request_date_end+'"]&descending=false',
+					timeout: 10000,
+					success: function(data) {
+						
+						var resultsList = data.rows;
+						var cancelledItemsList = [];
+						
+						if(resultsList.length == 0){
+							hideLoading();
+							showToast('Warning: There are no items cancelled on the given dates.', '#e67e22');
+							return "";
+						}
+
+
+				      	
+				      	var itemCounter = 1;
+
+				      	var n = 0;
+				      	while(resultsList[n]){ //iterating through each item
+
+				      		var cancelledItem = resultsList[n].value;
+				      		
+				      		for(var c = 0; c < cancelledItem.itemsRemoved.length; c++){
+					      		
+					      		cancelledItemsList.push([
+									itemCounter, //Sl No.
+					      			cancelledItem.date, //Date
+					      			moment(cancelledItem.time, 'hhmm').format('hh:mm A'), //Time
+					      			cancelledItem.mode, //Billing Mode
+					      			cancelledItem.modeType, //Type of Mode (DINE, PARCEL etc.)
+					      			cancelledItem.itemsRemoved[c].name + (cancelledItem.itemsRemoved[c].isCustom ? ' ('+cancelledItem.itemsRemoved[c].variant+')' : ''), //item
+					      			cancelledItem.itemsRemoved[c].qty,
+					      			cancelledItem.stewardName, //requested by
+					      			cancelledItem.itemsRemoved[c].comments, // reason for cancellation
+					      			cancelledItem.adminName, //approved by
+					      			cancelledItem.customerName,
+					      			cancelledItem.customerMobile,
+					      			cancelledItem.guestCount,
+					      			cancelledItem.KOTNumber,
+					      			(cancelledItem.modeType == 'DINE' ? cancelledItem.table : '')
+					      		]);
+
+					      		itemCounter++;
+				      		}
+
+
+				      		if(n == resultsList.length - 1){ //last iteration
+
+				      			hideLoading();
+				      			showToast('Cancelled Items Summary generated successfully!', '#27ae60');
+
+				      			generateExcel(cancelledItemsList);
+				      		}
+
+				      		n++;
+				      	}
+
+
+				      	function generateExcel(cancelledItemsData){
+
+							var report_date_range = request_date_start;
+							var report_date_title = ' on ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY');
+							if(request_date_start != request_date_end){
+								report_date_range += '_to_' + request_date_end;
+								report_date_title = ' from ' + moment(request_date_start, 'YYYYMMDD').format('D MMM, YYYY') + ' to ' + moment(request_date_end, 'YYYYMMDD').format('D MMM, YYYY');
+							}
+
+
+				      		var temp_branch_name = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : 'UNKNOWN_BRANCH';
+				      		var temp_client_name = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : 'UNKNOWN_CLIENT'; 
+
+				      		temp_branch_name = temp_branch_name.toUpperCase();
+				      		temp_client_name = temp_client_name.toUpperCase();
+				      		report_date_title = report_date_title.toUpperCase();
+
+							var header = [
+							  ["CANCELLED ITEMS DETAILS - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", "", "", "", "", "", ""],
+							  ["Sl. No.", "Date", "Time", "Billing Mode", "Type", "Item", "Quantity", "Requested By", "Comments", "Approver", "Guest Name", "Guest Mobile", "Number of Guests", "KOT Number", "Table Reference"]
+							];
+
+							var data = header.concat(cancelledItemsData);
+
+							/* merge cells A1:I1 */
+							var mergeBoundaryIndex = header[1].length - 1;
+							var mergeBoundary = ["A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "I1", "J1", "K1", "L1", "M1", "N1", "O1", "P1", "Q1", "R1", "S1", "T1", "U1", "V1", "W1", "X1", "Y1", "Z1", "AA1", "AB1", "AC1", "AD1", "AE1", "AF1", "AG1", "AH1", "AI1", "AJ1"];
+							var merge = XLSX.utils.decode_range("A1:"+mergeBoundary[mergeBoundaryIndex]);
+
+							/* generate worksheet */
+							var ws = XLSX.utils.aoa_to_sheet(data);
+
+							/* add merges */
+							if(!ws['!merges']) ws['!merges'] = [];
+							ws['!merges'].push(merge);
+
+							/* generate workbook */
+							var wb = XLSX.utils.book_new();
+							XLSX.utils.book_append_sheet(wb, ws, "Cancelled Items");
+
+							/* generate file and download */
+							const wbout = XLSX.write(wb, { type: "array", bookType: "xlsx" });
+							saveAs(new Blob([wbout], { type: "application/octet-stream" }), "cancelled_items_summary_"+temp_client_name.toLowerCase()+"_"+temp_branch_name.toLowerCase()+"_"+report_date_range+".xlsx");
+							
+
+				      	}
+
+					},
+					error: function(data){
+						hideLoading();
+						showToast('System Error: Unable to read Cancelled Items data. Please contact Accelerate Support.', '#e74c3c');
+					}
+				});  
+
+			}
+
+			break;
+		} // end - ITEM_CANCELLATIONS
+
 
 	}
 }
@@ -1849,7 +2459,7 @@ function fetchPaymentModeWiseSummary() {
 
 													//time to render...
 											    	if(temp_count > 0){
-											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
+											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr onclick="openDetailedByExtras(\''+modes[0].code+'\', \''+fromDate+'\', \''+toDate+'\', \''+temp_count+'\', \''+(temp_sum-refund_amount)+'\')" class="detailedByMode"> <td>'+modes[0].name+'<tag class="viewOptionsIcon">View Details</tag></td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
 											    	}
 											    	else{
 											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
@@ -1958,7 +2568,7 @@ function fetchPaymentModeWiseSummaryCallback(index, modes, fromDate, toDate, gra
 
 													//time to render...
 											    	if(temp_count > 0){
-											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
+											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr onclick="openDetailedByExtras(\''+modes[index].code+'\', \''+fromDate+'\', \''+toDate+'\', \''+temp_count+'\', \''+(temp_sum-refund_amount)+'\')" class="detailedByMode"> <td>'+modes[index].name+'<tag class="viewOptionsIcon">View Details</tag></td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum-refund_amount).toFixed(2)+'</td> </tr>';
 											    	}
 											    	else{
 											    		document.getElementById("summaryRender_paymentMode").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right"><i class="fa fa-inr"></i>0</td> </tr>';
@@ -2061,6 +2671,280 @@ function renderGraph_PaymentModeWiseSummary(graphData){
 	    }
 	});	
 }
+
+
+
+
+function openDetailedByExtras(selectedPaymentMode, fromDate, toDate, grandCount, grandSum){
+		
+		//given this mode of payment, render the extras comings under this
+
+		document.getElementById("summaryRenderArea_paymentMode_detailed").style.display = "block";
+		document.getElementById("summaryRenderArea_paymentMode_detailed_title").innerHTML = 'Detailed Summary for <b>'+selectedPaymentMode+'</b>';
+
+
+		document.getElementById("summaryRender_paymentMode_detailed").innerHTML = '';
+
+		var cumulativeSum = 0;
+
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
+
+	            var modes = data.docs[0].value;
+
+	          	if(modes.length == 0){
+	          		document.getElementById("summaryRender_paymentMode_detailed").innerHTML = '<tag style="padding: 20px 0; display: block; color: gray">There are no billing parameters added.</tag>';
+	          		return '';
+	          	}
+
+	          	  //For a given EXTRAS, the total Sales in the given DATE RANGE
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
+
+				    	if(data.rows.length > 0){
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
+				    	}
+
+
+				    		//Now check in custom Extras
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_custom?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+
+									//Now check in split payments
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+											//Now check in split payments with custom extras
+									    	$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple_custom?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													if(data.rows.length > 0){
+													    temp_sum += data.rows[0].value.sum;
+													}
+
+													
+													//time to render...
+											    	if(temp_sum > 0){
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right">'+(temp_count > 0 ? '<count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count>' : '')+'<i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
+											    	}
+
+											    	cumulativeSum += temp_sum;
+
+											    	//Check if next mode exists...
+											    	if(modes[1]){
+											    		openDetailedByExtrasCallback(1, modes, fromDate, toDate, selectedPaymentMode, grandCount, grandSum, cumulativeSum);
+											    	}
+											    	else{
+											    		
+											    		if(cumulativeSum > 0){
+											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Sales Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(2)+'</td> </tr>';
+											    		}
+
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Grand Total</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
+											    	}
+													
+
+												},
+												error: function(data){
+
+												}
+											}); //split payments with custom extras
+
+
+
+										},
+										error: function(data){
+
+										}
+									}); //split payments
+
+
+
+								},
+								error: function(data){
+
+								}
+							}); 
+
+
+				    },
+				    error: function(data){
+
+				    }
+				  });  
+
+	          }
+	          else{
+	            showToast('Not Found Error: Payments data not found. Please contact Accelerate Support.', '#e74c3c');
+	          }
+	        }
+	        else{
+	          showToast('Not Found Error: Payments data not found. Please contact Accelerate Support.', '#e74c3c');
+	        }
+	        
+	      },
+	      error: function(data) {
+	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	      }
+
+	    });
+}
+
+
+function openDetailedByExtrasCallback(index, modes, fromDate, toDate, selectedPaymentMode, grandCount, grandSum, cumulativeSum){
+	          	
+	          	  //For a given PAYMENT MODE, the extras in the given DATE RANGE
+				  
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+				    	
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
+
+				    	if(data.rows.length > 0){
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
+				    	}
+
+				    		//Now check in custom extras
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_custom?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+
+						    		//Now check in split payments
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+								    		//Now check in split payments with custom extras
+									    	$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple_custom?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													if(data.rows.length > 0){
+													    temp_sum += data.rows[0].value.sum;
+													}
+
+
+													//time to render...
+											    	if(temp_sum > 0){
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td>'+modes[index].name+'</td> <td class="summaryLine3" style="text-align: right">'+(temp_count > 0 ? '<count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count>' : '')+'<i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';	
+											    	}
+
+											    	cumulativeSum += temp_sum;
+
+											    	//Check if next mode exists...
+											    	if(modes[index+1]){
+											    		openDetailedByExtrasCallback(index+1, modes, fromDate, toDate, selectedPaymentMode, grandCount, grandSum, cumulativeSum);
+											    	}
+											    	else{
+											    		
+											    		if(cumulativeSum > 0){
+											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Sales Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(2)+'</td> </tr>';
+											    		}
+
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Grand Total</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
+											    	}													
+
+												},
+												error: function(data){
+
+												}
+											}); //split payments with custom extras
+										
+
+
+
+										},
+										error: function(data){
+
+										}
+									}); //split payments
+
+
+
+
+								},
+								error: function(data){
+
+								}
+							}); 
+
+
+				    },
+				    error: function(data){
+
+				    }
+				  });  
+}
+
+
+
+
+
 
 
 
@@ -3853,6 +4737,370 @@ function fetchRefundSummaryCallback(index, modes, fromDate, toDate, grandSum, gr
 }
 
 
+//ITEM CANCELLATION REPORT
+function fetchItemCancellations(){
+
+	/*
+		Top Items cancelled from different orders in given date range
+	*/
+
+
+	$( "#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_itemCancellationSummary").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+	document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9; text-align: center" class="blink_me">Please Wait! The Report is being generated.</p>';
+	document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+
+	document.getElementById("itemCancellationSummaryReportOptions").innerHTML = ''+
+									'<div id="itemCancellationSummaryReportActions" style="display: none">'+
+                                        '<button data-hold="" text-hold="" id="itemCancellationSummaryReportAction_Download" onclick="itemCancellationReportActionDownload()" style="margin-right: 5px" class="btn btn-success btn-sm"><i class="fa fa-download"></i> Download</button>'+
+                                      '</div></center>';	
+
+	
+
+	showLoading(50000, 'Generating Report...');
+
+	$.ajax({
+		type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_item_cancellations/_design/cancellation-summary/_view/itemscount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
+		timeout: 50000,
+		success: function(data) {
+
+			hideLoading();
+
+			var itemsList = data.rows;
+			if(itemsList.length == 0){
+				document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items cancelled on the given dates</p>';
+				document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+				return '';
+			}
+
+			reduceByDate(itemsList);
+			
+			function reduceByDate(listOfItems){
+				//Reduce Function 
+				var reduced_list = listOfItems.reduce(function (accumulator, item) {
+					if(accumulator[item.key[2]]){
+						accumulator[item.key[2]].count += item.value;
+					}
+					else{
+						accumulator[item.key[2]] = {
+							"category": item.key[1],
+							"count": item.value
+						};
+					}
+
+				  	return accumulator;
+				}, {});
+
+				var formattedList = [];
+				var keysCount = Object.keys(reduced_list);
+
+				var counter = 1;
+				for (x in reduced_list) {
+				    formattedList.push({
+				    	"name": x,
+				    	"count": reduced_list[x].count,
+				    	"category": reduced_list[x].category
+				    });
+
+				    if(counter == keysCount.length){ //last iteration
+				    	// Ascending: Sorting
+				    	formattedList.sort(function(obj1, obj2) {
+		                	return obj2.count - obj1.count;
+		              	});
+
+				    	renderMostCancelledItems(formattedList);
+				    }
+
+				    counter++;
+				}
+				
+			}
+
+			function renderMostCancelledItems(itemsFilteredList){
+
+				if(itemsFilteredList.length > 0){ 
+
+					var upper_limit = 15;
+					if(itemsFilteredList.length < 15){ //max of 20 items
+						upper_limit = itemsFilteredList.length;
+					}
+
+					var renderContent = '';
+					for(var i = 0; i < upper_limit; i++){
+						renderContent += '<tr> <td><i class="fa fa-circle" style="color: #dd4b39; font-size: 12px; margin-right: 10px; top: -1px; position: relative;"></i><b style="color: #dd4b39; font-size: 17px; font-weight: 500; }">'+itemsFilteredList[i].name+(itemsFilteredList[i].category != '' && itemsFilteredList[i].category != 'UNKNOWN' ? '<tag style="color: gray; margin-left: 6px; font-size: 12px;">'+itemsFilteredList[i].category+'</tag>' : '')+'</b></td> <td class="summaryLine3" style="text-align: center; color: #dd4b39">'+itemsFilteredList[i].count+'</td> </tr>';
+					}
+
+					document.getElementById("summaryRender_itemCancellationSummary").innerHTML = renderContent;
+					document.getElementById("completeItemCancellationSummaryButton").style.display = 'inline-block';
+				} 
+				else{ 
+					document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items cancelled on the given dates</p>';
+					document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+				}
+			}
+		},
+		error: function(data){
+			hideLoading();
+			document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Cancellations Summary on the given dates</p>';
+			showToast('Not Found Error: Item Cancellations data not found. Please contact Accelerate Support.', '#e74c3c');
+			document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+			return '';								    	
+		}
+	});  
+
+}
+
+
+
+function generateOverallItemCancellationReport(){
+	/*
+		Items cancelled from orders in given date range
+	*/
+
+	$( "#summaryRenderArea" ).children().css( "display", "none" );
+	document.getElementById("summaryRenderArea_itemCancellationSummary").style.display = "block";
+
+	//Note: Dates in YYYYMMDD format
+	var fromDate = document.getElementById("reportFromDate").value;
+	fromDate = fromDate && fromDate != '' ? fromDate : getCurrentTime('DATE_STAMP');
+	fromDate = getSummaryStandardDate(fromDate);
+
+	var toDate = document.getElementById("reportToDate").value;
+	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
+	toDate = getSummaryStandardDate(toDate);
+
+	document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9; text-align: center" class="blink_me">Please Wait! The Report is being generated.</p>';
+	document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+	document.getElementById("itemCancellationSummaryReportActions").style.display = 'none';
+
+
+	showLoading(50000, 'Generating Report...');
+
+	$.ajax({
+		type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_item_cancellations/_design/cancellation-summary/_view/fetchall?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]&descending=false',
+		timeout: 50000,
+		success: function(data) {
+
+			hideLoading();
+
+			var itemsList = data.rows;
+
+			if(itemsList.length == 0){
+				document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">There are no items cancelled on the given dates</p>';
+				document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+				return '';
+			}
+
+
+						//render data
+						var renderContent = '';
+
+						var n = 0;
+						while(itemsList[n]){
+
+							var cancelledData = itemsList[n].value;
+							
+							for(var i = 0; i < cancelledData.itemsRemoved.length; i++){
+								renderContent += ''+
+										'<tr>'+
+											'<td>'+
+												'<tag style="font-size: 12px">'+moment(cancelledData.time, 'hhmm').format('hh:mm A')+'</tag>'+
+												'<tag style="color: #9c9c9c; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+											'</td>'+
+											'<td style="font-weight: bold; font-family: \'Oswald\'; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].qty+' <tag style="font-weight: 300;">x</tag></td>'+
+											'<td>'+
+												'<tag style="font-weight: 600; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].name+'</tag>'+
+												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.itemsRemoved[i].comments+'</tag>'+
+											'</td>'+
+											'<td>'+(cancelledData.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.mode)+'</td>'+
+											'<td>'+
+												'<tag>by '+cancelledData.stewardName+'</tag>'+
+												'<tag style="display: block; font-size: 11px; color: #999;">'+cancelledData.adminName+' approved</tag>'+
+											'</td>'+
+										'</tr>';
+							}
+
+							n++;
+						}
+					
+						document.getElementById("summaryRender_itemCancellationSummary").innerHTML = renderContent;
+						document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
+						document.getElementById("itemCancellationSummaryReportActions").style.display = 'block';
+					
+
+						//Build Content for actions
+						generateItemReportContentDownload();
+
+						function generateItemReportContentDownload(){
+
+
+							//Get staff info.
+							var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
+							
+							if(jQuery.isEmptyObject(loggedInStaffInfo)){
+								loggedInStaffInfo.name = 'Staff';
+								loggedInStaffInfo.code = '0000000000';
+							}	
+
+
+							var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
+								
+							if(reportInfo_branch == ''){
+								showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+								return '';
+							}
+
+
+							var temp_address_modified = (window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '') + ' - ' + (window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '');  
+
+							var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
+
+							var reportInfo_admin = loggedInStaffInfo.name;
+							var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
+							var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : temp_address_modified;
+
+
+
+							var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
+
+							var reportInfo_title = 'Item Cancellations on <b>'+fancy_from_date+'</b>';
+							var temp_report_title = 'Item Cancellations on '+fancy_from_date;
+							if(fromDate != toDate){
+								fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
+								var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
+
+								reportInfo_title = 'Item Cancellations from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
+								temp_report_title = 'Item Cancellations from '+fancy_from_date+' to '+fancy_to_date;
+							}
+
+						    var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
+
+
+							var quickRendererContent = '';
+							var n = 0;
+							while(itemsList[n]){ 
+
+								var cancelledData = itemsList[n].value;
+								
+								for(var i = 0; i < cancelledData.itemsRemoved.length; i++){
+									quickRendererContent += ''+
+											'<tr>'+
+												'<td style="padding: 6px 0">'+
+													'<tag style="font-size: 12px">'+moment(cancelledData.time, 'hhmm').format('hh:mm A')+'</tag>'+
+													'<tag style="color: #9c9c9c; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+												'</td>'+
+												'<td style="padding: 6px 0; font-weight: bold; font-family: \'Oswald\'; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].qty+' <tag style="font-weight: 300;">x</tag></td>'+
+												'<td style="padding: 6px 0">'+
+													'<tag style="font-size: 13px; font-weight: 400; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].name+'</tag>'+
+													'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.itemsRemoved[i].comments+'</tag>'+
+												'</td>'+
+												'<td style="text-align: center; padding: 6px 0; font-size: 12px;">'+(cancelledData.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.mode)+'</td>'+
+												'<td style="text-align: center; padding: 6px 0; font-size: 12px;">'+cancelledData.stewardName+'</td>'+
+												'<td style="text-align: center; padding: 6px 0; font-size: 12px;">'+cancelledData.adminName+'</td>'+
+											'</tr>';
+								}
+
+								n++;
+							}
+
+
+							var downloadRenderContent = ''+
+																  '<div class="summaryTableSectionHolder">'+
+															        '<div class="summaryTableSection">'+
+															           '<div class="tableQuickHeader">'+
+															              '<h1 class="tableQuickHeaderText">Item Cancellations</h1>'+
+															           '</div>'+
+															           '<div class="tableQuick">'+
+															              '<table style="width: 100%">'+
+															              	'<tr>'+
+															              		'<td style="color: #FFF; background: #3c5163; padding: 10px 0 10px 4px; font-size: 15px;"></td>'+
+															              		'<td colspan="2" style="color: #FFF; background: #3c5163; padding: 10px 0; font-size: 15px;">Item</td>'+
+															              		'<td style="text-align: center; color: #FFF; background: #3c5163; padding: 10px 0; font-size: 15px;">Source</td>'+
+															              		'<td style="text-align: center; color: #FFF; background: #3c5163; padding: 10px 0; font-size: 15px;">Captain</td>'+
+															              		'<td style="text-align: center; color: #FFF; background: #3c5163; padding: 10px 0; font-size: 15px;">Approver</td>'+
+															              	'<tr>'+ quickRendererContent+
+															              '</table>'+
+															           '</div>'+
+															        '</div>'+
+															      '</div>';
+
+
+							var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+
+						    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+						    
+						    var finalReport_downloadContent = cssData+
+							    '<body>'+
+							      '<div class="mainHeader">'+
+							         '<div class="headerLeftBox">'+
+							            '<div id="logo">'+
+							               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
+							            '</div>'+
+							            '<p class="headerAddress">'+reportInfo_address+'</p>'+
+							         '</div>'+
+							         '<div class="headerRightBox">'+
+							            '<h1 class="headerBranch">'+reportInfo_branch+'</h1>'+
+							            '<p class="headerAdmin">'+reportInfo_admin+'</p>'+
+							            '<p class="headerTimestamp">'+reportInfo_time+'</p>'+
+							         '</div>'+
+							      '</div>'+
+							      '<div class="introFacts" style="min-height: 0; margin-bottom: -25px;">'+
+							         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
+							      '</div>'+
+							      downloadRenderContent +
+							      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
+							         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
+							      '</div>'+
+							    '</body>';
+
+								var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
+								$('#itemCancellationSummaryReportAction_Download').attr('data-hold', finalContent_EncodedDownload);
+
+								var finalContent_EncodedText = encodeURI(fancy_report_title_name);
+								$('#itemCancellationSummaryReportAction_Download').attr('text-hold', finalContent_EncodedText);
+
+						}
+
+			
+		},
+		error: function(data){
+			hideLoading();
+			document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Cancellation Summary on the given dates</p>';
+			showToast('Not Found Error: Item Cancellations data not found. Please contact Accelerate Support.', '#e74c3c');
+			return '';								    	
+		}
+	});  
+}
+
+
+//ITEM REPORT ACTIONS
+function itemCancellationReportActionDownload(){
+	
+	var htmlContentEncoded = $('#itemCancellationSummaryReportAction_Download').attr('data-hold');
+	var htmlContent = decodeURI(htmlContentEncoded);
+
+	var textContentEncoded = $('#itemCancellationSummaryReportAction_Download').attr('text-hold');
+	var textContent = decodeURI(textContentEncoded);
+
+	showToast('Downloading Report', '#27ae60');
+	generatePDFReport(htmlContent, textContent);
+}
+
+
+
+
 
 //ITEM WISE REPORT
 function fetchItemSummary(){
@@ -3984,7 +5232,6 @@ function generateOverallItemReport(){
 	/*
 		Items sold in given date range
 	*/
-
 
 	$( "#summaryRenderArea" ).children().css( "display", "none" );
 	document.getElementById("summaryRenderArea_itemSummary").style.display = "block";
@@ -5542,7 +6789,7 @@ function fetchSingleClickReportAfterApproval(){
 						});				
 
 						//Skip and go to next step
-						singleClickCancellationSummary(); 
+						singleClickPaymentModesSplitByExtras(); 
 						return '';
 		          	}
 		          	else{
@@ -5598,6 +6845,7 @@ function fetchSingleClickReportAfterApproval(){
 
 										    		detailedListByPaymentMode.push({
 										    			"name": modes[0].name,
+										    			"code": modes[0].code,
 										    			"value": temp_sum - refund_amount,
 										    			"count": temp_count
 										    		});									
@@ -5609,7 +6857,7 @@ function fetchSingleClickReportAfterApproval(){
 											    	}
 											    	else{
 											    		//Step 10: Weekly Progress
-											    		singleClickCancellationSummary();
+											    		singleClickPaymentModesSplitByExtras();
 											    	}
 
 												},
@@ -5620,7 +6868,7 @@ function fetchSingleClickReportAfterApproval(){
 													});				
 
 													//Skip and go to next step
-													singleClickCancellationSummary(); 
+													singleClickPaymentModesSplitByExtras(); 
 													return '';
 												}
 											}); 
@@ -5635,7 +6883,7 @@ function fetchSingleClickReportAfterApproval(){
 											});				
 
 											//Skip and go to next step
-											singleClickCancellationSummary(); 
+											singleClickPaymentModesSplitByExtras(); 
 											return '';
 										}
 									}); 
@@ -5663,7 +6911,7 @@ function fetchSingleClickReportAfterApproval(){
 				});				
 
 				//Skip and go to next step
-				singleClickCancellationSummary(); 
+				singleClickPaymentModesSplitByExtras(); 
 				return '';
 	          }
 	        }
@@ -5674,7 +6922,7 @@ function fetchSingleClickReportAfterApproval(){
 				});				
 
 				//Skip and go to next step
-				singleClickCancellationSummary(); 
+				singleClickPaymentModesSplitByExtras(); 
 				return '';
 	        }
 	      },
@@ -5685,7 +6933,7 @@ function fetchSingleClickReportAfterApproval(){
 				});				
 
 				//Skip and go to next step
-				singleClickCancellationSummary(); 
+				singleClickPaymentModesSplitByExtras(); 
 				return '';
 	      }
 
@@ -5747,6 +6995,7 @@ function fetchSingleClickReportAfterApproval(){
 
 										    		detailedListByPaymentMode.push({
 										    			"name": modes[index].name,
+										    			"code": modes[index].code,
 										    			"value": temp_sum - refund_amount,
 										    			"count": temp_count
 										    		});									
@@ -5758,7 +7007,7 @@ function fetchSingleClickReportAfterApproval(){
 											    	}
 											    	else{
 											    		//Step 10: Weekly Progress
-											    		singleClickCancellationSummary();
+											    		singleClickPaymentModesSplitByExtras();
 											    	}
 
 												},
@@ -5769,7 +7018,7 @@ function fetchSingleClickReportAfterApproval(){
 													});				
 
 													//Skip and go to next step
-													singleClickCancellationSummary(); 
+													singleClickPaymentModesSplitByExtras(); 
 													return '';
 												}
 											}); 
@@ -5783,7 +7032,7 @@ function fetchSingleClickReportAfterApproval(){
 											});				
 
 											//Skip and go to next step
-											singleClickCancellationSummary(); 
+											singleClickPaymentModesSplitByExtras(); 
 											return '';
 										}
 									}); 
@@ -5795,7 +7044,7 @@ function fetchSingleClickReportAfterApproval(){
 								});				
 
 								//Skip and go to next step
-								singleClickCancellationSummary(); 
+								singleClickPaymentModesSplitByExtras(); 
 								return '';					        	
 					      	}
 					    });
@@ -5809,7 +7058,7 @@ function fetchSingleClickReportAfterApproval(){
 
 			if(paymentGraphData.length == 0){
 				//Skip and go to next step
-				singleClickCancellationSummary(); 
+				singleClickPaymentModesSplitByExtras(); 
 				return '';
 			}
 
@@ -5875,21 +7124,400 @@ function fetchSingleClickReportAfterApproval(){
 				window.localStorage.graphImageDataPayments = temp_graph;
 
 				//Go to Step 9.2
-				singleClickCancellationSummary();
+				singleClickPaymentModesSplitByExtras();
 			}
 	}
 
 
-	//Step 9.2: Cancellation Summary
-	function singleClickCancellationSummary(){
+	//Step 9.2: Payment Modes (detailed w.r.t Extras, SGST, CGST etc.)
+	function singleClickPaymentModesSplitByExtras(){
+		
 		runReportAnimation(70); //of Step 9.1 which takes 5 units
 	
-		singleClickWeeklyProgress();
+		preloadExtrasValues();
+
+		//Preload Billing Parameters (Extras and Custom Extras)
+		function preloadExtrasValues(){
+			
+			    var requestData = {
+			      "selector"  :{ 
+			                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
+			                  },
+			      "fields"    : ["identifierTag", "value"]
+			    }
+
+			    $.ajax({
+			      type: 'POST',
+			      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+			      data: JSON.stringify(requestData),
+			      contentType: "application/json",
+			      dataType: 'json',
+			      timeout: 10000,
+			      success: function(data) {
+
+			        if(data.docs.length > 0){
+			          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
+
+			            var modes = data.docs[0].value;
+
+			          	if(modes.length == 0){
+			          		completeErrorList.push({
+							    "step": 9.2,
+								"error": "Failed to calculate the extras and custom extras against each payment modes"
+							});	
+
+							singleClickWeeklyProgress();	
+
+			          		return '';
+			          	}
+			          	else{
+			          		//Start Processing
+			          		getDetailedByExtras(0, modes);
+			          	}
+
+			          }
+			          else{
+			          		completeErrorList.push({
+							    "step": 9.2,
+								"error": "Failed to calculate the extras and custom extras against each payment modes"
+							});	
+
+							singleClickWeeklyProgress();	
+
+			          		return '';
+			          }
+			        }
+			        else{
+			          	completeErrorList.push({
+						    "step": 9.2,
+							"error": "Failed to calculate the extras and custom extras against each payment modes"
+						});	
+
+						singleClickWeeklyProgress();	
+
+			          	return '';
+					}
+			        
+			      },
+			      error: function(data) {
+			      	completeErrorList.push({
+					    "step": 9.2,
+						"error": "Failed to calculate the extras and custom extras against each payment modes"
+					});	
+					
+					singleClickWeeklyProgress();	
+
+			      	return '';  
+
+			      }
+
+			    });
+		}
+
+
+
+		//START PROCESSING
+		function getDetailedByExtras(greatIndex, modes){
+			
+			/*
+				For a given payment mode, calculate the extras and custom extras 
+				coming under this mode. For ex., for Cash Rs. 200, CGST Rs. 5, 
+				SGST Rs. 5 etc.
+			*/
+
+			var extrasTemplate = [];
+
+			if(detailedListByPaymentMode[greatIndex]){
+				getDetailedExtrasForPaymentMode(detailedListByPaymentMode[greatIndex].code, modes)
+			}
+			else{
+				singleClickWeeklyProgress();
+			}
+
+
+			function getDetailedExtrasForPaymentMode(selectedPaymentMode, modes){
+
+			          	  //For a given EXTRAS, the total Sales in the given DATE RANGE
+						  $.ajax({
+						    type: 'GET',
+						    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+						    timeout: 10000,
+						    success: function(data) {
+
+						    	var temp_count = 0;
+						    	var temp_sum = 0;
+
+						    	if(data.rows.length > 0){
+						    		temp_count = data.rows[0].value.count;
+						    		temp_sum = data.rows[0].value.sum;
+						    	}
+
+
+						    		//Now check in custom Extras
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_custom?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_count += data.rows[0].value.count;
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+											//Now check in split payments
+									    	$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													
+													if(data.rows.length > 0){
+													    temp_sum += data.rows[0].value.sum;
+													}
+
+
+													//Now check in split payments with custom extras
+											    	$.ajax({
+														type: 'GET',
+														url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple_custom?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+														timeout: 10000,
+														success: function(data) {
+
+															if(data.rows.length > 0){
+															    temp_sum += data.rows[0].value.sum;
+															}
+
+															temp_sum = parseFloat(temp_sum).toFixed(2);
+															temp_sum = parseFloat(temp_sum);
+
+															extrasTemplate.push({
+																"name": modes[0].name,
+																"amount": temp_sum
+															});
+
+													    	//Check if next mode exists...
+													    	if(modes[1]){
+													    		getDetailedExtrasForPaymentModeCallback(1, modes, selectedPaymentMode);
+													    	}
+													    	else{
+
+													    		//Save changes
+													    		detailedListByPaymentMode[greatIndex].detailedExtras = extrasTemplate;
+
+													    		getDetailedByExtras(greatIndex + 1, modes);
+													    	}
+															
+
+														},
+														error: function(data){
+											          		completeErrorList.push({
+															    "step": 9.2,
+																"error": "Failed to calculate the extras and custom extras against each payment modes"
+															});	
+
+															singleClickWeeklyProgress();	
+
+											          		return '';
+														}
+													}); //split payments with custom extras
+
+
+
+												},
+												error: function(data){
+									          		completeErrorList.push({
+													    "step": 9.2,
+														"error": "Failed to calculate the extras and custom extras against each payment modes"
+													});	
+
+													singleClickWeeklyProgress();	
+
+									          		return '';
+												}
+											}); //split payments
+
+
+
+										},
+										error: function(data){
+							          		completeErrorList.push({
+											    "step": 9.2,
+												"error": "Failed to calculate the extras and custom extras against each payment modes"
+											});	
+
+											singleClickWeeklyProgress();	
+
+							          		return '';
+										}
+									}); 
+
+
+						    },
+						    error: function(data){
+				          		completeErrorList.push({
+								    "step": 9.2,
+									"error": "Failed to calculate the extras and custom extras against each payment modes"
+								});	
+
+								singleClickWeeklyProgress();	
+
+				          		return '';
+						    }
+						  });  
+
+
+			} // end - getDetailedExtrasForPaymentMode
+
+
+			function getDetailedExtrasForPaymentModeCallback(index, modes, selectedPaymentMode){
+	          	
+	          	  //For a given PAYMENT MODE, the extras in the given DATE RANGE
+				  
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+				    	
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
+
+				    	if(data.rows.length > 0){
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
+				    	}
+
+				    		//Now check in custom extras
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_custom?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+
+						    		//Now check in split payments
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+								    		//Now check in split payments with custom extras
+									    	$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple_custom?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													if(data.rows.length > 0){
+													    temp_sum += data.rows[0].value.sum;
+													}
+
+													temp_sum = parseFloat(temp_sum).toFixed(2);
+													temp_sum = parseFloat(temp_sum);
+
+													extrasTemplate.push({
+														"name": modes[index].name,
+														"amount": temp_sum
+													});
+
+											    	//Check if next mode exists...
+											    	if(modes[index+1]){
+											    		getDetailedExtrasForPaymentModeCallback(index+1, modes, selectedPaymentMode);
+											    	}
+											    	else{
+
+											    		//Save changes
+													    detailedListByPaymentMode[greatIndex].detailedExtras = extrasTemplate;
+
+											    		getDetailedByExtras(greatIndex + 1, modes);
+											    	}													
+
+												},
+												error: function(data){
+											      	completeErrorList.push({
+													    "step": 9.2,
+														"error": "Failed to calculate the extras and custom extras against each payment modes"
+													});	
+													
+													singleClickWeeklyProgress();	
+
+											      	return ''; 
+												}
+											}); //split payments with custom extras
+										
+
+
+
+										},
+										error: function(data){
+									      	completeErrorList.push({
+											    "step": 9.2,
+												"error": "Failed to calculate the extras and custom extras against each payment modes"
+											});	
+											
+											singleClickWeeklyProgress();	
+
+									      	return ''; 
+										}
+									}); //split payments
+
+
+
+
+								},
+								error: function(data){
+							      	completeErrorList.push({
+									    "step": 9.2,
+										"error": "Failed to calculate the extras and custom extras against each payment modes"
+									});	
+									
+									singleClickWeeklyProgress();	
+
+							      	return ''; 
+								}
+							}); 
+
+
+				    },
+				    error: function(data){
+				      	completeErrorList.push({
+						    "step": 9.2,
+							"error": "Failed to calculate the extras and custom extras against each payment modes"
+						});	
+						
+						singleClickWeeklyProgress();	
+
+				      	return ''; 
+				    }
+				  });  
+
+			} // end - getDetailedExtrasForPaymentModeCallback
+
+
+		} // end - getDetailedByExtras
+
+
 	}
+
 
 
 	//Step 10: Weekly Progress
 	function singleClickWeeklyProgress(){
+
 
 		runReportAnimation(75); //of Step 9 which takes 5 units
 		
@@ -6157,11 +7785,6 @@ function fetchSingleClickReportAfterApproval(){
 	//Step 12: Final Reports Render Stage
 	function singleClickGenerateAllReports(){
 
-
-	    //PENDING --> TOTAL CALCULATED ROUND OFFFFF
-	    console.log('PENDING API --> TOTAL CALCULATED ROUND OFFFFF')
-	   
-
 		runReportAnimation(95); //of Step 11 which completed the data processing
 
 
@@ -6260,7 +7883,7 @@ function fetchSingleClickReportAfterApproval(){
 		    var billSharePercentage = 0;
 		    while(detailedListByBillingMode[c]){
 		      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
-		      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #000">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+		      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
 		      c++;
 		    }
 
@@ -6319,9 +7942,45 @@ function fetchSingleClickReportAfterApproval(){
 		    var paymentSharePercentage = 0;
 		    while(detailedListByPaymentMode[d]){
 		      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
-		      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #000">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+		      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
 		      d++;
 		    }
+
+		    //Detailed Payment (Extras and Custom Extras for each payment mode)
+		    var detailedByExtrasForPaymentRenderContent = '';
+		    var detailedExtrasContentHeader = '';
+		    var t = 0;
+		    while(detailedListByPaymentMode[t]){
+
+		    	var detailedExtrasContent = '';
+		    	var netAmount = detailedListByPaymentMode[t].value;
+
+		    	for(var e = 0; e < detailedListByPaymentMode[t].detailedExtras.length; e++){
+		    	
+		    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: center;">'+detailedListByPaymentMode[t].detailedExtras[e].amount+'</td>';
+		    	
+		    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
+
+			    	if(t == 0){
+			    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
+			    	}
+		    	}
+
+		    	detailedByExtrasForPaymentRenderContent += '' +
+									    		'<tr>'+
+									    			'<td class="tableQuickBrief">'+detailedListByPaymentMode[t].name+'</td>'+
+									    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(netAmount).toFixed(0)+'</td>'+
+									    			detailedExtrasContent +
+									    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
+									    		'</tr>';
+
+
+		    	t++;
+		    }
+
+		    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Total</td> </tr>';
+		    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent;
+
 
 			//To display payment graph or not
 			var hasPaymentsGraphAttached = false;
@@ -6371,6 +8030,51 @@ function fetchSingleClickReportAfterApproval(){
 			    }
 		    }
 
+
+		    var detailedByExtrasForPaymentRenderContentFinal = '';
+		    if(detailedByExtrasForPaymentRenderContent != ''){
+
+		    	detailedByExtrasForPaymentRenderContentFinal = ''+
+			        '<div class="summaryTableSectionHolder">'+
+			        '<div class="summaryTableSection">'+
+			           '<div class="tableQuickHeader">'+
+			              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+			           '</div>'+
+			           '<div class="tableQuick">'+
+			              '<table style="width: 100%">'+
+			                 '<col style="width: 70%">'+
+			                 '<col style="width: 30%">'+
+			                 detailedByExtrasForPaymentRenderContent+
+			              '</table>'+
+			           '</div>'+
+			        '</div>'+
+			        '</div>';	
+		    }
+
+
+		    //Bill Cancellations
+			var downloadSummaryCancellations = '';
+			if(netCancelledBills > 0){
+			    	downloadSummaryCancellations = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           '<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">BILL CANCELLATIONS</h1>'+
+				           '</div>'+
+				           '<div class="tableQuick">'+
+				              '<table style="width: 100%">'+
+				                 '<col style="width: 70%">'+
+				                 '<col style="width: 30%">'+
+				                 '<tr><td class="tableQuickBrief">Number of Bills</td><td class="tableQuickAmount">'+netCancelledBills+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief">Cancelled Amount</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(netCancelledBillsSum).toFixed(0)+'</td></tr>'+
+				              '</table>'+
+				           '</div>'+
+				        '</div>'+
+				        '</div>';		    	
+			}
+
+
+
 		    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
 		    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 		    
@@ -6418,6 +8122,8 @@ function fetchSingleClickReportAfterApproval(){
 			      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
 			      salesByBillingModeRenderContentFinal+
 			      salesByPaymentTypeRenderContentFinal+
+			      detailedByExtrasForPaymentRenderContentFinal+
+			      downloadSummaryCancellations+
 			      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
 			         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
 			      '</div>'+
@@ -6503,7 +8209,7 @@ function fetchSingleClickReportAfterApproval(){
 			    var billSharePercentage = 0;
 			    while(detailedListByBillingMode[c]){
 			      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
-			      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #000">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+			      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
 			      c++;
 			    }
 
@@ -6539,7 +8245,7 @@ function fetchSingleClickReportAfterApproval(){
 			    var paymentSharePercentage = 0;
 			    while(detailedListByPaymentMode[d]){
 			      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
-			      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #000">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+			      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
 			      d++;
 			    }
 
@@ -6561,6 +8267,87 @@ function fetchSingleClickReportAfterApproval(){
 				        '</div>'+
 				        '</div>';
 			    }
+
+
+			    //Detailed Payment (Extras and Custom Extras for each payment mode)
+			    var detailedByExtrasForPaymentRenderContent = '';
+			    var detailedExtrasContentHeader = '';
+			    var t = 0;
+			    while(detailedListByPaymentMode[t]){
+
+			    	var detailedExtrasContent = '';
+			    	var netAmount = detailedListByPaymentMode[t].value;
+
+			    	for(var e = 0; e < detailedListByPaymentMode[t].detailedExtras.length; e++){
+			    	
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: center;">'+detailedListByPaymentMode[t].detailedExtras[e].amount+'</td>';
+			    	
+			    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
+
+				    	if(t == 0){
+				    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
+				    	}
+			    	}
+
+			    	detailedByExtrasForPaymentRenderContent += '' +
+										    		'<tr>'+
+										    			'<td class="tableQuickBrief">'+detailedListByPaymentMode[t].name+'</td>'+
+										    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(netAmount).toFixed(0)+'</td>'+
+										    			detailedExtrasContent +
+										    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
+										    		'</tr>';
+
+
+			    	t++;
+			    }
+
+			    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Total</td> </tr>';
+			    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent;
+
+			    var detailedByExtrasForPaymentRenderContentFinal = '';
+			    if(detailedByExtrasForPaymentRenderContent != ''){
+
+			    	detailedByExtrasForPaymentRenderContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           '<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+				           '</div>'+
+				           '<div class="tableQuick">'+
+				              '<table style="width: 100%">'+
+				                 '<col style="width: 70%">'+
+				                 '<col style="width: 30%">'+
+				                 detailedByExtrasForPaymentRenderContent+
+				              '</table>'+
+				           '</div>'+
+				        '</div>'+
+				        '</div>';	
+			    }
+
+
+
+			    //Bill Cancellations
+			    var emailSummaryCancellations = '';
+			    if(netCancelledBills > 0){
+			    	emailSummaryCancellations = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           '<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">BILL CANCELLATIONS</h1>'+
+				           '</div>'+
+				           '<div class="tableQuick">'+
+				              '<table style="width: 100%">'+
+				                 '<col style="width: 70%">'+
+				                 '<col style="width: 30%">'+
+				                 '<tr><td class="tableQuickBrief">Number of Bills</td><td class="tableQuickAmount">'+netCancelledBills+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief">Cancelled Amount</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(netCancelledBillsSum).toFixed(0)+'</td></tr>'+
+				              '</table>'+
+				           '</div>'+
+				        '</div>'+
+				        '</div>';		    	
+			    }
+
+
 
 			    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
 			    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
@@ -6609,6 +8396,8 @@ function fetchSingleClickReportAfterApproval(){
 				      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
 				      salesByBillingModeRenderContentFinal+
 				      salesByPaymentTypeRenderContentFinal+
+				      detailedByExtrasForPaymentRenderContentFinal+
+				      emailSummaryCancellations+
 				      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
 				         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
 				      '</div>'+
@@ -6895,9 +8684,6 @@ function fetchSingleClickReportAfterApproval(){
 	      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+reportInfoExtras[a].name+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(reportInfoExtras[a].value).toFixed(2)+'</td></tr>';
 	      a++;
 	    }
-
-	    //PENDING --> TOTAL CALCULATED ROUND OFFFFF
-	    console.log('PENDING API --> TOTAL CALCULATED ROUND OFFFFF')
 
 	    var b = 1; //first one contains total paid
 	    while(completeReportInfo[b]){
@@ -7229,7 +9015,7 @@ function reportActionEmail(){
 		success: function(data) {
 			hideLoading();
 			if(data.status){
-				showToast('The Report has been mailed', '#27ae60');
+				showToast('The Report has been mailed. It may take <b>upto 5 mins</b> to receive the mail.', '#27ae60');
 			}
 			else
 			{
@@ -7245,6 +9031,9 @@ function reportActionEmail(){
 }
 
 function reportActionDownload(){
+
+	showToast('Downloading the Report...', '#27ae60');
+
 	var htmlContentEncoded = $('#reportActionButtonDownload').attr('data-hold');
 	var htmlContent = decodeURI(htmlContentEncoded);
 
@@ -7258,6 +9047,6 @@ function reportActionPrint(){
 	var htmlContentEncoded = $('#reportActionButtonPrint').attr('data-hold');
 	var htmlContent = decodeURI(htmlContentEncoded);
 
-	showToast('Printing Report', '#27ae60');
+	showToast('Printing the Report...', '#27ae60');
 	printPDFReport(htmlContent);
 }

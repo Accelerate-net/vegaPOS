@@ -8,6 +8,33 @@
                             <div class="box-body billTypeSelectionBox">
                                 <div id="addedExpensesCount" class="rewardsCount">..</div>
                                 <div class="rewardsName">RECORDS ADDED</div>
+                                <div class="addNewExpenseHolder">
+
+<div class="floaty-alternative" style="right: -10px; top: 0">
+  <div class="floaty-alternative-btn small" style="box-shadow: none; background: #FFF" onclick="addNewExpense('CREDIT')">
+    <svg width="24" height="24" viewBox="0 0 24 24" class="floaty-alternative-btn-icon floaty-alternative-btn-icon-plus absolute-center">
+      <path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#b1b1b1"></path>
+      <path d="M0-.75h24v24H0z" fill="none"></path>
+    </svg>
+    <tag style="color: #1abc9c; text-align: center; padding-top: 9px; font-size: 18px;" class="floaty-alternative-btn-icon floaty-alternative-btn-icon-create absolute-center"><b>C</b>
+    </tag><span class="floaty-alternative-btn-label" style="left: unset; right: 55px !important; top: 8px;">Add Credit</span>
+  </div>
+  <ul class="floaty-alternative-list" style="margin-top: 60px !important; padding-left: 3px;">
+    <li class="floaty-alternative-list-item floaty-alternative-list-item--violet" style="background: #f39c12" onclick="addNewExpense('EXPENSE')">
+      <tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center"><b>E</b>
+      </tag><span class="floaty-alternative-list-item-label" style="left: unset; right: 50px !important">Add Expense</span>
+    </li>
+    <li class="floaty-alternative-list-item floaty-alternative-list-item--red" style="background: #ED4C67" onclick="addNewExpense('PURCHASE')">
+      <tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center"><b>P</b>
+      </tag><span class="floaty-alternative-list-item-label" style="left: unset; right: 50px !important">Add Purchase</span>
+    </li>
+    <li class="floaty-alternative-list-item floaty-alternative-list-item--red" style="background: #39acef" onclick="addNewExpense('SALARY')">
+      <tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center"><b>S</b>
+      </tag><span class="floaty-alternative-list-item-label" style="left: unset; right: 50px !important">Add Salary</span>
+    </li>
+  </ul>
+</div>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -8,6 +8,9 @@
     "sumbybillingmode": {
       "reduce": "_stats",
       "map": "function (doc) {\n  if(doc.dateStamp && doc.orderDetails.mode && doc.payableAmount)\n    emit([doc.orderDetails.mode, doc.dateStamp], doc.payableAmount);\n}"
+    },
+    "fetchall": {
+      "map": "function (doc) {\n  if(doc.dateStamp){\n    emit([doc.dateStamp], doc);\n  }\n}"
     }
   },
   "language": "javascript"
