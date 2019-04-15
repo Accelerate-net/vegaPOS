@@ -6789,7 +6789,7 @@ function fetchSingleClickReportAfterApproval(){
 						});				
 
 						//Skip and go to next step
-						singleClickCancellationSummary(); 
+						singleClickPaymentModesSplitByExtras(); 
 						return '';
 		          	}
 		          	else{
@@ -6845,6 +6845,7 @@ function fetchSingleClickReportAfterApproval(){
 
 										    		detailedListByPaymentMode.push({
 										    			"name": modes[0].name,
+										    			"code": modes[0].code,
 										    			"value": temp_sum - refund_amount,
 										    			"count": temp_count
 										    		});									
@@ -6856,7 +6857,7 @@ function fetchSingleClickReportAfterApproval(){
 											    	}
 											    	else{
 											    		//Step 10: Weekly Progress
-											    		singleClickCancellationSummary();
+											    		singleClickPaymentModesSplitByExtras();
 											    	}
 
 												},
@@ -6867,7 +6868,7 @@ function fetchSingleClickReportAfterApproval(){
 													});				
 
 													//Skip and go to next step
-													singleClickCancellationSummary(); 
+													singleClickPaymentModesSplitByExtras(); 
 													return '';
 												}
 											}); 
@@ -6882,7 +6883,7 @@ function fetchSingleClickReportAfterApproval(){
 											});				
 
 											//Skip and go to next step
-											singleClickCancellationSummary(); 
+											singleClickPaymentModesSplitByExtras(); 
 											return '';
 										}
 									}); 
@@ -6910,7 +6911,7 @@ function fetchSingleClickReportAfterApproval(){
 				});				
 
 				//Skip and go to next step
-				singleClickCancellationSummary(); 
+				singleClickPaymentModesSplitByExtras(); 
 				return '';
 	          }
 	        }
@@ -6921,7 +6922,7 @@ function fetchSingleClickReportAfterApproval(){
 				});				
 
 				//Skip and go to next step
-				singleClickCancellationSummary(); 
+				singleClickPaymentModesSplitByExtras(); 
 				return '';
 	        }
 	      },
@@ -6932,7 +6933,7 @@ function fetchSingleClickReportAfterApproval(){
 				});				
 
 				//Skip and go to next step
-				singleClickCancellationSummary(); 
+				singleClickPaymentModesSplitByExtras(); 
 				return '';
 	      }
 
@@ -6994,6 +6995,7 @@ function fetchSingleClickReportAfterApproval(){
 
 										    		detailedListByPaymentMode.push({
 										    			"name": modes[index].name,
+										    			"code": modes[index].code,
 										    			"value": temp_sum - refund_amount,
 										    			"count": temp_count
 										    		});									
@@ -7005,7 +7007,7 @@ function fetchSingleClickReportAfterApproval(){
 											    	}
 											    	else{
 											    		//Step 10: Weekly Progress
-											    		singleClickCancellationSummary();
+											    		singleClickPaymentModesSplitByExtras();
 											    	}
 
 												},
@@ -7016,7 +7018,7 @@ function fetchSingleClickReportAfterApproval(){
 													});				
 
 													//Skip and go to next step
-													singleClickCancellationSummary(); 
+													singleClickPaymentModesSplitByExtras(); 
 													return '';
 												}
 											}); 
@@ -7030,7 +7032,7 @@ function fetchSingleClickReportAfterApproval(){
 											});				
 
 											//Skip and go to next step
-											singleClickCancellationSummary(); 
+											singleClickPaymentModesSplitByExtras(); 
 											return '';
 										}
 									}); 
@@ -7042,7 +7044,7 @@ function fetchSingleClickReportAfterApproval(){
 								});				
 
 								//Skip and go to next step
-								singleClickCancellationSummary(); 
+								singleClickPaymentModesSplitByExtras(); 
 								return '';					        	
 					      	}
 					    });
@@ -7056,7 +7058,7 @@ function fetchSingleClickReportAfterApproval(){
 
 			if(paymentGraphData.length == 0){
 				//Skip and go to next step
-				singleClickCancellationSummary(); 
+				singleClickPaymentModesSplitByExtras(); 
 				return '';
 			}
 
@@ -7122,21 +7124,400 @@ function fetchSingleClickReportAfterApproval(){
 				window.localStorage.graphImageDataPayments = temp_graph;
 
 				//Go to Step 9.2
-				singleClickCancellationSummary();
+				singleClickPaymentModesSplitByExtras();
 			}
 	}
 
 
-	//Step 9.2: Cancellation Summary
-	function singleClickCancellationSummary(){
+	//Step 9.2: Payment Modes (detailed w.r.t Extras, SGST, CGST etc.)
+	function singleClickPaymentModesSplitByExtras(){
+		
 		runReportAnimation(70); //of Step 9.1 which takes 5 units
 	
-		singleClickWeeklyProgress();
+		preloadExtrasValues();
+
+		//Preload Billing Parameters (Extras and Custom Extras)
+		function preloadExtrasValues(){
+			
+			    var requestData = {
+			      "selector"  :{ 
+			                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
+			                  },
+			      "fields"    : ["identifierTag", "value"]
+			    }
+
+			    $.ajax({
+			      type: 'POST',
+			      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+			      data: JSON.stringify(requestData),
+			      contentType: "application/json",
+			      dataType: 'json',
+			      timeout: 10000,
+			      success: function(data) {
+
+			        if(data.docs.length > 0){
+			          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
+
+			            var modes = data.docs[0].value;
+
+			          	if(modes.length == 0){
+			          		completeErrorList.push({
+							    "step": 9.2,
+								"error": "Failed to calculate the extras and custom extras against each payment modes"
+							});	
+
+							singleClickWeeklyProgress();	
+
+			          		return '';
+			          	}
+			          	else{
+			          		//Start Processing
+			          		getDetailedByExtras(0, modes);
+			          	}
+
+			          }
+			          else{
+			          		completeErrorList.push({
+							    "step": 9.2,
+								"error": "Failed to calculate the extras and custom extras against each payment modes"
+							});	
+
+							singleClickWeeklyProgress();	
+
+			          		return '';
+			          }
+			        }
+			        else{
+			          	completeErrorList.push({
+						    "step": 9.2,
+							"error": "Failed to calculate the extras and custom extras against each payment modes"
+						});	
+
+						singleClickWeeklyProgress();	
+
+			          	return '';
+					}
+			        
+			      },
+			      error: function(data) {
+			      	completeErrorList.push({
+					    "step": 9.2,
+						"error": "Failed to calculate the extras and custom extras against each payment modes"
+					});	
+					
+					singleClickWeeklyProgress();	
+
+			      	return '';  
+
+			      }
+
+			    });
+		}
+
+
+
+		//START PROCESSING
+		function getDetailedByExtras(greatIndex, modes){
+			
+			/*
+				For a given payment mode, calculate the extras and custom extras 
+				coming under this mode. For ex., for Cash Rs. 200, CGST Rs. 5, 
+				SGST Rs. 5 etc.
+			*/
+
+			var extrasTemplate = [];
+
+			if(detailedListByPaymentMode[greatIndex]){
+				getDetailedExtrasForPaymentMode(detailedListByPaymentMode[greatIndex].code, modes)
+			}
+			else{
+				singleClickWeeklyProgress();
+			}
+
+
+			function getDetailedExtrasForPaymentMode(selectedPaymentMode, modes){
+
+			          	  //For a given EXTRAS, the total Sales in the given DATE RANGE
+						  $.ajax({
+						    type: 'GET',
+						    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+						    timeout: 10000,
+						    success: function(data) {
+
+						    	var temp_count = 0;
+						    	var temp_sum = 0;
+
+						    	if(data.rows.length > 0){
+						    		temp_count = data.rows[0].value.count;
+						    		temp_sum = data.rows[0].value.sum;
+						    	}
+
+
+						    		//Now check in custom Extras
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_custom?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_count += data.rows[0].value.count;
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+											//Now check in split payments
+									    	$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													
+													if(data.rows.length > 0){
+													    temp_sum += data.rows[0].value.sum;
+													}
+
+
+													//Now check in split payments with custom extras
+											    	$.ajax({
+														type: 'GET',
+														url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple_custom?startkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[0].name+'","'+toDate+'"]',
+														timeout: 10000,
+														success: function(data) {
+
+															if(data.rows.length > 0){
+															    temp_sum += data.rows[0].value.sum;
+															}
+
+															temp_sum = parseFloat(temp_sum).toFixed(2);
+															temp_sum = parseFloat(temp_sum);
+
+															extrasTemplate.push({
+																"name": modes[0].name,
+																"amount": temp_sum
+															});
+
+													    	//Check if next mode exists...
+													    	if(modes[1]){
+													    		getDetailedExtrasForPaymentModeCallback(1, modes, selectedPaymentMode);
+													    	}
+													    	else{
+
+													    		//Save changes
+													    		detailedListByPaymentMode[greatIndex].detailedExtras = extrasTemplate;
+
+													    		getDetailedByExtras(greatIndex + 1, modes);
+													    	}
+															
+
+														},
+														error: function(data){
+											          		completeErrorList.push({
+															    "step": 9.2,
+																"error": "Failed to calculate the extras and custom extras against each payment modes"
+															});	
+
+															singleClickWeeklyProgress();	
+
+											          		return '';
+														}
+													}); //split payments with custom extras
+
+
+
+												},
+												error: function(data){
+									          		completeErrorList.push({
+													    "step": 9.2,
+														"error": "Failed to calculate the extras and custom extras against each payment modes"
+													});	
+
+													singleClickWeeklyProgress();	
+
+									          		return '';
+												}
+											}); //split payments
+
+
+
+										},
+										error: function(data){
+							          		completeErrorList.push({
+											    "step": 9.2,
+												"error": "Failed to calculate the extras and custom extras against each payment modes"
+											});	
+
+											singleClickWeeklyProgress();	
+
+							          		return '';
+										}
+									}); 
+
+
+						    },
+						    error: function(data){
+				          		completeErrorList.push({
+								    "step": 9.2,
+									"error": "Failed to calculate the extras and custom extras against each payment modes"
+								});	
+
+								singleClickWeeklyProgress();	
+
+				          		return '';
+						    }
+						  });  
+
+
+			} // end - getDetailedExtrasForPaymentMode
+
+
+			function getDetailedExtrasForPaymentModeCallback(index, modes, selectedPaymentMode){
+	          	
+	          	  //For a given PAYMENT MODE, the extras in the given DATE RANGE
+				  
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+				    	
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
+
+				    	if(data.rows.length > 0){
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
+				    	}
+
+				    		//Now check in custom extras
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_custom?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+
+						    		//Now check in split payments
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+								    		//Now check in split payments with custom extras
+									    	$.ajax({
+												type: 'GET',
+												url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbypaymentmodeandextras_multiple_custom?startkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedPaymentMode+'","'+modes[index].name+'","'+toDate+'"]',
+												timeout: 10000,
+												success: function(data) {
+
+													if(data.rows.length > 0){
+													    temp_sum += data.rows[0].value.sum;
+													}
+
+													temp_sum = parseFloat(temp_sum).toFixed(2);
+													temp_sum = parseFloat(temp_sum);
+
+													extrasTemplate.push({
+														"name": modes[index].name,
+														"amount": temp_sum
+													});
+
+											    	//Check if next mode exists...
+											    	if(modes[index+1]){
+											    		getDetailedExtrasForPaymentModeCallback(index+1, modes, selectedPaymentMode);
+											    	}
+											    	else{
+
+											    		//Save changes
+													    detailedListByPaymentMode[greatIndex].detailedExtras = extrasTemplate;
+
+											    		getDetailedByExtras(greatIndex + 1, modes);
+											    	}													
+
+												},
+												error: function(data){
+											      	completeErrorList.push({
+													    "step": 9.2,
+														"error": "Failed to calculate the extras and custom extras against each payment modes"
+													});	
+													
+													singleClickWeeklyProgress();	
+
+											      	return ''; 
+												}
+											}); //split payments with custom extras
+										
+
+
+
+										},
+										error: function(data){
+									      	completeErrorList.push({
+											    "step": 9.2,
+												"error": "Failed to calculate the extras and custom extras against each payment modes"
+											});	
+											
+											singleClickWeeklyProgress();	
+
+									      	return ''; 
+										}
+									}); //split payments
+
+
+
+
+								},
+								error: function(data){
+							      	completeErrorList.push({
+									    "step": 9.2,
+										"error": "Failed to calculate the extras and custom extras against each payment modes"
+									});	
+									
+									singleClickWeeklyProgress();	
+
+							      	return ''; 
+								}
+							}); 
+
+
+				    },
+				    error: function(data){
+				      	completeErrorList.push({
+						    "step": 9.2,
+							"error": "Failed to calculate the extras and custom extras against each payment modes"
+						});	
+						
+						singleClickWeeklyProgress();	
+
+				      	return ''; 
+				    }
+				  });  
+
+			} // end - getDetailedExtrasForPaymentModeCallback
+
+
+		} // end - getDetailedByExtras
+
+
 	}
+
 
 
 	//Step 10: Weekly Progress
 	function singleClickWeeklyProgress(){
+
 
 		runReportAnimation(75); //of Step 9 which takes 5 units
 		
@@ -7565,6 +7946,42 @@ function fetchSingleClickReportAfterApproval(){
 		      d++;
 		    }
 
+		    //Detailed Payment (Extras and Custom Extras for each payment mode)
+		    var detailedByExtrasForPaymentRenderContent = '';
+		    var detailedExtrasContentHeader = '';
+		    var t = 0;
+		    while(detailedListByPaymentMode[t]){
+
+		    	var detailedExtrasContent = '';
+		    	var netAmount = detailedListByPaymentMode[t].value;
+
+		    	for(var e = 0; e < detailedListByPaymentMode[t].detailedExtras.length; e++){
+		    	
+		    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: center;">'+detailedListByPaymentMode[t].detailedExtras[e].amount+'</td>';
+		    	
+		    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
+
+			    	if(t == 0){
+			    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
+			    	}
+		    	}
+
+		    	detailedByExtrasForPaymentRenderContent += '' +
+									    		'<tr>'+
+									    			'<td class="tableQuickBrief">'+detailedListByPaymentMode[t].name+'</td>'+
+									    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(netAmount).toFixed(0)+'</td>'+
+									    			detailedExtrasContent +
+									    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
+									    		'</tr>';
+
+
+		    	t++;
+		    }
+
+		    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Total</td> </tr>';
+		    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent;
+
+
 			//To display payment graph or not
 			var hasPaymentsGraphAttached = false;
 			if(window.localStorage.graphImageDataPayments && window.localStorage.graphImageDataPayments != '' && window.localStorage.graphImageDataPayments != 'data:,'){
@@ -7611,6 +8028,27 @@ function fetchSingleClickReportAfterApproval(){
 			        '</div>'+
 			        '</div>';
 			    }
+		    }
+
+
+		    var detailedByExtrasForPaymentRenderContentFinal = '';
+		    if(detailedByExtrasForPaymentRenderContent != ''){
+
+		    	detailedByExtrasForPaymentRenderContentFinal = ''+
+			        '<div class="summaryTableSectionHolder">'+
+			        '<div class="summaryTableSection">'+
+			           '<div class="tableQuickHeader">'+
+			              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+			           '</div>'+
+			           '<div class="tableQuick">'+
+			              '<table style="width: 100%">'+
+			                 '<col style="width: 70%">'+
+			                 '<col style="width: 30%">'+
+			                 detailedByExtrasForPaymentRenderContent+
+			              '</table>'+
+			           '</div>'+
+			        '</div>'+
+			        '</div>';	
 		    }
 
 
@@ -7684,6 +8122,7 @@ function fetchSingleClickReportAfterApproval(){
 			      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
 			      salesByBillingModeRenderContentFinal+
 			      salesByPaymentTypeRenderContentFinal+
+			      detailedByExtrasForPaymentRenderContentFinal+
 			      downloadSummaryCancellations+
 			      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
 			         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
@@ -7830,6 +8269,61 @@ function fetchSingleClickReportAfterApproval(){
 			    }
 
 
+			    //Detailed Payment (Extras and Custom Extras for each payment mode)
+			    var detailedByExtrasForPaymentRenderContent = '';
+			    var detailedExtrasContentHeader = '';
+			    var t = 0;
+			    while(detailedListByPaymentMode[t]){
+
+			    	var detailedExtrasContent = '';
+			    	var netAmount = detailedListByPaymentMode[t].value;
+
+			    	for(var e = 0; e < detailedListByPaymentMode[t].detailedExtras.length; e++){
+			    	
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: center;">'+detailedListByPaymentMode[t].detailedExtras[e].amount+'</td>';
+			    	
+			    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
+
+				    	if(t == 0){
+				    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
+				    	}
+			    	}
+
+			    	detailedByExtrasForPaymentRenderContent += '' +
+										    		'<tr>'+
+										    			'<td class="tableQuickBrief">'+detailedListByPaymentMode[t].name+'</td>'+
+										    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(netAmount).toFixed(0)+'</td>'+
+										    			detailedExtrasContent +
+										    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
+										    		'</tr>';
+
+
+			    	t++;
+			    }
+
+			    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Total</td> </tr>';
+			    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent;
+
+			    var detailedByExtrasForPaymentRenderContentFinal = '';
+			    if(detailedByExtrasForPaymentRenderContent != ''){
+
+			    	detailedByExtrasForPaymentRenderContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           '<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+				           '</div>'+
+				           '<div class="tableQuick">'+
+				              '<table style="width: 100%">'+
+				                 '<col style="width: 70%">'+
+				                 '<col style="width: 30%">'+
+				                 detailedByExtrasForPaymentRenderContent+
+				              '</table>'+
+				           '</div>'+
+				        '</div>'+
+				        '</div>';	
+			    }
+
 
 
 			    //Bill Cancellations
@@ -7902,6 +8396,7 @@ function fetchSingleClickReportAfterApproval(){
 				      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
 				      salesByBillingModeRenderContentFinal+
 				      salesByPaymentTypeRenderContentFinal+
+				      detailedByExtrasForPaymentRenderContentFinal+
 				      emailSummaryCancellations+
 				      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
 				         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
@@ -8520,7 +9015,7 @@ function reportActionEmail(){
 		success: function(data) {
 			hideLoading();
 			if(data.status){
-				showToast('The Report has been mailed', '#27ae60');
+				showToast('The Report has been mailed. It may take <b>upto 5 mins</b> to receive the mail.', '#27ae60');
 			}
 			else
 			{
@@ -8536,6 +9031,9 @@ function reportActionEmail(){
 }
 
 function reportActionDownload(){
+
+	showToast('Downloading the Report...', '#27ae60');
+
 	var htmlContentEncoded = $('#reportActionButtonDownload').attr('data-hold');
 	var htmlContent = decodeURI(htmlContentEncoded);
 
@@ -8549,6 +9047,6 @@ function reportActionPrint(){
 	var htmlContentEncoded = $('#reportActionButtonPrint').attr('data-hold');
 	var htmlContent = decodeURI(htmlContentEncoded);
 
-	showToast('Printing Report', '#27ae60');
+	showToast('Printing the Report...', '#27ae60');
 	printPDFReport(htmlContent);
 }
