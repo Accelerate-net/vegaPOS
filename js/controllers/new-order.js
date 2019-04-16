@@ -1021,6 +1021,24 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 		var calculableOriginalKOT = window.localStorage.edit_KOT_originalCopy ? JSON.parse(window.localStorage.edit_KOT_originalCopy) : [];
 		
+
+		//Calculate Discount (if applied)
+
+		if(calculableOriginalKOT.discount.value && calculableOriginalKOT.discount.value != 0){
+
+			if(calculableOriginalKOT.discount.unit == 'PERCENTAGE'){
+				discountValue = calculableOriginalKOT.discount.value * tot/100;
+			}
+			else{
+				discountValue = calculableOriginalKOT.discount.amount;
+			}
+		}
+
+		discountValue = Math.round(discountValue * 100) / 100;
+
+
+		var totalTaxableSum = tot - discountValue;
+
 		selectedModeExtras = calculableOriginalKOT.extras;
 
           if(selectedModeExtras.length > 0){
@@ -1035,7 +1053,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 
 		          		if(selectedModeExtras[k].value != 0){
 		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
-		          				tempExtraTotal = (selectedModeExtras[k].value * (tot - totPackaged))/100;
+		          				tempExtraTotal = (selectedModeExtras[k].value * (totalTaxableSum - totPackaged))/100;
 		          			}
 		          			else if(selectedModeExtras[k].unit == 'FIXED'){
 		          				tempExtraTotal = selectedModeExtras[k].value;
@@ -1045,7 +1063,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
           		else{
 		          		if(selectedModeExtras[k].value != 0){
 		          			if(selectedModeExtras[k].unit == 'PERCENTAGE'){
-		          				tempExtraTotal = selectedModeExtras[k].value * tot/100;
+		          				tempExtraTotal = selectedModeExtras[k].value * totalTaxableSum/100;
 		          			}
 		          			else if(selectedModeExtras[k].unit == 'FIXED'){
 		          				tempExtraTotal = selectedModeExtras[k].value;
@@ -1066,29 +1084,14 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 		otherChargerRenderCount = otherChargerRenderCount + k;
 		
 
-		//Calculate Discount and Custom Extra
-
-		if(calculableOriginalKOT.discount.value && calculableOriginalKOT.discount.value != 0){
-
-			if(calculableOriginalKOT.discount.unit == 'PERCENTAGE'){
-				discountValue = calculableOriginalKOT.discount.value * tot/100;
-			}
-			else{
-				discountValue = calculableOriginalKOT.discount.value;
-			}
-		}
-
-		discountValue = Math.round(discountValue * 100) / 100;
-
-
-
+		//Custom Extra
 		if(calculableOriginalKOT.customExtras.value && calculableOriginalKOT.customExtras.value != 0){
 	
 			if(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'){
-				otherCustomChargesValue = calculableOriginalKOT.customExtras.value * tot/100;
+				otherCustomChargesValue = calculableOriginalKOT.customExtras.value * totalTaxableSum/100;
 			}
 			else{
-				otherCustomChargesValue = calculableOriginalKOT.customExtras.value;
+				otherCustomChargesValue = calculableOriginalKOT.customExtras.amount;
 			}
 		}
 
@@ -1097,12 +1100,12 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 		 
           if(otherChargerRenderCount%2 == 0){
           	otherCharges = otherCharges + '<td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td></tr>'+
-          				'<tr class="info"><td width="35%" class="cartSummaryRow">'+( discountValue != 0 ? 'Discounts ('+(calculableOriginalKOT.discount.unit == 'PERCENTAGE'? calculableOriginalKOT.discount.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.discount.value)+') ' : 'Discounts' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td>'+
+          				'<tr class="info"><td width="35%" class="cartSummaryRow">'+( discountValue != 0 ? 'Discounts ('+(calculableOriginalKOT.discount.unit == 'PERCENTAGE'? calculableOriginalKOT.discount.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.discount.amount)+') ' : 'Discounts' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td>'+
           				'<td class="cartSummaryRow"></td><td class="cartSummaryRow"></td></tr>';
           }
           else{
           	otherCharges = otherCharges + '</tr> <tr class="info"><td width="35%" class="cartSummaryRow">'+( otherCustomChargesValue != 0 ? calculableOriginalKOT.customExtras.type+' ('+(calculableOriginalKOT.customExtras.unit == 'PERCENTAGE'? calculableOriginalKOT.customExtras.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.customExtras.value)+') ' : 'Other Charges' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(otherCustomChargesValue != 0 ? '<i class="fa fa-inr"></i>'+otherCustomChargesValue : '0')+'</td>'+
-          					'<td width="35%" class="cartSummaryRow">'+( discountValue != 0 ? 'Discounts ('+(calculableOriginalKOT.discount.unit == 'PERCENTAGE'? calculableOriginalKOT.discount.value+'%' : '<i class="fa fa-inr"></i>'+calculableOriginalKOT.discount.value)+') ' : 'Discounts' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td></tr>';
+          					'<td width="35%" class="cartSummaryRow">'+( discountValue != 0 ? 'Discounts '+(calculableOriginalKOT.discount.unit == 'PERCENTAGE'? '('+calculableOriginalKOT.discount.value+'%)' : '') : 'Discounts' )+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">'+(discountValue != 0? '<tag style="color: #e74c3c">- <i class="fa fa-inr"></i>'+discountValue+'</tag>' : '0')+'</td></tr>';
           }
     }
     else{ //Not editing, new order being punched - Discount, other charges can not be applied at this stage -> both equals to 0

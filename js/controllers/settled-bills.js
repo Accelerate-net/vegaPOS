@@ -2528,8 +2528,6 @@ function openSelectedBill(encodedBill, type){
 		grandSumCalculated = subTotal + charges_extra;
 		grandSumCalculated = parseFloat(grandSumCalculated).toFixed(2);
 
-		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Grand Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
-		
 		if(bill.calculatedRoundOff != 0){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
 		}
@@ -2686,7 +2684,13 @@ function openSelectedBill(encodedBill, type){
 			n++;
 		}
 
-		var otherCharges = '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
+		var otherCharges = '';
+		if(!jQuery.isEmptyObject(bill.refundDetails) && bill.refundDetails.amount != 0){
+			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total<tag style="color: red">*</tag></td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
+		}
+
+		if(otherCharges == '') //if above condition fails
+			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
 		
 		var charges_extra = 0;
 		if(!jQuery.isEmptyObject(bill.extras)){
@@ -2714,7 +2718,6 @@ function openSelectedBill(encodedBill, type){
 
 		grandSumCalculated = subTotal + charges_extra;
 		grandSumCalculated = parseFloat(grandSumCalculated).toFixed(2);
-		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Grand Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
 
 		if(bill.calculatedRoundOff != 0){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
@@ -2740,8 +2743,8 @@ function openSelectedBill(encodedBill, type){
 			if(bill.refundDetails.amount && bill.refundDetails.amount != 0){
 				issued_refund = bill.refundDetails.amount;
 				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
-				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Refund Issued</b><tag onclick="openRefundDetailsInfo(\''+encodeURI(JSON.stringify(bill.refundDetails))+'\')" class="refundIssueSmallButton"><i class="fa fa-info"></i></tag></td> <td style="font-weight: bold; text-align: right">'+(issued_refund != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+parseFloat(issued_refund).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
-				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Gross Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat((bill.totalAmountPaid - issued_refund)).toFixed(2)+'</td> </tr>';
+				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Refund Issued</b><tag style="color: red">*</tag><tag onclick="openRefundDetailsInfo(\''+encodeURI(JSON.stringify(bill.refundDetails))+'\')" class="refundIssueSmallButton"><i class="fa fa-info"></i></tag></td> <td style="font-weight: bold; text-align: right">'+(issued_refund != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+parseFloat(issued_refund).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
+				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Net Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat((bill.totalAmountPaid - issued_refund)).toFixed(2)+'</td> </tr>';
 				
 				isDone = true;
 			}
@@ -2828,6 +2831,30 @@ function openSelectedBill(encodedBill, type){
         //Submenu options
         var subOptions = '';
 
+        var totalTaxableExtras = 0; //for Refund (TWEAK)
+       	for(var g = 0; g < bill.extras.length; g++){
+            if(bill.extras[g].unit == 'PERCENTAGE'){
+             	totalTaxableExtras += (bill.extras[g].value / 100);
+            }
+        }
+
+        /* custom extras */
+       	if(bill.customExtras.amount && bill.customExtras.amount != 0){
+            if(bill.customExtras.unit == 'PERCENTAGE'){
+                totalTaxableExtras += (bill.customExtras.value / 100);
+            }
+        }
+
+        totalTaxableExtras = parseFloat(totalTaxableExtras).toFixed(2);
+        totalTaxableExtras = parseFloat(totalTaxableExtras);
+
+
+        var refundIssueStatus = '';
+        if(!jQuery.isEmptyObject(bill.refundDetails)){
+            refundIssueStatus = bill.refundDetails.status;
+        }
+
+
         if(isUserAnAdmin){
         	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
                                   '<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
@@ -2842,7 +2869,7 @@ function openSelectedBill(encodedBill, type){
                                   '</div>'+
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
                                     deliveryOrderSubOption+
-                                    '<li class="floaty-list-item floaty-list-item--yellow" id="triggerClick_IssueRefundButton" onclick="initiateRefundSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
+                                    '<li class="floaty-list-item floaty-list-item--yellow" id="triggerClick_IssueRefundButton" onclick="initiateRefundSettledBill(\''+refundIssueStatus+'\', \''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+bill.paymentMode+'\', \''+totalTaxableExtras+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 0px; font-size: 26px;" class="absolute-center">'+
                                         '<i class="fa fa-inr"></i>'+
                                       '</tag>'+
@@ -3802,7 +3829,7 @@ function lateApplyDiscount(encodedBill){
              else
                document.getElementById("applyBillDiscountLate_type").innerHTML = modesTag;
               
-              document.getElementById("applyBillDiscountLate_grandSumDisplay").innerHTML = bill.payableAmount;
+              document.getElementById("applyBillDiscountLate_grandSumDisplay").innerHTML = bill.grossCartAmount;
               document.getElementById("lateRefundModalActions").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" style="margin: 0; font-size: 15px; line-height: 2.5; text-transform: uppercase; border: none; border-radius: 0; width: 70%; float: right;" onclick="lateApplyDiscountConfirm(\''+bill.billNumber+'\')">Confirm</button>'+
               								'<button class="btn btn-default tableOptionsButton breakWord" style="margin: 0; border: none; font-size: 15px; line-height: 2.5; text-transform: uppercase; border-radius: 0; width: 30%; float: left;" onclick="lateApplyDiscountHide()">Close</button>';
         	  document.getElementById("lateRefundModal").style.display = 'block';
@@ -3894,27 +3921,14 @@ function lateApplyDiscountConfirm(billNumber){
 				          var grandSum = 0;
 
 				          var n = 0;
+				          var netTaxableSum = 0;
 				          while(billfile.cart[n]){
-				            grandSum = grandSum + (billfile.cart[n].price * billfile.cart[n].qty);
+				            grandSum += (billfile.cart[n].price * billfile.cart[n].qty);
+				            netTaxableSum += (billfile.cart[n].price * billfile.cart[n].qty);
 				            n++;
 				          }
 
 				          grandPayableBill += grandSum;
-
-
-				          //add extras
-				          if(!jQuery.isEmptyObject(billfile.extras)){
-				            var m = 0;
-				            while(billfile.extras[m]){
-				              grandPayableBill += billfile.extras[m].amount;
-				              m++;
-				            }
-				          } 
-
-				          //add custom extras if any
-				          if(!jQuery.isEmptyObject(billfile.customExtras)){
-				            grandPayableBill += billfile.customExtras.amount;
-				          }  
 
 
 				          var totalDiscount = 0;
@@ -3923,7 +3937,28 @@ function lateApplyDiscountConfirm(billNumber){
 				            totalDiscount = grandSum*value/100;
 				          }
 				          else if(unit == 'FIXED'){
-				            totalDiscount = value;
+
+				            //calculate discount value
+				            //discount should include sgst + cgst + etc...
+
+				            //TotalUserDiscount = DiscountAmount + ExtrasVariation;
+
+				            var extras_fraction = 0;
+				            for(var g = 0; g < billfile.extras.length; g++){
+				              if(billfile.extras[g].unit == 'PERCENTAGE'){
+				                extras_fraction += (billfile.extras[g].value / 100);
+				              }
+				            }
+
+				            /* custom extras */
+				            if(billfile.customExtras.amount && billfile.customExtras.amount != 0){
+				              if(billfile.customExtras.unit == 'PERCENTAGE'){
+				                extras_fraction += (billfile.customExtras.value / 100);
+				              }
+				            }
+
+				            var TotalUserDiscount = value;
+				            totalDiscount = TotalUserDiscount/(1 + extras_fraction);
 				          }
 
 				          totalDiscount = Math.round(totalDiscount * 100) / 100;
@@ -3957,12 +3992,64 @@ function lateApplyDiscountConfirm(billNumber){
 				          billfile.discount.reference = '';
 
 
+				          /* Recalculate Tax Figures */
+				          //Re-calculate tax figures (if any Discount applied)
+
+				          netTaxableSum = netTaxableSum - totalDiscount;
+
+				          if(totalDiscount > 0){
+				            for(var g = 0; g < billfile.extras.length; g++){
+				              
+				              if(billfile.extras[g].unit == 'PERCENTAGE'){
+				                var new_amount = (billfile.extras[g].value / 100) * netTaxableSum;
+				                new_amount = Math.round(new_amount * 100) / 100;
+				                billfile.extras[g].amount = new_amount;
+				              }
+				              else if(billfile.extras[g].unit == 'FIXED'){
+				                //Do nothing
+				              } 
+
+				            }
+
+				            /* custom extras */
+				            if(billfile.customExtras.amount && billfile.customExtras.amount != 0){
+				              if(billfile.customExtras.unit == 'PERCENTAGE'){
+				                var new_amount = (billfile.customExtras.value / 100) * netTaxableSum;
+				                new_amount = Math.round(new_amount * 100) / 100;
+				                billfile.customExtras.amount = new_amount;
+				              }
+				              else if(billfile.customExtras.unit == 'FIXED'){
+				                //Do nothing
+				              }
+				            }
+
+				          }  
+
+				          //add extras
+				          if(!jQuery.isEmptyObject(billfile.extras)){
+				            var m = 0;
+				            while(billfile.extras[m]){
+				              grandPayableBill += billfile.extras[m].amount;
+				              m++;
+				            }
+				          } 
+
+				          //add custom extras if any
+				          if(!jQuery.isEmptyObject(billfile.customExtras)){
+				            grandPayableBill += billfile.customExtras.amount;
+				          }  
+
 				          //substract discounts if any
 				          if(!jQuery.isEmptyObject(billfile.discount)){
 				            grandPayableBill -= billfile.discount.amount;
 				          }  
 
+				          grandPayableBill = Math.round(grandPayableBill * 100) / 100;
+          				  var grandPayableBillRounded = properRoundOff(grandPayableBill);
+
 				          billfile.payableAmount = properRoundOff(grandPayableBill);
+				          billfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
+
 
 				          /*Save changes in Bill*/
 				                

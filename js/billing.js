@@ -257,12 +257,12 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
           //Discount
           var discountTag = '';
           if(kotfile.discount.amount && kotfile.discount.amount != 0){
-            discountTag = '<td width="35%" class="cartSummaryRow">Discount '+(kotfile.discount.unit == 'PERCENTAGE' ? '('+kotfile.discount.value+'%)' : kotfile.discount.unit == 'FIXED' ? '(<i class="fa fa-inr"></i>'+kotfile.discount.value+')' : '')+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i>'+kotfile.discount.amount+'</td>';
+            discountTag = '<td width="35%" class="cartSummaryRow">Discount '+(kotfile.discount.unit == 'PERCENTAGE' ? '('+kotfile.discount.value+'%)' : '')+'</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i><tag id="grandDiscountDisplay">'+kotfile.discount.amount+'</tag></td>';
             //'<tr class="info"><td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px; color: #e74c3c !important">- <i class="fa fa-inr"></i>'+kotfile.discount.amount+'</td>';
             otherChargesSum = otherChargesSum - kotfile.discount.amount;
           }
           else{
-            discountTag = '<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;">0</td>';
+            discountTag = '<td width="35%" class="cartSummaryRow">Discount</td><td width="15%" class="text-right cartSummaryRow" style="padding-right:10px;"><tag id="grandDiscountDisplay">0</tag></td>';
           }
 
 
@@ -294,7 +294,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
 
           var discountButtonPart = '';
           if(kotfile.discount.amount && kotfile.discount.type != 'COUPON' && kotfile.discount.type != 'NOCOSTBILL' && kotfile.discount.type != 'VOUCHER' && kotfile.discount.type != 'REWARDS'){ /*Discount is Applied Already*/
-            discountButtonPart ='                        <div class="">'+
+            discountButtonPart ='        <div class="">'+
                 '                          <button class="btn btn-danger tableOptionsButton breakWord" onclick="removeBillDiscountOnKOT(\''+kotfile.KOTNumber+'\', \''+optionalPageRef+'\')">Remove Discount</button>'+
                 '                        </div>';
           } 
@@ -666,8 +666,10 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
           }
 
           var n = 0;
+          var netTaxableSum = 0;
           while(kotfile.cart[n]){
-            grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
+            grandSum += (kotfile.cart[n].price * kotfile.cart[n].qty);
+            netTaxableSum += (kotfile.cart[n].price * kotfile.cart[n].qty);
             n++;
           }
 
@@ -706,7 +708,39 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
                   kotfile.discount.unit = 'FIXED';
                   kotfile.discount.value = totalDiscount;
                   kotfile.discount.reference = code;
-                       
+                    
+
+                  /* Recalculate Tax Figures */
+                  //Re-calculate tax figures (if any Discount applied)
+
+                  netTaxableSum = netTaxableSum - totalDiscount;
+
+                  for(var g = 0; g < kotfile.extras.length; g++){
+                      
+                      if(kotfile.extras[g].unit == 'PERCENTAGE'){
+                        var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
+                        new_amount = Math.round(new_amount * 100) / 100;
+                        kotfile.extras[g].amount = new_amount;
+                      }
+                      else if(kotfile.extras[g].unit == 'FIXED'){
+                        //Do nothing
+                      } 
+
+                  }
+
+                  /* custom extras */
+                  if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+                      if(kotfile.customExtras.unit == 'PERCENTAGE'){
+                        var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
+                        new_amount = Math.round(new_amount * 100) / 100;
+                        kotfile.customExtras.amount = new_amount;
+                      }
+                      else if(kotfile.customExtras.unit == 'FIXED'){
+                        //Do nothing
+                      }
+                  }
+
+
 
                       /*Save changes in KOT*/
                       //Update
@@ -885,6 +919,48 @@ function removeBillDiscountOnKOT(kotID, optionalPageRef){
             kotfile.discount = {};
           }
 
+          var grandSum = 0;
+          var netTaxableSum = 0;
+
+          var n = 0;
+          while(kotfile.cart[n]){
+            grandSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            netTaxableSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+
+            n++;
+          }
+
+
+          /* Recalculate Tax Figures */
+          //Re-calculate tax figures (if any Discount applied)
+
+          for(var g = 0; g < kotfile.extras.length; g++){
+              
+              if(kotfile.extras[g].unit == 'PERCENTAGE'){
+                var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
+                new_amount = Math.round(new_amount * 100) / 100;
+                kotfile.extras[g].amount = new_amount;
+              }
+              else if(kotfile.extras[g].unit == 'FIXED'){
+                //Do nothing
+              } 
+
+          }
+
+          /* custom extras */
+          if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+              if(kotfile.customExtras.unit == 'PERCENTAGE'){
+                var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
+                new_amount = Math.round(new_amount * 100) / 100;
+                kotfile.customExtras.amount = new_amount;
+              }
+              else if(kotfile.customExtras.unit == 'FIXED'){
+                //Do nothing
+              }
+          }
+
+
+
           /*Save changes in KOT*/
                 
                 //Update
@@ -951,10 +1027,13 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
           var value = document.getElementById("applyBillDiscountWindow_value").value;
 
           var grandSum = 0;
+          var netTaxableSum = 0;
 
           var n = 0;
           while(kotfile.cart[n]){
-            grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
+            grandSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            netTaxableSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+
             n++;
           }
 
@@ -964,7 +1043,29 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
             totalDiscount = grandSum*value/100;
           }
           else if(unit == 'FIXED'){
-            totalDiscount = value;
+
+            //calculate discount value
+            //discount should include sgst + cgst + etc...
+
+            //TotalUserDiscount = DiscountAmount + ExtrasVariation;
+
+            var extras_fraction = 0;
+            for(var g = 0; g < kotfile.extras.length; g++){
+              if(kotfile.extras[g].unit == 'PERCENTAGE'){
+                extras_fraction += (kotfile.extras[g].value / 100);
+              }
+            }
+
+            /* custom extras */
+            if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+              if(kotfile.customExtras.unit == 'PERCENTAGE'){
+                extras_fraction += (kotfile.customExtras.value / 100);
+              }
+            }
+
+            var TotalUserDiscount = value;
+            totalDiscount = TotalUserDiscount/(1 + extras_fraction);
+
           }
 
           totalDiscount = Math.round(totalDiscount * 100) / 100;
@@ -996,6 +1097,41 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
           kotfile.discount.unit = unit;
           kotfile.discount.value = value;
           kotfile.discount.reference = '';
+
+          
+          /* Recalculate Tax Figures */
+          //Re-calculate tax figures (if any Discount applied)
+
+          netTaxableSum = netTaxableSum - totalDiscount;
+
+          if(totalDiscount > 0){
+            for(var g = 0; g < kotfile.extras.length; g++){
+              
+              if(kotfile.extras[g].unit == 'PERCENTAGE'){
+                var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
+                new_amount = Math.round(new_amount * 100) / 100;
+                kotfile.extras[g].amount = new_amount;
+              }
+              else if(kotfile.extras[g].unit == 'FIXED'){
+                //Do nothing
+              } 
+
+            }
+
+            /* custom extras */
+            if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+              if(kotfile.customExtras.unit == 'PERCENTAGE'){
+                var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
+                new_amount = Math.round(new_amount * 100) / 100;
+                kotfile.customExtras.amount = new_amount;
+              }
+              else if(kotfile.customExtras.unit == 'FIXED'){
+                //Do nothing
+              }
+            }
+
+          }  
+
 
           /*Save changes in KOT*/
                 
@@ -1307,9 +1443,16 @@ function applyCustomExtraOnKOT(kotID, optionalPageRef){
             n++;
           }
 
+          var grandaTaxableSum = grandSum;
+
+          if(!jQuery.isEmptyObject(kotfile.discount)){
+            grandaTaxableSum = grandSum - kotfile.discount.amount;
+          }
+
+
           var totalExtraCharge = 0;
           if(unit == 'PERCENTAGE'){
-            totalExtraCharge = grandSum*value/100;
+            totalExtraCharge = grandaTaxableSum*value/100;
           }
           else if(unit == 'FIXED'){
             totalExtraCharge = value;
@@ -1381,16 +1524,23 @@ function changeCustomExtraTypeOptions(){
 function roughCalculateCustomExtraValue(){
 
   var tempTotal = parseFloat(document.getElementById("grandSumDisplay").innerHTML).toFixed(2);
+  var tempTotalDiscount = parseFloat(document.getElementById("grandDiscountDisplay").innerHTML).toFixed(2); 
   var extraChargeValue = parseFloat(document.getElementById("applyCustomExtraWindow_value").value).toFixed(2);
 
   if(document.getElementById("applyCustomExtraWindow_value").value == ''){
     extraChargeValue = 0;
   }
 
+  var totalTaxableSum = parseFloat(tempTotal) - parseFloat(tempTotalDiscount);
+  totalTaxableSum = parseFloat(totalTaxableSum).toFixed(2);
+
+
+
+
   /*Calculations*/
   var roughFigure = 0;
   if(document.getElementById("applyCustomExtraWindow_unit").value == 'PERCENTAGE'){
-    roughFigure = tempTotal*extraChargeValue/100;
+    roughFigure = totalTaxableSum*extraChargeValue/100;
   }
   else{
     roughFigure = extraChargeValue;
@@ -1477,17 +1627,16 @@ function markNoCostBill(kotID, optionalPageRef){ //APPLY FULL DISCOUNT
           }
 
           var otherExtras = 0;
+          
           var m = 0;
           while(kotfile.extras[m]){
-            otherExtras += kotfile.extras[m].amount;
+            kotfile.extras[m].amount = 0;
             m++;
           }
 
-          var o = 0;
-          while(kotfile.customExtras[o]){
-            otherExtras += kotfile.customExtras[0].amount;
-            o++;
-          }
+          kotfile.customExtras = {};
+
+
 
             var totalDiscount = grandSum + otherExtras;
 
@@ -1621,8 +1770,10 @@ function redeemPointsIfAny(kotID, optionalPageRef){
           var grandSum = 0;
 
           var n = 0;
+          var netTaxableSum = 0;
           while(kotfile.cart[n]){
-            grandSum = grandSum + (kotfile.cart[n].price * kotfile.cart[n].qty);
+            grandSum += (kotfile.cart[n].price * kotfile.cart[n].qty);
+            netTaxableSum += (kotfile.cart[n].price * kotfile.cart[n].qty);
             n++;
           }
 
@@ -1661,6 +1812,39 @@ function redeemPointsIfAny(kotID, optionalPageRef){
                 kotfile.discount.value = totalDiscount;
                 kotfile.discount.reference = data.referenceID;
                      
+
+                  /* Recalculate Tax Figures */
+                  //Re-calculate tax figures (if any Discount applied)
+
+                  netTaxableSum = netTaxableSum - totalDiscount;
+
+                  for(var g = 0; g < kotfile.extras.length; g++){
+                      
+                      if(kotfile.extras[g].unit == 'PERCENTAGE'){
+                        var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
+                        new_amount = Math.round(new_amount * 100) / 100;
+                        kotfile.extras[g].amount = new_amount;
+                      }
+                      else if(kotfile.extras[g].unit == 'FIXED'){
+                        //Do nothing
+                      } 
+
+                  }
+
+                  /* custom extras */
+                  if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+                      if(kotfile.customExtras.unit == 'PERCENTAGE'){
+                        var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
+                        new_amount = Math.round(new_amount * 100) / 100;
+                        kotfile.customExtras.amount = new_amount;
+                      }
+                      else if(kotfile.customExtras.unit == 'FIXED'){
+                        //Do nothing
+                      }
+                  }
+
+
+
                 
                   /*Save changes in KOT*/
               
@@ -2164,15 +2348,52 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
           kotfile.outletCode = branch_code != '' ? branch_code : 'UNKNOWN';
 
 
+
           /* BILL SUM CALCULATION */
 
           //Calculate Sum to be paid
           var grandPayableBill = 0;
+          var netPayableSum = 0;
+          var netTaxableSum = 0;
           var n = 0;
           while(kotfile.cart[n]){
             grandPayableBill += kotfile.cart[n].price * kotfile.cart[n].qty;
+            netPayableSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            netTaxableSum += kotfile.cart[n].price * kotfile.cart[n].qty;
             n++;
           }
+
+
+
+          // //Re-calculate tax figures (if any Discount applied)
+          // if(!jQuery.isEmptyObject(kotfile.discount)){
+          //   for(var g = 0; g < kotfile.extras.length; g++){
+              
+          //     if(kotfile.extras[g].unit == 'PERCENTAGE'){
+          //       var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
+          //       new_amount = Math.round(new_amount * 100) / 100;
+          //       kotfile.extras[g].amount = new_amount;
+          //     }
+          //     else if(kotfile.extras[g].unit == 'FIXED'){
+          //       //Do nothing
+          //     } 
+
+          //   }
+
+          //   /* custom extras */
+          //   if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+          //     if(kotfile.customExtras.unit == 'PERCENTAGE'){
+          //       var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
+          //       new_amount = Math.round(new_amount * 100) / 100;
+          //       kotfile.customExtras.amount = new_amount;
+          //     }
+          //     else if(kotfile.customExtras.unit == 'FIXED'){
+          //       //Do nothing
+          //     }
+          //   }
+
+          // }  
+
 
           //add extras
           if(!jQuery.isEmptyObject(kotfile.extras)){
@@ -2192,12 +2413,25 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
           //substract discounts if any
           if(!jQuery.isEmptyObject(kotfile.discount)){
             grandPayableBill -= kotfile.discount.amount;
+
+            if(kotfile.discount.type == 'NOCOSTBILL'){ //Remove all the charges (Special Case)
+              grandPayableBill = 0;
+              netPayableSum = 0;
+              netTaxableSum = 0;
+
+              kotfile.customExtras = {};
+              kotfile.extras = [];
+            }
+
           }  
 
           grandPayableBill = parseFloat(grandPayableBill).toFixed(2);   
           grandPayableBillRounded = properRoundOff(grandPayableBill);   
 
           kotfile.payableAmount = grandPayableBillRounded;
+          kotfile.grossCartAmount = netPayableSum;
+          kotfile.grossTaxableAmount = netTaxableSum;
+
           kotfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
 
           kotfile.timeBill = getCurrentTime('TIME');
@@ -2248,7 +2482,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
                         //DELETE THE KOT
                         deleteKOTFromServer(memory_id, memory_rev, optionalPageRef);
-
 
 
                         //PRINTING THE BILL
@@ -3550,7 +3783,13 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
 
 // BILL REFUND
 
-function initiateRefundSettledBill(billNumber, totalPaid, paymentStatus, optionalPageRef){
+function initiateRefundSettledBill(currentStatus, billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef){
+
+    if(currentStatus == 3){
+      showToast('Warning: Full Refund has been already issued.', '#e67e22');
+      return '';
+    }
+
 
     var requestData = {
       "selector"  :{ 
@@ -3571,32 +3810,73 @@ function initiateRefundSettledBill(billNumber, totalPaid, paymentStatus, optiona
           if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
 
               var reasonsList = data.docs[0].value;
-              initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+              initiateRefundSettledBillAfterProcess(billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef, reasonsList);
                         
           }
           else{
             showToast('Warning: Refund Reasons data not found. Please contact Accelerate Support.', '#e67e22');
             var reasonsList = ["Not Satisfied"];
-            initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+            initiateRefundSettledBillAfterProcess(billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef, reasonsList);
           }
         }
         else{
           showToast('Warning: Refund Reasons data not found. Please contact Accelerate Support.', '#e67e22');
           var reasonsList = ["Not Satisfied"];
-          initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+          initiateRefundSettledBillAfterProcess(billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef, reasonsList);
         }
 
       },
       error: function(data) {
         showToast('Warning: Unable to read Refund Reasons data. Please contact Accelerate Support.', '#e67e22');
         var reasonsList = ["Not Satisfied"];
-        initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
+        initiateRefundSettledBillAfterProcess(billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef, reasonsList);
       }
 
     });  
 }
 
-function initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList){
+
+
+function roughCalculateRefund(){
+
+  var refundValue = parseFloat(document.getElementById("bill_refund_why_refundamount").value).toFixed(2);
+
+  if(document.getElementById("bill_refund_why_refundamount").value == ''){
+    refundValue = 0;
+  }
+
+  var extrasApplicable = $('#bill_refund_applicable_extras').val();
+  extrasApplicable = parseFloat(extrasApplicable);
+
+  var effective_refund = refundValue * (1 + extrasApplicable);
+  effective_refund = parseFloat(effective_refund).toFixed(2);
+
+  document.getElementById("billRefundRough_amount").innerHTML = effective_refund;
+}
+
+function refundStatusChange(){
+
+  var status = $('#bill_refund_why_isrefund').val();
+
+  if(status == 3){ //Full Refund
+    
+    var originalValue = $("#bill_refund_actual_value").val();
+
+    $("#bill_refund_why_refundamount").val(originalValue)
+    $("#bill_refund_why_refundamount").prop('disabled', true);
+
+    $('#billRefundRough_amount').html(originalValue);
+  }
+  else{
+    $("input").prop('disabled', false);
+    $('#billRefundRough_amount').html(0);
+    $("#bill_refund_why_refundamount").val(0)
+  }
+}
+
+
+
+function initiateRefundSettledBillAfterProcess(billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef, reasonsList){
   
   document.getElementById("billRefundReasonModal").style.display = 'block';
   document.getElementById("billRefundReasonModalActions").innerHTML = '<button class="btn btn-default" onclick="initiateRefundSettledBillHide()" style="float: left">Close</button>'+
@@ -3612,10 +3892,32 @@ function initiateRefundSettledBillAfterProcess(billNumber, totalPaid, paymentSta
   document.getElementById("bill_refund_why_reason").innerHTML = reasonRender;
 
   $('#bill_refund_why_isrefund').val(2);
+  $("input").prop('disabled', false);
+
   $('#bill_refund_why_comments').val('');
   $('#bill_refund_why_comments').focus();
 
-  document.getElementById("bill_refund_why_refundamount").value = totalPaid;
+
+  applicableExtrasPercentage = parseFloat(applicableExtrasPercentage).toFixed(2);
+  totalPaid = parseFloat(totalPaid).toFixed(2);
+
+  $('#bill_refund_applicable_extras').val(applicableExtrasPercentage);
+  $('#bill_refund_actual_value').val(totalPaid);
+  $('#billRefundRough_amount').html(0);
+
+
+  document.getElementById("bill_refund_why_refundmode").innerHTML = ''+
+    '<option value="ORIGINAL" id="bill_refund_original_mode_name">Original Payment Mode</option>'+
+    '<option value="CASH">CASH</option>';
+
+  if(modeOfPayment == 'MULTIPLE'){
+    $('#bill_refund_original_mode_name').remove();
+  }
+  else{
+    $('#bill_refund_original_mode_name').html(modeOfPayment+' (Original Mode)');
+  }
+  
+  document.getElementById("bill_refund_why_refundamount").value = 0;
 
 
 
@@ -3669,8 +3971,8 @@ function processRefundSettledBill(billNumber, optionalPageRef){
     refund_mode = $('#bill_refund_why_refundmode').val();
     refund_amount = $('#bill_refund_why_refundamount').val();
 
-    if(refund_amount == 0 || refund_amount == ''){
-      showToast('Warning! Please mention the Refund Amount issued.', '#e67e22');
+    if(refund_amount == 0 || refund_amount == '' || refund_amount < 0){
+      showToast('Warning! Incorrect Refund Amount', '#e67e22');
       return '';     
     }
 
@@ -3727,6 +4029,96 @@ function processRefundSettledBill(billNumber, optionalPageRef){
 
               bill.refundDetails.mode = bill.paymentMode;
           }
+
+          var max_refund = bill.totalAmountPaid;
+
+          if(bill.discount.amount && bill.discount.amount != ''){
+            max_refund -= bill.discount.amount;
+          }
+
+
+          if(bill.refundDetails.status == 2 && refundObj.amount > max_refund){
+            showToast('Warning! Maximum refundable amount is <b><i class="fa fa-inr"></i>'+bill.payableAmount+'</b>.', '#e67e22');
+            return '';
+          }
+
+
+          /*
+            RECALCULATE TAX FIGURES
+          */
+
+          if(bill.refundDetails.status == 3){ //Full Refund (Irreversible)
+            
+            bill.extras = [];
+            bill.customExtras = {};
+
+            bill.discount = {};
+            bill.payableAmount = bill.grossCartAmount;
+          }
+          else if(bill.refundDetails.status == 2){ //Partial Refund
+            
+            var alreadyPaidAmount = bill.totalAmountPaid;
+
+            var discountedAmount = 0;
+            if(bill.discount.amount && bill.discount.amount != 0){
+              discountedAmount = bill.discount.amount;
+            }
+
+            var taxable_sum = bill.grossTaxableAmount - bill.refundDetails.amount - discountedAmount;
+
+            var new_extras_sum = 0;
+            /* Recalculate Tax Figures */
+            for(var n = 0; n < bill.extras.length; n++){
+              if(bill.extras[n].unit == 'PERCENTAGE'){
+                var new_amount = (bill.extras[n].value / 100) * taxable_sum;
+                new_amount = Math.round(new_amount * 100) / 100;
+
+                bill.extras[n].amount = new_amount;
+                new_extras_sum += new_amount;
+              }
+              else if(bill.extras[n].unit == 'FIXED'){
+                //Do nothing
+              }
+            }      
+
+            /* custom extras */
+            if(bill.customExtras.amount && bill.customExtras.amount != 0){
+              if(bill.customExtras.unit == 'PERCENTAGE'){
+                var new_amount = (bill.customExtras.value / 100) * taxable_sum;
+                new_amount = Math.round(new_amount * 100) / 100;
+
+                bill.customExtras.amount = new_amount;
+                new_extras_sum += new_amount;
+              }
+              else if(bill.customExtras.unit == 'FIXED'){
+                //Do nothing
+              }
+            }
+
+            /* New Cart figures */
+            if(bill.discount.amount && bill.discount.amount != 0){
+              new_extras_sum -= bill.discount.amount;
+            }
+
+
+            var newGrossAmount = taxable_sum + new_extras_sum;
+
+            //Adjusted refund amount
+            var adjustedRefund = (alreadyPaidAmount - discountedAmount) - newGrossAmount;
+            adjustedRefund = Math.floor(adjustedRefund); //Round to floor
+            bill.refundDetails.amount = adjustedRefund;
+
+            console.log(adjustedRefund)
+            var new_payable_amount = bill.payableAmount - bill.calculatedRoundOff - adjustedRefund;
+            new_payable_amount = Math.round(new_payable_amount * 100) / 100;   
+            new_payable_amount_rounded = Math.round(new_payable_amount);  
+
+
+            bill.payableAmount = new_payable_amount_rounded;
+            
+            bill.calculatedRoundOff = Math.round((new_payable_amount_rounded - new_payable_amount) * 100) / 100;
+          }
+
 
                 var encodedBill = encodeURI(JSON.stringify(bill));
 
@@ -4855,6 +5247,9 @@ function openUndoSettleWarning(billNumber){
           delete reversed_bill.timeSettle;
           delete reversed_bill.paymentReference;
           delete reversed_bill.paymentSplits;
+
+          delete reversed_bill.roundOffAmount;
+          delete reversed_bill.tipsAmount;
 
 
           reversed_bill._id = new_bill_id;

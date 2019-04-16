@@ -548,7 +548,7 @@ if(type == 'BILL'){
                   '<tr>'+
                      '<td>Sub Total</td>'+
                      '<td style="text-align: right;"><rs class="rs">Rs.</rs>'+sub_total+'</td>'+
-                  '</tr>'+ extrasList + customExtrasList + discountList +
+                  '</tr>'+ discountList + extrasList + customExtrasList +
                   '<tr>'+
                      '<td style="font-weight: bold; text-transform: uppercase">Total Payable</td>'+
                      '<td style="text-align: right; font-size: 21px; font-weight: bold"><rs class="rs">Rs.</rs>'+orderObject.payableAmount+'</td>'+
@@ -675,8 +675,12 @@ var refundList = '';
 if(orderObject.refundDetails){
    if(orderObject.refundDetails.amount != 0){
       refundList +=  '<tr>'+
-                        '<td style="font-weight: bold; text-transform: uppercase">Refunded Amount</td>'+
-                        '<td style="text-align: right; font-weight: bold">- <rs class="rs">Rs.</rs>'+orderObject.refundDetails.amount+'</td>'+
+                        '<td>Total Paid</td>'+
+                        '<td style="text-align: right;"><rs class="rs">Rs.</rs>'+orderObject.totalAmountPaid+'</td>'+
+                     '</tr>'+
+                     '<tr>'+
+                        '<td>Refunds</td>'+
+                        '<td style="text-align: right;">- <rs class="rs">Rs.</rs>'+orderObject.refundDetails.amount+'</td>'+
                      '</tr>';
 
       refunds_sum = orderObject.refundDetails.amount;
@@ -873,11 +877,12 @@ var html_template = ''+
             '<tr>'+
                '<td>Sub Total</td>'+
                '<td style="text-align: right;"><rs class="rs">Rs.</rs>'+sub_total+'</td>'+
-            '</tr>'+ extrasList + customExtrasList + discountList +
+            '</tr>'+ discountList + extrasList + customExtrasList +
+            refundList +
             '<tr>'+
                '<td style="font-weight: bold; text-transform: uppercase">Total Paid</td>'+
                '<td style="text-align: right; font-size: 21px; font-weight: bold"><rs class="rs">Rs.</rs>'+orderObject.payableAmount+'</td>'+
-            '</tr>'+ refundList +
+            '</tr>'+ 
          '</table>'+
       '</div>'+
       '<div class="invoiceCustomText">'+

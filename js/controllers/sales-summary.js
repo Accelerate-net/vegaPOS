@@ -358,7 +358,7 @@ function downloadExcelReport(type){
 								}
 								
 								excelReportData_Overall.push({
-									"name": 'Round Off',
+									"name": 'Waive Off',
 									"value": temp_roundOffSum
 								})	
 
@@ -1323,7 +1323,7 @@ function downloadExcelReport(type){
 
 							var header = [
 							  ["INVOICE SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", ""].concat(main_header_title_nulls.concat(["", "", "", "", "", "", ""])),
-							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Round Off", "Payable Amount", "Amount Paid", "Mode of Payment", "Refunds", "Gross Amount"]))
+							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Waive Off", "Payable Amount", "Amount Paid", "Mode of Payment", "Refunds", "Gross Amount"]))
 							];
 
 							var data = header.concat(invoiceData);
@@ -1564,7 +1564,7 @@ function downloadExcelReport(type){
 
 							var header = [
 							  ["CANCELLED INVOICES SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", "", "", "", "", ""].concat(main_header_title_nulls.concat(["", "", "", "", "", "", ""])),
-							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Status", "Cancelled By", "Reason", "Remarks", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Round Off", "Payable Amount", "Paid Amount", "Mode of Payment", "Refunds", "Gross Amount"]))
+							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Status", "Cancelled By", "Reason", "Remarks", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Waive Off", "Payable Amount", "Paid Amount", "Mode of Payment", "Refunds", "Gross Amount"]))
 							];
 
 							var data = header.concat(invoiceData);
@@ -3430,7 +3430,7 @@ function fetchSessionWiseSummary() {
 
 					}
 
-					document.getElementById("summaryRender_sessionWise").innerHTML = renderContent + '<p style=" margin: 0 0 0 5px; font-size: 11px; font-style: italic; color: #777; ">*Refunds might <b>not</b> have been reduced from the above figures.</p>';
+					document.getElementById("summaryRender_sessionWise").innerHTML = renderContent + '<p style=" margin: 0 0 0 5px; font-size: 11px; font-style: italic; color: #777; ">*Indicative figures only. Refunds are <b>not</b> deducted.</p>';
 
 					//render the graph
 					renderGraph_SessionWiseSummary(graphData);
@@ -3865,7 +3865,7 @@ function renderRoundOffMade(fromDate, toDate, netSalesWorth, graphData){
 
 			if(temp_roundOffSum > 0){
 				graphData.push({
-					"name": 'Round Off',
+					"name": 'Waive Off',
 					"value": temp_roundOffSum
 				})
 			}		
@@ -3873,10 +3873,10 @@ function renderRoundOffMade(fromDate, toDate, netSalesWorth, graphData){
 
 			//time to render...
 			if(temp_roundOffCount > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Round Off Amount</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_roundOffCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_roundOffSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Waive Off Amount</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_roundOffCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_roundOffSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 			}
 			else{
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Round Off Amount</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Waive Off Amount</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 			}
 
 			//Step 5: Total Tips received
@@ -3980,8 +3980,8 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 				}
 
-				//Step 7: Summarize Totals
-				renderSummaryFinal(netSalesWorth, graphData);
+				//Step 7: Render Calculated Round Offs
+				renderCalculatedRoundOffs(fromDate, toDate, netSalesWorth, graphData);
 
 			},
 			error: function(data){
@@ -3992,19 +3992,90 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 
 
 //Step 7
+function renderCalculatedRoundOffs(fromDate, toDate, netSalesWorth, graphData){
+
+		//Total Calculated Round Offs
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_calculatedroundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_sum = 0;
+
+				if(data.rows.length > 0){
+					temp_sum = data.rows[0].value.sum;
+				}
+
+				graphData.push({
+					"name": 'Calculated Round Off',
+					"value": temp_sum
+				})
+
+				//time to render...
+				if(temp_sum < 0){
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td class="summaryLineRed" style="text-align: right">- <i class="fa fa-inr"></i>'+parseFloat(temp_sum * -1).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
+				else if(temp_sum > 0){
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td class="summaryLineGreen" style="text-align: right">+ <i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
+				else{
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
+
+				//Step 7: Render Gross Cart amount
+				renderGrossAmount(fromDate, toDate, netSalesWorth, graphData);
+
+			},
+			error: function(data){
+
+			}
+		}); 
+
+}
+
+
+//Step 8
+function renderGrossAmount(fromDate, toDate, netSalesWorth, graphData){
+		
+		//Total Cart Amount
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_grossamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_sum = 0;
+				var temp_count = 0;
+
+				if(data.rows.length > 0){
+					temp_sum = data.rows[0].value.sum;
+					temp_count = data.rows[0].value.count;
+				}
+
+				graphData.push({
+					"name": 'Gross Sales',
+					"value": temp_sum
+				})
+
+
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Gross Sales</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+
+
+				//Step 10: Final Render Call
+				renderSummaryFinal(netSalesWorth, graphData);
+
+			},
+			error: function(data){
+
+			}
+		}); 
+}
+
+
+
+//Step 10
 function renderSummaryFinal(netSalesWorth, graphData){
-
-	if(netSalesWorth > 0){
-		graphData.push({
-			"name": 'Sales Volume',
-			"value": netSalesWorth
-		})
-	}	
-
-	if(netSalesWorth > 0){
-		document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Gross Sales</td> <td class="summaryLineBlack" style="text-align: right"><i class="fa fa-inr"></i>'+parseFloat(netSalesWorth).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-	}
-
 	renderGraph_overallSummary(graphData);
 }
 
@@ -6272,7 +6343,7 @@ function fetchSingleClickReportAfterApproval(){
 				netSalesWorth += temp_roundOffSum;
 
 				completeReportInfo.push({
-						"name": "Round Off",
+						"name": "Waive Off",
 						"type": "NEGATIVE",
 						"value": temp_roundOffSum,
 						"count": temp_roundOffCount
