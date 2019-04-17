@@ -1125,7 +1125,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Somethin went wrong. Try again.</p>';
+		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Something went wrong. Try again.</p>';
 		    }
 
 		  });  		
@@ -2386,7 +2386,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Somethin went wrong. Try again.</p>';
+		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Something went wrong. Try again.</p>';
 		    
 		    }
 
@@ -2585,6 +2585,12 @@ function openSelectedBill(encodedBill, type){
                                         '<i class="fa fa-print whiteWash"></i>'+
                                       '</tag>'+
                                       '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Print Duplicate Bill</span>'+
+                                    '</li>'+
+                                    '<li class="floaty-list-item floaty-list-item--palegreen" style="background: #688679" onclick="addItemToGeneratedBill(\''+bill.billNumber+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-plus whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Add Item</span>'+
                                     '</li>'+
                                     '<li class="floaty-list-item floaty-list-item--palegreen" onclick="lateApplyDiscount(\''+encodedBill+'\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
@@ -3995,9 +4001,8 @@ function lateApplyDiscountConfirm(billNumber){
 				          /* Recalculate Tax Figures */
 				          //Re-calculate tax figures (if any Discount applied)
 
-				          netTaxableSum = netTaxableSum - totalDiscount;
+				          	netTaxableSum = netTaxableSum - totalDiscount;
 
-				          if(totalDiscount > 0){
 				            for(var g = 0; g < billfile.extras.length; g++){
 				              
 				              if(billfile.extras[g].unit == 'PERCENTAGE'){
@@ -4023,7 +4028,6 @@ function lateApplyDiscountConfirm(billNumber){
 				              }
 				            }
 
-				          }  
 
 				          //add extras
 				          if(!jQuery.isEmptyObject(billfile.extras)){
@@ -4092,5 +4096,757 @@ function lateApplyDiscountConfirm(billNumber){
                     }
 
                   });
+}
+
+
+
+//Add item to generated bill
+function addItemToGeneratedBill(billNumber){
+	
+	billNumber = parseInt(billNumber);
+
+	window.localStorage.accelerate_edit_bill_items = '';
+	document.getElementById("lateItemAddContinueButton").style.display = 'none';
+
+	document.getElementById("lateAddItemToBill").style.display = 'block';
+	$('#late_add_hidden_bill_number').val(billNumber);
+	$('#lateAddItemToBillTitle').html('Adding new items to <b>Bill #'+billNumber+'</b>');
+
+	$('#temporaryCartRenderArea').html('<p style="margin: 100px 0 0 0; font-size: 28px; font-weight: 300; color: #d2d6de; text-align: center;">Add any item from the Menu!</p>');
+
+	initLateMenuSuggestion();
+	initLateOrderPunch();
+}
+
+function addItemToGeneratedBillHide(){
+	window.localStorage.accelerate_edit_bill_items = '';
+	document.getElementById("lateAddItemToBill").style.display = 'none';
+}
+
+
+function initLateOrderPunch(){
+		//Focus on to "Add item"
+		$("#late_add_item_by_search").focus();
+
+		/*Remove suggestions if focus out*/ /*TWEAK*/
+		$("#late_add_item_by_search").focusout(function(){
+			setTimeout(function(){ 
+				$('#lateSearchResultsRenderArea').html('');
+			}, 300);	 /*delay added for the focusout to understand if modal is opened*/
+		});
+}
+
+
+/*Auto Suggetion - MENU*/
+function initLateMenuSuggestion(){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+
+	          	var mastermenu = data.docs[0].value; 
+
+	          	//Process whole menu (list of only Menu Items)
+	          	var menu_processed = [];
+	          	$.each(mastermenu, function(key_1, subMenu) {
+					$.each(subMenu.items, function(key_2, items) {
+						items.category = subMenu.category;
+						menu_processed.push(items);
+					});
+				});
+
+
+				/*Select on Arrow Up/Down */
+				var li = $('#lateSearchResultsRenderArea li');
+				var liSelected = undefined;
+
+				$('#late_add_item_by_search').keyup(function(e) {
+
+					if($('#customOptionsList').is(':visible')){ // **TWEAK**
+						//Do not navigate when the custom item choose modal is shown
+						return '';
+					}
+
+
+				    if (e.which === 40 || e.which === 38 || e.which === 18) {
+				        /*
+				        	Skip Search if the Up-Arrow or Down-Arrow
+							is pressed inside the Search Input.
+
+							Add comment to last item, if ALT pressed.
+				        */ 
+
+					    if(e.which === 40){ 
+					        if(liSelected){
+					            liSelected.removeClass('selected');
+					            next = liSelected.next();
+					            if(next.length > 0){
+					                liSelected = next.addClass('selected');
+					            }else{
+					                liSelected = li.eq(0).addClass('selected');
+					            }
+					        }else{
+					            liSelected = li.eq(0).addClass('selected');
+					        }
+					    }else if(e.which === 38){
+
+					    	/* TWEAK */
+					    	$('#late_add_item_by_search').focus().val($('#late_add_item_by_search').val());
+
+
+					        if(liSelected){
+					            liSelected.removeClass('selected');
+					            next = liSelected.prev();
+					            if(next.length > 0){
+					                liSelected = next.addClass('selected');
+					            }else{
+					                liSelected = li.last().addClass('selected');
+					            }
+					        }else{
+					            liSelected = li.last().addClass('selected');
+					        }
+					    }
+					    else if(e.which === 18){
+
+							//UX Improvements
+							//add comment to last added item
+							var iteration_count = 0;
+							$("#cartDetails .itemCommentButton").each(function(){
+
+								if(iteration_count == 0){
+									$(this).click();
+								}
+
+								iteration_count++;
+							});							    	
+					    }
+
+
+				    }
+				    else if (e.which === 13) {
+
+				        /*
+				        	Add Item if the Enter Key
+							is pressed inside the Search Input
+				        */ 
+
+				        $("#lateSearchResultsRenderArea li").each(function(){
+					        if($(this).hasClass("selected")){
+					        	$(this).click();
+					        }
+					    });
+
+				    }
+				    else{
+
+				    	liSelected = undefined
+
+					    var searchField = $(this).val();
+					    if (searchField === '') {
+					        $('#lateSearchResultsRenderArea').html('');
+					        return;
+					    }
+
+					    var regex = new RegExp(searchField, "i");
+					    var name_regex = new RegExp("^" + searchField, "i");
+
+					    var count = 0;
+					    var tabIndex = 1;
+					    var itemsList = '';
+					    var itemsAppendList = '';
+
+					    $.each(menu_processed, function(key_2, items) {
+
+					    		if(!items.shortCode){
+					    			items.shortCode = '';
+					    		}
+
+					    		if(!items.shortNumber){
+					    			items.shortNumber = '';
+					    		}
+
+					    		items.itemCode = items.shortNumber.toString();
+
+								if(items.itemCode.search(name_regex) != -1){
+					    	 		tabIndex = -1;
+						  			itemsList += '<li class="ui-menu-item" onclick="additemtoTempCart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.shortNumber+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+						            count++;
+						            tabIndex++;
+					    	 	}
+					    	 	else if(items.shortCode.search(name_regex) != -1){
+					    	 		tabIndex = -1;
+						  			itemsList += '<li class="ui-menu-item" onclick="additemtoTempCart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.shortNumber+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+						            count++;
+						            tabIndex++;
+					    	 	}
+					    	 	else{
+
+					    	 			var item_name = items.name;
+
+					    	 			if(item_name.search(name_regex) != -1){
+					    	 				tabIndex = -1;
+								  			itemsList += '<li class="ui-menu-item" onclick="additemtoTempCart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.shortNumber+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+								            count++;
+								            tabIndex++;
+					    	 			}
+					    	 			else if(item_name.search(regex) != -1){
+
+					    	 				tabIndex = -1;
+								  			itemsAppendList += '<li class="ui-menu-item" onclick="additemtoTempCart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.shortNumber+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+								            count++;
+								            tabIndex++;
+					    	 			}
+					    	 	}
+					    });
+
+
+						//Render the list
+						var isSomeItemsFound = false; 
+					    if(itemsList != '' || itemsAppendList != ''){
+					    	isSomeItemsFound = true;
+					    	$('#lateSearchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 320px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+itemsList+itemsAppendList+'</ul>');
+					    }
+					    else{
+
+						  // LOGGED IN USER INFO
+						  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+						        
+						  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+						    loggedInStaffInfo.name = "";
+						    loggedInStaffInfo.code = "";
+						    loggedInStaffInfo.role = "";
+						  }
+
+						  //either profile not chosen, or not an admin
+						  var isUserAnAdmin = false
+						  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+						    isUserAnAdmin = true;
+						  }
+
+
+					    	var temp_item = $('#add_item_by_search').val();
+
+					    	var customAdditionContent = '';
+					    	if(isUserAnAdmin){
+					    		customAdditionContent = '<li class="ui-menu-item" onclick="addSpecialCustomItem(\''+temp_item+'\')" tabindex="'+tabIndex+'"><i class="fa fa-plus-circle" style="color: #18ca8b"></i> <i>add</i> <b style="font-size: 120%">'+temp_item+'</b></li>';
+					    	}
+
+					    	var custom_template = 	'<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+
+					    								'<span style="display: inline-block; padding: 8px 0 4px 8px; font-size: 12px; text-align: center; color: #c6c6c6; font-style: italic">No matching items found.</span>'+ customAdditionContent +
+										    	   	'</ul>';
+					    	
+					    	$('#lateSearchResultsRenderArea').html(custom_template);
+					    }
+
+					    if(isSomeItemsFound){
+					    	var track_index = 0;
+					    	$("#lateSearchResultsRenderArea li").each(function(){
+
+					    		if(track_index == 0){
+					    			$(this).addClass("selected");
+					    		}
+
+					    		track_index++;
+						    });
+					    }
+
+					    //Refresh dropdown list
+					    li = $('#lateSearchResultsRenderArea li');
+					    if(isSomeItemsFound){
+					    	liSelected = li.eq(0).addClass('selected');
+					    }
+
+					}
+				});   
+          }
+        }
+      }
+
+    });
+}
+
+
+
+function additemtoTempCart(encodedItem, category, optionalSource){
+
+	var productToAdd = JSON.parse(decodeURI(encodedItem));
+
+	if(productToAdd.isCustom){
+
+		//Pop up
+		var i = 0;
+		var optionList = '';
+		while(productToAdd.customOptions[i]){
+			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCartLate(\''+productToAdd.name+'\', \''+productToAdd.category+'\', \''+productToAdd.code+'\', \''+productToAdd.cookingTime+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\', \'\', \''+productToAdd.isPackaged+'\')">'+
+										'<a>'+productToAdd.customOptions[i].customName+'<tag class="spotlightCustomItemTick"><i class="fa fa-check"></i></tag> <tag style="float: right"><i class="fa fa-inr"></i>'+productToAdd.customOptions[i].customPrice+'</tag></a>'+
+									  '</li>';
+			i++;
+		}
+		document.getElementById("customiseItemLateModal").style.display ='block';
+		document.getElementById("customiseItemLateTitle").innerHTML = "Choice of <b>"+productToAdd.name+"</b>";
+		document.getElementById("customOptionsLateList").innerHTML = '<ol class="rectangle-list">'+optionList+'</ol>';
+
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+          var li = $('#customOptionsLateList .easySelectTool_customItem');
+          var liSelected = li.eq(0).addClass('selectCustomItem');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+            console.log('Am secretly running...')
+            if($('#customOptionsLateList').is(':visible')) {
+
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
+
+					if(liSelected){
+					    liSelected.removeClass('selectCustomItem');
+					   	next = liSelected.prev();
+						if(next.length > 0){
+							liSelected = next.addClass('selectCustomItem');
+						}else{
+							liSelected = li.last().addClass('selectCustomItem');
+						}
+					}else{
+						liSelected = li.last().addClass('selectCustomItem');
+					}                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+					if(liSelected){
+						liSelected.removeClass('selectCustomItem');
+						next = liSelected.next();
+						if(next.length > 0){
+							liSelected = next.addClass('selectCustomItem');
+						}else{
+							liSelected = li.eq(0).addClass('selectCustomItem');
+						}
+					}else{
+						liSelected = li.eq(0).addClass('selectCustomItem');
+					}
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("customiseItemLateModal").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#customOptionsLateList .easySelectTool_customItem").each(function(){
+                      if($(this).hasClass("selectCustomItem")){
+
+                      	easySelectTool.unbind();   
+                        $(this).click();
+                        e.preventDefault(); 
+                        
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
+            }
+          });
+	}
+	else if(!productToAdd.isCustom){
+		
+		saveToCartLate(productToAdd, optionalSource)
+
+		$('#late_add_item_by_search').val('');
+		$('#lateSearchResultsRenderArea').html('');
+	}	
+
+
+	$("#late_add_item_by_search").focus();
+}
+
+function addCustomToCartLate(name, category, code, cookTime, price, variant, optionalSource, encodedIngredients, cart_index, packagedExclusionFlag){
+
+		var ingredientsTemp = encodedIngredients && encodedIngredients != '' ? JSON.parse(decodeURI(encodedIngredients)) : '';
+
+		var productToAdd = {};
+		productToAdd.name = name;
+		productToAdd.category = category;
+		productToAdd.code = code;
+		productToAdd.cookingTime = parseInt(cookTime);
+		productToAdd.price = price;
+		productToAdd.variant = variant;
+		productToAdd.isCustom = true;
+		productToAdd.ingredients = ingredientsTemp;
+
+		if(packagedExclusionFlag == 'true' || packagedExclusionFlag == true){
+			productToAdd.isPackaged = true;	
+		}
+
+		saveToCartLate(productToAdd);
+
+		document.getElementById("customiseItemLateModal").style.display ='none';
+
+		$('#late_add_item_by_search').val('');
+		$('#lateSearchResultsRenderArea').html('');
+}
+
+function hideCustomiseItemLate(){
+	document.getElementById("customiseItemLateModal").style.display ='none';
+}
+
+
+
+/*Add Item to Temp. Cart */
+function saveToCartLate(productToAdd, optionalSource){
+	var cart_products = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+    cart_products.push({"name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "qty": 1, "cookingTime" : productToAdd.cookingTime ? parseInt(productToAdd.cookingTime) : 0});
+      
+    window.localStorage.accelerate_edit_bill_items = JSON.stringify(cart_products);
+
+    renderTemporaryCartPreview(cart_products);
+}
+
+function deleteFromTemporaryCart(index){
+	var cart_products = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+    cart_products.splice(index, 1);
+
+    window.localStorage.accelerate_edit_bill_items = JSON.stringify(cart_products);
+
+    renderTemporaryCartPreview(cart_products);
+}
+
+function increaseItemTemporaryCart(index){
+	var cart_products = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+    cart_products[index].qty++;
+
+    window.localStorage.accelerate_edit_bill_items = JSON.stringify(cart_products);
+    renderTemporaryCartPreview(cart_products);
+}
+
+function reduceItemTemporaryCart(index){
+	var cart_products = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+    cart_products[index].qty--;
+
+    if(cart_products[index].qty == 0){
+    	cart_products.splice(index, 1);
+    }
+
+    window.localStorage.accelerate_edit_bill_items = JSON.stringify(cart_products);
+    renderTemporaryCartPreview(cart_products);
+}
+
+function renderTemporaryCartPreview(cart_products){
+
+	if(cart_products.length == 0){
+		document.getElementById("temporaryCartRenderArea").innerHTML = '<p style="margin: 100px 0 0 0; font-size: 28px; font-weight: 300; color: #d2d6de; text-align: center;">Add any item from the Menu!</p>';
+		document.getElementById("lateItemAddContinueButton").style.display = 'none';
+		return '';
+	}
+
+	var itemsContent = '';
+	var n = 0;
+	while(cart_products[n]){
+		itemsContent += ''+
+				'<tr class="success">'+
+		            '<td class="text-center" style="cursor: pointer" onclick="deleteFromTemporaryCart('+n+')"><i class="fa fa-trash-o"></i></td>'+
+		            '<td>'+cart_products[n].name+(cart_products[n].isCustom ? ' ('+cart_products[n].variant+')' : '')+'</td>'+
+		            '<td class="text-center"> <span class="text-center sprice"><i class="fa fa-inr"></i>'+cart_products[n].price+'</span></td>'+
+		            '<td class="text-center">'+
+		            	'<tag style="margin-right: 10px; color: #e26767; width: 15px; cursor: pointer;" onclick="reduceItemTemporaryCart('+n+')"><i class="fa fa-minus-circle"></i></tag>'+
+		            	'x '+cart_products[n].qty+
+		            	'<tag style="margin-left: 10px; color: #33a24f; width: 15px; cursor: pointer;" onclick="increaseItemTemporaryCart('+n+')"><i class="fa fa-plus-circle"></i></tag>'+
+		            '</td>'+
+		            '<td class="text-center"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+(cart_products[n].price * cart_products[n].qty)+'</span></td>'+
+		        '</tr>';
+		n++;
+	}
+
+
+	var renderContent = ''+
+		'<div class="row">'+
+			'<div class="col-sm-12">'+
+			   '<h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">New Items Preview</h1>'+
+			   '<table class="table table-striped table-condensed table-hover list-table" style="margin:0px; z-index: 2;">'+
+			      '<colgroup> <col width="10%"> <col width="40%"> <col width="15%"> <col width="20%"> <col width="15%"> </colgroup>'+
+			      '<thead id="cartTitleHead"> <tr class="success cartTitleRow"> <th class="satu cartTitleRow"></th> <th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow">Qty</th> <th class="cartTitleRow">Subtotal</th> </tr> </thead>'+
+			   '</table>'+
+			   '<table class="table table-striped table-condensed table-hover list-table" style="margin:0px;">'+
+			      '<colgroup> <col width="10%"> <col width="40%"> <col width="15%"> <col width="20%"> <col width="15%"> </colgroup>'+
+			      '<tbody>' + itemsContent + '</tbody>' +
+			   '</table>'+
+			'</div>'+
+		'</div>';
+
+	document.getElementById("temporaryCartRenderArea").innerHTML = renderContent;
+	document.getElementById("lateItemAddContinueButton").style.display = 'block';
+}
+
+
+function processLateAddedItems(){
+	
+	var new_cart = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+
+	var billNumber = $('#late_add_hidden_bill_number').val();
+	
+	if(billNumber == '' || new_cart.length == 0){
+		showToast('Error: Something went wrong.', '#e74c3c');
+		return '';
+	}
+
+	//Open the bill
+	billNumber = parseInt(billNumber);
+
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
+
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
+      timeout: 10000,
+      success: function(data) {
+        if(data._id == bill_request_data){
+
+          var billfile = data;
+          var bill_cart = billfile.cart;
+
+          var extended_cart = [];
+
+          var maxCartIndex = 0;
+          
+          var n = 0;
+          while(bill_cart[n]){
+          	if(bill_cart[n].cartIndex >= maxCartIndex){
+          		maxCartIndex = bill_cart[n].cartIndex;
+          	}
+          	n++;
+          }
+
+          //process new items
+          for(var i = 0; i < new_cart.length; i++){
+
+          	var isItemAlreadyExists = false;
+          	
+          	//check if this same item already exists in the bill
+          	var m = 0;
+          	while(bill_cart[m]){
+          		if(new_cart[i].isCustom){
+          			if(bill_cart[m].code == new_cart[i].code && bill_cart[m].variant == new_cart[i].variant){
+          				//same found
+          				bill_cart[m].qty += new_cart[i].qty;
+          				isItemAlreadyExists = true;
+          				break;
+          			}
+          		}
+          		else{
+          			if(bill_cart[m].code == new_cart[i].code){
+          				//same found
+          				bill_cart[m].qty += new_cart[i].qty;
+          				isItemAlreadyExists = true;
+          				break;
+          			}
+          		}
+          		m++;
+          	}
+
+          	//item doesn't exists
+          	if(!isItemAlreadyExists){
+          		extended_cart.push(new_cart[i]);
+          	}
+          }
+
+          //Updated bill cart 
+          billfile.cart = bill_cart.concat(extended_cart);
+
+          processNewFiguresAndSave();
+
+          /* NEW FIGURES */
+          function processNewFiguresAndSave(){
+
+			/* RECALCULATE New Figures*/
+			var subTotal = 0;
+			var packagedSubTotal = 0;
+
+			var n = 0;
+			while(billfile.cart[n]){
+				subTotal = subTotal + billfile.cart[n].qty * billfile.cart[n].price;
+
+				if(billfile.cart[n].isPackaged){
+					packagedSubTotal += billfile.cart[n].qty * billfile.cart[n].price;
+				}
+
+				n++;
+			}
+
+			var grandPayableBill = subTotal;
+			var netTaxableSum = subTotal;
+			var netPayableSum = subTotal;
+
+
+	        /*Calculate Discounts if Any*/ 
+	        var net_discount = 0;    
+	        if(billfile.discount){
+	          		var tempExtraTotal = 0;
+	          		if(billfile.discount.value != 0){
+	          			if(billfile.discount.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = billfile.discount.value * subTotal/100;
+	          			}
+	          			else if(billfile.discount.unit == 'FIXED'){
+	          				tempExtraTotal = billfile.discount.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		billfile.discount.amount = tempExtraTotal;
+	          		net_discount = tempExtraTotal;
+	          		grandPayableBill -= tempExtraTotal;
+	        }
+
+
+
+			/*Calculate Taxes and Other Charges*/
+	        var k = 0;
+	        var effective_discountable_sum = subTotal - net_discount;
+	        if(billfile.extras.length > 0){
+	          	for(k = 0; k < billfile.extras.length; k++){
+
+	          		var tempExtraTotal = 0;
+
+	          		if(billfile.extras[k].isPackagedExcluded){
+			          		if(billfile.extras[k].value != 0){
+			          			if(billfile.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = (billfile.extras[k].value * (effective_discountable_sum - packagedSubTotal))/100;
+			          			}
+			          			else if(billfile.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = billfile.extras[k].value;
+			          			}
+			          		}
+			        }
+			        else{
+			          		if(billfile.extras[k].value != 0){
+			          			if(billfile.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = billfile.extras[k].value * effective_discountable_sum/100;
+			          			}
+			          			else if(billfile.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = billfile.extras[k].value;
+			          			}
+			          		}			        	
+			        }
+
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		billfile.extras[k] = {
+				 		"name": billfile.extras[k].name,
+						"value": billfile.extras[k].value,
+						"unit": billfile.extras[k].unit,
+						"amount": tempExtraTotal,
+						"isPackagedExcluded": billfile.extras[k].isPackagedExcluded
+	          		};
+
+	          		grandPayableBill += tempExtraTotal;
+	          	}
+	        }
+
+
+	        /*Calculate Custom Extras if Any*/     
+	        if(billfile.customExtras){
+	          		var tempExtraTotal = 0;
+	          		if(billfile.customExtras.value != 0){
+	          			if(billfile.customExtras.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = billfile.customExtras.value * effective_discountable_sum/100;
+	          			}
+	          			else if(billfile.customExtras.unit == 'FIXED'){
+	          				tempExtraTotal = billfile.customExtras.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		billfile.customExtras.amount = tempExtraTotal;
+
+	          		grandPayableBill += tempExtraTotal;
+	        }
+
+
+          grandPayableBill = parseFloat(grandPayableBill).toFixed(2);   
+          var grandPayableBillRounded = properRoundOff(grandPayableBill);   
+
+          billfile.payableAmount = grandPayableBillRounded;
+          billfile.grossCartAmount = netPayableSum;
+          billfile.grossTaxableAmount = netTaxableSum;
+
+          billfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
+
+
+
+
+
+
+          		var encodedBill = encodeURI(JSON.stringify(billfile));
+
+                //Update Bill on Server
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+(billfile._id)+'/',
+                  data: JSON.stringify(billfile),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('New items successfully to the Bill #'+billNumber, '#27ae60');
+                      addItemToGeneratedBillHide();
+                      
+                      loadAllPendingSettlementBills();
+				      openSelectedBill(encodedBill, 'PENDING');
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Bill #'+billNumber, '#e74c3c');
+                  }
+                }); 
+
+          }//processNewFiguresAndSave
+
+
+        }
+        else{
+          showToast('Not Found Error: Bill #'+billNumber+' not found on Server.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('Not Found Error: Bill #'+billNumber+' not found on Server.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+
+
+function lateApplyDiscountValueFocus(){
+	$('#applyBillDiscountLate_value').focus();
+  	$('#applyBillDiscountLate_value').select();	
 }
 

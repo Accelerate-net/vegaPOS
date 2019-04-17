@@ -1102,9 +1102,8 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
           /* Recalculate Tax Figures */
           //Re-calculate tax figures (if any Discount applied)
 
-          netTaxableSum = netTaxableSum - totalDiscount;
+            netTaxableSum = netTaxableSum - totalDiscount;
 
-          if(totalDiscount > 0){
             for(var g = 0; g < kotfile.extras.length; g++){
               
               if(kotfile.extras[g].unit == 'PERCENTAGE'){
@@ -1129,8 +1128,6 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
                 //Do nothing
               }
             }
-
-          }  
 
 
           /*Save changes in KOT*/
@@ -4064,13 +4061,17 @@ function processRefundSettledBill(billNumber, optionalPageRef){
               discountedAmount = bill.discount.amount;
             }
 
-            var taxable_sum = bill.grossTaxableAmount - bill.refundDetails.amount - discountedAmount;
+            var requestedRefund = bill.refundDetails.amount;
+
+            var applicable_sub_total = bill.grossTaxableAmount - requestedRefund - discountedAmount;
+            //(Total Cart amount) - (Total Refunds & Discounts)
+
 
             var new_extras_sum = 0;
             /* Recalculate Tax Figures */
             for(var n = 0; n < bill.extras.length; n++){
               if(bill.extras[n].unit == 'PERCENTAGE'){
-                var new_amount = (bill.extras[n].value / 100) * taxable_sum;
+                var new_amount = (bill.extras[n].value / 100) * applicable_sub_total;
                 new_amount = Math.round(new_amount * 100) / 100;
 
                 bill.extras[n].amount = new_amount;
@@ -4078,13 +4079,14 @@ function processRefundSettledBill(billNumber, optionalPageRef){
               }
               else if(bill.extras[n].unit == 'FIXED'){
                 //Do nothing
+                new_extras_sum += bill.extras[n].amount;
               }
             }      
 
             /* custom extras */
             if(bill.customExtras.amount && bill.customExtras.amount != 0){
               if(bill.customExtras.unit == 'PERCENTAGE'){
-                var new_amount = (bill.customExtras.value / 100) * taxable_sum;
+                var new_amount = (bill.customExtras.value / 100) * applicable_sub_total;
                 new_amount = Math.round(new_amount * 100) / 100;
 
                 bill.customExtras.amount = new_amount;
@@ -4092,31 +4094,26 @@ function processRefundSettledBill(billNumber, optionalPageRef){
               }
               else if(bill.customExtras.unit == 'FIXED'){
                 //Do nothing
+                new_extras_sum += bill.customExtras.amount;
               }
             }
 
-            /* New Cart figures */
-            if(bill.discount.amount && bill.discount.amount != 0){
-              new_extras_sum -= bill.discount.amount;
-            }
 
-
-            var newGrossAmount = taxable_sum + new_extras_sum;
+            var newGrossAmount = applicable_sub_total + new_extras_sum;
 
             //Adjusted refund amount
-            var adjustedRefund = (alreadyPaidAmount - discountedAmount) - newGrossAmount;
-            adjustedRefund = Math.floor(adjustedRefund); //Round to floor
+            var adjustedRefund = alreadyPaidAmount - newGrossAmount;
+            adjustedRefund = Math.floor(adjustedRefund);
             bill.refundDetails.amount = adjustedRefund;
 
-            console.log(adjustedRefund)
-            var new_payable_amount = bill.payableAmount - bill.calculatedRoundOff - adjustedRefund;
+
+            var new_payable_amount = newGrossAmount;
             new_payable_amount = Math.round(new_payable_amount * 100) / 100;   
             new_payable_amount_rounded = Math.round(new_payable_amount);  
 
-
             bill.payableAmount = new_payable_amount_rounded;
-            
             bill.calculatedRoundOff = Math.round((new_payable_amount_rounded - new_payable_amount) * 100) / 100;
+          
           }
 
 
