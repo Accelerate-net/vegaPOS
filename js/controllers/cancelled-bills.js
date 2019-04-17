@@ -940,7 +940,7 @@ function loadAllCancelledUnbilled(optionalSource){
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">Somethin went wrong. Try again.</p>';
+		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">Something went wrong. Try again.</p>';
 		    }
 
 		  });  		
@@ -2000,7 +2000,7 @@ function loadAllCancelledInvoices(){
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">Somethin went wrong. Try again.</p>';
+		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #bdc3c7; margin: 10px 0 0 0;">Something went wrong. Try again.</p>';
 		    
 		    }
 

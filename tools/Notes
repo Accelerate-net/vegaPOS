@@ -1,6 +1,6 @@
-1. Add item after bill generation
 2. Add Net Cart amount to bill
 3. Show tax excluded sum separately
+4. Separate sum in payment mode, billing mode
 
 Moved to Version 2:
 1. PHONE DELIVERY (Send SMS Updates to customers)

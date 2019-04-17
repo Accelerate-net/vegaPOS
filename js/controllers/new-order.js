@@ -314,8 +314,6 @@ function hideCustomiseItem(){
 
 function addSpecialCustomItem(optionalText){
 
-
-
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
         
@@ -4433,6 +4431,28 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 				n++;
 			}
 
+
+	        /*Calculate Discounts if Any*/ 
+	        var net_discount_applied = 0;    
+	        if(kot.discount){
+	          		var tempExtraTotal = 0;
+	          		if(kot.discount.value != 0){
+	          			if(kot.discount.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = kot.discount.value * subTotal/100;
+	          			}
+	          			else if(kot.discount.unit == 'FIXED'){
+	          				tempExtraTotal = kot.discount.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+	          		net_discount_applied = tempExtraTotal;
+	          		kot.discount.amount = tempExtraTotal;
+	        }
+
+
+	        var net_sum_after_discount = subTotal - net_discount_applied
+
 			/*Calculate Taxes and Other Charges*/
 	        var k = 0;
 	        if(kot.extras.length > 0){
@@ -4443,7 +4463,7 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 	          		if(kot.extras[k].isPackagedExcluded){
 			          		if(kot.extras[k].value != 0){
 			          			if(kot.extras[k].unit == 'PERCENTAGE'){
-			          				tempExtraTotal = (kot.extras[k].value * (subTotal - packagedSubTotal))/100;
+			          				tempExtraTotal = (kot.extras[k].value * (net_sum_after_discount - packagedSubTotal))/100;
 			          			}
 			          			else if(kot.extras[k].unit == 'FIXED'){
 			          				tempExtraTotal = kot.extras[k].value;
@@ -4453,7 +4473,7 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 			        else{
 			          		if(kot.extras[k].value != 0){
 			          			if(kot.extras[k].unit == 'PERCENTAGE'){
-			          				tempExtraTotal = kot.extras[k].value * subTotal/100;
+			          				tempExtraTotal = kot.extras[k].value * net_sum_after_discount /100;
 			          			}
 			          			else if(kot.extras[k].unit == 'FIXED'){
 			          				tempExtraTotal = kot.extras[k].value;
@@ -4474,22 +4494,6 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 	          	}
 	        }
 
-	        /*Calculate Discounts if Any*/     
-	        if(kot.discount){
-	          		var tempExtraTotal = 0;
-	          		if(kot.discount.value != 0){
-	          			if(kot.discount.unit == 'PERCENTAGE'){
-	          				tempExtraTotal = kot.discount.value * subTotal/100;
-	          			}
-	          			else if(kot.discount.unit == 'FIXED'){
-	          				tempExtraTotal = kot.discount.value;
-	          			}
-	          		}
-
-	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
-
-	          		kot.discount.amount = tempExtraTotal;
-	        }
 
 
 	        /*Calculate Custom Extras if Any*/     
@@ -4497,7 +4501,7 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 	          		var tempExtraTotal = 0;
 	          		if(kot.customExtras.value != 0){
 	          			if(kot.customExtras.unit == 'PERCENTAGE'){
-	          				tempExtraTotal = kot.customExtras.value * subTotal/100;
+	          				tempExtraTotal = kot.customExtras.value * net_sum_after_discount/100;
 	          			}
 	          			else if(kot.customExtras.unit == 'FIXED'){
 	          				tempExtraTotal = kot.customExtras.value;
