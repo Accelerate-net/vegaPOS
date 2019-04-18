@@ -120,7 +120,7 @@ function downloadExcelReport(type){
 							},
 							error: function(data){
 								hideLoading();
-								showToast('System Error: Failed to fetch Total Paid Amount. Please contact Accelerate Support.', '#e74c3c');
+								showToast('System Error: Failed to fetch Total Paid Amount.', '#e74c3c');
 							}
 						}); 
 					}//end - step 1
@@ -206,7 +206,7 @@ function downloadExcelReport(type){
 													},
 													error: function(data){
 														hideLoading();
-														showToast('System Error: Failed to calculate custom extras. Please contact Accelerate Support.', '#e74c3c');
+														showToast('System Error: Failed to calculate custom extras.', '#e74c3c');
 													}
 												}); 
 
@@ -214,25 +214,25 @@ function downloadExcelReport(type){
 									    },
 									    error: function(data){
 									    	hideLoading();
-									    	showToast('System Error: Failed to calculate extra charges. Please contact Accelerate Support.', '#e74c3c');
+									    	showToast('System Error: Failed to calculate extra charges.', '#e74c3c');
 									    }
 									  });  
 
 					          }
 					          else{
 					          	hideLoading();
-					            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+					            showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
 					          }
 					        }
 					        else{
 					          hideLoading();
-					          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+					          showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
 					        }
 					        
 					      },
 					      error: function(data) {
 					      	hideLoading();
-					        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+					        showToast('System Error: Unable to read Parameters Modes data.', '#e74c3c');
 					      }
 
 					    });	
@@ -288,7 +288,7 @@ function downloadExcelReport(type){
 										},
 										error: function(data){
 											hideLoading();
-											showToast('System Error: Failed to calculate custom extras. Please contact Accelerate Support.', '#e74c3c');
+											showToast('System Error: Failed to calculate custom extras.', '#e74c3c');
 										}
 									}); 
 
@@ -296,7 +296,7 @@ function downloadExcelReport(type){
 						    },
 						    error: function(data){
 						    	hideLoading();
-						    	showToast('System Error: Failed to calculate extra charges. Please contact Accelerate Support.', '#e74c3c');
+						    	showToast('System Error: Failed to calculate extra charges.', '#e74c3c');
 						    }
 						  }); 
 
@@ -334,7 +334,7 @@ function downloadExcelReport(type){
 							},
 							error: function(data){
 								hideLoading();
-								showToast('System Error: Failed to calculate discounts. Please contact Accelerate Support.', '#e74c3c');
+								showToast('System Error: Failed to calculate discounts.', '#e74c3c');
 							}
 						});  	
 					} //end - step 3
@@ -358,7 +358,7 @@ function downloadExcelReport(type){
 								}
 								
 								excelReportData_Overall.push({
-									"name": 'Round Off',
+									"name": 'Waive Off',
 									"value": temp_roundOffSum
 								})	
 
@@ -370,7 +370,7 @@ function downloadExcelReport(type){
 							},
 							error: function(data){
 								hideLoading();
-								showToast('System Error: Failed to calculate round off amounts. Please contact Accelerate Support.', '#e74c3c');
+								showToast('System Error: Failed to calculate round off amounts.', '#e74c3c');
 							}
 						});  
 					} //end - step 4
@@ -406,7 +406,7 @@ function downloadExcelReport(type){
 							},
 							error: function(data){
 								hideLoading();
-								showToast('System Error: Failed to calculate tips amounts. Please contact Accelerate Support.', '#e74c3c');
+								showToast('System Error: Failed to calculate tips amounts.', '#e74c3c');
 							}
 						}); 
 					} // end - step 5
@@ -464,7 +464,7 @@ function downloadExcelReport(type){
 							},
 							error: function(data){
 								hideLoading();
-								showToast('System Error: Failed to calculate refund amount. Please contact Accelerate Support.', '#e74c3c');
+								showToast('System Error: Failed to calculate refund amount.', '#e74c3c');
 							}
 						});  
 
@@ -589,7 +589,7 @@ function downloadExcelReport(type){
 								    },
 								    error: function(data){
 								    	hideLoading();
-								    	showToast('System Error: Failed to build billing mode summary. Please contact Accelerate Support.', '#e74c3c');	
+								    	showToast('System Error: Failed to build billing mode summary.', '#e74c3c');	
 								    }
 								});  
 				          }
@@ -597,7 +597,7 @@ function downloadExcelReport(type){
 				      },
 				      error: function(data){
 				      	hideLoading();
-				      	showToast('System Error: Failed to read billing modes data. Please contact Accelerate Support.', '#e74c3c');
+				      	showToast('System Error: Failed to read billing modes data.', '#e74c3c');
 				      }
 
 				    });
@@ -675,7 +675,7 @@ function downloadExcelReport(type){
 								    },
 								    error: function(data){
 								    	hideLoading();
-								    	showToast('System Error: Failed to build billing mode summary. Please contact Accelerate Support.', '#e74c3c');
+								    	showToast('System Error: Failed to build billing mode summary.', '#e74c3c');
 								    }
 								});  	
 				}
@@ -807,7 +807,7 @@ function downloadExcelReport(type){
 												},
 												error: function(data){
 													hideLoading();
-													showToast('System Error: Failed to build payment mode summary. Please contact Accelerate Support.', '#e74c3c');
+													showToast('System Error: Failed to build payment mode summary.', '#e74c3c');
 												}
 											}); 
 
@@ -815,25 +815,25 @@ function downloadExcelReport(type){
 								    },
 								    error: function(data){
 								    	hideLoading();
-								    	showToast('System Error: Failed to build billing mode summary. Please contact Accelerate Support.', '#e74c3c');
+								    	showToast('System Error: Failed to build billing mode summary.', '#e74c3c');
 								    }
 								  });  
 
 				          }
 				          else{
 				          		hideLoading();
-				            	showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+				            	showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 				          }
 				        }
 				        else{
 				        	hideLoading();
-				          	showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+				          	showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 				        }
 				        
 				      },
 				      error: function(data) {
 				      	hideLoading();
-				        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+				        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
 				      }
 
 				    });
@@ -923,7 +923,7 @@ function downloadExcelReport(type){
 									},
 									error: function(data){
 										hideLoading();
-										showToast('System Error: Failed to build payment mode summary. Please contact Accelerate Support.', '#e74c3c');
+										showToast('System Error: Failed to build payment mode summary.', '#e74c3c');
 									}
 								}); 
 
@@ -931,7 +931,7 @@ function downloadExcelReport(type){
 					    },
 					    error: function(data){
 					    	hideLoading();
-					    	showToast('System Error: Failed to build payment mode summary. Please contact Accelerate Support.', '#e74c3c');
+					    	showToast('System Error: Failed to build payment mode summary.', '#e74c3c');
 					    }
 					  }); 
 
@@ -1154,18 +1154,18 @@ function downloadExcelReport(type){
 		          }
 		          else{
 		            hideLoading();
-		            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		            showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
 		          }
 		        }
 		        else{
 		          hideLoading();
-		          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		          showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
 		        }
 		        
 		      },
 		      error: function(data) {
 		      	hideLoading();
-		        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+		        showToast('System Error: Unable to read Parameters Modes data.', '#e74c3c');
 		      }
 
 		    });
@@ -1323,7 +1323,7 @@ function downloadExcelReport(type){
 
 							var header = [
 							  ["INVOICE SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", ""].concat(main_header_title_nulls.concat(["", "", "", "", "", "", ""])),
-							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Round Off", "Payable Amount", "Amount Paid", "Mode of Payment", "Refunds", "Gross Amount"]))
+							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Waive Off", "Payable Amount", "Amount Paid", "Mode of Payment", "Refunds", "Gross Amount"]))
 							];
 
 							var data = header.concat(invoiceData);
@@ -1354,7 +1354,7 @@ function downloadExcelReport(type){
 					},
 					error: function(data){
 						hideLoading();
-						showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+						showToast('System Error: Unable to read Invoices data.', '#e74c3c');
 					}
 				});  
 
@@ -1393,18 +1393,18 @@ function downloadExcelReport(type){
 		          }
 		          else{
 		            hideLoading();
-		            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		            showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
 		          }
 		        }
 		        else{
 		          hideLoading();
-		          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+		          showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
 		        }
 		        
 		      },
 		      error: function(data) {
 		      	hideLoading();
-		        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+		        showToast('System Error: Unable to read Parameters Modes data.', '#e74c3c');
 		      }
 
 		    });
@@ -1564,7 +1564,7 @@ function downloadExcelReport(type){
 
 							var header = [
 							  ["CANCELLED INVOICES SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", "", "", "", "", ""].concat(main_header_title_nulls.concat(["", "", "", "", "", "", ""])),
-							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Status", "Cancelled By", "Reason", "Remarks", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Round Off", "Payable Amount", "Paid Amount", "Mode of Payment", "Refunds", "Gross Amount"]))
+							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Status", "Cancelled By", "Reason", "Remarks", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Waive Off", "Payable Amount", "Paid Amount", "Mode of Payment", "Refunds", "Gross Amount"]))
 							];
 
 							var data = header.concat(invoiceData);
@@ -1595,7 +1595,7 @@ function downloadExcelReport(type){
 					},
 					error: function(data){
 						hideLoading();
-						showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+						showToast('System Error: Unable to read Invoices data.', '#e74c3c');
 					}
 				});  
 
@@ -1725,7 +1725,7 @@ function downloadExcelReport(type){
 					},
 					error: function(data){
 						hideLoading();
-						showToast('System Error: Unable to read Cancelled Items data. Please contact Accelerate Support.', '#e74c3c');
+						showToast('System Error: Unable to read Cancelled Items data.', '#e74c3c');
 					}
 				});  
 
@@ -2065,7 +2065,7 @@ function renderGraph_SalesSummary(graphData){
 	});	
 
 	function convertGraph(){
-		//console.log(myChart.toBase64Image())
+
 	}
 }
 
@@ -2250,8 +2250,6 @@ function openDetailedByMode(selectedBillingMode, fromDate, toDate){
 									    temp_sum += data.rows[0].value.sum;
 									}
 
-									console.log('>> '+selectedBillingMode+' paid through '+modes[0].name+': '+temp_sum)
-
 									//time to render...
 							    	if(temp_count > 0){
 							    		document.getElementById("summaryRender_billingMode_detailed").innerHTML += '<tr> <td>'+modes[0].name+'</td> <td class="summaryLine3" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_count+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>';
@@ -2277,16 +2275,16 @@ function openDetailedByMode(selectedBillingMode, fromDate, toDate){
 
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
 	      }
 
 	    });
@@ -2322,8 +2320,6 @@ function openDetailedByModeCallback(index, modes, fromDate, toDate, selectedBill
 									    temp_count += data.rows[0].value.count;
 									    temp_sum += data.rows[0].value.sum;
 									}
-
-									console.log('>> '+selectedBillingMode+' paid through '+modes[index].name+': '+temp_sum)
 
 									//time to render...
 							    	if(temp_count > 0){
@@ -2498,16 +2494,16 @@ function fetchPaymentModeWiseSummary() {
 
           }
           else{
-            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
       }
 
     });
@@ -2818,16 +2814,16 @@ function openDetailedByExtras(selectedPaymentMode, fromDate, toDate, grandCount,
 
 	          }
 	          else{
-	            showToast('Not Found Error: Payments data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Payments data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Payments data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Payments data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
 	      }
 
 	    });
@@ -3140,7 +3136,7 @@ function fetchTimeSlotWiseSummary(){
 		error: function(data){
 			hideLoading();
 			document.getElementById("summaryRender_timeSlotWise").innerHTML = '<p style="margin:80px 0 0 0; color: #a9a9a9; text-align: center;">Unable to generate the Time Slot Summary on the given dates</p>';
-			showToast('Not Found Error: Time Slot Summary data not found. Please contact Accelerate Support.', '#e74c3c');
+			showToast('Not Found Error: Time Slot Summary data not found.', '#e74c3c');
 			return '';								    	
 		}
 	});  
@@ -3280,16 +3276,16 @@ function changeTimeslotSummaryOrderType(){
 
           }
           else{
-            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Billing Modes data.', '#e74c3c');
       }
 
     });
@@ -3430,7 +3426,7 @@ function fetchSessionWiseSummary() {
 
 					}
 
-					document.getElementById("summaryRender_sessionWise").innerHTML = renderContent + '<p style=" margin: 0 0 0 5px; font-size: 11px; font-style: italic; color: #777; ">*Refunds might <b>not</b> have been reduced from the above figures.</p>';
+					document.getElementById("summaryRender_sessionWise").innerHTML = renderContent + '<p style=" margin: 0 0 0 5px; font-size: 11px; font-style: italic; color: #777; ">*Indicative figures only. Refunds are <b>not</b> deducted.</p>';
 
 					//render the graph
 					renderGraph_SessionWiseSummary(graphData);
@@ -3443,7 +3439,7 @@ function fetchSessionWiseSummary() {
 		},
 		error: function(data){
 			document.getElementById("summaryRender_sessionWise").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Session Summary on the given dates</p>';
-			showToast('Not Found Error: Session Summary data not found. Please contact Accelerate Support.', '#e74c3c');
+			showToast('Not Found Error: Session Summary data not found.', '#e74c3c');
 			return '';								    	
 		}
 	});  
@@ -3581,14 +3577,14 @@ function fetchOverAllTurnOver(){
 
 			if(temp_totalPaid > 0){
 				graphData.push({
-					"name": "Total Paid Amount",
+					"name": "Gross Amount",
 					"value": temp_totalPaid
 				});
 			}
 			
 			//time to render...
 			if(temp_totalOrders > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Total Sales Volume</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i><tag id="figureTotalSalesVolume">'+parseFloat(temp_totalPaid).toFixed(2)+'</tag></td> </tr>';
+				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Gross Sales</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i><tag id="figureTotalSalesVolume">'+parseFloat(temp_totalPaid).toFixed(2)+'</tag></td> </tr>';
 				netSalesWorth = temp_totalPaid; 
 				document.getElementById("overallBarChart").style.display = 'block';
 			}
@@ -3709,16 +3705,16 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 
           }
           else{
-            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Parameters Modes data.', '#e74c3c');
       }
 
     });	
@@ -3865,7 +3861,7 @@ function renderRoundOffMade(fromDate, toDate, netSalesWorth, graphData){
 
 			if(temp_roundOffSum > 0){
 				graphData.push({
-					"name": 'Round Off',
+					"name": 'Waive Off',
 					"value": temp_roundOffSum
 				})
 			}		
@@ -3873,10 +3869,10 @@ function renderRoundOffMade(fromDate, toDate, netSalesWorth, graphData){
 
 			//time to render...
 			if(temp_roundOffCount > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Round Off Amount</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_roundOffCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_roundOffSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Waive Off Amount</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_roundOffCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_roundOffSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 			}
 			else{
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Round Off Amount</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Waive Off Amount</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 			}
 
 			//Step 5: Total Tips received
@@ -3980,8 +3976,8 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 				}
 
-				//Step 7: Summarize Totals
-				renderSummaryFinal(netSalesWorth, graphData);
+				//Step 7: Render Calculated Round Offs
+				renderCalculatedRoundOffs(fromDate, toDate, netSalesWorth, graphData);
 
 			},
 			error: function(data){
@@ -3992,19 +3988,90 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 
 
 //Step 7
+function renderCalculatedRoundOffs(fromDate, toDate, netSalesWorth, graphData){
+
+		//Total Calculated Round Offs
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_calculatedroundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_sum = 0;
+
+				if(data.rows.length > 0){
+					temp_sum = data.rows[0].value.sum;
+				}
+
+				graphData.push({
+					"name": 'Calculated Round Off',
+					"value": temp_sum
+				})
+
+				//time to render...
+				if(temp_sum < 0){
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td class="summaryLineRed" style="text-align: right">- <i class="fa fa-inr"></i>'+parseFloat(temp_sum * -1).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
+				else if(temp_sum > 0){
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td class="summaryLineGreen" style="text-align: right">+ <i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
+				else{
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
+
+				//Step 7: Render Total Cart amount
+				renderNetAmount(fromDate, toDate, netSalesWorth, graphData);
+
+			},
+			error: function(data){
+
+			}
+		}); 
+
+}
+
+
+//Step 8
+function renderNetAmount(fromDate, toDate, netSalesWorth, graphData){
+		
+		//Total Cart Amount
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_grossamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_sum = 0;
+				var temp_count = 0;
+
+				if(data.rows.length > 0){
+					temp_sum = data.rows[0].value.sum;
+					temp_count = data.rows[0].value.count;
+				}
+
+				graphData.push({
+					"name": 'Net Sales',
+					"value": temp_sum
+				})
+
+
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Net Sales</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+
+
+				//Step 10: Final Render Call
+				renderSummaryFinal(netSalesWorth, graphData);
+
+			},
+			error: function(data){
+
+			}
+		}); 
+}
+
+
+
+//Step 10
 function renderSummaryFinal(netSalesWorth, graphData){
-
-	if(netSalesWorth > 0){
-		graphData.push({
-			"name": 'Sales Volume',
-			"value": netSalesWorth
-		})
-	}	
-
-	if(netSalesWorth > 0){
-		document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Gross Sales</td> <td class="summaryLineBlack" style="text-align: right"><i class="fa fa-inr"></i>'+parseFloat(netSalesWorth).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-	}
-
 	renderGraph_overallSummary(graphData);
 }
 
@@ -4436,16 +4503,16 @@ function fetchCancellationSummary(){
 
           }
           else{
-            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Billing Modes data.', '#e74c3c');
       }
 
     });
@@ -4672,16 +4739,16 @@ function fetchRefundSummary(){
 
           }
           else{
-            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Payment Modes data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Payment Modes data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
       }
 
     });
@@ -4853,7 +4920,7 @@ function fetchItemCancellations(){
 		error: function(data){
 			hideLoading();
 			document.getElementById("summaryRender_itemCancellationSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Cancellations Summary on the given dates</p>';
-			showToast('Not Found Error: Item Cancellations data not found. Please contact Accelerate Support.', '#e74c3c');
+			showToast('Not Found Error: Item Cancellations data not found.', '#e74c3c');
 			document.getElementById("completeItemCancellationSummaryButton").style.display = 'none';
 			return '';								    	
 		}
@@ -4958,7 +5025,7 @@ function generateOverallItemCancellationReport(){
 							var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
 								
 							if(reportInfo_branch == ''){
-								showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+								showToast('System Error: Branch name not found.', '#e74c3c');
 								return '';
 							}
 
@@ -5078,7 +5145,7 @@ function generateOverallItemCancellationReport(){
 		error: function(data){
 			hideLoading();
 			document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Cancellation Summary on the given dates</p>';
-			showToast('Not Found Error: Item Cancellations data not found. Please contact Accelerate Support.', '#e74c3c');
+			showToast('Not Found Error: Item Cancellations data not found.', '#e74c3c');
 			return '';								    	
 		}
 	});  
@@ -5219,7 +5286,7 @@ function fetchItemSummary(){
 		error: function(data){
 			hideLoading();
 			document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Summary on the given dates</p>';
-			showToast('Not Found Error: Order Summary data not found. Please contact Accelerate Support.', '#e74c3c');
+			showToast('Not Found Error: Order Summary data not found.', '#e74c3c');
 			document.getElementById("completeItemSummaryButton").style.display = 'none';
 			return '';								    	
 		}
@@ -5377,8 +5444,6 @@ function generateOverallItemReport(){
 
 				function renderAllItemsSummaryAfterProcess(categorisedItemsList){
 
-					console.log(categorisedItemsList)
-
 					if(categorisedItemsList.length > 0){ 
 
 						var renderContent = '';
@@ -5430,7 +5495,7 @@ function generateOverallItemReport(){
 							var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
 								
 							if(reportInfo_branch == ''){
-								showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+								showToast('System Error: Branch name not found.', '#e74c3c');
 								return '';
 							}
 
@@ -5562,7 +5627,7 @@ function generateOverallItemReport(){
 							var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
 								
 							if(reportInfo_branch == ''){
-								showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+								showToast('System Error: Branch name not found.', '#e74c3c');
 								return '';
 							}
 
@@ -5690,7 +5755,7 @@ function generateOverallItemReport(){
 		error: function(data){
 			hideLoading();
 			document.getElementById("summaryRender_itemSummary").innerHTML = '<p style="margin:30px 0; color: #a9a9a9">Unable to generate the Item Summary on the given dates</p>';
-			showToast('Not Found Error: Order Summary data not found. Please contact Accelerate Support.', '#e74c3c');
+			showToast('Not Found Error: Order Summary data not found.', '#e74c3c');
 			return '';								    	
 		}
 	});  
@@ -5897,7 +5962,7 @@ function fetchSingleClickReportAfterApproval(){
 				}
 
 				completeReportInfo.push({
-						"name": "Total Paid Amount",
+						"name": "Gross Amount",
 						"value": temp_totalPaid,
 						"count": temp_totalOrders,
 						"split": []
@@ -6272,7 +6337,7 @@ function fetchSingleClickReportAfterApproval(){
 				netSalesWorth += temp_roundOffSum;
 
 				completeReportInfo.push({
-						"name": "Round Off",
+						"name": "Waive Off",
 						"type": "NEGATIVE",
 						"value": temp_roundOffSum,
 						"count": temp_roundOffCount
@@ -7800,7 +7865,7 @@ function fetchSingleClickReportAfterApproval(){
 		var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
 			
 		if(reportInfo_branch == ''){
-			showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+			showToast('System Error: Branch name not found.', '#e74c3c');
 			return '';
 		}
 
@@ -8457,9 +8522,9 @@ function fetchSingleClickReportAfterApproval(){
 			         '<table style="width: 100%">'+
 			            '<col style="width: 85%">'+
 			            '<col style="width: 15%">'+ 
-			            '<tr><td style="font-size: 11px"><b>Gross Sales</b></td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
+			            '<tr><td style="font-size: 11px"><b>Net Sales</b></td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
 			            quickSummaryRendererContent+
-			            '<tr><td style="font-size: 13px"><b>Net Sales</b></td><td style="font-size: 13px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
+			            '<tr><td style="font-size: 13px"><b>Gross Sales</b></td><td style="font-size: 13px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
 			         '</table>'+
 			    '</div>';
 
@@ -8467,14 +8532,23 @@ function fetchSingleClickReportAfterApproval(){
 		    var printSummaryBillsContent = '';
 		    var c = 0;
 		    var billSharePercentage = 0;
+		    var billShareGrandTotal = 0;
 		    while(detailedListByBillingMode[c]){
+		      billShareGrandTotal += detailedListByBillingMode[c].value;
+
 		      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
 		      printSummaryBillsContent += '<tr><td style="font-size: 11px">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #000">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span style="font-weight:bold; font-size: 60%; display: block;">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
 		      c++;
 		    }
 
+		    
+
+
 		    var printSummaryBills = '';
 		    if(printSummaryBillsContent != ''){
+
+		    	printSummaryBillsContent += '<tr><td style="font-size: 12px; font-weight: bold;">Total</td><td style="font-size: 12px; text-align: right;"><span style="font-size: 60%">Rs.</span>'+parseFloat(billShareGrandTotal).toFixed(0)+'</td></tr>';
+		      
 				printSummaryBills = ''+
 			    	'<div class="KOTContent">'+
 			    		 '<h2 style="text-align: center; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">BILLING MODES</h2>'+
@@ -8491,7 +8565,10 @@ function fetchSingleClickReportAfterApproval(){
 		    var printSummaryPaymentContent = '';
 		    var d = 0;
 		    var paymentSharePercentage = 0;
+		    var paymentShareGrandTotal = 0;
 		    while(detailedListByPaymentMode[d]){
+		      paymentShareGrandTotal += detailedListByPaymentMode[d].value;
+
 		      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
 		      printSummaryPaymentContent += '<tr><td style="font-size: 11px">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #000">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span style="font-weight:bold; font-size: 60%; display: block;">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>'; 
 		      d++;
@@ -8499,6 +8576,9 @@ function fetchSingleClickReportAfterApproval(){
 
 		    var printSummaryPayment = '';
 		    if(printSummaryPaymentContent != ''){
+
+		    	printSummaryPaymentContent += '<tr><td style="font-size: 12px; font-weight: bold;">Total</td><td style="font-size: 12px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(paymentShareGrandTotal).toFixed(0)+'</td></tr>';
+
 			    printSummaryPayment = ''+
 			    	'<div class="KOTContent">'+
 			    		 '<h2 style="text-align: center; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">PAYMENT TYPES</h2>'+
@@ -8620,7 +8700,7 @@ function fetchSingleClickReportAfterApproval(){
 		var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
 
 		if(reportInfo_branch == ''){
-			showToast('System Error: Branch name not found. Please contact Accelerate Support.', '#e74c3c');
+			showToast('System Error: Branch name not found.', '#e74c3c');
 			return '';
 		}
 

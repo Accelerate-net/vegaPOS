@@ -1,3 +1,6 @@
+1. Fix Net Sales (everywhere applicable)
+2. Show tax excluded sum separately
+
 Moved to Version 2:
 1. PHONE DELIVERY (Send SMS Updates to customers)
 2. Take measures to avoid duplicating of online orders (Disconnected ==> Dont accept/punch order)

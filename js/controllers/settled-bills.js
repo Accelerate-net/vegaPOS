@@ -6,8 +6,6 @@ var filterResultsCount = 0;
 
 function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 
-	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
-
 	if(optionalAnimationFlag && optionalAnimationFlag == 'LOADING_ANIMATION'){
 		//Show Animation
 		document.getElementById("billBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
@@ -1125,7 +1123,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Somethin went wrong. Try again.</p>';
+		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Something went wrong. Try again.</p>';
 		    }
 
 		  });  		
@@ -1167,8 +1165,13 @@ function updateSettledCount(){
 		    success: function(data) {
 
 		      if(data.db_name == SELECTED_INVOICE_SOURCE_DB){
-		      	document.getElementById("settledBillsCount").innerHTML = parseInt(data.doc_count) - 5; // 5 other docs (VERY IMP!!!)
-		      	console.log('~ minus 5 : THIS IS VERY IMPORTANT!')
+
+		      	var count = parseInt(data.doc_count) - 5;
+		      	if(count < 0){
+		      		count = 0;
+		      	}
+
+		      	document.getElementById("settledBillsCount").innerHTML = count; // 5 other docs (VERY IMP!!!)
 		      }
 		      else{
 		      	document.getElementById("settledBillsCount").innerHTML = 0;
@@ -1195,7 +1198,6 @@ function calculateSettledCount(){
 
 		      if(data.db_name == SELECTED_INVOICE_SOURCE_DB){
 		      	document.getElementById("settledBillsCount").innerHTML = parseInt(data.doc_count) - 5; // 5 other docs (VERY IMP!!!)
-		      	console.log('~ minus 5 : THIS IS VERY IMPORTANT!')
 		      }
 		      else{
 		      	document.getElementById("settledBillsCount").innerHTML = 0;
@@ -1996,7 +1998,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderBillPageDefault('SETTLED');
 
 					},
 					error: function(data){
@@ -2386,7 +2388,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 		    },
 		    error: function(data){
 		    	showToast('Local Server not responding. Please try again.', '#e74c3c');
-		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Somethin went wrong. Try again.</p>';
+		    	document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">Something went wrong. Try again.</p>';
 		    
 		    }
 
@@ -2528,8 +2530,6 @@ function openSelectedBill(encodedBill, type){
 		grandSumCalculated = subTotal + charges_extra;
 		grandSumCalculated = parseFloat(grandSumCalculated).toFixed(2);
 
-		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Grand Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
-		
 		if(bill.calculatedRoundOff != 0){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
 		}
@@ -2587,6 +2587,12 @@ function openSelectedBill(encodedBill, type){
                                         '<i class="fa fa-print whiteWash"></i>'+
                                       '</tag>'+
                                       '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Print Duplicate Bill</span>'+
+                                    '</li>'+
+                                    '<li class="floaty-list-item floaty-list-item--palegreen" style="background: #688679" onclick="addItemToGeneratedBill(\''+bill.billNumber+'\')">'+
+                                      '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
+                                        '<i class="fa fa-plus whiteWash"></i>'+
+                                      '</tag>'+
+                                      '<span class="floaty-list-item-label" style="left: unset; right: 50px !important">Add Item</span>'+
                                     '</li>'+
                                     '<li class="floaty-list-item floaty-list-item--palegreen" onclick="lateApplyDiscount(\''+encodedBill+'\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
@@ -2686,7 +2692,13 @@ function openSelectedBill(encodedBill, type){
 			n++;
 		}
 
-		var otherCharges = '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
+		var otherCharges = '';
+		if(!jQuery.isEmptyObject(bill.refundDetails) && bill.refundDetails.amount != 0){
+			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total<tag style="color: red">*</tag></td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
+		}
+
+		if(otherCharges == '') //if above condition fails
+			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
 		
 		var charges_extra = 0;
 		if(!jQuery.isEmptyObject(bill.extras)){
@@ -2714,7 +2726,6 @@ function openSelectedBill(encodedBill, type){
 
 		grandSumCalculated = subTotal + charges_extra;
 		grandSumCalculated = parseFloat(grandSumCalculated).toFixed(2);
-		otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Grand Total</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+grandSumCalculated+'</td> </tr>';
 
 		if(bill.calculatedRoundOff != 0){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Calculated Round Off</td> <td style="text-align: right">'+(bill.calculatedRoundOff > 0 ? '<tag style="color: #08ca08">+ <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>' : '<tag style="color: #f15959">- <i class="fa fa-inr"></i>'+Math.abs(bill.calculatedRoundOff)+'</tag>')+'</td> </tr>';
@@ -2740,8 +2751,8 @@ function openSelectedBill(encodedBill, type){
 			if(bill.refundDetails.amount && bill.refundDetails.amount != 0){
 				issued_refund = bill.refundDetails.amount;
 				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
-				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Refund Issued</b><tag onclick="openRefundDetailsInfo(\''+encodeURI(JSON.stringify(bill.refundDetails))+'\')" class="refundIssueSmallButton"><i class="fa fa-info"></i></tag></td> <td style="font-weight: bold; text-align: right">'+(issued_refund != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+parseFloat(issued_refund).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
-				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Gross Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat((bill.totalAmountPaid - issued_refund)).toFixed(2)+'</td> </tr>';
+				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Refund Issued</b><tag style="color: red">*</tag><tag onclick="openRefundDetailsInfo(\''+encodeURI(JSON.stringify(bill.refundDetails))+'\')" class="refundIssueSmallButton"><i class="fa fa-info"></i></tag></td> <td style="font-weight: bold; text-align: right">'+(issued_refund != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+parseFloat(issued_refund).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
+				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Net Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat((bill.totalAmountPaid - issued_refund)).toFixed(2)+'</td> </tr>';
 				
 				isDone = true;
 			}
@@ -2828,6 +2839,30 @@ function openSelectedBill(encodedBill, type){
         //Submenu options
         var subOptions = '';
 
+        var totalTaxableExtras = 0; //for Refund (TWEAK)
+       	for(var g = 0; g < bill.extras.length; g++){
+            if(bill.extras[g].unit == 'PERCENTAGE'){
+             	totalTaxableExtras += (bill.extras[g].value / 100);
+            }
+        }
+
+        /* custom extras */
+       	if(bill.customExtras.amount && bill.customExtras.amount != 0){
+            if(bill.customExtras.unit == 'PERCENTAGE'){
+                totalTaxableExtras += (bill.customExtras.value / 100);
+            }
+        }
+
+        totalTaxableExtras = parseFloat(totalTaxableExtras).toFixed(2);
+        totalTaxableExtras = parseFloat(totalTaxableExtras);
+
+
+        var refundIssueStatus = '';
+        if(!jQuery.isEmptyObject(bill.refundDetails)){
+            refundIssueStatus = bill.refundDetails.status;
+        }
+
+
         if(isUserAnAdmin){
         	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
                                   '<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
@@ -2842,7 +2877,7 @@ function openSelectedBill(encodedBill, type){
                                   '</div>'+
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
                                     deliveryOrderSubOption+
-                                    '<li class="floaty-list-item floaty-list-item--yellow" id="triggerClick_IssueRefundButton" onclick="initiateRefundSettledBill(\''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
+                                    '<li class="floaty-list-item floaty-list-item--yellow" id="triggerClick_IssueRefundButton" onclick="initiateRefundSettledBill(\''+refundIssueStatus+'\', \''+bill.billNumber+'\',\''+bill.totalAmountPaid+'\', \''+bill.paymentMode+'\', \''+totalTaxableExtras+'\', \''+(bill.paymentMode && bill.paymentMode != '' ? 'PAID' : 'UNPAID')+'\', \'GENERATED_BILLS_SETTLED\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 0px; font-size: 26px;" class="absolute-center">'+
                                         '<i class="fa fa-inr"></i>'+
                                       '</tag>'+
@@ -3013,8 +3048,6 @@ function getDiscountRefName(type){
 function openDiscountDetailsInfo(encodedInfo){
 	var info = JSON.parse(decodeURI(encodedInfo));
 
-	console.log(info)
-
 	document.getElementById("discountReasonPrimaryModal").style.display = 'block';
 	document.getElementById("discountReasonPrimaryModalContent").innerHTML = ''+
 												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
@@ -3117,16 +3150,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Payments</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
 	      }
 
 	    });
@@ -3170,16 +3203,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Orders</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
 	      }
 
 	    });
@@ -3223,16 +3256,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Session alone</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
 	      }
 
 	    });
@@ -3275,16 +3308,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders billed on <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>only</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Registered Machines data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Registered Machines data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Registered Machines data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Registered Machines data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Registered Machines data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Registered Machines data.', '#e74c3c');
 	      }
 
 	    });
@@ -3328,16 +3361,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders punched by <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select></p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Staff data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Staff data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Staff data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Staff data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Staff data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Staff data.', '#e74c3c');
 	      }
 
 	    });
@@ -3529,10 +3562,8 @@ function assignDeliveryAgent(billNumber, optionalPageRef){
 
               var easySelectTool = $(document).on('keydown',  function (e) {
 
-                console.log('Am secretly running...')
+                 
                 if($('#deliveryBoysModal').is(':visible')) {
-
-                  console.log(e.which)
 
                      switch(e.which){
                       case 37:{ //  < Left Arrow
@@ -3658,16 +3689,16 @@ function assignDeliveryAgent(billNumber, optionalPageRef){
 
           }
           else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
       }
 
     });  
@@ -3736,18 +3767,18 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
                       openSelectedBill(encodedBill, requestURLSource);
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Invoice.', '#e74c3c');
                   }
                 }); 
           
         }
         else{
-          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(firstdata) {
-        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Invoices data.', '#e74c3c');
       }
 
     });  
@@ -3802,7 +3833,7 @@ function lateApplyDiscount(encodedBill){
              else
                document.getElementById("applyBillDiscountLate_type").innerHTML = modesTag;
               
-              document.getElementById("applyBillDiscountLate_grandSumDisplay").innerHTML = bill.payableAmount;
+              document.getElementById("applyBillDiscountLate_grandSumDisplay").innerHTML = bill.grossCartAmount;
               document.getElementById("lateRefundModalActions").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" style="margin: 0; font-size: 15px; line-height: 2.5; text-transform: uppercase; border: none; border-radius: 0; width: 70%; float: right;" onclick="lateApplyDiscountConfirm(\''+bill.billNumber+'\')">Confirm</button>'+
               								'<button class="btn btn-default tableOptionsButton breakWord" style="margin: 0; border: none; font-size: 15px; line-height: 2.5; text-transform: uppercase; border-radius: 0; width: 30%; float: left;" onclick="lateApplyDiscountHide()">Close</button>';
         	  document.getElementById("lateRefundModal").style.display = 'block';
@@ -3811,16 +3842,16 @@ function lateApplyDiscount(encodedBill){
   			  $('#applyBillDiscountLate_value').select();
           }
           else{
-            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Discount Types data.', '#e74c3c');
       }
 
     });
@@ -3891,15 +3922,150 @@ function lateApplyDiscountConfirm(billNumber){
 				          var unit = document.getElementById("applyBillDiscountLate_unit").value;
 				          var value = document.getElementById("applyBillDiscountLate_value").value;
 
+
 				          var grandSum = 0;
+				          var grandPackagedSum = 0;
 
 				          var n = 0;
 				          while(billfile.cart[n]){
-				            grandSum = grandSum + (billfile.cart[n].price * billfile.cart[n].qty);
+				            grandSum += billfile.cart[n].price * billfile.cart[n].qty;
+
+				            if(billfile.cart[n].isPackaged){
+				              grandPackagedSum += billfile.cart[n].price * billfile.cart[n].qty;
+				            }
+
 				            n++;
 				          }
 
 				          grandPayableBill += grandSum;
+
+
+				          var totalDiscount = 0;
+				          var TotalUserDiscount = value;
+				      
+				          if(unit == 'PERCENTAGE'){
+				            totalDiscount = (grandSum) * (TotalUserDiscount/100);
+				          }
+				          else if(unit == 'FIXED'){
+
+				            //calculate discount value
+				            //discount should include sgst + cgst + etc...
+
+				            //TotalUserDiscount = DiscountAmount + ExtrasVariation;
+
+				            var extras_fraction = 0;
+				            for(var g = 0; g < billfile.extras.length; g++){
+				              if(billfile.extras[g].unit == 'PERCENTAGE'){
+				                extras_fraction += (billfile.extras[g].value / 100);
+				              }
+				            }
+
+				            /* custom extras */
+				            if(billfile.customExtras.amount && billfile.customExtras.amount != 0){
+				              if(billfile.customExtras.unit == 'PERCENTAGE'){
+				                extras_fraction += (billfile.customExtras.value / 100);
+				              }
+				            }
+				            
+				            totalDiscount = TotalUserDiscount/(1 + extras_fraction);
+				          
+				          }
+
+				          totalDiscount = Math.round(totalDiscount * 100) / 100;
+
+				          //Cross Check if it matches with the BILLING MODE Restriction of Discounts
+				          var g = 0;
+				          var maximumReached = false;
+				          while(billing_modes[g]){
+				            if(billing_modes[g].name == billfile.orderDetails.mode){
+
+				              if(!billing_modes[g].isDiscountable){
+				                showToast('Error: Discount can not be applied on </b>'+billing_modes[g].name+'</b> orders', '#e74c3c');
+				                return '';
+				              }
+				              else{
+
+				                if(totalDiscount > grandSum){
+				                  totalDiscount = grandSum;
+				                  maximumReached = true;
+				                }
+
+				                if(totalDiscount > billing_modes[g].maxDiscount){
+				                  totalDiscount = billing_modes[g].maxDiscount;
+				                  maximumReached = true;
+				                }
+
+				              }
+				              break;
+				            }
+				            g++;
+				          }
+
+
+				          billfile.discount.amount = totalDiscount;
+				          billfile.discount.type = type;
+				          billfile.discount.unit = unit;
+				          billfile.discount.value = value;
+				          billfile.discount.reference = '';
+
+
+
+          
+				            /* Recalculate Tax Figures */
+				            
+				            //Re-calculate tax figures (if any Discount applied)
+
+				            var calculable_sum_for_all = grandSum - totalDiscount;
+				            var calculable_sum_for_packaged = (grandSum - grandPackagedSum) - totalDiscount;
+
+				            if(calculable_sum_for_all < 0){
+				              calculable_sum_for_all = 0;
+				            }
+
+				            if(calculable_sum_for_packaged < 0){
+				              calculable_sum_for_packaged = 0;
+				            }
+
+
+				            for(var g = 0; g < billfile.extras.length; g++){
+				              
+				              if(billfile.extras[g].unit == 'PERCENTAGE'){
+				              
+				                if(billfile.extras[g].isPackagedExcluded){
+				                  var new_amount = (billfile.extras[g].value / 100) * calculable_sum_for_packaged;
+				                  new_amount = Math.round(new_amount * 100) / 100;
+				                  billfile.extras[g].amount = new_amount;
+				                }
+				                else{
+				                  var new_amount = (billfile.extras[g].value / 100) * calculable_sum_for_all;
+				                  new_amount = Math.round(new_amount * 100) / 100;
+				                  billfile.extras[g].amount = new_amount; 
+				                }
+
+
+				              }
+				              else if(billfile.extras[g].unit == 'FIXED'){
+				                //Do nothing
+				              } 
+
+				            }
+
+				            /* custom extras */
+				            if(billfile.customExtras.amount && billfile.customExtras.amount != 0){
+				              if(billfile.customExtras.unit == 'PERCENTAGE'){
+
+				                var new_amount = (billfile.customExtras.value / 100) * calculable_sum_for_all;
+				                new_amount = Math.round(new_amount * 100) / 100;
+				                billfile.customExtras.amount = new_amount;
+				              }
+				              else if(billfile.customExtras.unit == 'FIXED'){
+				                //Do nothing
+				              }
+				            }
+
+
+
+
 
 
 				          //add extras
@@ -3916,53 +4082,17 @@ function lateApplyDiscountConfirm(billNumber){
 				            grandPayableBill += billfile.customExtras.amount;
 				          }  
 
-
-				          var totalDiscount = 0;
-				      
-				          if(unit == 'PERCENTAGE'){
-				            totalDiscount = grandSum*value/100;
-				          }
-				          else if(unit == 'FIXED'){
-				            totalDiscount = value;
-				          }
-
-				          totalDiscount = Math.round(totalDiscount * 100) / 100;
-
-				          //Cross Check if it matches with the BILLING MODE Restriction of Discounts
-				          var g = 0;
-				          var maximumReached = false;
-				          while(billing_modes[g]){
-				            if(billing_modes[g].name == billfile.orderDetails.mode){
-
-				              if(!billing_modes[g].isDiscountable){
-				                showToast('Error: Discount can not be applied on </b>'+billing_modes[g].name+'</b> orders', '#e74c3c');
-				                return '';
-				              }
-				              else{
-				                if(totalDiscount > billing_modes[g].maxDiscount){
-				                  totalDiscount = billing_modes[g].maxDiscount;
-				                  maximumReached = true;
-				                }
-				              }
-				              break;
-				            }
-				            g++;
-				          }
-
-
-				          billfile.discount.amount = totalDiscount;
-				          billfile.discount.type = type;
-				          billfile.discount.unit = unit;
-				          billfile.discount.value = value;
-				          billfile.discount.reference = '';
-
-
 				          //substract discounts if any
 				          if(!jQuery.isEmptyObject(billfile.discount)){
 				            grandPayableBill -= billfile.discount.amount;
 				          }  
 
+				          grandPayableBill = Math.round(grandPayableBill * 100) / 100;
+          				  var grandPayableBillRounded = properRoundOff(grandPayableBill);
+
 				          billfile.payableAmount = properRoundOff(grandPayableBill);
+				          billfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
+
 
 				          /*Save changes in Bill*/
 				                
@@ -3991,19 +4121,768 @@ function lateApplyDiscountConfirm(billNumber){
 				                    lateApplyDiscountHide();
 				                  },
 				                  error: function(data) {
-				                      showToast('System Error: Unable to update the Bill. Please contact Accelerate Support.', '#e74c3c');
+				                      showToast('System Error: Unable to update the Bill.', '#e74c3c');
 				                  }
 				                }); 
                         
                       }
                       else{
-                        showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                        showToast('Server Warning: Unable to modify bill data.', '#e67e22');
                       }
                     },
                     error: function(data) {
-                      showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                      showToast('Server Warning: Unable to modify bill data.', '#e67e22');
                     }
 
                   });
+}
+
+
+
+//Add item to generated bill
+function addItemToGeneratedBill(billNumber){
+	
+	billNumber = parseInt(billNumber);
+
+	window.localStorage.accelerate_edit_bill_items = '';
+	document.getElementById("lateItemAddContinueButton").style.display = 'none';
+
+	document.getElementById("lateAddItemToBill").style.display = 'block';
+	$('#late_add_hidden_bill_number').val(billNumber);
+	$('#lateAddItemToBillTitle').html('Adding new items to <b>Bill #'+billNumber+'</b>');
+
+	$('#temporaryCartRenderArea').html('<p style="margin: 100px 0 0 0; font-size: 28px; font-weight: 300; color: #d2d6de; text-align: center;">Add any item from the Menu!</p>');
+
+	initLateMenuSuggestion();
+	initLateOrderPunch();
+}
+
+function addItemToGeneratedBillHide(){
+	window.localStorage.accelerate_edit_bill_items = '';
+	document.getElementById("lateAddItemToBill").style.display = 'none';
+}
+
+
+function initLateOrderPunch(){
+		//Focus on to "Add item"
+		$("#late_add_item_by_search").focus();
+
+		/*Remove suggestions if focus out*/ /*TWEAK*/
+		$("#late_add_item_by_search").focusout(function(){
+			setTimeout(function(){ 
+				$('#lateSearchResultsRenderArea').html('');
+			}, 300);	 /*delay added for the focusout to understand if modal is opened*/
+		});
+}
+
+
+/*Auto Suggetion - MENU*/
+function initLateMenuSuggestion(){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_MASTER_MENU" 
+                  },
+      "fields"    : ["_rev", "identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+
+	          	var mastermenu = data.docs[0].value; 
+
+	          	//Process whole menu (list of only Menu Items)
+	          	var menu_processed = [];
+	          	$.each(mastermenu, function(key_1, subMenu) {
+					$.each(subMenu.items, function(key_2, items) {
+						items.category = subMenu.category;
+						menu_processed.push(items);
+					});
+				});
+
+
+				/*Select on Arrow Up/Down */
+				var li = $('#lateSearchResultsRenderArea li');
+				var liSelected = undefined;
+
+				$('#late_add_item_by_search').keyup(function(e) {
+
+					if($('#customOptionsList').is(':visible')){ // **TWEAK**
+						//Do not navigate when the custom item choose modal is shown
+						return '';
+					}
+
+
+				    if (e.which === 40 || e.which === 38 || e.which === 18) {
+				        /*
+				        	Skip Search if the Up-Arrow or Down-Arrow
+							is pressed inside the Search Input.
+
+							Add comment to last item, if ALT pressed.
+				        */ 
+
+					    if(e.which === 40){ 
+					        if(liSelected){
+					            liSelected.removeClass('selected');
+					            next = liSelected.next();
+					            if(next.length > 0){
+					                liSelected = next.addClass('selected');
+					            }else{
+					                liSelected = li.eq(0).addClass('selected');
+					            }
+					        }else{
+					            liSelected = li.eq(0).addClass('selected');
+					        }
+					    }else if(e.which === 38){
+
+					    	/* TWEAK */
+					    	$('#late_add_item_by_search').focus().val($('#late_add_item_by_search').val());
+
+
+					        if(liSelected){
+					            liSelected.removeClass('selected');
+					            next = liSelected.prev();
+					            if(next.length > 0){
+					                liSelected = next.addClass('selected');
+					            }else{
+					                liSelected = li.last().addClass('selected');
+					            }
+					        }else{
+					            liSelected = li.last().addClass('selected');
+					        }
+					    }
+					    else if(e.which === 18){
+
+							//UX Improvements
+							//add comment to last added item
+							var iteration_count = 0;
+							$("#cartDetails .itemCommentButton").each(function(){
+
+								if(iteration_count == 0){
+									$(this).click();
+								}
+
+								iteration_count++;
+							});							    	
+					    }
+
+
+				    }
+				    else if (e.which === 13) {
+
+				        /*
+				        	Add Item if the Enter Key
+							is pressed inside the Search Input
+				        */ 
+
+				        $("#lateSearchResultsRenderArea li").each(function(){
+					        if($(this).hasClass("selected")){
+					        	$(this).click();
+					        }
+					    });
+
+				    }
+				    else{
+
+				    	liSelected = undefined
+
+					    var searchField = $(this).val();
+					    if (searchField === '') {
+					        $('#lateSearchResultsRenderArea').html('');
+					        return;
+					    }
+
+					    var regex = new RegExp(searchField, "i");
+					    var name_regex = new RegExp("^" + searchField, "i");
+
+					    var count = 0;
+					    var tabIndex = 1;
+					    var itemsList = '';
+					    var itemsAppendList = '';
+
+					    $.each(menu_processed, function(key_2, items) {
+
+					    		if(!items.shortCode){
+					    			items.shortCode = '';
+					    		}
+
+					    		if(!items.shortNumber){
+					    			items.shortNumber = '';
+					    		}
+
+					    		items.itemCode = items.shortNumber.toString();
+
+								if(items.itemCode.search(name_regex) != -1){
+					    	 		tabIndex = -1;
+						  			itemsList += '<li class="ui-menu-item" onclick="additemtoTempCart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.shortNumber+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+						            count++;
+						            tabIndex++;
+					    	 	}
+					    	 	else if(items.shortCode.search(name_regex) != -1){
+					    	 		tabIndex = -1;
+						  			itemsList += '<li class="ui-menu-item" onclick="additemtoTempCart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.shortNumber+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+						            count++;
+						            tabIndex++;
+					    	 	}
+					    	 	else{
+
+					    	 			var item_name = items.name;
+
+					    	 			if(item_name.search(name_regex) != -1){
+					    	 				tabIndex = -1;
+								  			itemsList += '<li class="ui-menu-item" onclick="additemtoTempCart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.shortNumber+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+								            count++;
+								            tabIndex++;
+					    	 			}
+					    	 			else if(item_name.search(regex) != -1){
+
+					    	 				tabIndex = -1;
+								  			itemsAppendList += '<li class="ui-menu-item" onclick="additemtoTempCart(\''+encodeURI(JSON.stringify(items))+'\', \'ATTACHED_WITHIN\', \'SUGGESTION\')" tabindex="'+tabIndex+'">'+items.name+' (<i class="fa fa-inr"></i>'+items.price+')<span style="float: right; margin-left: 4px; color: #f39c12; letter-spacing: 0.05em">'+items.shortNumber+'</span>'+(items.isAvailable ? '' : '<span style="float: right; color: #dd3976"><i class="fa fa-times"></i></span>')+'</li>'
+								            count++;
+								            tabIndex++;
+					    	 			}
+					    	 	}
+					    });
+
+
+						//Render the list
+						var isSomeItemsFound = false; 
+					    if(itemsList != '' || itemsAppendList != ''){
+					    	isSomeItemsFound = true;
+					    	$('#lateSearchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 320px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+itemsList+itemsAppendList+'</ul>');
+					    }
+					    else{
+
+						  // LOGGED IN USER INFO
+						  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+						        
+						  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+						    loggedInStaffInfo.name = "";
+						    loggedInStaffInfo.code = "";
+						    loggedInStaffInfo.role = "";
+						  }
+
+						  //either profile not chosen, or not an admin
+						  var isUserAnAdmin = false
+						  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+						    isUserAnAdmin = true;
+						  }
+
+
+					    	var temp_item = $('#add_item_by_search').val();
+
+					    	var customAdditionContent = '';
+					    	if(isUserAnAdmin){
+					    		customAdditionContent = '<li class="ui-menu-item" onclick="addSpecialCustomItem(\''+temp_item+'\')" tabindex="'+tabIndex+'"><i class="fa fa-plus-circle" style="color: #18ca8b"></i> <i>add</i> <b style="font-size: 120%">'+temp_item+'</b></li>';
+					    	}
+
+					    	var custom_template = 	'<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+
+					    								'<span style="display: inline-block; padding: 8px 0 4px 8px; font-size: 12px; text-align: center; color: #c6c6c6; font-style: italic">No matching items found.</span>'+ customAdditionContent +
+										    	   	'</ul>';
+					    	
+					    	$('#lateSearchResultsRenderArea').html(custom_template);
+					    }
+
+					    if(isSomeItemsFound){
+					    	var track_index = 0;
+					    	$("#lateSearchResultsRenderArea li").each(function(){
+
+					    		if(track_index == 0){
+					    			$(this).addClass("selected");
+					    		}
+
+					    		track_index++;
+						    });
+					    }
+
+					    //Refresh dropdown list
+					    li = $('#lateSearchResultsRenderArea li');
+					    if(isSomeItemsFound){
+					    	liSelected = li.eq(0).addClass('selected');
+					    }
+
+					}
+				});   
+          }
+        }
+      }
+
+    });
+}
+
+
+
+function additemtoTempCart(encodedItem, category, optionalSource){
+
+	var productToAdd = JSON.parse(decodeURI(encodedItem));
+
+	if(productToAdd.isCustom){
+
+		//Pop up
+		var i = 0;
+		var optionList = '';
+		while(productToAdd.customOptions[i]){
+			optionList = optionList + '<li class="easySelectTool_customItem" onclick="addCustomToCartLate(\''+productToAdd.name+'\', \''+productToAdd.category+'\', \''+productToAdd.code+'\', \''+productToAdd.cookingTime+'\', \''+productToAdd.customOptions[i].customPrice+'\', \''+productToAdd.customOptions[i].customName+'\', \'SUGGESTION\', \''+(productToAdd.ingredients ? encodeURI(JSON.stringify(productToAdd.ingredients)) : '')+'\', \'\', \''+productToAdd.isPackaged+'\')">'+
+										'<a>'+productToAdd.customOptions[i].customName+'<tag class="spotlightCustomItemTick"><i class="fa fa-check"></i></tag> <tag style="float: right"><i class="fa fa-inr"></i>'+productToAdd.customOptions[i].customPrice+'</tag></a>'+
+									  '</li>';
+			i++;
+		}
+		document.getElementById("customiseItemLateModal").style.display ='block';
+		document.getElementById("customiseItemLateTitle").innerHTML = "Choice of <b>"+productToAdd.name+"</b>";
+		document.getElementById("customOptionsLateList").innerHTML = '<ol class="rectangle-list">'+optionList+'</ol>';
+
+
+          /*
+            EasySelect Tool (LISTS)
+          */
+          var li = $('#customOptionsLateList .easySelectTool_customItem');
+          var liSelected = li.eq(0).addClass('selectCustomItem');
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+             
+            if($('#customOptionsLateList').is(':visible')) {
+
+                 switch(e.which){
+                  case 38:{ //  ^ Up Arrow 
+
+					if(liSelected){
+					    liSelected.removeClass('selectCustomItem');
+					   	next = liSelected.prev();
+						if(next.length > 0){
+							liSelected = next.addClass('selectCustomItem');
+						}else{
+							liSelected = li.last().addClass('selectCustomItem');
+						}
+					}else{
+						liSelected = li.last().addClass('selectCustomItem');
+					}                      
+
+                    break;
+                  }
+                  case 40:{ // Down Arrow \/ 
+
+					if(liSelected){
+						liSelected.removeClass('selectCustomItem');
+						next = liSelected.next();
+						if(next.length > 0){
+							liSelected = next.addClass('selectCustomItem');
+						}else{
+							liSelected = li.eq(0).addClass('selectCustomItem');
+						}
+					}else{
+						liSelected = li.eq(0).addClass('selectCustomItem');
+					}
+
+                    break;
+                  }
+                  case 27:{ // Escape (Close)
+                    document.getElementById("customiseItemLateModal").style.display ='none';
+                    easySelectTool.unbind();
+                    break;  
+                  }
+                  case 13:{ // Enter (Confirm)
+
+                    $("#customOptionsLateList .easySelectTool_customItem").each(function(){
+                      if($(this).hasClass("selectCustomItem")){
+
+                      	easySelectTool.unbind();   
+                        $(this).click();
+                        e.preventDefault(); 
+                        
+                      }
+                    });    
+
+                    break;
+                  }
+                 }
+            }
+          });
+	}
+	else if(!productToAdd.isCustom){
+		
+		saveToCartLate(productToAdd, optionalSource)
+
+		$('#late_add_item_by_search').val('');
+		$('#lateSearchResultsRenderArea').html('');
+	}	
+
+
+	$("#late_add_item_by_search").focus();
+}
+
+function addCustomToCartLate(name, category, code, cookTime, price, variant, optionalSource, encodedIngredients, cart_index, packagedExclusionFlag){
+
+		var ingredientsTemp = encodedIngredients && encodedIngredients != '' ? JSON.parse(decodeURI(encodedIngredients)) : '';
+
+		var productToAdd = {};
+		productToAdd.name = name;
+		productToAdd.category = category;
+		productToAdd.code = code;
+		productToAdd.cookingTime = parseInt(cookTime);
+		productToAdd.price = price;
+		productToAdd.variant = variant;
+		productToAdd.isCustom = true;
+		productToAdd.ingredients = ingredientsTemp;
+
+		if(packagedExclusionFlag == 'true' || packagedExclusionFlag == true){
+			productToAdd.isPackaged = true;	
+		}
+
+		saveToCartLate(productToAdd);
+
+		document.getElementById("customiseItemLateModal").style.display ='none';
+
+		$('#late_add_item_by_search').val('');
+		$('#lateSearchResultsRenderArea').html('');
+}
+
+function hideCustomiseItemLate(){
+	document.getElementById("customiseItemLateModal").style.display ='none';
+}
+
+
+
+/*Add Item to Temp. Cart */
+function saveToCartLate(productToAdd, optionalSource){
+	var cart_products = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+    cart_products.push({"name": productToAdd.name, "category": productToAdd.category, "price": productToAdd.price, "isCustom": productToAdd.isCustom, "isPackaged": productToAdd.isPackaged, "variant": productToAdd.variant, "code": productToAdd.code, "qty": 1, "cookingTime" : productToAdd.cookingTime ? parseInt(productToAdd.cookingTime) : 0});
+      
+    window.localStorage.accelerate_edit_bill_items = JSON.stringify(cart_products);
+
+    renderTemporaryCartPreview(cart_products);
+}
+
+function deleteFromTemporaryCart(index){
+	var cart_products = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+    cart_products.splice(index, 1);
+
+    window.localStorage.accelerate_edit_bill_items = JSON.stringify(cart_products);
+
+    renderTemporaryCartPreview(cart_products);
+}
+
+function increaseItemTemporaryCart(index){
+	var cart_products = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+    cart_products[index].qty++;
+
+    window.localStorage.accelerate_edit_bill_items = JSON.stringify(cart_products);
+    renderTemporaryCartPreview(cart_products);
+}
+
+function reduceItemTemporaryCart(index){
+	var cart_products = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+    cart_products[index].qty--;
+
+    if(cart_products[index].qty == 0){
+    	cart_products.splice(index, 1);
+    }
+
+    window.localStorage.accelerate_edit_bill_items = JSON.stringify(cart_products);
+    renderTemporaryCartPreview(cart_products);
+}
+
+function renderTemporaryCartPreview(cart_products){
+
+	if(cart_products.length == 0){
+		document.getElementById("temporaryCartRenderArea").innerHTML = '<p style="margin: 100px 0 0 0; font-size: 28px; font-weight: 300; color: #d2d6de; text-align: center;">Add any item from the Menu!</p>';
+		document.getElementById("lateItemAddContinueButton").style.display = 'none';
+		return '';
+	}
+
+	var itemsContent = '';
+	var n = 0;
+	while(cart_products[n]){
+		itemsContent += ''+
+				'<tr class="success">'+
+		            '<td class="text-center" style="cursor: pointer" onclick="deleteFromTemporaryCart('+n+')"><i class="fa fa-trash-o"></i></td>'+
+		            '<td>'+cart_products[n].name+(cart_products[n].isCustom ? ' ('+cart_products[n].variant+')' : '')+'</td>'+
+		            '<td class="text-center"> <span class="text-center sprice"><i class="fa fa-inr"></i>'+cart_products[n].price+'</span></td>'+
+		            '<td class="text-center">'+
+		            	'<tag style="margin-right: 10px; color: #e26767; width: 15px; cursor: pointer;" onclick="reduceItemTemporaryCart('+n+')"><i class="fa fa-minus-circle"></i></tag>'+
+		            	'x '+cart_products[n].qty+
+		            	'<tag style="margin-left: 10px; color: #33a24f; width: 15px; cursor: pointer;" onclick="increaseItemTemporaryCart('+n+')"><i class="fa fa-plus-circle"></i></tag>'+
+		            '</td>'+
+		            '<td class="text-center"><span class="text-right ssubtotal"><i class="fa fa-rupee"></i>'+(cart_products[n].price * cart_products[n].qty)+'</span></td>'+
+		        '</tr>';
+		n++;
+	}
+
+
+	var renderContent = ''+
+		'<div class="row">'+
+			'<div class="col-sm-12">'+
+			   '<h1 style="text-align: center; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: 400; color: #444">New Items Preview</h1>'+
+			   '<table class="table table-striped table-condensed table-hover list-table" style="margin:0px; z-index: 2;">'+
+			      '<colgroup> <col width="10%"> <col width="40%"> <col width="15%"> <col width="20%"> <col width="15%"> </colgroup>'+
+			      '<thead id="cartTitleHead"> <tr class="success cartTitleRow"> <th class="satu cartTitleRow"></th> <th class="cartTitleRow">Item</th> <th class="cartTitleRow">Price</th> <th class="cartTitleRow">Qty</th> <th class="cartTitleRow">Subtotal</th> </tr> </thead>'+
+			   '</table>'+
+			   '<table class="table table-striped table-condensed table-hover list-table" style="margin:0px;">'+
+			      '<colgroup> <col width="10%"> <col width="40%"> <col width="15%"> <col width="20%"> <col width="15%"> </colgroup>'+
+			      '<tbody>' + itemsContent + '</tbody>' +
+			   '</table>'+
+			'</div>'+
+		'</div>';
+
+	document.getElementById("temporaryCartRenderArea").innerHTML = renderContent;
+	document.getElementById("lateItemAddContinueButton").style.display = 'block';
+}
+
+
+function processLateAddedItems(){
+	
+	var new_cart = window.localStorage.accelerate_edit_bill_items && window.localStorage.accelerate_edit_bill_items != '' ? JSON.parse(window.localStorage.accelerate_edit_bill_items) : [];
+
+	var billNumber = $('#late_add_hidden_bill_number').val();
+	
+	if(billNumber == '' || new_cart.length == 0){
+		showToast('Error: Something went wrong.', '#e74c3c');
+		return '';
+	}
+
+	//Open the bill
+	billNumber = parseInt(billNumber);
+
+    //Set _id from Branch mentioned in Licence
+    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
+    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
+      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
+      return '';
+    }
+
+    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
+
+    $.ajax({
+      type: 'GET',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
+      timeout: 10000,
+      success: function(data) {
+        if(data._id == bill_request_data){
+
+          var billfile = data;
+          var bill_cart = billfile.cart;
+
+          var extended_cart = [];
+
+          var maxCartIndex = 0;
+          
+          var n = 0;
+          while(bill_cart[n]){
+          	if(bill_cart[n].cartIndex >= maxCartIndex){
+          		maxCartIndex = bill_cart[n].cartIndex;
+          	}
+          	n++;
+          }
+
+          //process new items
+          for(var i = 0; i < new_cart.length; i++){
+
+          	var isItemAlreadyExists = false;
+          	
+          	//check if this same item already exists in the bill
+          	var m = 0;
+          	while(bill_cart[m]){
+          		if(new_cart[i].isCustom){
+          			if(bill_cart[m].code == new_cart[i].code && bill_cart[m].variant == new_cart[i].variant){
+          				//same found
+          				bill_cart[m].qty += new_cart[i].qty;
+          				isItemAlreadyExists = true;
+          				break;
+          			}
+          		}
+          		else{
+          			if(bill_cart[m].code == new_cart[i].code){
+          				//same found
+          				bill_cart[m].qty += new_cart[i].qty;
+          				isItemAlreadyExists = true;
+          				break;
+          			}
+          		}
+          		m++;
+          	}
+
+          	//item doesn't exists
+          	if(!isItemAlreadyExists){
+          		extended_cart.push(new_cart[i]);
+          	}
+          }
+
+          //Updated bill cart 
+          billfile.cart = bill_cart.concat(extended_cart);
+
+          processNewFiguresAndSave();
+
+          /* NEW FIGURES */
+          function processNewFiguresAndSave(){
+
+			/* RECALCULATE New Figures*/
+			var subTotal = 0;
+			var packagedSubTotal = 0;
+
+			var n = 0;
+			while(billfile.cart[n]){
+				subTotal = subTotal + billfile.cart[n].qty * billfile.cart[n].price;
+
+				if(billfile.cart[n].isPackaged){
+					packagedSubTotal += billfile.cart[n].qty * billfile.cart[n].price;
+				}
+
+				n++;
+			}
+
+			var grandPayableBill = subTotal;
+
+	        /*Calculate Discounts if Any*/ 
+	        var net_discount = 0;    
+	        if(billfile.discount){
+	          		var tempExtraTotal = 0;
+	          		if(billfile.discount.value != 0){
+	          			if(billfile.discount.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = billfile.discount.value * subTotal/100;
+	          			}
+	          			else if(billfile.discount.unit == 'FIXED'){
+	          				tempExtraTotal = billfile.discount.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		billfile.discount.amount = tempExtraTotal;
+	          		net_discount = tempExtraTotal;
+	          		grandPayableBill -= tempExtraTotal;
+	        }
+
+
+
+			/*Calculate Taxes and Other Charges*/
+	        var k = 0;
+	        var effective_discountable_sum = subTotal - net_discount;
+	        if(billfile.extras.length > 0){
+	          	for(k = 0; k < billfile.extras.length; k++){
+
+	          		var tempExtraTotal = 0;
+
+	          		if(billfile.extras[k].isPackagedExcluded){
+			          		if(billfile.extras[k].value != 0){
+			          			if(billfile.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = (billfile.extras[k].value * (effective_discountable_sum - packagedSubTotal))/100;
+			          			}
+			          			else if(billfile.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = billfile.extras[k].value;
+			          			}
+			          		}
+			        }
+			        else{
+			          		if(billfile.extras[k].value != 0){
+			          			if(billfile.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = billfile.extras[k].value * effective_discountable_sum/100;
+			          			}
+			          			else if(billfile.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = billfile.extras[k].value;
+			          			}
+			          		}			        	
+			        }
+
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		billfile.extras[k] = {
+				 		"name": billfile.extras[k].name,
+						"value": billfile.extras[k].value,
+						"unit": billfile.extras[k].unit,
+						"amount": tempExtraTotal,
+						"isPackagedExcluded": billfile.extras[k].isPackagedExcluded
+	          		};
+
+	          		grandPayableBill += tempExtraTotal;
+	          	}
+	        }
+
+
+	        /*Calculate Custom Extras if Any*/     
+	        if(billfile.customExtras){
+	          		var tempExtraTotal = 0;
+	          		if(billfile.customExtras.value != 0){
+	          			if(billfile.customExtras.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = billfile.customExtras.value * effective_discountable_sum/100;
+	          			}
+	          			else if(billfile.customExtras.unit == 'FIXED'){
+	          				tempExtraTotal = billfile.customExtras.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		billfile.customExtras.amount = tempExtraTotal;
+
+	          		grandPayableBill += tempExtraTotal;
+	        }
+
+
+          grandPayableBill = parseFloat(grandPayableBill).toFixed(2);   
+          var grandPayableBillRounded = properRoundOff(grandPayableBill);   
+
+          billfile.payableAmount = grandPayableBillRounded;
+          billfile.grossCartAmount = subTotal;
+          billfile.grossPackagedAmount = packagedSubTotal;
+
+          billfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
+
+
+
+
+
+
+          		var encodedBill = encodeURI(JSON.stringify(billfile));
+
+                //Update Bill on Server
+                $.ajax({
+                  type: 'PUT',
+                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+(billfile._id)+'/',
+                  data: JSON.stringify(billfile),
+                  contentType: "application/json",
+                  dataType: 'json',
+                  timeout: 10000,
+                  success: function(data) {
+                      showToast('New items successfully to the Bill #'+billNumber, '#27ae60');
+                      addItemToGeneratedBillHide();
+                      
+                      loadAllPendingSettlementBills();
+				      openSelectedBill(encodedBill, 'PENDING');
+                  },
+                  error: function(data) {
+                      showToast('System Error: Unable to update the Bill #'+billNumber, '#e74c3c');
+                  }
+                }); 
+
+          }//processNewFiguresAndSave
+
+
+        }
+        else{
+          showToast('Not Found Error: Bill #'+billNumber+' not found on Server.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('Not Found Error: Bill #'+billNumber+' not found on Server.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+
+
+function lateApplyDiscountValueFocus(){
+	$('#applyBillDiscountLate_value').focus();
+  	$('#applyBillDiscountLate_value').select();	
 }
 

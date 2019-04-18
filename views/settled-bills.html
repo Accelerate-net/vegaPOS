@@ -262,6 +262,84 @@
 
 
 
+   <!-- ADD ITEM TO BILL -->
+   <div id="lateAddItemToBill" class="modal">
+      <div class="modal-dialog" style="top: 25px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-header" style="border: none; background: #688679">  
+                <h1 style="margin: 0; font-size: 21px; font-weight: 400; padding-left: 10px; color: #FFF" id="lateAddItemToBillTitle">Add New Item to Bill</h1>  
+                <button style="background: none; border: none; width: 50px; height: 40px; position: absolute; right: 5px; top: 7px; outline: none; color: #FFF;" onclick="addItemToGeneratedBillHide()"><i class="fa fa-times"></i></button>            
+            </div>
+            <div class="modal-body" style="height: 420px; overflow-y: none !important; overflow-x: none !important;">
+                  
+                  <div class="row" style="padding: 5px 25px;">
+
+                          <div class="row">
+                            <div class="col-sm-12">
+                              <div class="form-group" style="margin-bottom:5px; margin-right: 6px; margin-left: 6px">
+                                
+                                <label style="font-weight: bold; color: #828282; font-size: 12px;">ENTER ITEM</label>
+
+                                <input type="text" name="code" id="late_add_item_by_search" class="form-control ui-autocomplete-input mousetrap" placeholder="Search item by name or short code"/>
+
+                                <input type="hidden" id="late_add_hidden_bill_number">
+
+                                <div id="lateSearchResultsRenderArea" class="searchResultsHolder" style="height: 300px">
+
+                                </div>
+
+                                <div style="margin-top: 10px; height: 328px; overflow: scroll;" id="temporaryCartRenderArea">
+                                  <p style="margin: 100px 0 0 0; font-size: 28px; font-weight: 300; color: #d2d6de; text-align: center;">Add any item from the Menu!</p>
+                                </div>
+
+                              </div>
+                            </div>
+                          </div>
+
+                  </div>
+            </div>
+            <div class="modal-footer" style="padding: 0; border-top: none;">  
+              <button id="lateItemAddContinueButton" style="background: #688679; border: none; height: 40px; width: 100%; color: #FFF; letter-spacing: 2px; text-transform: uppercase; outline: none; display: none" onclick="processLateAddedItems()">Continue</button>              
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+
+
+   <!-- Modal -->
+   <div id="customiseItemLateModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button  onclick="hideCustomiseItemLate()" style="float: right;" class="btn clearButton"><i class="fa fa-times"></i></button>
+               <h4 class="modal-title" id="customiseItemLateTitle">Choose an Option</h4>
+            </div>
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important">
+               <div class="row">
+                  <div class="col-lg-12" id="customOptionsLateList">
+                  </div>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <button  class="btn btn-default" onclick="hideCustomiseItemLate()" style="float: left">Cancel</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+
+
+
         <!-- DELIVERY AGENT MODAL -->
         <div id="deliveryBoysModal" class="modal">
              <div class="modal-dialog" style="width: 27em !important;">

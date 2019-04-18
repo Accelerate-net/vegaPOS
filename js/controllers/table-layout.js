@@ -73,7 +73,7 @@ function fetchAllTables(){
         }
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
@@ -121,16 +121,16 @@ function fetchAllTableSections(){
                 
           }
           else{
-            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
       }
 
     });
@@ -195,22 +195,22 @@ function deleteSingleTable(name) {
                       fetchAllTables();
                     },
                     error: function(data) {
-                      showToast('Server Warning: Unable to modify Tables data. Please contact Accelerate Support.', '#e67e22');
+                      showToast('Server Warning: Unable to modify Tables data.', '#e67e22');
                     }
                   }); 
 
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Not Found Error: Tables data not found.', '#e74c3c');
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
@@ -286,23 +286,23 @@ function deleteSingleTableSection(sectionName) {
                                   return '';
                                 },
                                 error: function(data) {
-                                  showToast('System Error: Unable to update Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                                  showToast('System Error: Unable to update Table Sections data.', '#e74c3c');
                                 }
 
                               });  
 
                           }
                           else{
-                            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+                            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
                           }
                         }
                         else{
-                          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+                          showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
                         }
 
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
                       }
 
                     });     
@@ -368,23 +368,23 @@ function deleteSingleTableSection(sectionName) {
                                     deleteAllMappedTables(sectionName)
                                   },
                                   error: function(data) {
-                                    showToast('System Error: Unable to update Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                                    showToast('System Error: Unable to update Table Sections data.', '#e74c3c');
                                   }
 
                                 });  
 
                             }
                             else{
-                              showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+                              showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
                             }
                           }
                           else{
-                            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+                            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
                           }
 
                         },
                         error: function(data) {
-                          showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                          showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
                         }
 
                       });                 
@@ -396,12 +396,12 @@ function deleteSingleTableSection(sectionName) {
               } //end Else (tables added part)
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
@@ -451,18 +451,18 @@ function deleteAllMappedTables(sectionName){
                     },
                     error: function(data) {
                       processTable(index + 1);
-                      showToast('Server Warning: Unable to modify Tables data. Please contact Accelerate Support.', '#e67e22');
+                      showToast('Server Warning: Unable to modify Tables data.', '#e67e22');
                     }
                   });
               }
         }
         else{
-          showToast('Not Found Error: There are no Tables mapped to this Section. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: There are no Tables mapped to this Section.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
@@ -541,7 +541,7 @@ function addNewTableSection(){
                         fetchAllTableSections();
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Table Sections data.', '#e74c3c');
                       }
 
                     });  
@@ -552,16 +552,16 @@ function addNewTableSection(){
                   
             }
             else{
-              showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+              showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
             }
           }
           else{
-            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
           }
 
         },
         error: function(data) {
-          showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+          showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
         }
 
     });
@@ -654,7 +654,7 @@ function addNewTable() {
                                 }
                               },
                               error: function(data){           
-                                showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                                showToast('System Error: Unable to update Tables data.', '#e74c3c');
                               }
                             });  
                             //End - post KOT to Server
@@ -682,14 +682,14 @@ function addNewTable() {
                                 }
                               },
                               error: function(data){           
-                                showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                                showToast('System Error: Unable to update Tables data.', '#e74c3c');
                               }
                             });  
                             //End - post KOT to Server
               }
           },
           error: function(data) {
-            showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+            showToast('System Error: Unable to read Tables data.', '#e74c3c');
           }
 
       });

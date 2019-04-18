@@ -66,7 +66,6 @@ function testPrinterProfile(printerName, sample_code){
 var printer_test_code = 0;
 
 function timedTester () {
-  console.log('Code: '+(printer_test_code+1))
 
   if((printer_test_code + 1)%2 == 0)
     testPrinterProfile('SUPER', ++printer_test_code);
@@ -86,7 +85,7 @@ timedTester();
 
 function openNewPrinterReRender(){
   var printersList = window.localStorage.connectedPrintersList ? JSON.parse(window.localStorage.connectedPrintersList) : [];
-  console.log(printersList)
+
   if(printersList.length == 0){
     showToast('Error: No printers and drivers found install on this machine.', '#e74c3c');
     return '';
@@ -221,16 +220,16 @@ function fetchAllPrintersInfo(){
           	}
           }
           else{
-            showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Configured Printers data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Configured Printers data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Configured Printers data.', '#e74c3c');
       }
 
     });  
@@ -293,7 +292,7 @@ function addNewPrinterProfile(){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-      	console.log(data)
+      	 
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_CONFIGURED_PRINTERS'){
 
@@ -317,7 +316,7 @@ function addNewPrinterProfile(){
               }
 
               // if(printers.length == 0){
-              //   showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+              //   showToast('System Error: Unable to read Configured Printers data.', '#e74c3c');
               //   return '';
               // }
 
@@ -371,7 +370,7 @@ function addNewPrinterProfile(){
                   
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to update Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to update Configured Printers data.', '#e74c3c');
                   }
 
                 });  
@@ -380,17 +379,17 @@ function addNewPrinterProfile(){
                 
           }
           else{
-            showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Configured Printers data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Configured Printers data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        console.log(data)
-        showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+         
+        showToast('System Error: Unable to read Configured Printers data.', '#e74c3c');
       }
 
     });
@@ -441,7 +440,7 @@ function deletePrinterProfile(name){
               }
 
               if(printers.length == 0){
-                showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+                showToast('System Error: Unable to read Configured Printers data.', '#e74c3c');
                 return '';
               }
 
@@ -479,23 +478,23 @@ function deletePrinterProfile(name){
                       removePrinterFromKOTRelays(name);
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Configured Printers data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Configured Printers data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Configured Printers data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Configured Printers data.', '#e74c3c');
       }
 
     });  
@@ -549,16 +548,16 @@ function removePrinterFromKOTRelays(name){
 
           }
           else{
-            showToast('Not Found Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: KOT Relaying data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: KOT Relaying data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOT Relaying data.', '#e74c3c');
       }
 
     });   
@@ -584,7 +583,7 @@ function updateRelayDataWithPrinters(customList, rev){
                       success: function(data) {
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update KOT Relaying data.', '#e74c3c');
                       }
                     });     
 }

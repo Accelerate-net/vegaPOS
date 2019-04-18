@@ -138,16 +138,16 @@ function fetchAllDineSessions(){
 
           }
           else{
-            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
       }
 
     });
@@ -218,7 +218,7 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
 
@@ -258,7 +258,7 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
                       hideNewDineSession();
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Dine Sessions data.', '#e74c3c');
                   }
                 });  
 
@@ -266,16 +266,16 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
                 
           }
           else{
-            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
       }
 
     });
@@ -345,23 +345,23 @@ function deleteDineSession(sessionName) {
                     showUndo('Deleted', 'addDineSession(\''+sessionName+'\', \''+memory_start+'\', \''+memory_end+'\')');
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Dine Sessions data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
       }
 
     }); 
@@ -409,16 +409,16 @@ function fetchAllCookingIngredients(){
                 document.getElementById("cookingIngredientsInfo").innerHTML = modesTag;            
           }
           else{
-            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Cooking Ingredients data.', '#e74c3c');
       }
 
     });  
@@ -505,8 +505,8 @@ function addNewCookingIngredient(optionalParameter) {
                       }
                   },
                   error: function(data) {
-                    console.log(data)
-                    showToast('System Error: Unable to update Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+                     
+                    showToast('System Error: Unable to update Cooking Ingredients data.', '#e74c3c');
                   }
 
                 });  
@@ -515,16 +515,16 @@ function addNewCookingIngredient(optionalParameter) {
                 
           }
           else{
-            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Cooking Ingredients data.', '#e74c3c');
       }
 
     });  
@@ -585,23 +585,23 @@ function deleteCookingIngredient(commentName) {
                     showUndo('Deleted', 'addNewCookingIngredient(\''+commentName+'\')');
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Cooking Ingredients data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Cooking Ingredients data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Cooking Ingredients data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Cooking Ingredients data.', '#e74c3c');
       }
 
     });  
@@ -645,16 +645,16 @@ function fetchAllCancellationReasons(){
                 document.getElementById("cancellationReasonInfo").innerHTML = modesTag;            
           }
           else{
-            showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Cancellation Reasons data.', '#e74c3c');
       }
 
     });  
@@ -741,8 +741,8 @@ function addNewCancellationReason(optionalParameter) {
                       }
                   },
                   error: function(data) {
-                    console.log(data)
-                    showToast('System Error: Unable to update Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+                     
+                    showToast('System Error: Unable to update Cancellation Reasons data.', '#e74c3c');
                   }
 
                 });  
@@ -751,16 +751,16 @@ function addNewCancellationReason(optionalParameter) {
                 
           }
           else{
-            showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Cancellation Reasons data.', '#e74c3c');
       }
 
     });  
@@ -821,23 +821,23 @@ function deleteCancellationReason(commentName) {
                     showUndo('Deleted', 'addNewCancellationReason(\''+commentName+'\')');
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Cancellation Reasons data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Cancellation Reasons data.', '#e74c3c');
       }
 
     });  
@@ -887,16 +887,16 @@ function fetchAllSavedComments(){
 
           }
           else{
-            showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Saved Comments data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Saved Comments data.', '#e74c3c');
       }
 
     });  
@@ -984,8 +984,8 @@ function addNewComment(optionalParameter) {
 
                   },
                   error: function(data) {
-                    console.log(data)
-                    showToast('System Error: Unable to update Saved Comments data. Please contact Accelerate Support.', '#e74c3c');
+                     
+                    showToast('System Error: Unable to update Saved Comments data.', '#e74c3c');
                   }
 
                 });  
@@ -994,16 +994,16 @@ function addNewComment(optionalParameter) {
                 
           }
           else{
-            showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Saved Comments data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Saved Comments data.', '#e74c3c');
       }
 
     });  
@@ -1064,23 +1064,23 @@ function deleteSavedComment(commentName) {
                     showUndo('Deleted', 'addNewComment(\''+commentName+'\')');
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Saved Comments data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Saved Comments data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Saved Comments data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Saved Comments data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Saved Comments data.', '#e74c3c');
       }
 
     });  

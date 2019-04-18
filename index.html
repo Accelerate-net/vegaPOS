@@ -370,6 +370,7 @@
                 <div class="modal-content" style="border-radius: 4px; right: 10px !important; top: 60px !important; position: fixed; width: 420px; max-height: 480px; overflow-y: auto !important; overflow-x: none !important; padding: 8px" id="stewardModalHomeContent">
                     
                 </div>
+                
              </div>
           </div>
 
@@ -618,7 +619,7 @@
                             <div class="col-lg-4">
                                <div class="form-group">
                                 <label>Refund Status</label> 
-                                    <select id="bill_refund_why_isrefund" class="form-control"> 
+                                    <select id="bill_refund_why_isrefund" class="form-control" onchange="refundStatusChange()"> 
                                         <option value="2">Partial Refund</option> 
                                         <option value="3">Full Refund</option> 
                                     </select>
@@ -627,15 +628,20 @@
                             <div class="col-lg-4">
                                <div class="form-group">
                                   <label>Refund Amount</label>
-                                  <input type="number" value="" class="form-control tip" id="bill_refund_why_refundamount"/>
+                                  <input type="number" value="" class="form-control tip" id="bill_refund_why_refundamount" onkeyup="roughCalculateRefund()"/>
+                                  <p style="font-size: 11px; color: #2ecc71; margin: 5px 0">Effective Refund Amount: <tag id="billRefundRough_amount">0</tag></p>
+
+                                  <input type="hidden" value="0" id="bill_refund_applicable_extras"/>
+
+                                  <input type="hidden" value="0" id="bill_refund_actual_value"/>
+
                                </div>
                             </div>
                             <div class="col-lg-4">
                                <div class="form-group">
                                   <label>Refund Method</label>
-                                  <select id="bill_refund_why_refundmode" class="form-control">
-                                    <option value="ORIGINAL">Original Payment Mode</option>
-                                    <option value="CASH">Cash</option>
+                                  <select id="bill_refund_why_refundmode" class="form-control" style="font-weight: bold; color: #FFF; background: #f39c12; border: none;">
+
                                   </select>
                                </div>
                             </div>

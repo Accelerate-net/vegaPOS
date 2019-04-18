@@ -22,7 +22,7 @@ function openFreeSeatOptions(tableID){
           var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
 
           var easySelectTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#freeSeatOptionsModal').is(':visible')) {
 
                  switch(e.which){
@@ -101,7 +101,7 @@ function openReservedSeatOptions(tableID, optionalCustomerName, optionalSaveFlag
           var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
 
           var easySelectTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#reservedSeatOptionsModal').is(':visible')) {
 
                  switch(e.which){
@@ -234,7 +234,7 @@ function openOccuppiedSeatOptions(tableInfo){
           var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
 
           var easySelectTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#occuppiedSeatOptionsModal').is(':visible')) {
 
                  switch(e.which){
@@ -318,7 +318,7 @@ function removeTableMappingWarning(tableNumber){
 
 
           var easyActionsTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#mappingDeleteConfirmation').is(':visible')) {
 
                   if(e.which == 27){ // Escape (Close)
@@ -379,23 +379,23 @@ function removeTableMapping(tableNumber){
                         preloadTableStatus();
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });   
 
 
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Not Found Error: Tables data not found.', '#e74c3c');
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
@@ -406,11 +406,6 @@ function removeTableMapping(tableNumber){
 function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTables){
 
 	  var kotID = kotList[0]; //Merge all to first KOT
-
-    
-
-    console.log('FINAL MEGR')
-
 
     //Set _id from Branch mentioned in Licence
     var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
@@ -433,6 +428,7 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
           if(mergedCart && mergedCart.length > 0){
             kotfile.cart = mergedCart;
             kotfile.discount = {};
+            kotfile.customExtras = {};
             kotfile.extras = mergedExtras;
           }
 
@@ -458,18 +454,18 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     });  	
@@ -507,7 +503,7 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
                       dataType: 'json',
                       timeout: 10000,
                       success: function(data) {
-                        console.log('Deleted')
+
                       }
                     }); 
 
@@ -569,17 +565,17 @@ function removeOtherKOTAfterProcess(kotList){
                       },
                       error: function(data) {
                         clearTable(kot_counter + 1);
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });  
           }
           else{
             clearTable(kot_counter + 1);
-            showToast('Not Found Error: KOT #'+kotList[kot_counter]+' was not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: KOT #'+kotList[kot_counter]+' was not found.', '#e74c3c');
           }
         },
         error: function(data) {
-          showToast('System Error: Unable to read KOT data. Please contact Accelerate Support.', '#e74c3c');
+          showToast('System Error: Unable to read KOT data.', '#e74c3c');
         }
 
       });             
@@ -681,7 +677,7 @@ function addToReserveListConsent(tableID){
 	$('#reserve_table_window_name').focus();
 
           var easyActionsTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#addToReservedConsentModal').is(':visible')) {
 
                   if(e.which == 27){ // Escape (Close)
@@ -751,21 +747,21 @@ function addToReserveList(tableNumber){
                         preloadTableStatus();
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });   
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Not Found Error: Tables data not found.', '#e74c3c');
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
     });
 }
@@ -814,21 +810,21 @@ function removeFromReserveList(tableNumber){
                         preloadTableStatus();
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });   
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Not Found Error: Tables data not found.', '#e74c3c');
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
     });
 }
@@ -888,12 +884,12 @@ function moveKOTForEditing(kotID){
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     }); 
@@ -997,7 +993,7 @@ function addToHoldList(id){
 		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 30px; font-size: 18px; text-align: left;">Select Orders to Merge its Bills <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';	
 	}
 	else{
-		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 0; padding: 10px 120px 10px 30px !important; font-size: 18px; text-align: left; line-height: 1.6em">Merge orders on <b>'+merge_result_text+'</b> <b style="font-size: 120%; color: #ffd800">Table '+tempList[0]+'</b>. This can not be revered. Previously applied discounts will be removed. Sure want to Merge Orders? <button class="btn btn-sm btn-success" onclick="mergeBillsInTheHoldList()" style="font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Merge Orders</button> <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';
+		document.getElementById("confirmationRenderArea").innerHTML = '<p style="color: #FFF; margin: 0; padding: 10px 120px 10px 30px !important; font-size: 18px; text-align: left; line-height: 1.6em">Merge orders on <b>'+merge_result_text+'</b> <b style="font-size: 120%; color: #ffd800">Table '+tempList[0]+'</b>. This can not be revered. Any discounts or custom extras previously applied on any of these orders will be removed. Sure want to Merge the Orders? <button class="btn btn-sm btn-success" onclick="mergeBillsInTheHoldList()" style="font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Merge Orders</button> <button onclick="cancelBillMerge()" class="btn btn-sm btn-default" style="color: #969696; font-size: 18px; padding: 0 6px; position: relative; top: -2px;">Cancel</button></p>';
 	}
 
 	
@@ -1025,8 +1021,6 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
     var mergingBillingMode = '';
     var freshCartIndices = 1;
-
-    console.log(kotList, tableList)
 
 
     //Set _id from Branch mentioned in Licence
@@ -1128,13 +1122,13 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
             }
             else{
-              showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found. Please contact Accelerate Support.', '#e74c3c');
+              showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found.', '#e74c3c');
               return '';
             }
             
           },
           error: function(data) {
-            showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found.', '#e74c3c');
             return '';
           }
 
@@ -1177,12 +1171,12 @@ function mergeBillsInTheHoldList(){
 		              mergeBillsInTheHoldListAfterProcess(KOTList, holdList); /* Merge KOTs*/	                    
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });	
@@ -1412,28 +1406,28 @@ function preloadTableStatus(mode, currentTableID){
 				                
 				          }
 				          else{
-				            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
 				          }
 				        }
 				        else{
-				          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				          showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
 				        }
 
 				      },
 				      error: function(data) {
-				        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+				        showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
 				      }
 
 				    });
 
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
