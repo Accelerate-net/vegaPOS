@@ -13,7 +13,7 @@ function printPDFReport(html_template){
     var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
     if(allActivePrinters.length == 0){
-      showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+      showToast('Print Error: No configured printers found. Print failed.', '#e74c3c');
       return '';
     }
 
@@ -69,7 +69,7 @@ function sendToPrinter(orderObject, type, optionalTargetPrinter){
  var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
  if(allActivePrinters.length == 0){
-   showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+   showToast('Print Error: No configured printers found. Print failed.', '#e74c3c');
    return '';
  }
 
@@ -162,7 +162,7 @@ if(type == 'BILL'){
    //Scan & Pay QR Code Options
    if(showScanPay || showDefaultQRCode){
       if(showScanPay){
-         console.log('AM HERE!!!!')
+
          //Create payment link online and then proceed to generate bill
          var payment_link_api = 'https://www.accelerateengine.app/pos/collect/createpayment.php';
          var license_number = window.localStorage.accelerate_licence_number ? window.localStorage.accelerate_licence_number : '';
@@ -233,7 +233,7 @@ if(type == 'BILL'){
          //Success Callback
 
       });
-      //console.log(qrcode)
+
       renderBillTemplate(qrcode);
    }
 
@@ -1818,12 +1818,10 @@ var html_template = view_header_content +
 
 function sendKOTChangesToPrinter(orderObject, compareObject, optionalTargetPrinter){
 
- console.log('hilll...')
- 
  var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
  if(allActivePrinters.length == 0){
-   showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+   showToast('Print Error: No configured printers found. Print failed.', '#e74c3c');
    return '';
  }
 
@@ -2119,7 +2117,7 @@ function printMessageInKitchen(messageObject, optionalTargetPrinter){
  var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
  if(allActivePrinters.length == 0){
-   showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+   showToast('Print Error: No configured printers found. Print failed.', '#e74c3c');
    return '';
  }
 
@@ -2209,7 +2207,7 @@ function testPrinterWorking(targetPrinter, sample_code){
           var allActivePrinters = window.localStorage.configuredPrintersData ? JSON.parse(window.localStorage.configuredPrintersData) : [];
 
           if(allActivePrinters.length == 0){
-            showToast('Print Error: No configured printers found. Print failed. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Print Error: No configured printers found. Print failed.', '#e74c3c');
             return '';
           }
 

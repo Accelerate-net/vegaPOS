@@ -184,7 +184,7 @@ function loadMoreOrders(user, nextID){
 		timeout: 10000,
 		success: function(data) {
 			if(data.status){
-				console.log(data)
+				 
 				appendToHistory(data, nextID, user)
 
 			}

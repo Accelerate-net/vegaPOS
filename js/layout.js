@@ -258,13 +258,13 @@ function applyLicenceTerms(){
 
           }
           else{
-            showToast('Server Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Server Error: Configured Systems data not found.', '#e74c3c');
             document.getElementById("applicationActivationLock").style.display = 'block';
             return '';          
           }
         }
         else{
-            showToast('Server Error: Configured Systems data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Server Error: Configured Systems data not found.', '#e74c3c');
             document.getElementById("applicationActivationLock").style.display = 'block';
             return '';    
         }
@@ -309,7 +309,7 @@ function applyOrderSources(){
         }
       },
       error: function(data) {
-        showToast('System Error: Unable to read Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Order Sources data.', '#e74c3c');
       }
     });
 }
@@ -464,16 +464,16 @@ function applyConfiguredPrinters(){
 
           }
           else{
-            showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Configured Printers data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Configured Printers data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Configured Printers data.', '#e74c3c');
       }
 
     });  
@@ -589,8 +589,6 @@ function goProceedToActivation(){
         timeout: 10000,
         success: function(data) {
 
-          console.log(data)
-
           hideLoading();
 
           if(data.status){
@@ -638,7 +636,7 @@ function pushLicenseToLocaServerFromHome(licenceObject){
 
              for (var i=0; i<machinesList.length; i++) {
                if(machinesList[i].licence == licenceObject.licence){
-                  showToast('Activation Error: Licence already used. Please contact Accelerate Support.', '#e74c3c');
+                  showToast('Activation Error: Licence already used.', '#e74c3c');
                   return '';
                }
              }
@@ -649,11 +647,11 @@ function pushLicenseToLocaServerFromHome(licenceObject){
               
           }
           else{
-            showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: System Configurations data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: System Configurations data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: System Configurations data not found.', '#e74c3c');
         }
 
       },
@@ -690,7 +688,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
               var machineName = licenceObject.machineUID;
 
               if(!machineName || machineName == ''){
-                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Licence Error: Machine Name not issued in Licence.', '#e74c3c');
                 return '';
               }
 
@@ -727,7 +725,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                       firstTimeStub_system_options();
                   },
                   error: function(data) {
-                      showToast('Configurations Error: Unable to create Personalisations stub data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('Configurations Error: Unable to create Personalisations stub data.', '#e74c3c');
                       return '';
                   }
                 });  
@@ -738,18 +736,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                           
           }
           else{
-            showToast('Configurations Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Configurations Error: Personalisations data not found.', '#e74c3c');
             return '';
           }
         }
         else{
-          showToast('Configurations Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');      
+          showToast('Configurations Error: Personalisations data not found.', '#e74c3c');      
           return '';
         }
         
       },
       error: function(data) {
-        showToast('Configurations Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('Configurations Error: Unable to read Personalisations data.', '#e74c3c');
         return '';
       }
 
@@ -777,7 +775,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
               var machineName = licenceObject.machineUID;
 
               if(!machineName || machineName == ''){
-                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Licence Error: Machine Name not issued in Licence.', '#e74c3c');
                 return '';
               }
 
@@ -815,7 +813,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                       firstTimeStub_custom_shortcuts();
                   },
                   error: function(data) {
-                      showToast('Configurations Error: Unable to create System Options stub data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('Configurations Error: Unable to create System Options stub data.', '#e74c3c');
                       return '';
                   }
                 });  
@@ -826,18 +824,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                           
           }
           else{
-            showToast('Configurations Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Configurations Error: System Options data not found.', '#e74c3c');
             return '';
           }
         }
         else{
-          showToast('Configurations Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');      
+          showToast('Configurations Error: System Options data not found.', '#e74c3c');      
           return '';
         }
         
       },
       error: function(data) {
-        showToast('Configurations Error: Unable to read System Options data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('Configurations Error: Unable to read System Options data.', '#e74c3c');
         return '';
       }
 
@@ -866,7 +864,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
               var machineName = licenceObject.machineUID;
 
               if(!machineName || machineName == ''){
-                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Licence Error: Machine Name not issued in Licence.', '#e74c3c');
                 return '';
               }
 
@@ -904,7 +902,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                       firstTimeStub_configured_printers();
                   },
                   error: function(data) {
-                      showToast('Configurations Error: Unable to create Custom Shortcuts stub data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('Configurations Error: Unable to create Custom Shortcuts stub data.', '#e74c3c');
                       return '';
                   }
                 });  
@@ -915,18 +913,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                           
           }
           else{
-            showToast('Configurations Error: Custom Shortcuts data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Configurations Error: Custom Shortcuts data not found.', '#e74c3c');
             return '';
           }
         }
         else{
-          showToast('Configurations Error: Custom Shortcuts data not found. Please contact Accelerate Support.', '#e74c3c');      
+          showToast('Configurations Error: Custom Shortcuts data not found.', '#e74c3c');      
           return '';
         }
         
       },
       error: function(data) {
-        showToast('Configurations Error: Unable to read Custom Shortcuts data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('Configurations Error: Unable to read Custom Shortcuts data.', '#e74c3c');
         return '';
       }
 
@@ -955,7 +953,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
               var machineName = licenceObject.machineUID;
 
               if(!machineName || machineName == ''){
-                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Licence Error: Machine Name not issued in Licence.', '#e74c3c');
                 return '';
               }
 
@@ -993,7 +991,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                       firstTimeStub_kot_relay();
                   },
                   error: function(data) {
-                      showToast('Configurations Error: Unable to create Configured Printers stub data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('Configurations Error: Unable to create Configured Printers stub data.', '#e74c3c');
                       return '';
                   }
                 });  
@@ -1004,18 +1002,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                           
           }
           else{
-            showToast('Configurations Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Configurations Error: Configured Printers data not found.', '#e74c3c');
             return '';
           }
         }
         else{
-          showToast('Configurations Error: Configured Printers data not found. Please contact Accelerate Support.', '#e74c3c');      
+          showToast('Configurations Error: Configured Printers data not found.', '#e74c3c');      
           return '';
         }
         
       },
       error: function(data) {
-        showToast('Configurations Error: Unable to read Configured Printers data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('Configurations Error: Unable to read Configured Printers data.', '#e74c3c');
         return '';
       }
 
@@ -1044,7 +1042,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
               var machineName = licenceObject.machineUID;
 
               if(!machineName || machineName == ''){
-                showToast('Licence Error: Machine Name not issued in Licence. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Licence Error: Machine Name not issued in Licence.', '#e74c3c');
                 return '';
               }
 
@@ -1082,7 +1080,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                       finalActivateLicence();
                   },
                   error: function(data) {
-                      showToast('Configurations Error: Unable to create KOT Relaying stub data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('Configurations Error: Unable to create KOT Relaying stub data.', '#e74c3c');
                       return '';
                   }
                 });  
@@ -1093,18 +1091,18 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                           
           }
           else{
-            showToast('Configurations Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Configurations Error: KOT Relaying data not found.', '#e74c3c');
             return '';
           }
         }
         else{
-          showToast('Configurations Error: KOT Relaying data not found. Please contact Accelerate Support.', '#e74c3c');      
+          showToast('Configurations Error: KOT Relaying data not found.', '#e74c3c');      
           return '';
         }
         
       },
       error: function(data) {
-        showToast('Configurations Error: Unable to read KOT Relaying data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('Configurations Error: Unable to read KOT Relaying data.', '#e74c3c');
         return '';
       }
 
@@ -1142,7 +1140,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
                       
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update System Configurations data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update System Configurations data.', '#e74c3c');
                   }
                 });  
   }
@@ -1264,14 +1262,14 @@ function applyPersonalisations(){
               
           }
           else{
-            showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Personalisations data not found.', '#e74c3c');
             
             //REMOVE WELCOME SCREEN
             setTimeout(function() { removeWelcomeScreen(); }, 300);
           }
         }
         else{
-          showToast('Not Found Error: Personalisations data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Personalisations data not found.', '#e74c3c');
           
           //REMOVE WELCOME SCREEN
           setTimeout(function() { removeWelcomeScreen(); }, 300);        
@@ -1279,7 +1277,7 @@ function applyPersonalisations(){
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Personalisations data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Personalisations data.', '#e74c3c');
 
         //REMOVE WELCOME SCREEN
         setTimeout(function() { removeWelcomeScreen(); }, 300);
@@ -1356,16 +1354,16 @@ function applyBillLayout(){
 
           }
           else{
-            showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Billing Layout data not found.', '#e74c3c');
       }
 
     });
@@ -1414,17 +1412,17 @@ function applyShortcuts(){
 
           }
           else{
-            showToast('Not Found Error: Keyboard Shortcuts data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Keyboard Shortcuts data not found.', '#e74c3c');
             initialiseKeyboardShortcuts();
           }
         }
         else{
-          showToast('Not Found Error: Keyboard Shortcuts data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Keyboard Shortcuts data not found.', '#e74c3c');
           initialiseKeyboardShortcuts();
         }
       },
       error: function(data) {
-        showToast('System Error: Unable to read Keyboard Shortcuts data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Keyboard Shortcuts data.', '#e74c3c');
         initialiseKeyboardShortcuts();
       }
 
@@ -2025,16 +2023,16 @@ function applySystemOptionSettings(){
 
           }
           else{
-            showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: System Options data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: System Options data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: System Options data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read System Options data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read System Options data.', '#e74c3c');
       }
 
     });  
@@ -3160,7 +3158,7 @@ function selectStewardWindow(){
               });  
 
               var easySelectTool = $(document).on('keydown',  function (e) {
-                console.log('Am secretly running...')
+                
                 if($('#stewardModalHome').is(':visible')) {
 
                      e.preventDefault();
@@ -3289,16 +3287,16 @@ function selectStewardWindow(){
 
           }
           else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
       }
 
     });  
@@ -3452,10 +3450,8 @@ function selectSessionWindow(){
               });  
 
               var easySelectTool = $(document).on('keydown',  function (e) {
-                console.log('Am secretly running...')
+                 
                 if($('#sessionModalHome').is(':visible')) {
-
-                  console.log(e.which)
 
                      switch(e.which){
                       case 37:{ //  < Left Arrow
@@ -3580,16 +3576,16 @@ function selectSessionWindow(){
 
           }
           else{
-            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
       }
 
     });
@@ -3632,11 +3628,11 @@ function renderSpotlightPreview(type, encodedData){
   switch(type){
     case "Clear":{
       renderTemplate = '';
-      console.log('Render Preview... [Clear]')
+
       break;
     }
     case "Tables":{
-      console.log('Render Preview... [Tables]')
+      
       var info = JSON.parse(decodeURI(encodedData));
       if(info.status == 0){
         renderTemplate = '<div style="height: 96px"><img src="images/common/table_free.png"></div> <div class="name" style="font-family: \'Oswald\', sans-serif;">Table <b style="font-size: 120%">'+info.table+'</b></div> <div style="font-family: sans-serif; font-size: 24px; color: #26b764;">Free Table</div><p style="font-size: 12px; color: #879094;">'+(info.capacity)+' Seater</p>';
@@ -3658,7 +3654,7 @@ function renderSpotlightPreview(type, encodedData){
       break;
     }
     case "Orders":{
-      console.log('Render Preview... [Orders]')
+      
       var info = JSON.parse(decodeURI(encodedData));
 
       if(info.orderStatus == 1){ //Active
@@ -3688,7 +3684,7 @@ function renderSpotlightPreview(type, encodedData){
       break;
     }
     case "Menu":{
-      console.log('Render Preview... [Menu]')
+      
       var info = JSON.parse(decodeURI(encodedData));
       if(info.isAvailable){
         renderTemplate = '<div style="padding: 0 25px; height: 96px; position: relative; display: inline-block;">'+(info.isPhoto ? '<img id="spotlight_menu_item_'+info.code+'" src="images/common/download_in_progress.jpg" style="height: 96px; border-radius: 10%;"><div class="spotlightMenuItemPrice"><i class="fa fa-inr"></i>'+info.price+'</div>' : '<img src="images/common/spotlight_food.png"><div class="spotlightMenuItemPriceNoImage"><i class="fa fa-inr"></i>'+info.price+'</div>')+' </div> <div class="name" style="font-family: \'Oswald\', sans-serif;"><b style="font-size: 120%">'+info.name+'</b></div> <div id="spotlight_menu_current_item_displayed" onclick="markSpotlightMenuItemAvailability(\''+info.code+'\')" class="spotlightItemAvailable">Available</div>'; 
@@ -3704,7 +3700,7 @@ function renderSpotlightPreview(type, encodedData){
       break;
     }
     case "Customers":{
-      console.log('Render Preview... [Customers]')
+      
       var info = JSON.parse(decodeURI(encodedData));
       var shortSummary = '';
       if((!info.visits || info.visits == 0) && (!info.orders || info.orders == 0)){
@@ -4455,8 +4451,6 @@ function showSpotlight(){
                           }
 
 
-
-console.log('am here 2')
                           if(count > 0){
                             renderContent += '<div class="ng-spotlight-results-list-header">'+spotResult.category+'</div>'+itemsList;
                           }
@@ -4647,7 +4641,7 @@ function enableAdminUser(profileUser){
     $("#adminUserPasscode_1").select(); 
   }
   else{
-    showToast('Error: Unknown User. Please contact Accelerate Support.', '#e74c3c');
+    showToast('Error: Unknown User.', '#e74c3c');
   } 
 }
 
@@ -4778,16 +4772,16 @@ function validateAndLoginAdminUser(userCode){
               }
           }
           else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
       }
 
     });  
@@ -4930,7 +4924,7 @@ function markSpotlightMenuItemAvailability(code, type){
                                 return '';
                               },
                               error: function(data) {
-                                showToast('System Error: Unable to update Menu data. Please contact Accelerate Support.', '#e74c3c');
+                                showToast('System Error: Unable to update Menu data.', '#e74c3c');
                               }
 
                             });    
@@ -4943,16 +4937,16 @@ function markSpotlightMenuItemAvailability(code, type){
 
           }
           else{
-            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Menu data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Menu data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Menu data.', '#e74c3c');
       }
 
     }); 
@@ -4984,7 +4978,6 @@ function markSpotlightMenuItemAvailability(code, type){
 
               }
               else{
-                console.log(data)
                 showToast('Cloud Server Warning: Online Menu not updated', '#e67e22');
               }
             },
@@ -5057,15 +5050,15 @@ function applyKOTRelays(){
 
           }
           else{
-            showToast('Not Found Error: KOT Relays data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: KOT Relays data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: KOT Relays data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: KOT Relays data not found.', '#e74c3c');
         }
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOT Relays data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOT Relays data.', '#e74c3c');
       }
 
     });    
@@ -5338,8 +5331,6 @@ function hideTalkToKitchen(){
 }
 
 function saveToChatLog(messageObj){
-
-    console.log('save...')
 
     var requestData = { "selector" :{ "identifierTag": "ACCELERATE_TEXT_TO_KITCHEN_LOG" } }
 

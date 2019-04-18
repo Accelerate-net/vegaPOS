@@ -102,16 +102,16 @@ function fetchAllUsersInfo(){
           		}
           }
           else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
       }
 
     });  
@@ -162,7 +162,7 @@ function openChangePasscodeWindow(code, name){
 
   }
   else{
-    showToast('Error: Unknown User. Please contact Accelerate Support.', '#e74c3c');
+    showToast('Error: Unknown User.', '#e74c3c');
   } 
 
 }
@@ -226,7 +226,7 @@ function changeAdminPassword(){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
@@ -270,7 +270,7 @@ function changeAdminPassword(){
                     showToast('New Passcode has been set for <b>'+remember_name+'</b>', '#27ae60');
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to update Users data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to update Users data.', '#e74c3c');
                   }
 
                 });  
@@ -279,16 +279,16 @@ function changeAdminPassword(){
                 
           }
           else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
       }
 
     });
@@ -349,7 +349,7 @@ function addNewUserProfile(){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-      	console.log(data)
+      	 
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
 
@@ -395,7 +395,7 @@ function addNewUserProfile(){
                   
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to update Users data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to update Users data.', '#e74c3c');
                   }
 
                 });  
@@ -404,16 +404,16 @@ function addNewUserProfile(){
                 
           }
           else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
       }
 
     });
@@ -473,23 +473,23 @@ function deleteUserFromUserProfile(code, name){
           					removeFromCurrentUser(code);
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Registered Users data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
       }
 
     });  

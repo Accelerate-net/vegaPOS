@@ -6,8 +6,6 @@ var filterResultsCount = 0;
 
 function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 
-	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
-
 	if(optionalAnimationFlag && optionalAnimationFlag == 'LOADING_ANIMATION'){
 		//Show Animation
 		document.getElementById("billBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
@@ -1167,8 +1165,13 @@ function updateSettledCount(){
 		    success: function(data) {
 
 		      if(data.db_name == SELECTED_INVOICE_SOURCE_DB){
-		      	document.getElementById("settledBillsCount").innerHTML = parseInt(data.doc_count) - 5; // 5 other docs (VERY IMP!!!)
-		      	console.log('~ minus 5 : THIS IS VERY IMPORTANT!')
+
+		      	var count = parseInt(data.doc_count) - 5;
+		      	if(count < 0){
+		      		count = 0;
+		      	}
+
+		      	document.getElementById("settledBillsCount").innerHTML = count; // 5 other docs (VERY IMP!!!)
 		      }
 		      else{
 		      	document.getElementById("settledBillsCount").innerHTML = 0;
@@ -1195,7 +1198,6 @@ function calculateSettledCount(){
 
 		      if(data.db_name == SELECTED_INVOICE_SOURCE_DB){
 		      	document.getElementById("settledBillsCount").innerHTML = parseInt(data.doc_count) - 5; // 5 other docs (VERY IMP!!!)
-		      	console.log('~ minus 5 : THIS IS VERY IMPORTANT!')
 		      }
 		      else{
 		      	document.getElementById("settledBillsCount").innerHTML = 0;
@@ -1996,7 +1998,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 						      						'<th style="text-align: left">Details</th> <th style="text-align: left">Customer</th>'+
 						      						'<th style="text-align: left">Paid Amount</th> <th style="text-align: left">Payment</th></tr></thead><tbody>'+resultRender+'<tbody></table>';
 			      
-				      	renderBillPageDefault('SETTLED')
+				      	renderBillPageDefault('SETTLED');
 
 					},
 					error: function(data){
@@ -3046,8 +3048,6 @@ function getDiscountRefName(type){
 function openDiscountDetailsInfo(encodedInfo){
 	var info = JSON.parse(decodeURI(encodedInfo));
 
-	console.log(info)
-
 	document.getElementById("discountReasonPrimaryModal").style.display = 'block';
 	document.getElementById("discountReasonPrimaryModalContent").innerHTML = ''+
 												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
@@ -3150,16 +3150,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Payments</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
 	      }
 
 	    });
@@ -3203,16 +3203,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Orders</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
 	      }
 
 	    });
@@ -3256,16 +3256,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Session alone</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
 	      }
 
 	    });
@@ -3308,16 +3308,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders billed on <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>only</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Registered Machines data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Registered Machines data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Registered Machines data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Registered Machines data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Registered Machines data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Registered Machines data.', '#e74c3c');
 	      }
 
 	    });
@@ -3361,16 +3361,16 @@ function changeFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders punched by <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select></p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Staff data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Staff data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Staff data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Staff data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Staff data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Staff data.', '#e74c3c');
 	      }
 
 	    });
@@ -3562,10 +3562,8 @@ function assignDeliveryAgent(billNumber, optionalPageRef){
 
               var easySelectTool = $(document).on('keydown',  function (e) {
 
-                console.log('Am secretly running...')
+                 
                 if($('#deliveryBoysModal').is(':visible')) {
-
-                  console.log(e.which)
 
                      switch(e.which){
                       case 37:{ //  < Left Arrow
@@ -3691,16 +3689,16 @@ function assignDeliveryAgent(billNumber, optionalPageRef){
 
           }
           else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
       }
 
     });  
@@ -3769,18 +3767,18 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
                       openSelectedBill(encodedBill, requestURLSource);
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Invoice.', '#e74c3c');
                   }
                 }); 
           
         }
         else{
-          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(firstdata) {
-        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Invoices data.', '#e74c3c');
       }
 
     });  
@@ -3844,16 +3842,16 @@ function lateApplyDiscount(encodedBill){
   			  $('#applyBillDiscountLate_value').select();
           }
           else{
-            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Discount Types data.', '#e74c3c');
       }
 
     });
@@ -3924,13 +3922,18 @@ function lateApplyDiscountConfirm(billNumber){
 				          var unit = document.getElementById("applyBillDiscountLate_unit").value;
 				          var value = document.getElementById("applyBillDiscountLate_value").value;
 
+
 				          var grandSum = 0;
+				          var grandPackagedSum = 0;
 
 				          var n = 0;
-				          var netTaxableSum = 0;
 				          while(billfile.cart[n]){
-				            grandSum += (billfile.cart[n].price * billfile.cart[n].qty);
-				            netTaxableSum += (billfile.cart[n].price * billfile.cart[n].qty);
+				            grandSum += billfile.cart[n].price * billfile.cart[n].qty;
+
+				            if(billfile.cart[n].isPackaged){
+				              grandPackagedSum += billfile.cart[n].price * billfile.cart[n].qty;
+				            }
+
 				            n++;
 				          }
 
@@ -3938,9 +3941,10 @@ function lateApplyDiscountConfirm(billNumber){
 
 
 				          var totalDiscount = 0;
+				          var TotalUserDiscount = value;
 				      
 				          if(unit == 'PERCENTAGE'){
-				            totalDiscount = grandSum*value/100;
+				            totalDiscount = (grandSum) * (TotalUserDiscount/100);
 				          }
 				          else if(unit == 'FIXED'){
 
@@ -3962,9 +3966,9 @@ function lateApplyDiscountConfirm(billNumber){
 				                extras_fraction += (billfile.customExtras.value / 100);
 				              }
 				            }
-
-				            var TotalUserDiscount = value;
+				            
 				            totalDiscount = TotalUserDiscount/(1 + extras_fraction);
+				          
 				          }
 
 				          totalDiscount = Math.round(totalDiscount * 100) / 100;
@@ -3980,10 +3984,17 @@ function lateApplyDiscountConfirm(billNumber){
 				                return '';
 				              }
 				              else{
+
+				                if(totalDiscount > grandSum){
+				                  totalDiscount = grandSum;
+				                  maximumReached = true;
+				                }
+
 				                if(totalDiscount > billing_modes[g].maxDiscount){
 				                  totalDiscount = billing_modes[g].maxDiscount;
 				                  maximumReached = true;
 				                }
+
 				              }
 				              break;
 				            }
@@ -3998,17 +4009,40 @@ function lateApplyDiscountConfirm(billNumber){
 				          billfile.discount.reference = '';
 
 
-				          /* Recalculate Tax Figures */
-				          //Re-calculate tax figures (if any Discount applied)
 
-				          	netTaxableSum = netTaxableSum - totalDiscount;
+          
+				            /* Recalculate Tax Figures */
+				            
+				            //Re-calculate tax figures (if any Discount applied)
+
+				            var calculable_sum_for_all = grandSum - totalDiscount;
+				            var calculable_sum_for_packaged = (grandSum - grandPackagedSum) - totalDiscount;
+
+				            if(calculable_sum_for_all < 0){
+				              calculable_sum_for_all = 0;
+				            }
+
+				            if(calculable_sum_for_packaged < 0){
+				              calculable_sum_for_packaged = 0;
+				            }
+
 
 				            for(var g = 0; g < billfile.extras.length; g++){
 				              
 				              if(billfile.extras[g].unit == 'PERCENTAGE'){
-				                var new_amount = (billfile.extras[g].value / 100) * netTaxableSum;
-				                new_amount = Math.round(new_amount * 100) / 100;
-				                billfile.extras[g].amount = new_amount;
+				              
+				                if(billfile.extras[g].isPackagedExcluded){
+				                  var new_amount = (billfile.extras[g].value / 100) * calculable_sum_for_packaged;
+				                  new_amount = Math.round(new_amount * 100) / 100;
+				                  billfile.extras[g].amount = new_amount;
+				                }
+				                else{
+				                  var new_amount = (billfile.extras[g].value / 100) * calculable_sum_for_all;
+				                  new_amount = Math.round(new_amount * 100) / 100;
+				                  billfile.extras[g].amount = new_amount; 
+				                }
+
+
 				              }
 				              else if(billfile.extras[g].unit == 'FIXED'){
 				                //Do nothing
@@ -4019,7 +4053,8 @@ function lateApplyDiscountConfirm(billNumber){
 				            /* custom extras */
 				            if(billfile.customExtras.amount && billfile.customExtras.amount != 0){
 				              if(billfile.customExtras.unit == 'PERCENTAGE'){
-				                var new_amount = (billfile.customExtras.value / 100) * netTaxableSum;
+
+				                var new_amount = (billfile.customExtras.value / 100) * calculable_sum_for_all;
 				                new_amount = Math.round(new_amount * 100) / 100;
 				                billfile.customExtras.amount = new_amount;
 				              }
@@ -4027,6 +4062,10 @@ function lateApplyDiscountConfirm(billNumber){
 				                //Do nothing
 				              }
 				            }
+
+
+
+
 
 
 				          //add extras
@@ -4082,17 +4121,17 @@ function lateApplyDiscountConfirm(billNumber){
 				                    lateApplyDiscountHide();
 				                  },
 				                  error: function(data) {
-				                      showToast('System Error: Unable to update the Bill. Please contact Accelerate Support.', '#e74c3c');
+				                      showToast('System Error: Unable to update the Bill.', '#e74c3c');
 				                  }
 				                }); 
                         
                       }
                       else{
-                        showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                        showToast('Server Warning: Unable to modify bill data.', '#e67e22');
                       }
                     },
                     error: function(data) {
-                      showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                      showToast('Server Warning: Unable to modify bill data.', '#e67e22');
                     }
 
                   });
@@ -4408,7 +4447,7 @@ function additemtoTempCart(encodedItem, category, optionalSource){
           var liSelected = li.eq(0).addClass('selectCustomItem');
 
           var easySelectTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#customOptionsLateList').is(':visible')) {
 
                  switch(e.which){
@@ -4699,9 +4738,6 @@ function processLateAddedItems(){
 			}
 
 			var grandPayableBill = subTotal;
-			var netTaxableSum = subTotal;
-			var netPayableSum = subTotal;
-
 
 	        /*Calculate Discounts if Any*/ 
 	        var net_discount = 0;    
@@ -4794,8 +4830,8 @@ function processLateAddedItems(){
           var grandPayableBillRounded = properRoundOff(grandPayableBill);   
 
           billfile.payableAmount = grandPayableBillRounded;
-          billfile.grossCartAmount = netPayableSum;
-          billfile.grossTaxableAmount = netTaxableSum;
+          billfile.grossCartAmount = subTotal;
+          billfile.grossPackagedAmount = packagedSubTotal;
 
           billfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
 

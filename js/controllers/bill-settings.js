@@ -48,7 +48,7 @@ function openNewMode(){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
@@ -73,16 +73,16 @@ function openNewMode(){
 
           }
           else{
-            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Parameters Modes data.', '#e74c3c');
       }
 
     });
@@ -113,7 +113,7 @@ function openNewOrderSource(){
                 dataType: 'json',
                 timeout: 10000,
                 success: function(data) {
-                  console.log(data)
+                   
                   if(data.docs.length > 0){
                     if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
@@ -295,7 +295,7 @@ function fetchAllParams(){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
@@ -315,16 +315,16 @@ function fetchAllParams(){
 
           }
           else{
-            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Parameters Modes data.', '#e74c3c');
       }
 
     });
@@ -355,7 +355,7 @@ function addParameter() {
 		paramObj.unitName = 'Fixed Amount (Rs)';
 	}
 	else{
-		showToast('System Error: Something went wrong. Please contact Accelerate Support.', '#e74c3c');
+		showToast('System Error: Something went wrong.', '#e74c3c');
 		return '';
 	}
 
@@ -389,7 +389,7 @@ function addParameter() {
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
 
@@ -429,7 +429,7 @@ function addParameter() {
                       hideNewBill();
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Billing Parameters data.', '#e74c3c');
                   }
 
                 });  
@@ -438,16 +438,16 @@ function addParameter() {
                 
           }
           else{
-            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Billing Parameters data.', '#e74c3c');
       }
 
     });  
@@ -508,23 +508,23 @@ function deleteParameter(paramName) {
                     fetchAllParams();
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Billing Parameters data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Billing Parameters data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Billing Parameters data.', '#e74c3c');
       }
 
     }); 
@@ -553,7 +553,7 @@ function fetchAllDiscountTypes(){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
 
@@ -573,16 +573,16 @@ function fetchAllDiscountTypes(){
 
           }
           else{
-            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Discount Types data.', '#e74c3c');
       }
 
     });
@@ -648,7 +648,7 @@ function addDiscountType(optionalName, optionalUnit, optionalValue) {
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
 
@@ -688,7 +688,7 @@ function addDiscountType(optionalName, optionalUnit, optionalValue) {
                       hideNewDiscountType();
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Discount Types data.', '#e74c3c');
                   }
 
                 });  
@@ -697,16 +697,16 @@ function addDiscountType(optionalName, optionalUnit, optionalValue) {
                 
           }
           else{
-            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Discount Types data.', '#e74c3c');
       }
 
     });
@@ -776,23 +776,23 @@ function deleteDiscountType(discountName) {
                     showUndo('Deleted', 'addDiscountType(\''+discountName+'\', \''+memory_unit+'\', \''+memory_value+'\')');
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Discount Types data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Discount Types data.', '#e74c3c');
       }
 
     }); 
@@ -861,7 +861,7 @@ function fetchAllModesAfterProcess(extrasInfo){
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
@@ -902,16 +902,16 @@ function fetchAllModesAfterProcess(extrasInfo){
 
           }
           else{
-            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Billing Modes data.', '#e74c3c');
       }
 
     });  
@@ -976,7 +976,7 @@ function addMode() {
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
 
@@ -1016,7 +1016,7 @@ function addMode() {
                       hideNewMode();
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Billing Modes data.', '#e74c3c');
                   }
 
                 });  
@@ -1025,16 +1025,16 @@ function addMode() {
                 
           }
           else{
-            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Billing Modes data.', '#e74c3c');
       }
 
     });
@@ -1094,23 +1094,23 @@ function deleteMode(modeName) {
                     fetchAllModes();
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Billing Modes data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Modes data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Billing Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Billing Modes data.', '#e74c3c');
       }
 
     }); 
@@ -1159,16 +1159,16 @@ function fetchAllPaymentModes(){
 
           }
           else{
-            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
       }
 
     });
@@ -1229,7 +1229,7 @@ function addPaymentMode(optionalName, optionalCode) {
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
 
@@ -1269,7 +1269,7 @@ function addPaymentMode(optionalName, optionalCode) {
                       hideNewPaymentMode();
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Payment Modes data.', '#e74c3c');
                   }
 
                 });  
@@ -1278,16 +1278,16 @@ function addPaymentMode(optionalName, optionalCode) {
                 
           }
           else{
-            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Payment Modes data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Payment Modes data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
       }
 
     });  
@@ -1353,23 +1353,23 @@ function deletePaymentMode(modeName) {
                     showUndo('Deleted', 'addPaymentMode(\''+modeName+'\', \''+memory_code+'\')');
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Payment Modes data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Payment Modes data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Payment Modes data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Payment Modes data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
       }
 
     }); 
@@ -1420,16 +1420,16 @@ function fetchAllOrderSources(){
 
           }
           else{
-            showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Order Sources data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Order Sources data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Order Sources data.', '#e74c3c');
       }
 
     });
@@ -1503,7 +1503,7 @@ function addOrderSource(optionalName, optionalCode, optionalDelivery, optionalTa
       dataType: 'json',
       timeout: 10000,
       success: function(data) {
-        console.log(data)
+         
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_ORDER_SOURCES'){
 
@@ -1543,7 +1543,7 @@ function addOrderSource(optionalName, optionalCode, optionalDelivery, optionalTa
                       hideNewOrderSource();
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Order Sources data.', '#e74c3c');
                   }
 
                 });  
@@ -1552,16 +1552,16 @@ function addOrderSource(optionalName, optionalCode, optionalDelivery, optionalTa
                 
           }
           else{
-            showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Order Sources data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Order Sources data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Order Sources data.', '#e74c3c');
       }
 
     });  
@@ -1631,23 +1631,23 @@ function deleteOrderSource(modeName) {
                     showUndo('Deleted', 'addOrderSource(\''+modeName+'\', \''+memory_code+'\', \''+memory_delivery_default+'\', \''+memory_takeaway_default+'\')');
                   },
                   error: function(data) {
-                    showToast('System Error: Unable to make changes in Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+                    showToast('System Error: Unable to make changes in Order Sources data.', '#e74c3c');
                   }
 
                 });  
                 
           }
           else{
-            showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Order Sources data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Order Sources data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Order Sources data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Order Sources data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Order Sources data.', '#e74c3c');
       }
 
     }); 
@@ -1839,16 +1839,16 @@ function renderBillLayout(){
 
           }
           else{
-            showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Billing Layout data not found.', '#e74c3c');
       }
 
     });
@@ -1958,7 +1958,7 @@ function saveLayoutChanges(){
                       showToast('Bill Layout updated successfully', '#27ae60');
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Billing Layout data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Billing Layout data.', '#e74c3c');
                   }
 
                 });  
@@ -1966,16 +1966,16 @@ function saveLayoutChanges(){
 
           }
           else{
-            showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Billing Layout data not found.', '#e74c3c');
       }
     });
 }
@@ -2105,22 +2105,22 @@ function pushLogoToServer(encodedData){
                       showToast('Bill Image Header saved successfully', '#27ae60');
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Billing Layout data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Billing Layout data.', '#e74c3c');
                   }
 
                 });  
           }
           else{
-            showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Billing Layout data not found.', '#e74c3c');
       }
     });
 }
@@ -2180,22 +2180,22 @@ function removeLogoImage(){
                       showToast('Bill Image Header removed successfully', '#27ae60');
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Billing Layout data. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Billing Layout data.', '#e74c3c');
                   }
 
                 });  
           }
           else{
-            showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Layout data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Billing Layout data not found. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Billing Layout data not found.', '#e74c3c');
       }
     });
 }

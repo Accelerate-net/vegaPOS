@@ -1,8 +1,6 @@
 
 function generateBillFromKOT(kotID, optionalPageRef){
 
-  console.log('Generate Bill from KOT '+kotID)
-
 /*
   optionalPageRef -- from which page the function is called.
   Based on this info, let us execute callback functions after generateBillFromKOT are executed. 
@@ -39,8 +37,6 @@ function generateBillFromKOT(kotID, optionalPageRef){
         timeout: 10000,
         success: function(data) {
           if(data._id != ""){
-
-            console.log('am being called...')
 
             var kotfile = data;
 
@@ -132,12 +128,12 @@ function generateBillFromKOT(kotID, optionalPageRef){
             
           }
           else{
-            showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
           }
           
         },
         error: function(data) {
-          showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+          showToast('System Error: Unable to read KOTs data.', '#e74c3c');
         }
 
       }); 
@@ -518,7 +514,7 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
           */
           var duplicateClick = false;
           var easyActionsTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...'+duplicateClick)
+
             if($('#billPreviewModal').is(':visible')) {
 
                  switch(e.which){
@@ -599,6 +595,61 @@ function removeBillCouponOnKOT(kotID, optionalPageRef){
             kotfile.discount = {};
           }
 
+
+          var grandSum = 0;
+          var grandPackagedSum = 0;
+
+          var n = 0;
+          while(kotfile.cart[n]){
+            grandSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+
+            if(kotfile.cart[n].isPackaged){
+              grandPackagedSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            }
+
+            n++;
+          }
+
+          var applicable_total_for_all = grandSum;
+          var applicable_total_for_packaged = grandSum - grandPackagedSum;
+
+
+          /* Recalculate Tax Figures */
+          //Re-calculate tax figures (if any Discount applied)
+          for(var g = 0; g < kotfile.extras.length; g++){
+              
+              if(kotfile.extras[g].unit == 'PERCENTAGE'){
+
+                if(kotfile.extras[g].isPackagedExcluded){
+                  var new_amount = (kotfile.extras[g].value / 100) * applicable_total_for_packaged;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount;
+                }
+                else{
+                  var new_amount = (kotfile.extras[g].value / 100) * applicable_total_for_all;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount;
+                }
+              }
+              else if(kotfile.extras[g].unit == 'FIXED'){
+                //Do nothing
+              } 
+
+          }
+
+          /* custom extras */
+          if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+              if(kotfile.customExtras.unit == 'PERCENTAGE'){
+                var new_amount = (kotfile.customExtras.value / 100) * applicable_total_for_all;
+                new_amount = Math.round(new_amount * 100) / 100;
+                kotfile.customExtras.amount = new_amount;
+              }
+              else if(kotfile.customExtras.unit == 'FIXED'){
+                //Do nothing
+              }
+          }
+
+
           /*Save changes in KOT*/
                 
                 //Update
@@ -618,18 +669,18 @@ function removeBillCouponOnKOT(kotID, optionalPageRef){
 
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     }); 
@@ -659,20 +710,28 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
 
           var userMobile = kotfile.customerMobile;
           var code = document.getElementById("applyBillCouponWindow_code").value;
-          var grandSum = 0;
+          
 
           if(code == ''){
             return '';
           }
 
           var n = 0;
-          var netTaxableSum = 0;
+
+
+          var grandSum = 0;
+          var grandPackagedSum = 0;
+
+          var n = 0;
           while(kotfile.cart[n]){
-            grandSum += (kotfile.cart[n].price * kotfile.cart[n].qty);
-            netTaxableSum += (kotfile.cart[n].price * kotfile.cart[n].qty);
+            grandSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+
+            if(kotfile.cart[n].isPackaged){
+              grandPackagedSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            }
+
             n++;
           }
-
 
 
           /*Redeem Coupon*/
@@ -709,35 +768,57 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
                   kotfile.discount.value = totalDiscount;
                   kotfile.discount.reference = code;
                     
-
+          
                   /* Recalculate Tax Figures */
+                  
                   //Re-calculate tax figures (if any Discount applied)
 
-                  netTaxableSum = netTaxableSum - totalDiscount;
+                  var calculable_sum_for_all = grandSum - totalDiscount;
+                  var calculable_sum_for_packaged = (grandSum - grandPackagedSum) - totalDiscount;
+
+                  if(calculable_sum_for_all < 0){
+                    calculable_sum_for_all = 0;
+                  }
+
+                  if(calculable_sum_for_packaged < 0){
+                    calculable_sum_for_packaged = 0;
+                  }
+
 
                   for(var g = 0; g < kotfile.extras.length; g++){
-                      
-                      if(kotfile.extras[g].unit == 'PERCENTAGE'){
-                        var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
+                    
+                    if(kotfile.extras[g].unit == 'PERCENTAGE'){
+                    
+                      if(kotfile.extras[g].isPackagedExcluded){
+                        var new_amount = (kotfile.extras[g].value / 100) * calculable_sum_for_packaged;
                         new_amount = Math.round(new_amount * 100) / 100;
                         kotfile.extras[g].amount = new_amount;
                       }
-                      else if(kotfile.extras[g].unit == 'FIXED'){
-                        //Do nothing
-                      } 
+                      else{
+                        var new_amount = (kotfile.extras[g].value / 100) * calculable_sum_for_all;
+                        new_amount = Math.round(new_amount * 100) / 100;
+                        kotfile.extras[g].amount = new_amount; 
+                      }
+
+
+                    }
+                    else if(kotfile.extras[g].unit == 'FIXED'){
+                      //Do nothing
+                    } 
 
                   }
 
                   /* custom extras */
                   if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
-                      if(kotfile.customExtras.unit == 'PERCENTAGE'){
-                        var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
-                        new_amount = Math.round(new_amount * 100) / 100;
-                        kotfile.customExtras.amount = new_amount;
-                      }
-                      else if(kotfile.customExtras.unit == 'FIXED'){
-                        //Do nothing
-                      }
+                    if(kotfile.customExtras.unit == 'PERCENTAGE'){
+
+                      var new_amount = (kotfile.customExtras.value / 100) * calculable_sum_for_all;
+                      new_amount = Math.round(new_amount * 100) / 100;
+                      kotfile.customExtras.amount = new_amount;
+                    }
+                    else if(kotfile.customExtras.unit == 'FIXED'){
+                      //Do nothing
+                    }
                   }
 
 
@@ -759,7 +840,7 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
                           generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
                         },
                         error: function(data) {
-                            showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                            showToast('System Error: Unable to update the Order.', '#e74c3c');
                         }
                       });     
 
@@ -790,12 +871,12 @@ function applyBillCouponOnKOT(kotID, optionalPageRef){
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     }); 
@@ -864,16 +945,16 @@ function openApplyBillDiscountWindow(kotID, optionalPageRef){
         
           }
           else{
-            showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Discount Types data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Discount Types data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Discount Types data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Discount Types data.', '#e74c3c');
       }
 
     });
@@ -920,26 +1001,39 @@ function removeBillDiscountOnKOT(kotID, optionalPageRef){
           }
 
           var grandSum = 0;
-          var netTaxableSum = 0;
+          var grandPackagedSum = 0;
 
           var n = 0;
           while(kotfile.cart[n]){
             grandSum += kotfile.cart[n].price * kotfile.cart[n].qty;
-            netTaxableSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+
+            if(kotfile.cart[n].isPackaged){
+              grandPackagedSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            }
 
             n++;
           }
 
+          var applicable_total_for_all = grandSum;
+          var applicable_total_for_packaged = grandSum - grandPackagedSum;
+
 
           /* Recalculate Tax Figures */
           //Re-calculate tax figures (if any Discount applied)
-
           for(var g = 0; g < kotfile.extras.length; g++){
               
               if(kotfile.extras[g].unit == 'PERCENTAGE'){
-                var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
-                new_amount = Math.round(new_amount * 100) / 100;
-                kotfile.extras[g].amount = new_amount;
+
+                if(kotfile.extras[g].isPackagedExcluded){
+                  var new_amount = (kotfile.extras[g].value / 100) * applicable_total_for_packaged;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount;
+                }
+                else{
+                  var new_amount = (kotfile.extras[g].value / 100) * applicable_total_for_all;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount;
+                }
               }
               else if(kotfile.extras[g].unit == 'FIXED'){
                 //Do nothing
@@ -950,7 +1044,7 @@ function removeBillDiscountOnKOT(kotID, optionalPageRef){
           /* custom extras */
           if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
               if(kotfile.customExtras.unit == 'PERCENTAGE'){
-                var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
+                var new_amount = (kotfile.customExtras.value / 100) * applicable_total_for_all;
                 new_amount = Math.round(new_amount * 100) / 100;
                 kotfile.customExtras.amount = new_amount;
               }
@@ -961,7 +1055,7 @@ function removeBillDiscountOnKOT(kotID, optionalPageRef){
 
 
 
-          /*Save changes in KOT*/
+                /*Save changes in KOT*/
                 
                 //Update
                 var updateData = kotfile;
@@ -981,18 +1075,18 @@ function removeBillDiscountOnKOT(kotID, optionalPageRef){
                   
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     });   
@@ -1027,20 +1121,24 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
           var value = document.getElementById("applyBillDiscountWindow_value").value;
 
           var grandSum = 0;
-          var netTaxableSum = 0;
+          var grandPackagedSum = 0;
 
           var n = 0;
           while(kotfile.cart[n]){
             grandSum += kotfile.cart[n].price * kotfile.cart[n].qty;
-            netTaxableSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+
+            if(kotfile.cart[n].isPackaged){
+              grandPackagedSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            }
 
             n++;
           }
 
           var totalDiscount = 0;
+          var TotalUserDiscount = value;
       
           if(unit == 'PERCENTAGE'){
-            totalDiscount = grandSum*value/100;
+            totalDiscount = (grandSum) * (TotalUserDiscount/100);
           }
           else if(unit == 'FIXED'){
 
@@ -1063,9 +1161,9 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
               }
             }
 
-            var TotalUserDiscount = value;
+            
             totalDiscount = TotalUserDiscount/(1 + extras_fraction);
-
+          
           }
 
           totalDiscount = Math.round(totalDiscount * 100) / 100;
@@ -1081,10 +1179,17 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
                 return '';
               }
               else{
+
+                if(totalDiscount > grandSum){
+                  totalDiscount = grandSum;
+                  maximumReached = true;
+                }
+
                 if(totalDiscount > billing_modes[g].maxDiscount){
                   totalDiscount = billing_modes[g].maxDiscount;
                   maximumReached = true;
                 }
+
               }
               break;
             }
@@ -1099,17 +1204,38 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
           kotfile.discount.reference = '';
 
           
-          /* Recalculate Tax Figures */
-          //Re-calculate tax figures (if any Discount applied)
+            /* Recalculate Tax Figures */
+            
+            //Re-calculate tax figures (if any Discount applied)
 
-            netTaxableSum = netTaxableSum - totalDiscount;
+            var calculable_sum_for_all = grandSum - totalDiscount;
+            var calculable_sum_for_packaged = (grandSum - grandPackagedSum) - totalDiscount;
+
+            if(calculable_sum_for_all < 0){
+              calculable_sum_for_all = 0;
+            }
+
+            if(calculable_sum_for_packaged < 0){
+              calculable_sum_for_packaged = 0;
+            }
+
 
             for(var g = 0; g < kotfile.extras.length; g++){
               
               if(kotfile.extras[g].unit == 'PERCENTAGE'){
-                var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
-                new_amount = Math.round(new_amount * 100) / 100;
-                kotfile.extras[g].amount = new_amount;
+              
+                if(kotfile.extras[g].isPackagedExcluded){
+                  var new_amount = (kotfile.extras[g].value / 100) * calculable_sum_for_packaged;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount;
+                }
+                else{
+                  var new_amount = (kotfile.extras[g].value / 100) * calculable_sum_for_all;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount; 
+                }
+
+
               }
               else if(kotfile.extras[g].unit == 'FIXED'){
                 //Do nothing
@@ -1120,7 +1246,8 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
             /* custom extras */
             if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
               if(kotfile.customExtras.unit == 'PERCENTAGE'){
-                var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
+
+                var new_amount = (kotfile.customExtras.value / 100) * calculable_sum_for_all;
                 new_amount = Math.round(new_amount * 100) / 100;
                 kotfile.customExtras.amount = new_amount;
               }
@@ -1130,7 +1257,7 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
             }
 
 
-          /*Save changes in KOT*/
+                /* Save changes in KOT */
                 
                 //Update
                 var updateData = kotfile;
@@ -1145,7 +1272,7 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
                   success: function(data) {
 
                     if(maximumReached){
-                      showToast('Warning: Maximum discount (Rs. '+billing_modes[g].maxDiscount+') for </b>'+billing_modes[g].name+'</b> order reached', '#e67e22');
+                      showToast('Warning: Maximum discount (Rs. '+totalDiscount+') for </b>'+billing_modes[g].name+'</b> order reached', '#e67e22');
                     }
                     else{
                       showToast('Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
@@ -1155,18 +1282,18 @@ function applyBillDiscountOnKOT(kotID, optionalPageRef){
                     generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     }); 
@@ -1259,16 +1386,16 @@ function openApplyCustomExtraWindow(kotID, optionalPageRef){
               document.getElementById("applyCustomExtraButtonWrap").innerHTML = '<button class="btn btn-success tableOptionsButton breakWord" id="applyCustomExtraButton" onclick="applyCustomExtraOnKOT(\''+kotID+'\', \''+optionalPageRef+'\')">Add Extra Charges</button>';
           }
           else{
-            showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Parameters data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Parameters data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Parameters Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Parameters Modes data.', '#e74c3c');
       }
 
     });
@@ -1327,18 +1454,18 @@ function removeCustomExtraOnKOT(kotID, optionalPageRef){
                       generateBillSuccessCallback('CHANGE_CUSTOMEXTRA', optionalPageRef, kotfile);
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     });   
@@ -1388,18 +1515,18 @@ function savePrediscountToKOT(kotID, amount, optionalPageRef){
                           generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     }); 
@@ -1483,18 +1610,18 @@ function applyCustomExtraOnKOT(kotID, optionalPageRef){
                       generateBillSuccessCallback('CHANGE_CUSTOMEXTRA', optionalPageRef, kotfile);
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     }); 
@@ -1635,7 +1762,7 @@ function markNoCostBill(kotID, optionalPageRef){ //APPLY FULL DISCOUNT
 
 
 
-            var totalDiscount = grandSum + otherExtras;
+            var totalDiscount = grandSum;
 
             kotfile.discount.amount = totalDiscount;
             kotfile.discount.type = 'NOCOSTBILL';
@@ -1664,18 +1791,18 @@ function markNoCostBill(kotID, optionalPageRef){ //APPLY FULL DISCOUNT
                   
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     });    
@@ -1705,6 +1832,61 @@ function removeNoCostBillOnKOT(kotID, optionalPageRef){
             kotfile.discount = {};
           }
 
+          var grandSum = 0;
+          var grandPackagedSum = 0;
+
+          var n = 0;
+          while(kotfile.cart[n]){
+            grandSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+
+            if(kotfile.cart[n].isPackaged){
+              grandPackagedSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            }
+
+            n++;
+          }
+
+          var applicable_total_for_all = grandSum;
+          var applicable_total_for_packaged = grandSum - grandPackagedSum;
+
+
+          /* Recalculate Tax Figures */
+          //Re-calculate tax figures (if any Discount applied)
+          for(var g = 0; g < kotfile.extras.length; g++){
+              
+              if(kotfile.extras[g].unit == 'PERCENTAGE'){
+
+                if(kotfile.extras[g].isPackagedExcluded){
+                  var new_amount = (kotfile.extras[g].value / 100) * applicable_total_for_packaged;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount;
+                }
+                else{
+                  var new_amount = (kotfile.extras[g].value / 100) * applicable_total_for_all;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount;
+                }
+              }
+              else if(kotfile.extras[g].unit == 'FIXED'){
+                //Do nothing
+              } 
+
+          }
+
+          /* custom extras */
+          if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+              if(kotfile.customExtras.unit == 'PERCENTAGE'){
+                var new_amount = (kotfile.customExtras.value / 100) * applicable_total_for_all;
+                new_amount = Math.round(new_amount * 100) / 100;
+                kotfile.customExtras.amount = new_amount;
+              }
+              else if(kotfile.customExtras.unit == 'FIXED'){
+                //Do nothing
+              }
+          }
+
+
+
           /*Save changes in KOT*/
                 
                 //Update
@@ -1723,18 +1905,18 @@ function removeNoCostBillOnKOT(kotID, optionalPageRef){
                       generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     });   
@@ -1764,16 +1946,25 @@ function redeemPointsIfAny(kotID, optionalPageRef){
           var kotfile = data;
 
           var userMobile = kotfile.customerMobile;
+          
           var grandSum = 0;
+          var grandPackagedSum = 0;
 
           var n = 0;
-          var netTaxableSum = 0;
           while(kotfile.cart[n]){
-            grandSum += (kotfile.cart[n].price * kotfile.cart[n].qty);
-            netTaxableSum += (kotfile.cart[n].price * kotfile.cart[n].qty);
+            grandSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+
+            if(kotfile.cart[n].isPackaged){
+              grandPackagedSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            }
+
             n++;
           }
 
+          if(userMobile == ''){
+            showToast('Warning! Guest Mobile is not added. Please add the mobile number and try again.', '#e67e22');
+            return '';
+          }
 
 
         /*Redeem Points*/
@@ -1810,36 +2001,58 @@ function redeemPointsIfAny(kotID, optionalPageRef){
                 kotfile.discount.reference = data.referenceID;
                      
 
-                  /* Recalculate Tax Figures */
-                  //Re-calculate tax figures (if any Discount applied)
+          
+                /* Recalculate Tax Figures */
+                
+                //Re-calculate tax figures (if any Discount applied)
 
-                  netTaxableSum = netTaxableSum - totalDiscount;
+                var calculable_sum_for_all = grandSum - totalDiscount;
+                var calculable_sum_for_packaged = (grandSum - grandPackagedSum) - totalDiscount;
 
-                  for(var g = 0; g < kotfile.extras.length; g++){
-                      
-                      if(kotfile.extras[g].unit == 'PERCENTAGE'){
-                        var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
-                        new_amount = Math.round(new_amount * 100) / 100;
-                        kotfile.extras[g].amount = new_amount;
-                      }
-                      else if(kotfile.extras[g].unit == 'FIXED'){
-                        //Do nothing
-                      } 
+                if(calculable_sum_for_all < 0){
+                  calculable_sum_for_all = 0;
+                }
+
+                if(calculable_sum_for_packaged < 0){
+                  calculable_sum_for_packaged = 0;
+                }
+
+
+                for(var g = 0; g < kotfile.extras.length; g++){
+                  
+                  if(kotfile.extras[g].unit == 'PERCENTAGE'){
+                  
+                    if(kotfile.extras[g].isPackagedExcluded){
+                      var new_amount = (kotfile.extras[g].value / 100) * calculable_sum_for_packaged;
+                      new_amount = Math.round(new_amount * 100) / 100;
+                      kotfile.extras[g].amount = new_amount;
+                    }
+                    else{
+                      var new_amount = (kotfile.extras[g].value / 100) * calculable_sum_for_all;
+                      new_amount = Math.round(new_amount * 100) / 100;
+                      kotfile.extras[g].amount = new_amount; 
+                    }
+
 
                   }
+                  else if(kotfile.extras[g].unit == 'FIXED'){
+                    //Do nothing
+                  } 
 
-                  /* custom extras */
-                  if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
-                      if(kotfile.customExtras.unit == 'PERCENTAGE'){
-                        var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
-                        new_amount = Math.round(new_amount * 100) / 100;
-                        kotfile.customExtras.amount = new_amount;
-                      }
-                      else if(kotfile.customExtras.unit == 'FIXED'){
-                        //Do nothing
-                      }
+                }
+
+                /* custom extras */
+                if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+                  if(kotfile.customExtras.unit == 'PERCENTAGE'){
+
+                    var new_amount = (kotfile.customExtras.value / 100) * calculable_sum_for_all;
+                    new_amount = Math.round(new_amount * 100) / 100;
+                    kotfile.customExtras.amount = new_amount;
                   }
-
+                  else if(kotfile.customExtras.unit == 'FIXED'){
+                    //Do nothing
+                  }
+                }
 
 
                 
@@ -1856,13 +2069,13 @@ function redeemPointsIfAny(kotID, optionalPageRef){
                     dataType: 'json',
                     timeout: 10000,
                     success: function(data) {
-                        showToast(data.pointsRedeemed+ ' points redeemed Succesfully! Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
+                        showToast(data.pointsRedeemed + ' points redeemed Succesfully! Discount of <i class="fa fa-inr"></i>'+totalDiscount+' Applied', '#27ae60');
                         generateBillFromKOT(kotID, optionalPageRef);
                         generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
                         
                     },
                     error: function(data) {
-                        showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update the Order.', '#e74c3c');
                     }
                   });       
 
@@ -1897,12 +2110,12 @@ function redeemPointsIfAny(kotID, optionalPageRef){
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     });   
@@ -1934,6 +2147,60 @@ function removeRewardsOnKOT(kotID, optionalPageRef){
             kotfile.discount = {};
           }
 
+          var grandSum = 0;
+          var grandPackagedSum = 0;
+
+          var n = 0;
+          while(kotfile.cart[n]){
+            grandSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+
+            if(kotfile.cart[n].isPackaged){
+              grandPackagedSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            }
+
+            n++;
+          }
+
+          var applicable_total_for_all = grandSum;
+          var applicable_total_for_packaged = grandSum - grandPackagedSum;
+
+
+          /* Recalculate Tax Figures */
+          //Re-calculate tax figures (if any Discount applied)
+          for(var g = 0; g < kotfile.extras.length; g++){
+              
+              if(kotfile.extras[g].unit == 'PERCENTAGE'){
+
+                if(kotfile.extras[g].isPackagedExcluded){
+                  var new_amount = (kotfile.extras[g].value / 100) * applicable_total_for_packaged;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount;
+                }
+                else{
+                  var new_amount = (kotfile.extras[g].value / 100) * applicable_total_for_all;
+                  new_amount = Math.round(new_amount * 100) / 100;
+                  kotfile.extras[g].amount = new_amount;
+                }
+              }
+              else if(kotfile.extras[g].unit == 'FIXED'){
+                //Do nothing
+              } 
+
+          }
+
+          /* custom extras */
+          if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
+              if(kotfile.customExtras.unit == 'PERCENTAGE'){
+                var new_amount = (kotfile.customExtras.value / 100) * applicable_total_for_all;
+                new_amount = Math.round(new_amount * 100) / 100;
+                kotfile.customExtras.amount = new_amount;
+              }
+              else if(kotfile.customExtras.unit == 'FIXED'){
+                //Do nothing
+              }
+          }
+
+
           /*Save changes in KOT*/
                 
                 //Update
@@ -1954,18 +2221,18 @@ function removeRewardsOnKOT(kotID, optionalPageRef){
                   
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     });     
@@ -2052,7 +2319,7 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
                             dataType: 'json',
                             timeout: 10000,
                             success: function(data) {
-                              console.log('Saved KOT on Server')
+
                             }
                           });                             
                   }
@@ -2127,19 +2394,19 @@ function releaseTableAfterBillSettle(tableName, billNumber, optionalPageRef){
                         }
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });   
 
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
@@ -2252,16 +2519,16 @@ function confirmBillGeneration(kotID, optionalPageRef, silentRequest){
                 
           }
           else{
-            showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Bill Index data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Bill Index data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Bill Index data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Bill Index. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Bill Index.', '#e74c3c');
       }
 
     });
@@ -2269,8 +2536,6 @@ function confirmBillGeneration(kotID, optionalPageRef, silentRequest){
 
 
 function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, revID, silentRequest){
-
-  console.log('Generating Bill > '+billNumber+' from KOT '+kotID);
 
     //Set _id from Branch mentioned in Licence
     var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
@@ -2350,46 +2615,23 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
           //Calculate Sum to be paid
           var grandPayableBill = 0;
-          var netPayableSum = 0;
-          var netTaxableSum = 0;
+
+          var totalCartAmount = 0;
+          var totalPackagedAmount = 0;
+
           var n = 0;
           while(kotfile.cart[n]){
-            grandPayableBill += kotfile.cart[n].price * kotfile.cart[n].qty;
-            netPayableSum += kotfile.cart[n].price * kotfile.cart[n].qty;
-            netTaxableSum += kotfile.cart[n].price * kotfile.cart[n].qty;
+            totalCartAmount += kotfile.cart[n].price * kotfile.cart[n].qty;
+
+            if(kotfile.cart[n].isPackaged){
+              totalPackagedAmount += kotfile.cart[n].qty * kotfile.cart[n].price;
+            }
+
             n++;
           }
 
+          grandPayableBill += totalCartAmount;
 
-
-          // //Re-calculate tax figures (if any Discount applied)
-          // if(!jQuery.isEmptyObject(kotfile.discount)){
-          //   for(var g = 0; g < kotfile.extras.length; g++){
-              
-          //     if(kotfile.extras[g].unit == 'PERCENTAGE'){
-          //       var new_amount = (kotfile.extras[g].value / 100) * netTaxableSum;
-          //       new_amount = Math.round(new_amount * 100) / 100;
-          //       kotfile.extras[g].amount = new_amount;
-          //     }
-          //     else if(kotfile.extras[g].unit == 'FIXED'){
-          //       //Do nothing
-          //     } 
-
-          //   }
-
-          //   /* custom extras */
-          //   if(kotfile.customExtras.amount && kotfile.customExtras.amount != 0){
-          //     if(kotfile.customExtras.unit == 'PERCENTAGE'){
-          //       var new_amount = (kotfile.customExtras.value / 100) * netTaxableSum;
-          //       new_amount = Math.round(new_amount * 100) / 100;
-          //       kotfile.customExtras.amount = new_amount;
-          //     }
-          //     else if(kotfile.customExtras.unit == 'FIXED'){
-          //       //Do nothing
-          //     }
-          //   }
-
-          // }  
 
 
           //add extras
@@ -2413,8 +2655,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
             if(kotfile.discount.type == 'NOCOSTBILL'){ //Remove all the charges (Special Case)
               grandPayableBill = 0;
-              netPayableSum = 0;
-              netTaxableSum = 0;
 
               kotfile.customExtras = {};
               kotfile.extras = [];
@@ -2426,8 +2666,8 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
           grandPayableBillRounded = properRoundOff(grandPayableBill);   
 
           kotfile.payableAmount = grandPayableBillRounded;
-          kotfile.grossCartAmount = netPayableSum;
-          kotfile.grossTaxableAmount = netTaxableSum;
+          kotfile.grossCartAmount = totalCartAmount;
+          kotfile.grossPackagedAmount = totalPackagedAmount;
 
           kotfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
 
@@ -2570,7 +2810,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                               
                             },
                             error: function(data) {
-                              showToast('System Error: Unable to update Billing Index. Next Bill Number might be faulty. Please contact Accelerate Support.', '#e74c3c');
+                              showToast('System Error: Unable to update Billing Index. Next Bill Number might be faulty.', '#e74c3c');
                             }
 
                           });  
@@ -2592,12 +2832,12 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
         }
         else{
-          showToast('Not Found Error: Order #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Order #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read the Order. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read the Order.', '#e74c3c');
       }
 
     });    
@@ -2664,7 +2904,7 @@ function deleteKOTFromServer(id, revID, optionalPageRef){
         }
       },
       error: function(data) {
-        showToast('Server Warning: Unable to modify Order KOT. Please contact Accelerate Support.', '#e67e22');
+        showToast('Server Warning: Unable to modify Order KOT.', '#e67e22');
       }
     }); 
 }
@@ -2703,17 +2943,17 @@ function deleteBillFromServer(billNumber, optionalPageRef){
                             }
                           },
                           error: function(data) {
-                            showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                            showToast('Server Warning: Unable to modify bill data.', '#e67e22');
                           }
                         }); 
 
                       }
                       else{
-                        showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                        showToast('Server Warning: Unable to modify bill data.', '#e67e22');
                       }
                     },
                     error: function(data) {
-                      showToast('Server Warning: Unable to modify bill data. Please contact Accelerate Support.', '#e67e22');
+                      showToast('Server Warning: Unable to modify bill data.', '#e67e22');
                     }
 
                   });
@@ -2781,12 +3021,12 @@ function printSettledDuplicateBill(billNumber){
           showToast('Duplicate Bill #'+bill.billNumber+' generated Successfully', '#27ae60');
         }
         else{
-          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(firstdata) {
-        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Invoices data.', '#e74c3c');
       }
 
     });    
@@ -3101,16 +3341,16 @@ function settleBillAndPush(encodedBill, optionalPageRef){
 
           }
           else{
-            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
       }
 
     });
@@ -3188,12 +3428,12 @@ function onlineOrderEasySettleBill(billNumber){
 
         }
         else{
-          showToast('Not Found Error: Bill #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Bill #'+billNumber+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Bills data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Bills data.', '#e74c3c');
       }
 
     });   
@@ -3545,7 +3785,7 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
                 //If an online order ==> Update Mapping
                 if(bill.orderDetails.isOnline){
-                  console.log('Update settled...!!!!')
+
                   updateOnlineOrderMapping(bill, 'SETTLE', optionalPageRef);
                 }                
 
@@ -3600,8 +3840,6 @@ function settleBillAndPushAuto(bill, optionalPageRef){
     bill.paymentMode = "PREPAID";
     bill.dateStamp = moment(bill.date, 'DD-MM-YYYY').format('YYYYMMDD');
 
-console.log('To update AUTO SETTLE')
-
     //Clean _rev and _id (bill Scraps)
     var finalInvoice = bill;
     delete finalInvoice._id;
@@ -3624,7 +3862,6 @@ console.log('To update AUTO SETTLE')
                 //If an online order ==> Update Mapping
                 if(bill.orderDetails.isOnline){
                   updateOnlineOrderMapping(bill, 'SETTLE', optionalPageRef);
-                  console.log('DOCTOR!')
                 }           
 
                 deleteBillFromServer(bill.billNumber, optionalPageRef);
@@ -3760,17 +3997,17 @@ function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
                       }
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update Online Orders Mapping. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update Online Orders Mapping.', '#e74c3c');
                   }
                 });  
         }
         else{
-          showToast('Not Found Error: Online Orders Mapping data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Online Orders Mapping data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Online Orders Mapping data.', '#e74c3c');
       }
 
     });   
@@ -3811,20 +4048,20 @@ function initiateRefundSettledBill(currentStatus, billNumber, totalPaid, modeOfP
                         
           }
           else{
-            showToast('Warning: Refund Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+            showToast('Warning: Refund Reasons data not found.', '#e67e22');
             var reasonsList = ["Not Satisfied"];
             initiateRefundSettledBillAfterProcess(billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef, reasonsList);
           }
         }
         else{
-          showToast('Warning: Refund Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+          showToast('Warning: Refund Reasons data not found.', '#e67e22');
           var reasonsList = ["Not Satisfied"];
           initiateRefundSettledBillAfterProcess(billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef, reasonsList);
         }
 
       },
       error: function(data) {
-        showToast('Warning: Unable to read Refund Reasons data. Please contact Accelerate Support.', '#e67e22');
+        showToast('Warning: Unable to read Refund Reasons data.', '#e67e22');
         var reasonsList = ["Not Satisfied"];
         initiateRefundSettledBillAfterProcess(billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef, reasonsList);
       }
@@ -3919,7 +4156,6 @@ function initiateRefundSettledBillAfterProcess(billNumber, totalPaid, modeOfPaym
 
 
           var easyActionTool = $(document).on('keydown',  function (e) {
-            console.log('[Bill Refund] Am secretly running... ')
             if($('#billRefundReasonModal').is(':visible')) {
                  switch(e.which){
                   case 27:{ // Escape (Close)
@@ -4133,18 +4369,18 @@ function processRefundSettledBill(billNumber, optionalPageRef){
                       openSelectedBill(encodedBill, 'SETTLED');
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Invoice.', '#e74c3c');
                   }
                 }); 
           
         }
         else{
-          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(firstdata) {
-        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Invoices data.', '#e74c3c');
       }
 
     });  
@@ -4183,20 +4419,20 @@ function initiateCancelSettledBill(billNumber, totalPaid, paymentStatus, optiona
                         
           }
           else{
-            showToast('Warning: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+            showToast('Warning: Cancellation Reasons data not found.', '#e67e22');
             var reasonsList = ["Not Satisfied"];
             initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
           }
         }
         else{
-          showToast('Warning: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+          showToast('Warning: Cancellation Reasons data not found.', '#e67e22');
           var reasonsList = ["Not Satisfied"];
           initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
         }
 
       },
       error: function(data) {
-        showToast('Warning: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e67e22');
+        showToast('Warning: Unable to read Cancellation Reasons data.', '#e67e22');
         var reasonsList = ["Not Satisfied"];
         initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentStatus, optionalPageRef, reasonsList);
       }
@@ -4225,7 +4461,6 @@ function initiateCancelSettledBillAfterProcess(billNumber, totalPaid, paymentSta
 
 
           var easyActionTool = $(document).on('keydown',  function (e) {
-            console.log('[Bill Cancellation] Am secretly running... ')
             if($('#billCancellationsReasonModal').is(':visible')) {
                  switch(e.which){
                   case 27:{ // Escape (Close)
@@ -4358,12 +4593,12 @@ function processCancelSettledBill(billNumber, optionalPageRef){
           
         }
         else{
-          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(firstdata) {
-        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Invoices data.', '#e74c3c');
       }
 
     });  
@@ -4400,7 +4635,7 @@ function deleteCancelledInvoiceFromServer(id, revID, type, table, requestURLSour
         }
       },
       error: function(data) {
-        showToast('Server Warning: Unable to update Invoices. Please contact Accelerate Support.', '#e67e22');
+        showToast('Server Warning: Unable to update Invoices.', '#e67e22');
       }
     });   
 }
@@ -4437,20 +4672,20 @@ function cancelRunningOrder(kotID, optionalPageRef){
                         
           }
           else{
-            showToast('Warning: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+            showToast('Warning: Cancellation Reasons data not found.', '#e67e22');
             var reasonsList = ["Not Satisfied"];
             cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList)
           }
         }
         else{
-          showToast('Warning: Cancellation Reasons data not found. Please contact Accelerate Support.', '#e67e22');
+          showToast('Warning: Cancellation Reasons data not found.', '#e67e22');
           var reasonsList = ["Not Satisfied"];
           cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList)
         }
 
       },
       error: function(data) {
-        showToast('Warning: Unable to read Cancellation Reasons data. Please contact Accelerate Support.', '#e67e22');
+        showToast('Warning: Unable to read Cancellation Reasons data.', '#e67e22');
         var reasonsList = ["Not Satisfied"];
         cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList)
       }
@@ -4482,7 +4717,6 @@ function cancelRunningOrderAfterProcess(kotID, optionalPageRef, reasonsList){
 
 
           var easyActionTool = $(document).on('keydown',  function (e) {
-            console.log('[Bill Refund] Am secretly running... ')
             if($('#orderCancellationsReasonModal').is(':visible')) {
                  switch(e.which){
                   case 27:{ // Escape (Close)
@@ -4599,12 +4833,12 @@ function processCancelRunningOrder(kotID, optionalPageRef){
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     }); 
@@ -4865,8 +5099,6 @@ function sendCancelledKOTNotice(kot, optionalPageRef){
 
                             function startRelayPrinting(index){
                               
-                              console.log('Relay Print - Round '+index+' on '+allPrintersList[index].name);
-
                               var relayedItems = [];
                               for(var i = 0; i < relayedList.length; i++){
                                 if(relayedList[i].subcart.length > 0 && relayedList[i].printer == allPrintersList[index].name){
@@ -5055,7 +5287,7 @@ function deleteCancelledKOTFromServer(id, revID, type, table, kotID, optionalPag
         }
       },
       error: function(data) {
-        showToast('Server Warning: Unable to update Orders. Please contact Accelerate Support.', '#e67e22');
+        showToast('Server Warning: Unable to update Orders.', '#e67e22');
       }
     });   
 }
@@ -5108,22 +5340,22 @@ function updateTableMappingAfterKOTCancellation(tableID, optionalPageRef){
                         }
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });   
 
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Not Found Error: Tables data not found.', '#e74c3c');
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
@@ -5177,22 +5409,22 @@ function updateTableMappingAfterCancellation(tableID, optionalPageRef){
                         }
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });   
 
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Not Found Error: Tables data not found.', '#e74c3c');
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
@@ -5288,19 +5520,19 @@ function openUndoSettleWarning(billNumber){
                       renderPage('settled-bills', 'Generated Bills');
                     },
                     error: function(data) {
-                      showToast('Server Warning: Unable to modify settled Invoice. Please contact Accelerate Support.', '#e67e22');
+                      showToast('Server Warning: Unable to modify settled Invoice.', '#e67e22');
                     }
                   }); 
               }
         }
         else{
-          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(firstdata) {
         hideLoading();
-        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Invoices data.', '#e74c3c');
       }
 
     });  

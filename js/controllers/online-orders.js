@@ -153,7 +153,7 @@ function renderLiveOnlineOrders(){
                     }
                   },
 			      error: function(data) {
-			        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+			        showToast('System Error: Unable to read Online Orders Mapping data.', '#e74c3c');
 			      }
 
                 });  
@@ -246,7 +246,7 @@ function renderCompletedOnlineOrders(){
                     }
                   },
 			      error: function(data) {
-			        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+			        showToast('System Error: Unable to read Online Orders Mapping data.', '#e74c3c');
 			      }
 
                 });  
@@ -284,7 +284,7 @@ function fetchSystemOrder(encodedMapping){
 
 	        }
 	        else{
-	          showToast('Not Found Error: #'+mappingObject.systemBill+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: #'+mappingObject.systemBill+' not found on Server.', '#e74c3c');
 	          
 	          //Show remove mapping option
 	          showRemoveInvoiceMapping(mappingObject);
@@ -292,7 +292,7 @@ function fetchSystemOrder(encodedMapping){
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
 	      }
 
 	    });  
@@ -313,7 +313,7 @@ function fetchSystemOrder(encodedMapping){
 
 	        }
 	        else{
-	          showToast('Not Found Error: Bill #'+requestID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Bill #'+requestID+' not found on Server.', '#e74c3c');
 	       	
 	       	  //Show remove mapping option
 	          showRemoveInvoiceMapping(mappingObject);
@@ -321,7 +321,7 @@ function fetchSystemOrder(encodedMapping){
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Bill data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Bill data.', '#e74c3c');
 	      }
 
 	    }); 
@@ -340,7 +340,7 @@ function fetchSystemOrder(encodedMapping){
 	          	renderSystemOrderDisplay(bill, mappingObject);
 	        }
 	        else{
-	          showToast('Not Found Error: Bill #'+requestID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Bill #'+requestID+' not found on Server.', '#e74c3c');
 	        
 	          //Show remove mapping option
 	          showRemoveInvoiceMapping(mappingObject);
@@ -348,13 +348,13 @@ function fetchSystemOrder(encodedMapping){
 	        }
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Bill data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Bill data.', '#e74c3c');
 	      }
 
 	    }); 
 	} 	
 	else{
-		showToast('System Error: Unable to render the order. Please contact Accelerate Support.', '#e74c3c');
+		showToast('System Error: Unable to render the order.', '#e74c3c');
 		return '';
 	}
 
@@ -387,7 +387,7 @@ function removeMappingFromFile(id, revID){
         renderLiveOnlineOrders();
       },
       error: function(data) {
-        showToast('Server Warning: Unable to modify Online Orders. Please contact Accelerate Support.', '#e67e22');
+        showToast('Server Warning: Unable to modify Online Orders.', '#e67e22');
       }
     }); 
 }
@@ -411,7 +411,7 @@ function displayOrderCounts(){
                   	}
                   },
 			      error: function(data) {
-			        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+			        showToast('System Error: Unable to read Online Orders Mapping data.', '#e74c3c');
 			      }
 
                 }); 
@@ -430,7 +430,7 @@ function displayOrderCounts(){
                   	}
                   },
 			      error: function(data) {
-			        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+			        showToast('System Error: Unable to read Online Orders Mapping data.', '#e74c3c');
 			      }
 
                 }); 	
@@ -887,17 +887,17 @@ function updateOnlineOrdersMappingDispatch(id, name, code){
 		                      renderLiveOnlineOrders();
 		                  },
 		                  error: function(data) {
-		                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
+		                      showToast('System Error: Unable to update the Invoice.', '#e74c3c');
 		                  }
 		                }); 
 
                     }
                     else{
-                    	showToast('Error: Online Order mapping not found on System. Please contact Accelerate Support.', '#e74c3c');
+                    	showToast('Error: Online Order mapping not found on System.', '#e74c3c');
                     }
                   },
 			      error: function(data) {
-			        showToast('System Error: Unable to read Online Orders Mapping data. Please contact Accelerate Support.', '#e74c3c');
+			        showToast('System Error: Unable to read Online Orders Mapping data.', '#e74c3c');
 			      }
 
                 });  
@@ -952,18 +952,18 @@ function updateSystemBillAgent(billNumber, code, name, status){
 
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Invoice. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Invoice.', '#e74c3c');
                   }
                 }); 
           
         }
         else{
-          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Invoice #'+billNumber+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(firstdata) {
-        showToast('System Error: Unable to read Invoices data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Invoices data.', '#e74c3c');
       }
 
     }); 
@@ -1261,10 +1261,8 @@ function selectDeliveryBoyWindow(encodedMapping){
 
               var easySelectTool = $(document).on('keydown',  function (e) {
 
-                console.log('Am secretly running...')
+                 
                 if($('#deliveryBoysModal').is(':visible')) {
-
-                  console.log(e.which)
 
                      switch(e.which){
                       case 37:{ //  < Left Arrow
@@ -1390,16 +1388,16 @@ function selectDeliveryBoyWindow(encodedMapping){
 
           }
           else{
-            showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Registered Users data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
       }
 
     });  

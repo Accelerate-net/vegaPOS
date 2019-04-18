@@ -291,7 +291,7 @@ function showLoading(time, text){
 
     startCount--;
     document.getElementById("generalLoaderCount").innerHTML = startCount;
-    console.log('Am Secretly running...')
+     
   }, 1000); 
 
 }
@@ -356,7 +356,7 @@ function getTablesSorted(unsorted_list){
   Object.keys(unsorted_list)
       .sort()
       .forEach(function(v, i) {
-          console.log(v, data[v]);
+          
        });
 }
 

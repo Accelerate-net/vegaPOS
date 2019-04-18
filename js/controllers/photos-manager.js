@@ -36,16 +36,16 @@ function fetchAllCategoriesPhotos(){
 
           }
           else{
-            showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Menu Category data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Menu Category data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Menu Category data not found.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Menu Category data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Menu Category data.', '#e74c3c');
       }
 
     }); 
@@ -107,16 +107,16 @@ function openSubMenuPhotos(subtype){
                 
           }
           else{
-            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: Menu data not found.', '#e74c3c');
           }
         }
         else{
-          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Menu data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Menu data.', '#e74c3c');
       }
 
     });  
@@ -277,7 +277,7 @@ function pushImageToServer(itemCode, itemName, category, encodedData){
 	              	}
 	            },
 	            error: function(data){   
-	            console.log(data)     
+	                  
 	              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
 	            }
 	          });  
@@ -319,18 +319,18 @@ function replaceImageOnServer(itemCode, itemName, category, encodedData){
               		  hidePhotoCropper();
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Image. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Image.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: No Image found to update. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: No Image found to update.', '#e74c3c');
           pushImageToServer(itemCode.toString(), itemName, category, encodedData);
         }       
       },
       error: function(data) {
-        showToast('System Error: Unable to read Menu Images data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Menu Images data.', '#e74c3c');
       }
 
     }); 	
@@ -376,7 +376,7 @@ function removeItemPhoto(itemCode, itemName, category){
 							openSubMenuPhotos(category);
                           },
                           error: function(data) {
-                            showToast('Server Warning: Unable to modify Menu Images data. Please contact Accelerate Support.', '#e67e22');
+                            showToast('Server Warning: Unable to modify Menu Images data.', '#e67e22');
                           }
                         }); 
 
@@ -388,7 +388,7 @@ function removeItemPhoto(itemCode, itemName, category){
                       }
                     },
                     error: function(data) {
-                      showToast('Server Warning: Unable to modify Menu Images data. Please contact Accelerate Support.', '#e67e22');
+                      showToast('Server Warning: Unable to modify Menu Images data.', '#e67e22');
                     }
 
                   });
@@ -462,7 +462,7 @@ function changePhotoFlagInMenu(code, changeFlag, optionalCategory){
 					         	return '';
 			                  },
 			                  error: function(data) {
-			                    showToast('System Error: Unable to make changes in Menu data. Please contact Accelerate Support.', '#e74c3c');
+			                    showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
 			                  }
 
 			                }); 
@@ -475,15 +475,15 @@ function changePhotoFlagInMenu(code, changeFlag, optionalCategory){
 
 	          }
 	          else{
-	            showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Menu data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Menu data not found.', '#e74c3c');
 	        }
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Menu data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Menu data.', '#e74c3c');
 	      }
 	    });  
 }

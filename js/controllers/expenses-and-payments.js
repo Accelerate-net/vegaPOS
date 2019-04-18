@@ -5,8 +5,6 @@ var filterExpenseResultsCount = 0;
 
 function loadAllAddedExpenses(optionalSource, optionalAnimationFlag){
 
-	console.log('*** Rendering Page: '+currentExpensePage+" (of "+totalExpensePages+")")
-
 	if(optionalAnimationFlag && optionalAnimationFlag == 'LOADING_ANIMATION'){
 		//Show Animation
 		document.getElementById("expenseBriefDisplayRender").innerHTML = '<div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div> <div class="row" style="padding: 3px 0;"> <div class="infoTile" style="border: none; width: 100%; line-height: 1.2em;"> <div class="infoTileHead" style="width: 60%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 10%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> <div class="infoTileHead" style="width: 20%; height: 24px; display: inline-block;"> <div class="loaderDummyTile" style="height: 24px"></div> </div> </div> </div>'+
@@ -1618,16 +1616,16 @@ function changeExpenseFilterSearchCriteria(){
 	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show expenses added by <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select></p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Staff Profiles data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Staff Profiles data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Staff Profiles data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Staff Profiles data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Staff Profiles data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Staff Profiles data.', '#e74c3c');
 	      }
 
 	    });
@@ -1803,16 +1801,16 @@ function changeExpenseFilterSearchCriteria(){
 	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders billed on <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>only</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Registered Machines data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Registered Machines data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Registered Machines data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Registered Machines data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Registered Machines data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Registered Machines data.', '#e74c3c');
 	      }
 
 	    });
@@ -1856,16 +1854,16 @@ function changeExpenseFilterSearchCriteria(){
 	              document.getElementById("filterExpensesSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders punched by <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select></p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Staff data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Staff data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Staff data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Staff data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Staff data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Staff data.', '#e74c3c');
 	      }
 
 	    });

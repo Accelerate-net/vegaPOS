@@ -27,8 +27,6 @@ var filterResultsCount = 0;
 
 function loadAllCancelledUnbilled(optionalSource){
 
-	console.log('*** Rendering Page: '+currentPage+" (of "+totalPages+")")
-
 	/*
 		Frame the FILTER
 	*/
@@ -2309,16 +2307,16 @@ function changeCancelledFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Payments</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
 	      }
 
 	    });
@@ -2362,16 +2360,16 @@ function changeCancelledFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show only <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Orders</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Billing Payment data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Billing Payment data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Payment Modes data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Payment Modes data.', '#e74c3c');
 	      }
 
 	    });
@@ -2415,16 +2413,16 @@ function changeCancelledFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>Session alone</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Dine Sessions data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Dine Sessions data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
 	      }
 
 	    });
@@ -2468,16 +2466,16 @@ function changeCancelledFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders billed on <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select>only</p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Registered Machines data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Registered Machines data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Registered Machines data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Registered Machines data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Registered Machines data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Registered Machines data.', '#e74c3c');
 	      }
 
 	    });
@@ -2521,16 +2519,16 @@ function changeCancelledFilterSearchCriteria(){
 	              document.getElementById("filterSearchArea").innerHTML = '<p style="margin-top: 15px; font-size: 24px; font-weight: 300;">Show orders punched by <select id="filterSearchCriteriaSelected" class="form-control myInlineModeSelection">'+modesTag+'</select></p>';
 	          }
 	          else{
-	            showToast('Not Found Error: Staff data not found. Please contact Accelerate Support.', '#e74c3c');
+	            showToast('Not Found Error: Staff data not found.', '#e74c3c');
 	          }
 	        }
 	        else{
-	          showToast('Not Found Error: Staff data not found. Please contact Accelerate Support.', '#e74c3c');
+	          showToast('Not Found Error: Staff data not found.', '#e74c3c');
 	        }
 	        
 	      },
 	      error: function(data) {
-	        showToast('System Error: Unable to read Staff data. Please contact Accelerate Support.', '#e74c3c');
+	        showToast('System Error: Unable to read Staff data.', '#e74c3c');
 	      }
 
 	    });

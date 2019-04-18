@@ -22,7 +22,7 @@ function openFreeSeatOptions(tableID){
           var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
 
           var easySelectTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#freeSeatOptionsModal').is(':visible')) {
 
                  switch(e.which){
@@ -101,7 +101,7 @@ function openReservedSeatOptions(tableID, optionalCustomerName, optionalSaveFlag
           var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
 
           var easySelectTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#reservedSeatOptionsModal').is(':visible')) {
 
                  switch(e.which){
@@ -234,7 +234,7 @@ function openOccuppiedSeatOptions(tableInfo){
           var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
 
           var easySelectTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#occuppiedSeatOptionsModal').is(':visible')) {
 
                  switch(e.which){
@@ -318,7 +318,7 @@ function removeTableMappingWarning(tableNumber){
 
 
           var easyActionsTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#mappingDeleteConfirmation').is(':visible')) {
 
                   if(e.which == 27){ // Escape (Close)
@@ -379,23 +379,23 @@ function removeTableMapping(tableNumber){
                         preloadTableStatus();
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });   
 
 
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Not Found Error: Tables data not found.', '#e74c3c');
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
@@ -454,18 +454,18 @@ function confirmBillMergeFromKOT(kotList, mergedCart, mergedExtras, mergingTable
 
                   },
                   error: function(data) {
-                      showToast('System Error: Unable to update the Order. Please contact Accelerate Support.', '#e74c3c');
+                      showToast('System Error: Unable to update the Order.', '#e74c3c');
                   }
                 }); 
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     });  	
@@ -503,7 +503,7 @@ function removeOtherKOTS(kotList){ /*TWEAK*/
                       dataType: 'json',
                       timeout: 10000,
                       success: function(data) {
-                        console.log('Deleted')
+
                       }
                     }); 
 
@@ -565,17 +565,17 @@ function removeOtherKOTAfterProcess(kotList){
                       },
                       error: function(data) {
                         clearTable(kot_counter + 1);
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });  
           }
           else{
             clearTable(kot_counter + 1);
-            showToast('Not Found Error: KOT #'+kotList[kot_counter]+' was not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Not Found Error: KOT #'+kotList[kot_counter]+' was not found.', '#e74c3c');
           }
         },
         error: function(data) {
-          showToast('System Error: Unable to read KOT data. Please contact Accelerate Support.', '#e74c3c');
+          showToast('System Error: Unable to read KOT data.', '#e74c3c');
         }
 
       });             
@@ -677,7 +677,7 @@ function addToReserveListConsent(tableID){
 	$('#reserve_table_window_name').focus();
 
           var easyActionsTool = $(document).on('keydown',  function (e) {
-            console.log('Am secretly running...')
+             
             if($('#addToReservedConsentModal').is(':visible')) {
 
                   if(e.which == 27){ // Escape (Close)
@@ -747,21 +747,21 @@ function addToReserveList(tableNumber){
                         preloadTableStatus();
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });   
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Not Found Error: Tables data not found.', '#e74c3c');
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
     });
 }
@@ -810,21 +810,21 @@ function removeFromReserveList(tableNumber){
                         preloadTableStatus();
                       },
                       error: function(data) {
-                        showToast('System Error: Unable to update Tables data. Please contact Accelerate Support.', '#e74c3c');
+                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
                       }
                     });   
               }
               else{
-                showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+                showToast('Not Found Error: Tables data not found.', '#e74c3c');
               }
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
     });
 }
@@ -884,12 +884,12 @@ function moveKOTForEditing(kotID){
 
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
       }
 
     }); 
@@ -1122,13 +1122,13 @@ function mergeBillsInTheHoldListAfterProcess(kotList, tableList) {
 
             }
             else{
-              showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found. Please contact Accelerate Support.', '#e74c3c');
+              showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found.', '#e74c3c');
               return '';
             }
             
           },
           error: function(data) {
-            showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found. Please contact Accelerate Support.', '#e74c3c');
+            showToast('Operation Aborted! Order ' + requestData.selector.KOTNumber + ' was not found.', '#e74c3c');
             return '';
           }
 
@@ -1171,12 +1171,12 @@ function mergeBillsInTheHoldList(){
 		              mergeBillsInTheHoldListAfterProcess(KOTList, holdList); /* Merge KOTs*/	                    
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });	
@@ -1406,28 +1406,28 @@ function preloadTableStatus(mode, currentTableID){
 				                
 				          }
 				          else{
-				            showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
 				          }
 				        }
 				        else{
-				          showToast('Not Found Error: Table Sections data not found. Please contact Accelerate Support.', '#e74c3c');
+				          showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
 				        }
 
 				      },
 				      error: function(data) {
-				        showToast('System Error: Unable to read Table Sections data. Please contact Accelerate Support.', '#e74c3c');
+				        showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
 				      }
 
 				    });
 
         }
         else{
-          showToast('Not Found Error: Tables data not found. Please contact Accelerate Support.', '#e74c3c');
+          showToast('Not Found Error: Tables data not found.', '#e74c3c');
         }
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Tables data. Please contact Accelerate Support.', '#e74c3c');
+        showToast('System Error: Unable to read Tables data.', '#e74c3c');
       }
 
     });
