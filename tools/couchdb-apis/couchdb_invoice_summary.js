@@ -99,6 +99,26 @@
     "sumbypaymentmodeandextras_multiple_custom": {
       "map": "\n\nfunction (doc) {\n  if(doc.paymentMode == \"MULTIPLE\" && doc.dateStamp && doc.extras && doc.customExtras.amount){\n\n    \n    var m = 0;\n    while(doc.paymentSplits[m]){\n       \n        var totalShare = (doc.paymentSplits[m].amount/doc.totalAmountPaid) * doc.customExtras.amount;\n        totalShare = parseFloat(totalShare).toFixed(2);\n        totalShare = parseFloat(totalShare);\n        emit([doc.paymentSplits[m].code, doc.customExtras.type, doc.dateStamp], totalShare);\n\n      m++;\n    }\n    \n    \n    \n  }\n}\n\n\n\n\n",
       "reduce": "_stats"
+    },
+    "grandtotal_calculatedroundoff": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n  if(doc.dateStamp && doc.calculatedRoundOff){\n     emit([doc.dateStamp], doc.calculatedRoundOff);\n  }\n}\n"
+    },
+    "sessionwisesales_refundamount": {
+      "map": "function(doc) {\n  if(doc.dateStamp&& doc.refundDetails.amount) {\n      var session = \"Unknown\";\n      if(doc.sessionName && doc.sessionName != \"\"){\n        session = doc.sessionName;\n      }\n      \n      if(doc.guestCount && doc.guestCount != \"\"){\n        emit([doc.dateStamp, session, doc.guestCount], doc.refundDetails.amount);\n      }\n      else{\n        emit([doc.dateStamp, session, 0], doc.refundDetails.amount);\n      }\n  }\n}",
+      "reduce": "_stats"
+    },
+    "grandtotal_netamount": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n  if(doc.dateStamp && doc.grossCartAmount){\n     emit([doc.dateStamp], doc.grossCartAmount);\n  }\n}\n"
+    },
+    "grandtotal_netamount_bypaymentmode": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n  if(doc.dateStamp && doc.grossCartAmount){\n     emit([doc.paymentMode, doc.dateStamp], doc.grossCartAmount);\n  }\n}\n"
+    },
+    "grandtotal_netamount_bybillingmode": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n  if(doc.dateStamp && doc.grossCartAmount){\n     emit([doc.orderDetails.mode, doc.dateStamp], doc.grossCartAmount);\n  }\n}\n"
     }
   },
   "language": "javascript"

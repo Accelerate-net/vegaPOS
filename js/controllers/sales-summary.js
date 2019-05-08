@@ -68,7 +68,7 @@ function downloadExcelReport(type){
 				********************************************/
 
 					var excelReportData_Overall = [];
-					excelReportTotalPaidAmount();
+					excelReportNetCartAmount();
 
 					/*
 						Total Amount got Paid
@@ -88,6 +88,45 @@ function downloadExcelReport(type){
 					*/
 
 					var netSalesWorth = 0;
+					var netEffectiveCartAmount = 0;
+					var grossEffectivePaidAmount = 0;
+
+
+					//Step 0: Net Cart Amount
+					function excelReportNetCartAmount(){	
+						$.ajax({
+						    type: 'GET',
+							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_netamount?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+							timeout: 10000,
+							success: function(data) {
+
+								var temp_totalOrders = 0;
+								var temp_totalNet = 0;
+
+								if(data.rows.length > 0){
+									temp_totalOrders = data.rows[0].value.count;
+									temp_totalNet = data.rows[0].value.sum;
+								}
+
+								excelReportData_Overall.push({
+									"name": "Net Sales",
+									"value": temp_totalNet
+								});
+
+
+								netEffectiveCartAmount = temp_totalNet;
+
+							
+								//Step 1: Total Paid Amount
+								excelReportTotalPaidAmount();
+
+							},
+							error: function(data){
+								hideLoading();
+								showToast('System Error: Failed to fetch Net Sales.', '#e74c3c');
+							}
+						}); 
+					}//end - step 1
 
 
 					//Step 1: Total Paid Amount
@@ -106,14 +145,10 @@ function downloadExcelReport(type){
 									temp_totalPaid = data.rows[0].value.sum;
 								}
 
-								excelReportData_Overall.push({
-									"name": "Total Sales",
-									"value": temp_totalPaid
-								});
+								grossEffectivePaidAmount = temp_totalPaid;
 
 								netSalesWorth = temp_totalPaid;
 
-							
 								//Step 2: Total Charges collected
 								excelReportChargesCollected();
 
@@ -124,8 +159,6 @@ function downloadExcelReport(type){
 							}
 						}); 
 					}//end - step 1
-
-
 
 
 					//Step 2: Total Charges collected
@@ -345,6 +378,42 @@ function downloadExcelReport(type){
 
 						$.ajax({
 						    type: 'GET',
+							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_calculatedroundoff?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+							timeout: 10000,
+							success: function(data) {
+
+								var temp_roundOffCount = 0;
+								var temp_roundOffSum = 0;
+
+								if(data.rows.length > 0){
+									temp_roundOffCount = data.rows[0].value.count;
+									temp_roundOffSum = data.rows[0].value.sum;
+								}
+								
+								excelReportData_Overall.push({
+									"name": 'Calculated Round Off',
+									"value": temp_roundOffSum
+								})	
+
+								netSalesWorth += temp_roundOffSum;
+
+								//Step 4.1: Total Waive Offs
+								excelReportWaiveOffs();
+
+							},
+							error: function(data){
+								hideLoading();
+								showToast('System Error: Failed to calculate round off amounts.', '#e74c3c');
+							}
+						});  
+					} //end - step 4
+
+
+					//Step 4.1: Total Waive Offs
+					function excelReportWaiveOffs(){
+
+						$.ajax({
+						    type: 'GET',
 							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
 							timeout: 10000,
 							success: function(data) {
@@ -370,10 +439,11 @@ function downloadExcelReport(type){
 							},
 							error: function(data){
 								hideLoading();
-								showToast('System Error: Failed to calculate round off amounts.', '#e74c3c');
+								showToast('System Error: Failed to calculate waive off amounts.', '#e74c3c');
 							}
 						});  
-					} //end - step 4
+					} //end - step 4.1
+
 
 
 					//Step 5: Total Tips received
@@ -415,58 +485,83 @@ function downloadExcelReport(type){
 					//Step 6: Total Refunds Issued
 					function excelReportRefundsIssued(){
 
-						//Refunded but NOT cancelled
-						$.ajax({
-						    type: 'GET',
-							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
-							timeout: 10000,
-							success: function(data) {
+						/*
+							Cancelled and Refunded Orders (Neglected)
+							Note: removed the concept of Refund on Cancelled Invoices 
+						*/
 
-								var temp_refundCount = 0;
-								var temp_refundSum = 0;
 
-								if(data.rows.length > 0){
-									temp_refundCount = data.rows[0].value.count;
-									temp_refundSum = data.rows[0].value.sum;
+						findGrossRefund();
+
+						var total_tendered_refunds_sum = 0;
+
+						//Refunded Gross amount (Net amount + extras) Actuall amount handed over to customer
+						function findGrossRefund(){
+
+							$.ajax({
+							    type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									var temp_refundCount = 0;
+									var temp_refundSum = 0;
+
+									if(data.rows.length > 0){
+										temp_refundCount = data.rows[0].value.count;
+										temp_refundSum = data.rows[0].value.sum;
+									}
+
+									total_tendered_refunds_sum = temp_refundSum;
+
+									findNetRefund();
+
+								},
+								error: function(data){
+									hideLoading();
+									showToast('System Error: Failed to calculate refund amount.', '#e74c3c');
 								}
+							});
+						}
+
+						function findNetRefund(){
+
+							$.ajax({
+							    type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds_netamount?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									var temp_refundCount = 0;
+									var temp_refundSum = 0;
+
+									if(data.rows.length > 0){
+										temp_refundCount = data.rows[0].value.count;
+										temp_refundSum = data.rows[0].value.sum;
+									}
+
+									excelReportData_Overall.push({
+										"name": 'Refunds',
+										"value": temp_refundSum
+									})
 
 
-								excelReportData_Overall.push({
-									"name": 'Refunds',
-									"value": temp_refundSum
-								})
+									excelReportData_Overall.push({
+										"name": 'Gross Amount',
+										"value": grossEffectivePaidAmount - total_tendered_refunds_sum
+									})
 
+									//Step 7: Process Report (Final)
+									excelReportFinal();
 
-								/*
-									Process Figures
-								*/
+								},
+								error: function(data){
+									hideLoading();
+									showToast('System Error: Failed to calculate refund amount.', '#e74c3c');
+								}
+							});
+						}  
 
-								var grandTotalPaid = excelReportData_Overall[0].value;
-								excelReportData_Overall[0].value = netSalesWorth; //Gross Sales
-										
-
-								excelReportData_Overall.push({
-									"name": 'Net Sales',
-									"value": grandTotalPaid - temp_refundSum
-								})
-
-
-
-								//Step 7: Process Report (Final)
-								excelReportFinal();
-
-
-								/*
-									Cancelled and Refunded Orders (Neglected)
-									Note: removed the concept of Refund on Cancelled Invoices 
-								*/
-
-							},
-							error: function(data){
-								hideLoading();
-								showToast('System Error: Failed to calculate refund amount.', '#e74c3c');
-							}
-						});  
 
 					} //end - step 6
 
@@ -2776,10 +2871,10 @@ function openDetailedByExtras(selectedPaymentMode, fromDate, toDate, grandCount,
 											    	else{
 											    		
 											    		if(cumulativeSum > 0){
-											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Sales Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(2)+'</td> </tr>';
+											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Net Sales</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(0)+'</td> </tr>';
 											    		}
 
-											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Grand Total</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Gross Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
 											    	}
 													
 
@@ -2899,10 +2994,10 @@ function openDetailedByExtrasCallback(index, modes, fromDate, toDate, selectedPa
 											    	else{
 											    		
 											    		if(cumulativeSum > 0){
-											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Sales Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(2)+'</td> </tr>';
+											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Net Sales</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(0)+'</td> </tr>';
 											    		}
 
-											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Grand Total</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Gross Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
 											    	}													
 
 												},
@@ -3533,10 +3628,10 @@ function fetchOverAllTurnOver(){
 	var netSalesWorth = 0;
 
 	/*
-		totalPaid = netSalesWorth + extras - discount - roundOff + tips
+		totalPaid = netSalesWorth + extras - discount - roundOff + tips - waiveOff
 		
 		So, 
-			netSalesWorth --> totalPaid - extras - tips + discount + roundoff;
+			netSalesWorth --> totalPaid - extras - tips + discount + roundoff + waiveOff;
 	*/
 
 
@@ -3584,7 +3679,7 @@ function fetchOverAllTurnOver(){
 			
 			//time to render...
 			if(temp_totalOrders > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Gross Sales</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i><tag id="figureTotalSalesVolume">'+parseFloat(temp_totalPaid).toFixed(2)+'</tag></td> </tr>';
+				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Gross Amount</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i><tag id="figureTotalSalesVolume">'+parseFloat(temp_totalPaid).toFixed(2)+'</tag></td> </tr>';
 				netSalesWorth = temp_totalPaid; 
 				document.getElementById("overallBarChart").style.display = 'block';
 			}
@@ -3938,8 +4033,12 @@ function renderTipsReceived(fromDate, toDate, netSalesWorth, graphData){
 //Step 6
 function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 
+	findGrossRefund();
 
-		//Refunded but NOT cancelled
+
+	//Refunded actual amount (Net Refund + Extras)
+	function findGrossRefund(){
+		
 		$.ajax({
 		    type: 'GET',
 			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
@@ -3954,14 +4053,48 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 					temp_refundSum = data.rows[0].value.sum;
 				}
 
-				netRefundsProcessed = temp_refundSum;
+				grossRefundsProcessed = temp_refundSum;
+
+				findNetRefund();
+
+			},
+			error: function(data){
+
+			}
+		});
+
+	} 
+
+
+
+	//Net refund amoun
+	function findNetRefund(){
+		
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds_netamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_refundCount = 0;
+				var temp_refundSum = 0;
+
+				if(data.rows.length > 0){
+					temp_refundCount = data.rows[0].value.count;
+					temp_refundSum = data.rows[0].value.sum;
+				}
+
 
 				if(temp_refundSum > 0){
 					graphData.push({
 						"name": 'Refunds',
 						"value": temp_refundSum
 					})
-				}		
+				}	
+
+				actualNetRefundAmount = temp_refundSum;
+
+
 
 				//time to render...
 				if(temp_refundCount > 0){
@@ -3970,11 +4103,13 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 					//Adjust total sales volume
 					var x = document.getElementById("figureTotalSalesVolume");
 					var total_sales_volume_without_refund = x.innerHTML;
-					document.getElementById("figureTotalSalesVolume").innerHTML = parseFloat(total_sales_volume_without_refund - temp_refundSum).toFixed(2);
+					document.getElementById("figureTotalSalesVolume").innerHTML = parseFloat(total_sales_volume_without_refund - grossRefundsProcessed).toFixed(2);
 				}
 				else{
 					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 				}
+
+
 
 				//Step 7: Render Calculated Round Offs
 				renderCalculatedRoundOffs(fromDate, toDate, netSalesWorth, graphData);
@@ -3983,7 +4118,9 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 			error: function(data){
 
 			}
-		});  		
+		});
+
+	} 		
 }
 
 
@@ -4037,7 +4174,7 @@ function renderNetAmount(fromDate, toDate, netSalesWorth, graphData){
 		//Total Cart Amount
 		$.ajax({
 		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_grossamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_netamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
 			timeout: 10000,
 			success: function(data) {
 
@@ -5922,7 +6059,9 @@ function fetchSingleClickReportAfterApproval(){
 	var completeReportInfo = [];
 	var netSalesWorth = 0;
 	var netGuestsCount = '-';
-	var netRefundsProcessed = 0;
+	var netCartSum = 0;
+	var grossRefundsProcessed = 0;
+	var actualNetRefundAmount = 0;
 	var reportInfoExtras = [];
 	var completeErrorList = []; //In case any API call causes Error
 	var detailedListByBillingMode = []; //Billing mode wise
@@ -5970,14 +6109,14 @@ function fetchSingleClickReportAfterApproval(){
 
 				netSalesWorth = temp_totalPaid;
 
-				//Step 1-2:
-				singleClickTotalGuests();
+				//Step 1.2:
+				singleClickNetAmount();
 
 			},
 			error: function(data){
 				completeErrorList.push({
 				    "step": 1,
-					"error": "Failed to load net sales figure. Report can not be generated."
+					"error": "Failed to load gross sales figure. Report can not be generated."
 				});
 				stopReportAnimation('ERROR');
 				singleClickLoadErrors();
@@ -5987,10 +6126,43 @@ function fetchSingleClickReportAfterApproval(){
 	}	
 
 
-	//Step 1-2: Total Number of Guests
-	function singleClickTotalGuests(){
+	//Step 1.2: Find Net Cart Amount
+	function singleClickNetAmount(){
 
-		runReportAnimation(3); //of Step 1 which takes 3 units
+			runReportAnimation(2); //of Step 1 which takes 2 units
+			
+			//Total Cart Amount
+			$.ajax({
+			    type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_netamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+				timeout: 10000,
+				success: function(data) {
+
+					if(data.rows.length > 0){
+						netCartSum = data.rows[0].value.sum;
+					}
+
+					//Step 1.3:
+					singleClickTotalGuests();
+
+				},
+				error: function(data){
+					completeErrorList.push({
+					    "step": 1.2,
+						"error": "Failed to load gross sales figure. Report can not be generated."
+					});
+				
+					stopReportAnimation('ERROR');
+					singleClickLoadErrors();
+					return '';
+				}
+			}); 
+	}
+
+
+
+	//Step 1.3: Total Number of Guests
+	function singleClickTotalGuests(){
 
 		$.ajax({
 		    type: 'GET',
@@ -6002,13 +6174,13 @@ function fetchSingleClickReportAfterApproval(){
 					netGuestsCount = data.rows[0].value.sum;
 				}
 
-				//Step 1-3:
+				//Step 1.4:
 				singleClickLastInvoiceNumbers();
 
 			},
 			error: function(data){
 				completeErrorList.push({
-				    "step": 1.2,
+				    "step": 1.3,
 					"error": "Failed to sum up the number of guests"
 				});
 				return '';
@@ -6016,7 +6188,7 @@ function fetchSingleClickReportAfterApproval(){
 		});  
 	}		
 
-	//Step 1-3: First and last invoice number
+	//Step 1.4: First and last invoice number
 	function singleClickLastInvoiceNumbers(){
 
 		runReportAnimation(5); //of Step 1-2 which takes 1 units
@@ -6038,7 +6210,7 @@ function fetchSingleClickReportAfterApproval(){
 			},
 			error: function(data){
 				completeErrorList.push({
-				    "step": 1.3,
+				    "step": 1.4,
 					"error": "Failed to find the starting and ending invoice numbers"
 				});
 				return '';
@@ -6296,8 +6468,9 @@ function fetchSingleClickReportAfterApproval(){
 						"count": temp_discountedOrdersCount
 				});	
 
-				//Step 4: Total Round Off made
-				singleClickRoundOffsMade();
+
+				//Step 4: Total calculated round offs
+				singleClickCalculatedRoundOffs();
 
 			},
 			error: function(data){
@@ -6307,7 +6480,7 @@ function fetchSingleClickReportAfterApproval(){
 				});				
 
 				//Skip and go to next step
-				singleClickRoundOffsMade(); 
+				singleClickCalculatedRoundOffs(); 
 				return '';
 			}
 		});  			
@@ -6315,10 +6488,56 @@ function fetchSingleClickReportAfterApproval(){
 
 
 
-	//Step 4: RoundOffs made
-	function singleClickRoundOffsMade(){
+	//Step 4 : Calculated Round Offs
+	function singleClickCalculatedRoundOffs(){
 
-		runReportAnimation(20); //of Step 3 which takes 5 units
+			runReportAnimation(17); //of Step 3 which takes 2 units
+
+			//Total Calculated Round Offs
+			$.ajax({
+			    type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_calculatedroundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+				timeout: 10000,
+				success: function(data) {
+
+					var temp_sum = 0;
+
+					if(data.rows.length > 0){
+						temp_sum = data.rows[0].value.sum;
+					}
+
+					completeReportInfo.push({
+							"name": "Calculated Round Off",
+							"type": temp_sum < 0 ? "NEGATIVE" : "POSITIVE",
+							"value": Math.abs(temp_sum),
+							"count": 0
+					});	
+
+					//Step 4.1: Total Waive Off made
+					singleClickWaiveOffsMade();
+
+				},
+				error: function(data){
+					completeErrorList.push({
+					    "step": 4,
+						"error": "Failed to read Calculcated Round-off amount"
+					});				
+
+					//Skip and go to next step
+					singleClickWaiveOffsMade(); 
+					return '';
+				}
+			}); 
+
+	}
+
+
+
+
+	//Step 4.1: Waive Offs made
+	function singleClickWaiveOffsMade(){
+
+		runReportAnimation(20); //of Step 4 which takes 3 units
 
 		$.ajax({
 		    type: 'GET',
@@ -6349,8 +6568,8 @@ function fetchSingleClickReportAfterApproval(){
 			},
 			error: function(data){
 				completeErrorList.push({
-				    "step": 4,
-					"error": "Failed to read round-off amount"
+				    "step": 4.1,
+					"error": "Failed to read Waive Off amount"
 				});				
 
 				//Skip and go to next step
@@ -6359,6 +6578,7 @@ function fetchSingleClickReportAfterApproval(){
 			}
 		});  	
 	}
+
 
 
 
@@ -6414,52 +6634,95 @@ function fetchSingleClickReportAfterApproval(){
 
 		runReportAnimation(28); //of Step 5 which takes 3 units
 
-		//Refunded but NOT cancelled
-		$.ajax({
-		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
-			timeout: 10000,
-			success: function(data) {
+		/*
+			Cancelled and Refunded Orders 
+			(neglected and moved to under different header)
+		*/
 
-				var temp_refundCount = 0;
-				var temp_refundSum = 0;
 
-				if(data.rows.length > 0){
-					temp_refundCount = data.rows[0].value.count;
-					temp_refundSum = data.rows[0].value.sum;
+		findGrossRefund();
+
+
+		//Refunded gross amount (Net Amount + Extras)
+		function findGrossRefund(){
+			
+			$.ajax({
+			    type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+				timeout: 10000,
+				success: function(data) {
+
+					var temp_refundCount = 0;
+					var temp_refundSum = 0;
+
+					if(data.rows.length > 0){
+						temp_refundCount = data.rows[0].value.count;
+						temp_refundSum = data.rows[0].value.sum;
+					}
+
+					grossRefundsProcessed = temp_refundSum;
+
+					findNetRefund();					 
+
+				},
+				error: function(data){
+					completeErrorList.push({
+					    "step": 6,
+						"error": "Failed to read refunds issued"
+					});				
+
+					//Step 6.1 : Get cancelled invoices count
+					singleClickCancelledInvoices(); 
+					return '';
 				}
-
-				netRefundsProcessed = temp_refundSum;
-
-				completeReportInfo.push({
-					"name": "Refunds Issued",
-					"type": "NEGATIVE",
-					"value": temp_refundSum,
-					"count": temp_refundCount
-				});	
-
-				//Step 6.1 : Get cancelled invoices count
-				singleClickCancelledInvoices();
+			});
+		}
 
 
-				/*
-					Cancelled and Refunded Orders 
-					(neglected and moved to under different header)
-				*/
-				 
+		//Refunded Net amount
+		function findNetRefund(){
+			
+			$.ajax({
+			    type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds_netamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+				timeout: 10000,
+				success: function(data) {
 
-			},
-			error: function(data){
-				completeErrorList.push({
-				    "step": 6,
-					"error": "Failed to read refunds issued"
-				});				
+					var temp_refundCount = 0;
+					var temp_refundSum = 0;
 
-				//Step 6.1 : Get cancelled invoices count
-				singleClickCancelledInvoices(); 
-				return '';
-			}
-		});  		
+					if(data.rows.length > 0){
+						temp_refundCount = data.rows[0].value.count;
+						temp_refundSum = data.rows[0].value.sum;
+					}
+
+					actualNetRefundAmount = temp_refundSum;
+
+					completeReportInfo.push({
+						"name": "Refunds Issued",
+						"type": "NEGATIVE",
+						"value": temp_refundSum,
+						"count": temp_refundCount
+					});	
+
+					//Step 6.1 : Get cancelled invoices count
+					singleClickCancelledInvoices();
+
+				},
+				error: function(data){
+					completeErrorList.push({
+					    "step": 6,
+						"error": "Failed to read refunds issued"
+					});				
+
+					//Step 6.1 : Get cancelled invoices count
+					singleClickCancelledInvoices(); 
+					return '';
+				}
+			});
+		}
+
+
 	}
 
 
@@ -6523,9 +6786,6 @@ function fetchSingleClickReportAfterApproval(){
 		runReportAnimation(40); //of Step 6 which takes 10 units
 
 		billsGraphData = [];
-
-
-
 
 
 					    var requestData = {
@@ -7946,11 +8206,14 @@ function fetchSingleClickReportAfterApproval(){
 		    var salesByBillingModeRenderContent = '';
 		    var c = 0;
 		    var billSharePercentage = 0;
+		    var individualNetBillingMode = 0;
 		    while(detailedListByBillingMode[c]){
 		      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
 		      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+		      individualNetBillingMode += detailedListByBillingMode[c].value;
 		      c++;
 		    }
+
 
 			//To display bills graph or not
 			var hasBillsGraphAttached = false;
@@ -7975,6 +8238,7 @@ function fetchSingleClickReportAfterApproval(){
 					                 '<col style="width: 70%">'+
 					                 '<col style="width: 30%">'+
 					                 salesByBillingModeRenderContent+
+					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
 					              '</table>'+
 					           '</div>'+
 					        '</div>'+	
@@ -7993,6 +8257,7 @@ function fetchSingleClickReportAfterApproval(){
 				                 '<col style="width: 70%">'+
 				                 '<col style="width: 30%">'+
 				                 salesByBillingModeRenderContent+
+				                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
 				              '</table>'+
 				           '</div>'+
 				        '</div>'+
@@ -8005,17 +8270,32 @@ function fetchSingleClickReportAfterApproval(){
 		    var salesByPaymentTypeRenderContent = '';
 		    var d = 0;
 		    var paymentSharePercentage = 0;
+		    var individualNetPaymentMode = 0;
 		    while(detailedListByPaymentMode[d]){
 		      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
 		      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+		      individualNetPaymentMode += detailedListByPaymentMode[d].value;
 		      d++;
 		    }
 
 		    //Detailed Payment (Extras and Custom Extras for each payment mode)
 		    var detailedByExtrasForPaymentRenderContent = '';
 		    var detailedExtrasContentHeader = '';
+
+		    var individualColumnSum_Extras = [];
+		    //initialise with 0's
+		    for(var e = 0; e < detailedListByPaymentMode[0].detailedExtras.length; e++){
+		    	individualColumnSum_Extras.push(0);
+		    }
+
+
+		    var individualColumnSum_Net = 0;
+		    var individualColumnSum_Gross = 0;
+
 		    var t = 0;
 		    while(detailedListByPaymentMode[t]){
+
+		    	
 
 		    	var detailedExtrasContent = '';
 		    	var netAmount = detailedListByPaymentMode[t].value;
@@ -8026,10 +8306,15 @@ function fetchSingleClickReportAfterApproval(){
 		    	
 		    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
 
+		    		individualColumnSum_Extras[e] += detailedListByPaymentMode[t].detailedExtras[e].amount; //hold sum of all CGST for Cash, Card, PayTM etc.
+
 			    	if(t == 0){
 			    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
 			    	}
 		    	}
+
+		    	individualColumnSum_Gross += detailedListByPaymentMode[t].value; //last column (gross)
+		    	individualColumnSum_Net += netAmount; //first column (net)
 
 		    	detailedByExtrasForPaymentRenderContent += '' +
 									    		'<tr>'+
@@ -8043,8 +8328,19 @@ function fetchSingleClickReportAfterApproval(){
 		    	t++;
 		    }
 
-		    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Total</td> </tr>';
-		    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent;
+		    if(detailedListByPaymentMode.length != 0){
+
+		    	var detailed_footer_content = '';
+		    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
+		    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
+		    	}
+
+			    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Net</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td> </tr>';
+			    var detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14;">Total</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td>' + detailed_footer_content + '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td> </tr>';
+			    
+			    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent + detailedExtrasContentFooter;
+		    }
+
 
 
 			//To display payment graph or not
@@ -8070,6 +8366,7 @@ function fetchSingleClickReportAfterApproval(){
 				                 '<col style="width: 70%">'+
 				                 '<col style="width: 30%">'+
 				                 salesByPaymentTypeRenderContent+
+				                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetPaymentMode).toFixed(0)+'</b></td></tr>'+
 				              '</table>'+
 				           '</div>'+
 				        '</div>'+
@@ -8088,6 +8385,7 @@ function fetchSingleClickReportAfterApproval(){
 			                 '<col style="width: 70%">'+
 			                 '<col style="width: 30%">'+
 			                 salesByPaymentTypeRenderContent+
+			                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetPaymentMode).toFixed(0)+'</b></td></tr>'+
 			              '</table>'+
 			           '</div>'+
 			        '</div>'+
@@ -8161,8 +8459,8 @@ function fetchSingleClickReportAfterApproval(){
 			      '<div class="introFacts">'+
 			         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
 			         '<div class="factsArea">'+
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netSalesWorth).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
+			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Amount</p></div>'+ 
+			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
 			            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
 			            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
 			         '</div>'+
@@ -8177,9 +8475,9 @@ function fetchSingleClickReportAfterApproval(){
 			              '<table style="width: 100%">'+
 			                 '<col style="width: 70%">'+
 			                 '<col style="width: 30%">'+
-			                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Gross Amount</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
+			                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
 			                 quickSummaryRendererContent+
-			                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Net Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
+			                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Amount</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
 			              '</table>'+
 			           '</div>'+
 			        '</div>'+
@@ -8187,6 +8485,7 @@ function fetchSingleClickReportAfterApproval(){
 			      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
 			      salesByBillingModeRenderContentFinal+
 			      salesByPaymentTypeRenderContentFinal+
+			      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
 			      detailedByExtrasForPaymentRenderContentFinal+
 			      downloadSummaryCancellations+
 			      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
@@ -8272,9 +8571,11 @@ function fetchSingleClickReportAfterApproval(){
 			    var salesByBillingModeRenderContent = '';
 			    var c = 0;
 			    var billSharePercentage = 0;
+			    var individualNetBillingMode = 0;
 			    while(detailedListByBillingMode[c]){
 			      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
 			      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+			      individualNetBillingMode += detailedListByBillingMode[c].value;
 			      c++;
 			    }
 
@@ -8297,6 +8598,7 @@ function fetchSingleClickReportAfterApproval(){
 					                 '<col style="width: 70%">'+
 					                 '<col style="width: 30%">'+
 					                 salesByBillingModeRenderContent+
+					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
 					              '</table>'+
 					           '</div>'+
 					        '</div>'+
@@ -8308,9 +8610,11 @@ function fetchSingleClickReportAfterApproval(){
 			    var salesByPaymentTypeRenderContent = '';
 			    var d = 0;
 			    var paymentSharePercentage = 0;
+			    var individualNetPaymentMode = 0;
 			    while(detailedListByPaymentMode[d]){
 			      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
 			      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+			      individualNetPaymentMode += detailedListByPaymentMode[d].value;
 			      d++;
 			    }
 
@@ -8327,6 +8631,7 @@ function fetchSingleClickReportAfterApproval(){
 				                 '<col style="width: 70%">'+
 				                 '<col style="width: 30%">'+
 				                 salesByPaymentTypeRenderContent+
+				                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetPaymentMode).toFixed(0)+'</b></td></tr>'+
 				              '</table>'+
 				           '</div>'+
 				        '</div>'+
@@ -8337,6 +8642,19 @@ function fetchSingleClickReportAfterApproval(){
 			    //Detailed Payment (Extras and Custom Extras for each payment mode)
 			    var detailedByExtrasForPaymentRenderContent = '';
 			    var detailedExtrasContentHeader = '';
+			    
+
+			    var individualColumnSum_Extras = [];
+			    //initialise with 0's
+			    for(var e = 0; e < detailedListByPaymentMode[0].detailedExtras.length; e++){
+			    	individualColumnSum_Extras.push(0);
+			    }
+
+
+			    var individualColumnSum_Net = 0;
+			    var individualColumnSum_Gross = 0;
+
+
 			    var t = 0;
 			    while(detailedListByPaymentMode[t]){
 
@@ -8349,10 +8667,15 @@ function fetchSingleClickReportAfterApproval(){
 			    	
 			    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
 
+			    		individualColumnSum_Extras[e] += detailedListByPaymentMode[t].detailedExtras[e].amount; //hold sum of all CGST for Cash, Card, PayTM etc.
+
 				    	if(t == 0){
 				    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
 				    	}
 			    	}
+
+			    	individualColumnSum_Gross += detailedListByPaymentMode[t].value; //last column (gross)
+			    	individualColumnSum_Net += netAmount; //first column (net)
 
 			    	detailedByExtrasForPaymentRenderContent += '' +
 										    		'<tr>'+
@@ -8366,8 +8689,20 @@ function fetchSingleClickReportAfterApproval(){
 			    	t++;
 			    }
 
-			    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Total</td> </tr>';
-			    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent;
+
+			    if(detailedListByPaymentMode.length != 0){
+
+			    	var detailed_footer_content = '';
+			    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
+			    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
+			    	}
+
+				    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Net</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td> </tr>';
+				    var detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14;">Total</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td>' + detailed_footer_content + '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td> </tr>';
+				    
+				    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent + detailedExtrasContentFooter;
+			    }
+
 
 			    var detailedByExtrasForPaymentRenderContentFinal = '';
 			    if(detailedByExtrasForPaymentRenderContent != ''){
@@ -8435,8 +8770,8 @@ function fetchSingleClickReportAfterApproval(){
 				      '<div class="introFacts">'+
 				         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
 				         '<div class="factsArea">'+
-				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
-				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netSalesWorth).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Amount</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
 				            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
 				            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
 				         '</div>'+
@@ -8451,9 +8786,9 @@ function fetchSingleClickReportAfterApproval(){
 				              '<table style="width: 100%">'+
 				                 '<col style="width: 70%">'+
 				                 '<col style="width: 30%">'+
-				                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Gross Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
 				                 quickSummaryRendererContent+
-				                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Net Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Amount</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
 				              '</table>'+
 				           '</div>'+
 				        '</div>'+
@@ -8522,9 +8857,9 @@ function fetchSingleClickReportAfterApproval(){
 			         '<table style="width: 100%">'+
 			            '<col style="width: 85%">'+
 			            '<col style="width: 15%">'+ 
-			            '<tr><td style="font-size: 11px"><b>Net Sales</b></td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
+			            '<tr><td style="font-size: 11px"><b>Net Sales</b></td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
 			            quickSummaryRendererContent+
-			            '<tr><td style="font-size: 13px"><b>Gross Sales</b></td><td style="font-size: 13px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
+			            '<tr><td style="font-size: 13px"><b>Gross Amount</b></td><td style="font-size: 13px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
 			         '</table>'+
 			    '</div>';
 
@@ -8855,8 +9190,8 @@ function fetchSingleClickReportAfterApproval(){
 		      '<div class="introFacts">'+
 		         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
 		         '<div class="factsArea">'+
-		            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
-		            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netSalesWorth).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
+		            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Amount</p></div>'+ 
+		            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
 		            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
 		            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
 		         '</div>'+
@@ -8870,9 +9205,9 @@ function fetchSingleClickReportAfterApproval(){
 		              '<table style="width: 100%">'+
 		                 '<col style="width: 70%">'+
 		                 '<col style="width: 30%">'+
-		                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Gross Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netSalesWorth).toFixed(2)+'</td></tr>'+
+		                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
 		                 quickSummaryRendererContent+
-		                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Net Sales</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - netRefundsProcessed).toFixed(2)+'</td></tr>'+
+		                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Amount</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
 		              '</table>'+
 		           '</div>'+
 		        '</div>'+

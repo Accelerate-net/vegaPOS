@@ -4599,10 +4599,12 @@ function generateEditedKOTAfterProcess(kotID, newCart, changedCustomerInfo, comp
 						                        '<td class="itemCancelReasonCommentCol">'+
 						                           '<input type="text" value="" class="form-control tip cancelItemComment" id="add_item_wise_cancel_comment" placeholder="Add any Comment" onfocus="getPossibleSuggestions(this)" index-data="'+t+'"/>'+
 						                           '<div id="itemCancellationEasyPick" class="itemCancellationEasyPickHolder noDisplay">'+
-						                              '<button onclick="addCancellationComment(this)">Guest Complained</button>'+
-						                              '<button onclick="addCancellationComment(this)">Guest Requested</button>'+
-						                              '<button onclick="addCancellationComment(this)">Guest wanted Replacement</button>'+
-						                              '<button onclick="addCancellationComment(this)">Item not Available</button>'+
+						                              '<button style="width: 100%; text-align: left" onclick="addCancellationComment(this)">Guest Complained on <b>Quality</b></button>'+
+						                              '<button style="width: 100%; text-align: left" onclick="addCancellationComment(this)">Guest Complained on <b>Service Delay</b></button>'+
+						                              '<button style="width: 100%; text-align: left" onclick="addCancellationComment(this)">Guest <b>Requested to Cancel</b></button>'+
+						                              '<button style="width: 100%; text-align: left" onclick="addCancellationComment(this)">Guest Requested <b>Different Item</b></button>'+
+						                              '<button style="width: 100%; text-align: left" onclick="addCancellationComment(this)">Item was <b>Not Available</b></button>'+
+						                              '<button style="width: 100%; text-align: left" onclick="addCancellationComment(this)">Punched by <b>Mistake</b></button>'+
 						                           '</div>'+
 						                        '</td>'+
 						                     '</tr>';  	

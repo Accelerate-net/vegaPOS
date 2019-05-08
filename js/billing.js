@@ -4204,13 +4204,16 @@ function processRefundSettledBill(billNumber, optionalPageRef){
     refund_mode = $('#bill_refund_why_refundmode').val();
     refund_amount = $('#bill_refund_why_refundamount').val();
 
+
+
     if(refund_amount == 0 || refund_amount == '' || refund_amount < 0){
       showToast('Warning! Incorrect Refund Amount', '#e67e22');
       return '';     
     }
 
+    refund_amount = parseFloat(refund_amount).toFixed(2);
+    refund_amount = parseFloat(refund_amount);
 
-    refund_amount = Math.round(refund_amount * 100)/100;
 
     var refundObj = {
             "timeRefund" : current_time,
@@ -4218,7 +4221,8 @@ function processRefundSettledBill(billNumber, optionalPageRef){
             "reason" : why_reason,
             "comments" : why_comments,
             "status" : refund_status,
-            "amount" : refund_amount,
+            "amount" : refund_amount, //actual amount returned to customer
+            "netAmount" : refund_amount, //without tax
             "mode" : refund_mode
     }
 
@@ -4243,6 +4247,7 @@ function processRefundSettledBill(billNumber, optionalPageRef){
     }
 
 
+
     $.ajax({
       type: 'GET',
       url: COMMON_LOCAL_SERVER_IP+'/'+requestURL+'/'+bill_request_data,
@@ -4253,7 +4258,7 @@ function processRefundSettledBill(billNumber, optionalPageRef){
           var bill = firstdata;
           bill.refundDetails = refundObj;
 
-          if(refundObj.mode == 'ORIGINAL'){
+          if(bill.refundDetails.mode == 'ORIGINAL'){
 
               if(bill.paymentMode == 'MULTIPLE'){
                 showToast('Warning! This bill was settled as multiple payments. Refund can be issued as Cash only.', '#e67e22');
@@ -4263,6 +4268,7 @@ function processRefundSettledBill(billNumber, optionalPageRef){
               bill.refundDetails.mode = bill.paymentMode;
           }
 
+    
           var max_refund = bill.totalAmountPaid;
 
           if(bill.discount.amount && bill.discount.amount != ''){
@@ -4299,15 +4305,15 @@ function processRefundSettledBill(billNumber, optionalPageRef){
 
             var requestedRefund = bill.refundDetails.amount;
 
-            var applicable_sub_total = bill.grossTaxableAmount - requestedRefund - discountedAmount;
+            var applicable_sub_total = bill.grossCartAmount - requestedRefund - discountedAmount;
             //(Total Cart amount) - (Total Refunds & Discounts)
-
 
             var new_extras_sum = 0;
             /* Recalculate Tax Figures */
             for(var n = 0; n < bill.extras.length; n++){
               if(bill.extras[n].unit == 'PERCENTAGE'){
                 var new_amount = (bill.extras[n].value / 100) * applicable_sub_total;
+                
                 new_amount = Math.round(new_amount * 100) / 100;
 
                 bill.extras[n].amount = new_amount;
@@ -4317,7 +4323,7 @@ function processRefundSettledBill(billNumber, optionalPageRef){
                 //Do nothing
                 new_extras_sum += bill.extras[n].amount;
               }
-            }      
+            }    
 
             /* custom extras */
             if(bill.customExtras.amount && bill.customExtras.amount != 0){
@@ -4341,7 +4347,7 @@ function processRefundSettledBill(billNumber, optionalPageRef){
             var adjustedRefund = alreadyPaidAmount - newGrossAmount;
             adjustedRefund = Math.floor(adjustedRefund);
             bill.refundDetails.amount = adjustedRefund;
-
+            bill.refundDetails.netAmount = requestedRefund;
 
             var new_payable_amount = newGrossAmount;
             new_payable_amount = Math.round(new_payable_amount * 100) / 100;   
@@ -4351,7 +4357,6 @@ function processRefundSettledBill(billNumber, optionalPageRef){
             bill.calculatedRoundOff = Math.round((new_payable_amount_rounded - new_payable_amount) * 100) / 100;
           
           }
-
 
                 var encodedBill = encodeURI(JSON.stringify(bill));
 
