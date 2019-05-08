@@ -2695,6 +2695,8 @@ function openSelectedBill(encodedBill, type){
 		var otherCharges = '';
 		if(!jQuery.isEmptyObject(bill.refundDetails) && bill.refundDetails.amount != 0){
 			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total<tag style="color: red">*</tag></td> <td style="text-align: right"><i class="fa fa-inr"></i>'+subTotal+'</td> </tr>';
+			otherCharges += '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Sub Total after Refund<tag style="display: block; color: #f59d13; font-size: 11px;">Refund of <i class="fa fa-inr"></i>'+bill.refundDetails.netAmount+' applied</tag></td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(subTotal-bill.refundDetails.netAmount)+'</td> </tr>';
+		
 		}
 
 		if(otherCharges == '') //if above condition fails
@@ -2752,7 +2754,7 @@ function openSelectedBill(encodedBill, type){
 				issued_refund = bill.refundDetails.amount;
 				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat(bill.totalAmountPaid).toFixed(2)+'</td> </tr>';
 				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Refund Issued</b><tag style="color: red">*</tag><tag onclick="openRefundDetailsInfo(\''+encodeURI(JSON.stringify(bill.refundDetails))+'\')" class="refundIssueSmallButton"><i class="fa fa-info"></i></tag></td> <td style="font-weight: bold; text-align: right">'+(issued_refund != 0 ? '<tag style="color: red">- <i class="fa fa-inr"></i>'+parseFloat(issued_refund).toFixed(2)+'</tag>' : '0')+'</td> </tr>';
-				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Net Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat((bill.totalAmountPaid - issued_refund)).toFixed(2)+'</td> </tr>';
+				otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Gross Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+parseFloat((bill.totalAmountPaid - issued_refund)).toFixed(2)+'</td> </tr>';
 				
 				isDone = true;
 			}
@@ -4379,13 +4381,8 @@ function initLateMenuSuggestion(){
 
 					    	var temp_item = $('#add_item_by_search').val();
 
-					    	var customAdditionContent = '';
-					    	if(isUserAnAdmin){
-					    		customAdditionContent = '<li class="ui-menu-item" onclick="addSpecialCustomItem(\''+temp_item+'\')" tabindex="'+tabIndex+'"><i class="fa fa-plus-circle" style="color: #18ca8b"></i> <i>add</i> <b style="font-size: 120%">'+temp_item+'</b></li>';
-					    	}
-
 					    	var custom_template = 	'<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+
-					    								'<span style="display: inline-block; padding: 8px 0 4px 8px; font-size: 12px; text-align: center; color: #c6c6c6; font-style: italic">No matching items found.</span>'+ customAdditionContent +
+					    								'<span style="display: inline-block; padding: 8px 0 4px 8px; font-size: 12px; text-align: center; color: #c6c6c6; font-style: italic">No matching items found in the Menu.</span>'+ 
 										    	   	'</ul>';
 					    	
 					    	$('#lateSearchResultsRenderArea').html(custom_template);
