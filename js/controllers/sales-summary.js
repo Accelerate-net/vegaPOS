@@ -7040,85 +7040,148 @@ function fetchSingleClickReportAfterApproval(){
 
 		runReportAnimation(18); //Step 12 takes 5 unit time
 
-		$.ajax({
-			type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sessionwisesales?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]',
-			timeout: 50000,
-			success: function(data) {
+		//Preload Sessions
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
 
-				var itemsList = data.rows;
-				if(itemsList.length == 0){
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
 
-					singleClickHourlyTrend();
-					return '';
-				}
+	              var sessionsData = data.docs[0].value;
+	              computeSessionWiseSales(sessionsData);
+	          }
+	        }
+	        else{
+				completeErrorList.push({
+				    "step": 13,
+					"error": "Failed to load sessions data."
+				});
+					
+				sessionWiseSalesData = [];
+				singleClickHourlyTrend();
+				return '';	
+	        }
+	        
+	      },
+	      error: function(data) {
+				completeErrorList.push({
+				    "step": 13,
+					"error": "Failed to load sessions data."
+				});
+					
+				sessionWiseSalesData = [];
+				singleClickHourlyTrend();
+				return '';	
+	      }
 
-				reduceByDate(itemsList);
-				
-				function reduceByDate(listOfItems){
-					//Reduce Function 
-					var reduced_list = listOfItems.reduce(function (accumulator, item) {
-						if(accumulator[item.key[1]]){
-							accumulator[item.key[1]].amount += item.value; //total amount
-							accumulator[item.key[1]].number_of_guests += item.key[2]; //number of guests
-							accumulator[item.key[1]].count++; //number of orders
-						}
-						else{
-							accumulator[item.key[1]] = {
-								"session": item.key[1],
-								"amount": item.value,
-								"count": 1,
-								"number_of_guests": item.key[2],
-							};
-						}
-
-					  	return accumulator;
-					}, {});
+	    });		 
 
 
-					var formattedList = [];
-					var keysCount = Object.keys(reduced_list);
+	    function computeSessionWiseSales(sessionData){
 
-					var counter = 1;
-					for (x in reduced_list) {
-					    formattedList.push({
-					    	"number_of_guests": reduced_list[x].number_of_guests,
-					    	"count": reduced_list[x].count,
-					    	"amount": reduced_list[x].amount,
-					    	"session": reduced_list[x].session
-					    });
+			$.ajax({
+				type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sessionwisesales?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]',
+				timeout: 50000,
+				success: function(data) {
 
-					    if(counter == keysCount.length){ //last iteration
-					    	// Ascending: Sorting
-					    	formattedList.sort(function(obj1, obj2) {
-			                	return obj2.count - obj1.count;
-			              	});
+					var itemsList = data.rows;
+					if(itemsList.length == 0){
 
-					    	sessionWiseSalesData = formattedList;
-
-					    	//Go to Step 14: Hourly Sales Trend
-					    	singleClickHourlyTrend();
-					    }
-
-					    counter++;
+						singleClickHourlyTrend();
+						return '';
 					}
+
+					reduceByDate(itemsList);
 					
+					function reduceByDate(listOfItems){
+						//Reduce Function 
+						var reduced_list = listOfItems.reduce(function (accumulator, item) {
+							if(accumulator[item.key[1]]){
+								accumulator[item.key[1]].amount += item.value; //total amount
+								accumulator[item.key[1]].number_of_guests += item.key[2]; //number of guests
+								accumulator[item.key[1]].count++; //number of orders
+							}
+							else{
+								accumulator[item.key[1]] = {
+									"session": item.key[1],
+									"amount": item.value,
+									"count": 1,
+									"number_of_guests": item.key[2],
+								};
+							}
+
+						  	return accumulator;
+						}, {});
+
+
+						var formattedList = [];
+						var keysCount = Object.keys(reduced_list);
+
+						var counter = 1;
+						for (x in reduced_list) {
+						    formattedList.push({
+						    	"number_of_guests": reduced_list[x].number_of_guests,
+						    	"count": reduced_list[x].count,
+						    	"amount": reduced_list[x].amount,
+						    	"session": reduced_list[x].session
+						    });
+
+						    if(counter == keysCount.length){ //last iteration
+						    	// Ascending: Sorting
+						    	formattedList.sort(function(obj1, obj2) {
+				                	return obj2.count - obj1.count;
+				              	});
+
+						    	sessionWiseSalesData = formattedList;
+
+						    	//Format
+						    	for(var t = 0; t < sessionWiseSalesData.length; t++){
+						    		for(var a = 0; a < sessionData.length; a++){
+						    			if(sessionWiseSalesData[t].session == sessionData[a].name){
+						    				sessionWiseSalesData[t].range = moment(sessionData[a].startTime,"HHmm").format("hh:mm a") +' to '+ moment(sessionData[a].endTime,"HHmm").format("hh:mm a");
+						    				break;
+						    			}
+						    		}	
+						    	}
+
+						    	//Go to Step 14: Hourly Sales Trend
+						    	singleClickHourlyTrend();
+						    }
+
+						    counter++;
+						}
+						
+					}
+
+				},
+				error: function(data){
+						completeErrorList.push({
+						    "step": 13,
+							"error": "Failed to load session wise sales."
+						});
+						
+
+						sessionWiseSalesData = [];
+
+						singleClickHourlyTrend();
+						return '';							    	
 				}
+			}); 
 
-			},
-			error: function(data){
-					completeErrorList.push({
-					    "step": 13,
-						"error": "Failed to load session wise sales."
-					});
-					
-
-					sessionWiseSalesData = [];
-
-					singleClickHourlyTrend();
-					return '';							    	
-			}
-		});  		
+		} //end - computeSessionWiseSales() 		
 	}
 
 
@@ -10402,10 +10465,13 @@ function fetchSingleClickReportAfterApproval(){
 			var weeklyTrendRenderContent = ''; //Weekly Trend
 			var hourlySalesSummaryTemplate = ''; //Hourly Trend
 			var dayByDaySalesSummaryTemplate = ''; //Day by Day Summary
+			var sessionSummaryTemplate = ''; //Session Summary
 			var downloadSummaryCancellations = ''; //Bill Cancellations
 			var reducedBillingModesContentFinal = ''; //Reduced Billing Modes (DINE, DELIVERY etc.)
 			var salesByBillingModeRenderContentFinal = ''; //By Billing Modes
 			var salesByPaymentTypeRenderContentFinal = ''; //By Payment Modes
+			var topSellingTemplate = ''; //Top Selling
+			var discountSummaryTemplate = ''; //Discounts
 
 
 			renderWeeklyTrend();
@@ -10613,7 +10679,98 @@ function fetchSingleClickReportAfterApproval(){
 				}
 
 
+				renderSessionSummary();
+			}
+
+
+			/* SESSION SUMMARY */
+			function renderSessionSummary(){
+
+				var sessionSummaryContent = '';
+				for(var i = 0; i < sessionWiseSalesData.length; i++){
+					sessionSummaryContent += '<tr><td class="tableQuickBrief"><b>'+sessionWiseSalesData[i].session+'</b> Session'+(sessionWiseSalesData[i].range ? '<span style="color: #5a5757; display: block; font-size:12px">'+sessionWiseSalesData[i].range+'</span>' : '')+'</td> <td class="tableQuickBrief" style="color: #5a5757; font-style: italic">'+(sessionWiseSalesData[i].number_of_guests > 0 ? sessionWiseSalesData[i].number_of_guests + ' guests': '')+'</td> <td class="tableQuickBrief" style="color: #5a5757; font-style: italic">'+(sessionWiseSalesData[i].count > 0 ? sessionWiseSalesData[i].count + ' bills' : 'No bills')+'</td> <td class="tableQuickAmount"><span class="price">Rs.</span>'+sessionWiseSalesData[i].amount+'</td></tr>';
+				}
+
+				if(sessionSummaryContent != ''){
+					sessionSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">SESSION WISE SALES</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 sessionSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+				renderDiscounts();
+			}
+
+
+			/* DISCOUNTS */
+			function renderDiscounts(){
+
+				var discountSummaryContent = '';
+				var effective_sum = 0;
+				for(var i = 0; i < detailedDiscountsData.length; i++){
+					discountSummaryContent += '<tr><td class="tableQuickBrief">'+detailedDiscountsData[i].name+'<span style="color: #5a5757; font-size:12px; font-style: italic; margin-left: 10px">on '+detailedDiscountsData[i].count+' orders</span></td> <td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedDiscountsData[i].amount).toFixed(2)+'</td></tr>';
+					effective_sum += detailedDiscountsData[i].amount;
+				}
+
+				if(discountSummaryContent != ''){
+					discountSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">DISCOUNTS SUMMARY</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 discountSummaryContent+
+					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(effective_sum).toFixed(2)+'</b></td></tr>'+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+				renderTopSelling();				
+			}
+
+
+			/* TOP SELLING ITEMS */
+			function renderTopSelling(){
+
+				var topSellingContent = '';
+				for(var i = 0; i < detailedTopItemsData.length; i++){
+					topSellingContent +='<tr>'+
+											'<td><svg version="1.1" id="Capa_1" x="0px" y="0px" width="15px" height="15px" viewBox="0 0 512.001 512.001" style="enable-background:new 0 0 512.001 512.001;" xml:space="preserve"> <path style="fill:#FFDC64;" d="M499.92,188.26l-165.839-15.381L268.205,19.91c-4.612-10.711-19.799-10.711-24.411,0l-65.875,152.97 L12.08,188.26c-11.612,1.077-16.305,15.52-7.544,23.216l125.126,109.922L93.044,483.874c-2.564,11.376,9.722,20.302,19.749,14.348 L256,413.188l143.207,85.034c10.027,5.954,22.314-2.972,19.75-14.348l-36.619-162.476l125.126-109.922 C516.225,203.78,511.532,189.337,499.92,188.26z"/> <path style="fill:#FFC850;" d="M268.205,19.91c-4.612-10.711-19.799-10.711-24.411,0l-65.875,152.97L12.08,188.26 c-11.612,1.077-16.305,15.52-7.544,23.216l125.126,109.922L93.044,483.874c-2.564,11.376,9.722,20.302,19.749,14.348l31.963-18.979 c4.424-182.101,89.034-310.338,156.022-383.697L268.205,19.91z"/> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></td>'+
+											'<td class="tableQuickBrief">'+detailedTopItemsData[i].name+(detailedTopItemsData[i].category != "MANUAL_UNKNOWN" ? '<span style="margin-left: 10px; color: #5a5757; font-size:12px; font-style: italic">'+detailedTopItemsData[i].category+'</span>' : '')+'</td> <td class="tableQuickAmount"><b>'+detailedTopItemsData[i].count+'</b></td>'+
+										'</tr>';
+				}
+
+				if(topSellingContent != ''){
+					topSellingTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">TOP SELLING ITEMS</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 topSellingContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
 				renderDaywiseSummary();
+
 			}
 
 
@@ -10738,6 +10895,8 @@ function fetchSingleClickReportAfterApproval(){
 			
 			    renderBillingModes();
 			}
+
+
 
 
 			/* BY BILLING MODES */
@@ -10933,7 +11092,7 @@ function fetchSingleClickReportAfterApproval(){
 
 			}
 
-			
+
 		    /* BY PAYMENT MODES */
 		    function renderPaymentModes(){
 
@@ -11166,9 +11325,12 @@ function fetchSingleClickReportAfterApproval(){
 				      (salesByBillingModeRenderContentFinal != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ salesByBillingModeRenderContentFinal : '')+
 					  (reducedBillingModesContentFinal != '' ? reducedBillingModesContentFinal : '')+
 				      (salesByPaymentTypeRenderContentFinal != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ salesByPaymentTypeRenderContentFinal : '')+
+				      (discountSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ discountSummaryTemplate : '')+
 				      (downloadSummaryCancellations != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ downloadSummaryCancellations : '')+
 				      (hourlySalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ hourlySalesSummaryTemplate : '')+
+				      (sessionSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+sessionSummaryTemplate : '')+
 				      (dayByDaySalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ dayByDaySalesSummaryTemplate : '')+
+				      (topSellingTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ topSellingTemplate : '')+
 				    '</body>';
 
 					var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
