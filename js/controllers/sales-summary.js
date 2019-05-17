@@ -5075,7 +5075,7 @@ function generateOverallItemCancellationReport(){
 											'</td>'+
 											'<td style="font-weight: bold; font-family: \'Oswald\'; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].qty+' <tag style="font-weight: 300;">x</tag></td>'+
 											'<td>'+
-												'<tag style="font-weight: 600; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].name+'</tag>'+
+												'<tag style="font-weight: 600; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].name+(cancelledData.itemsRemoved[i].isCustom ? ' <tag style="font-size: 80%; font-weight: 400">('+cancelledData.itemsRemoved[i].variant+')</tag>' : '')+'</tag>'+
 												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.itemsRemoved[i].comments+'</tag>'+
 											'</td>'+
 											'<td>'+(cancelledData.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.mode)+'</td>'+
@@ -5358,7 +5358,7 @@ function fetchItemSummary(){
 
 					var renderContent = '';
 					for(var i = 0; i < upper_limit; i++){
-						renderContent += '<tr> <td><i class="fa fa-star" style="color: #ffd63f; font-size: 12px; margin-right: 10px; top: -1px; position: relative;"></i><b style="color: #e69d17; font-size: 17px; font-weight: 500; }">'+itemsFilteredList[i].name+(itemsFilteredList[i].category != '' && itemsFilteredList[i].category != 'UNKNOWN' ? '<tag style="color: gray; margin-left: 6px; font-size: 12px;">'+itemsFilteredList[i].category+'</tag>' : '')+'</b></td> <td class="summaryLine3" style="text-align: center; color: #e69d17">'+itemsFilteredList[i].count+'</td> </tr>';
+						renderContent += '<tr> <td><i class="fa fa-star" style="color: #ffd63f; font-size: 12px; margin-right: 10px; top: -1px; position: relative;"></i><b style="color: #e69d17; font-size: 17px; font-weight: 500; }">'+itemsFilteredList[i].name+(itemsFilteredList[i].category != '' && itemsFilteredList[i].category != 'MANUAL_UNKNOWN' ? '<tag style="color: gray; margin-left: 6px; font-size: 12px;">'+itemsFilteredList[i].category+'</tag>' : '')+'</b></td> <td class="summaryLine3" style="text-align: center; color: #e69d17">'+itemsFilteredList[i].count+'</td> </tr>';
 					}
 
 					document.getElementById("summaryRender_itemSummary").innerHTML = renderContent;
@@ -6074,6 +6074,7 @@ function fetchSingleClickReportAfterApproval(){
 
 	var detailedDiscountsData = []; //Discounts offered
 	var detailedTopItemsData = []; //Top 20 items
+	var detailedItemCategoryWiseData = []; //Top 20 items
 
 	var cancellationsData_items = []; //Item cancellations list
 	var cancellationsData_orders = []; //Order Cancellations list
@@ -8615,7 +8616,8 @@ function fetchSingleClickReportAfterApproval(){
 
 				function renderTopSellingItems(itemsFilteredList){
 					detailedTopItemsData = itemsFilteredList;
-					singleClickCancellationDetails();
+					//singleClickCancellationDetails();
+					processGroupWiseSales(itemsList);
 				}
 			},
 			error: function(data){
@@ -8629,8 +8631,223 @@ function fetchSingleClickReportAfterApproval(){
 						return '';						    	
 			}
 
-		});  		
+		});  
+
+
+		function processGroupWiseSales(itemsMasterList){
+			
+			var itemsList = itemsMasterList;
+
+			reduceByDate(itemsList);
+			
+			function reduceByDate(listOfItems){
+				//Reduce Function 
+				var reduced_list = listOfItems.reduce(function (accumulator, item) {
+				
+				var accumulator_item_name = item.key[3] && item.key[3] != "" ? item.key[2] + ' ('+item.key[3]+')' : item.key[2];
+
+					if(accumulator[accumulator_item_name]){
+						accumulator[accumulator_item_name].count += item.value;
+					}
+					else{
+						accumulator[accumulator_item_name] = {
+							"category": item.key[1],
+							"count": item.value,
+							"price": item.key[4]
+						};
+					}
+
+				  	return accumulator;
+				}, {});
+
+
+				var formattedList = [];
+				var keysCount = Object.keys(reduced_list);
+
+				var counter = 1;
+				for (x in reduced_list) {
+				    formattedList.push({
+				    	"name": x,
+				    	"count": reduced_list[x].count,
+				    	"saleAmount": reduced_list[x].count * reduced_list[x].price,
+				    	"category": reduced_list[x].category
+				    });
+
+				    if(counter == keysCount.length){ //last iteration
+				    	// Ascending: Sorting
+				    	formattedList.sort(function(obj1, obj2) {
+		                	return obj2.count - obj1.count;
+		              	});
+
+				    	renderAllItemsSummary(formattedList);
+				    }
+
+				    counter++;
+				}
+				
+			}
+
+			function renderAllItemsSummary(itemsFilteredList){
+
+				var categorySortedList = itemsFilteredList.reduce(function (accumulator, item) {
+					if(accumulator[item.category]){
+						accumulator[item.category].push({
+							"name": item.name,
+							"count": item.count,
+							"saleAmount": item.saleAmount
+						});
+					}
+					else{
+						accumulator[item.category] = [];
+						accumulator[item.category].push({
+							"name": item.name,
+							"count": item.count,
+							"saleAmount": item.saleAmount
+						});
+					}
+
+				  	return accumulator;
+				}, {});
+
+
+
+				var formattedCategoryList = [];
+				var categoryCount = Object.keys(categorySortedList);
+
+				var counter = 1;
+				for (x in categorySortedList) {
+
+					var n = 0;
+					var sub_list = [];
+					while(categorySortedList[x][n]){
+						sub_list.push({
+					    	"name": categorySortedList[x][n].name,
+					    	"count": categorySortedList[x][n].count,
+					    	"saleAmount": categorySortedList[x][n].saleAmount
+						});
+						n++;
+					}
+
+					if(x == 'MANUAL_UNKNOWN' || x == 'UNKNOWN'){
+						x = 'Uncategorized';
+					}
+
+				    formattedCategoryList.push({
+				    	"category": x,
+				    	"items": sub_list
+				    });
+
+				    if(counter == categoryCount.length){ //last iteration
+				    	renderAllItemsSummaryAfterProcess(formattedCategoryList);
+				    }
+
+				    counter++;
+				}
+
+				function renderAllItemsSummaryAfterProcess(categorisedItemsList){
+					
+					if(categorisedItemsList.length > 0){ 
+						var n = 0;
+						while(categorisedItemsList[n]){ //render category
+							
+							var itemsTotalSales = 0;
+							var itemsTotalCount = 0;
+
+							for(var i = 0; i < categorisedItemsList[n].items.length; i++){
+								itemsTotalSales += categorisedItemsList[n].items[i].saleAmount;
+								itemsTotalCount += categorisedItemsList[n].items[i].count;
+							}
+
+							categorisedItemsList[n].totalSales = itemsTotalSales;
+							categorisedItemsList[n].totalCount = itemsTotalCount;
+							delete categorisedItemsList[n].items;
+
+							if(n == categorisedItemsList.length - 1){ //last iteration
+								detailedItemCategoryWiseData = categorisedItemsList;
+								
+								//Process data
+								processCategoryWiseData();
+								return '';
+							}
+
+							n++;
+						}
+					}
+				}
+
+
+
+			}
+
+		} // end - processGroupWiseSales();	
+
+
+		function processCategoryWiseData(){
+
+		    //Preload menu catalog
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ACCELERATE_MENU_CATALOG" 
+		                  },
+		      "fields"    : ["identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATALOG'){
+
+		              var catalogData = data.docs[0].value;
+
+		              var n = 0;
+		              while(detailedItemCategoryWiseData[n]){
+		                detailedItemCategoryWiseData[n].topCategory = getTopLevelCategory(detailedItemCategoryWiseData[n].category);
+		              	n++;
+		              }
+
+		              function getTopLevelCategory(category_name) {
+		                for(var i = 0; i < catalogData.length; i++){
+		                  if(catalogData[i].name == category_name){
+		                    return catalogData[i].mainType;
+		                    break;
+		                  }
+		                }
+
+		                return "Uncategorized";
+		              }
+
+
+		              //Step 19:
+		              singleClickCancellationDetails();
+		          }
+		        }
+		      },
+		      error: function(data) {
+						completeErrorList.push({
+						    "step": 18,
+							"error": "Unable to calculate category wise item sales."
+						});
+
+						detailedItemCategoryWiseData = [];
+						singleClickCancellationDetails();
+						return '';	
+		      }
+
+		    });  			
+		}	
+	
+
 	}
+
+
+
+
 
 
 	//Step 19: Cancellation Details
@@ -10471,7 +10688,13 @@ function fetchSingleClickReportAfterApproval(){
 			var salesByBillingModeRenderContentFinal = ''; //By Billing Modes
 			var salesByPaymentTypeRenderContentFinal = ''; //By Payment Modes
 			var topSellingTemplate = ''; //Top Selling
+			var categoryWiseSalesSummaryTemplate = ''; //Category wise report
+			var categoryWiseCrispOverallTemplate = ''; //Main Type wise summary
 			var discountSummaryTemplate = ''; //Discounts
+
+			var cancelledItemsSummaryTemplate = '';
+			var cancelledOrdersSummaryTemplate = '';
+			var cancelledInvoicesSummaryTemplate = '';
 
 
 			renderWeeklyTrend();
@@ -10749,7 +10972,7 @@ function fetchSingleClickReportAfterApproval(){
 				for(var i = 0; i < detailedTopItemsData.length; i++){
 					topSellingContent +='<tr>'+
 											'<td><svg version="1.1" id="Capa_1" x="0px" y="0px" width="15px" height="15px" viewBox="0 0 512.001 512.001" style="enable-background:new 0 0 512.001 512.001;" xml:space="preserve"> <path style="fill:#FFDC64;" d="M499.92,188.26l-165.839-15.381L268.205,19.91c-4.612-10.711-19.799-10.711-24.411,0l-65.875,152.97 L12.08,188.26c-11.612,1.077-16.305,15.52-7.544,23.216l125.126,109.922L93.044,483.874c-2.564,11.376,9.722,20.302,19.749,14.348 L256,413.188l143.207,85.034c10.027,5.954,22.314-2.972,19.75-14.348l-36.619-162.476l125.126-109.922 C516.225,203.78,511.532,189.337,499.92,188.26z"/> <path style="fill:#FFC850;" d="M268.205,19.91c-4.612-10.711-19.799-10.711-24.411,0l-65.875,152.97L12.08,188.26 c-11.612,1.077-16.305,15.52-7.544,23.216l125.126,109.922L93.044,483.874c-2.564,11.376,9.722,20.302,19.749,14.348l31.963-18.979 c4.424-182.101,89.034-310.338,156.022-383.697L268.205,19.91z"/> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></td>'+
-											'<td class="tableQuickBrief">'+detailedTopItemsData[i].name+(detailedTopItemsData[i].category != "MANUAL_UNKNOWN" ? '<span style="margin-left: 10px; color: #5a5757; font-size:12px; font-style: italic">'+detailedTopItemsData[i].category+'</span>' : '')+'</td> <td class="tableQuickAmount"><b>'+detailedTopItemsData[i].count+'</b></td>'+
+											'<td class="tableQuickBrief">'+detailedTopItemsData[i].name+(detailedTopItemsData[i].category != "MANUAL_UNKNOWN" && detailedTopItemsData[i].category != "UNKNOWN" ? '<span style="margin-left: 10px; color: #5a5757; font-size:12px; font-style: italic">'+detailedTopItemsData[i].category+'</span>' : '')+'</td> <td class="tableQuickAmount"><b>'+detailedTopItemsData[i].count+'</b></td>'+
 										'</tr>';
 				}
 
@@ -10769,10 +10992,361 @@ function fetchSingleClickReportAfterApproval(){
 				        '</div>';	
 				}
 
-				renderDaywiseSummary();
+				renderCategoryWiseSales();
 
 			}
 
+
+
+			/* CATEGORY WISE ITEM SALES */
+			function renderCategoryWiseSales(){
+
+				detailedItemCategoryWiseData.sort(function(category1, category2) { //sort by sales
+					if (category1.totalSales > category2.totalSales)
+    					return -1;
+					if (category1.totalSales < category2.totalSales)
+    					return 1;
+  
+  					return 0;
+			    });
+
+				var categoryWiseSalesSummaryContent = '';
+
+				var halfCount = 0;
+				var leftHalfContent = '';
+				var rightHalfContent = '';
+
+				var maxRows = Math.ceil(detailedItemCategoryWiseData.length/2); 
+				if(maxRows > 25){ //Max is 25
+					maxRows = 25;
+				}
+
+				for(var g = 0; g < detailedItemCategoryWiseData.length; g++){
+
+					halfCount++;
+
+					if(halfCount <= maxRows){
+						leftHalfContent +='<tr><td class="tableQuickBrief" style="font-size: 13px">'+detailedItemCategoryWiseData[g].category+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+detailedItemCategoryWiseData[g].totalCount+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+detailedItemCategoryWiseData[g].totalSales+'</td></tr>';
+					}
+					else if(halfCount >= maxRows+1 && halfCount <= 2*maxRows){
+						rightHalfContent +='<tr><td class="tableQuickBrief" style="font-size: 13px">'+detailedItemCategoryWiseData[g].category+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+detailedItemCategoryWiseData[g].totalCount+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+detailedItemCategoryWiseData[g].totalSales+'</td></tr>';
+					}
+					else{
+						//Time to render and reset the counter
+						halfCount = 0; 
+						g--;
+
+						categoryWiseSalesSummaryContent += ''+
+							'<div style="position: relative; margin-top: 20px">'+
+								'<div style="width: 48%; display: block; float: left;">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Sales Volume</td>'+
+						                 leftHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						        '<div style="width: 48%; float: right; display:block">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Sales Volume</td>'+
+						                 rightHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						    '</div>';
+
+						//reset template
+	    				leftHalfContent = '';
+						rightHalfContent = '';
+					}
+				}
+
+				//Render the remaining content
+				if(rightHalfContent != ''){
+					categoryWiseSalesSummaryContent += ''+
+							'<div style="position: relative; margin-top: 20px">'+
+								'<div style="width: 48%; display: block; float: left;">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Sales Volume</td>'+
+						                 leftHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						        '<div style="width: 48%; float: right; display:block">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Sales Volume</td>'+
+						                 rightHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						    '</div>';	
+				}
+				else if(leftHalfContent != '' && rightHalfContent == ''){
+					categoryWiseSalesSummaryContent += ''+
+							'<div style="position: relative; margin-top: 20px">'+
+								'<div style="width: 48%; display: block; float: left;">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Sales Volume</td>'+
+						                 leftHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						    '</div>';	
+				}
+
+
+				if(detailedItemCategoryWiseData.length > 0){
+					categoryWiseSalesSummaryTemplate = ''+	
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">CATEGORY WISE SALES</h1>'+
+						           '</div>'+
+						           categoryWiseSalesSummaryContent+
+						        '</div>'+
+						    '</div>';	
+				}
+
+				renderCrispSummary(detailedItemCategoryWiseData);
+
+				function renderCrispSummary(myData){
+					
+					var data = myData;
+
+					var reduced_data = data.reduce(function (accumulator, item) {
+						if(accumulator[item.topCategory]){
+							accumulator[item.topCategory].totalSales += item.totalSales;
+							accumulator[item.topCategory].totalCount += item.totalCount;
+						}
+						else{
+							accumulator[item.topCategory] = item;
+						}
+
+					  	return accumulator;
+					}, {});
+
+
+
+					var shortListedData = [];
+					for(var key in reduced_data){
+						shortListedData.push({
+							"topCategory": reduced_data[key].topCategory,
+							"totalSales": reduced_data[key].totalSales,
+							"totalCount": reduced_data[key].totalCount
+						});
+					}
+
+					shortListedData.sort(function(category1, category2) { //sort by sales
+						if (category1.totalSales > category2.totalSales)
+	    					return -1;
+						if (category1.totalSales < category2.totalSales)
+	    					return 1;
+	  
+	  					return 0;
+				    });
+
+				    var crispSummaryContent = '';
+					for(var i = 0; i < shortListedData.length; i++){
+						crispSummaryContent += '<tr><td class="tableQuickBrief"><b>'+(shortListedData[i].topCategory).toUpperCase()+'</b> Category</td> <td class="tableQuickBrief" style="color: #5a5757; font-style: italic">'+shortListedData[i].totalCount + ' units sold</td> <td class="tableQuickAmount"><span class="price">Rs.</span>'+shortListedData[i].totalSales+'</td></tr>'; 
+					}
+
+
+					if(crispSummaryContent != ''){
+						categoryWiseCrispOverallTemplate = '' +
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">MENU SUMMARY</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 crispSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+					}
+
+				}
+
+
+
+
+
+
+
+
+				renderCancellationSummary();
+			}
+
+
+
+
+
+			/* CANCELLATION SUMMARY */
+			function renderCancellationSummary(){
+				
+				//Cancelled Items
+				var cancelledItemsSummaryContent = '';
+
+				for(var n = 0; n < cancellationsData_items.length; n++){
+
+							var cancelledData = cancellationsData_items[n].value;
+
+							for(var i = 0; i < cancelledData.itemsRemoved.length; i++){
+								
+								cancelledItemsSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 12px">'+moment(cancelledData.time, 'hhmm').format('hh:mm A')+'</tag>'+
+												'<tag style="color: #5a5757; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; color: #6f6f6f; text-align: right">'+cancelledData.itemsRemoved[i].qty+' <tag style="font-weight: 300;">x</tag></td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-weight: 600; color: #6f6f6f; font-size: 14px">'+cancelledData.itemsRemoved[i].name+(cancelledData.itemsRemoved[i].isCustom ? ' <tag style="font-weight: 300; font-size: 80%">('+cancelledData.itemsRemoved[i].variant+')</tag>' : '')+'</tag>'+
+												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.itemsRemoved[i].comments+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">'+(cancelledData.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.mode)+'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 14px">by '+cancelledData.stewardName+'</tag>'+
+												'<tag style="display: block; font-size: 11px; color: #5a5757;">'+cancelledData.adminName+' approved</tag>'+
+											'</td>'+
+										'</tr>';
+							}
+
+				}
+
+				if(cancelledItemsSummaryContent != ''){
+					cancelledItemsSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">ITEM CANCELLATIONS</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 cancelledItemsSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+
+
+				//Cancelled Orders
+				var cancelledOrdersSummaryContent = '';
+				for(var i = 0; i < cancellationsData_orders.length; i++){
+
+					var cancelledData = cancellationsData_orders[i].value;
+					
+					var number_of_items = 0;
+					var order_value = 0;
+					for(var a = 0; a < cancelledData.cart.length; a++){
+						number_of_items += cancelledData.cart[a].qty;
+						order_value += cancelledData.cart[a].qty * cancelledData.cart[a].price;
+					}
+
+					cancelledOrdersSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 12px">'+moment(cancelledData.cancelDetails.timeCancel, 'hhmm').format('hh:mm A')+'</tag>'+
+												'<tag style="color: #5a5757; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; font-size: 12px"><span class="price" style="font-weight: 300; font-size: 80%">Rs.</span>'+order_value+'<tag style="font-weight: 300; color: #5a5757; display: block; font-size: 11px">'+(number_of_items > 1 ? number_of_items +' Items' : number_of_items+' Item')+'</tag></td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="color: #5a5757; font-size: 13px">'+cancelledData.cancelDetails.reason+'</tag>'+
+												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.cancelDetails.comments+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">'+(cancelledData.orderDetails.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.orderDetails.mode)+'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 14px">by '+(cancelledData.stewardName != '' ? cancelledData.stewardName : 'Unknown')+'</tag>'+
+												'<tag style="display: block; font-size: 11px; color: #5a5757;">'+cancelledData.cancelDetails.cancelledBy+' approved</tag>'+
+											'</td>'+
+										'</tr>';
+				}
+
+
+				if(cancelledOrdersSummaryContent != ''){
+					cancelledOrdersSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">ORDER CANCELLATIONS</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 cancelledOrdersSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+
+				//Cancelled Invoices
+				var cancelledInvoicesSummaryContent = '';
+				for(var i = 0; i < cancellationsData_invoices.length; i++){
+
+					var cancelledData = cancellationsData_invoices[i].value;
+					
+					var number_of_items = 0;
+					for(var a = 0; a < cancelledData.cart.length; a++){
+						number_of_items += cancelledData.cart[a].qty;
+					}
+
+					cancelledInvoicesSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 12px">'+moment(cancelledData.cancelDetails.timeCancel, 'hhmm').format('hh:mm A')+'</tag>'+
+												'<tag style="color: #5a5757; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">Bill #'+cancelledData.billNumber+'<tag style="display: block; font-size: 11px; color: #5a5757;">'+cancelledData.orderDetails.mode+'</tag></td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; font-size: 12px"><span class="price" style="font-weight: 300; font-size: 80%">Rs. </span>'+cancelledData.payableAmount+'<tag style="font-weight: 300; display: block; font-size: 11px; color: #5a5757">'+(number_of_items > 1 ? number_of_items +' Items' : number_of_items+' Item')+'</tag></td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="color: #5a5757; font-size: 13px">'+cancelledData.cancelDetails.reason+'</tag>'+
+												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.cancelDetails.comments+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 14px">by '+(cancelledData.stewardName != '' ? cancelledData.stewardName : 'Unknown')+'</tag>'+
+												'<tag style="display: block; font-size: 11px; color: #5a5757;">'+cancelledData.cancelDetails.cancelledBy+' approved</tag>'+
+											'</td>'+
+										'</tr>';
+				}
+
+
+				if(cancelledInvoicesSummaryContent != ''){
+					cancelledInvoicesSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">INVOICE CANCELLATIONS</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 cancelledInvoicesSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+				renderDaywiseSummary();
+			}
 
 
 
@@ -11253,6 +11827,15 @@ function fetchSingleClickReportAfterApproval(){
 			
 
 			function renderCancellations(){
+
+				var cancellationBriefContent = '';
+				for(var i = 0; i < invoiceCancellationsData.length; i++){
+					if(invoiceCancellationsData[i].amount > 0){
+						cancellationBriefContent += '<tr><td class="tableQuickBrief">'+invoiceCancellationsData[i].mode+'</td><td class="tableQuickAmount"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">from '+invoiceCancellationsData[i].count+' Bills</span><span class="price">Rs.</span>'+invoiceCancellationsData[i].amount+'</td></tr>';
+					}
+				}
+
+
 				if(netCancelledBills > 0){
 			    	downloadSummaryCancellations = ''+
 				        '<div class="summaryTableSectionHolder">'+
@@ -11264,8 +11847,10 @@ function fetchSingleClickReportAfterApproval(){
 				              '<table style="width: 100%">'+
 				                 '<col style="width: 70%">'+
 				                 '<col style="width: 30%">'+
-				                 '<tr><td class="tableQuickBrief">Number of Bills</td><td class="tableQuickAmount">'+netCancelledBills+'</td></tr>'+
-				                 '<tr><td class="tableQuickBrief">Cancelled Amount</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(netCancelledBillsSum).toFixed(0)+'</td></tr>'+
+				                 cancellationBriefContent+
+				                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid">Cancelled before Settlement</td><td class="tableQuickAmount" style="border-top: 2px solid"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">'+(invoiceCancellationsMetaData.total_unpaid_count > 0 ? 'from '+invoiceCancellationsMetaData.total_unpaid_count+' Bills' : 'No Bills')+'</span><span class="price">Rs.</span>'+parseFloat(invoiceCancellationsMetaData.total_unpaid_sum).toFixed(0)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief">Cancelled after Settlement</td><td class="tableQuickAmount"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">'+(invoiceCancellationsMetaData.total_paid_count > 0 ? 'from '+invoiceCancellationsMetaData.total_paid_count+' Bills' : 'No Bills')+'</span><span class="price">Rs.</span>'+parseFloat(invoiceCancellationsMetaData.total_paid_sum).toFixed(0)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Overall Cancellations</td><td class="tableQuickAmount" style="background: #f3eced; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">'+(invoiceCancellationsMetaData.grand_count > 0 ? 'from '+invoiceCancellationsMetaData.grand_count+' Bills' : 'No Bills')+'</span><span class="price">Rs.</span>'+parseFloat(invoiceCancellationsMetaData.grand_sum).toFixed(0)+'</td></tr>'+
 				              '</table>'+
 				           '</div>'+
 				        '</div>'+
@@ -11331,6 +11916,11 @@ function fetchSingleClickReportAfterApproval(){
 				      (sessionSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+sessionSummaryTemplate : '')+
 				      (dayByDaySalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ dayByDaySalesSummaryTemplate : '')+
 				      (topSellingTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ topSellingTemplate : '')+
+				   	  (cancelledItemsSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ cancelledItemsSummaryTemplate : '')+
+					  (cancelledOrdersSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ cancelledOrdersSummaryTemplate : '')+					    
+				      (cancelledInvoicesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ cancelledInvoicesSummaryTemplate : '')+					    
+				      (categoryWiseSalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ categoryWiseSalesSummaryTemplate : '')+	
+				      (categoryWiseCrispOverallTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ categoryWiseCrispOverallTemplate : '')+	
 				    '</body>';
 
 					var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
