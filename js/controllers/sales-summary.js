@@ -5977,6 +5977,7 @@ function fetchSingleClickReportAfterApproval(){
     window.localStorage.graphImageDataWeekly = '';
     window.localStorage.graphImageDataPayments = '';
     window.localStorage.graphImageDataBills = '';
+    window.localStorage.graphImageDataHourly = '';
 
     
     //Initialise animation
@@ -6877,7 +6878,7 @@ function fetchSingleClickReportAfterApproval(){
 
 		overalSalesTrend[0] = {
 			"tag": "Today",
-			"range": moment(fromDate, 'YYYYMMDD').format('Do MMM'),
+			"range": moment(fromDate, 'YYYYMMDD').format('Do MMMM'),
 			"amount": 0,
 			"count": 0,
 			"dateFrom": fromDate,
@@ -6886,7 +6887,7 @@ function fetchSingleClickReportAfterApproval(){
 
 		overalSalesTrend[1] = {
 			"tag": "Yesterday",
-			"range": moment(fromDate, 'YYYYMMDD').subtract(1, 'days').format('Do MMM'),
+			"range": moment(fromDate, 'YYYYMMDD').subtract(1, 'days').format('Do MMMM'),
 			"amount": 0,
 			"count": 0,
 			"dateFrom": trendDate_yesterday,
@@ -6895,7 +6896,7 @@ function fetchSingleClickReportAfterApproval(){
 
 		overalSalesTrend[2] = {
 			"tag": "Current Week",
-			"range": moment(fromDate, 'YYYYMMDD').format('Do MMM') +" - "+ moment(fromDate, 'YYYYMMDD').subtract(6, 'days').format('Do MMM'),
+			"range": moment(fromDate, 'YYYYMMDD').subtract(6, 'days').format('Do MMM') +" - "+ moment(fromDate, 'YYYYMMDD').format('Do MMM'),
 			"amount": 0,
 			"count": 0,
 			"dateFrom": trendDate_currentWeek_from,
@@ -6904,25 +6905,25 @@ function fetchSingleClickReportAfterApproval(){
 
 		overalSalesTrend[3] = {
 			"tag": "Previous Week",
-			"range": moment(fromDate, 'YYYYMMDD').subtract(7, 'days').format('Do MMM') + " - " + moment(fromDate, 'YYYYMMDD').subtract(13, 'days').format('Do MMM'),
+			"range": moment(fromDate, 'YYYYMMDD').subtract(13, 'days').format('Do MMM') + " - " + moment(fromDate, 'YYYYMMDD').subtract(7, 'days').format('Do MMM'),
 			"amount": 0,
 			"count": 0,
 			"dateFrom": trendDate_previousWeek_from,
-			"dateTo": trendDate_previousWeek_from
+			"dateTo": trendDate_previousWeek_to
 		}
 
 		overalSalesTrend[4] = {
 			"tag": "Current Month ("+moment(fromDate, 'YYYYMMDD').format('MMMM')+")",
-			"range": (moment(fromDate, 'YYYYMMDD').startOf('month').format('Do MMM') != moment(fromDate, 'YYYYMMDD').format('Do MMM')) ? moment(fromDate, 'YYYYMMDD').startOf('month').format('Do MMM') + " - " + moment(fromDate, 'YYYYMMDD').format('Do MMM') : moment(fromDate, 'YYYYMMDD').format('Do MMM') + "(Today)",
+			"range": (moment(fromDate, 'YYYYMMDD').startOf('month').format('Do MMM') != moment(fromDate, 'YYYYMMDD').format('Do MMM')) ? moment(fromDate, 'YYYYMMDD').startOf('month').format('Do ') + " - " + moment(fromDate, 'YYYYMMDD').format('Do MMMM, YYYY') : moment(fromDate, 'YYYYMMDD').format('Do MMMM') + " (Today)",
 			"amount": 0,
 			"count": 0,
 			"dateFrom": trendDate_currentMonth_from,
-			"dateTo": trendDate_currentMonth_from
+			"dateTo": trendDate_currentMonth_to
 		}
 
 		overalSalesTrend[5] = {
 			"tag": "Previous Month ("+moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('MMMM')+") - Till "+ moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('Do'),
-			"range": moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do MMM') + " - " + moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('Do MMM'),
+			"range": (moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do') != moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('Do') ? moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do ') + " - " + moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('Do MMMM, YYYY') : moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do MMMM')),
 			"amount": 0,
 			"count": 0,
 			"dateFrom": trendDate_previousMonth_from,
@@ -6931,7 +6932,7 @@ function fetchSingleClickReportAfterApproval(){
 
 		overalSalesTrend[6] = {
 			"tag": "Previous Month ("+moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('MMMM')+") - Overall",
-			"range": moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do MMM') + " - " + moment(fromDate, 'YYYYMMDD').subtract(1, 'months').endOf('month').format('Do MMM'),
+			"range": moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do ') + " - " + moment(fromDate, 'YYYYMMDD').subtract(1, 'months').endOf('month').format('Do MMMM, YYYY'),
 			"amount": 0,
 			"count": 0,
 			"dateFrom": trendDate_previousMonth_from,
@@ -6940,7 +6941,7 @@ function fetchSingleClickReportAfterApproval(){
 
 		overalSalesTrend[7] = {
 			"tag": "Last Year "+moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('MMM (YYYY)')+" - Till " + moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('Do'),
-			"range": moment(fromDate, 'YYYYMMDD').subtract(1, 'years').startOf('month').format('Do ') + " - " + moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('Do MMMM, YYYY'),
+			"range": (moment(fromDate, 'YYYYMMDD').subtract(1, 'years').startOf('month').format('Do') != moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('Do') ? moment(fromDate, 'YYYYMMDD').subtract(1, 'years').startOf('month').format('Do ') + " - " + moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('Do MMMM, YYYY') : moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('Do MMMM, YYYY')),
 			"amount": 0,
 			"count": 0,
 			"dateFrom": trendDate_lastYear_from,
@@ -6980,7 +6981,7 @@ function fetchSingleClickReportAfterApproval(){
 					//Refunds issued
 					$.ajax({
 					    type: 'GET',
-						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+overalSalesTrend[index].dateFrom+'"]&endkey=["'+overalSalesTrend[index].dateTo+'"]',
 						timeout: 10000,
 						success: function(data) {
 
@@ -7136,6 +7137,7 @@ function fetchSingleClickReportAfterApproval(){
 			success: function(data) {
 
 				var itemsList = data.rows;
+
 				if(itemsList.length == 0){
 					singleClickDayByDaySales(); //Step 15
 					return '';
@@ -7213,14 +7215,11 @@ function fetchSingleClickReportAfterApproval(){
 
 					}
 
-
-
 						// Ascending: Sorting
 						itemsFilteredList.sort(function(obj1, obj2) {
 				            return obj1.hour_slot - obj2.hour_slot;
 				        });
 				        
-
 				        //Remove 12:00 Midnight to 11:00 Midnight (if all zeros in between)
 				        var midnightEmptyCheck = true;
 				        var m = 0;
@@ -7237,12 +7236,10 @@ function fetchSingleClickReportAfterApproval(){
 				        	itemsFilteredList = itemsFilteredList.splice(11, 23);	
 				        }
 
-						
-						hourlySalesData = itemsFilteredList;
-						
+				        //add guest count as well
+				        hourlySalesData = itemsFilteredList;
 
-						//Step 15: Day-by-day Sales
-						singleClickDayByDaySales();
+						appendHourlyGuestCount(hourlySalesData);
 				}
 
 			},
@@ -7258,7 +7255,231 @@ function fetchSingleClickReportAfterApproval(){
 					singleClickDayByDaySales();
 					return '';									    	
 			}
-		});  
+		}); 
+
+	
+		function appendHourlyGuestCount(myData){
+			
+			var hourlySalesDataTemp = myData;
+
+			$.ajax({
+				type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/timeslotwise_countoverall?startkey=["ANY_MODE","'+fromDate+'", 0]&endkey=["ANY_MODE","'+toDate+'", 23]',
+				timeout: 50000,
+				success: function(data) {
+
+					var itemsList = data.rows;
+					if(itemsList.length == 0){
+
+						for(var i = 0; i < hourlySalesDataTemp; i++){
+							hourlySalesDataTemp[i].number_of_guests = 0;
+						}
+
+						hourlySalesData = hourlySalesDataTemp;
+
+						//Plot graph for day-by-day sales
+						renderHourlyGraph(); 
+						return '';
+					}
+
+					reduceBySlot(itemsList);
+					
+					function reduceBySlot(listOfItems){
+
+						//Reduce Function 
+						var reduced_list = listOfItems.reduce(function (accumulator, item) {
+							if(accumulator[item.key[2]]){
+								accumulator[item.key[2]].number_of_guests += item.value; //number of guests
+								accumulator[item.key[2]].count++; //number of such orders
+							}
+							else{
+								accumulator[item.key[2]] = {
+									"hour_slot": item.key[2],
+									"count": 1,
+									"number_of_guests": item.value,
+								};
+							}
+
+						  	return accumulator;
+						}, {});
+
+
+						var formattedList = [];
+						var keysCount = Object.keys(reduced_list);
+
+						var counter = 1;
+						for (x in reduced_list) {
+						    formattedList.push({
+						    	"number_of_guests": reduced_list[x].number_of_guests,
+						    	"count": reduced_list[x].count,
+						    	"hour_slot": reduced_list[x].hour_slot
+						    });
+
+						    if(counter == keysCount.length){ //last iteration
+						    	addToSummaryData(formattedList);
+						    }
+
+						    counter++;
+						}
+						
+					}
+
+
+
+					function addToSummaryData(countList){
+
+							for(var g = 0; g < 24; g++){
+							
+								var n = 0;
+								while(countList[n]){
+									if(countList[n].hour_slot == g){
+										//Already added slot
+										break;
+									}
+
+									if(n == countList.length - 1){ //last iteration, slot not present
+										countList.push({
+									    	"number_of_guests": 0,
+									    	"count": 0,
+									    	"hour_slot": g
+									    });
+									}
+
+									n++;
+								}
+							}
+
+
+							// Ascending: Sorting
+							countList.sort(function(obj1, obj2) {
+					            return obj1.hour_slot - obj2.hour_slot;
+					        });
+					       
+						
+							for(var i = 0; i < countList.length; i++){
+								for(var s = 0; s < hourlySalesDataTemp.length; s++){
+									if(countList[i].hour_slot == hourlySalesDataTemp[s].hour_slot){
+										hourlySalesDataTemp[s].number_of_guests = countList[i].number_of_guests;
+										break;
+									}
+								}
+							}
+
+							hourlySalesData = hourlySalesDataTemp;
+							renderHourlyGraph();
+					}
+
+				},
+				error: function(data){
+					renderHourlyGraph();
+					return '';								    	
+				}
+			});  
+
+
+			
+		}
+
+
+		function renderHourlyGraph(){
+
+			window.localStorage.graphImageDataHourly = '';
+
+			var isAllZero = true;
+			for(var h = 0; h < hourlySalesData.length; h++){
+				if(hourlySalesData[h].count != 0){
+					isAllZero = false;
+					break;
+				}
+			}
+
+			if(isAllZero){
+				//Skip and go to next step
+				singleClickDayByDaySales(); 
+				return '';
+			}
+
+
+			var graph_labels = [];
+			var graph_data = [];
+			var graph_background = [];
+			var graph_border = [];
+
+			var n = 0;
+			while(hourlySalesData[n]){
+				
+				var slot_name = hourlySalesData[n].hour_slot;
+
+				if(slot_name == 0){
+					slot_name = 'Midnight';
+				}
+				else if(slot_name < 12){
+					slot_name = slot_name + 'am';
+				}
+				else if(slot_name == 12){
+					slot_name = '12 Noon';
+				}
+				else{
+					slot_name = (slot_name-12) + 'pm';
+				}
+
+				graph_labels.push(slot_name);
+				graph_data.push(hourlySalesData[n].amount);
+
+				graph_background.push("rgba(2, 208, 255, 1)") //bright blue color
+				graph_border.push("rgba(2, 208, 255, 1)") //bright blue color
+
+				n++;
+			}
+
+			var ctx = document.getElementById("hourlyTrendLineChart").getContext('2d');
+			var myChart = new Chart(ctx, {
+			    type: 'bar',
+			    data: {
+			        labels: graph_labels,
+			        datasets: [{
+			            label: 'Sales Amount',
+			            data: graph_data,
+			            backgroundColor: graph_background,
+			            borderColor: graph_border,
+			            borderWidth: 1
+			        }]
+			    },
+			    options: {   	
+			        scales: {
+			            yAxes: [{
+			                ticks: {
+			                    beginAtZero:true
+			                },
+			                gridLines: {
+		                    	display:false
+		                	}
+			            }],
+			            xAxes: [{
+			                gridLines: {
+		                    	display:false
+		                	}
+			            }]
+			        },
+			        animation: {
+		                onComplete: convertGraph
+		            }
+			    }
+
+			});	
+
+			function convertGraph(){
+				var temp_graph = myChart.toBase64Image();
+
+				window.localStorage.graphImageDataHourly = temp_graph;
+
+				//Go to Step 15
+				singleClickDayByDaySales();
+			}
+
+		}
+
+
 	}
 
 
@@ -7310,14 +7531,14 @@ function fetchSingleClickReportAfterApproval(){
 						}
 
 						dayByDaySalesData.push({
-								"date": moment(processing_date, 'YYYYMMDD').format('DD MMM, YYYY'),
+								"date": moment(processing_date, 'YYYYMMDD').format('DD MMM \'YY'),
 								"day": moment(processing_date, 'YYYYMMDD').format('dddd'),
 								"count": temp_totalOrders,
 								"netAmount": temp_totalPaid
 						});
 
 
-						calculateGrossAmount();
+						calculateDiscountApplied();
 
 					},
 					error: function(data){
@@ -7331,6 +7552,40 @@ function fetchSingleClickReportAfterApproval(){
 						return '';
 					}
 				});  
+			}
+
+			function calculateDiscountApplied(){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+processing_date+'"]&endkey=["'+processing_date+'"]',
+					timeout: 10000,
+					success: function(data) {
+
+						var discAmount = 0;
+
+						if(data.rows.length > 0){
+							discAmount = data.rows[0].value.sum;
+						}
+
+						dayByDaySalesData[majorIndex].discount = discAmount;
+
+
+						calculateGrossAmount();
+
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 15,
+							"error": "Unable to find the daily sales trend. Calculating discounts failed."
+						});
+					
+						dayByDaySalesData = [];
+						singleClickMonthByMonthSales();
+						return '';
+					}
+				});  
+
 			}
 
 
@@ -8875,7 +9130,15 @@ function fetchSingleClickReportAfterApproval(){
 
 			window.localStorage.graphImageDataBills = '';
 
-			if(billsGraphData.length == 0){
+			var isAllZeros = true;
+			for(var h = 0; h < billsGraphData.length; h++){
+				if(billsGraphData[h].value != 0){
+					isAllZeros = false;
+					break;
+				}
+			}
+
+			if(billsGraphData.length == 0 || isAllZeros){
 				//Skip and go to next step
 				singleClickBillingModesSplitByExtras(); 
 				return '';
@@ -8895,12 +9158,15 @@ function fetchSingleClickReportAfterApproval(){
 
 			var n = 0;
 			while(billsGraphData[n]){
-				var colorSet = random_rgba_color_set();
 
-				graph_labels.push(billsGraphData[n].name);
-				graph_data.push(parseFloat(((billsGraphData[n].value/totalBaseSum)*100)).toFixed(1))
-				graph_background.push(colorSet[0])
-				graph_border.push(colorSet[1])
+				if(billsGraphData[n].value != 0){
+					var colorSet = random_rgba_color_set();
+
+					graph_labels.push(billsGraphData[n].name);
+					graph_data.push(parseFloat(((billsGraphData[n].value/totalBaseSum)*100)).toFixed(1))
+					graph_background.push(colorSet[0])
+					graph_border.push(colorSet[1])
+				}
 
 				n++;
 			}
@@ -8943,7 +9209,7 @@ function fetchSingleClickReportAfterApproval(){
 
 				window.localStorage.graphImageDataBills = temp_graph;
 
-				//Go to Step 8.1
+				//Go to Step 22
 				singleClickBillingModesSplitByExtras();
 			}
 	}
@@ -8970,6 +9236,11 @@ function fetchSingleClickReportAfterApproval(){
 
 		//START PROCESSING
 		function getDetailedByExtras(greatIndex, modes){
+
+			/* for animation sake */ 
+			if(greatIndex < 3){
+				runReportAnimation(81 + greatIndex);
+			}
 			
 			/*
 				For a given billing mode, calculate the extras and custom extras 
@@ -10110,17 +10381,11 @@ function fetchSingleClickReportAfterApproval(){
 
 		function generateReportContentDownload(){
 
-			//To display weekly graph or not
-			var hasWeeklyGraphAttached = false;
-			if(window.localStorage.graphImageDataWeekly && window.localStorage.graphImageDataWeekly != ''){
-				hasWeeklyGraphAttached = true;
-			}
-
-			var graphRenderSectionContent = '';
 			var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
 
 			var reportInfo_title = 'Sales Report of <b>'+fancy_from_date+'</b>';
 			var temp_report_title = 'Sales Report of '+fancy_from_date;
+			
 			if(fromDate != toDate){
 				fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
 				var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
@@ -10128,91 +10393,406 @@ function fetchSingleClickReportAfterApproval(){
 				reportInfo_title = 'Sales Report from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
 				temp_report_title = 'Sales Report from '+fancy_from_date+' to '+fancy_to_date;
 			}
-		    else{ //Render graph only if report is for a day
 
-		      if(hasWeeklyGraphAttached){
-
-		      	var temp_image_name = reportInfo_branch+'_'+fromDate;
-		      	temp_image_name = temp_image_name.replace(/\s/g,'');
-
-		        graphRenderSectionContent = ''+
-		          '<div class="summaryTableSectionHolder">'+
-		          '<div class="summaryTableSection">'+
-		             '<div class="tableQuickHeader">'+
-		                '<h1 class="tableQuickHeaderText">WEEKLY SALES TREND</h1>'+
-		             '</div>'+
-		             '<div class="weeklyGraph">'+
-		                '<img src="'+window.localStorage.graphImageDataWeekly+'" style="max-width: 90%">'+
-		             '</div>'+
-		          '</div>'+
-		          '</div>';
-		      }
-		    }
-
-		    var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
+			var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
 
 
-			//Quick Summary Content
-			var quickSummaryRendererContent = '';
-
-		    /*
-				0 - Net Amount (Total Paid Amount)
-				1 - Discounts
-				2 - Calculated Round Off
-				3 - Waive Off
-				4 - Tips
-				5 - Refund Issued/Item Cancellations
-		    */
-
-		    var effective_gross = netCartSum - completeReportInfo[1].value - completeReportInfo[5].value;
-			quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[1].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[1].type == 'NEGATIVE' && completeReportInfo[1].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[1].value).toFixed(2)+'</td></tr>';
-			quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[5].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[5].type == 'NEGATIVE' && completeReportInfo[5].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[5].value).toFixed(2)+'</td></tr>';
-			quickSummaryRendererContent += '<tr><td class="tableQuickBrief"><b>Effective Gross</b></td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(effective_gross).toFixed(2)+'</td></tr>';
-
-		    var a = 0;
-		    while(reportInfoExtras[a]){
-		      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+reportInfoExtras[a].name+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(reportInfoExtras[a].value).toFixed(2)+'</td></tr>';
-		      a++;
-		    }
-
-		    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[2].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[2].type == 'NEGATIVE' && completeReportInfo[2].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[2].value).toFixed(2)+'</td></tr>';
-		    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[3].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[3].type == 'NEGATIVE' && completeReportInfo[3].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[3].value).toFixed(2)+'</td></tr>';
-		    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[4].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[4].type == 'NEGATIVE' && completeReportInfo[4].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[4].value).toFixed(2)+'</td></tr>';
+			//Render Templates
+			var quickSummaryRendererContent = ''; //Quick Summary
+			var weeklyTrendRenderContent = ''; //Weekly Trend
+			var hourlySalesSummaryTemplate = ''; //Hourly Trend
+			var dayByDaySalesSummaryTemplate = ''; //Day by Day Summary
+			var downloadSummaryCancellations = ''; //Bill Cancellations
+			var reducedBillingModesContentFinal = ''; //Reduced Billing Modes (DINE, DELIVERY etc.)
+			var salesByBillingModeRenderContentFinal = ''; //By Billing Modes
+			var salesByPaymentTypeRenderContentFinal = ''; //By Payment Modes
 
 
+			renderWeeklyTrend();
 
-		    //Sales by Billing Modes Content
-		    var salesByBillingModeRenderContent = '';
-		    var c = 0;
-		    var billSharePercentage = 0;
-		    var individualNetBillingMode = 0;
-		    while(detailedListByBillingMode[c]){
-		      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
-		      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
-		      individualNetBillingMode += detailedListByBillingMode[c].value;
-		      c++;
-		    }
+			/* WEEKLY SALES COMPARISON */
+			function renderWeeklyTrend(){
+
+				if(fromDate != toDate){
+					renderHourlyTrend();
+					return ''; //Skip this
+				}
+
+				var hasWeeklyGraphAttached = false; //To display weekly graph or not
+				if(window.localStorage.graphImageDataWeekly && window.localStorage.graphImageDataWeekly != ''){
+					hasWeeklyGraphAttached = true;
+				}
+
+				var weeklyTrendSummaryTableContent = '';
+				for(var i = 0; i < overalSalesTrend.length; i++){
+					weeklyTrendSummaryTableContent += '<tr><td class="tableQuickBrief">'+overalSalesTrend[i].tag+'<span style="color: #5a5757; display: block; font-size:12px">'+overalSalesTrend[i].range+'</span></td><td class="tableQuickAmount"><span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-size: 12px; font-style: italic; margin-right: 15px">'+(overalSalesTrend[i].count > 0 ? 'from '+overalSalesTrend[i].count+' orders' : 'No orders')+'</span><span class="price">Rs.</span>'+overalSalesTrend[i].amount+'</td></tr>';
+				}
+
+				var weeklyTrendSummaryTableTemplate = '';
+
+				if(weeklyTrendSummaryTableContent != ''){
+					weeklyTrendSummaryTableTemplate = ''+
+					           '<div class="tableQuick" style="margin-top: 20px;">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					             	 weeklyTrendSummaryTableContent+
+					              '</table>'+
+					           '</div>';
+				}
 
 
-			//To display bills graph or not
-			var hasBillsGraphAttached = false;
-			if(window.localStorage.graphImageDataBills && window.localStorage.graphImageDataBills != '' && window.localStorage.graphImageDataBills != 'data:,'){
-				hasBillsGraphAttached = true;
+				var oneLineSummary = '';
+
+				if(overalSalesTrend[2].amount >= overalSalesTrend[3].amount && overalSalesTrend[3].amount > 0){
+					//percentage increase
+					var percentage_increase = parseFloat(((overalSalesTrend[2].amount - overalSalesTrend[3].amount) * 100)/overalSalesTrend[3].amount).toFixed(1);
+					if(percentage_increase < 5 && percentage_increase > 1){
+						//Slight increase in sales
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #1eb194; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #1abc9c;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="218.623,195.004 271.438,119.425 253.165,106.656 322.534,74.229 315.939,150.522 297.668,137.755 227.994,237.459 153.407,194.118 97.979,266.002 72.639,246.461 145.21,152.345" fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Slight Increase in Sales by <tag style="font-size: 26px">'+percentage_increase+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_increase >= 5 && percentage_increase < 10){
+						//Noticeable increase
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #1eb194; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #1abc9c;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="218.623,195.004 271.438,119.425 253.165,106.656 322.534,74.229 315.939,150.522 297.668,137.755 227.994,237.459 153.407,194.118 97.979,266.002 72.639,246.461 145.21,152.345" fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Noticeable Increase in Sales by <tag style="font-size: 26px">'+percentage_increase+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_increase >= 10 && percentage_increase < 20){
+						//Good Increase
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #1eb194; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #1abc9c;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="218.623,195.004 271.438,119.425 253.165,106.656 322.534,74.229 315.939,150.522 297.668,137.755 227.994,237.459 153.407,194.118 97.979,266.002 72.639,246.461 145.21,152.345" fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Good Increase in Sales by <tag style="font-size: 26px">'+percentage_increase+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_increase >= 20){
+						//Fantastic increase
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #1eb194; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #1abc9c;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="218.623,195.004 271.438,119.425 253.165,106.656 322.534,74.229 315.939,150.522 297.668,137.755 227.994,237.459 153.407,194.118 97.979,266.002 72.639,246.461 145.21,152.345" fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Fantastic Boost in Sales by <tag style="font-size: 26px">'+percentage_increase+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+				}
+				else if(overalSalesTrend[3].amount >= overalSalesTrend[2].amount && overalSalesTrend[2].amount > 0){
+					//percentage decrease
+					var percentage_decrease = parseFloat(((overalSalesTrend[3].amount - overalSalesTrend[2].amount) * 100)/overalSalesTrend[2].amount).toFixed(1);
+					if(percentage_decrease < 5 && percentage_decrease > 1){
+						//Slight decrease in sales
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #d24a39; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #e85948;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="211.232,145.228 264.046,220.807 245.774,233.575 315.143,266.002 308.548,189.709 290.276,202.477 220.604,102.772 146.016,146.113 90.588,74.229 65.247,93.771 137.819,187.887 " fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Slight Decrease in Sales by <tag style="font-size: 26px">-'+percentage_decrease+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_decrease >= 5 && percentage_decrease < 10){
+						//Noticeable decrease
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #d24a39; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #e85948;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="211.232,145.228 264.046,220.807 245.774,233.575 315.143,266.002 308.548,189.709 290.276,202.477 220.604,102.772 146.016,146.113 90.588,74.229 65.247,93.771 137.819,187.887 " fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Noticeable Decrease in Sales by <tag style="font-size: 26px">-'+percentage_decrease+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_decrease >= 10 && percentage_decrease < 20){
+						//Good decrease
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #d24a39; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #e85948;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="211.232,145.228 264.046,220.807 245.774,233.575 315.143,266.002 308.548,189.709 290.276,202.477 220.604,102.772 146.016,146.113 90.588,74.229 65.247,93.771 137.819,187.887 " fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Huge Decrease in Sales by <tag style="font-size: 26px">-'+percentage_decrease+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_decrease >= 20){
+						//Tremendous decrease
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #d24a39; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #e85948;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="211.232,145.228 264.046,220.807 245.774,233.575 315.143,266.002 308.548,189.709 290.276,202.477 220.604,102.772 146.016,146.113 90.588,74.229 65.247,93.771 137.819,187.887 " fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Extremly Huge Decrease in Sales by <tag style="font-size: 26px">-'+percentage_decrease+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+				}
+
+				if(oneLineSummary != ''){
+					weeklyTrendSummaryTableTemplate += oneLineSummary;
+				}
+
+
+
+				weeklyTrendRenderContent = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				          '<div class="summaryTableSection">'+
+				             '<div class="tableQuickHeader">'+
+				                '<h1 class="tableQuickHeaderText">SALES TREND</h1>'+
+				             '</div>'+
+				             (hasWeeklyGraphAttached ? '<div class="weeklyGraph"><img src="'+window.localStorage.graphImageDataWeekly+'" style="max-width: 90%"></div>' : '')+
+				             weeklyTrendSummaryTableTemplate+
+				          '</div>'+
+				        '</div>';
+
+				renderHourlyTrend();
 			}
 
-		    var salesByBillingModeRenderContentFinal = '';
-		    if(salesByBillingModeRenderContent != ''){
 
-		    	if(hasBillsGraphAttached){
-				      salesByBillingModeRenderContentFinal = ''+
+
+			/* HOURLY SALES TREND */
+			function renderHourlyTrend(){
+
+				var hasHourlyGraphAttached = false;
+				if(window.localStorage.graphImageDataHourly && window.localStorage.graphImageDataHourly != ''){
+					hasHourlyGraphAttached = true;
+				}
+
+				var hourlySalesSummaryContent = '';
+				var hourlySalesSummaryContent_firstHalf = '';
+				var hourlySalesSummaryContent_secondHalf = '';
+
+				for(var g = 0; g < hourlySalesData.length; g++){
+
+					var slot_name = hourlySalesData[g].hour_slot;
+					
+					if(slot_name == 0){
+						slot_name = 'Midnight to 1 am';
+					}
+					else if(slot_name == 11){
+						slot_name = '11 am to 12 Noon';
+					}
+					else if(slot_name < 12){
+						slot_name = slot_name + ' am to '+(slot_name+1)+' am';
+					}
+					else if(slot_name == 12){
+						slot_name = '12 Noon to 1 pm';
+					}
+					else if(slot_name == 23){
+						slot_name = '11 pm to Midnight';
+					}
+					else{
+						slot_name = (slot_name-12) + ' pm to ' +(slot_name-12+1)+' pm';
+					}
+
+
+					if(g <= hourlySalesData.length/2){
+						hourlySalesSummaryContent_firstHalf +='<tr><td class="tableQuickBrief" style="font-size: 13px">'+slot_name+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+(hourlySalesData[g].number_of_guests > 0 ? hourlySalesData[g].number_of_guests : '-')+'</td><td class="tableQuickBrief" style="text-align: center; font-size:12px">'+hourlySalesData[g].count+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+hourlySalesData[g].amount+'</td></tr>';
+					}
+					else{
+						hourlySalesSummaryContent_secondHalf += '<tr><td class="tableQuickBrief" style="font-size: 13px">'+slot_name+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+(hourlySalesData[g].number_of_guests > 0 ? hourlySalesData[g].number_of_guests : '-')+'</td><td class="tableQuickBrief" style="text-align: center; font-size:12px">'+hourlySalesData[g].count+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+hourlySalesData[g].amount+'</td></tr>';
+					}
+				}
+
+				if(hourlySalesData.length > 0){
+					hourlySalesSummaryContent = ''+
+							'<div style="position: relative; margin-top: 20px">'+
+								'<div style="width: 48%; display: block; float: left;">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Time Slot</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Guests</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Sales</td>'+
+						                 hourlySalesSummaryContent_firstHalf+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						        '<div style="width: 48%; float: right; display:block">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Time Slot</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Guests</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Sales</td>'+
+						                 hourlySalesSummaryContent_secondHalf+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						    '</div>';
+
+					hourlySalesSummaryTemplate = ''+	
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">HOURLY SALES TREND</h1>'+
+						           '</div>'+
+						           (hasHourlyGraphAttached ? '<div class="weeklyGraph"><img src="'+window.localStorage.graphImageDataHourly+'" style="max-width: 90%"></div>' : '')+
+						           hourlySalesSummaryContent+
+						        '</div>'+
+						    '</div>';	
+				}
+
+
+				renderDaywiseSummary();
+			}
+
+
+
+
+			/* DAY BY DAY SALES SUMMARY */
+			function renderDaywiseSummary(){
+			
+				var dayByDaySalesSummaryContent = '';
+				var dayByDaySalesSummaryHeader = '';
+				var dayByDaySalesSummaryOverflowContent = '';
+
+
+			    for(var i = 0; i < dayByDaySalesData.length; i++){ //while(detailedListByPaymentMode[t]){
+
+			    	var detailedExtrasContent = '';
+
+			    	for(var e = 0; e < dayByDaySalesData[i].extras.length; e++){
+			    	
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(dayByDaySalesData[i].extras[e].value).toFixed(2)+'</td>';
+			    
+				    	if(i == 0){
+				    		dayByDaySalesSummaryHeader += '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">'+dayByDaySalesData[i].extras[e].name+'</td>';
+				    	}
+			    	}
+
+			    	if(i < 15){
+				    	dayByDaySalesSummaryContent	+= 	'<tr>'+
+											    			'<td class="tableQuickBrief" style="font-size: 13px">'+dayByDaySalesData[i].date+'<span style="color: #5a5757; display: block; font-size:12px">'+dayByDaySalesData[i].day+'</span></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+dayByDaySalesData[i].count+'</b></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossSales).toFixed(0)+'</td>'+
+											    			detailedExtrasContent +
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossRefund + dayByDaySalesData[i].discount).toFixed(0)+'</td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].netAmount - dayByDaySalesData[i].netRefund).toFixed(0)+'</td>'+
+											    		'</tr>';
+					}
+					else{
+						dayByDaySalesSummaryOverflowContent += 	'<tr>'+
+													    			'<td class="tableQuickBrief" style="font-size: 13px">'+dayByDaySalesData[i].date+'<span style="color: #5a5757; display: block; font-size:12px">'+dayByDaySalesData[i].day+'</span></td>'+
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+dayByDaySalesData[i].count+'</b></td>'+
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossSales).toFixed(0)+'</td>'+
+													    			detailedExtrasContent +
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossRefund + dayByDaySalesData[i].discount).toFixed(0)+'</td>'+
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].netAmount - dayByDaySalesData[i].netRefund).toFixed(0)+'</td>'+
+													    		'</tr>';
+					}
+
+
+			    }
+
+			    if(dayByDaySalesSummaryContent != ''){
+			    	dayByDaySalesSummaryHeader = '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14;">Date</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Gross</td>' + dayByDaySalesSummaryHeader + '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Discounts/ Refunds</td><td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right">Net</td> </tr>';
+			    
+					dayByDaySalesSummaryTemplate = ''+
 				        '<div class="summaryTableSectionHolder">'+
-				        '<div class="summaryTableSection">'+
-				           	'<div class="tableQuickHeader">'+
-				              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
-				           	'</div>'+
-				           	'<div class="tableGraphRow">'+
-						        '<div class="tableGraph_Graph"> <img src="'+window.localStorage.graphImageDataBills+'" width="200px"> </div>'+
-						        '<div class="tableGraph_Table">'+	
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">Day to Day Sales</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 dayByDaySalesSummaryHeader+
+					                 dayByDaySalesSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+
+
+			    }
+
+			    if(dayByDaySalesSummaryOverflowContent != ''){
+			    
+					dayByDaySalesSummaryTemplate += '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>' +
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">Day to Day Sales</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 dayByDaySalesSummaryHeader+
+					                 dayByDaySalesSummaryOverflowContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+
+
+			    }
+
+
+			    renderQuickSummary();
+			}
+
+
+
+
+		    
+
+
+			/* QUICK SUMMARY */
+			function renderQuickSummary(){
+			    var effective_gross = netCartSum - completeReportInfo[1].value - completeReportInfo[5].value;
+				quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[1].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[1].type == 'NEGATIVE' && completeReportInfo[1].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[1].value).toFixed(2)+'</td></tr>';
+				quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[5].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[5].type == 'NEGATIVE' && completeReportInfo[5].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[5].value).toFixed(2)+'</td></tr>';
+				quickSummaryRendererContent += '<tr><td class="tableQuickBrief"><b>Effective Gross</b></td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(effective_gross).toFixed(2)+'</td></tr>';
+
+			    var a = 0;
+			    while(reportInfoExtras[a]){
+			      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+reportInfoExtras[a].name+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(reportInfoExtras[a].value).toFixed(2)+'</td></tr>';
+			      a++;
+			    }
+
+			    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[2].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[2].type == 'NEGATIVE' && completeReportInfo[2].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[2].value).toFixed(2)+'</td></tr>';
+			    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[3].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[3].type == 'NEGATIVE' && completeReportInfo[3].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[3].value).toFixed(2)+'</td></tr>';
+			    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[4].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[4].type == 'NEGATIVE' && completeReportInfo[4].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[4].value).toFixed(2)+'</td></tr>';
+			
+			    renderBillingModes();
+			}
+
+
+			/* BY BILLING MODES */
+			function renderBillingModes(){
+
+				var salesByBillingModeRenderContent = '';
+
+			    var c = 0;
+			    var billSharePercentage = 0;
+			    var individualNetBillingMode = 0;
+			    while(detailedListByBillingMode[c]){
+			      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
+			      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+			      individualNetBillingMode += detailedListByBillingMode[c].value;
+			      c++;
+			    }
+
+
+				//To display bills graph or not
+				var hasBillsGraphAttached = false;
+				if(window.localStorage.graphImageDataBills && window.localStorage.graphImageDataBills != '' && window.localStorage.graphImageDataBills != 'data:,'){
+					hasBillsGraphAttached = true;
+				}
+
+			    if(salesByBillingModeRenderContent != ''){
+
+			    	if(hasBillsGraphAttached){
+					      salesByBillingModeRenderContentFinal = ''+
+					        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           	'<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
+					           	'</div>'+
+					           	'<div class="tableGraphRow">'+
+							        '<div class="tableGraph_Graph"> <img src="'+window.localStorage.graphImageDataBills+'" width="200px"> </div>'+
+							        '<div class="tableGraph_Table">'+	
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 salesByBillingModeRenderContent+
+						                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+	
+					        '</div>'+
+					        '</div>';
+					}
+					else{
+					      salesByBillingModeRenderContentFinal = ''+
+					        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
 					              '<table style="width: 100%">'+
 					                 '<col style="width: 70%">'+
 					                 '<col style="width: 30%">'+
@@ -10220,127 +10800,256 @@ function fetchSingleClickReportAfterApproval(){
 					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
 					              '</table>'+
 					           '</div>'+
-					        '</div>'+	
+					        '</div>'+
+					        '</div>';				
+					}
+			    }
+
+
+			    renderReducedBillingModes();
+			}
+
+
+
+
+		    /* SUMMARY BY BILLING MODES */
+		    function renderReducedBillingModes(){
+
+				var originalBillingModesList = detailedListByBillingMode;
+				var extrasKeysMasterHashMap = [];
+				var extrasKeysMasterList = [];
+				var reducedBillingModesGrandTotal = 0;
+
+				var reducedBillingModesList = originalBillingModesList.reduce(function (accumulator, item) {
+						if(accumulator[item.type]){
+							accumulator[item.type].detailedExtras = accumulator[item.type].detailedExtras.concat(item.detailedExtras);
+							accumulator[item.type].value += item.value;
+							accumulator[item.type].count += item.count;
+						}
+						else{
+							accumulator[item.type] = item;
+						}
+
+					  	return accumulator;
+				}, {});
+
+				for(var key in reducedBillingModesList){
+					var originalExtras = reducedBillingModesList[key].detailedExtras;
+					var reducedExtras = originalExtras.reduce(function (accumulator, item) {
+						if(accumulator[item.name]){
+							accumulator[item.name].amount += item.amount;
+						}
+						else{
+							accumulator[item.name] = item;
+
+							if(!extrasKeysMasterHashMap[item.name]){
+								extrasKeysMasterHashMap[item.name] = item.name;
+							}
+						}
+
+					  	return accumulator;
+					}, {});
+
+
+					reducedBillingModesGrandTotal += reducedBillingModesList[key].value;
+					reducedBillingModesList[key].detailedExtras = reducedExtras;
+				}
+
+				for(var key in extrasKeysMasterHashMap){
+					extrasKeysMasterList.push(extrasKeysMasterHashMap[key]);
+				}
+
+
+				//Time to render
+				var reducedBillingModesContentHeader = '';
+				var reducedBillingModesContent = '';
+
+				var isFirstIteration = true;
+				var reducedBillSharePercentage = 0;
+			    for(var key in reducedBillingModesList){
+
+			    	var detailedExtrasContent = '';
+
+			    	for(var e = 0; e < extrasKeysMasterList.length; e++){
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(reducedBillingModesList[key].detailedExtras[extrasKeysMasterList[e]].amount).toFixed(2)+'</td>';
+				    	
+				    	if(isFirstIteration){
+				    		reducedBillingModesContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right; font-size: 14px;">'+extrasKeysMasterList[e]+'</td>';
+				    	}
+			    	}
+
+			    	isFirstIteration = false;
+
+			    	reducedBillSharePercentage = parseFloat((100*reducedBillingModesList[key].value)/reducedBillingModesGrandTotal).toFixed(0);
+			    	reducedBillingModesContent += '' +
+										    	'<tr>'+
+										   			'<td class="tableQuickBrief">'+getFancyNameForBillingType(reducedBillingModesList[key].type) + (reducedBillSharePercentage > 0 ? ' <span style="color: #5a5757">('+reducedBillSharePercentage+'%)</span>' : '')+'</td>'+
+										   			'<td class="tableQuickAmount" style="text-align: left; font-size: 14px; color: #5a5757">'+reducedBillingModesList[key].count+'</td>'+
+										   			detailedExtrasContent +
+										   			'<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(reducedBillingModesList[key].value).toFixed(0)+'</td>'+
+										   			'<td class="tableQuickAmount" style="text-align: center; font-size: 14px; color: #5a5757">'+(reducedBillingModesList[key].count > 0 ? parseFloat(reducedBillingModesList[key].value/reducedBillingModesList[key].count).toFixed(0) : '-' )+'</td>'+
+										   		'</tr>';
+
+			    }
+
+			    function getFancyNameForBillingType(type){
+			    	if(type == 'DELIVERY'){
+			    		return 'Home Delivery';
+			    	}
+			    	else if(type == 'PARCEL'){
+			    		return 'Takeaway';
+			    	}
+			    	else if(type == 'TOKEN'){
+			    		return 'Token Based';
+			    	}
+			    	else if(type == 'DINE'){
+			    		return 'Dine In';
+			    	}
+			    }
+
+				reducedBillingModesContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: left; font-size: 14px;">Main Type</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: left; font-size: 14px;">Bills</td>' + reducedBillingModesContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right; font-size: 14px;">Net</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center; font-size: 14px;">Avg.</td> </tr>';
+				reducedBillingModesContent = reducedBillingModesContentHeader + reducedBillingModesContent;
+			    
+			    if(reducedBillingModesContent != ''){
+
+			    	reducedBillingModesContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 reducedBillingModesContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+			    }
+
+			    renderPaymentModes();
+
+			}
+
+			
+		    /* BY PAYMENT MODES */
+		    function renderPaymentModes(){
+
+		    	var salesByPaymentTypeRenderContent = '';
+
+			    var d = 0;
+			    var paymentSharePercentage = 0;
+			    var individualNetPaymentMode = 0;
+			    while(detailedListByPaymentMode[d]){
+			      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
+			      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+			      individualNetPaymentMode += detailedListByPaymentMode[d].value;
+			      d++;
+			    }
+
+			    //Detailed Payment (Extras and Custom Extras for each payment mode)
+			    var detailedByExtrasForPaymentRenderContent = '';
+			    var detailedExtrasContentHeader = '';
+
+			    var individualColumnSum_Extras = [];
+			    //initialise with 0's
+			    for(var e = 0; e < detailedListByPaymentMode[0].detailedExtras.length; e++){
+			    	individualColumnSum_Extras.push(0);
+			    }
+
+
+			    var individualColumnSum_Net = 0;
+			    var individualColumnSum_Gross = 0;
+
+			    var t = 0;
+			    while(detailedListByPaymentMode[t]){
+
+			    	var detailedExtrasContent = '';
+			    	var netAmount = detailedListByPaymentMode[t].value;
+
+			    	for(var e = 0; e < detailedListByPaymentMode[t].detailedExtras.length; e++){
+			    	
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(detailedListByPaymentMode[t].detailedExtras[e].amount).toFixed(2)+'</td>';
+			    	
+			    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
+
+			    		individualColumnSum_Extras[e] += detailedListByPaymentMode[t].detailedExtras[e].amount; //hold sum of all CGST for Cash, Card, PayTM etc.
+
+				    	if(t == 0){
+				    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right; font-size: 14px;">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
+				    	}
+			    	}
+
+			    	individualColumnSum_Gross += detailedListByPaymentMode[t].value; //last column (gross)
+			    	individualColumnSum_Net += netAmount; //first column (net)
+
+			    	detailedByExtrasForPaymentRenderContent += '' +
+										    		'<tr>'+
+										    			'<td class="tableQuickBrief">'+detailedListByPaymentMode[t].name+'</td>'+
+										    			'<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(netAmount).toFixed(0)+'</td>'+
+										    			detailedExtrasContent +
+										    			'<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
+										    		'</tr>';
+
+
+			    	t++;
+			    }
+
+			    if(detailedListByPaymentMode.length != 0){
+
+			    	var detailed_footer_content = '';
+			    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
+			    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
+			    	}
+
+				    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: left; font-size: 14px;">Payment Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center; text-align: right; font-size: 14px;">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: right; font-size: 14px;">Net</td> </tr>';
+				    var detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14;">Total</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td>' + detailed_footer_content + '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td> </tr>';
+				    
+				    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent + detailedExtrasContentFooter;
+			    }
+
+
+
+				//To display payment graph or not
+				var hasPaymentsGraphAttached = false;
+				if(window.localStorage.graphImageDataPayments && window.localStorage.graphImageDataPayments != '' && window.localStorage.graphImageDataPayments != 'data:,'){
+					hasPaymentsGraphAttached = true;
+				}
+
+			    
+			    if(salesByPaymentTypeRenderContent != ''){
+
+			    	if(hasPaymentsGraphAttached){
+				      salesByPaymentTypeRenderContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           	'<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
+				           	'</div>'+
+				           	'<div class="tableGraphRow">'+
+						        '<div class="tableGraph_Graph"> <img src="'+window.localStorage.graphImageDataPayments+'" width="200px"> </div>'+
+						        '<div class="tableGraph_Table">'+	
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 salesByPaymentTypeRenderContent+
+					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetPaymentMode).toFixed(0)+'</b></td></tr>'+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
 				        '</div>'+
 				        '</div>';
-				}
-				else{
-				      salesByBillingModeRenderContentFinal = ''+
+				    }
+				    else{
+				    	salesByPaymentTypeRenderContentFinal = ''+
 				        '<div class="summaryTableSectionHolder">'+
 				        '<div class="summaryTableSection">'+
 				           '<div class="tableQuickHeader">'+
-				              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
+				              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
 				           '</div>'+
 				           '<div class="tableQuick">'+
-				              '<table style="width: 100%">'+
-				                 '<col style="width: 70%">'+
-				                 '<col style="width: 30%">'+
-				                 salesByBillingModeRenderContent+
-				                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
-				              '</table>'+
-				           '</div>'+
-				        '</div>'+
-				        '</div>';				
-				}
-		    }
-
-
-		    //Sales by Payment Types Content
-		    var salesByPaymentTypeRenderContent = '';
-		    var d = 0;
-		    var paymentSharePercentage = 0;
-		    var individualNetPaymentMode = 0;
-		    while(detailedListByPaymentMode[d]){
-		      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
-		      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
-		      individualNetPaymentMode += detailedListByPaymentMode[d].value;
-		      d++;
-		    }
-
-		    //Detailed Payment (Extras and Custom Extras for each payment mode)
-		    var detailedByExtrasForPaymentRenderContent = '';
-		    var detailedExtrasContentHeader = '';
-
-		    var individualColumnSum_Extras = [];
-		    //initialise with 0's
-		    for(var e = 0; e < detailedListByPaymentMode[0].detailedExtras.length; e++){
-		    	individualColumnSum_Extras.push(0);
-		    }
-
-
-		    var individualColumnSum_Net = 0;
-		    var individualColumnSum_Gross = 0;
-
-		    var t = 0;
-		    while(detailedListByPaymentMode[t]){
-
-		    	
-
-		    	var detailedExtrasContent = '';
-		    	var netAmount = detailedListByPaymentMode[t].value;
-
-		    	for(var e = 0; e < detailedListByPaymentMode[t].detailedExtras.length; e++){
-		    	
-		    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: center;">'+detailedListByPaymentMode[t].detailedExtras[e].amount+'</td>';
-		    	
-		    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
-
-		    		individualColumnSum_Extras[e] += detailedListByPaymentMode[t].detailedExtras[e].amount; //hold sum of all CGST for Cash, Card, PayTM etc.
-
-			    	if(t == 0){
-			    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
-			    	}
-		    	}
-
-		    	individualColumnSum_Gross += detailedListByPaymentMode[t].value; //last column (gross)
-		    	individualColumnSum_Net += netAmount; //first column (net)
-
-		    	detailedByExtrasForPaymentRenderContent += '' +
-									    		'<tr>'+
-									    			'<td class="tableQuickBrief">'+detailedListByPaymentMode[t].name+'</td>'+
-									    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(netAmount).toFixed(0)+'</td>'+
-									    			detailedExtrasContent +
-									    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
-									    		'</tr>';
-
-
-		    	t++;
-		    }
-
-		    if(detailedListByPaymentMode.length != 0){
-
-		    	var detailed_footer_content = '';
-		    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
-		    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
-		    	}
-
-			    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Net</td> </tr>';
-			    var detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14;">Total</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td>' + detailed_footer_content + '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td> </tr>';
-			    
-			    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent + detailedExtrasContentFooter;
-		    }
-
-
-
-			//To display payment graph or not
-			var hasPaymentsGraphAttached = false;
-			if(window.localStorage.graphImageDataPayments && window.localStorage.graphImageDataPayments != '' && window.localStorage.graphImageDataPayments != 'data:,'){
-				hasPaymentsGraphAttached = true;
-			}
-
-		    var salesByPaymentTypeRenderContentFinal = '';
-		    if(salesByPaymentTypeRenderContent != ''){
-
-		    	if(hasPaymentsGraphAttached){
-			      salesByPaymentTypeRenderContentFinal = ''+
-			        '<div class="summaryTableSectionHolder">'+
-			        '<div class="summaryTableSection">'+
-			           	'<div class="tableQuickHeader">'+
-			              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
-			           	'</div>'+
-			           	'<div class="tableGraphRow">'+
-					        '<div class="tableGraph_Graph"> <img src="'+window.localStorage.graphImageDataPayments+'" width="200px"> </div>'+
-					        '<div class="tableGraph_Table">'+	
 				              '<table style="width: 100%">'+
 				                 '<col style="width: 70%">'+
 				                 '<col style="width: 30%">'+
@@ -10349,54 +11058,43 @@ function fetchSingleClickReportAfterApproval(){
 				              '</table>'+
 				           '</div>'+
 				        '</div>'+
-			        '</div>'+
-			        '</div>';
+				        '</div>';
+				    }
 			    }
-			    else{
-			    	salesByPaymentTypeRenderContentFinal = ''+
-			        '<div class="summaryTableSectionHolder">'+
-			        '<div class="summaryTableSection">'+
-			           '<div class="tableQuickHeader">'+
-			              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
-			           '</div>'+
-			           '<div class="tableQuick">'+
-			              '<table style="width: 100%">'+
-			                 '<col style="width: 70%">'+
-			                 '<col style="width: 30%">'+
-			                 salesByPaymentTypeRenderContent+
-			                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetPaymentMode).toFixed(0)+'</b></td></tr>'+
-			              '</table>'+
-			           '</div>'+
-			        '</div>'+
-			        '</div>';
+
+
+			    var detailedByExtrasForPaymentRenderContentFinal = '';
+			    if(detailedByExtrasForPaymentRenderContent != ''){
+
+			    	detailedByExtrasForPaymentRenderContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 detailedByExtrasForPaymentRenderContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+
+				    salesByPaymentTypeRenderContentFinal += detailedByExtrasForPaymentRenderContentFinal;
 			    }
-		    }
 
 
-		    var detailedByExtrasForPaymentRenderContentFinal = '';
-		    if(detailedByExtrasForPaymentRenderContent != ''){
-
-		    	detailedByExtrasForPaymentRenderContentFinal = ''+
-			        '<div class="summaryTableSectionHolder">'+
-			        '<div class="summaryTableSection">'+
-			           '<div class="tableQuickHeader">'+
-			              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
-			           '</div>'+
-			           '<div class="tableQuick">'+
-			              '<table style="width: 100%">'+
-			                 '<col style="width: 70%">'+
-			                 '<col style="width: 30%">'+
-			                 detailedByExtrasForPaymentRenderContent+
-			              '</table>'+
-			           '</div>'+
-			        '</div>'+
-			        '</div>';	
-		    }
+			    renderCancellations();
+			}
 
 
-		    //Bill Cancellations
-			var downloadSummaryCancellations = '';
-			if(netCancelledBills > 0){
+		    
+			
+
+			function renderCancellations(){
+				if(netCancelledBills > 0){
 			    	downloadSummaryCancellations = ''+
 				        '<div class="summaryTableSectionHolder">'+
 				        '<div class="summaryTableSection">'+
@@ -10413,73 +11111,74 @@ function fetchSingleClickReportAfterApproval(){
 				           '</div>'+
 				        '</div>'+
 				        '</div>';		    	
+				}
+
+				finalRender();
+			} 
+
+
+			function finalRender(){
+
+			    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+			    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+			    
+			    var finalReport_downloadContent = cssData+
+				    '<body>'+
+				      '<div class="mainHeader">'+
+				         '<div class="headerLeftBox">'+
+				            '<div id="logo">'+
+				               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
+				            '</div>'+
+				            '<p class="headerAddress">'+reportInfo_address+'</p>'+
+				         '</div>'+
+				         '<div class="headerRightBox">'+
+				            '<h1 class="headerBranch">'+reportInfo_branch+'</h1>'+
+				            '<p class="headerAdmin">'+reportInfo_admin+'</p>'+
+				            '<p class="headerTimestamp">'+reportInfo_time+'</p>'+
+				         '</div>'+
+				      '</div>'+
+				      '<div class="introFacts">'+
+				         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
+				         '<div class="factsArea">'+
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Amount</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
+				         '</div>'+
+				      '</div>'+
+				      '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           '<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">Quick Summary</h1>'+
+				           '</div>'+
+				           '<div class="tableQuick">'+
+				              '<table style="width: 100%">'+
+				                 '<col style="width: 70%">'+
+				                 '<col style="width: 30%">'+
+				                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Gross Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
+				                 quickSummaryRendererContent+
+				                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Net Amount</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
+				              '</table>'+
+				           '</div>'+
+				        '</div>'+
+				      '</div>'+
+				      (weeklyTrendRenderContent != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ weeklyTrendRenderContent : '')+
+				      (salesByBillingModeRenderContentFinal != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ salesByBillingModeRenderContentFinal : '')+
+					  (reducedBillingModesContentFinal != '' ? reducedBillingModesContentFinal : '')+
+				      (salesByPaymentTypeRenderContentFinal != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ salesByPaymentTypeRenderContentFinal : '')+
+				      (downloadSummaryCancellations != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ downloadSummaryCancellations : '')+
+				      (hourlySalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ hourlySalesSummaryTemplate : '')+
+				      (dayByDaySalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ dayByDaySalesSummaryTemplate : '')+
+				    '</body>';
+
+					var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
+					$('#reportActionButtonDownload').attr('data-hold', finalContent_EncodedDownload);
+
+					var finalContent_EncodedText = encodeURI(fancy_report_title_name);
+					$('#reportActionButtonDownload').attr('text-hold', finalContent_EncodedText);
+
+					generateReportContentEmail();
 			}
-
-
-
-		    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
-		    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
-		    
-		    var finalReport_downloadContent = cssData+
-			    '<body>'+
-			      '<div class="mainHeader">'+
-			         '<div class="headerLeftBox">'+
-			            '<div id="logo">'+
-			               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
-			            '</div>'+
-			            '<p class="headerAddress">'+reportInfo_address+'</p>'+
-			         '</div>'+
-			         '<div class="headerRightBox">'+
-			            '<h1 class="headerBranch">'+reportInfo_branch+'</h1>'+
-			            '<p class="headerAdmin">'+reportInfo_admin+'</p>'+
-			            '<p class="headerTimestamp">'+reportInfo_time+'</p>'+
-			         '</div>'+
-			      '</div>'+
-			      '<div class="introFacts">'+
-			         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
-			         '<div class="factsArea">'+
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Amount</p></div>'+ 
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
-			         '</div>'+
-			      '</div>'+graphRenderSectionContent+
-			      (hasWeeklyGraphAttached ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>' : '')+
-			      '<div class="summaryTableSectionHolder">'+
-			        '<div class="summaryTableSection">'+
-			           '<div class="tableQuickHeader">'+
-			              '<h1 class="tableQuickHeaderText">Quick Summary</h1>'+
-			           '</div>'+
-			           '<div class="tableQuick">'+
-			              '<table style="width: 100%">'+
-			                 '<col style="width: 70%">'+
-			                 '<col style="width: 30%">'+
-			                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Gross Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
-			                 quickSummaryRendererContent+
-			                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Net Amount</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
-			              '</table>'+
-			           '</div>'+
-			        '</div>'+
-			      '</div>'+
-			      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
-			      salesByBillingModeRenderContentFinal+
-			      salesByPaymentTypeRenderContentFinal+
-			      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
-			      detailedByExtrasForPaymentRenderContentFinal+
-			      downloadSummaryCancellations+
-			      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
-			         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
-			      '</div>'+
-			    '</body>';
-
-				var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
-				$('#reportActionButtonDownload').attr('data-hold', finalContent_EncodedDownload);
-
-				var finalContent_EncodedText = encodeURI(fancy_report_title_name);
-				$('#reportActionButtonDownload').attr('text-hold', finalContent_EncodedText);
-
-				generateReportContentEmail();
-
 		}
 
 		function generateReportContentEmail(){
