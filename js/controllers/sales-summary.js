@@ -10689,7 +10689,6 @@ function fetchSingleClickReportAfterApproval(){
 			var salesByPaymentTypeRenderContentFinal = ''; //By Payment Modes
 			var topSellingTemplate = ''; //Top Selling
 			var categoryWiseSalesSummaryTemplate = ''; //Category wise report
-			var categoryWiseCrispOverallTemplate = ''; //Main Type wise summary
 			var discountSummaryTemplate = ''; //Discounts
 
 			var cancelledItemsSummaryTemplate = '';
@@ -11021,6 +11020,8 @@ function fetchSingleClickReportAfterApproval(){
 					maxRows = 25;
 				}
 
+				var isFirstIteration = true;
+
 				for(var g = 0; g < detailedItemCategoryWiseData.length; g++){
 
 					halfCount++;
@@ -11036,8 +11037,8 @@ function fetchSingleClickReportAfterApproval(){
 						halfCount = 0; 
 						g--;
 
-						categoryWiseSalesSummaryContent += ''+
-							'<div style="position: relative; margin-top: 20px">'+
+						categoryWiseSalesSummaryContent += (isFirstIteration ? '' : '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>')+
+							'<div style="position: relative; margin-top: 5px">'+
 								'<div style="width: 48%; display: block; float: left;">'+
 						           '<div class="tableQuick">'+
 						              '<table style="width: 100%">'+
@@ -11063,13 +11064,15 @@ function fetchSingleClickReportAfterApproval(){
 						//reset template
 	    				leftHalfContent = '';
 						rightHalfContent = '';
+
+						isFirstIteration = false;
 					}
 				}
 
 				//Render the remaining content
 				if(rightHalfContent != ''){
-					categoryWiseSalesSummaryContent += ''+
-							'<div style="position: relative; margin-top: 20px">'+
+					categoryWiseSalesSummaryContent += (isFirstIteration ? '' : '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>')+
+							'<div style="position: relative; margin-top: 5px">'+
 								'<div style="width: 48%; display: block; float: left;">'+
 						           '<div class="tableQuick">'+
 						              '<table style="width: 100%">'+
@@ -11093,8 +11096,8 @@ function fetchSingleClickReportAfterApproval(){
 						    '</div>';	
 				}
 				else if(leftHalfContent != '' && rightHalfContent == ''){
-					categoryWiseSalesSummaryContent += ''+
-							'<div style="position: relative; margin-top: 20px">'+
+					categoryWiseSalesSummaryContent += (isFirstIteration ? '' : '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>')+
+							'<div style="position: relative; margin-top: 5px">'+
 								'<div style="width: 48%; display: block; float: left;">'+
 						           '<div class="tableQuick">'+
 						              '<table style="width: 100%">'+
@@ -11166,29 +11169,24 @@ function fetchSingleClickReportAfterApproval(){
 
 
 					if(crispSummaryContent != ''){
-						categoryWiseCrispOverallTemplate = '' +
-						'<div class="summaryTableSectionHolder">'+
-					        '<div class="summaryTableSection">'+
-					           '<div class="tableQuickHeader">'+
-					              '<h1 class="tableQuickHeaderText">MENU SUMMARY</h1>'+
-					           '</div>'+
-					           '<div class="tableQuick">'+
-					              '<table style="width: 100%">'+
-					                 crispSummaryContent+
-					              '</table>'+
-					           '</div>'+
-					        '</div>'+
-				        '</div>';	
+							categoryWiseSalesSummaryTemplate = '' +
+								'<div class="summaryTableSectionHolder">'+
+							        '<div class="summaryTableSection">'+
+							           '<div class="tableQuickHeader">'+
+							              '<h1 class="tableQuickHeaderText">MENU SUMMARY</h1>'+
+							           '</div>'+
+							           '<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 crispSummaryContent+
+							              '</table>'+
+							           '</div>'+
+							        '</div>'+
+						        '</div>'+
+						        (maxRows <= 12 ? '' : '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>')+ //break the page
+						        categoryWiseSalesSummaryTemplate;
 					}
 
 				}
-
-
-
-
-
-
-
 
 				renderCancellationSummary();
 			}
@@ -11919,8 +11917,7 @@ function fetchSingleClickReportAfterApproval(){
 				   	  (cancelledItemsSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ cancelledItemsSummaryTemplate : '')+
 					  (cancelledOrdersSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ cancelledOrdersSummaryTemplate : '')+					    
 				      (cancelledInvoicesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ cancelledInvoicesSummaryTemplate : '')+					    
-				      (categoryWiseSalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ categoryWiseSalesSummaryTemplate : '')+	
-				      (categoryWiseCrispOverallTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ categoryWiseCrispOverallTemplate : '')+	
+				      (categoryWiseSalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ categoryWiseSalesSummaryTemplate : '')+
 				    '</body>';
 
 					var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
