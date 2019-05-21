@@ -119,6 +119,17 @@
     "grandtotal_netamount_bybillingmode": {
       "reduce": "_stats",
       "map": "function (doc) {\n  if(doc.dateStamp && doc.grossCartAmount){\n     emit([doc.orderDetails.mode, doc.dateStamp], doc.grossCartAmount);\n  }\n}\n"
+    },
+    "sumbybillingmodeandextras": {
+      "map": "\n\nfunction (doc) {\n  if(doc.dateStamp && doc.extras){\n    var n = 0;\n    while(doc.extras[n]){\n      emit([doc.orderDetails.mode, doc.extras[n].name, doc.dateStamp], doc.extras[n].amount);\n      n++;\n    }\n    \n  }\n}\n\n\n\n",
+      "reduce": "_stats"
+    },
+    "sumbybillingmodeandextras_custom": {
+      "map": "\nfunction (doc) {\n  if(doc.dateStamp && doc.customExtras.amount){\n      emit([doc.orderDetails.mode, doc.customExtras.type, doc.dateStamp], doc.customExtras.amount);\n  }\n}\n\n\n\n",
+      "reduce": "_stats"
+    },
+    "timeslotwise_sumoverall": {
+      "map": "function(doc) {\n  \n  var time_in = (doc.timePunch).toString();\n  var time_in_hour = parseInt(time_in.substr(0, 2));\n  \n  \n  emit([\"ANY_MODE\", doc.dateStamp, time_in_hour], doc.totalAmountPaid);\n}"
     }
   },
   "language": "javascript"

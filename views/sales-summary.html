@@ -124,30 +124,30 @@
                             <div class="row" style="margin: 0">
                               <div class="col-sm-12" style="padding: 20px">
                                 
-                                <div class="excelDownloadBlock">
+                                <div class="excelDownloadBlock" onclick="downloadExcelReport('OVERALL_REPORT')">
                                   <img class="excelDownloadIcon" src="images/common/excel_file_icon.png">
                                   <p class="excelTitleName">Overall Summary</p>
-                                  <tag class="excelDownloadTag" onclick="downloadExcelReport('OVERALL_REPORT')"><i class="fa fa-play" style="margin-right: 8px"></i>Generate Summary</tag>
+                                  <tag class="excelDownloadTag"><i class="fa fa-play" style="margin-right: 8px"></i>Generate Summary</tag>
                                 </div>
 
 
-                                <div class="excelDownloadBlock">
+                                <div class="excelDownloadBlock" onclick="downloadExcelReport('INVOICE_REPORT')">
                                   <img class="excelDownloadIcon" src="images/common/excel_file_icon.png">
                                   <p class="excelTitleName">All Invoices</p>
-                                  <tag class="excelDownloadTag" onclick="downloadExcelReport('INVOICE_REPORT')"><i class="fa fa-play" style="margin-right: 8px"></i>Download</tag>
+                                  <tag class="excelDownloadTag"><i class="fa fa-play" style="margin-right: 8px"></i>Download</tag>
                                 </div>
 
                                 
-                                <div class="excelDownloadBlock">
+                                <div class="excelDownloadBlock" onclick="downloadExcelReport('BILL_CANCELLATIONS')">
                                   <img class="excelDownloadIcon" src="images/common/excel_file_icon.png">
                                   <p class="excelTitleName">Bill Cancellations</p>
-                                  <tag class="excelDownloadTag" onclick="downloadExcelReport('BILL_CANCELLATIONS')"><i class="fa fa-play" style="margin-right: 8px"></i>Download</tag>
+                                  <tag class="excelDownloadTag"><i class="fa fa-play" style="margin-right: 8px"></i>Download</tag>
                                 </div>
 
-                                <div class="excelDownloadBlock">
+                                <div class="excelDownloadBlock" onclick="downloadExcelReport('ITEM_CANCELLATIONS')">
                                   <img class="excelDownloadIcon" src="images/common/excel_file_icon.png">
                                   <p class="excelTitleName">Item Cancellations</p>
-                                  <tag class="excelDownloadTag" onclick="downloadExcelReport('ITEM_CANCELLATIONS')"><i class="fa fa-play" style="margin-right: 8px"></i>Download</tag>
+                                  <tag class="excelDownloadTag"><i class="fa fa-play" style="margin-right: 8px"></i>Download</tag>
                                 </div>
 
                               </div>
@@ -337,6 +337,8 @@
                      <div class="box box-primary" id="singleClickReport_RenderArea" style="display: none; min-height: 270px; padding-top: 30px;">
                         <div class="box-body">
 
+                            <p style="position: absolute; top: 5px; right: 15px; color: #b1b1b1; font-size: 12px; margin: 0;">Theme: <b id="selectedThemeDisplay" style="cursor: pointer;" onclick="openSetThemeModal()">Unknown</b></p>
+
                             <div class="row" style="margin: 0">
                                 <div class="col-sm-12" id="singleClickReport_RenderContent">
 
@@ -350,6 +352,7 @@
                         <div style="position: absolute; top: 350px; width: 750px; background: none;">
                                 <canvas style="display: none;" id="weeklyTrendLineChartBW" width="750" height="300"></canvas>
                                 <canvas style="display: none;" id="weeklyTrendLineChart" width="750" height="300"></canvas>
+                                <canvas style="display: none;" id="hourlyTrendLineChart" width="750" height="300"></canvas>
                               <div style="width: 240px !important;">
                                 <canvas style="display: none;" id="reportGraphBills" width="100" height="100"></canvas>
                                 <canvas style="display: none;" id="reportGraphPayments" width="100" height="100"></canvas>
@@ -361,17 +364,13 @@
                      <div class="box box-primary" id="summaryRenderArea_turnOver" style="display: none">
                         <div class="box-body">
                            <div class="box-header" style="padding: 10px 0px">
-                              <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Sales Summary</h3>
+                              <h3 class="box-title quickSummaryMainHead">Quick Sales Summary</h3>
                            </div>
 
 
 
-                            <div class="row" style="margin: 0">
-                                <div class="col-sm-12" style="padding: 0">
-                                  <center><div style="width: 100%; padding: 20px">
-                                    <canvas id="overallBarChart" width="100" height="50"></canvas>
-                                  </div></center>
-                                </div>
+                            <div class="row" id="quickSalesFigure_FactsBox" style="margin: 0 0 25px 0; display: none">
+
                             </div>
                                                       
 
@@ -523,4 +522,47 @@
 
                </div>
             </section>
+
+
+   <!-- Modal -->
+   <div id="reportThemeSelectionModal" class="modal" style="display: none">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                     <div class="row">
+                        <div class="col-sm-12">
+                                 <div class="form-group">
+                                    <label style="margin: 10px 0; font-size: 24px; font-weight: 300; text-align: center; width: 100%;">Choose a color theme for the Report</label>
+                                 </div>                                 
+                        </div>
+                     </div>
+                     <div class="row" style="margin-bottom: 15px;">
+                        <div class="col-sm-3">
+                            <div style="border-radius: 5px; width: 100%; height: 60px; background: #c63931; cursor:pointer" onclick="setReportTheme('RED')">
+                              <span style="font-size: 12px; display: block; height: 40px; line-height: 64px; text-align: center; color: rgba(255, 255, 255, 0.5); font-weight: bold; font-family: 'Roboto'; letter-spacing: 2px;">RED</span>
+                            </div>                               
+                        </div>
+                        <div class="col-sm-3">
+                            <div style="border-radius: 5px; width: 100%; height: 60px; background: #0eb7a7; cursor:pointer" onclick="setReportTheme('GREEN')">
+                              <span style="font-size: 12px; display: block; height: 40px; line-height: 64px; text-align: center; color: rgba(255, 255, 255, 0.5); font-weight: bold; font-family: 'Roboto'; letter-spacing: 2px;">GREEN</span>
+                            </div>                               
+                        </div>
+                        <div class="col-sm-3">
+                            <div style="border-radius: 5px; width: 100%; height: 60px; background: #4593d2; cursor:pointer" onclick="setReportTheme('BLUE')">
+                              <span style="font-size: 12px; display: block; height: 40px; line-height: 64px; text-align: center; color: rgba(255, 255, 255, 0.5); font-weight: bold; font-family: 'Roboto'; letter-spacing: 2px;">BLUE</span>
+                            </div>                               
+                        </div>
+                        <div class="col-sm-3">
+                            <div style="border-radius: 5px; width: 100%; height: 60px; background: #444; cursor:pointer" onclick="setReportTheme('DARK')">
+                              <span style="font-size: 12px; display: block; height: 40px; line-height: 64px; text-align: center; color: rgba(255, 255, 255, 0.5); font-weight: bold; font-family: 'Roboto'; letter-spacing: 2px;">DARK</span>
+                            </div>                               
+                        </div>
+
+                     </div>
+            </div>
+         </div>
+      </div>
+   </div>
+
 </template>

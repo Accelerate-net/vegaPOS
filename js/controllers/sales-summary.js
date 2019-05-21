@@ -68,7 +68,7 @@ function downloadExcelReport(type){
 				********************************************/
 
 					var excelReportData_Overall = [];
-					excelReportNetCartAmount();
+					excelReportGrossCartAmount();
 
 					/*
 						Total Amount got Paid
@@ -93,7 +93,7 @@ function downloadExcelReport(type){
 
 
 					//Step 0: Net Cart Amount
-					function excelReportNetCartAmount(){	
+					function excelReportGrossCartAmount(){	
 						$.ajax({
 						    type: 'GET',
 							url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_netamount?startkey=["'+request_date+'"]&endkey=["'+request_date+'"]',
@@ -109,7 +109,7 @@ function downloadExcelReport(type){
 								}
 
 								excelReportData_Overall.push({
-									"name": "Net Sales",
+									"name": "Gross Sales",
 									"value": temp_totalNet
 								});
 
@@ -123,7 +123,7 @@ function downloadExcelReport(type){
 							},
 							error: function(data){
 								hideLoading();
-								showToast('System Error: Failed to fetch Net Sales.', '#e74c3c');
+								showToast('System Error: Failed to fetch Gross Sales.', '#e74c3c');
 							}
 						}); 
 					}//end - step 1
@@ -547,7 +547,7 @@ function downloadExcelReport(type){
 
 
 									excelReportData_Overall.push({
-										"name": 'Gross Amount',
+										"name": 'Net Amount',
 										"value": grossEffectivePaidAmount - total_tendered_refunds_sum
 									})
 
@@ -580,7 +580,7 @@ function downloadExcelReport(type){
 				********************************************/
 
 				var excelReportData_BillingModes = [];
-
+				var originalBillingModesList = [];
 
 				function excelReportSummaryByBillingModes() {
 
@@ -623,9 +623,11 @@ function downloadExcelReport(type){
 								    success: function(data) {
 								    	
 								    	var temp_sum = 0;
+								    	var temp_count = 0;
 
 										if(data.rows.length > 0){
 											temp_sum = data.rows[0].value.sum;
+											temp_count = data.rows[0].value.count;
 										}
 
 
@@ -646,7 +648,16 @@ function downloadExcelReport(type){
 
 												excelReportData_BillingModes.push({
 											   		"name": modes[0].name,
-											   		"value": temp_sum - refunded_sum
+											   		"type": modes[0].type,
+											   		"value": temp_sum - refunded_sum,
+											   		"count": temp_count
+												})
+
+												originalBillingModesList.push({
+											   		"name": modes[0].name,
+											   		"type": modes[0].type,
+											   		"value": temp_sum - refunded_sum,
+											   		"count": temp_count
 												})
 
 
@@ -669,7 +680,7 @@ function downloadExcelReport(type){
 
 
 										    		//Go to next LEVEL THREE
-										    		excelReportSummaryByPaymentModes();
+										    		excelReportSummaryByBillingTypes();
 										    	}
 
 
@@ -709,9 +720,11 @@ function downloadExcelReport(type){
 								    success: function(data) {
 								    	
 								    	var temp_sum = 0;
+								    	var temp_count = 0;
 
 										if(data.rows.length > 0){
 											temp_sum = data.rows[0].value.sum;
+											temp_count = data.rows[0].value.count;
 										}
 
 
@@ -731,7 +744,16 @@ function downloadExcelReport(type){
 
 												excelReportData_BillingModes.push({
 											   		"name": modes[index].name,
-											   		"value": temp_sum - refunded_sum
+											   		"type": modes[index].type,
+											   		"value": temp_sum - refunded_sum,
+											   		"count": temp_count
+												})
+
+												originalBillingModesList.push({
+											   		"name": modes[index].name,
+											   		"type": modes[index].type,
+											   		"value": temp_sum - refunded_sum,
+											   		"count": temp_count
 												})
 
 
@@ -743,8 +765,10 @@ function downloadExcelReport(type){
 
 													//Process Figures
 										    		var billingModesGrandTotal = 0;
+										    		var billingModesGrandCount = 0;
 													for(var i = 0; i < excelReportData_BillingModes.length; i++){
 													    billingModesGrandTotal += excelReportData_BillingModes[i].value;
+													    billingModesGrandCount += excelReportData_BillingModes[i].count;
 													}
 
 													excelReportData_BillingModes.push({
@@ -755,7 +779,7 @@ function downloadExcelReport(type){
 
 
 										    		//Go to next LEVEL THREE
-										    		excelReportSummaryByPaymentModes();
+										    		excelReportSummaryByBillingTypes();
 										    	}
 
 
@@ -777,9 +801,58 @@ function downloadExcelReport(type){
 
 
 
+				/**********************************************
+					LEVEL - THREE (Summary by Billing Type)
+				***********************************************/
+
+				var excelReportData_BillingTypes = [];
+
+			    function excelReportSummaryByBillingTypes(){
+
+					var reducedBillingModesGrandTotal = 0;
+
+					var reducedBillingModesList = originalBillingModesList.reduce(function (accumulator, item) {
+							if(accumulator[item.type]){
+								accumulator[item.type].value += item.value;
+								accumulator[item.type].count += item.count;
+							}
+							else{
+								accumulator[item.type] = item;
+							}
+
+						  	return accumulator;
+					}, {});
+
+					for(var key in reducedBillingModesList){
+						reducedBillingModesList[key].type = getFancyNameForBillingType(reducedBillingModesList[key].type);
+						excelReportData_BillingTypes.push(reducedBillingModesList[key]);
+					}
+
+				    function getFancyNameForBillingType(type){
+				    	if(type == 'DELIVERY'){
+				    		return 'Home Delivery';
+				    	}
+				    	else if(type == 'PARCEL'){
+				    		return 'Takeaway';
+				    	}
+				    	else if(type == 'TOKEN'){
+				    		return 'Token Based';
+				    	}
+				    	else if(type == 'DINE'){
+				    		return 'Dine In';
+				    	}
+				    }
+
+				    excelReportSummaryByPaymentModes();
+
+				}
+
+
+
+
 
 				/**********************************************
-					LEVEL - THREE (Summary by Payment Modes)
+					LEVEL - FOUR (Summary by Payment Modes)
 				***********************************************/
 
 				var excelReportData_PaymentModes = [];
@@ -787,7 +860,7 @@ function downloadExcelReport(type){
 				function excelReportSummaryByPaymentModes() {
 
 					/*
-							Summary - PAYMENT MODE wise
+						Summary - PAYMENT MODE wise
 					*/
 
 				    var requestData = {
@@ -1034,7 +1107,7 @@ function downloadExcelReport(type){
 
 
 				/**********************************************
-					LEVEL - FOUR (Final Call)
+					LEVEL - FIVE (Final Call)
 				***********************************************/
 				function levelFour(){
 
@@ -1047,6 +1120,30 @@ function downloadExcelReport(type){
 					if(master_serial_number == 1){ //only on the first iteration
 						masterRowsHeadings = ["Sl No.", "Date", "Day"];
 					}
+
+					var summary_row_data_types = [];
+					for(var i = 0; i < excelReportData_BillingTypes.length; i++){
+						summary_row_data_types.push(excelReportData_BillingTypes[i].value);
+
+						if(master_serial_number == 1){ //only on the first iteration
+							masterRowsHeadings.push(excelReportData_BillingTypes[i].type);
+						}
+					}
+
+					var total_invoice_count = 0;
+					for(var i = 0; i < excelReportData_BillingTypes.length; i++){
+						total_invoice_count += excelReportData_BillingTypes[i].count;
+					}
+
+					var summary_row_data_highlights = [];
+					summary_row_data_highlights.push(excelReportData_Overall[excelReportData_Overall.length - 1].value); //Total sales
+					summary_row_data_highlights.push(total_invoice_count); //Total invoices
+					summary_row_data_highlights.push(parseInt(summary_row_data_highlights[0]/total_invoice_count)); //Average
+
+					if(master_serial_number == 1){ //only on the first iteration
+						masterRowsHeadings = masterRowsHeadings.concat(["Net Sales", "Total Bills", "Average"]);
+					}
+
 
 					var summary_row_data_sales = [];
 					for(var i = 0; i < excelReportData_Overall.length; i++){
@@ -1075,7 +1172,9 @@ function downloadExcelReport(type){
 						}
 					}
 
-					var summary_row_data_final = summary_row_data_basic.concat(summary_row_data_sales);
+					var summary_row_data_final = summary_row_data_basic.concat(summary_row_data_types);
+					summary_row_data_final = summary_row_data_final.concat(summary_row_data_highlights);
+					summary_row_data_final = summary_row_data_final.concat(summary_row_data_sales);
 					summary_row_data_final = summary_row_data_final.concat(summary_row_data_billing);
 					summary_row_data_final = summary_row_data_final.concat(summary_row_data_payment);
 
@@ -1133,6 +1232,21 @@ function downloadExcelReport(type){
 
 							//Sub Headings
 							var sub_heading = ["Date", "", ""];
+							
+							for(var a = 0; a < excelReportData_BillingTypes.length; a++){
+								if(a == 0)
+									sub_heading.push("Order Summary");
+								else
+									sub_heading.push("");
+							}
+
+							for(var a = 0; a < 3; a++){
+								if(a == 0)
+									sub_heading.push("Figures");
+								else
+									sub_heading.push("");
+							}
+
 							for(var a = 0; a < excelReportData_Overall.length; a++){
 								if(a == 0)
 									sub_heading.push("Overall Summary");
@@ -1154,11 +1268,8 @@ function downloadExcelReport(type){
 									sub_heading.push("");
 							}
 
-
-
 							header.push(sub_heading);
 							header.push(masterRowsHeadings);
-
 
 							var data = header.concat(masterRowsData); //all other data
 
@@ -1176,15 +1287,21 @@ function downloadExcelReport(type){
 							var subHeadingMergeRange = ["A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2", "I2", "J2", "K2", "L2", "M2", "N2", "O2", "P2", "Q2", "R2", "S2", "T2", "U2", "V2", "W2", "X2", "Y2", "Z2", "AA2", "AB2", "AC2", "AD2", "AE2", "AF2", "AG2", "AH2", "AI2", "AJ2"];
 							
 							mergeList[1] = XLSX.utils.decode_range("A2:C2");
-							
-							var overall_end_index = 3 + (excelReportData_Overall.length - 1);
-							mergeList[2] = XLSX.utils.decode_range("D2:" + subHeadingMergeRange[overall_end_index]);
 
-							var billing_end_index = 3 + (excelReportData_Overall.length) + (excelReportData_BillingModes.length - 1);
-							mergeList[3] = XLSX.utils.decode_range(subHeadingMergeRange[overall_end_index + 1] +':'+ subHeadingMergeRange[billing_end_index]);
+							var types_end_index = 3 + (excelReportData_BillingTypes.length - 1);
+							mergeList[2] = XLSX.utils.decode_range("D2:" + subHeadingMergeRange[types_end_index]);
+
+							var figures_end_index = types_end_index + 3;
+							mergeList[3] = XLSX.utils.decode_range(subHeadingMergeRange[types_end_index + 1] +':'+ subHeadingMergeRange[figures_end_index]);
+
+							var overall_end_index = figures_end_index + excelReportData_Overall.length;
+							mergeList[4] = XLSX.utils.decode_range(subHeadingMergeRange[figures_end_index + 1] +':'+ subHeadingMergeRange[overall_end_index]);
+
+							var billing_end_index = overall_end_index + excelReportData_BillingModes.length;
+							mergeList[5] = XLSX.utils.decode_range(subHeadingMergeRange[overall_end_index + 1] +':'+ subHeadingMergeRange[billing_end_index]);
 						
-							var payments_end_index = 3 + (excelReportData_Overall.length) + (excelReportData_BillingModes.length) + (excelReportData_PaymentModes.length - 1);
-							mergeList[4] = XLSX.utils.decode_range(subHeadingMergeRange[billing_end_index + 1] +':'+ subHeadingMergeRange[payments_end_index]);
+							var payments_end_index = billing_end_index + excelReportData_PaymentModes.length;
+							mergeList[6] = XLSX.utils.decode_range(subHeadingMergeRange[billing_end_index + 1] +':'+ subHeadingMergeRange[payments_end_index]);
 							
 
 							/* generate worksheet */
@@ -1418,7 +1535,7 @@ function downloadExcelReport(type){
 
 							var header = [
 							  ["INVOICE SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", ""].concat(main_header_title_nulls.concat(["", "", "", "", "", "", ""])),
-							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Waive Off", "Payable Amount", "Amount Paid", "Mode of Payment", "Refunds", "Gross Amount"]))
+							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Waive Off", "Payable Amount", "Amount Paid", "Mode of Payment", "Refunds", "Net Amount"]))
 							];
 
 							var data = header.concat(invoiceData);
@@ -1659,7 +1776,7 @@ function downloadExcelReport(type){
 
 							var header = [
 							  ["CANCELLED INVOICES SUMMARY - " + temp_client_name +" "+ temp_branch_name + report_date_title, "", "", "", "", "", "", "", "", "", "", "", "", ""].concat(main_header_title_nulls.concat(["", "", "", "", "", "", ""])),
-							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Status", "Cancelled By", "Reason", "Remarks", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Waive Off", "Payable Amount", "Paid Amount", "Mode of Payment", "Refunds", "Gross Amount"]))
+							  ["Sl. No.", "Invoice No.", "Date", "Day", "Time", "Billing Mode", "Type", "Items", "Status", "Cancelled By", "Reason", "Remarks", "Sub Total"].concat(extras_header_titles.concat(["Discount", "Waive Off", "Payable Amount", "Paid Amount", "Mode of Payment", "Refunds", "Net Amount"]))
 							];
 
 							var data = header.concat(invoiceData);
@@ -2871,10 +2988,10 @@ function openDetailedByExtras(selectedPaymentMode, fromDate, toDate, grandCount,
 											    	else{
 											    		
 											    		if(cumulativeSum > 0){
-											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Net Sales</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(0)+'</td> </tr>';
+											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Gross Sales</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(0)+'</td> </tr>';
 											    		}
 
-											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Gross Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Net Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
 											    	}
 													
 
@@ -2994,10 +3111,10 @@ function openDetailedByExtrasCallback(index, modes, fromDate, toDate, selectedPa
 											    	else{
 											    		
 											    		if(cumulativeSum > 0){
-											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Net Sales</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(0)+'</td> </tr>';
+											    			document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Gross Sales</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum-cumulativeSum).toFixed(0)+'</td> </tr>';
 											    		}
 
-											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Gross Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
+											    		document.getElementById("summaryRender_paymentMode_detailed").innerHTML += '<tr> <td style="background: #fffff0; font-weight: bold;">Net Amount</td> <td class="summaryLine3" style="text-align: right; background: #fffff0; font-weight: bold;"><count class="summaryCount" style="padding-right: 5px">from '+grandCount+' Orders</count><i class="fa fa-inr"></i>'+parseFloat(grandSum).toFixed(2)+'</td> </tr>';
 											    	}													
 
 												},
@@ -3637,6 +3754,7 @@ function fetchOverAllTurnOver(){
 
 	$( "#summaryRenderArea" ).children().css( "display", "none" );
 	document.getElementById("summaryRenderArea_turnOver").style.display = "block";
+	document.getElementById("quickSalesFigure_FactsBox").style.display = "none";
 
 
 
@@ -3655,7 +3773,6 @@ function fetchOverAllTurnOver(){
 	document.getElementById("summaryRender_turnOver").innerHTML = '';
 
 	//Step 1: Total Paid Amount
-	
 	$.ajax({
 	    type: 'GET',
 		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
@@ -3672,25 +3789,23 @@ function fetchOverAllTurnOver(){
 
 			if(temp_totalPaid > 0){
 				graphData.push({
-					"name": "Gross Amount",
+					"name": "Net Amount",
 					"value": temp_totalPaid
 				});
 			}
 			
 			//time to render...
 			if(temp_totalOrders > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Gross Amount</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i><tag id="figureTotalSalesVolume">'+parseFloat(temp_totalPaid).toFixed(2)+'</tag></td> </tr>';
-				netSalesWorth = temp_totalPaid; 
-				document.getElementById("overallBarChart").style.display = 'block';
+				document.getElementById("summaryRender_turnOver").innerHTML += '<tr class="summaryRowHighlight"> <td><b>Net Amount</b></td> <td class="summaryLineBlack" style="color: #3498db; font-weight: bold; font-size: 24px; text-align: right"><count class="summaryCount" style="padding-right: 5px; font-weight: 400">from '+temp_totalOrders+' Orders</count><i class="fa fa-inr"></i><tag id="figureTotalSalesVolume">'+parseFloat(temp_totalPaid).toFixed(2)+'</tag></td> </tr>';
+				netSalesWorth = temp_totalPaid;
 			}
 			else{
 				document.getElementById("summaryRender_turnOver").innerHTML = '<tag style="padding: 20px 0; text-align: center; display: block; color: gray">Auch! There are no settled orders</tag>';
-				document.getElementById("overallBarChart").style.display = 'none';
 				return ''; //No orders found
 			}
 
-			//Step 2: Total Charges collected
-			renderChargesCollected(fromDate, toDate, netSalesWorth, graphData);
+			//Step 2:
+			renderTipsReceived(fromDate, toDate, netSalesWorth, graphData);
 
 		},
 		error: function(data){
@@ -3701,7 +3816,149 @@ function fetchOverAllTurnOver(){
 
 }
 
-//Step 2
+
+//Step 2: Tips Received
+function renderTipsReceived(fromDate, toDate, netSalesWorth, graphData){
+
+	$.ajax({
+	    type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		timeout: 10000,
+		success: function(data) {
+
+			var temp_tipsCount = 0;
+			var temp_tipsSum = 0;
+
+			if(data.rows.length > 0){
+				temp_tipsCount = data.rows[0].value.count;
+				temp_tipsSum = data.rows[0].value.sum;
+			}
+
+			netSalesWorth -= temp_tipsSum;
+
+
+			if(temp_tipsSum > 0){
+				graphData.push({
+					"name": 'Tips',
+					"value": temp_tipsSum
+				})
+			}		
+
+
+			
+			//time to render...
+			if(temp_tipsCount > 0){
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Tips Received</td> <td class="summaryLineGreen" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_tipsCount+' Orders</count>+ <i class="fa fa-inr"></i>'+parseFloat(temp_tipsSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+			}
+			else{
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Tips Received</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+			}
+
+			//Step 3: 
+			renderWaiveOffMade(fromDate, toDate, netSalesWorth, graphData);
+
+		},
+		error: function(data){
+
+		}
+	});  
+}
+
+
+
+//Step 3: Waive Off Amounts
+function renderWaiveOffMade(fromDate, toDate, netSalesWorth, graphData){
+
+	$.ajax({
+	    type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		timeout: 10000,
+		success: function(data) {
+
+			var temp_roundOffCount = 0;
+			var temp_roundOffSum = 0;
+
+			if(data.rows.length > 0){
+				temp_roundOffCount = data.rows[0].value.count;
+				temp_roundOffSum = data.rows[0].value.sum;
+			}
+			
+			netSalesWorth += temp_roundOffSum;
+
+
+			if(temp_roundOffSum > 0){
+				graphData.push({
+					"name": 'Waive Off',
+					"value": temp_roundOffSum
+				})
+			}		
+
+
+			//time to render...
+			if(temp_roundOffCount > 0){
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Waived Off Amount</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_roundOffCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_roundOffSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+			}
+			else{
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Waived Off Amount</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+			}
+
+			//Step 4:
+			renderCalculatedRoundOffs(fromDate, toDate, netSalesWorth, graphData);
+
+		},
+		error: function(data){
+
+		}
+	});  
+}
+
+
+//Step 4: Calculated Round Offs
+function renderCalculatedRoundOffs(fromDate, toDate, netSalesWorth, graphData){
+
+		//Total Calculated Round Offs
+		$.ajax({
+		    type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_calculatedroundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+			timeout: 10000,
+			success: function(data) {
+
+				var temp_sum = 0;
+
+				if(data.rows.length > 0){
+					temp_sum = data.rows[0].value.sum;
+				}
+
+				graphData.push({
+					"name": 'Calculated Round Off',
+					"value": temp_sum
+				})
+
+				//time to render...
+				if(temp_sum < 0){
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td class="summaryLineRed" style="text-align: right">- <i class="fa fa-inr"></i>'+parseFloat(temp_sum * -1).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
+				else if(temp_sum > 0){
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td class="summaryLineGreen" style="text-align: right">+ <i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
+				else{
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				}
+
+				//Step 5:
+				renderChargesCollected(fromDate, toDate, netSalesWorth, graphData);
+
+			},
+			error: function(data){
+
+			}
+		}); 
+
+}
+
+
+
+//Step 5: Extras and Custom Extras collected
 function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 
     var requestData = {
@@ -3778,11 +4035,11 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 
 							    	//Check if next mode exists...
 							    	if(modes[1]){
-							    		fetchOverAllTurnOverCallback(1, modes, fromDate, toDate, netSalesWorth, graphData);
+							    		renderChargesCollectedCallback(1, modes, fromDate, toDate, netSalesWorth, graphData);
 							    	}
 							    	else{
-							    		//Step 3: Total Discount offered
-							    		renderDiscountsOffered(fromDate, toDate, netSalesWorth, graphData);
+							    		//Step 6: 
+							    		renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData);
 							    	}
 
 								},
@@ -3817,7 +4074,7 @@ function renderChargesCollected(fromDate, toDate, netSalesWorth, graphData){
 
 
 
-function fetchOverAllTurnOverCallback(index, modes, fromDate, toDate, netSalesWorth, graphData){
+function renderChargesCollectedCallback(index, modes, fromDate, toDate, netSalesWorth, graphData){
 
 				  $.ajax({
 				    type: 'GET',
@@ -3866,11 +4123,11 @@ function fetchOverAllTurnOverCallback(index, modes, fromDate, toDate, netSalesWo
 
 							    	//Check if next mode exists...
 							    	if(modes[index+1]){
-							    		fetchOverAllTurnOverCallback(index+1, modes, fromDate, toDate, netSalesWorth, graphData);
+							    		renderChargesCollectedCallback(index+1, modes, fromDate, toDate, netSalesWorth, graphData);
 							    	}
 							    	else{
-							    		//Step 3: Total Discount offered
-							    		renderDiscountsOffered(fromDate, toDate, netSalesWorth, graphData);
+							    		//Step 6:
+							    		renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData);
 							    	}
 
 								},
@@ -3889,148 +4146,8 @@ function fetchOverAllTurnOverCallback(index, modes, fromDate, toDate, netSalesWo
 }
 
 
-//Step 3
-function renderDiscountsOffered(fromDate, toDate, netSalesWorth, graphData){
 
-	$.ajax({
-	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
-		timeout: 10000,
-		success: function(data) {
-
-			var temp_discountedOrdersCount = 0;
-			var temp_discountedOrdersSum = 0;
-
-			if(data.rows.length > 0){
-				temp_discountedOrdersCount = data.rows[0].value.count;
-				temp_discountedOrdersSum = data.rows[0].value.sum;
-			}
-
-			netSalesWorth += temp_discountedOrdersSum;
-
-			if(temp_discountedOrdersSum > 0){
-				graphData.push({
-					"name": 'Discount',
-					"value": temp_discountedOrdersSum
-				})
-			}				
-			
-			//time to render...
-			if(temp_discountedOrdersCount > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Discount Offered</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_discountedOrdersCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_discountedOrdersSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-			}
-			else{
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Discount Offered</td> <td style="text-align: right">-</td></tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-			}
-
-			//Step 4: Total Round Off made
-			renderRoundOffMade(fromDate, toDate, netSalesWorth, graphData);
-
-		},
-		error: function(data){
-
-		}
-	});  	
-}
-
-
-//Step 4
-function renderRoundOffMade(fromDate, toDate, netSalesWorth, graphData){
-
-	$.ajax({
-	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_roundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
-		timeout: 10000,
-		success: function(data) {
-
-			var temp_roundOffCount = 0;
-			var temp_roundOffSum = 0;
-
-			if(data.rows.length > 0){
-				temp_roundOffCount = data.rows[0].value.count;
-				temp_roundOffSum = data.rows[0].value.sum;
-			}
-			
-			netSalesWorth += temp_roundOffSum;
-
-
-			if(temp_roundOffSum > 0){
-				graphData.push({
-					"name": 'Waive Off',
-					"value": temp_roundOffSum
-				})
-			}		
-
-
-			//time to render...
-			if(temp_roundOffCount > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Waive Off Amount</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_roundOffCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_roundOffSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-			}
-			else{
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Waive Off Amount</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-			}
-
-			//Step 5: Total Tips received
-			renderTipsReceived(fromDate, toDate, netSalesWorth, graphData);
-
-		},
-		error: function(data){
-
-		}
-	});  
-}
-
-
-//Step 5
-function renderTipsReceived(fromDate, toDate, netSalesWorth, graphData){
-
-	$.ajax({
-	    type: 'GET',
-		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_tips?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
-		timeout: 10000,
-		success: function(data) {
-
-			var temp_tipsCount = 0;
-			var temp_tipsSum = 0;
-
-			if(data.rows.length > 0){
-				temp_tipsCount = data.rows[0].value.count;
-				temp_tipsSum = data.rows[0].value.sum;
-			}
-
-			netSalesWorth -= temp_tipsSum;
-
-
-			if(temp_tipsSum > 0){
-				graphData.push({
-					"name": 'Tips',
-					"value": temp_tipsSum
-				})
-			}		
-
-
-			
-			//time to render...
-			if(temp_tipsCount > 0){
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Tips Received</td> <td class="summaryLineGreen" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_tipsCount+' Orders</count>+ <i class="fa fa-inr"></i>'+parseFloat(temp_tipsSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-			}
-			else{
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Tips Received</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-			}
-
-			//Step 6: Total Refunds Issued
-			renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData);
-
-		},
-		error: function(data){
-
-		}
-	});  
-}
-
-
-
-//Step 6
+//Step 6: Total Refunds Issued
 function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 
 	findGrossRefund();
@@ -4084,13 +4201,11 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 					temp_refundSum = data.rows[0].value.sum;
 				}
 
-
-				if(temp_refundSum > 0){
-					graphData.push({
-						"name": 'Refunds',
-						"value": temp_refundSum
-					})
-				}	
+				graphData.push({
+					"name": 'Refunds',
+					"value": temp_refundSum,
+					"grossRefundValue": grossRefundsProcessed
+				})
 
 				actualNetRefundAmount = temp_refundSum;
 
@@ -4098,7 +4213,7 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 
 				//time to render...
 				if(temp_refundCount > 0){
-					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_refundCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_refundSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Refunds</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_refundCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_refundSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 
 					//Adjust total sales volume
 					var x = document.getElementById("figureTotalSalesVolume");
@@ -4106,13 +4221,13 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 					document.getElementById("figureTotalSalesVolume").innerHTML = parseFloat(total_sales_volume_without_refund - grossRefundsProcessed).toFixed(2);
 				}
 				else{
-					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Total Refunds Issued</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Refunds</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 				}
 
 
 
-				//Step 7: Render Calculated Round Offs
-				renderCalculatedRoundOffs(fromDate, toDate, netSalesWorth, graphData);
+				//Step 7: 
+				renderDiscountsOffered(fromDate, toDate, netSalesWorth, graphData);
 
 			},
 			error: function(data){
@@ -4124,52 +4239,55 @@ function renderRefundsIssued(fromDate, toDate, netSalesWorth, graphData){
 }
 
 
-//Step 7
-function renderCalculatedRoundOffs(fromDate, toDate, netSalesWorth, graphData){
+//Step 7: Total Discounts Offered
+function renderDiscountsOffered(fromDate, toDate, netSalesWorth, graphData){
 
-		//Total Calculated Round Offs
-		$.ajax({
-		    type: 'GET',
-			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_calculatedroundoff?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
-			timeout: 10000,
-			success: function(data) {
+	$.ajax({
+	    type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]',
+		timeout: 10000,
+		success: function(data) {
 
-				var temp_sum = 0;
+			var temp_discountedOrdersCount = 0;
+			var temp_discountedOrdersSum = 0;
 
-				if(data.rows.length > 0){
-					temp_sum = data.rows[0].value.sum;
-				}
-
-				graphData.push({
-					"name": 'Calculated Round Off',
-					"value": temp_sum
-				})
-
-				//time to render...
-				if(temp_sum < 0){
-					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td class="summaryLineRed" style="text-align: right">- <i class="fa fa-inr"></i>'+parseFloat(temp_sum * -1).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-				}
-				else if(temp_sum > 0){
-					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td class="summaryLineGreen" style="text-align: right">+ <i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-				}
-				else{
-					document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Calculated Round Off</td> <td style="text-align: right">-</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
-				}
-
-				//Step 7: Render Total Cart amount
-				renderNetAmount(fromDate, toDate, netSalesWorth, graphData);
-
-			},
-			error: function(data){
-
+			if(data.rows.length > 0){
+				temp_discountedOrdersCount = data.rows[0].value.count;
+				temp_discountedOrdersSum = data.rows[0].value.sum;
 			}
-		}); 
 
+			netSalesWorth += temp_discountedOrdersSum;
+
+			graphData.push({
+				"name": 'Discount',
+				"value": temp_discountedOrdersSum
+			})		
+			
+			//time to render...
+			if(temp_discountedOrdersCount > 0){
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Discounts</td> <td class="summaryLineRed" style="text-align: right"><count class="summaryCount" style="padding-right: 5px">from '+temp_discountedOrdersCount+' Orders</count>- <i class="fa fa-inr"></i>'+parseFloat(temp_discountedOrdersSum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+			}
+			else{
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Discounts</td> <td style="text-align: right">-</td></tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+			}
+
+			//Step 8:
+			renderGrossAmount(fromDate, toDate, netSalesWorth, graphData);
+
+		},
+		error: function(data){
+
+		}
+	});  	
 }
 
 
-//Step 8
-function renderNetAmount(fromDate, toDate, netSalesWorth, graphData){
+
+
+
+
+//Step 8: Gross Sales
+function renderGrossAmount(fromDate, toDate, netSalesWorth, graphData){
 		
 		//Total Cart Amount
 		$.ajax({
@@ -4187,15 +4305,15 @@ function renderNetAmount(fromDate, toDate, netSalesWorth, graphData){
 				}
 
 				graphData.push({
-					"name": 'Net Sales',
+					"name": 'Gross Sales',
 					"value": temp_sum
 				})
 
 
-				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Net Sales</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
+				document.getElementById("summaryRender_turnOver").innerHTML = '<tr> <td>Gross Sales</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+parseFloat(temp_sum).toFixed(2)+'</td> </tr>' + document.getElementById("summaryRender_turnOver").innerHTML;
 
 
-				//Step 10: Final Render Call
+				//Step 9: Final Render Call
 				renderSummaryFinal(netSalesWorth, graphData);
 
 			},
@@ -4206,74 +4324,23 @@ function renderNetAmount(fromDate, toDate, netSalesWorth, graphData){
 }
 
 
-
 //Step 10
 function renderSummaryFinal(netSalesWorth, graphData){
-	renderGraph_overallSummary(graphData);
+
+	document.getElementById("quickSalesFigure_FactsBox").style.display = 'block';
+
+	document.getElementById("quickSalesFigure_FactsBox").innerHTML = ''+
+		'<div class="col-sm-3" style="padding: 0 5px;"> <div class="quickSummaryBox"> <div class="quickSummaryFigure zoomIn" id="quickSalesFigure_net">...</div> <div class="quickSummaryTag zoomIn">Net Amount</div> </div> </div>'+
+		'<div class="col-sm-3" style="padding: 0 5px;"> <div class="quickSummaryBox"> <div class="quickSummaryFigure zoomIn" id="quickSalesFigure_gross">...</div> <div class="quickSummaryTag zoomIn">Gross Sales</div> </div> </div>'+
+		'<div class="col-sm-3" style="padding: 0 5px;"> <div class="quickSummaryBox"> <div class="quickSummaryFigure zoomIn" id="quickSalesFigure_discount">...</div> <div class="quickSummaryTag zoomIn">Discounts</div> </div> </div>'+
+		'<div class="col-sm-3" style="padding: 0 5px;"> <div class="quickSummaryBox"> <div class="quickSummaryFigure zoomIn" id="quickSalesFigure_refund">...</div> <div class="quickSummaryTag zoomIn">Refunds</div> </div> </div>';
+   
+	document.getElementById("quickSalesFigure_net").innerHTML = parseFloat(graphData[0].value - graphData[graphData.length - 3].grossRefundValue).toFixed(0);
+	document.getElementById("quickSalesFigure_gross").innerHTML = parseFloat(graphData[graphData.length - 1].value).toFixed(0);
+	document.getElementById("quickSalesFigure_discount").innerHTML = (graphData[graphData.length - 2].value > 0 ? '-' : '') + parseFloat(graphData[graphData.length - 2].value).toFixed(0);
+	document.getElementById("quickSalesFigure_refund").innerHTML = (graphData[graphData.length - 3].value > 0 ? '-' : '') + parseFloat(graphData[graphData.length - 3].value).toFixed(0);
+
 }
-
-
-
-
-function renderGraph_overallSummary(graphData){
-
-	var graph_labels = [];
-	var graph_data = [];
-	var graph_background = [];
-	var graph_border = [];
-
-	var n = 0;
-	while(graphData[n]){
-		var colorSet = random_rgba_color_set();
-
-		graph_labels.push(graphData[n].name);
-		graph_data.push(parseFloat(graphData[n].value).toFixed(2))
-		graph_background.push(colorSet[0])
-		graph_border.push(colorSet[1])
-
-		n++;
-	}
-
-	var ctx = document.getElementById("overallBarChart").getContext('2d');
-	var myChart = new Chart(ctx, {
-	    type: 'bar',
-	    data: {
-	        labels: graph_labels,
-	        datasets: [{
-	            label: 'Overall Figures',
-	            data: graph_data,
-	            backgroundColor: graph_background,
-	            borderColor: graph_border,
-	            borderWidth: 1
-	        }]
-	    },
-	    options: {
-            tooltips: {
-                enabled: true,
-                mode: 'single',
-                callbacks: {
-                    label: function(tooltipItems) {
-                        return ' '+graph_labels[tooltipItems.index]+' Rs. '+graph_data[tooltipItems.index];
-                    }
-                }
-            },	    	
-	        scales: {
-	            yAxes: [{
-	            	display:false,
-	                ticks: {
-	                    beginAtZero:true,
-	                    display: false
-	                },
-	                gridLines: {
-                    	display:false
-                	}
-	            }]
-	        }
-	    }
-	});	
-}
-
-
 
 
 
@@ -5125,7 +5192,7 @@ function generateOverallItemCancellationReport(){
 											'</td>'+
 											'<td style="font-weight: bold; font-family: \'Oswald\'; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].qty+' <tag style="font-weight: 300;">x</tag></td>'+
 											'<td>'+
-												'<tag style="font-weight: 600; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].name+'</tag>'+
+												'<tag style="font-weight: 600; color: #6f6f6f;">'+cancelledData.itemsRemoved[i].name+(cancelledData.itemsRemoved[i].isCustom ? ' <tag style="font-size: 80%; font-weight: 400">('+cancelledData.itemsRemoved[i].variant+')</tag>' : '')+'</tag>'+
 												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.itemsRemoved[i].comments+'</tag>'+
 											'</td>'+
 											'<td>'+(cancelledData.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.mode)+'</td>'+
@@ -5408,7 +5475,7 @@ function fetchItemSummary(){
 
 					var renderContent = '';
 					for(var i = 0; i < upper_limit; i++){
-						renderContent += '<tr> <td><i class="fa fa-star" style="color: #ffd63f; font-size: 12px; margin-right: 10px; top: -1px; position: relative;"></i><b style="color: #e69d17; font-size: 17px; font-weight: 500; }">'+itemsFilteredList[i].name+(itemsFilteredList[i].category != '' && itemsFilteredList[i].category != 'UNKNOWN' ? '<tag style="color: gray; margin-left: 6px; font-size: 12px;">'+itemsFilteredList[i].category+'</tag>' : '')+'</b></td> <td class="summaryLine3" style="text-align: center; color: #e69d17">'+itemsFilteredList[i].count+'</td> </tr>';
+						renderContent += '<tr> <td><i class="fa fa-star" style="color: #ffd63f; font-size: 12px; margin-right: 10px; top: -1px; position: relative;"></i><b style="color: #e69d17; font-size: 17px; font-weight: 500; }">'+itemsFilteredList[i].name+(itemsFilteredList[i].category != '' && itemsFilteredList[i].category != 'MANUAL_UNKNOWN' ? '<tag style="color: gray; margin-left: 6px; font-size: 12px;">'+itemsFilteredList[i].category+'</tag>' : '')+'</b></td> <td class="summaryLine3" style="text-align: center; color: #e69d17">'+itemsFilteredList[i].count+'</td> </tr>';
 					}
 
 					document.getElementById("summaryRender_itemSummary").innerHTML = renderContent;
@@ -5933,7 +6000,8 @@ function fetchSingleClickReport(){
 
 	/*
 		Allow to generate report only if 
-		there are no bills pending for settlement
+		1. there are no live orders
+		2. there are no bills pending for settlement
 	*/
 
 
@@ -5945,6 +6013,36 @@ function fetchSingleClickReport(){
 	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
 	
 
+	checkForRunningOrders();
+
+	function checkForRunningOrders(){
+
+	    $.ajax({
+	      type: 'GET',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchall',
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.total_rows > 0){
+	            showToast('Warning: Please generate bills for all the <b>'+data.rows.length+' live orders</b> to continue.', '#e67e22');
+	            return '';
+	        }
+	        else{
+	        	checkForPendingBills();
+	        }
+	      },
+	      error: function(data) {
+	        showToast('Error: Unable to generate the report. Please try again.', '#e74c3c');
+	        return '';
+	      }
+
+	    }); 
+	}
+
+
+	function checkForPendingBills(){
+				  	
 				  	$.ajax({
 					    type: 'GET',
 						url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/_design/bill-filters/_view/showall?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]&descending=false',
@@ -5953,15 +6051,64 @@ function fetchSingleClickReport(){
 
 							if(data.rows.length > 0){
 								showToast('Warning: Please settle all the pending bills on the given dates to continue.', '#e67e22');
+								return '';
 							}
 							else{
-								fetchSingleClickReportAfterApproval();
+								checkForThemeSelected();
 							}
 						},
 						error: function(data) {
 							showToast('Error: Unable to generate the report. Please try again.', '#e74c3c');
 						}
-					});  
+					}); 
+	} 
+
+	function checkForThemeSelected(){
+		if(window.localStorage.report_default_theme && window.localStorage.report_default_theme != ''){
+			
+			    var defaultReportTheme = window.localStorage.report_default_theme && window.localStorage.report_default_theme != '' ? window.localStorage.report_default_theme : 'RED';
+			    var color = '';
+			    var name = '';
+
+			    switch(defaultReportTheme){
+			    	case "RED":{
+				    	color = '#c63931';
+				    	name = 'Red';
+					   	break;
+			    	}
+			    	case "GREEN":{
+				    	color = '#0eb7a7';
+				    	name = 'Green';
+				    	break;
+			    	}
+			    	case "BLUE":{
+				    	color = '#4593d2';
+				    	name = 'Blue';
+				    	break;
+			    	}
+			    	case "DARK":{
+				    	color = '#444';
+				    	name = 'Dark';
+				    	break;
+			    	}
+			    	default:{ //Red
+				    	color = '#c63931';
+				    	name = 'Red';
+					   	break;
+			    	}
+			    }
+
+			var x = document.getElementById("selectedThemeDisplay");
+			x.innerHTML = name;
+			x.style.color = color;
+
+			fetchSingleClickReportAfterApproval();
+			
+		}else{
+			openSetThemeModal();
+			return '';
+		}
+	}
 
 }
 
@@ -5970,6 +6117,7 @@ function fetchSingleClickReportAfterApproval(){
 
 	$( "#summaryRenderArea" ).children().css( "display", "none" );
 	document.getElementById("singleClickReport_RenderArea").style.display = "block";
+
 
 	//Initialise animation contents
 	document.getElementById("singleClickReport_RenderContent").innerHTML = ''+
@@ -5993,6 +6141,7 @@ function fetchSingleClickReportAfterApproval(){
     window.localStorage.graphImageDataWeekly = '';
     window.localStorage.graphImageDataPayments = '';
     window.localStorage.graphImageDataBills = '';
+    window.localStorage.graphImageDataHourly = '';
 
     
     //Initialise animation
@@ -6045,8 +6194,6 @@ function fetchSingleClickReportAfterApproval(){
 	}
 
 
-
-
 	//Note: Dates in YYYYMMDD format
 	var fromDate = document.getElementById("reportFromDate").value;
 	fromDate = fromDate && fromDate != '' ? fromDate : '01-01-2018'; //Since the launch of Vega POS
@@ -6056,14 +6203,22 @@ function fetchSingleClickReportAfterApproval(){
 	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
 	toDate = getSummaryStandardDate(toDate);
 
+	//preload data
+	var DATA_BILLING_PARAMETERS = [];
+	var DATA_BILLING_MODES = [];
+	var DATA_PAYMENT_MODES = [];
+
 	var completeReportInfo = [];
 	var netSalesWorth = 0;
 	var netGuestsCount = '-';
 	var netCartSum = 0;
+
 	var grossRefundsProcessed = 0;
 	var actualNetRefundAmount = 0;
+
 	var reportInfoExtras = [];
 	var completeErrorList = []; //In case any API call causes Error
+
 	var detailedListByBillingMode = []; //Billing mode wise
 	var detailedListByPaymentMode = []; //Payment mode wise
 
@@ -6072,16 +6227,161 @@ function fetchSingleClickReportAfterApproval(){
 	var paymentGraphData = []; //For payment graphs
 	var billsGraphData = []; //For bills graphs
 
+	var overalSalesTrend = []; //Sales trend: lastday, current week, previous week etc. 
+	var sessionWiseSalesData = []; //Session wise sales
+	var hourlySalesData = []; //hourly sales
+	var dayByDaySalesData = []; //complete current month daily sales
+	var monthByMonthSalesData = []; //month by month sales
+	
+	var invoiceCancellationsData = []; //bill cancellations
+	var invoiceCancellationsMetaData = {}; //bill cancellations summary figures
+
+	var invoiceRefundsData = []; //bill refunds
+
+	var detailedDiscountsData = []; //Discounts offered
+	var detailedTopItemsData = []; //Top 20 items
+	var detailedItemCategoryWiseData = []; //Top 20 items
+
+	var cancellationsData_items = []; //Item cancellations list
+	var cancellationsData_orders = []; //Order Cancellations list
+	var cancellationsData_invoices = []; //Invoice Cancellations list
+
 	var startingBillNumber = '-';
 	var endingBillNumber = '-';
 	var netCancelledBills = 0;
 	var netCancelledBillsSum = 0;
 
-	//Net Sales Worth = Total Paid - (All the other charges) - (Discounts & Refunds) + (Tips)
 
 	//Starting point
 	runReportAnimation(0);
-	setTimeout(singleClickTotalPaid, 1000);
+	setTimeout(preloadRequiredData, 1000);
+
+
+	//Step 0: Preload necessary data
+	function preloadRequiredData(){
+
+		preloadBillingParameters();
+
+		function preloadBillingParameters(){
+
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
+		                  },
+		      "fields"    : ["identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
+			          	
+			          	DATA_BILLING_PARAMETERS = data.docs[0].value;
+		         		
+						preloadBillingModes();
+		          }
+		        }
+		        else{
+		        	showToast('System Error: Failed to read Billing Parameters data. Please contact Accelerate Support if problem persists.', '#e74c3c');
+					return '';
+		        }
+		      },
+		      error: function(data) {
+					showToast('System Error: Failed to read Billing Parameters data. Please contact Accelerate Support if problem persists.', '#e74c3c');
+					return '';
+		      }
+
+		    });				
+		}
+
+		function preloadBillingModes(){
+
+			    var requestData = {
+			      "selector"  :{ 
+			                    "identifierTag": "ACCELERATE_BILLING_MODES" 
+			                  },
+			      "fields"    : ["identifierTag", "value"]
+			    }
+
+			    $.ajax({
+			      type: 'POST',
+			      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+			      data: JSON.stringify(requestData),
+			      contentType: "application/json",
+			      dataType: 'json',
+			      timeout: 10000,
+			      success: function(data) {
+
+			        if(data.docs.length > 0){
+			          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
+
+			              	DATA_BILLING_MODES = data.docs[0].value;
+
+			              	preloadPaymentModes();
+			          }
+			        }
+			        else{
+			        	showToast('System Error: Failed to read Billing Modes data. Please contact Accelerate Support if problem persists.', '#e74c3c');
+						return '';
+			        }
+			      },
+			      error: function(data) {
+						showToast('System Error: Failed to read Billing Modes data. Please contact Accelerate Support if problem persists.', '#e74c3c');
+						return '';
+			      }
+
+			    });			
+		}
+
+		function preloadPaymentModes(){
+
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
+		                  },
+		      "fields"    : ["identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+
+			        if(data.docs.length > 0){
+			          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
+
+			              	DATA_PAYMENT_MODES = data.docs[0].value;
+
+			              	//Step 1:
+			              	singleClickTotalPaid();
+			          }
+			        }
+			        else{
+			        	showToast('System Error: Failed to read Payment Modes data. Please contact Accelerate Support if problem persists.', '#e74c3c');
+						return '';
+			        }
+			  },
+			  error: function(data) {
+				showToast('System Error: Failed to read Payment Modes data. Please contact Accelerate Support if problem persists.', '#e74c3c');
+				return '';
+			  }
+
+		    });			
+		}
+
+		
+	}
 
 
 	//Step 1: Total Paid Amount
@@ -6101,7 +6401,7 @@ function fetchSingleClickReportAfterApproval(){
 				}
 
 				completeReportInfo.push({
-						"name": "Gross Amount",
+						"name": "Net Amount",
 						"value": temp_totalPaid,
 						"count": temp_totalOrders,
 						"split": []
@@ -6109,15 +6409,16 @@ function fetchSingleClickReportAfterApproval(){
 
 				netSalesWorth = temp_totalPaid;
 
-				//Step 1.2:
+				//Step 2:
 				singleClickNetAmount();
 
 			},
 			error: function(data){
 				completeErrorList.push({
 				    "step": 1,
-					"error": "Failed to load gross sales figure. Report can not be generated."
+					"error": "Failed to load total paid amount."
 				});
+
 				stopReportAnimation('ERROR');
 				singleClickLoadErrors();
 				return '';
@@ -6126,11 +6427,11 @@ function fetchSingleClickReportAfterApproval(){
 	}	
 
 
-	//Step 1.2: Find Net Cart Amount
+	//Step 2: Find Gross Cart Amount
 	function singleClickNetAmount(){
 
-			runReportAnimation(2); //of Step 1 which takes 2 units
-			
+		runReportAnimation(1); //Step 1 takes 1 unit time
+		
 			//Total Cart Amount
 			$.ajax({
 			    type: 'GET',
@@ -6142,14 +6443,14 @@ function fetchSingleClickReportAfterApproval(){
 						netCartSum = data.rows[0].value.sum;
 					}
 
-					//Step 1.3:
+					//Step 3:
 					singleClickTotalGuests();
 
 				},
 				error: function(data){
 					completeErrorList.push({
-					    "step": 1.2,
-						"error": "Failed to load gross sales figure. Report can not be generated."
+					    "step": 2,
+						"error": "Failed to load gross sales figure."
 					});
 				
 					stopReportAnimation('ERROR');
@@ -6161,8 +6462,10 @@ function fetchSingleClickReportAfterApproval(){
 
 
 
-	//Step 1.3: Total Number of Guests
+	//Step 3: Total Number of Guests
 	function singleClickTotalGuests(){
+
+		runReportAnimation(2); //Step 2 takes 1 unit time
 
 		$.ajax({
 		    type: 'GET',
@@ -6174,24 +6477,24 @@ function fetchSingleClickReportAfterApproval(){
 					netGuestsCount = data.rows[0].value.sum;
 				}
 
-				//Step 1.4:
+				//Step 4:
 				singleClickLastInvoiceNumbers();
 
 			},
 			error: function(data){
 				completeErrorList.push({
-				    "step": 1.3,
-					"error": "Failed to sum up the number of guests"
+				    "step": 3,
+					"error": "Failed to calculate the total number of guests."
 				});
 				return '';
 			}
 		});  
 	}		
 
-	//Step 1.4: First and last invoice number
+	//Step 4: First and last invoice number
 	function singleClickLastInvoiceNumbers(){
 
-		runReportAnimation(5); //of Step 1-2 which takes 1 units
+		runReportAnimation(3); //Step 3 takes 1 unit time
 
 		$.ajax({
 		    type: 'GET',
@@ -6204,57 +6507,36 @@ function fetchSingleClickReportAfterApproval(){
 					endingBillNumber = data.rows[data.rows.length - 1].value;
 				}
 
-				//Step 2:
+				//Step 5:
 				singleClickExtraCharges();
 
 			},
 			error: function(data){
 				completeErrorList.push({
-				    "step": 1.4,
-					"error": "Failed to find the starting and ending invoice numbers"
+				    "step": 4,
+					"error": "Failed to find the starting and ending invoice numbers."
 				});
+
+				singleClickExtraCharges();
 				return '';
 			}
 		});  
 	}		
 
 
-	//Step 2: 
+	//Step 5: 
 	function singleClickExtraCharges(){
 
-		runReportAnimation(9); //of Step 1-3 which takes 1 units
+		runReportAnimation(4); //Step 4 takes 1 unit time
 
-	    var requestData = {
-	      "selector"  :{ 
-	                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
-	                  },
-	      "fields"    : ["identifierTag", "value"]
-	    }
-
-	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
-	      timeout: 10000,
-	      success: function(data) {
-
-	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
-
-		          	var modes = data.docs[0].value;
-		          	modes.sort(); //alphabetical sorting 
+		          	var modes = DATA_BILLING_PARAMETERS;
 
 		          	if(modes.length == 0){
-						completeErrorList.push({
-						    "step": 2,
-							"error": "Failed to read applied charges"
-						});
 
 						//Skip and go to next step
 						singleClickDiscountsOffered(); 
 						return '';
+		          	
 		          	}
 		          	else{
 
@@ -6288,8 +6570,8 @@ function fetchSingleClickReportAfterApproval(){
 										netSalesWorth -= temp_sum;
 
 										reportInfoExtras.push({
-												"name": modes[0].name,
-												"value": temp_sum
+											"name": modes[0].name,
+											"value": temp_sum
 										});
 
 								    	//Check if next mode exists...
@@ -6297,15 +6579,15 @@ function fetchSingleClickReportAfterApproval(){
 								    		singleClickExtraChargesCallback(1, modes);
 								    	}
 								    	else{
-								    		//Step 3: Total Discount offered
+								    		//Step 6: Total Discount offered
 								    		singleClickDiscountsOffered();
 								    	}
 
 									},
 									error: function(data){
 										completeErrorList.push({
-										    "step": 2,
-											"error": "Failed to read applied charges"
+										    "step": 5,
+											"error": "Failed to calculate the extra charges applied on the bills."
 										});
 
 										//Skip and go to next step
@@ -6317,8 +6599,8 @@ function fetchSingleClickReportAfterApproval(){
 					    },
 					    error: function(data){
 							completeErrorList.push({
-							    "step": 2,
-								"error": "Failed to read applied charges"
+							    "step": 5,
+								"error": "Failed to calculate the extra charges applied on the bills."
 							});	
 
 							//Skip and go to next step
@@ -6327,45 +6609,11 @@ function fetchSingleClickReportAfterApproval(){
 					    }
 					  });  
 					} //else - modes
-	          }
-	          else{
-				completeErrorList.push({
-				    "step": 2,
-					"error": "Failed to read applied charges"
-				});
 
-				//Skip and go to next step
-				singleClickDiscountsOffered(); 
-				return '';
-	          }
-	        }
-	        else{
-				completeErrorList.push({
-				    "step": 2,
-					"error": "Failed to read applied charges"
-				});
-
-				//Skip and go to next step
-				singleClickDiscountsOffered(); 
-				return '';
-	        }
-	      },
-	      error: function(data) {
-				completeErrorList.push({
-				    "step": 2,
-					"error": "Failed to read applied charges"
-				});
-
-				//Skip and go to next step
-				singleClickDiscountsOffered(); 
-				return '';
-	      }
-
-	    });	
 	}
 
 
-	//Step 2 - Callback
+	//Step 5 - Callback
 	function singleClickExtraChargesCallback(index, modes){
 
 				  $.ajax({
@@ -6408,15 +6656,15 @@ function fetchSingleClickReportAfterApproval(){
 							    		singleClickExtraChargesCallback(index+1, modes);
 							    	}
 							    	else{
-							    		//Step 3: Total Discount offered
+							    		//Step 6: Total Discount offered
 							    		singleClickDiscountsOffered();
 							    	}
 
 								},
 								error: function(data){
 									completeErrorList.push({
-									    "step": 2,
-										"error": "Failed to read applied charges"
+									    "step": 5,
+										"error": "Failed to calculate the extra charges applied on the bills."
 									});
 
 									//Skip and go to next step
@@ -6427,8 +6675,8 @@ function fetchSingleClickReportAfterApproval(){
 				    },
 				    error: function(data){
 						completeErrorList.push({
-						    "step": 2,
-							"error": "Failed to read applied charges"
+						    "step": 5,
+							"error": "Failed to calculate the extra charges applied on the bills."
 						});
 
 						//Skip and go to next step
@@ -6437,13 +6685,14 @@ function fetchSingleClickReportAfterApproval(){
 				    }
 				  }); 
 
-	}	//End step 2 callback
+	}	//End step 5 callback
 
 
-	//Step 3: Discounts Offered
+
+	//Step 6: Discounts Offered
 	function singleClickDiscountsOffered(){
 
-		runReportAnimation(15); //of Step 2 which takes 10 units
+		runReportAnimation(7); //Step 5 takes 3 unit time
 
 		$.ajax({
 		    type: 'GET',
@@ -6469,14 +6718,14 @@ function fetchSingleClickReportAfterApproval(){
 				});	
 
 
-				//Step 4: Total calculated round offs
+				//Step 7: Total calculated round offs
 				singleClickCalculatedRoundOffs();
 
 			},
 			error: function(data){
 				completeErrorList.push({
-				    "step": 3,
-					"error": "Failed to read discounts offered"
+				    "step": 6,
+					"error": "Failed to calculate the discounts applied on the bills."
 				});				
 
 				//Skip and go to next step
@@ -6488,10 +6737,10 @@ function fetchSingleClickReportAfterApproval(){
 
 
 
-	//Step 4 : Calculated Round Offs
+	//Step 7 : Calculated Round Offs
 	function singleClickCalculatedRoundOffs(){
 
-			runReportAnimation(17); //of Step 3 which takes 2 units
+			runReportAnimation(8); //Step 6 takes 1 unit time
 
 			//Total Calculated Round Offs
 			$.ajax({
@@ -6513,14 +6762,14 @@ function fetchSingleClickReportAfterApproval(){
 							"count": 0
 					});	
 
-					//Step 4.1: Total Waive Off made
+					//Step 8: Total Waive Off made
 					singleClickWaiveOffsMade();
 
 				},
 				error: function(data){
 					completeErrorList.push({
-					    "step": 4,
-						"error": "Failed to read Calculcated Round-off amount"
+					    "step": 7,
+						"error": "Failed to calculate the sum of Round-off amounts."
 					});				
 
 					//Skip and go to next step
@@ -6534,10 +6783,10 @@ function fetchSingleClickReportAfterApproval(){
 
 
 
-	//Step 4.1: Waive Offs made
+	//Step 8: Waive Offs made
 	function singleClickWaiveOffsMade(){
 
-		runReportAnimation(20); //of Step 4 which takes 3 units
+		runReportAnimation(9); //Step 7 takes 1 unit time
 
 		$.ajax({
 		    type: 'GET',
@@ -6562,14 +6811,14 @@ function fetchSingleClickReportAfterApproval(){
 						"count": temp_roundOffCount
 				});	
 
-				//Step 5: Total Tips received
+				//Step 9: Total Tips received
 				singleClickTipsReceived();
 
 			},
 			error: function(data){
 				completeErrorList.push({
-				    "step": 4.1,
-					"error": "Failed to read Waive Off amount"
+				    "step": 8,
+					"error": "Failed to calculate the sum of Waived-off amounts."
 				});				
 
 				//Skip and go to next step
@@ -6582,10 +6831,10 @@ function fetchSingleClickReportAfterApproval(){
 
 
 
-	//Step 5: Total Tips Received
+	//Step 9: Total Tips Received
 	function singleClickTipsReceived(){
 
-		runReportAnimation(25); //of Step 4 which takes 5 units
+		runReportAnimation(10); //Step 8 takes 1 unit time
 
 		$.ajax({
 		    type: 'GET',
@@ -6611,14 +6860,14 @@ function fetchSingleClickReportAfterApproval(){
 						"count": temp_tipsCount
 				});	
 
-				//Step 6: Refunds Issued
+				//Step 10: Refunds Issued
 				singleClickRefundsIssued();
 
 			},
 			error: function(data){
 				completeErrorList.push({
-				    "step": 5,
-					"error": "Failed to read tips received"
+				    "step": 9,
+					"error": "Failed to calculate the sum of tips received."
 				});				
 
 				//Skip and go to next step
@@ -6629,10 +6878,10 @@ function fetchSingleClickReportAfterApproval(){
 	}
 
 
-	//Step 6: Total Refunds Issued
+	//Step 10: Total Refunds Issued
 	function singleClickRefundsIssued(){
 
-		runReportAnimation(28); //of Step 5 which takes 3 units
+		runReportAnimation(11); //Step 9 takes 1 unit time
 
 		/*
 			Cancelled and Refunded Orders 
@@ -6643,7 +6892,7 @@ function fetchSingleClickReportAfterApproval(){
 		findGrossRefund();
 
 
-		//Refunded gross amount (Net Amount + Extras)
+		//Refunded gross amount (gross Amount + Extras)
 		function findGrossRefund(){
 			
 			$.ajax({
@@ -6667,11 +6916,11 @@ function fetchSingleClickReportAfterApproval(){
 				},
 				error: function(data){
 					completeErrorList.push({
-					    "step": 6,
-						"error": "Failed to read refunds issued"
+					    "step": 10,
+						"error": "Failed to calculate the total refunds issued."
 					});				
 
-					//Step 6.1 : Get cancelled invoices count
+					//Step 11: Get cancelled invoices count
 					singleClickCancelledInvoices(); 
 					return '';
 				}
@@ -6705,31 +6954,64 @@ function fetchSingleClickReportAfterApproval(){
 						"count": temp_refundCount
 					});	
 
-					//Step 6.1 : Get cancelled invoices count
-					singleClickCancelledInvoices();
+					fetchRefundList();
 
 				},
 				error: function(data){
 					completeErrorList.push({
-					    "step": 6,
-						"error": "Failed to read refunds issued"
+					    "step": 10,
+						"error": "Failed to calculate the total refunds issued."
 					});				
 
-					//Step 6.1 : Get cancelled invoices count
+					//Step 11: Get cancelled invoices count
 					singleClickCancelledInvoices(); 
 					return '';
 				}
 			});
 		}
 
+		function fetchRefundList(){
+
+			if(fromDate != toDate){
+				singleClickCancelledInvoices();
+				return '';
+			}
+			
+				$.ajax({
+					type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/fetchall?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]&descending=false&include_docs=true',
+					timeout: 50000,
+					success: function(data) {
+
+						invoiceRefundsData = data.rows;
+						singleClickCancelledInvoices();
+						
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 10,
+							"error": "Failed to fetch the refunds data."
+						});				
+
+						invoiceRefundsData = [];
+
+						//Step 11: Get cancelled invoices count
+						singleClickCancelledInvoices(); 
+						return '';	    	
+					}
+				}); 
+
+		}
+
+
 
 	}
 
 
-	//Step 6.1 : Get cancelled invoices count
+	//Step 11: Get cancelled invoices count
 	function singleClickCancelledInvoices(){
 
-		runReportAnimation(30); //of Step 6 which takes 2 units
+		runReportAnimation(12); //Step 10 takes 1 unit time
 	
 		$.ajax({
 		    type: 'GET',
@@ -6742,19 +7024,18 @@ function fetchSingleClickReportAfterApproval(){
 					netCancelledBillsSum = data.rows[0].value.sum;
 				}
 
-				//Step 7: Render everything 
-				singleClickSummaryFinal();
+				//Step 12: Detailed sales trend
+				singleClickDetailedSalesTrend();
 
 			},
 			error: function(data){
 				completeErrorList.push({
-				    "step": 6.1,
-					"error": "Failed to find the number of cancelled invoices"
+				    "step": 11,
+					"error": "Failed to find the number of cancelled invoices."
 				});
 				
-				//Step 7: Render everything 
-				singleClickSummaryFinal();
-
+				//Step 12: Detailed sales trend
+				singleClickDetailedSalesTrend();
 				return '';
 			}
 		});  
@@ -6763,59 +7044,2439 @@ function fetchSingleClickReportAfterApproval(){
 	}
 
 
-	//Step 7 : Render 
-	function singleClickSummaryFinal(){
 
-		/*
-			Intermediate validation pit-stop:
-			Ensure if all the data so far is good to render the
-			final report, in the final step.
+	//Step 12: Quick Sales Trend
+	function singleClickDetailedSalesTrend(){
 
-			If it fails at this step, terminate the process here
-			and kill the progress status animation
-		*/
+		runReportAnimation(13); //Step 11 takes 1 unit time
 
-		//Step 8: Detailed by Billing Modes
-		singleClickDetailedByModes();
+		if(fromDate != toDate){ //Skip if the report is being NOT generated for a Single Day
+			singleClickSessionWise();
+			return '';
+		}
+
+
+		//PRE-FORMATTING
+		var trendDate_yesterday = moment(fromDate, 'YYYYMMDD').subtract(1, 'days').format('YYYYMMDD'); //Yesterday
+		
+		var trendDate_currentWeek_from = moment(fromDate, 'YYYYMMDD').subtract(6, 'days').format('YYYYMMDD');
+		var trendDate_currentWeek_to = moment(fromDate, 'YYYYMMDD').format('YYYYMMDD');
+
+		var trendDate_previousWeek_from = moment(fromDate, 'YYYYMMDD').subtract(13, 'days').format('YYYYMMDD');
+		var trendDate_previousWeek_to = moment(fromDate, 'YYYYMMDD').subtract(7, 'days').format('YYYYMMDD');
+
+		var trendDate_currentMonth_from = moment(fromDate, 'YYYYMMDD').startOf('month').format('YYYYMMDD');
+		var trendDate_currentMonth_to = moment(fromDate, 'YYYYMMDD').format('YYYYMMDD');
+		
+		var trendDate_previousMonth_from = moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('YYYYMMDD');
+		var trendDate_previousMonth_to = moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('YYYYMMDD');
+		var trendDate_previousMonth_end = moment(fromDate, 'YYYYMMDD').subtract(1, 'months').endOf('month').format('YYYYMMDD');
+
+		var trendDate_lastYear_from = moment(fromDate, 'YYYYMMDD').subtract(1, 'years').startOf('month').format('YYYYMMDD');
+		var trendDate_lastYear_to = moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('YYYYMMDD');
+		var trendDate_lastYear_end = moment(fromDate, 'YYYYMMDD').subtract(1, 'years').endOf('month').format('YYYYMMDD');
+
+		overalSalesTrend[0] = {
+			"tag": "Today",
+			"range": moment(fromDate, 'YYYYMMDD').format('Do MMMM'),
+			"amount": 0,
+			"count": 0,
+			"dateFrom": fromDate,
+			"dateTo": fromDate
+		}
+
+		overalSalesTrend[1] = {
+			"tag": "Yesterday",
+			"range": moment(fromDate, 'YYYYMMDD').subtract(1, 'days').format('Do MMMM'),
+			"amount": 0,
+			"count": 0,
+			"dateFrom": trendDate_yesterday,
+			"dateTo": trendDate_yesterday
+		}
+
+		overalSalesTrend[2] = {
+			"tag": "Current Week",
+			"range": moment(fromDate, 'YYYYMMDD').subtract(6, 'days').format('Do MMM') +" - "+ moment(fromDate, 'YYYYMMDD').format('Do MMM'),
+			"amount": 0,
+			"count": 0,
+			"dateFrom": trendDate_currentWeek_from,
+			"dateTo": trendDate_currentWeek_to
+		}
+
+		overalSalesTrend[3] = {
+			"tag": "Previous Week",
+			"range": moment(fromDate, 'YYYYMMDD').subtract(13, 'days').format('Do MMM') + " - " + moment(fromDate, 'YYYYMMDD').subtract(7, 'days').format('Do MMM'),
+			"amount": 0,
+			"count": 0,
+			"dateFrom": trendDate_previousWeek_from,
+			"dateTo": trendDate_previousWeek_to
+		}
+
+		overalSalesTrend[4] = {
+			"tag": "Current Month ("+moment(fromDate, 'YYYYMMDD').format('MMMM')+")",
+			"range": (moment(fromDate, 'YYYYMMDD').startOf('month').format('Do MMM') != moment(fromDate, 'YYYYMMDD').format('Do MMM')) ? moment(fromDate, 'YYYYMMDD').startOf('month').format('Do ') + " - " + moment(fromDate, 'YYYYMMDD').format('Do MMMM, YYYY') : moment(fromDate, 'YYYYMMDD').format('Do MMMM') + " (Today)",
+			"amount": 0,
+			"count": 0,
+			"dateFrom": trendDate_currentMonth_from,
+			"dateTo": trendDate_currentMonth_to
+		}
+
+		overalSalesTrend[5] = {
+			"tag": "Previous Month ("+moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('MMMM')+") - Till "+ moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('Do'),
+			"range": (moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do') != moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('Do') ? moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do ') + " - " + moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('Do MMMM, YYYY') : moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do MMMM')),
+			"amount": 0,
+			"count": 0,
+			"dateFrom": trendDate_previousMonth_from,
+			"dateTo": trendDate_previousMonth_to
+		}
+
+		overalSalesTrend[6] = {
+			"tag": "Previous Month ("+moment(fromDate, 'YYYYMMDD').subtract(1, 'months').format('MMMM')+") - Overall",
+			"range": moment(fromDate, 'YYYYMMDD').subtract(1, 'months').startOf('month').format('Do ') + " - " + moment(fromDate, 'YYYYMMDD').subtract(1, 'months').endOf('month').format('Do MMMM, YYYY'),
+			"amount": 0,
+			"count": 0,
+			"dateFrom": trendDate_previousMonth_from,
+			"dateTo": trendDate_previousMonth_end
+		}
+
+		overalSalesTrend[7] = {
+			"tag": "Last Year "+moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('MMM (YYYY)')+" - Till " + moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('Do'),
+			"range": (moment(fromDate, 'YYYYMMDD').subtract(1, 'years').startOf('month').format('Do') != moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('Do') ? moment(fromDate, 'YYYYMMDD').subtract(1, 'years').startOf('month').format('Do ') + " - " + moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('Do MMMM, YYYY') : moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('Do MMMM, YYYY')),
+			"amount": 0,
+			"count": 0,
+			"dateFrom": trendDate_lastYear_from,
+			"dateTo": trendDate_lastYear_to
+		}
+
+		overalSalesTrend[8] = {
+			"tag": "Last Year "+moment(fromDate, 'YYYYMMDD').subtract(1, 'years').format('MMM (YYYY)')+" - Overall",
+			"range": moment(fromDate, 'YYYYMMDD').subtract(1, 'years').startOf('month').format('Do') +" - "+ moment(fromDate, 'YYYYMMDD').subtract(1, 'years').endOf('month').format('Do MMMM, YYYY'),
+			"amount": 0,
+			"count": 0,
+			"dateFrom": trendDate_lastYear_from,
+			"dateTo": trendDate_lastYear_end
+		}
+
+		
+		generateSalesTrend(0);
+
+		//To calculate yesterday's sales
+		function generateSalesTrend(index){
+			
+			$.ajax({
+			    type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+overalSalesTrend[index].dateFrom+'"]&endkey=["'+overalSalesTrend[index].dateTo+'"]',
+				timeout: 10000,
+				success: function(data) {
+
+					var temp_totalOrders = 0;
+					var temp_totalPaid = 0;
+
+					if(data.rows.length > 0){
+						temp_totalOrders = data.rows[0].value.count;
+						temp_totalPaid = data.rows[0].value.sum;
+					}
+
+
+					//Refunds issued
+					$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+overalSalesTrend[index].dateFrom+'"]&endkey=["'+overalSalesTrend[index].dateTo+'"]',
+						timeout: 10000,
+						success: function(data) {
+
+							var temp_refundSum = 0;
+
+							if(data.rows.length > 0){
+								temp_refundSum = data.rows[0].value.sum;
+							}
+
+
+							overalSalesTrend[index].amount = temp_totalPaid - temp_refundSum;
+							overalSalesTrend[index].count = temp_totalOrders;
+
+							if(overalSalesTrend[index + 1]){
+								generateSalesTrend(index + 1);
+							}
+							else{
+								singleClickSessionWise();
+							}
+											 
+						},
+						error: function(data){
+							completeErrorList.push({
+							    "step": 12,
+								"error": "Unable to get the sales trend figures. Calculating the total refunds failed."
+							});	
+
+							overalSalesTrend = [];
+							singleClickSessionWise();
+							return '';
+						}
+					});
+
+				},
+				error: function(data){
+					completeErrorList.push({
+					    "step": 12,
+						"error": "Unable to get the sales trend figures. Calculating the total sales failed."
+					});
+
+					overalSalesTrend = [];
+					singleClickSessionWise();
+					return '';
+				}
+			});  
+		}
+
+
+
 	}
 
 
-	//Step 8: Details by Billing Modes
+
+	//Step 13: Session Wise sales
+	function singleClickSessionWise() {
+
+		runReportAnimation(18); //Step 12 takes 5 unit time
+
+		//Preload Sessions
+	    var requestData = {
+	      "selector"  :{ 
+	                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
+	                  },
+	      "fields"    : ["identifierTag", "value"]
+	    }
+
+	    $.ajax({
+	      type: 'POST',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+	      data: JSON.stringify(requestData),
+	      contentType: "application/json",
+	      dataType: 'json',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data.docs.length > 0){
+	          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
+
+	              var sessionsData = data.docs[0].value;
+	              computeSessionWiseSales(sessionsData);
+	          }
+	        }
+	        else{
+				completeErrorList.push({
+				    "step": 13,
+					"error": "Failed to load sessions data."
+				});
+					
+				sessionWiseSalesData = [];
+				singleClickHourlyTrend();
+				return '';	
+	        }
+	        
+	      },
+	      error: function(data) {
+				completeErrorList.push({
+				    "step": 13,
+					"error": "Failed to load sessions data."
+				});
+					
+				sessionWiseSalesData = [];
+				singleClickHourlyTrend();
+				return '';	
+	      }
+
+	    });		 
+
+
+	    function computeSessionWiseSales(sessionData){
+
+			$.ajax({
+				type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sessionwisesales?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]',
+				timeout: 50000,
+				success: function(data) {
+
+					var itemsList = data.rows;
+					if(itemsList.length == 0){
+
+						singleClickHourlyTrend();
+						return '';
+					}
+
+					reduceByDate(itemsList);
+					
+					function reduceByDate(listOfItems){
+						//Reduce Function 
+						var reduced_list = listOfItems.reduce(function (accumulator, item) {
+							if(accumulator[item.key[1]]){
+								accumulator[item.key[1]].amount += item.value; //total amount
+								accumulator[item.key[1]].number_of_guests += item.key[2]; //number of guests
+								accumulator[item.key[1]].count++; //number of orders
+							}
+							else{
+								accumulator[item.key[1]] = {
+									"session": item.key[1],
+									"amount": item.value,
+									"count": 1,
+									"number_of_guests": item.key[2],
+								};
+							}
+
+						  	return accumulator;
+						}, {});
+
+
+						var formattedList = [];
+						var keysCount = Object.keys(reduced_list);
+
+						var counter = 1;
+						for (x in reduced_list) {
+						    formattedList.push({
+						    	"number_of_guests": reduced_list[x].number_of_guests,
+						    	"count": reduced_list[x].count,
+						    	"amount": reduced_list[x].amount,
+						    	"session": reduced_list[x].session
+						    });
+
+						    if(counter == keysCount.length){ //last iteration
+						    	// Ascending: Sorting
+						    	formattedList.sort(function(obj1, obj2) {
+				                	return obj2.count - obj1.count;
+				              	});
+
+						    	sessionWiseSalesData = formattedList;
+
+						    	//Format
+						    	for(var t = 0; t < sessionWiseSalesData.length; t++){
+						    		for(var a = 0; a < sessionData.length; a++){
+						    			if(sessionWiseSalesData[t].session == sessionData[a].name){
+						    				sessionWiseSalesData[t].range = moment(sessionData[a].startTime,"HHmm").format("hh:mm a") +' to '+ moment(sessionData[a].endTime,"HHmm").format("hh:mm a");
+						    				break;
+						    			}
+						    		}	
+						    	}
+
+						    	//Go to Step 14: Hourly Sales Trend
+						    	singleClickHourlyTrend();
+						    }
+
+						    counter++;
+						}
+						
+					}
+
+				},
+				error: function(data){
+						completeErrorList.push({
+						    "step": 13,
+							"error": "Failed to load session wise sales."
+						});
+						
+
+						sessionWiseSalesData = [];
+
+						singleClickHourlyTrend();
+						return '';							    	
+				}
+			}); 
+
+		} //end - computeSessionWiseSales() 		
+	}
+
+
+
+	//Step 14: Hourly Sales Trend
+	function singleClickHourlyTrend(){
+
+		if(moment(fromDate, 'YYYYMMDD').diff(moment(toDate, 'YYYYMMDD'), 'days') > 31){ //Skip if the report is being NOT generated for a period more than 1 month
+			singleClickDayByDaySales();
+			return '';
+		}
+
+		runReportAnimation(19); //Step 13 takes 1 unit time
+
+		var custom_filter_url = custom_filter_url = COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/timeslotwise_sumoverall?startkey=["ANY_MODE","'+fromDate+'", 0]&endkey=["ANY_MODE","'+toDate+'", 23]';
+
+		$.ajax({
+			type: 'GET',
+			url: custom_filter_url,
+			timeout: 50000,
+			success: function(data) {
+
+				var itemsList = data.rows;
+
+				if(itemsList.length == 0){
+					singleClickDayByDaySales(); //Step 15
+					return '';
+				}
+
+
+				reduceBySlot(itemsList);
+				
+				function reduceBySlot(listOfItems){
+
+					//Reduce Function 
+					var reduced_list = listOfItems.reduce(function (accumulator, item) {
+						if(accumulator[item.key[2]]){
+							accumulator[item.key[2]].amount += item.value; //sum
+							accumulator[item.key[2]].count++; //number of such orders
+						}
+						else{
+							accumulator[item.key[2]] = {
+								"hour_slot": item.key[2],
+								"count": 1,
+								"amount": item.value,
+							};
+						}
+
+					  	return accumulator;
+					}, {});
+
+
+					var formattedList = [];
+					var keysCount = Object.keys(reduced_list);
+
+					var counter = 1;
+					for (x in reduced_list) {
+					    formattedList.push({
+					    	"amount": reduced_list[x].amount,
+					    	"count": reduced_list[x].count,
+					    	"hour_slot": reduced_list[x].hour_slot
+					    });
+
+					    if(counter == keysCount.length){ //last iteration
+					    	formatHourlyList(formattedList);
+					    }
+
+					    counter++;
+					}
+					
+				}
+
+
+
+				function formatHourlyList(itemsFilteredList){
+
+					//Final formatting of the list.
+					//Add zero values for all other times slots which are not in the list.
+
+					for(var g = 0; g < 24; g++){
+						
+						var n = 0;
+						while(itemsFilteredList[n]){
+							if(itemsFilteredList[n].hour_slot == g){
+								//Already added slot
+								break;
+							}
+
+							if(n == itemsFilteredList.length - 1){ //last iteration, slot not present
+								itemsFilteredList.push({
+							    	"amount": 0,
+							    	"count": 0,
+							    	"hour_slot": g
+							    });
+							}
+
+							n++;
+						}
+
+					}
+
+						// Ascending: Sorting
+						itemsFilteredList.sort(function(obj1, obj2) {
+				            return obj1.hour_slot - obj2.hour_slot;
+				        });
+				        
+				        //Remove 12:00 Midnight to 11:00 Midnight (if all zeros in between)
+				        var midnightEmptyCheck = true;
+				        var m = 0;
+				        while(itemsFilteredList[m] && m <= 11){
+
+				        	if(itemsFilteredList[m].count != 0){
+				        		midnightEmptyCheck = false;
+				        		break;
+				        	}
+				        	m++;
+				        }
+
+				        if(midnightEmptyCheck){
+				        	itemsFilteredList = itemsFilteredList.splice(11, 23);	
+				        }
+
+				        //add guest count as well
+				        hourlySalesData = itemsFilteredList;
+
+						appendHourlyGuestCount(hourlySalesData);
+				}
+
+			},
+			error: function(data){
+					
+					completeErrorList.push({
+					    "step": 14,
+						"error": "Failed to load the hourly sales data."
+					});
+
+					hourlySalesData = [];
+
+					singleClickDayByDaySales();
+					return '';									    	
+			}
+		}); 
+
+	
+		function appendHourlyGuestCount(myData){
+			
+			var hourlySalesDataTemp = myData;
+
+			$.ajax({
+				type: 'GET',
+				url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/timeslotwise_countoverall?startkey=["ANY_MODE","'+fromDate+'", 0]&endkey=["ANY_MODE","'+toDate+'", 23]',
+				timeout: 50000,
+				success: function(data) {
+
+					var itemsList = data.rows;
+					if(itemsList.length == 0){
+
+						for(var i = 0; i < hourlySalesDataTemp; i++){
+							hourlySalesDataTemp[i].number_of_guests = 0;
+						}
+
+						hourlySalesData = hourlySalesDataTemp;
+
+						//Plot graph for day-by-day sales
+						renderHourlyGraph(); 
+						return '';
+					}
+
+					reduceBySlot(itemsList);
+					
+					function reduceBySlot(listOfItems){
+
+						//Reduce Function 
+						var reduced_list = listOfItems.reduce(function (accumulator, item) {
+							if(accumulator[item.key[2]]){
+								accumulator[item.key[2]].number_of_guests += item.value; //number of guests
+								accumulator[item.key[2]].count++; //number of such orders
+							}
+							else{
+								accumulator[item.key[2]] = {
+									"hour_slot": item.key[2],
+									"count": 1,
+									"number_of_guests": item.value,
+								};
+							}
+
+						  	return accumulator;
+						}, {});
+
+
+						var formattedList = [];
+						var keysCount = Object.keys(reduced_list);
+
+						var counter = 1;
+						for (x in reduced_list) {
+						    formattedList.push({
+						    	"number_of_guests": reduced_list[x].number_of_guests,
+						    	"count": reduced_list[x].count,
+						    	"hour_slot": reduced_list[x].hour_slot
+						    });
+
+						    if(counter == keysCount.length){ //last iteration
+						    	addToSummaryData(formattedList);
+						    }
+
+						    counter++;
+						}
+						
+					}
+
+
+
+					function addToSummaryData(countList){
+
+							for(var g = 0; g < 24; g++){
+							
+								var n = 0;
+								while(countList[n]){
+									if(countList[n].hour_slot == g){
+										//Already added slot
+										break;
+									}
+
+									if(n == countList.length - 1){ //last iteration, slot not present
+										countList.push({
+									    	"number_of_guests": 0,
+									    	"count": 0,
+									    	"hour_slot": g
+									    });
+									}
+
+									n++;
+								}
+							}
+
+
+							// Ascending: Sorting
+							countList.sort(function(obj1, obj2) {
+					            return obj1.hour_slot - obj2.hour_slot;
+					        });
+					       
+						
+							for(var i = 0; i < countList.length; i++){
+								for(var s = 0; s < hourlySalesDataTemp.length; s++){
+									if(countList[i].hour_slot == hourlySalesDataTemp[s].hour_slot){
+										hourlySalesDataTemp[s].number_of_guests = countList[i].number_of_guests;
+										break;
+									}
+								}
+							}
+
+							hourlySalesData = hourlySalesDataTemp;
+							renderHourlyGraph();
+					}
+
+				},
+				error: function(data){
+					renderHourlyGraph();
+					return '';								    	
+				}
+			});  
+
+
+			
+		}
+
+
+		function renderHourlyGraph(){
+
+			window.localStorage.graphImageDataHourly = '';
+
+			var isAllZero = true;
+			for(var h = 0; h < hourlySalesData.length; h++){
+				if(hourlySalesData[h].count != 0){
+					isAllZero = false;
+					break;
+				}
+			}
+
+			if(isAllZero){
+				//Skip and go to next step
+				singleClickDayByDaySales(); 
+				return '';
+			}
+
+
+			var graph_labels = [];
+			var graph_data = [];
+			var graph_background = [];
+			var graph_border = [];
+
+			var n = 0;
+			while(hourlySalesData[n]){
+				
+				var slot_name = hourlySalesData[n].hour_slot;
+
+				if(slot_name == 0){
+					slot_name = 'Midnight';
+				}
+				else if(slot_name < 12){
+					slot_name = slot_name + 'am';
+				}
+				else if(slot_name == 12){
+					slot_name = '12 Noon';
+				}
+				else{
+					slot_name = (slot_name-12) + 'pm';
+				}
+
+				graph_labels.push(slot_name);
+				graph_data.push(hourlySalesData[n].amount);
+
+				graph_background.push("rgba(2, 208, 255, 1)") //bright blue color
+				graph_border.push("rgba(2, 208, 255, 1)") //bright blue color
+
+				n++;
+			}
+
+			var ctx = document.getElementById("hourlyTrendLineChart").getContext('2d');
+			var myChart = new Chart(ctx, {
+			    type: 'bar',
+			    data: {
+			        labels: graph_labels,
+			        datasets: [{
+			            label: 'Sales Amount',
+			            data: graph_data,
+			            backgroundColor: graph_background,
+			            borderColor: graph_border,
+			            borderWidth: 1
+			        }]
+			    },
+			    options: {   	
+			        scales: {
+			            yAxes: [{
+			                ticks: {
+			                    beginAtZero:true
+			                },
+			                gridLines: {
+		                    	display:false
+		                	}
+			            }],
+			            xAxes: [{
+			                gridLines: {
+		                    	display:false
+		                	}
+			            }]
+			        },
+			        animation: {
+		                onComplete: convertGraph
+		            }
+			    }
+
+			});	
+
+			function convertGraph(){
+				var temp_graph = myChart.toBase64Image();
+
+				window.localStorage.graphImageDataHourly = temp_graph;
+
+				//Go to Step 15
+				singleClickDayByDaySales();
+			}
+
+		}
+
+
+	}
+
+
+
+
+
+	//Step 15: Day-by-day Sales (for the Current Month)
+	function singleClickDayByDaySales(){
+
+		runReportAnimation(20); //Step 14 takes 1 unit time
+
+		if(fromDate != toDate){ //Skip if the report is being NOT generated for a Single Day
+			singleClickMonthByMonthSales();
+			return '';
+		}
+
+		//Preload Billing Parameters
+		var modes = DATA_BILLING_PARAMETERS;
+
+		var start_date = moment(fromDate, 'YYYYMMDD').startOf('month').format('YYYYMMDD');
+
+		generateSalesByDate(0);
+	
+		function generateSalesByDate(majorIndex) {
+
+			/* for animation sake */
+			runReportAnimation(20 + majorIndex);
+			
+			
+			var processing_date = moment(start_date, 'YYYYMMDD').add(majorIndex, 'days').format('YYYYMMDD');
+			var extrasTemplate = [];
+
+			calculateTotalPaid();
+
+			function calculateTotalPaid(){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+processing_date+'"]&endkey=["'+processing_date+'"]',
+					timeout: 10000,
+					success: function(data) {
+
+						var temp_totalOrders = 0;
+						var temp_totalPaid = 0;
+
+						if(data.rows.length > 0){
+							temp_totalOrders = data.rows[0].value.count;
+							temp_totalPaid = data.rows[0].value.sum;
+						}
+
+						dayByDaySalesData.push({
+								"date": moment(processing_date, 'YYYYMMDD').format('DD MMM \'YY'),
+								"day": moment(processing_date, 'YYYYMMDD').format('dddd'),
+								"count": temp_totalOrders,
+								"netAmount": temp_totalPaid
+						});
+
+
+						calculateDiscountApplied();
+
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 15,
+							"error": "Unable to find the daily sales trend. Calculating the net amount failed."
+						});
+					
+						dayByDaySalesData = [];
+						singleClickMonthByMonthSales();
+						return '';
+					}
+				});  
+			}
+
+			function calculateDiscountApplied(){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+processing_date+'"]&endkey=["'+processing_date+'"]',
+					timeout: 10000,
+					success: function(data) {
+
+						var discAmount = 0;
+
+						if(data.rows.length > 0){
+							discAmount = data.rows[0].value.sum;
+						}
+
+						dayByDaySalesData[majorIndex].discount = discAmount;
+
+
+						calculateGrossAmount();
+
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 15,
+							"error": "Unable to find the daily sales trend. Calculating discounts failed."
+						});
+					
+						dayByDaySalesData = [];
+						singleClickMonthByMonthSales();
+						return '';
+					}
+				});  
+
+			}
+
+
+			function calculateGrossAmount(){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_netamount?startkey=["'+processing_date+'"]&endkey=["'+processing_date+'"]',
+					timeout: 10000,
+					success: function(data) {
+
+						var gross_cart = 0;
+
+						if(data.rows.length > 0){
+							gross_cart = data.rows[0].value.sum;
+						}
+
+						dayByDaySalesData[majorIndex].grossSales = gross_cart;
+
+
+						//Find Refunds
+						calculateRefundAmount();
+
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 15,
+							"error": "Unable to find the daily sales trend. Calculating the gross sales failed."
+						});
+						
+						dayByDaySalesData = [];
+						singleClickMonthByMonthSales();
+						return '';
+					}
+				});  
+			}
+
+
+			function calculateRefundAmount(){
+
+				findGrossRefund();
+
+				//Refunded net amount (gross Amount + Extras)
+				function findGrossRefund(){
+					
+					$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+processing_date+'"]&endkey=["'+processing_date+'"]',
+						timeout: 10000,
+						success: function(data) {
+
+							var temp_refundSum = 0;
+
+							if(data.rows.length > 0){
+								temp_refundSum = data.rows[0].value.sum;
+							}
+
+							dayByDaySalesData[majorIndex].netRefund = temp_refundSum;
+
+							findNetRefund();					 
+
+						},
+						error: function(data){
+							completeErrorList.push({
+							    "step": 15,
+								"error": "Unable to find the daily sales trend. Calculating the refunds failed."
+							});	
+
+							dayByDaySalesData = [];
+							singleClickMonthByMonthSales();
+							return '';
+						}
+					});
+				}
+
+
+				//Refunded gross amount
+				function findNetRefund(){
+					
+					$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds_netamount?startkey=["'+processing_date+'"]&endkey=["'+processing_date+'"]',
+						timeout: 10000,
+						success: function(data) {
+
+							var temp_refundSum = 0;
+
+							if(data.rows.length > 0){
+								temp_refundSum = data.rows[0].value.sum;
+							}
+
+							dayByDaySalesData[majorIndex].grossRefund = temp_refundSum;
+
+							//Calculate Extras
+							calculateExtraCharges();
+
+						},
+						error: function(data){
+							completeErrorList.push({
+							    "step": 15,
+								"error": "Unable to find the daily sales trend. Calculating the refunds failed."
+							});				
+							
+							dayByDaySalesData = [];
+							singleClickMonthByMonthSales();
+							return '';
+						}
+					});
+				}
+
+
+			}
+
+
+			function calculateExtraCharges(){
+
+				          	  //For a given BILLING PARAMETER, the total Sales in the given DATE RANGE
+							  $.ajax({
+							    type: 'GET',
+							    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+processing_date+'"]&endkey=["'+modes[0].name+'","'+processing_date+'"]',
+							    timeout: 10000,
+							    success: function(data) {
+							    	
+							    	var temp_count = 0;
+							    	var temp_sum = 0;
+
+							    	if(data.rows.length > 0){
+							    		temp_count = data.rows[0].value.count;
+							    		temp_sum = data.rows[0].value.sum;
+							    	}
+
+							    		//Now check in custom extras
+								    	$.ajax({
+											type: 'GET',
+											url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+processing_date+'"]&endkey=["'+modes[0].name+'","'+processing_date+'"]',
+											timeout: 10000,
+											success: function(data) {
+
+												if(data.rows.length > 0){
+												    temp_count += data.rows[0].value.count;
+												    temp_sum += data.rows[0].value.sum;
+												}
+
+												extrasTemplate.push({
+														"name": modes[0].name,
+														"value": temp_sum
+												});
+
+										    	//Check if next mode exists...
+										    	if(modes[1]){
+										    		calculateExtraChargesCallback(1, modes);
+										    	}
+										    	else{
+
+										    		dayByDaySalesData[majorIndex].extras = extrasTemplate;
+
+										    		//Next Step
+										    		calculateTotalGuests();
+										    	}
+
+											},
+											error: function(data){
+												completeErrorList.push({
+												    "step": 15,
+													"error": "Unable to find the daily sales trend. Calculating the charges applied failed."
+												});
+
+												dayByDaySalesData = [];
+												singleClickMonthByMonthSales();
+												return '';
+											}
+										}); 
+
+							    },
+							    error: function(data){
+									completeErrorList.push({
+									    "step": 15,
+										"error": "Unable to find the daily sales trend. Calculating the charges applied failed."
+									});	
+
+									dayByDaySalesData = [];
+									singleClickMonthByMonthSales();
+									return '';   	
+							    }
+							  });  
+
+
+			}
+
+
+			//Callback
+			function calculateExtraChargesCallback(index, modes){
+
+						  $.ajax({
+						    type: 'GET',
+						    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+processing_date+'"]&endkey=["'+modes[index].name+'","'+processing_date+'"]',
+						    timeout: 10000,
+						    success: function(data) {
+
+						    	var temp_count = 0;
+						    	var temp_sum = 0;
+
+						    	if(data.rows.length > 0){
+						    		temp_count = data.rows[0].value.count;
+						    		temp_sum = data.rows[0].value.sum;
+						    	}
+						    	
+
+						    		//Now check in custom extras
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+processing_date+'"]&endkey=["'+modes[index].name+'","'+processing_date+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_count += data.rows[0].value.count;
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+											extrasTemplate.push({
+												"name": modes[index].name,
+												"value": temp_sum
+											});
+
+									    	//Check if next mode exists...
+									    	if(modes[index+1]){
+									    		calculateExtraChargesCallback(index+1, modes);
+									    	}
+									    	else{
+
+									    		dayByDaySalesData[majorIndex].extras = extrasTemplate;
+
+									    		//Then go to next step
+									    		calculateTotalGuests();
+									    	}
+
+										},
+										error: function(data){
+											completeErrorList.push({
+											    "step": 15,
+												"error": "Unable to find the daily sales trend. Calculating the charges applied failed."
+											});
+
+											dayByDaySalesData = [];
+											singleClickMonthByMonthSales();
+											return '';
+										}
+									}); 
+						    },
+						    error: function(data){
+								completeErrorList.push({
+								    "step": 15,
+									"error": "Unable to find the daily sales trend. Calculating the charges applied failed."
+								});
+
+								dayByDaySalesData = [];
+								singleClickMonthByMonthSales();
+								return '';
+						    }
+						  }); 
+
+			}	//End step 2 callback
+
+
+
+
+			function calculateTotalGuests(){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/totalguests?startkey=["'+processing_date+'"]&endkey=["'+processing_date+'"]',
+					timeout: 10000,
+					success: function(data) {
+
+						var total_guests = 0;
+
+						if(data.rows.length > 0){
+							total_guests = data.rows[0].value.sum;
+						}
+
+						dayByDaySalesData[majorIndex].guestCount = total_guests;
+
+
+						//Check for next iteration
+						checkForNextDate();
+
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 15,
+							"error": "Unable to find the daily sales trend. Finding the total guests count failed."
+						});
+
+						dayByDaySalesData = [];
+						singleClickMonthByMonthSales();
+						return '';
+					}
+				});  
+			}
+
+			function checkForNextDate() {
+				if(processing_date == fromDate){
+					singleClickMonthByMonthSales();
+					return '';
+				}
+				else{
+					generateSalesByDate(majorIndex + 1);
+				}
+			}
+
+
+		} // end - generateSalesByDate()
+
+
+	} // end - singleClickDayByDaySales()
+
+
+
+	//Step 16: Month by Month Sales
+	function singleClickMonthByMonthSales(){
+
+		runReportAnimation(55); //Step 15 takes ~35 unit time
+
+		if(fromDate != toDate){ //Skip if the report is being NOT generated for a Single Day
+			singleClickDiscountDetails();
+			return '';
+		}
+
+		var current_year = moment(fromDate, 'YYYYMMDD').format('YYYY');
+		var current_month = moment(fromDate, 'YYYYMMDD').format('MM');
+
+		var begin_date = moment(current_year + '0101', 'YYYYMMDD').format('YYYYMMDD');
+
+
+		//Preload Billing Parameters
+		var modes = DATA_BILLING_PARAMETERS;
+		
+		generateMonthlySchedule(0);
+
+		function generateMonthlySchedule(majorIndex){
+
+			var date_starting = moment(begin_date, 'YYYYMMDD').add(majorIndex, 'months').format('YYYYMMDD');
+			var date_ending = moment(date_starting, 'YYYYMMDD').endOf('month').format('YYYYMMDD');
+		
+			var processing_month = moment(date_starting, 'YYYYMMDD').format('MM');
+
+			if(processing_month == current_month){ //Until today only.
+				date_ending = moment(toDate, 'YYYYMMDD').format('YYYYMMDD');
+			}
+
+			monthByMonthSalesData[majorIndex] = {
+				"tag": moment(date_starting, 'YYYYMMDD').format('MMMM, YYYY'),
+				"range": moment(date_starting, 'YYYYMMDD').format('Do') +" - "+ moment(date_ending, 'YYYYMMDD').format('Do MMM'),
+				"days": moment(date_ending, 'YYYYMMDD').diff(moment(date_starting, 'YYYYMMDD'), 'days') + 1,
+				"date_start": moment(date_starting, 'YYYYMMDD').format('YYYYMMDD'),
+				"date_end": moment(date_ending, 'YYYYMMDD').format('YYYYMMDD'),
+				"netAmount": 0,
+				"grossSales": 0,
+				"netRefund": 0,
+				"grossRefund": 0,
+				"count": 0,
+				"guestCount": 0
+			}
+
+			if(processing_month >= current_month){
+
+				//Stop, go to next step
+				generateMonthlySales(0);
+				return '';
+			}
+			else{
+				generateMonthlySchedule(majorIndex + 1);
+			}
+
+		}
+
+
+
+		//Now calculate sales as per Schedule
+		function generateMonthlySales(secondaryIndex){
+
+
+			var extrasTemplate = [];
+
+			calculateTotalPaid();
+
+			function calculateTotalPaid(){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_paidamount?startkey=["'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+					timeout: 10000,
+					success: function(data) {
+
+						var temp_totalOrders = 0;
+						var temp_totalPaid = 0;
+
+						if(data.rows.length > 0){
+							temp_totalOrders = data.rows[0].value.count;
+							temp_totalPaid = data.rows[0].value.sum;
+						}
+
+						monthByMonthSalesData[secondaryIndex].netAmount = temp_totalPaid;
+						monthByMonthSalesData[secondaryIndex].count = temp_totalOrders;
+
+						calculateDiscountApplied();
+
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 16,
+							"error": "Unable to generate the monthly sales trend. Calculating the net amount failed."
+						});
+
+						monthByMonthSalesData = [];
+						singleClickDiscountDetails();
+						return '';
+					}
+				});  
+			}
+
+
+			function calculateDiscountApplied(){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_discounts?startkey=["'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+					timeout: 10000,
+					success: function(data) {
+
+						var discAmount = 0;
+
+						if(data.rows.length > 0){
+							discAmount = data.rows[0].value.sum;
+						}
+
+						monthByMonthSalesData[secondaryIndex].discount = discAmount;
+
+
+						calculateGrossAmount();
+
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 16,
+							"error": "Unable to generate the monthly sales trend. Calculating discounts failed."
+						});
+
+						monthByMonthSalesData = [];
+						singleClickDiscountDetails();
+						return '';
+
+					}
+				});  
+
+			}
+
+			function calculateGrossAmount(){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/grandtotal_netamount?startkey=["'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+					timeout: 10000,
+					success: function(data) {
+
+						var gross_cart = 0;
+
+						if(data.rows.length > 0){
+							gross_cart = data.rows[0].value.sum;
+						}
+
+						monthByMonthSalesData[secondaryIndex].grossSales = gross_cart;
+
+
+						//Find Refunds
+						calculateRefundAmount();
+
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 16,
+							"error": "Unable to generate the monthly sales trend. Calculating the gross sales failed."
+						});
+
+						monthByMonthSalesData = [];
+						singleClickDiscountDetails();
+						return '';
+					}
+				});  
+			}
+
+
+			function calculateRefundAmount(){
+
+				findGrossRefund();
+
+				//Refunded net amount (gross Amount + Extras)
+				function findGrossRefund(){
+					
+					$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds?startkey=["'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+						timeout: 10000,
+						success: function(data) {
+
+							var temp_refundSum = 0;
+
+							if(data.rows.length > 0){
+								temp_refundSum = data.rows[0].value.sum;
+							}
+
+							monthByMonthSalesData[secondaryIndex].netRefund = temp_refundSum;
+
+							findNetRefund();					 
+
+						},
+						error: function(data){
+							completeErrorList.push({
+							    "step": 16,
+								"error": "Unable to generate the monthly sales trend. Calculating the refunds failed."
+							});				
+
+							monthByMonthSalesData = [];
+							singleClickDiscountDetails();
+							return '';
+						}
+					});
+				}
+
+
+				//Refunded gross amount
+				function findNetRefund(){
+					
+					$.ajax({
+					    type: 'GET',
+						url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/refund-summary/_view/allrefunds_netamount?startkey=["'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+						timeout: 10000,
+						success: function(data) {
+
+							var temp_refundSum = 0;
+
+							if(data.rows.length > 0){
+								temp_refundSum = data.rows[0].value.sum;
+							}
+
+							monthByMonthSalesData[secondaryIndex].grossRefund = temp_refundSum;
+
+							//Calculate Extras
+							calculateExtraCharges();
+
+						},
+						error: function(data){
+							completeErrorList.push({
+							    "step": 16,
+								"error": "Unable to generate the monthly sales trend. Calculating the refunds failed."
+							});				
+
+							monthByMonthSalesData = [];
+							singleClickDiscountDetails();
+							return '';
+						}
+					});
+				}
+
+
+			}
+
+
+			function calculateExtraCharges(){
+
+				          	  //For a given BILLING PARAMETER, the total Sales in the given DATE RANGE
+							  $.ajax({
+							    type: 'GET',
+							    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[0].name+'","'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+modes[0].name+'","'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+							    timeout: 10000,
+							    success: function(data) {
+							    	
+							    	var temp_count = 0;
+							    	var temp_sum = 0;
+
+							    	if(data.rows.length > 0){
+							    		temp_count = data.rows[0].value.count;
+							    		temp_sum = data.rows[0].value.sum;
+							    	}
+
+							    		//Now check in custom extras
+								    	$.ajax({
+											type: 'GET',
+											url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[0].name+'","'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+modes[0].name+'","'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+											timeout: 10000,
+											success: function(data) {
+
+												if(data.rows.length > 0){
+												    temp_count += data.rows[0].value.count;
+												    temp_sum += data.rows[0].value.sum;
+												}
+
+												extrasTemplate.push({
+														"name": modes[0].name,
+														"value": temp_sum
+												});
+
+										    	//Check if next mode exists...
+										    	if(modes[1]){
+										    		calculateExtraChargesCallback(1, modes);
+										    	}
+										    	else{
+
+										    		monthByMonthSalesData[secondaryIndex].extras = extrasTemplate;
+
+										    		//Next Step
+										    		calculateTotalGuests();
+										    	}
+
+											},
+											error: function(data){
+												completeErrorList.push({
+												    "step": 16,
+													"error": "Unable to generate the monthly sales trend. Calculating the applied charges failed."
+												});
+
+												monthByMonthSalesData = [];
+												singleClickDiscountDetails();
+												return '';
+											}
+										}); 
+
+							    },
+							    error: function(data){
+									completeErrorList.push({
+									    "step": 16,
+										"error": "Unable to generate the monthly sales trend. Calculating the applied charges failed."
+									});	
+
+									monthByMonthSalesData = [];
+									singleClickDiscountDetails();
+									return '';  	
+							    }
+							  });  
+
+
+			}
+
+
+			//Callback
+			function calculateExtraChargesCallback(index, modes){
+
+						  $.ajax({
+						    type: 'GET',
+						    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras?startkey=["'+modes[index].name+'","'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+modes[index].name+'","'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+						    timeout: 10000,
+						    success: function(data) {
+
+						    	var temp_count = 0;
+						    	var temp_sum = 0;
+
+						    	if(data.rows.length > 0){
+						    		temp_count = data.rows[0].value.count;
+						    		temp_sum = data.rows[0].value.sum;
+						    	}
+						    	
+
+						    		//Now check in custom extras
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbyextras_custom?startkey=["'+modes[index].name+'","'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+modes[index].name+'","'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_count += data.rows[0].value.count;
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+											extrasTemplate.push({
+												"name": modes[index].name,
+												"value": temp_sum
+											});
+
+									    	//Check if next mode exists...
+									    	if(modes[index+1]){
+									    		calculateExtraChargesCallback(index+1, modes);
+									    	}
+									    	else{
+
+									    		monthByMonthSalesData[secondaryIndex].extras = extrasTemplate;
+
+									    		//Then go to next step
+									    		calculateTotalGuests();
+									    	}
+
+										},
+										error: function(data){
+											completeErrorList.push({
+											    "step": 16,
+												"error": "Unable to generate the monthly sales trend. Calculating the applied charges failed."
+											});
+
+											monthByMonthSalesData = [];
+											singleClickDiscountDetails();
+											return '';
+										}
+									}); 
+						    },
+						    error: function(data){
+								completeErrorList.push({
+								    "step": 16,
+									"error": "Unable to generate the monthly sales trend. Calculating the applied charges failed."
+								});
+
+								monthByMonthSalesData = [];
+								singleClickDiscountDetails();
+								return '';
+						    }
+						  }); 
+
+			}	//End step 2 callback
+
+
+
+
+			function calculateTotalGuests(){
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/totalguests?startkey=["'+monthByMonthSalesData[secondaryIndex].date_start+'"]&endkey=["'+monthByMonthSalesData[secondaryIndex].date_end+'"]',
+					timeout: 10000,
+					success: function(data) {
+
+						var total_guests = 0;
+
+						if(data.rows.length > 0){
+							total_guests = data.rows[0].value.sum;
+						}
+
+						monthByMonthSalesData[secondaryIndex].guestCount = total_guests;
+
+
+						//Check for next iteration
+						checkForNextDate();
+
+					},
+					error: function(data){
+						completeErrorList.push({
+						    "step": 16,
+							"error": "Unable to generate the monthly sales trend. Finding total number of guests failed."
+						});
+
+						monthByMonthSalesData = [];
+						singleClickDiscountDetails();
+						return '';
+					}
+				});  
+			}
+
+			function checkForNextDate() {
+				if(monthByMonthSalesData[secondaryIndex + 1]){
+					generateMonthlySales(secondaryIndex + 1);
+				}
+				else{
+					singleClickDiscountDetails();
+					return '';
+				}
+			}
+
+
+		}
+
+	}
+
+
+
+	//Step 17: Discounts Summary
+	function singleClickDiscountDetails(){
+
+		runReportAnimation(70); //Step 16 takes ~15 unit time
+
+		fetchDiscountSaleSummary();
+
+		function fetchDiscountSaleSummary(){
+
+			var total_Count = 0;
+			var total_Sum = 0;
+
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ACCELERATE_DISCOUNT_TYPES" 
+		                  },
+		      "fields"    : ["identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_DISCOUNT_TYPES'){
+
+			          	var modes = data.docs[0].value;
+			          	modes.sort(); //alphabetical sorting 
+
+			          	//Reserved Keywords - Voucher, Coupon etc.
+			          	modes.push({"name":"COUPON","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+			          	modes.push({"name":"VOUCHER","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+			          	modes.push({"name":"REWARDS","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+			          	modes.push({"name":"NOCOSTBILL","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+			          	modes.push({"name":"ONLINE","maxDiscountUnit":"AMOUNT","maxDiscountValue":10000});
+
+
+
+			          	  //For a given BILLING PARAMETER, the total Sales in the given DATE RANGE
+						  $.ajax({
+						    type: 'GET',
+						    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+						    timeout: 10000,
+						    success: function(data) {
+						    	
+						    	var temp_count = 0;
+						    	var temp_sum = 0;
+
+						    	if(data.rows.length > 0){
+						    		temp_count = data.rows[0].value.count;
+						    		temp_sum = data.rows[0].value.sum;
+						    	}
+
+						    	total_Count += parseInt(temp_count);
+						    	total_Sum += parseFloat(temp_sum);
+
+						    	//beautify name
+						    	if(modes[0].name == 'COUPON'){modes[0].name = 'Coupons'}
+						    	if(modes[0].name == 'VOUCHER'){modes[0].name = 'Vouchers'}
+						    	if(modes[0].name == 'REWARDS'){modes[0].name = 'Reward Points'}
+						    	if(modes[0].name == 'NOCOSTBILL'){modes[0].name = 'No Cost Bill'}
+						    	if(modes[0].name == 'ONLINE'){modes[0].name = 'Pre-applied Online Discounts'}
+
+								if(temp_sum > 0){
+								    detailedDiscountsData.push({
+										"name": modes[0].name,
+										"amount": temp_sum,
+										"count": temp_count
+									})
+								}	
+
+								//Check if next mode exists...
+								if(modes[1]){
+									fetchDiscountSaleSummaryCallback(1, modes, fromDate, toDate, detailedDiscountsData, total_Count, total_Sum);
+								}
+								else{
+						    		singleClickTopSellingItems();
+								}
+
+						    },
+						    error: function(data){
+								completeErrorList.push({
+								    "step": 17,
+									"error": "Failed to calculate discounts summary."
+								});
+
+								detailedDiscountsData = [];
+								singleClickTopSellingItems();
+								return '';
+						    }
+						  });  
+		          }
+		        } 
+		      }
+		    });
+
+		}
+
+
+		function fetchDiscountSaleSummaryCallback(index, modes, fromDate, toDate, graphData, total_Count, total_Sum){
+
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbydiscounts?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
+
+				    	if(data.rows.length > 0){
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
+				    	}
+
+				    	total_Count += parseInt(temp_count);
+				    	total_Sum += parseFloat(temp_sum);
+				    	
+
+				    	//beautify name
+				    	if(modes[index].name == 'COUPON'){modes[index].name = 'Coupons'}
+				    	if(modes[index].name == 'VOUCHER'){modes[index].name = 'Vouchers'}
+				    	if(modes[index].name == 'REWARDS'){modes[index].name = 'Reward Points'}
+				    	if(modes[index].name == 'NOCOSTBILL'){modes[index].name = 'No Cost Bill'}
+				    	if(modes[index].name == 'ONLINE'){modes[index].name = 'Pre-applied Online Discounts'}
+
+						
+						if(temp_sum > 0){
+						    detailedDiscountsData.push({
+								"name": modes[index].name,
+								"amount": temp_sum,
+								"count": temp_count
+							})
+						}										
+
+						//Check if next mode exists...
+						if(modes[index+1]){
+							fetchDiscountSaleSummaryCallback(index+1, modes, fromDate, toDate, detailedDiscountsData, total_Count, total_Sum);
+						}
+						else{
+							singleClickTopSellingItems();
+						}
+
+				    },
+				    error: function(data){
+								completeErrorList.push({
+								    "step": 17,
+									"error": "Failed to calculate discounts summary."
+								});
+
+								detailedDiscountsData = [];
+								singleClickTopSellingItems();
+								return '';
+				    }
+				  }); 
+
+		}
+
+
+	}
+
+
+	//Step 18: Find Top Selling items
+	function singleClickTopSellingItems(){
+
+		if(moment(fromDate, 'YYYYMMDD').diff(moment(toDate, 'YYYYMMDD'), 'days') > 31){ //Skip if the report is being NOT generated for a period more than 1 month
+			singleClickCancellationDetails();
+			return '';
+		}
+
+		runReportAnimation(72); //Step 17 takes 2 unit time
+
+		$.ajax({
+			type: 'GET',
+			url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/order-summary/_view/itemsCount?startkey=["'+fromDate+'"]&endkey=["'+toDate+'",{}]&group=true',
+			timeout: 50000,
+			success: function(data) {
+
+				var itemsList = data.rows;
+
+				if(itemsList.length == 0){
+					singleClickCancellationDetails();
+					return '';
+				}
+
+				reduceByDate(itemsList);
+				
+				function reduceByDate(listOfItems){
+					//Reduce Function 
+					var reduced_list = listOfItems.reduce(function (accumulator, item) {
+						if(accumulator[item.key[2]]){
+							accumulator[item.key[2]].count += item.value;
+						}
+						else{
+							accumulator[item.key[2]] = {
+								"category": item.key[1],
+								"count": item.value
+							};
+						}
+
+					  	return accumulator;
+					}, {});
+
+					var formattedList = [];
+					var keysCount = Object.keys(reduced_list);
+
+					var counter = 1;
+					for (x in reduced_list) {
+					    formattedList.push({
+					    	"name": x,
+					    	"count": reduced_list[x].count,
+					    	"category": reduced_list[x].category
+					    });
+
+					    if(counter == keysCount.length){ //last iteration
+					    	// Ascending: Sorting
+					    	formattedList.sort(function(obj1, obj2) {
+			                	return obj2.count - obj1.count;
+			              	});
+
+					    	renderTopSellingItems(formattedList);
+					    }
+
+					    counter++;
+					}
+					
+				}
+
+				function renderTopSellingItems(itemsFilteredList){
+					detailedTopItemsData = itemsFilteredList.slice(0, 20);
+					
+					processGroupWiseSales(itemsList);
+				}
+			},
+			error: function(data){
+						completeErrorList.push({
+						    "step": 18,
+							"error": "Unable to find the top selling items."
+						});
+
+						detailedTopItemsData = [];
+						singleClickCancellationDetails();
+						return '';						    	
+			}
+
+		});  
+
+
+		function processGroupWiseSales(itemsMasterList){
+			
+			var itemsList = itemsMasterList;
+
+			reduceByDate(itemsList);
+			
+			function reduceByDate(listOfItems){
+				//Reduce Function 
+				var reduced_list = listOfItems.reduce(function (accumulator, item) {
+				
+				var accumulator_item_name = item.key[3] && item.key[3] != "" ? item.key[2] + ' ('+item.key[3]+')' : item.key[2];
+
+					if(accumulator[accumulator_item_name]){
+						accumulator[accumulator_item_name].count += item.value;
+					}
+					else{
+						accumulator[accumulator_item_name] = {
+							"category": item.key[1],
+							"count": item.value,
+							"price": item.key[4]
+						};
+					}
+
+				  	return accumulator;
+				}, {});
+
+
+				var formattedList = [];
+				var keysCount = Object.keys(reduced_list);
+
+				var counter = 1;
+				for (x in reduced_list) {
+				    formattedList.push({
+				    	"name": x,
+				    	"count": reduced_list[x].count,
+				    	"saleAmount": reduced_list[x].count * reduced_list[x].price,
+				    	"category": reduced_list[x].category
+				    });
+
+				    if(counter == keysCount.length){ //last iteration
+				    	// Ascending: Sorting
+				    	formattedList.sort(function(obj1, obj2) {
+		                	return obj2.count - obj1.count;
+		              	});
+
+				    	renderAllItemsSummary(formattedList);
+				    }
+
+				    counter++;
+				}
+				
+			}
+
+			function renderAllItemsSummary(itemsFilteredList){
+
+				var categorySortedList = itemsFilteredList.reduce(function (accumulator, item) {
+					if(accumulator[item.category]){
+						accumulator[item.category].push({
+							"name": item.name,
+							"count": item.count,
+							"saleAmount": item.saleAmount
+						});
+					}
+					else{
+						accumulator[item.category] = [];
+						accumulator[item.category].push({
+							"name": item.name,
+							"count": item.count,
+							"saleAmount": item.saleAmount
+						});
+					}
+
+				  	return accumulator;
+				}, {});
+
+
+
+				var formattedCategoryList = [];
+				var categoryCount = Object.keys(categorySortedList);
+
+				var counter = 1;
+				for (x in categorySortedList) {
+
+					var n = 0;
+					var sub_list = [];
+					while(categorySortedList[x][n]){
+						sub_list.push({
+					    	"name": categorySortedList[x][n].name,
+					    	"count": categorySortedList[x][n].count,
+					    	"saleAmount": categorySortedList[x][n].saleAmount
+						});
+						n++;
+					}
+
+					if(x == 'MANUAL_UNKNOWN' || x == 'UNKNOWN'){
+						x = 'Uncategorized';
+					}
+
+				    formattedCategoryList.push({
+				    	"category": x,
+				    	"items": sub_list
+				    });
+
+				    if(counter == categoryCount.length){ //last iteration
+				    	renderAllItemsSummaryAfterProcess(formattedCategoryList);
+				    }
+
+				    counter++;
+				}
+
+				function renderAllItemsSummaryAfterProcess(categorisedItemsList){
+					
+					if(categorisedItemsList.length > 0){ 
+						var n = 0;
+						while(categorisedItemsList[n]){ //render category
+							
+							var itemsTotalSales = 0;
+							var itemsTotalCount = 0;
+
+							for(var i = 0; i < categorisedItemsList[n].items.length; i++){
+								itemsTotalSales += categorisedItemsList[n].items[i].saleAmount;
+								itemsTotalCount += categorisedItemsList[n].items[i].count;
+							}
+
+							categorisedItemsList[n].totalSales = itemsTotalSales;
+							categorisedItemsList[n].totalCount = itemsTotalCount;
+							delete categorisedItemsList[n].items;
+
+							if(n == categorisedItemsList.length - 1){ //last iteration
+								detailedItemCategoryWiseData = categorisedItemsList;
+								
+								//Process data
+								processCategoryWiseData();
+								return '';
+							}
+
+							n++;
+						}
+					}
+				}
+
+
+
+			}
+
+		} // end - processGroupWiseSales();	
+
+
+		function processCategoryWiseData(){
+
+		    //Preload menu catalog
+		    var requestData = {
+		      "selector"  :{ 
+		                    "identifierTag": "ACCELERATE_MENU_CATALOG" 
+		                  },
+		      "fields"    : ["identifierTag", "value"]
+		    }
+
+		    $.ajax({
+		      type: 'POST',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+		      data: JSON.stringify(requestData),
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.docs.length > 0){
+		          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATALOG'){
+
+		              var catalogData = data.docs[0].value;
+
+		              var n = 0;
+		              while(detailedItemCategoryWiseData[n]){
+		                detailedItemCategoryWiseData[n].topCategory = getTopLevelCategory(detailedItemCategoryWiseData[n].category);
+		              	n++;
+		              }
+
+		              function getTopLevelCategory(category_name) {
+		                for(var i = 0; i < catalogData.length; i++){
+		                  if(catalogData[i].name == category_name){
+		                    return catalogData[i].mainType;
+		                    break;
+		                  }
+		                }
+
+		                return "Uncategorized";
+		              }
+
+
+		              //Step 19:
+		              singleClickCancellationDetails();
+		          }
+		        }
+		      },
+		      error: function(data) {
+						completeErrorList.push({
+						    "step": 18,
+							"error": "Unable to calculate category wise item sales."
+						});
+
+						detailedItemCategoryWiseData = [];
+						singleClickCancellationDetails();
+						return '';	
+		      }
+
+		    });  			
+		}	
+	
+
+	}
+
+
+
+
+
+
+	//Step 19: Cancellation Details
+	function singleClickCancellationDetails(){
+
+		runReportAnimation(73); //Step 18 takes 1 unit time
+
+		if(fromDate != toDate){
+			findInvoiceCancellationsSummary();
+			return '';
+		}
+		else{
+			findItemCancellations();
+			return '';
+		}
+
+
+		//Item Cancellations
+		function findItemCancellations(){
+
+				$.ajax({
+					type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_item_cancellations/_design/cancellation-summary/_view/fetchall?startkey=["'+fromDate+'"]&endkey=["'+toDate+'"]&descending=false',
+					timeout: 50000,
+					success: function(data) {
+
+						cancellationsData_items = data.rows;
+						findOrderCancellations();
+						
+					},
+					error: function(data){
+							completeErrorList.push({
+							    "step": 19,
+								"error": "Unable to generate Cancellation Details. Loading the cancelled items failed."
+							});
+
+							findOrderCancellations();
+							return '';		    	
+					}
+				}); 
+			
+		}
+
+
+		//Find Order Cancellations
+		function findOrderCancellations(){
+
+				var filter_start = moment(fromDate, 'YYYYMMDD').format('DD-MM-YYYY');
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_orders/_design/order-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_start+'"]&descending=false&include_docs=true',
+					timeout: 10000,
+					success: function(data) {
+
+				      cancellationsData_orders = data.rows;
+
+				      findInvoiceCancellations();
+
+					},
+					error: function(data){
+							completeErrorList.push({
+							    "step": 19,
+								"error": "Unable to generate Cancellation Details. Loading the cancelled orders failed."
+							});
+
+							findInvoiceCancellations();
+							return '';	
+					}
+				});  
+		}
+
+
+		//Cancelled Invoices
+		function findInvoiceCancellations(){
+
+				var filter_start = moment(fromDate, 'YYYYMMDD').format('DD-MM-YYYY');
+
+				$.ajax({
+				    type: 'GET',
+					url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-filters/_view/showall?startkey=["'+filter_start+'"]&endkey=["'+filter_start+'"]&descending=false&include_docs=true',
+					timeout: 10000,
+					success: function(data) {
+
+				      cancellationsData_invoices = data.rows;
+
+				      findInvoiceCancellationsSummary();
+
+					},
+					error: function(data){
+							completeErrorList.push({
+							    "step": 19,
+								"error": "Unable to generate Cancellation Details. Loading the cancelled invoices failed."
+							});
+
+							findInvoiceCancellationsSummary();
+							return '';	
+					}
+				});  
+
+		}
+
+
+		//Bill Cancellations Summary
+		function findInvoiceCancellationsSummary(){
+
+			fetchCancellationSummary();
+
+			function fetchCancellationSummary(){
+
+
+			              	var modes = DATA_BILLING_MODES;
+
+				          	if(modes.length == 0){
+				          		singleClickDetailedByModes();
+				          		return '';
+				          	}
+
+				          	var grandSum = 0;
+				          	var grandCount = 0;
+
+				          	  //For a given BILLING MODE, the total cancelled bills in the given DATE RANGE
+							  $.ajax({
+							    type: 'GET',
+							    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[0].name+'","'+fromDate+'"]&endkey=["'+modes[0].name+'","'+toDate+'"]',
+							    timeout: 10000,
+							    success: function(data) {
+							    	
+							    	var temp_count = 0;
+							    	var temp_sum = 0;
+
+							    	if(data.rows.length > 0){
+								    	temp_count = data.rows[0].value.count;
+								    	temp_sum = data.rows[0].value.sum;
+
+								    	grandSum += temp_sum;
+							    		grandCount += temp_count;
+							    	}
+
+							    		invoiceCancellationsData.push({
+							    			"mode": modes[0].name,
+							    			"type": modes[0].type,
+							    			"amount": temp_sum,
+							    			"count": temp_count
+							    		});
+
+
+										if(modes[1]){
+								    		fetchCancellationSummaryCallback(1, modes, grandSum, grandCount);
+								    	}
+								    	else{
+							    		
+											appendTotalFigures();
+
+											//append UNPAID & PAID total figures
+											function appendTotalFigures(){
+
+												var total_paid_sum = 0;
+												var total_paid_count = 0;
+												var total_unpaid_sum = 0;
+												var total_unpaid_count = 0;
+
+												findPaidFigure();
+
+												function findPaidFigure(){
+
+													$.ajax({
+													    type: 'GET',
+													    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbypaymentstatus?startkey=["PAID", "'+fromDate+'"]&endkey=["PAID", "'+toDate+'"]',
+													    timeout: 10000,
+													    success: function(data) {
+
+													    	if(data.rows.length > 0){
+														    	total_paid_count = data.rows[0].value.count;
+														    	total_paid_sum = data.rows[0].value.sum;
+															}
+
+															findUnpaidFigure();
+															
+													    },
+													    error: function(data) {
+													    	findUnpaidFigure();
+													    }
+													}); 
+												} 	
+
+
+												function findUnpaidFigure(){
+
+													$.ajax({
+													    type: 'GET',
+													    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbypaymentstatus?startkey=["UNPAID","'+fromDate+'"]&endkey=["UNPAID","'+toDate+'"]',
+													    timeout: 10000,
+													    success: function(data) {
+
+													    	if(data.rows.length > 0){
+														    	total_unpaid_count = data.rows[0].value.count;
+														    	total_unpaid_sum = data.rows[0].value.sum;
+															}
+
+															renderTotals();
+															
+													    },
+													    error: function(data) {
+													    	renderTotals();
+													    }
+													}); 
+
+												}	
+
+												function renderTotals(){
+
+													invoiceCancellationsMetaData.total_unpaid_count = total_unpaid_count;
+													invoiceCancellationsMetaData.total_unpaid_sum = total_unpaid_sum;
+													invoiceCancellationsMetaData.total_paid_count = total_paid_count;
+													invoiceCancellationsMetaData.total_paid_sum = total_paid_sum;
+													invoiceCancellationsMetaData.grand_count = grandCount;
+													invoiceCancellationsMetaData.grand_sum = grandSum;
+													
+													singleClickDetailedByModes();
+												}						
+											}
+
+								    	}
+									
+							    },
+							    error: function(data){
+									completeErrorList.push({
+									    "step": 19,
+										"error": "Failed to load the cancelled invoices. Cancellation Summary can not be generated."
+									});
+
+									invoiceCancellationsData = [];
+									singleClickDetailedByModes();
+									return '';
+							    }
+							  });  
+			}
+
+
+			function fetchCancellationSummaryCallback(index, modes, grandSum, grandCount){
+
+							  $.ajax({
+							    type: 'GET',
+							    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbybillingmode?startkey=["'+modes[index].name+'","'+fromDate+'"]&endkey=["'+modes[index].name+'","'+toDate+'"]',
+							    timeout: 10000,
+							    success: function(data) {
+
+							    	var temp_count = 0;
+							    	var temp_sum = 0;
+
+							    	if(data.rows.length > 0){
+								    	temp_count = data.rows[0].value.count;
+								    	temp_sum = data.rows[0].value.sum;
+
+								    	grandSum += temp_sum;
+							    		grandCount += temp_count;
+							    	}
+
+
+									invoiceCancellationsData.push({
+							    		"mode": modes[index].name,
+							   			"type": modes[index].type,
+							   			"amount": temp_sum,
+							   			"count": temp_count
+							   		});
+									
+									
+							    	//Check if next mode exists...
+							    	if(modes[index+1]){
+							    		fetchCancellationSummaryCallback(index+1, modes, grandSum, grandCount);
+							    	}
+							    	else{
+							    		
+										appendTotalFigures();
+
+										//append UNPAID & PAID total figures
+										function appendTotalFigures(){
+
+											var total_paid_sum = 0;
+											var total_paid_count = 0;
+											var total_unpaid_sum = 0;
+											var total_unpaid_count = 0;
+
+											findPaidFigure();
+
+											function findPaidFigure(){
+
+												$.ajax({
+												    type: 'GET',
+												    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbypaymentstatus?startkey=["PAID", "'+fromDate+'"]&endkey=["PAID", "'+toDate+'"]',
+												    timeout: 10000,
+												    success: function(data) {
+
+												    	if(data.rows.length > 0){
+													    	total_paid_count = data.rows[0].value.count;
+													    	total_paid_sum = data.rows[0].value.sum;
+														}
+
+														findUnpaidFigure();
+														
+												    },
+												    error: function(data) {
+												    	findUnpaidFigure();
+												    }
+												}); 
+											} 	
+
+
+											function findUnpaidFigure(){
+
+												$.ajax({
+												    type: 'GET',
+												    url: COMMON_LOCAL_SERVER_IP+'/accelerate_cancelled_invoices/_design/invoice-summary/_view/sumbypaymentstatus?startkey=["UNPAID","'+fromDate+'"]&endkey=["UNPAID","'+toDate+'"]',
+												    timeout: 10000,
+												    success: function(data) {
+
+												    	if(data.rows.length > 0){
+													    	total_unpaid_count = data.rows[0].value.count;
+													    	total_unpaid_sum = data.rows[0].value.sum;
+														}
+
+														renderTotals();
+														
+												    },
+												    error: function(data) {
+												    	renderTotals();
+												    }
+												}); 
+
+											}	
+
+											function renderTotals(){
+
+												invoiceCancellationsMetaData.total_unpaid_count = total_unpaid_count;
+												invoiceCancellationsMetaData.total_unpaid_sum = total_unpaid_sum;
+												invoiceCancellationsMetaData.total_paid_count = total_paid_count;
+												invoiceCancellationsMetaData.total_paid_sum = total_paid_sum;
+												invoiceCancellationsMetaData.grand_count = grandCount;
+												invoiceCancellationsMetaData.grand_sum = grandSum;
+												
+												singleClickDetailedByModes();
+											}						
+										}
+
+
+							    	}
+							    },
+							    error: function(data){
+									completeErrorList.push({
+									    "step": 19,
+										"error": "Failed to load the cancelled invoices. Cancellation Summary can not be generated."
+									});
+
+									invoiceCancellationsData = [];
+									singleClickDetailedByModes();
+									return '';
+							    }
+							  });  
+
+			}
+
+
+		}
+	}
+
+
+
+	//Step 20: Detailed by Billing Modes
 	function singleClickDetailedByModes(){
 
-		runReportAnimation(40); //of Step 6 which takes 10 units
+		runReportAnimation(77); //Step 19 takes 4 unit time
 
 		billsGraphData = [];
 
 
-					    var requestData = {
-					      "selector"  :{ 
-					                    "identifierTag": "ACCELERATE_BILLING_MODES" 
-					                  },
-					      "fields"    : ["identifierTag", "value"]
-					    }
-
-					    $.ajax({
-					      type: 'POST',
-					      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-					      data: JSON.stringify(requestData),
-					      contentType: "application/json",
-					      dataType: 'json',
-					      timeout: 10000,
-					      success: function(data) {
-					        if(data.docs.length > 0){
-					          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_MODES'){
-
-					              	var modes = data.docs[0].value;
+					              	var modes = DATA_BILLING_MODES;
 
 						          	if(modes.length == 0){
-										completeErrorList.push({
-										    "step": 8,
-											"error": "Failed to calculate sales by different billing modes"
-										});				
-
 										//Skip and go to next step
-										singleClickDetailedByPayment(); 
+										singleClickBillingModesSplitByExtras(); 
 										return '';
 						          	}
 						          	else{
@@ -6851,6 +9512,7 @@ function fetchSingleClickReportAfterApproval(){
 
 														detailedListByBillingMode.push({
 															"name": modes[0].name,
+															"type": modes[0].type,
 															"value": preserved_sum - refunded_sum,
 															"count": preserved_count
 														});
@@ -6873,12 +9535,12 @@ function fetchSingleClickReportAfterApproval(){
 												    },
 												    error: function(data){
 														completeErrorList.push({
-														    "step": 8,
-															"error": "Failed to calculate refunds in different billing modes"
+														    "step": 20,
+															"error": "Detailed summary by billing modes can not be generated. Failed to calculate refunds against different billing modes."
 														});				
 
 														//Skip and go to next step
-														singleClickDetailedByPayment(); 
+														singleClickBillingModesSplitByExtras(); 
 														return '';										    	
 												    }
 												});  
@@ -6889,34 +9551,21 @@ function fetchSingleClickReportAfterApproval(){
 										    },
 										    error: function(data){
 												completeErrorList.push({
-												    "step": 8,
-													"error": "Failed to calculate sales by different billing modes"
+												    "step": 20,
+													"error": "Detailed summary by billing modes can not be generated. Failed to calculate total sales under different billing modes."
 												});				
 
 												//Skip and go to next step
-												singleClickDetailedByPayment(); 
+												singleClickBillingModesSplitByExtras(); 
 												return '';										    	
 										    }
 										});  
 									} //else - mode
-					          }
-					        }
-					      },
-					      error: function(data){
-								completeErrorList.push({
-								    "step": 8,
-									"error": "Failed to calculate sales by different billing modes"
-								});				
 
-								//Skip and go to next step
-								singleClickDetailedByPayment(); 
-								return '';
-					      }
-					    });
 	}
 
 
-	//Step 8 : Callback
+	//Step 20: Callback
 	function singleClickDetailedByModesCallback(index, modes){
 
 							          	//For a given BILLING MODE, the total Sales in the given DATE RANGE
@@ -6949,6 +9598,7 @@ function fetchSingleClickReportAfterApproval(){
 
 														detailedListByBillingMode.push({
 															"name": modes[index].name,
+															"type": modes[index].type,
 															"value": preserved_sum - refunded_sum,
 															"count": preserved_count
 														});
@@ -6971,12 +9621,12 @@ function fetchSingleClickReportAfterApproval(){
 												    },
 												    error: function(data){
 														completeErrorList.push({
-														    "step": 8,
-															"error": "Failed to calculate refunds in different billing modes"
+														    "step": 20,
+															"error": "Detailed summary by billing modes can not be generated. Failed to calculate refunds against different billing modes."
 														});				
 
 														//Skip and go to next step
-														singleClickDetailedByPayment(); 
+														singleClickBillingModesSplitByExtras(); 
 														return '';										    	
 												    }
 												});  
@@ -6986,12 +9636,12 @@ function fetchSingleClickReportAfterApproval(){
 										    },
 										    error: function(data){
 												completeErrorList.push({
-												    "step": 8,
-													"error": "Failed to calculate sales by different billing modes"
+												    "step": 20,
+													"error": "Detailed summary by billing modes can not be generated. Failed to calculate total sales under different billing modes."
 												});				
 
 												//Skip and go to next step
-												singleClickDetailedByPayment(); 
+												singleClickBillingModesSplitByExtras(); 
 												return '';										    	
 										    }
 										});  
@@ -7000,14 +9650,24 @@ function fetchSingleClickReportAfterApproval(){
 
 
 
-	//Step 8-9: Render Graph (Bills)
+	//Step 21: Render Graph (Bills)
 	function singleClickRenderBillsGraph(){
+
+			runReportAnimation(81); //Step 20 takes 4 unit time
 
 			window.localStorage.graphImageDataBills = '';
 
-			if(billsGraphData.length == 0){
+			var isAllZeros = true;
+			for(var h = 0; h < billsGraphData.length; h++){
+				if(billsGraphData[h].value != 0){
+					isAllZeros = false;
+					break;
+				}
+			}
+
+			if(billsGraphData.length == 0 || isAllZeros){
 				//Skip and go to next step
-				singleClickDetailedByPayment(); 
+				singleClickBillingModesSplitByExtras(); 
 				return '';
 			}
 
@@ -7025,12 +9685,15 @@ function fetchSingleClickReportAfterApproval(){
 
 			var n = 0;
 			while(billsGraphData[n]){
-				var colorSet = random_rgba_color_set();
 
-				graph_labels.push(billsGraphData[n].name);
-				graph_data.push(parseFloat(((billsGraphData[n].value/totalBaseSum)*100)).toFixed(1))
-				graph_background.push(colorSet[0])
-				graph_border.push(colorSet[1])
+				if(billsGraphData[n].value != 0){
+					var colorSet = random_rgba_color_set();
+
+					graph_labels.push(billsGraphData[n].name);
+					graph_data.push(parseFloat(((billsGraphData[n].value/totalBaseSum)*100)).toFixed(1))
+					graph_background.push(colorSet[0])
+					graph_border.push(colorSet[1])
+				}
 
 				n++;
 			}
@@ -7073,46 +9736,242 @@ function fetchSingleClickReportAfterApproval(){
 
 				window.localStorage.graphImageDataBills = temp_graph;
 
-				//Go to Step 9
-				singleClickDetailedByPayment();
+				//Go to Step 22
+				singleClickBillingModesSplitByExtras();
 			}
 	}
 
 
-	//Step 9: Details by Payment types
+
+	//Step 22: Billing Modes (detailed w.r.t Extras, SGST, CGST etc.)
+	function singleClickBillingModesSplitByExtras(){
+		
+		runReportAnimation(81); //Step 21 takes 0 unit time
+
+		var modes = DATA_BILLING_PARAMETERS;
+
+		if(modes.length == 0){
+			singleClickDetailedByPayment();	
+			return '';
+		}
+		else{
+			//Start Processing
+			getDetailedByExtras(0, modes);
+		}
+
+
+
+		//START PROCESSING
+		function getDetailedByExtras(greatIndex, modes){
+
+			/* for animation sake */ 
+			if(greatIndex < 3){
+				runReportAnimation(81 + greatIndex);
+			}
+			
+			/*
+				For a given billing mode, calculate the extras and custom extras 
+				coming under this mode. For ex., for Cash Rs. 200, CGST Rs. 5, 
+				SGST Rs. 5 etc.
+			*/
+
+			var extrasTemplate = [];
+
+			if(detailedListByBillingMode[greatIndex]){
+				getDetailedExtrasForBillingMode(detailedListByBillingMode[greatIndex].name, modes)
+			}
+			else{
+				singleClickDetailedByPayment();
+				return '';
+			}
+
+
+			function getDetailedExtrasForBillingMode(selectedBillingMode, modes){
+
+			          	  //For a given EXTRAS, the total Sales in the given DATE RANGE
+						  $.ajax({
+						    type: 'GET',
+						    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmodeandextras?startkey=["'+selectedBillingMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].name+'","'+toDate+'"]',
+						    timeout: 10000,
+						    success: function(data) {
+
+						    	var temp_count = 0;
+						    	var temp_sum = 0;
+
+						    	if(data.rows.length > 0){
+						    		temp_count = data.rows[0].value.count;
+						    		temp_sum = data.rows[0].value.sum;
+						    	}
+
+
+						    		//Now check in custom Extras
+							    	$.ajax({
+										type: 'GET',
+										url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmodeandextras_custom?startkey=["'+selectedBillingMode+'","'+modes[0].name+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[0].name+'","'+toDate+'"]',
+										timeout: 10000,
+										success: function(data) {
+
+											if(data.rows.length > 0){
+											    temp_count += data.rows[0].value.count;
+											    temp_sum += data.rows[0].value.sum;
+											}
+
+
+
+												temp_sum = parseFloat(temp_sum).toFixed(2);
+												temp_sum = parseFloat(temp_sum);
+
+												extrasTemplate.push({
+													"name": modes[0].name,
+													"amount": temp_sum
+												});
+
+												
+												//Check if next mode exists...
+												if(modes[1]){
+													getDetailedExtrasForBillingModeCallback(1, modes, selectedBillingMode);
+										    	}
+										    	else{
+													//Save changes
+										    		detailedListByBillingMode[greatIndex].detailedExtras = extrasTemplate;
+													
+													getDetailedByExtras(greatIndex + 1, modes);
+												}
+							
+
+										},
+										error: function(data){
+							          		completeErrorList.push({
+											    "step": 22,
+												"error": "Failed to calculate the extras and custom extras against each billing mode."
+											});	
+
+							          		detailedListByBillingMode = [];
+											singleClickDetailedByPayment();	
+							          		return '';
+										}
+									}); 
+
+
+						    },
+						    error: function(data){
+				          		completeErrorList.push({
+								    "step": 22,
+									"error": "Failed to calculate the extras and custom extras against each billing mode."
+								});	
+
+				          		detailedListByBillingMode = [];
+								singleClickDetailedByPayment();	
+				          		return '';
+						    }
+						  });  
+
+
+			} // end - getDetailedExtrasForBillingMode
+
+
+			function getDetailedExtrasForBillingModeCallback(index, modes, selectedBillingMode){
+	          	
+	          	  //For a given PAYMENT MODE, the extras in the given DATE RANGE
+				  
+				  $.ajax({
+				    type: 'GET',
+				    url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmodeandextras?startkey=["'+selectedBillingMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].name+'","'+toDate+'"]',
+				    timeout: 10000,
+				    success: function(data) {
+				    	
+				    	var temp_count = 0;
+				    	var temp_sum = 0;
+
+				    	if(data.rows.length > 0){
+				    		temp_count = data.rows[0].value.count;
+				    		temp_sum = data.rows[0].value.sum;
+				    	}
+
+				    		//Now check in custom extras
+					    	$.ajax({
+								type: 'GET',
+								url: COMMON_LOCAL_SERVER_IP+'/'+SELECTED_INVOICE_SOURCE_DB+'/_design/invoice-summary/_view/sumbybillingmodeandextras_custom?startkey=["'+selectedBillingMode+'","'+modes[index].name+'","'+fromDate+'"]&endkey=["'+selectedBillingMode+'","'+modes[index].name+'","'+toDate+'"]',
+								timeout: 10000,
+								success: function(data) {
+
+									if(data.rows.length > 0){
+									    temp_count += data.rows[0].value.count;
+									    temp_sum += data.rows[0].value.sum;
+									}
+
+									temp_sum = parseFloat(temp_sum).toFixed(2);
+									temp_sum = parseFloat(temp_sum);
+
+									extrasTemplate.push({
+										"name": modes[index].name,
+										"amount": temp_sum
+									});
+
+									
+									//Check if next mode exists...
+									if(modes[index+1]){
+							    		getDetailedExtrasForBillingModeCallback(index+1, modes, selectedBillingMode);
+							    	}
+									else{
+										//Save changes
+										detailedListByBillingMode[greatIndex].detailedExtras = extrasTemplate;
+
+										getDetailedByExtras(greatIndex + 1, modes);
+									}													
+
+
+								},
+								error: function(data){
+							      	completeErrorList.push({
+									    "step": 22,
+										"error": "Failed to calculate the extras and custom extras against each billing mode."
+									});	
+									
+									detailedListByBillingMode =[];
+									singleClickDetailedByPayment();	
+
+							      	return ''; 
+								}
+							}); 
+
+
+				    },
+				    error: function(data){
+				      	completeErrorList.push({
+						    "step": 22,
+							"error": "Failed to calculate the extras and custom extras against each billing mode."
+						});	
+						
+						detailedListByBillingMode =[];
+						singleClickDetailedByPayment();	
+
+				      	return ''; 
+				    }
+				  });  
+
+			} // end - getDetailedExtrasForBillingModeCallback
+
+
+		} // end - getDetailedByExtras
+
+
+	}
+
+
+
+
+	//Step 23: Details by Payment types
 	function singleClickDetailedByPayment(){
 
-		runReportAnimation(65); //of Step 8 which takes 25 units
+		runReportAnimation(84); //Step 22 takes 3 unit time
 
 		paymentGraphData = [];
 
-	    var requestData = {
-	      "selector"  :{ 
-	                    "identifierTag": "ACCELERATE_PAYMENT_MODES" 
-	                  },
-	      "fields"    : ["identifierTag", "value"]
-	    }
 
-	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
-	      timeout: 10000,
-	      success: function(data) {
+	              	var modes = DATA_PAYMENT_MODES;
 
-	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ACCELERATE_PAYMENT_MODES'){
-
-	              	var modes = data.docs[0].value;
-
-	              	if(modes.length == 0){
-						completeErrorList.push({
-						    "step": 9,
-							"error": "Failed to calculate sales by different payment modes"
-						});				
-
+	              	if(modes.length == 0){		
 						//Skip and go to next step
 						singleClickPaymentModesSplitByExtras(); 
 						return '';
@@ -7181,18 +10040,19 @@ function fetchSingleClickReportAfterApproval(){
 											    		singleClickDetailedByPaymentCallback(1, modes, paymentGraphData);
 											    	}
 											    	else{
-											    		//Step 10: Weekly Progress
-											    		singleClickPaymentModesSplitByExtras();
+											    		//Step 24:
+											    		singleClickRenderPaymentsGraph();
 											    	}
 
 												},
 												error: function(data){
 													completeErrorList.push({
-													    "step": 9,
-														"error": "Failed to calculate sales by different payment modes"
+													    "step": 23,
+														"error": "Failed to calculate sales against different payment modes"
 													});				
 
 													//Skip and go to next step
+													detailedListByPaymentMode = [];
 													singleClickPaymentModesSplitByExtras(); 
 													return '';
 												}
@@ -7203,11 +10063,12 @@ function fetchSingleClickReportAfterApproval(){
 										},
 										error: function(data){
 											completeErrorList.push({
-											    "step": 9,
-												"error": "Failed to calculate sales by different payment modes"
+											    "step": 23,
+												"error": "Failed to calculate sales against different payment modes"
 											});				
 
 											//Skip and go to next step
+											detailedListByPaymentMode = [];
 											singleClickPaymentModesSplitByExtras(); 
 											return '';
 										}
@@ -7217,55 +10078,24 @@ function fetchSingleClickReportAfterApproval(){
 						    },
 						    error: function(data){
 								completeErrorList.push({
-								    "step": 9,
-									"error": "Failed to calculate sales by different payment modes"
+								    "step": 23,
+									"error": "Failed to calculate sales against different payment modes"
 								});				
 
-								//Step 9-10: Render the Payment Graph 
-								singleClickRenderPaymentsGraph(); 
+								
+								detailedListByPaymentMode = [];
+								singleClickPaymentModesSplitByExtras(); 
 								return '';
 						    }
 						  }); 
 					} 
 
-	          }
-	          else{
-				completeErrorList.push({
-				    "step": 9,
-					"error": "Failed to calculate sales by different payment modes"
-				});				
+	          
 
-				//Skip and go to next step
-				singleClickPaymentModesSplitByExtras(); 
-				return '';
-	          }
-	        }
-	        else{
-				completeErrorList.push({
-				    "step": 9,
-					"error": "Failed to calculate sales by different payment modes"
-				});				
 
-				//Skip and go to next step
-				singleClickPaymentModesSplitByExtras(); 
-				return '';
-	        }
-	      },
-	      error: function(data) {
-				completeErrorList.push({
-				    "step": 9,
-					"error": "Failed to calculate sales by different payment modes"
-				});				
-
-				//Skip and go to next step
-				singleClickPaymentModesSplitByExtras(); 
-				return '';
-	      }
-
-	    });
 	}
 
-	//Step 9: Callback
+	//Step 23: Callback
 	function singleClickDetailedByPaymentCallback(index, modes, paymentGraphData){
 
 						  //For a given PAYMENT MODE, the total Sales in the given DATE RANGE
@@ -7331,18 +10161,19 @@ function fetchSingleClickReportAfterApproval(){
 											    		singleClickDetailedByPaymentCallback(index+1, modes, paymentGraphData);
 											    	}
 											    	else{
-											    		//Step 10: Weekly Progress
-											    		singleClickPaymentModesSplitByExtras();
+											    		//Step 24:
+											    		singleClickRenderPaymentsGraph();
 											    	}
 
 												},
 												error: function(data){
 													completeErrorList.push({
-													    "step": 9,
-														"error": "Failed to calculate sales by different payment modes"
+													    "step": 23,
+														"error": "Failed to calculate sales against different payment modes"
 													});				
 
 													//Skip and go to next step
+													detailedListByPaymentMode = [];
 													singleClickPaymentModesSplitByExtras(); 
 													return '';
 												}
@@ -7352,11 +10183,12 @@ function fetchSingleClickReportAfterApproval(){
 										},
 										error: function(data){
 											completeErrorList.push({
-											    "step": 9,
-												"error": "Failed to calculate sales by different payment modes"
+											    "step": 23,
+												"error": "Failed to calculate sales against different payment modes"
 											});				
 
 											//Skip and go to next step
+											detailedListByPaymentMode = [];
 											singleClickPaymentModesSplitByExtras(); 
 											return '';
 										}
@@ -7364,11 +10196,12 @@ function fetchSingleClickReportAfterApproval(){
 							},
 					      	error: function(data) {
 								completeErrorList.push({
-								    "step": 9,
-									"error": "Failed to calculate sales by different payment modes"
+								    "step": 23,
+									"error": "Failed to calculate sales against different payment modes"
 								});				
 
 								//Skip and go to next step
+								detailedListByPaymentMode = [];
 								singleClickPaymentModesSplitByExtras(); 
 								return '';					        	
 					      	}
@@ -7376,8 +10209,10 @@ function fetchSingleClickReportAfterApproval(){
 	}
 
 
-	//Step 9.1: Render Graph (Payments)
+	//Step 24: Render Graph (Payments)
 	function singleClickRenderPaymentsGraph(){
+
+			runReportAnimation(89); //Step 23 takes 5 unit time
 
 			window.localStorage.graphImageDataPayments = '';
 
@@ -7448,98 +10283,25 @@ function fetchSingleClickReportAfterApproval(){
 
 				window.localStorage.graphImageDataPayments = temp_graph;
 
-				//Go to Step 9.2
+				//Go to Next Step
 				singleClickPaymentModesSplitByExtras();
 			}
 	}
 
 
-	//Step 9.2: Payment Modes (detailed w.r.t Extras, SGST, CGST etc.)
+	//Step 25: Payment Modes (detailed w.r.t Extras, SGST, CGST etc.)
 	function singleClickPaymentModesSplitByExtras(){
 		
-		runReportAnimation(70); //of Step 9.1 which takes 5 units
+		runReportAnimation(89); //Step 24 takes 0 unit time
 	
-		preloadExtrasValues();
-
-		//Preload Billing Parameters (Extras and Custom Extras)
-		function preloadExtrasValues(){
-			
-			    var requestData = {
-			      "selector"  :{ 
-			                    "identifierTag": "ACCELERATE_BILLING_PARAMETERS" 
-			                  },
-			      "fields"    : ["identifierTag", "value"]
-			    }
-
-			    $.ajax({
-			      type: 'POST',
-			      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-			      data: JSON.stringify(requestData),
-			      contentType: "application/json",
-			      dataType: 'json',
-			      timeout: 10000,
-			      success: function(data) {
-
-			        if(data.docs.length > 0){
-			          if(data.docs[0].identifierTag == 'ACCELERATE_BILLING_PARAMETERS'){
-
-			            var modes = data.docs[0].value;
-
-			          	if(modes.length == 0){
-			          		completeErrorList.push({
-							    "step": 9.2,
-								"error": "Failed to calculate the extras and custom extras against each payment modes"
-							});	
-
-							singleClickWeeklyProgress();	
-
-			          		return '';
-			          	}
-			          	else{
-			          		//Start Processing
-			          		getDetailedByExtras(0, modes);
-			          	}
-
-			          }
-			          else{
-			          		completeErrorList.push({
-							    "step": 9.2,
-								"error": "Failed to calculate the extras and custom extras against each payment modes"
-							});	
-
-							singleClickWeeklyProgress();	
-
-			          		return '';
-			          }
-			        }
-			        else{
-			          	completeErrorList.push({
-						    "step": 9.2,
-							"error": "Failed to calculate the extras and custom extras against each payment modes"
-						});	
-
-						singleClickWeeklyProgress();	
-
-			          	return '';
-					}
-			        
-			      },
-			      error: function(data) {
-			      	completeErrorList.push({
-					    "step": 9.2,
-						"error": "Failed to calculate the extras and custom extras against each payment modes"
-					});	
-					
-					singleClickWeeklyProgress();	
-
-			      	return '';  
-
-			      }
-
-			    });
+		var modes = DATA_BILLING_PARAMETERS;
+		if(modes.length == 0){
+			singleClickWeeklyProgress();	
+			return '';
 		}
 
 
+		getDetailedByExtras(0, modes);
 
 		//START PROCESSING
 		function getDetailedByExtras(greatIndex, modes){
@@ -7557,6 +10319,7 @@ function fetchSingleClickReportAfterApproval(){
 			}
 			else{
 				singleClickWeeklyProgress();
+				return '';
 			}
 
 
@@ -7639,12 +10402,12 @@ function fetchSingleClickReportAfterApproval(){
 														},
 														error: function(data){
 											          		completeErrorList.push({
-															    "step": 9.2,
-																"error": "Failed to calculate the extras and custom extras against each payment modes"
+															    "step": 25,
+																"error": "Failed to calculate the extras and custom extras against each payment mode."
 															});	
 
+											          		detailedListByPaymentMode = [];
 															singleClickWeeklyProgress();	
-
 											          		return '';
 														}
 													}); //split payments with custom extras
@@ -7654,12 +10417,12 @@ function fetchSingleClickReportAfterApproval(){
 												},
 												error: function(data){
 									          		completeErrorList.push({
-													    "step": 9.2,
-														"error": "Failed to calculate the extras and custom extras against each payment modes"
+													    "step": 25,
+														"error": "Failed to calculate the extras and custom extras against each payment mode."
 													});	
 
-													singleClickWeeklyProgress();	
-
+									          		detailedListByPaymentMode = [];
+													singleClickWeeklyProgress();
 									          		return '';
 												}
 											}); //split payments
@@ -7669,12 +10432,12 @@ function fetchSingleClickReportAfterApproval(){
 										},
 										error: function(data){
 							          		completeErrorList.push({
-											    "step": 9.2,
-												"error": "Failed to calculate the extras and custom extras against each payment modes"
+											    "step": 25,
+												"error": "Failed to calculate the extras and custom extras against each payment mode."
 											});	
 
+							          		detailedListByPaymentMode = [];
 											singleClickWeeklyProgress();	
-
 							          		return '';
 										}
 									}); 
@@ -7683,12 +10446,12 @@ function fetchSingleClickReportAfterApproval(){
 						    },
 						    error: function(data){
 				          		completeErrorList.push({
-								    "step": 9.2,
-									"error": "Failed to calculate the extras and custom extras against each payment modes"
+								    "step": 25,
+									"error": "Failed to calculate the extras and custom extras against each payment mode."
 								});	
 
+				          		detailedListByPaymentMode = [];
 								singleClickWeeklyProgress();	
-
 				          		return '';
 						    }
 						  });  
@@ -7697,6 +10460,7 @@ function fetchSingleClickReportAfterApproval(){
 			} // end - getDetailedExtrasForPaymentMode
 
 
+			//Callback
 			function getDetailedExtrasForPaymentModeCallback(index, modes, selectedPaymentMode){
 	          	
 	          	  //For a given PAYMENT MODE, the extras in the given DATE RANGE
@@ -7774,12 +10538,12 @@ function fetchSingleClickReportAfterApproval(){
 												},
 												error: function(data){
 											      	completeErrorList.push({
-													    "step": 9.2,
-														"error": "Failed to calculate the extras and custom extras against each payment modes"
+													    "step": 25,
+														"error": "Failed to calculate the extras and custom extras against each payment mode."
 													});	
 													
+													detailedListByPaymentMode = [];
 													singleClickWeeklyProgress();	
-
 											      	return ''; 
 												}
 											}); //split payments with custom extras
@@ -7790,12 +10554,12 @@ function fetchSingleClickReportAfterApproval(){
 										},
 										error: function(data){
 									      	completeErrorList.push({
-											    "step": 9.2,
-												"error": "Failed to calculate the extras and custom extras against each payment modes"
+											    "step": 25,
+												"error": "Failed to calculate the extras and custom extras against each payment mode."
 											});	
 											
+											detailedListByPaymentMode = [];
 											singleClickWeeklyProgress();	
-
 									      	return ''; 
 										}
 									}); //split payments
@@ -7806,12 +10570,12 @@ function fetchSingleClickReportAfterApproval(){
 								},
 								error: function(data){
 							      	completeErrorList.push({
-									    "step": 9.2,
-										"error": "Failed to calculate the extras and custom extras against each payment modes"
+									    "step": 25,
+										"error": "Failed to calculate the extras and custom extras against each payment mode."
 									});	
 									
+									detailedListByPaymentMode = [];
 									singleClickWeeklyProgress();	
-
 							      	return ''; 
 								}
 							}); 
@@ -7820,12 +10584,12 @@ function fetchSingleClickReportAfterApproval(){
 				    },
 				    error: function(data){
 				      	completeErrorList.push({
-						    "step": 9.2,
-							"error": "Failed to calculate the extras and custom extras against each payment modes"
+						    "step": 25,
+							"error": "Failed to calculate the extras and custom extras against each payment mode."
 						});	
 						
+						detailedListByPaymentMode = [];
 						singleClickWeeklyProgress();	
-
 				      	return ''; 
 				    }
 				  });  
@@ -7840,11 +10604,10 @@ function fetchSingleClickReportAfterApproval(){
 
 
 
-	//Step 10: Weekly Progress
+	//Step 26: Weekly Progress
 	function singleClickWeeklyProgress(){
 
-
-		runReportAnimation(75); //of Step 9 which takes 5 units
+		runReportAnimation(93); //Step 25 takes 4 unit time
 		
 		/*
 			Note: Rough figure only, refunds not included.
@@ -7857,8 +10620,6 @@ function fetchSingleClickReportAfterApproval(){
 		calculateSalesByDate(currentIndex, lastWeek_start)
 
 		function calculateSalesByDate(index, mydate){
-
-			runReportAnimation(74 + index);
 
 			$.ajax({
 			    type: 'GET',
@@ -7901,12 +10662,16 @@ function fetchSingleClickReportAfterApproval(){
 
 				},
 				error: function(data){
+
 					completeErrorList.push({
-					    "step": 9,
-						"error": "Failed to calculate sales by different payment modes"
+					    "step": 26,
+						"error": "Unable to generate the weekly sales trend. Failed to load the sales data."
 					});				
 
 					//Skip and go to next step
+					weeklyProgressThisWeek = [];
+					weeklyProgressLastWeek = [];
+
 					singleClickWeeklyWeeklyGraphRenderer(); 
 					return '';						
 				}
@@ -7915,10 +10680,10 @@ function fetchSingleClickReportAfterApproval(){
 
 	}
 
-	//Step 11: Render Weekly Graph
+	//Step 27: Render Weekly Graph
 	function singleClickWeeklyWeeklyGraphRenderer(){
 
-		runReportAnimation(90); //of Step 10 which takes 14 units
+		runReportAnimation(97); //Step 26 takes 4 unit time
 
 		if(fromDate != toDate){
 			//Skip and go to next step
@@ -8107,11 +10872,10 @@ function fetchSingleClickReportAfterApproval(){
 	}
 
 
-	//Step 12: Final Reports Render Stage
+	//Step 28: Final Reports Render Stage
 	function singleClickGenerateAllReports(){
 
-		runReportAnimation(95); //of Step 11 which completed the data processing
-
+		runReportAnimation(97); //Step 27 takes 0 unit time
 
 		//Get staff info.
 		var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
@@ -8144,17 +10908,11 @@ function fetchSingleClickReportAfterApproval(){
 
 		function generateReportContentDownload(){
 
-			//To display weekly graph or not
-			var hasWeeklyGraphAttached = false;
-			if(window.localStorage.graphImageDataWeekly && window.localStorage.graphImageDataWeekly != ''){
-				hasWeeklyGraphAttached = true;
-			}
-
-			var graphRenderSectionContent = '';
 			var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
 
 			var reportInfo_title = 'Sales Report of <b>'+fancy_from_date+'</b>';
 			var temp_report_title = 'Sales Report of '+fancy_from_date;
+			
 			if(fromDate != toDate){
 				fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
 				var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
@@ -8162,396 +10920,1100 @@ function fetchSingleClickReportAfterApproval(){
 				reportInfo_title = 'Sales Report from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
 				temp_report_title = 'Sales Report from '+fancy_from_date+' to '+fancy_to_date;
 			}
-		    else{ //Render graph only if report is for a day
 
-		      if(hasWeeklyGraphAttached){
-
-		      	var temp_image_name = reportInfo_branch+'_'+fromDate;
-		      	temp_image_name = temp_image_name.replace(/\s/g,'');
-
-		        graphRenderSectionContent = ''+
-		          '<div class="summaryTableSectionHolder">'+
-		          '<div class="summaryTableSection">'+
-		             '<div class="tableQuickHeader">'+
-		                '<h1 class="tableQuickHeaderText">WEEKLY SALES TREND</h1>'+
-		             '</div>'+
-		             '<div class="weeklyGraph">'+
-		                '<img src="'+window.localStorage.graphImageDataWeekly+'" style="max-width: 90%">'+
-		             '</div>'+
-		          '</div>'+
-		          '</div>';
-		      }
-		    }
-
-		    var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
-
-		    //Quick Summary Content
-		    var quickSummaryRendererContent = '';
-
-		    var a = 0;
-		    while(reportInfoExtras[a]){
-		      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+reportInfoExtras[a].name+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(reportInfoExtras[a].value).toFixed(2)+'</td></tr>';
-		      a++;
-		    }
+			var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
 
 
-		    var b = 1; //first one contains total paid
-		    while(completeReportInfo[b]){
-		      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[b].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[b].type == 'NEGATIVE' && completeReportInfo[b].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[b].value).toFixed(2)+'</td></tr>';
-		      b++;
-		    }
+			//Render Templates
+			var quickSummaryRendererContent = ''; //Quick Summary
+			var weeklyTrendRenderContent = ''; //Weekly Trend
+			var hourlySalesSummaryTemplate = ''; //Hourly Trend
+			var dayByDaySalesSummaryTemplate = ''; //Day by Day Summary
+			var monthByMonthSalesSummaryTemplate = ''; //Month by Month Summary
+			var sessionSummaryTemplate = ''; //Session Summary
+			var invoiceCancellationsSummary = ''; //Bill Cancellations
+			var reducedBillingModesContentFinal = ''; //Reduced Billing Modes (DINE, DELIVERY etc.)
+			var salesByBillingModeRenderContentFinal = ''; //By Billing Modes
+			var salesByPaymentTypeRenderContentFinal = ''; //By Payment Modes
+			var topSellingTemplate = ''; //Top Selling
+			var categoryWiseSalesSummaryTemplate = ''; //Category wise report
+			var discountSummaryTemplate = ''; //Discounts
+			var cancelledInvoicesSummaryTemplate = '';
+			var overallCancellationsReportTemplate = ''; //Cancelled Items/Orders/Invoices
+			var refundedInvoicesSummaryTemplate = ''; //Refunds
 
 
-		    //Sales by Billing Modes Content
-		    var salesByBillingModeRenderContent = '';
-		    var c = 0;
-		    var billSharePercentage = 0;
-		    var individualNetBillingMode = 0;
-		    while(detailedListByBillingMode[c]){
-		      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
-		      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
-		      individualNetBillingMode += detailedListByBillingMode[c].value;
-		      c++;
-		    }
+			renderWeeklyTrend();
 
+			/* WEEKLY SALES COMPARISON */
+			function renderWeeklyTrend(){
 
-			//To display bills graph or not
-			var hasBillsGraphAttached = false;
-			if(window.localStorage.graphImageDataBills && window.localStorage.graphImageDataBills != '' && window.localStorage.graphImageDataBills != 'data:,'){
-				hasBillsGraphAttached = true;
-			}
-
-		    var salesByBillingModeRenderContentFinal = '';
-		    if(salesByBillingModeRenderContent != ''){
-
-		    	if(hasBillsGraphAttached){
-				      salesByBillingModeRenderContentFinal = ''+
-				        '<div class="summaryTableSectionHolder">'+
-				        '<div class="summaryTableSection">'+
-				           	'<div class="tableQuickHeader">'+
-				              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
-				           	'</div>'+
-				           	'<div class="tableGraphRow">'+
-						        '<div class="tableGraph_Graph"> <img src="'+window.localStorage.graphImageDataBills+'" width="200px"> </div>'+
-						        '<div class="tableGraph_Table">'+	
-					              '<table style="width: 100%">'+
-					                 '<col style="width: 70%">'+
-					                 '<col style="width: 30%">'+
-					                 salesByBillingModeRenderContent+
-					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
-					              '</table>'+
-					           '</div>'+
-					        '</div>'+	
-				        '</div>'+
-				        '</div>';
+				if(fromDate != toDate){
+					renderHourlyTrend();
+					return ''; //Skip this
 				}
-				else{
-				      salesByBillingModeRenderContentFinal = ''+
-				        '<div class="summaryTableSectionHolder">'+
-				        '<div class="summaryTableSection">'+
-				           '<div class="tableQuickHeader">'+
-				              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
-				           '</div>'+
-				           '<div class="tableQuick">'+
-				              '<table style="width: 100%">'+
-				                 '<col style="width: 70%">'+
-				                 '<col style="width: 30%">'+
-				                 salesByBillingModeRenderContent+
-				                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
-				              '</table>'+
-				           '</div>'+
-				        '</div>'+
-				        '</div>';				
-				}
-		    }
 
-
-		    //Sales by Payment Types Content
-		    var salesByPaymentTypeRenderContent = '';
-		    var d = 0;
-		    var paymentSharePercentage = 0;
-		    var individualNetPaymentMode = 0;
-		    while(detailedListByPaymentMode[d]){
-		      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
-		      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
-		      individualNetPaymentMode += detailedListByPaymentMode[d].value;
-		      d++;
-		    }
-
-		    //Detailed Payment (Extras and Custom Extras for each payment mode)
-		    var detailedByExtrasForPaymentRenderContent = '';
-		    var detailedExtrasContentHeader = '';
-
-		    var individualColumnSum_Extras = [];
-		    //initialise with 0's
-		    for(var e = 0; e < detailedListByPaymentMode[0].detailedExtras.length; e++){
-		    	individualColumnSum_Extras.push(0);
-		    }
-
-
-		    var individualColumnSum_Net = 0;
-		    var individualColumnSum_Gross = 0;
-
-		    var t = 0;
-		    while(detailedListByPaymentMode[t]){
-
-		    	
-
-		    	var detailedExtrasContent = '';
-		    	var netAmount = detailedListByPaymentMode[t].value;
-
-		    	for(var e = 0; e < detailedListByPaymentMode[t].detailedExtras.length; e++){
-		    	
-		    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: center;">'+detailedListByPaymentMode[t].detailedExtras[e].amount+'</td>';
-		    	
-		    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
-
-		    		individualColumnSum_Extras[e] += detailedListByPaymentMode[t].detailedExtras[e].amount; //hold sum of all CGST for Cash, Card, PayTM etc.
-
-			    	if(t == 0){
-			    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
-			    	}
-		    	}
-
-		    	individualColumnSum_Gross += detailedListByPaymentMode[t].value; //last column (gross)
-		    	individualColumnSum_Net += netAmount; //first column (net)
-
-		    	detailedByExtrasForPaymentRenderContent += '' +
-									    		'<tr>'+
-									    			'<td class="tableQuickBrief">'+detailedListByPaymentMode[t].name+'</td>'+
-									    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(netAmount).toFixed(0)+'</td>'+
-									    			detailedExtrasContent +
-									    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
-									    		'</tr>';
-
-
-		    	t++;
-		    }
-
-		    if(detailedListByPaymentMode.length != 0){
-
-		    	var detailed_footer_content = '';
-		    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
-		    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
-		    	}
-
-			    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Net</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td> </tr>';
-			    var detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14;">Total</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td>' + detailed_footer_content + '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td> </tr>';
-			    
-			    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent + detailedExtrasContentFooter;
-		    }
-
-
-
-			//To display payment graph or not
-			var hasPaymentsGraphAttached = false;
-			if(window.localStorage.graphImageDataPayments && window.localStorage.graphImageDataPayments != '' && window.localStorage.graphImageDataPayments != 'data:,'){
-				hasPaymentsGraphAttached = true;
-			}
-
-		    var salesByPaymentTypeRenderContentFinal = '';
-		    if(salesByPaymentTypeRenderContent != ''){
-
-		    	if(hasPaymentsGraphAttached){
-			      salesByPaymentTypeRenderContentFinal = ''+
-			        '<div class="summaryTableSectionHolder">'+
-			        '<div class="summaryTableSection">'+
-			           	'<div class="tableQuickHeader">'+
-			              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
-			           	'</div>'+
-			           	'<div class="tableGraphRow">'+
-					        '<div class="tableGraph_Graph"> <img src="'+window.localStorage.graphImageDataPayments+'" width="200px"> </div>'+
-					        '<div class="tableGraph_Table">'+	
-				              '<table style="width: 100%">'+
-				                 '<col style="width: 70%">'+
-				                 '<col style="width: 30%">'+
-				                 salesByPaymentTypeRenderContent+
-				                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetPaymentMode).toFixed(0)+'</b></td></tr>'+
-				              '</table>'+
-				           '</div>'+
-				        '</div>'+
-			        '</div>'+
-			        '</div>';
-			    }
-			    else{
-			    	salesByPaymentTypeRenderContentFinal = ''+
-			        '<div class="summaryTableSectionHolder">'+
-			        '<div class="summaryTableSection">'+
-			           '<div class="tableQuickHeader">'+
-			              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
-			           '</div>'+
-			           '<div class="tableQuick">'+
-			              '<table style="width: 100%">'+
-			                 '<col style="width: 70%">'+
-			                 '<col style="width: 30%">'+
-			                 salesByPaymentTypeRenderContent+
-			                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetPaymentMode).toFixed(0)+'</b></td></tr>'+
-			              '</table>'+
-			           '</div>'+
-			        '</div>'+
-			        '</div>';
-			    }
-		    }
-
-
-		    var detailedByExtrasForPaymentRenderContentFinal = '';
-		    if(detailedByExtrasForPaymentRenderContent != ''){
-
-		    	detailedByExtrasForPaymentRenderContentFinal = ''+
-			        '<div class="summaryTableSectionHolder">'+
-			        '<div class="summaryTableSection">'+
-			           '<div class="tableQuickHeader">'+
-			              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
-			           '</div>'+
-			           '<div class="tableQuick">'+
-			              '<table style="width: 100%">'+
-			                 '<col style="width: 70%">'+
-			                 '<col style="width: 30%">'+
-			                 detailedByExtrasForPaymentRenderContent+
-			              '</table>'+
-			           '</div>'+
-			        '</div>'+
-			        '</div>';	
-		    }
-
-
-		    //Bill Cancellations
-			var downloadSummaryCancellations = '';
-			if(netCancelledBills > 0){
-			    	downloadSummaryCancellations = ''+
-				        '<div class="summaryTableSectionHolder">'+
-				        '<div class="summaryTableSection">'+
-				           '<div class="tableQuickHeader">'+
-				              '<h1 class="tableQuickHeaderText">BILL CANCELLATIONS</h1>'+
-				           '</div>'+
-				           '<div class="tableQuick">'+
-				              '<table style="width: 100%">'+
-				                 '<col style="width: 70%">'+
-				                 '<col style="width: 30%">'+
-				                 '<tr><td class="tableQuickBrief">Number of Bills</td><td class="tableQuickAmount">'+netCancelledBills+'</td></tr>'+
-				                 '<tr><td class="tableQuickBrief">Cancelled Amount</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(netCancelledBillsSum).toFixed(0)+'</td></tr>'+
-				              '</table>'+
-				           '</div>'+
-				        '</div>'+
-				        '</div>';		    	
-			}
-
-
-
-		    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
-		    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
-		    
-		    var finalReport_downloadContent = cssData+
-			    '<body>'+
-			      '<div class="mainHeader">'+
-			         '<div class="headerLeftBox">'+
-			            '<div id="logo">'+
-			               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
-			            '</div>'+
-			            '<p class="headerAddress">'+reportInfo_address+'</p>'+
-			         '</div>'+
-			         '<div class="headerRightBox">'+
-			            '<h1 class="headerBranch">'+reportInfo_branch+'</h1>'+
-			            '<p class="headerAdmin">'+reportInfo_admin+'</p>'+
-			            '<p class="headerTimestamp">'+reportInfo_time+'</p>'+
-			         '</div>'+
-			      '</div>'+
-			      '<div class="introFacts">'+
-			         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
-			         '<div class="factsArea">'+
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Amount</p></div>'+ 
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
-			            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
-			         '</div>'+
-			      '</div>'+graphRenderSectionContent+
-			      (hasWeeklyGraphAttached ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>' : '')+
-			      '<div class="summaryTableSectionHolder">'+
-			        '<div class="summaryTableSection">'+
-			           '<div class="tableQuickHeader">'+
-			              '<h1 class="tableQuickHeaderText">Quick Summary</h1>'+
-			           '</div>'+
-			           '<div class="tableQuick">'+
-			              '<table style="width: 100%">'+
-			                 '<col style="width: 70%">'+
-			                 '<col style="width: 30%">'+
-			                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
-			                 quickSummaryRendererContent+
-			                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Amount</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
-			              '</table>'+
-			           '</div>'+
-			        '</div>'+
-			      '</div>'+
-			      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
-			      salesByBillingModeRenderContentFinal+
-			      salesByPaymentTypeRenderContentFinal+
-			      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
-			      detailedByExtrasForPaymentRenderContentFinal+
-			      downloadSummaryCancellations+
-			      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
-			         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
-			      '</div>'+
-			    '</body>';
-
-				var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
-				$('#reportActionButtonDownload').attr('data-hold', finalContent_EncodedDownload);
-
-				var finalContent_EncodedText = encodeURI(fancy_report_title_name);
-				$('#reportActionButtonDownload').attr('text-hold', finalContent_EncodedText);
-
-				generateReportContentEmail();
-
-		}
-
-		function generateReportContentEmail(){
-
-				runReportAnimation(97);
-
-				//To display weekly graph or not
-				var hasWeeklyGraphAttached = false;
+				var hasWeeklyGraphAttached = false; //To display weekly graph or not
 				if(window.localStorage.graphImageDataWeekly && window.localStorage.graphImageDataWeekly != ''){
 					hasWeeklyGraphAttached = true;
 				}
 
-				var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
-
-				var graphRenderSectionContent = '';
-				var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
-
-				var reportInfo_title = 'Sales Report of <b>'+fancy_from_date+'</b>';
-				var temp_report_title = 'Sales Report of '+fancy_from_date;
-				if(fromDate != toDate){
-					fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
-					var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
-
-					reportInfo_title = 'Sales Report from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
-					temp_report_title = 'Sales Report from '+fancy_from_date+' to '+fancy_to_date;
+				var weeklyTrendSummaryTableContent = '';
+				for(var i = 0; i < overalSalesTrend.length; i++){
+					weeklyTrendSummaryTableContent += '<tr><td class="tableQuickBrief">'+overalSalesTrend[i].tag+'<span style="color: #5a5757; display: block; font-size:12px">'+overalSalesTrend[i].range+'</span></td><td class="tableQuickAmount"><span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-size: 12px; font-style: italic; margin-right: 15px">'+(overalSalesTrend[i].count > 0 ? 'from '+overalSalesTrend[i].count+' orders' : 'No orders')+'</span><span class="price">Rs.</span>'+overalSalesTrend[i].amount+'</td></tr>';
 				}
-			    else{ //Render graph only if report is for a day
 
-			      if(hasWeeklyGraphAttached){
+				var weeklyTrendSummaryTableTemplate = '';
 
-			      	var temp_image_name = reportInfo_branch+'_'+fromDate;
-			      	temp_image_name = temp_image_name.replace(/\s/g,'');
+				if(weeklyTrendSummaryTableContent != ''){
+					weeklyTrendSummaryTableTemplate = ''+
+					           '<div class="tableQuick" style="margin-top: 20px;">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					             	 weeklyTrendSummaryTableContent+
+					              '</table>'+
+					           '</div>';
+				}
 
-			        graphRenderSectionContent = ''+
-			          '<div class="summaryTableSectionHolder">'+
-			          '<div class="summaryTableSection">'+
-			             '<div class="tableQuickHeader">'+
-			                '<h1 class="tableQuickHeaderText">WEEKLY SALES TREND</h1>'+
-			             '</div>'+
-			             '<div class="weeklyGraph">'+
-			                '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/report_trend_images_repo/'+temp_image_name+'.png" style="max-width: 90%">'+
-			             '</div>'+
-			          '</div>'+
-			          '</div>';
-			      }
+
+				var oneLineSummary = '';
+
+				if(overalSalesTrend[2].amount >= overalSalesTrend[3].amount && overalSalesTrend[3].amount > 0){
+					//percentage increase
+					var percentage_increase = parseFloat(((overalSalesTrend[2].amount - overalSalesTrend[3].amount) * 100)/overalSalesTrend[3].amount).toFixed(1);
+					if(percentage_increase < 5 && percentage_increase > 1){
+						//Slight increase in sales
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #1eb194; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #1abc9c;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="218.623,195.004 271.438,119.425 253.165,106.656 322.534,74.229 315.939,150.522 297.668,137.755 227.994,237.459 153.407,194.118 97.979,266.002 72.639,246.461 145.21,152.345" fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Slight Increase in Sales by <tag style="font-size: 26px">'+percentage_increase+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_increase >= 5 && percentage_increase < 10){
+						//Noticeable increase
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #1eb194; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #1abc9c;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="218.623,195.004 271.438,119.425 253.165,106.656 322.534,74.229 315.939,150.522 297.668,137.755 227.994,237.459 153.407,194.118 97.979,266.002 72.639,246.461 145.21,152.345" fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Noticeable Increase in Sales by <tag style="font-size: 26px">'+percentage_increase+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_increase >= 10 && percentage_increase < 20){
+						//Good Increase
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #1eb194; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #1abc9c;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="218.623,195.004 271.438,119.425 253.165,106.656 322.534,74.229 315.939,150.522 297.668,137.755 227.994,237.459 153.407,194.118 97.979,266.002 72.639,246.461 145.21,152.345" fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Good Increase in Sales by <tag style="font-size: 26px">'+percentage_increase+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_increase >= 20){
+						//Fantastic increase
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #1eb194; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #1abc9c;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="218.623,195.004 271.438,119.425 253.165,106.656 322.534,74.229 315.939,150.522 297.668,137.755 227.994,237.459 153.407,194.118 97.979,266.002 72.639,246.461 145.21,152.345" fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Fantastic Boost in Sales by <tag style="font-size: 26px">'+percentage_increase+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+				}
+				else if(overalSalesTrend[3].amount >= overalSalesTrend[2].amount && overalSalesTrend[2].amount > 0){
+					//percentage decrease
+					var percentage_decrease = parseFloat(((overalSalesTrend[3].amount - overalSalesTrend[2].amount) * 100)/overalSalesTrend[2].amount).toFixed(1);
+					if(percentage_decrease < 5 && percentage_decrease > 1){
+						//Slight decrease in sales
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #d24a39; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #e85948;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="211.232,145.228 264.046,220.807 245.774,233.575 315.143,266.002 308.548,189.709 290.276,202.477 220.604,102.772 146.016,146.113 90.588,74.229 65.247,93.771 137.819,187.887 " fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Slight Decrease in Sales by <tag style="font-size: 26px">-'+percentage_decrease+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_decrease >= 5 && percentage_decrease < 10){
+						//Noticeable decrease
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #d24a39; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #e85948;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="211.232,145.228 264.046,220.807 245.774,233.575 315.143,266.002 308.548,189.709 290.276,202.477 220.604,102.772 146.016,146.113 90.588,74.229 65.247,93.771 137.819,187.887 " fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Noticeable Decrease in Sales by <tag style="font-size: 26px">-'+percentage_decrease+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_decrease >= 10 && percentage_decrease < 20){
+						//Good decrease
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #d24a39; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #e85948;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="211.232,145.228 264.046,220.807 245.774,233.575 315.143,266.002 308.548,189.709 290.276,202.477 220.604,102.772 146.016,146.113 90.588,74.229 65.247,93.771 137.819,187.887 " fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Huge Decrease in Sales by <tag style="font-size: 26px">-'+percentage_decrease+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+					else if(percentage_decrease >= 20){
+						//Tremendous decrease
+						oneLineSummary = 	'<div style="width: 100%; margin-top: 20px; display: block; height: 50px; background: #d24a39; position: relative;">'+
+												'<div style="position: absolute; left: 0; top: 0; width: 30px; padding: 10px;background: #e85948;"><svg version="1.1" id="Capa_1" x="0px" y="0px" width="30px" height="30px" viewBox="0 0 350 350" style="enable-background:new 0 0 350 350;" xml:space="preserve"> <g> <g> <polygon points="40,310 40,0 0,0 0,350 350,350 350,310" fill="#fff"/> <polygon points="211.232,145.228 264.046,220.807 245.774,233.575 315.143,266.002 308.548,189.709 290.276,202.477 220.604,102.772 146.016,146.113 90.588,74.229 65.247,93.771 137.819,187.887 " fill="#fff"/> </g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> <g> </g> </svg></div>'+
+												'<div><p style="color: #FFF;font-weight: bold;font-size: 18px;margin: 0;padding: 7px 15px 0 65px;text-align: left;">Extremly Huge Decrease in Sales by <tag style="font-size: 26px">-'+percentage_decrease+'</tag>% from previous Week</p></div>'+
+											'</div>';
+					}
+				}
+
+				if(oneLineSummary != ''){
+					weeklyTrendSummaryTableTemplate += oneLineSummary;
+				}
+
+
+
+				weeklyTrendRenderContent = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				          '<div class="summaryTableSection">'+
+				             '<div class="tableQuickHeader">'+
+				                '<h1 class="tableQuickHeaderText">SALES TREND</h1>'+
+				             '</div>'+
+				             (hasWeeklyGraphAttached ? '<div class="weeklyGraph"><img src="'+window.localStorage.graphImageDataWeekly+'" style="max-width: 90%"></div>' : '')+
+				             weeklyTrendSummaryTableTemplate+
+				          '</div>'+
+				        '</div>';
+
+				renderHourlyTrend();
+			}
+
+
+
+			/* HOURLY SALES TREND */
+			function renderHourlyTrend(){
+
+				var hasHourlyGraphAttached = false;
+				if(window.localStorage.graphImageDataHourly && window.localStorage.graphImageDataHourly != ''){
+					hasHourlyGraphAttached = true;
+				}
+
+				var hourlySalesSummaryContent = '';
+				var hourlySalesSummaryContent_firstHalf = '';
+				var hourlySalesSummaryContent_secondHalf = '';
+
+				for(var g = 0; g < hourlySalesData.length; g++){
+
+					var slot_name = hourlySalesData[g].hour_slot;
+					
+					if(slot_name == 0){
+						slot_name = 'Midnight to 1 am';
+					}
+					else if(slot_name == 11){
+						slot_name = '11 am to 12 Noon';
+					}
+					else if(slot_name < 12){
+						slot_name = slot_name + ' am to '+(slot_name+1)+' am';
+					}
+					else if(slot_name == 12){
+						slot_name = '12 Noon to 1 pm';
+					}
+					else if(slot_name == 23){
+						slot_name = '11 pm to Midnight';
+					}
+					else{
+						slot_name = (slot_name-12) + ' pm to ' +(slot_name-12+1)+' pm';
+					}
+
+
+					if(g < Math.ceil(hourlySalesData.length/2)){
+						hourlySalesSummaryContent_firstHalf +='<tr><td class="tableQuickBrief" style="font-size: 13px">'+slot_name+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+(hourlySalesData[g].number_of_guests > 0 ? hourlySalesData[g].number_of_guests : '-')+'</td><td class="tableQuickBrief" style="text-align: center; font-size:12px">'+hourlySalesData[g].count+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+hourlySalesData[g].amount+'</td></tr>';
+					}
+					else{
+						hourlySalesSummaryContent_secondHalf += '<tr><td class="tableQuickBrief" style="font-size: 13px">'+slot_name+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+(hourlySalesData[g].number_of_guests > 0 ? hourlySalesData[g].number_of_guests : '-')+'</td><td class="tableQuickBrief" style="text-align: center; font-size:12px">'+hourlySalesData[g].count+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+hourlySalesData[g].amount+'</td></tr>';
+					}
+				}
+
+				if(hourlySalesData.length > 0){
+					hourlySalesSummaryContent = ''+
+							'<div style="position: relative; margin-top: 20px">'+
+								'<div style="width: 48%; display: block; float: left;">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Time Slot</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Guests</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales</td>'+
+						                 hourlySalesSummaryContent_firstHalf+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						        '<div style="width: 48%; float: right; display:block">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Time Slot</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Guests</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales</td>'+
+						                 hourlySalesSummaryContent_secondHalf+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						    '</div>';
+
+					hourlySalesSummaryTemplate = ''+	
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">HOURLY SALES TREND</h1>'+
+						           '</div>'+
+						           (hasHourlyGraphAttached ? '<div class="weeklyGraph"><img src="'+window.localStorage.graphImageDataHourly+'" style="max-width: 90%"></div>' : '')+
+						           hourlySalesSummaryContent+
+						        '</div>'+
+						    '</div>';	
+				}
+
+
+				renderSessionSummary();
+			}
+
+
+			/* SESSION SUMMARY */
+			function renderSessionSummary(){
+
+				var sessionSummaryContent = '';
+				for(var i = 0; i < sessionWiseSalesData.length; i++){
+					sessionSummaryContent += '<tr><td class="tableQuickBrief"><b>'+sessionWiseSalesData[i].session+'</b> Session'+(sessionWiseSalesData[i].range ? '<span style="color: #5a5757; display: block; font-size:12px">'+sessionWiseSalesData[i].range+'</span>' : '')+'</td> <td class="tableQuickBrief" style="color: #5a5757; font-style: italic">'+(sessionWiseSalesData[i].number_of_guests > 0 ? sessionWiseSalesData[i].number_of_guests + ' guests': '')+'</td> <td class="tableQuickBrief" style="color: #5a5757; font-style: italic">'+(sessionWiseSalesData[i].count > 0 ? sessionWiseSalesData[i].count + ' bills' : 'No bills')+'</td> <td class="tableQuickAmount"><span class="price">Rs.</span>'+sessionWiseSalesData[i].amount+'</td></tr>';
+				}
+
+				if(sessionSummaryContent != ''){
+					sessionSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">SESSION WISE SALES</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 sessionSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+				renderDiscounts();
+			}
+
+
+			/* DISCOUNTS */
+			function renderDiscounts(){
+
+				var discountSummaryContent = '';
+				var effective_sum = 0;
+				for(var i = 0; i < detailedDiscountsData.length; i++){
+					discountSummaryContent += '<tr><td class="tableQuickBrief">'+detailedDiscountsData[i].name+'<span style="color: #5a5757; font-size:12px; font-style: italic; margin-left: 10px">on '+detailedDiscountsData[i].count+' orders</span></td> <td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedDiscountsData[i].amount).toFixed(2)+'</td></tr>';
+					effective_sum += detailedDiscountsData[i].amount;
+				}
+
+				if(discountSummaryContent != ''){
+					discountSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">DISCOUNTS SUMMARY</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 discountSummaryContent+
+					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(effective_sum).toFixed(2)+'</b></td></tr>'+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+				renderTopSelling();				
+			}
+
+
+			/* TOP SELLING ITEMS */
+			function renderTopSelling(){
+
+				var topSellingContent = '';
+				for(var i = 0; i < detailedTopItemsData.length; i++){
+					topSellingContent +='<tr>'+
+											'<td><p class="yellowStar" style="margin:0;color: rgba(0,0,0,0);">---</p></td>'+
+											'<td class="tableQuickBrief">'+detailedTopItemsData[i].name+(detailedTopItemsData[i].category != "MANUAL_UNKNOWN" && detailedTopItemsData[i].category != "UNKNOWN" ? '<span style="margin-left: 10px; color: #5a5757; font-size:12px; font-style: italic">'+detailedTopItemsData[i].category+'</span>' : '')+'</td> <td class="tableQuickAmount"><b>'+detailedTopItemsData[i].count+'</b></td>'+
+										'</tr>';
+				}
+
+				if(topSellingContent != ''){
+					topSellingTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">TOP SELLING ITEMS</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 topSellingContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+				renderCategoryWiseSales();
+
+			}
+
+
+
+			/* CATEGORY WISE ITEM SALES */
+			function renderCategoryWiseSales(){
+
+				detailedItemCategoryWiseData.sort(function(category1, category2) { //sort by sales
+					if (category1.totalSales > category2.totalSales)
+    					return -1;
+					if (category1.totalSales < category2.totalSales)
+    					return 1;
+  
+  					return 0;
+			    });
+
+				var categoryWiseSalesSummaryContent = '';
+
+				var halfCount = 0;
+				var leftHalfContent = '';
+				var rightHalfContent = '';
+
+				var maxRows = Math.ceil(detailedItemCategoryWiseData.length/2); 
+				if(maxRows > 25){ //Max is 25
+					maxRows = 25;
+				}
+
+
+				var isFirstIteration = true;
+				var categoryIndividualSharePercentage = 0;
+
+				for(var g = 0; g < detailedItemCategoryWiseData.length; g++){
+
+					halfCount++;
+
+					categoryIndividualSharePercentage = parseFloat((100*detailedItemCategoryWiseData[g].totalSales)/netCartSum).toFixed(0); 
+
+					if(halfCount <= maxRows){
+						leftHalfContent +='<tr><td class="tableQuickBrief" style="font-size: 13px">'+detailedItemCategoryWiseData[g].category+(categoryIndividualSharePercentage > 0 ? '<span style="color: #5a5757; font-size: 80%"> ('+categoryIndividualSharePercentage+'%)</span>' : '')+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+detailedItemCategoryWiseData[g].totalCount+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+detailedItemCategoryWiseData[g].totalSales+'</td></tr>';
+					}
+					else if(halfCount >= maxRows+1 && halfCount <= 2*maxRows){
+						rightHalfContent +='<tr><td class="tableQuickBrief" style="font-size: 13px">'+detailedItemCategoryWiseData[g].category+(categoryIndividualSharePercentage > 0 ? '<span style="color: #5a5757; font-size: 80%"> ('+categoryIndividualSharePercentage+'%)</span>' : '')+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+detailedItemCategoryWiseData[g].totalCount+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+detailedItemCategoryWiseData[g].totalSales+'</td></tr>';
+					}
+					else{
+						//Time to render and reset the counter
+						halfCount = 0; 
+						g--;
+
+						categoryWiseSalesSummaryContent += (isFirstIteration ? '' : '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>')+
+							'<div style="position: relative; margin-top: 5px">'+
+								'<div style="width: 48%; display: block; float: left;">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 leftHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						        '<div style="width: 48%; float: right; display:block">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 rightHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						    '</div>';
+
+						//reset template
+	    				leftHalfContent = '';
+						rightHalfContent = '';
+
+						isFirstIteration = false;
+					}
+				}
+
+				//Render the remaining content
+				if(rightHalfContent != ''){
+					categoryWiseSalesSummaryContent += (isFirstIteration ? '' : '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>')+
+							'<div style="position: relative; margin-top: 5px">'+
+								'<div style="width: 48%; display: block; float: left;">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 leftHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						        '<div style="width: 48%; float: right; display:block">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 rightHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						    '</div>';	
+				}
+				else if(leftHalfContent != '' && rightHalfContent == ''){
+					categoryWiseSalesSummaryContent += (isFirstIteration ? '' : '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>')+
+							'<div style="position: relative; margin-top: 5px">'+
+								'<div style="width: 48%; display: block; float: left;">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 leftHalfContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+						    '</div>';	
+				}
+
+
+				if(detailedItemCategoryWiseData.length > 0){
+					categoryWiseSalesSummaryTemplate = ''+	
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">CATEGORY WISE SALES</h1>'+
+						           '</div>'+
+						           categoryWiseSalesSummaryContent+
+						        '</div>'+
+						    '</div>';	
+				}
+
+				renderCrispSummary(detailedItemCategoryWiseData);
+
+				function renderCrispSummary(myData){
+					
+					var data = myData;
+
+					var reduced_data = data.reduce(function (accumulator, item) {
+						if(accumulator[item.topCategory]){
+							accumulator[item.topCategory].totalSales += item.totalSales;
+							accumulator[item.topCategory].totalCount += item.totalCount;
+						}
+						else{
+							accumulator[item.topCategory] = item;
+						}
+
+					  	return accumulator;
+					}, {});
+
+
+
+					var shortListedData = [];
+					var total_sales_sum = 0;
+					for(var key in reduced_data){
+						shortListedData.push({
+							"topCategory": reduced_data[key].topCategory,
+							"totalSales": reduced_data[key].totalSales,
+							"totalCount": reduced_data[key].totalCount
+						});
+
+						total_sales_sum += reduced_data[key].totalSales;
+					}
+
+					shortListedData.sort(function(category1, category2) { //sort by sales
+						if (category1.totalSales > category2.totalSales)
+	    					return -1;
+						if (category1.totalSales < category2.totalSales)
+	    					return 1;
+	  
+	  					return 0;
+				    });
+
+				    var crispSummaryContent = '';
+				    var categorySharePercentage = 0;
+					for(var i = 0; i < shortListedData.length; i++){
+						categorySharePercentage = parseFloat((100*shortListedData[i].totalSales)/total_sales_sum).toFixed(0);
+						crispSummaryContent += '<tr><td class="tableQuickBrief"><b>'+(shortListedData[i].topCategory).toUpperCase()+'</b> Category'+(categorySharePercentage > 0 ? '<span style="color: #5a5757"> ('+categorySharePercentage+'%)</span>' : '')+'</td> <td class="tableQuickBrief" style="color: #5a5757; font-style: italic">'+shortListedData[i].totalCount + ' units sold</td> <td class="tableQuickAmount"><span class="price">Rs.</span>'+shortListedData[i].totalSales+'</td></tr>'; 
+					}
+
+					if(crispSummaryContent != ''){
+							categoryWiseSalesSummaryTemplate = '' +
+								'<div class="summaryTableSectionHolder">'+
+							        '<div class="summaryTableSection">'+
+							           '<div class="tableQuickHeader">'+
+							              '<h1 class="tableQuickHeaderText">MENU SUMMARY</h1>'+
+							           '</div>'+
+							           '<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 crispSummaryContent+
+							              '</table>'+
+							           '</div>'+
+							        '</div>'+
+						        '</div>'+
+						        (maxRows <= 12 ? '' : '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>')+ //break the page
+						        categoryWiseSalesSummaryTemplate;
+					}
+
+				}
+
+				renderCancellationSummary();
+			}
+
+
+
+
+
+			/* CANCELLATION SUMMARY */
+			function renderCancellationSummary(){
+
+				var cancelled_items_row_count = 0;
+				var cancelled_orders_row_count = 0;
+				
+				//Cancelled Items
+				var cancelledItemsSummaryContent = '';
+				var cancelledItemsSummaryData = [];
+
+				for(var n = 0; n < cancellationsData_items.length; n++){
+
+							var cancelledData = cancellationsData_items[n].value;
+
+							for(var i = 0; i < cancelledData.itemsRemoved.length; i++){
+								
+								cancelledItemsSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 12px">'+moment(cancelledData.time, 'hhmm').format('hh:mm A')+'</tag>'+
+												'<tag style="color: #5a5757; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; color: #6f6f6f; text-align: right">'+cancelledData.itemsRemoved[i].qty+' <tag style="font-weight: 300;">x</tag></td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-weight: 600; color: #6f6f6f; font-size: 14px">'+cancelledData.itemsRemoved[i].name+(cancelledData.itemsRemoved[i].isCustom ? ' <tag style="font-weight: 300; font-size: 80%">('+cancelledData.itemsRemoved[i].variant+')</tag>' : '')+'</tag>'+
+												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.itemsRemoved[i].comments+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">'+(cancelledData.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.mode)+'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 14px">by '+cancelledData.adminName+'</tag>'+
+												'<tag style="display: block; font-size: 11px; color: #5a5757;">'+(cancelledData.stewardName != '' ? cancelledData.stewardName : 'Unknown')+' requested</tag>'+
+											'</td>'+
+										'</tr>';
+
+								cancelled_items_row_count++;
+
+								if(cancelled_items_row_count == 15){
+									cancelled_items_row_count = 0;
+									cancelledItemsSummaryData.push(cancelledItemsSummaryContent);
+									cancelledItemsSummaryContent = '';
+								}
+							}
+
+				}
+
+				if(cancelledItemsSummaryContent != ''){
+					cancelledItemsSummaryData.push(cancelledItemsSummaryContent);
+				}
+
+				for(var i = 0; i < cancelledItemsSummaryData.length; i++){
+					if(i == 0){
+						overallCancellationsReportTemplate = ''+
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">ITEM CANCELLATIONS</h1>'+
+						           '</div>'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 cancelledItemsSummaryData[0]+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+					        '</div>';
+					}
+					else{
+						overallCancellationsReportTemplate += '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 cancelledItemsSummaryData[i]+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+					        '</div>';	
+					}
+				}	
+
+				var maxAllowedRows_orders = 15;
+				if(cancelled_items_row_count > 10){
+					overallCancellationsReportTemplate += '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>';
+				}
+				else{
+					maxAllowedRows_orders = 15 - cancelled_items_row_count;
+				}
+
+
+
+				//Cancelled Orders
+				var cancelledOrdersSummaryContent = '';
+				var cancelledOrdersSummaryData = [];
+
+				for(var i = 0; i < cancellationsData_orders.length; i++){
+
+					var cancelledData = cancellationsData_orders[i].value;
+					
+					var number_of_items = 0;
+					var order_value = 0;
+					for(var a = 0; a < cancelledData.cart.length; a++){
+						number_of_items += cancelledData.cart[a].qty;
+						order_value += cancelledData.cart[a].qty * cancelledData.cart[a].price;
+					}
+
+					cancelledOrdersSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 12px">'+moment(cancelledData.cancelDetails.timeCancel, 'hhmm').format('hh:mm A')+'</tag>'+
+												'<tag style="color: #5a5757; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; font-size: 12px"><span class="price" style="font-weight: 300; font-size: 80%">Rs.</span>'+order_value+'<tag style="font-weight: 300; color: #5a5757; display: block; font-size: 11px">'+(number_of_items > 1 ? number_of_items +' Items' : number_of_items+' Item')+'</tag></td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="color: #5a5757; font-size: 13px">'+cancelledData.cancelDetails.reason+'</tag>'+
+												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.cancelDetails.comments+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">'+(cancelledData.orderDetails.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.orderDetails.mode)+'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 14px">by '+cancelledData.cancelDetails.cancelledBy+'</tag>'+
+												'<tag style="display: block; font-size: 11px; color: #5a5757;">'+(cancelledData.stewardName != '' ? cancelledData.stewardName : 'Unknown')+' requested</tag>'+
+											'</td>'+
+										'</tr>';
+
+					cancelled_orders_row_count++
+						
+					if(cancelledOrdersSummaryData.length == 0){
+						if(cancelled_orders_row_count == maxAllowedRows_orders){
+							cancelledOrdersSummaryData.push(cancelledOrdersSummaryContent);
+							cancelled_orders_row_count = 0;
+							cancelledOrdersSummaryContent = '';
+						}
+					}
+					else{
+						if(cancelled_orders_row_count == 15){
+							cancelledOrdersSummaryData.push(cancelledOrdersSummaryContent);
+							cancelled_orders_row_count = 0;
+							cancelledOrdersSummaryContent = '';
+						}
+					}
+				}
+
+				if(cancelledOrdersSummaryContent != ''){
+					cancelledOrdersSummaryData.push(cancelledOrdersSummaryContent);
+				}
+
+
+				for(var i = 0; i < cancelledOrdersSummaryData.length; i++){
+					if(i == 0){
+						overallCancellationsReportTemplate += ''+
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">ORDER CANCELLATIONS</h1>'+
+						           '</div>'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 cancelledOrdersSummaryData[0]+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+					        '</div>';	
+					}
+					else{
+						overallCancellationsReportTemplate += '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 cancelledOrdersSummaryData[i]+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+					        '</div>';	
+					}
+				}	
+
+
+				//Cancelled Invoices
+				var cancelledInvoicesSummaryContent = '';
+				for(var i = 0; i < cancellationsData_invoices.length; i++){
+
+					var cancelledData = cancellationsData_invoices[i].value;
+					
+					var number_of_items = 0;
+					for(var a = 0; a < cancelledData.cart.length; a++){
+						number_of_items += cancelledData.cart[a].qty;
+					}
+
+					cancelledInvoicesSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 12px">'+moment(cancelledData.cancelDetails.timeCancel, 'hhmm').format('hh:mm A')+'</tag>'+
+												'<tag style="color: #5a5757; font-size: 10px; display: block">'+cancelledData.date+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">Bill #'+cancelledData.billNumber+'<tag style="display: block; font-size: 11px; color: #5a5757;">'+cancelledData.orderDetails.mode+'</tag></td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; font-size: 12px"><span class="price" style="font-weight: 300; font-size: 80%">Rs. </span>'+cancelledData.payableAmount+'<tag style="font-weight: 300; display: block; font-size: 11px; color: #5a5757">'+(number_of_items > 1 ? number_of_items +' Items' : number_of_items+' Item')+'</tag></td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="color: #5a5757; font-size: 13px">'+cancelledData.cancelDetails.reason+'</tag>'+
+												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.cancelDetails.comments+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 14px">by '+cancelledData.cancelDetails.cancelledBy+'</tag>'+
+											'</td>'+
+										'</tr>';
+				}
+
+
+				if(cancelledInvoicesSummaryContent != ''){
+					cancelledInvoicesSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">INVOICE CANCELLATIONS REPORT</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 cancelledInvoicesSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+
+				//Quick Brief Summary
+				var cancellationBriefContent = '';
+				for(var i = 0; i < invoiceCancellationsData.length; i++){
+					if(invoiceCancellationsData[i].amount > 0){
+						cancellationBriefContent += '<tr><td class="tableQuickBrief">'+invoiceCancellationsData[i].mode+'</td><td class="tableQuickAmount"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">from '+invoiceCancellationsData[i].count+' Bills</span><span class="price">Rs.</span>'+invoiceCancellationsData[i].amount+'</td></tr>';
+					}
+				}
+
+
+				if(netCancelledBills > 0){
+			    	invoiceCancellationsSummary = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           '<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">INVOICE CANCELLATIONS</h1>'+
+				           '</div>'+
+				           '<div class="tableQuick">'+
+				              '<table style="width: 100%">'+
+				                 '<col style="width: 70%">'+
+				                 '<col style="width: 30%">'+
+				                 cancellationBriefContent+
+				                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid">Cancelled before Settlement</td><td class="tableQuickAmount" style="border-top: 2px solid"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">'+(invoiceCancellationsMetaData.total_unpaid_count > 0 ? 'from '+invoiceCancellationsMetaData.total_unpaid_count+' Bills' : 'No Bills')+'</span><span class="price">Rs.</span>'+parseFloat(invoiceCancellationsMetaData.total_unpaid_sum).toFixed(0)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief">Cancelled after Settlement</td><td class="tableQuickAmount"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">'+(invoiceCancellationsMetaData.total_paid_count > 0 ? 'from '+invoiceCancellationsMetaData.total_paid_count+' Bills' : 'No Bills')+'</span><span class="price">Rs.</span>'+parseFloat(invoiceCancellationsMetaData.total_paid_sum).toFixed(0)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief highlightedQuickBrief">Overall Cancellations</td><td class="tableQuickAmount highlightedQuickBrief"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">'+(invoiceCancellationsMetaData.grand_count > 0 ? 'from '+invoiceCancellationsMetaData.grand_count+' Bills' : 'No Bills')+'</span><span class="price">Rs.</span>'+parseFloat(invoiceCancellationsMetaData.grand_sum).toFixed(0)+'</td></tr>'+
+				              '</table>'+
+				           '</div>'+
+				        '</div>'+
+				        '</div>';		    	
+				}
+
+				if(cancelledInvoicesSummaryTemplate != ''){
+					invoiceCancellationsSummary += cancelledInvoicesSummaryTemplate;
+				}
+
+
+
+				renderRefundSummary();
+			}
+
+			/* REFUNDS SUMMARY */
+			function renderRefundSummary(){
+
+				var refundSummaryContent = '';
+				for(var i = 0; i < invoiceRefundsData.length; i++){
+
+					var refundData = invoiceRefundsData[i].value;
+					
+					refundSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 12px">'+moment(refundData.refundDetails.timeRefund, 'hhmm').format('hh:mm A')+'</tag>'+
+												'<tag style="color: #5a5757; font-size: 10px; display: block">'+refundData.date+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">Bill #'+refundData.billNumber+'<tag style="display: block; font-size: 11px; color: #5a5757;">'+refundData.orderDetails.mode+'</tag></td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; font-size: 12px"><span class="price" style="font-weight: 300; font-size: 80%">Rs. </span>'+refundData.refundDetails.amount+'<tag style="font-weight: 300; font-size: 11px; color: #5a5757"> refunded</tag> <tag style="font-weight: 300; display: block; font-size: 11px; color: #5a5757">from <span class="price" style="font-weight: 300; font-size: 80%">Rs. </span><b>'+refundData.totalAmountPaid+'</b></tag></td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="color: #5a5757; font-size: 13px">'+refundData.refundDetails.reason+'</tag>'+
+												'<tag style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+refundData.refundDetails.comments+'</tag>'+
+											'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<tag style="font-size: 14px">by '+refundData.refundDetails.refundedBy+'</tag>'+
+												'<tag style="display: block; font-size: 11px; color: #5a5757;">'+(refundData.stewardName != '' ? refundData.stewardName : 'Unknown')+' taken order</tag>'+
+											'</td>'+
+										'</tr>';
+				}
+
+
+				if(refundSummaryContent != ''){
+					refundedInvoicesSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">REFUND SUMMARY</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 refundSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';					
+				}
+
+				renderDaywiseSummary();
+			}
+
+
+
+			/* DAY BY DAY SALES SUMMARY */
+			function renderDaywiseSummary(){
+
+				if(dayByDaySalesData.length < 1){ //Skip to next step
+					renderMonthToMonthSummary();
+					return '';
+				}
+			
+				var dayByDaySalesSummaryContent = '';
+				var dayByDaySalesSummaryHeader = '';
+				var dayByDaySalesSummaryOverflowContent = '';
+
+			    var individualColumnSum_Net = 0;
+			    var individualColumnSum_Gross = 0;
+			    var individualColumnSum_Count = 0;
+			    var individualColumnSum_Discounts = 0;
+			    var individualColumnSum_Extras = [];
+
+
+			    //initialise with 0's
+			    for(var e = 0; e < dayByDaySalesData[0].extras.length; e++){
+			    	individualColumnSum_Extras.push(0);
 			    }
 
-			    var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
 
-			    //Quick Summary Content
-			    var quickSummaryRendererContent = '';
+			    var number_of_days = 0;
+
+			    for(var i = 0; i < dayByDaySalesData.length; i++){ //while(detailedListByPaymentMode[t]){
+
+			    	var detailedExtrasContent = '';
+
+			    	for(var e = 0; e < dayByDaySalesData[i].extras.length; e++){
+			    	
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(dayByDaySalesData[i].extras[e].value).toFixed(2)+'</td>';
+			    
+			    		individualColumnSum_Extras[e] += dayByDaySalesData[i].extras[e].value; //hold sum of all CGST for Cash, Card, PayTM etc.
+
+				    	if(i == 0){
+				    		dayByDaySalesSummaryHeader += '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">'+dayByDaySalesData[i].extras[e].name+'</td>';
+				    	}
+			    	}
+
+			    	individualColumnSum_Net += dayByDaySalesData[i].netAmount - dayByDaySalesData[i].netRefund; //last column (gross)
+			    	individualColumnSum_Gross += dayByDaySalesData[i].grossSales; //first column (net)
+			    	individualColumnSum_Discounts += dayByDaySalesData[i].grossRefund + dayByDaySalesData[i].discount; //Discounts and refunds
+			    	individualColumnSum_Count += dayByDaySalesData[i].count; //first column (net)
+
+			    	if(i < 15){
+				    	dayByDaySalesSummaryContent	+= 	'<tr>'+
+											    			'<td class="tableQuickBrief" style="font-size: 13px">'+dayByDaySalesData[i].date+'<span style="color: #5a5757; display: block; font-size:12px">'+dayByDaySalesData[i].day+'</span></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+dayByDaySalesData[i].count+'</b></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossSales).toFixed(0)+'</td>'+
+											    			detailedExtrasContent +
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossRefund + dayByDaySalesData[i].discount).toFixed(0)+'</td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].netAmount - dayByDaySalesData[i].netRefund).toFixed(0)+'</td>'+
+											    		'</tr>';
+					}
+					else{
+						dayByDaySalesSummaryOverflowContent += 	'<tr>'+
+													    			'<td class="tableQuickBrief" style="font-size: 13px">'+dayByDaySalesData[i].date+'<span style="color: #5a5757; display: block; font-size:12px">'+dayByDaySalesData[i].day+'</span></td>'+
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+dayByDaySalesData[i].count+'</b></td>'+
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossSales).toFixed(0)+'</td>'+
+													    			detailedExtrasContent +
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossRefund + dayByDaySalesData[i].discount).toFixed(0)+'</td>'+
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].netAmount - dayByDaySalesData[i].netRefund).toFixed(0)+'</td>'+
+													    		'</tr>';
+					}
+
+
+					number_of_days++;
+			    }
+
+			    //form the footer
+				var detailedExtrasContentFooter = '';
+				
+				if(dayByDaySalesData.length != 0){
+
+			    	var detailed_footer_content = '';
+			    	
+			    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
+			    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
+			    	}
+
+				    detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid;">Total<span style="font-size: 11px; display: block; font-weight: 400">'+number_of_days+' Days</span></td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: center; font-size: 14px;">'+individualColumnSum_Count+'</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-top: 2px solid; text-align: right">'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td>'+ detailed_footer_content +'<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Discounts).toFixed(0)+'</td><td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td> </tr>';
+			    }
+
+
+
+			    //Time to render
+			    if(dayByDaySalesSummaryContent != ''){
+			    	dayByDaySalesSummaryHeader = '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Date</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Gross</td>' + dayByDaySalesSummaryHeader + '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Discounts/ Refunds</td><td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Net</td> </tr>';
+			    
+					dayByDaySalesSummaryTemplate = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">Day to Day Sales</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 dayByDaySalesSummaryHeader+
+					                 dayByDaySalesSummaryContent+
+					                 (dayByDaySalesSummaryOverflowContent == '' ? detailedExtrasContentFooter : '')+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+
+
+			    }
+
+			    if(dayByDaySalesSummaryOverflowContent != ''){
+			    
+					dayByDaySalesSummaryTemplate += '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>' +
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">Day to Day Sales</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 dayByDaySalesSummaryHeader+
+					                 dayByDaySalesSummaryOverflowContent+
+					                 detailedExtrasContentFooter+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+
+
+			    }
+
+
+			    renderMonthToMonthSummary();
+			}
+
+
+
+			/* MONTH BY MONTH SALES SUMMARY */
+			function renderMonthToMonthSummary(){
+
+				if(monthByMonthSalesData.length < 1){ //Skip to next step
+					renderQuickSummary();
+					return '';
+				}
+
+				var monthByMonthSalesSummaryContent = '';
+				var monthByMonthSummaryHeader = '';
+
+			    var individualColumnSum_Net = 0;
+			    var individualColumnSum_Gross = 0;
+			    var individualColumnSum_Count = 0;
+			    var individualColumnSum_Guests = 0;
+			    var individualColumnSum_Discounts = 0;
+			    var individualColumnSum_Extras = [];
+
+			    //initialise with 0's
+			    for(var e = 0; e < monthByMonthSalesData[0].extras.length; e++){
+			    	individualColumnSum_Extras.push(0);
+			    }
+
+
+			    var number_of_months = 0;
+
+			    for(var i = 0; i < monthByMonthSalesData.length; i++){ //while(detailedListByPaymentMode[t]){
+
+			    	var detailedExtrasContent = '';
+
+			    	for(var e = 0; e < monthByMonthSalesData[i].extras.length; e++){
+			    	
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(monthByMonthSalesData[i].extras[e].value).toFixed(2)+'</td>';
+			    
+			    		individualColumnSum_Extras[e] += monthByMonthSalesData[i].extras[e].value; //hold sum of all CGST for Cash, Card, PayTM etc.
+
+				    	if(i == 0){
+				    		monthByMonthSummaryHeader += '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">'+monthByMonthSalesData[i].extras[e].name+'</td>';
+				    	}
+			    	}
+
+			    	individualColumnSum_Net += monthByMonthSalesData[i].netAmount - monthByMonthSalesData[i].netRefund; //last column (gross)
+			    	individualColumnSum_Gross += monthByMonthSalesData[i].grossSales; //first column (net)
+			    	individualColumnSum_Discounts += monthByMonthSalesData[i].grossRefund + monthByMonthSalesData[i].discount; //Discounts and refunds
+			    	individualColumnSum_Count += monthByMonthSalesData[i].count; //first column (net)
+				    individualColumnSum_Guests += monthByMonthSalesData[i].guestCount; //number of guests
+
+				    monthByMonthSalesSummaryContent	+= 	'<tr>'+
+											    			'<td class="tableQuickBrief" style="font-size: 13px">'+monthByMonthSalesData[i].tag+'<span style="color: #5a5757; display: block; font-size:12px">'+monthByMonthSalesData[i].range+'</span></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+monthByMonthSalesData[i].count+'</b></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+monthByMonthSalesData[i].guestCount+'</b></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(monthByMonthSalesData[i].grossSales).toFixed(0)+'</td>'+
+											    			detailedExtrasContent +
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(monthByMonthSalesData[i].grossRefund + monthByMonthSalesData[i].discount).toFixed(0)+'</td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(monthByMonthSalesData[i].netAmount - monthByMonthSalesData[i].netRefund).toFixed(0)+'</td>'+
+											    		'</tr>';
+
+					number_of_months++;
+			    }
+
+			    //form the footer
+				var detailedExtrasContentFooter = '';
+				
+				if(dayByDaySalesData.length != 0){
+
+			    	var detailed_footer_content = '';
+			    	
+			    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
+			    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
+			    	}
+
+				    detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid;">Total<span style="font-size: 11px; display: block; font-weight: 400">'+number_of_months+' Months</span></td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: center; font-size: 14px;">'+individualColumnSum_Count+'</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: center; font-size: 14px;">'+individualColumnSum_Guests+'</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-top: 2px solid; text-align: right">'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td>'+ detailed_footer_content +'<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Discounts).toFixed(0)+'</td><td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td> </tr>';
+			    }
+
+
+
+			    //Time to render
+			    if(monthByMonthSalesSummaryContent != ''){
+			    	monthByMonthSummaryHeader = '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Date</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Guests</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Gross</td>' + monthByMonthSummaryHeader + '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Discounts/ Refunds</td><td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Net</td> </tr>';
+			    
+					monthByMonthSalesSummaryTemplate = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">Month to Month Sales</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 monthByMonthSummaryHeader+
+					                 monthByMonthSalesSummaryContent+
+					                 detailedExtrasContentFooter+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+
+
+			    }
+
+			    renderQuickSummary();
+			}
+
+
+			/* QUICK SUMMARY */
+			function renderQuickSummary(){
+			    var effective_gross = netCartSum - completeReportInfo[1].value - completeReportInfo[5].value;
+				quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[1].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[1].type == 'NEGATIVE' && completeReportInfo[1].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[1].value).toFixed(2)+'</td></tr>';
+				quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[5].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[5].type == 'NEGATIVE' && completeReportInfo[5].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[5].value).toFixed(2)+'</td></tr>';
+				quickSummaryRendererContent += '<tr><td class="tableQuickBrief"><b>Effective Gross</b></td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(effective_gross).toFixed(2)+'</td></tr>';
 
 			    var a = 0;
 			    while(reportInfoExtras[a]){
@@ -8559,16 +12021,21 @@ function fetchSingleClickReportAfterApproval(){
 			      a++;
 			    }
 
+			    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[2].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[2].type == 'NEGATIVE' && completeReportInfo[2].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[2].value).toFixed(2)+'</td></tr>';
+			    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[3].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[3].type == 'NEGATIVE' && completeReportInfo[3].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[3].value).toFixed(2)+'</td></tr>';
+			    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[4].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[4].type == 'NEGATIVE' && completeReportInfo[4].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[4].value).toFixed(2)+'</td></tr>';
+			
+			    renderBillingModes();
+			}
 
-			    var b = 1; //first one contains total paid
-			    while(completeReportInfo[b]){
-			      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[b].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[b].type == 'NEGATIVE' && completeReportInfo[b].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[b].value).toFixed(2)+'</td></tr>';
-			      b++;
-			    }
 
 
-			    //Sales by Billing Modes Content
-			    var salesByBillingModeRenderContent = '';
+
+			/* BY BILLING MODES */
+			function renderBillingModes(){
+
+				var salesByBillingModeRenderContent = '';
+
 			    var c = 0;
 			    var billSharePercentage = 0;
 			    var individualNetBillingMode = 0;
@@ -8579,14 +12046,37 @@ function fetchSingleClickReportAfterApproval(){
 			      c++;
 			    }
 
+
 				//To display bills graph or not
 				var hasBillsGraphAttached = false;
 				if(window.localStorage.graphImageDataBills && window.localStorage.graphImageDataBills != '' && window.localStorage.graphImageDataBills != 'data:,'){
 					hasBillsGraphAttached = true;
 				}
 
-			    var salesByBillingModeRenderContentFinal = '';
 			    if(salesByBillingModeRenderContent != ''){
+
+			    	if(hasBillsGraphAttached){
+					      salesByBillingModeRenderContentFinal = ''+
+					        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           	'<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
+					           	'</div>'+
+					           	'<div class="tableGraphRow">'+
+							        '<div class="tableGraph_Graph"> <img src="'+window.localStorage.graphImageDataBills+'" width="200px"> </div>'+
+							        '<div class="tableGraph_Table">'+	
+						              '<table style="width: 100%">'+
+						                 '<col style="width: 70%">'+
+						                 '<col style="width: 30%">'+
+						                 salesByBillingModeRenderContent+
+						                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+	
+					        '</div>'+
+					        '</div>';
+					}
+					else{
 					      salesByBillingModeRenderContentFinal = ''+
 					        '<div class="summaryTableSectionHolder">'+
 					        '<div class="summaryTableSection">'+
@@ -8602,12 +12092,144 @@ function fetchSingleClickReportAfterApproval(){
 					              '</table>'+
 					           '</div>'+
 					        '</div>'+
-					        '</div>';
+					        '</div>';				
+					}
 			    }
 
 
-			    //Sales by Payment Types Content
-			    var salesByPaymentTypeRenderContent = '';
+			    renderReducedBillingModes();
+			}
+
+
+
+
+		    /* SUMMARY BY BILLING MODES */
+		    function renderReducedBillingModes(){
+
+				var originalBillingModesList = detailedListByBillingMode;
+				var extrasKeysMasterHashMap = [];
+				var extrasKeysMasterList = [];
+				var reducedBillingModesGrandTotal = 0;
+
+				var reducedBillingModesList = originalBillingModesList.reduce(function (accumulator, item) {
+						if(accumulator[item.type]){
+							accumulator[item.type].detailedExtras = accumulator[item.type].detailedExtras.concat(item.detailedExtras);
+							accumulator[item.type].value += item.value;
+							accumulator[item.type].count += item.count;
+						}
+						else{
+							accumulator[item.type] = item;
+						}
+
+					  	return accumulator;
+				}, {});
+
+				for(var key in reducedBillingModesList){
+					var originalExtras = reducedBillingModesList[key].detailedExtras;
+					var reducedExtras = originalExtras.reduce(function (accumulator, item) {
+						if(accumulator[item.name]){
+							accumulator[item.name].amount += item.amount;
+						}
+						else{
+							accumulator[item.name] = item;
+
+							if(!extrasKeysMasterHashMap[item.name]){
+								extrasKeysMasterHashMap[item.name] = item.name;
+							}
+						}
+
+					  	return accumulator;
+					}, {});
+
+
+					reducedBillingModesGrandTotal += reducedBillingModesList[key].value;
+					reducedBillingModesList[key].detailedExtras = reducedExtras;
+				}
+
+				for(var key in extrasKeysMasterHashMap){
+					extrasKeysMasterList.push(extrasKeysMasterHashMap[key]);
+				}
+
+
+				//Time to render
+				var reducedBillingModesContentHeader = '';
+				var reducedBillingModesContent = '';
+
+				var isFirstIteration = true;
+				var reducedBillSharePercentage = 0;
+			    for(var key in reducedBillingModesList){
+
+			    	var detailedExtrasContent = '';
+
+			    	for(var e = 0; e < extrasKeysMasterList.length; e++){
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(reducedBillingModesList[key].detailedExtras[extrasKeysMasterList[e]].amount).toFixed(2)+'</td>';
+				    	
+				    	if(isFirstIteration){
+				    		reducedBillingModesContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: right; font-size: 14px;">'+extrasKeysMasterList[e]+'</td>';
+				    	}
+			    	}
+
+			    	isFirstIteration = false;
+
+			    	reducedBillSharePercentage = parseFloat((100*reducedBillingModesList[key].value)/reducedBillingModesGrandTotal).toFixed(0);
+			    	reducedBillingModesContent += '' +
+										    	'<tr>'+
+										   			'<td class="tableQuickBrief">'+getFancyNameForBillingType(reducedBillingModesList[key].type) + (reducedBillSharePercentage > 0 ? ' <span style="color: #5a5757">('+reducedBillSharePercentage+'%)</span>' : '')+'</td>'+
+										   			'<td class="tableQuickAmount" style="text-align: left; font-size: 14px; color: #5a5757">'+reducedBillingModesList[key].count+'</td>'+
+										   			detailedExtrasContent +
+										   			'<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(reducedBillingModesList[key].value).toFixed(0)+'</td>'+
+										   			'<td class="tableQuickAmount" style="text-align: center; font-size: 14px; color: #5a5757">'+(reducedBillingModesList[key].count > 0 ? parseFloat(reducedBillingModesList[key].value/reducedBillingModesList[key].count).toFixed(0) : '-' )+'</td>'+
+										   		'</tr>';
+
+			    }
+
+			    function getFancyNameForBillingType(type){
+			    	if(type == 'DELIVERY'){
+			    		return 'Home Delivery';
+			    	}
+			    	else if(type == 'PARCEL'){
+			    		return 'Takeaway';
+			    	}
+			    	else if(type == 'TOKEN'){
+			    		return 'Token Based';
+			    	}
+			    	else if(type == 'DINE'){
+			    		return 'Dine In';
+			    	}
+			    }
+
+				reducedBillingModesContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: left; font-size: 14px;">Main Type</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: left; font-size: 14px;">Bills</td>' + reducedBillingModesContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: right; font-size: 14px;">Net</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: center; font-size: 14px;">Avg.</td> </tr>';
+				reducedBillingModesContent = reducedBillingModesContentHeader + reducedBillingModesContent;
+			    
+			    if(reducedBillingModesContent != ''){
+
+			    	reducedBillingModesContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 reducedBillingModesContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+			    }
+
+			    renderPaymentModes();
+
+			}
+
+
+		    /* BY PAYMENT MODES */
+		    function renderPaymentModes(){
+
+		    	var salesByPaymentTypeRenderContent = '';
+
 			    var d = 0;
 			    var paymentSharePercentage = 0;
 			    var individualNetPaymentMode = 0;
@@ -8618,8 +12240,100 @@ function fetchSingleClickReportAfterApproval(){
 			      d++;
 			    }
 
-			    var salesByPaymentTypeRenderContentFinal = '';
+			    //Detailed Payment (Extras and Custom Extras for each payment mode)
+			    var detailedByExtrasForPaymentRenderContent = '';
+			    var detailedExtrasContentHeader = '';
+
+			    var individualColumnSum_Extras = [];
+			    //initialise with 0's
+			    for(var e = 0; e < detailedListByPaymentMode[0].detailedExtras.length; e++){
+			    	individualColumnSum_Extras.push(0);
+			    }
+
+
+			    var individualColumnSum_Net = 0;
+			    var individualColumnSum_Gross = 0;
+
+			    var t = 0;
+			    while(detailedListByPaymentMode[t]){
+
+			    	var detailedExtrasContent = '';
+			    	var netAmount = detailedListByPaymentMode[t].value;
+
+			    	for(var e = 0; e < detailedListByPaymentMode[t].detailedExtras.length; e++){
+			    	
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(detailedListByPaymentMode[t].detailedExtras[e].amount).toFixed(2)+'</td>';
+			    	
+			    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
+
+			    		individualColumnSum_Extras[e] += detailedListByPaymentMode[t].detailedExtras[e].amount; //hold sum of all CGST for Cash, Card, PayTM etc.
+
+				    	if(t == 0){
+				    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: right; font-size: 14px;">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
+				    	}
+			    	}
+
+			    	individualColumnSum_Gross += detailedListByPaymentMode[t].value; //last column (gross)
+			    	individualColumnSum_Net += netAmount; //first column (net)
+
+			    	detailedByExtrasForPaymentRenderContent += '' +
+										    		'<tr>'+
+										    			'<td class="tableQuickBrief">'+detailedListByPaymentMode[t].name+'</td>'+
+										    			'<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(netAmount).toFixed(0)+'</td>'+
+										    			detailedExtrasContent +
+										    			'<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
+										    		'</tr>';
+
+
+			    	t++;
+			    }
+
+			    if(detailedListByPaymentMode.length != 0){
+
+			    	var detailed_footer_content = '';
+			    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
+			    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
+			    	}
+
+				    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: left; font-size: 14px;">Payment Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: center; text-align: right; font-size: 14px;">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: right; font-size: 14px;">Net</td> </tr>';
+				    var detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid;">Total</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td>' + detailed_footer_content + '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td> </tr>';
+				    
+				    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent + detailedExtrasContentFooter;
+			    }
+
+
+
+				//To display payment graph or not
+				var hasPaymentsGraphAttached = false;
+				if(window.localStorage.graphImageDataPayments && window.localStorage.graphImageDataPayments != '' && window.localStorage.graphImageDataPayments != 'data:,'){
+					hasPaymentsGraphAttached = true;
+				}
+
+			    
 			    if(salesByPaymentTypeRenderContent != ''){
+
+			    	if(hasPaymentsGraphAttached){
+				      salesByPaymentTypeRenderContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           	'<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
+				           	'</div>'+
+				           	'<div class="tableGraphRow">'+
+						        '<div class="tableGraph_Graph"> <img src="'+window.localStorage.graphImageDataPayments+'" width="200px"> </div>'+
+						        '<div class="tableGraph_Table">'+	
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 salesByPaymentTypeRenderContent+
+					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetPaymentMode).toFixed(0)+'</b></td></tr>'+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>'+
+				        '</div>';
+				    }
+				    else{
 				    	salesByPaymentTypeRenderContentFinal = ''+
 				        '<div class="summaryTableSectionHolder">'+
 				        '<div class="summaryTableSection">'+
@@ -8636,13 +12350,1357 @@ function fetchSingleClickReportAfterApproval(){
 				           '</div>'+
 				        '</div>'+
 				        '</div>';
+				    }
 			    }
 
+
+			    var detailedByExtrasForPaymentRenderContentFinal = '';
+			    if(detailedByExtrasForPaymentRenderContent != ''){
+
+			    	detailedByExtrasForPaymentRenderContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 detailedByExtrasForPaymentRenderContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+
+				    salesByPaymentTypeRenderContentFinal += detailedByExtrasForPaymentRenderContentFinal;
+			    }
+
+
+			    finalRender();
+			}
+
+
+		    
+			
+
+			function finalRender(){
+
+			    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+			    
+			    var cssData = '';
+
+			    var defaultReportTheme = window.localStorage.report_default_theme && window.localStorage.report_default_theme != '' ? window.localStorage.report_default_theme : 'RED';
+
+			    switch(defaultReportTheme){
+			    	case "RED":{
+				    	cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background: linear-gradient(to right, #c63931, #9c2e2a);width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.highlightedQuickBrief{background:#f3eced;font-size:120%!important;font-weight:700!important;color:#a0201b!important;border-bottom:2px solid #b03c3e!important}.yellowStar{background-repeat:no-repeat;background-image:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/PjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDUxMS45OTkgNTExLjk5OSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTExLjk5OSA1MTEuOTk5OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBhdGggc3R5bGU9ImZpbGw6I0ZGREM2NDsiIGQ9Ik00NTIuNzEsMTU3LjkzN2wtMTMzLjc0MS0xMi40MDRMMjY1Ljg0MywyMi4xN2MtMy43Mi04LjYzOC0xNS45NjctOC42MzgtMTkuNjg2LDBsLTUzLjEyNiwxMjMuMzYyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJMMjU2LDMzOS4zMzFsMTE1LjQ5LDY4LjU3NmM4LjA4Nyw0LjgwMiwxNy45OTQtMi4zOTcsMTUuOTI3LTExLjU3MmwtMjkuNTMyLTEzMS4wMjlsMTAwLjkwOS04OC42NDZDNDY1Ljg1OSwxNzAuNDUzLDQ2Mi4wNzQsMTU4LjgwNSw0NTIuNzEsMTU3LjkzN3oiLz48Zz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExOS4yNzgsMTcuOTIzYzYuODE4LDkuNDcsMjYuMDYyLDUwLjE0LDM3LjA2NCw3My44NDJjMS43MywzLjcyNi0yLjk0NSw3LjA5Mi01LjkzLDQuMjY5QzEzMS40MjUsNzguMDgyLDk4Ljk2LDQ2LjkzLDkyLjE0MiwzNy40NTljLTUuMzk1LTcuNDkzLTMuNjk0LTE3Ljk0MSwzLjgtMjMuMzM2QzEwMy40MzUsOC43MjgsMTEzLjg4MywxMC40MywxMTkuMjc4LDE3LjkyM3oiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTM5Mi43MjIsMTcuOTIzYy02LjgxOCw5LjQ3LTI2LjA2Miw1MC4xNC0zNy4wNjQsNzMuODQyYy0xLjczLDMuNzI2LDIuOTQ1LDcuMDkyLDUuOTMsNC4yNjljMTguOTg3LTE3Ljk1Miw1MS40NTEtNDkuMTA1LDU4LjI3LTU4LjU3NWM1LjM5NS03LjQ5MywzLjY5NC0xNy45NDEtMy44LTIzLjMzNkM0MDguNTY1LDguNzI4LDM5OC4xMTcsMTAuNDMsMzkyLjcyMiwxNy45MjN6Ii8+PHBhdGggc3R5bGU9ImZpbGw6I0ZGRjA4MjsiIGQ9Ik01MDAuNDYxLDI5NS42MjljLTExLjA5NC0zLjYxOC01NS42ODktOS41OTUtODEuNjEyLTEyLjg3NWMtNC4wNzUtMC41MTYtNS44NjEsNC45NjEtMi4yNjYsNi45NDdjMjIuODczLDEyLjYzNSw2Mi40MTYsMzQuMDk5LDczLjUxLDM3LjcxN2M4Ljc3OCwyLjg2MywxOC4yMTUtMS45MzIsMjEuMDc4LTEwLjcxMUM1MTQuMDM0LDMwNy45MjgsNTA5LjIzOSwyOTguNDkyLDUwMC40NjEsMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExLjUzOSwyOTUuNjI5YzExLjA5NC0zLjYxOCw1NS42ODktOS41OTUsODEuNjEyLTEyLjg3NWM0LjA3NS0wLjUxNiw1Ljg2MSw0Ljk2MSwyLjI2Niw2Ljk0N2MtMjIuODczLDEyLjYzNS02Mi40MTYsMzQuMDk5LTczLjUxLDM3LjcxN2MtOC43NzgsMi44NjMtMTguMjE1LTEuOTMyLTIxLjA3OC0xMC43MTFTMi43NjEsMjk4LjQ5MiwxMS41MzksMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTIzOS43OTQsNDg0LjMxYzAtMTEuNjY5LDguMTQ1LTU1LjkxOSwxMy4wNjUtODEuNTgyYzAuNzczLTQuMDM0LDYuNTM0LTQuMDM0LDcuMzA3LDBjNC45MiwyNS42NjMsMTMuMDY1LDY5LjkxMywxMy4wNjUsODEuNTgyYzAsOS4yMzMtNy40ODUsMTYuNzE4LTE2LjcxOCwxNi43MThDMjQ3LjI3OSw1MDEuMDI5LDIzOS43OTQsNDkzLjU0MywyMzkuNzk0LDQ4NC4zMXoiLz48L2c+PHBhdGggc3R5bGU9ImZpbGw6I0ZGQzg1MDsiIGQ9Ik0yODUuMTYxLDY3LjAzbC0xOS4zMTktNDQuODZjLTMuNzItOC42MzgtMTUuOTY3LTguNjM4LTE5LjY4NiwwTDE5My4wMywxNDUuNTMyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJsMTUuMzcxLTkuMTI3QzE4MS4wOCwyMzUuNjYsMjUxLjkyMiwxMTUuOTE4LDI4NS4xNjEsNjcuMDN6Ii8+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PC9zdmc+);)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+					   	break;
+			    	}
+			    	case "GREEN":{
+				    	cssData = '<head> <style type="text/css">body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background: linear-gradient(to right, #50b7a7, #11998e);) #0eb7a7;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #009688}.highlightedQuickBrief{background:#d9eceb;font-size:120%!important;font-weight:700!important;color:#066f65!important;border-bottom:2px solid #009688!important}.yellowStar{background-repeat:no-repeat;background-image:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/PjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDUxMS45OTkgNTExLjk5OSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTExLjk5OSA1MTEuOTk5OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBhdGggc3R5bGU9ImZpbGw6I0ZGREM2NDsiIGQ9Ik00NTIuNzEsMTU3LjkzN2wtMTMzLjc0MS0xMi40MDRMMjY1Ljg0MywyMi4xN2MtMy43Mi04LjYzOC0xNS45NjctOC42MzgtMTkuNjg2LDBsLTUzLjEyNiwxMjMuMzYyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJMMjU2LDMzOS4zMzFsMTE1LjQ5LDY4LjU3NmM4LjA4Nyw0LjgwMiwxNy45OTQtMi4zOTcsMTUuOTI3LTExLjU3MmwtMjkuNTMyLTEzMS4wMjlsMTAwLjkwOS04OC42NDZDNDY1Ljg1OSwxNzAuNDUzLDQ2Mi4wNzQsMTU4LjgwNSw0NTIuNzEsMTU3LjkzN3oiLz48Zz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExOS4yNzgsMTcuOTIzYzYuODE4LDkuNDcsMjYuMDYyLDUwLjE0LDM3LjA2NCw3My44NDJjMS43MywzLjcyNi0yLjk0NSw3LjA5Mi01LjkzLDQuMjY5QzEzMS40MjUsNzguMDgyLDk4Ljk2LDQ2LjkzLDkyLjE0MiwzNy40NTljLTUuMzk1LTcuNDkzLTMuNjk0LTE3Ljk0MSwzLjgtMjMuMzM2QzEwMy40MzUsOC43MjgsMTEzLjg4MywxMC40MywxMTkuMjc4LDE3LjkyM3oiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTM5Mi43MjIsMTcuOTIzYy02LjgxOCw5LjQ3LTI2LjA2Miw1MC4xNC0zNy4wNjQsNzMuODQyYy0xLjczLDMuNzI2LDIuOTQ1LDcuMDkyLDUuOTMsNC4yNjljMTguOTg3LTE3Ljk1Miw1MS40NTEtNDkuMTA1LDU4LjI3LTU4LjU3NWM1LjM5NS03LjQ5MywzLjY5NC0xNy45NDEtMy44LTIzLjMzNkM0MDguNTY1LDguNzI4LDM5OC4xMTcsMTAuNDMsMzkyLjcyMiwxNy45MjN6Ii8+PHBhdGggc3R5bGU9ImZpbGw6I0ZGRjA4MjsiIGQ9Ik01MDAuNDYxLDI5NS42MjljLTExLjA5NC0zLjYxOC01NS42ODktOS41OTUtODEuNjEyLTEyLjg3NWMtNC4wNzUtMC41MTYtNS44NjEsNC45NjEtMi4yNjYsNi45NDdjMjIuODczLDEyLjYzNSw2Mi40MTYsMzQuMDk5LDczLjUxLDM3LjcxN2M4Ljc3OCwyLjg2MywxOC4yMTUtMS45MzIsMjEuMDc4LTEwLjcxMUM1MTQuMDM0LDMwNy45MjgsNTA5LjIzOSwyOTguNDkyLDUwMC40NjEsMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExLjUzOSwyOTUuNjI5YzExLjA5NC0zLjYxOCw1NS42ODktOS41OTUsODEuNjEyLTEyLjg3NWM0LjA3NS0wLjUxNiw1Ljg2MSw0Ljk2MSwyLjI2Niw2Ljk0N2MtMjIuODczLDEyLjYzNS02Mi40MTYsMzQuMDk5LTczLjUxLDM3LjcxN2MtOC43NzgsMi44NjMtMTguMjE1LTEuOTMyLTIxLjA3OC0xMC43MTFTMi43NjEsMjk4LjQ5MiwxMS41MzksMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTIzOS43OTQsNDg0LjMxYzAtMTEuNjY5LDguMTQ1LTU1LjkxOSwxMy4wNjUtODEuNTgyYzAuNzczLTQuMDM0LDYuNTM0LTQuMDM0LDcuMzA3LDBjNC45MiwyNS42NjMsMTMuMDY1LDY5LjkxMywxMy4wNjUsODEuNTgyYzAsOS4yMzMtNy40ODUsMTYuNzE4LTE2LjcxOCwxNi43MThDMjQ3LjI3OSw1MDEuMDI5LDIzOS43OTQsNDkzLjU0MywyMzkuNzk0LDQ4NC4zMXoiLz48L2c+PHBhdGggc3R5bGU9ImZpbGw6I0ZGQzg1MDsiIGQ9Ik0yODUuMTYxLDY3LjAzbC0xOS4zMTktNDQuODZjLTMuNzItOC42MzgtMTUuOTY3LTguNjM4LTE5LjY4NiwwTDE5My4wMywxNDUuNTMyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJsMTUuMzcxLTkuMTI3QzE4MS4wOCwyMzUuNjYsMjUxLjkyMiwxMTUuOTE4LDI4NS4xNjEsNjcuMDN6Ii8+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PC9zdmc+);)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#bbe4e1}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#0eb7a7;display:inline-block;background:#fff}.headerAdmin{margin:0 0 3px;font-size:16px;color:#fff}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#bbe4e1}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right:5px;width:18%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #009688;border-radius:5px;color:#fff;height:65px;background:#0eb7a7}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#bbe4e1;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #dcf3f1}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#0eb7a7;border-bottom:3px solid #009688;border-top-right-radius:15px;color:#fff}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:700}.tableQuickBrief{padding:10px;font-size:16px;color:#01796e}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#01796e}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+				    	break;
+			    	}
+			    	case "BLUE":{
+				    	cssData = '<head> <style type="text/css">body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background: linear-gradient(to right, #4593d2, #266598);width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #2d6fa5}.highlightedQuickBrief{background:#f4faff;font-size:120%!important;font-weight:700!important;color:#1f558c!important;border-bottom:2px solid #2d6fa5!important}.yellowStar{background-repeat:no-repeat;background-image:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/PjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDUxMS45OTkgNTExLjk5OSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTExLjk5OSA1MTEuOTk5OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBhdGggc3R5bGU9ImZpbGw6I0ZGREM2NDsiIGQ9Ik00NTIuNzEsMTU3LjkzN2wtMTMzLjc0MS0xMi40MDRMMjY1Ljg0MywyMi4xN2MtMy43Mi04LjYzOC0xNS45NjctOC42MzgtMTkuNjg2LDBsLTUzLjEyNiwxMjMuMzYyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJMMjU2LDMzOS4zMzFsMTE1LjQ5LDY4LjU3NmM4LjA4Nyw0LjgwMiwxNy45OTQtMi4zOTcsMTUuOTI3LTExLjU3MmwtMjkuNTMyLTEzMS4wMjlsMTAwLjkwOS04OC42NDZDNDY1Ljg1OSwxNzAuNDUzLDQ2Mi4wNzQsMTU4LjgwNSw0NTIuNzEsMTU3LjkzN3oiLz48Zz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExOS4yNzgsMTcuOTIzYzYuODE4LDkuNDcsMjYuMDYyLDUwLjE0LDM3LjA2NCw3My44NDJjMS43MywzLjcyNi0yLjk0NSw3LjA5Mi01LjkzLDQuMjY5QzEzMS40MjUsNzguMDgyLDk4Ljk2LDQ2LjkzLDkyLjE0MiwzNy40NTljLTUuMzk1LTcuNDkzLTMuNjk0LTE3Ljk0MSwzLjgtMjMuMzM2QzEwMy40MzUsOC43MjgsMTEzLjg4MywxMC40MywxMTkuMjc4LDE3LjkyM3oiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTM5Mi43MjIsMTcuOTIzYy02LjgxOCw5LjQ3LTI2LjA2Miw1MC4xNC0zNy4wNjQsNzMuODQyYy0xLjczLDMuNzI2LDIuOTQ1LDcuMDkyLDUuOTMsNC4yNjljMTguOTg3LTE3Ljk1Miw1MS40NTEtNDkuMTA1LDU4LjI3LTU4LjU3NWM1LjM5NS03LjQ5MywzLjY5NC0xNy45NDEtMy44LTIzLjMzNkM0MDguNTY1LDguNzI4LDM5OC4xMTcsMTAuNDMsMzkyLjcyMiwxNy45MjN6Ii8+PHBhdGggc3R5bGU9ImZpbGw6I0ZGRjA4MjsiIGQ9Ik01MDAuNDYxLDI5NS42MjljLTExLjA5NC0zLjYxOC01NS42ODktOS41OTUtODEuNjEyLTEyLjg3NWMtNC4wNzUtMC41MTYtNS44NjEsNC45NjEtMi4yNjYsNi45NDdjMjIuODczLDEyLjYzNSw2Mi40MTYsMzQuMDk5LDczLjUxLDM3LjcxN2M4Ljc3OCwyLjg2MywxOC4yMTUtMS45MzIsMjEuMDc4LTEwLjcxMUM1MTQuMDM0LDMwNy45MjgsNTA5LjIzOSwyOTguNDkyLDUwMC40NjEsMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExLjUzOSwyOTUuNjI5YzExLjA5NC0zLjYxOCw1NS42ODktOS41OTUsODEuNjEyLTEyLjg3NWM0LjA3NS0wLjUxNiw1Ljg2MSw0Ljk2MSwyLjI2Niw2Ljk0N2MtMjIuODczLDEyLjYzNS02Mi40MTYsMzQuMDk5LTczLjUxLDM3LjcxN2MtOC43NzgsMi44NjMtMTguMjE1LTEuOTMyLTIxLjA3OC0xMC43MTFTMi43NjEsMjk4LjQ5MiwxMS41MzksMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTIzOS43OTQsNDg0LjMxYzAtMTEuNjY5LDguMTQ1LTU1LjkxOSwxMy4wNjUtODEuNTgyYzAuNzczLTQuMDM0LDYuNTM0LTQuMDM0LDcuMzA3LDBjNC45MiwyNS42NjMsMTMuMDY1LDY5LjkxMywxMy4wNjUsODEuNTgyYzAsOS4yMzMtNy40ODUsMTYuNzE4LTE2LjcxOCwxNi43MThDMjQ3LjI3OSw1MDEuMDI5LDIzOS43OTQsNDkzLjU0MywyMzkuNzk0LDQ4NC4zMXoiLz48L2c+PHBhdGggc3R5bGU9ImZpbGw6I0ZGQzg1MDsiIGQ9Ik0yODUuMTYxLDY3LjAzbC0xOS4zMTktNDQuODZjLTMuNzItOC42MzgtMTUuOTY3LTguNjM4LTE5LjY4NiwwTDE5My4wMywxNDUuNTMyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJsMTUuMzcxLTkuMTI3QzE4MS4wOCwyMzUuNjYsMjUxLjkyMiwxMTUuOTE4LDI4NS4xNjEsNjcuMDN6Ii8+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PC9zdmc+);)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#b8e4f5}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#4593d2;display:inline-block;background:#fff}.headerAdmin{margin:0 0 3px;font-size:16px;color:#fff}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#b8e4f5}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#e91e63}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right:5px;width:18%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #2d6fa5;border-radius:5px;color:#fff;height:65px;background:#4593d2}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#b8e4f5;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #dceef7}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#4593d2;border-bottom:3px solid #2d6fa5;border-top-right-radius:15px;color:#fff}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:700}.tableQuickBrief{padding:10px;font-size:16px;color:#2e618a}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#2e618a}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+				    	break;
+			    	}
+			    	case "DARK":{
+				    	cssData = '<head> <style type="text/css">body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:#444;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #000}.highlightedQuickBrief{background:#dadada;font-size:120%!important;font-weight:700!important;color:#000!important;border-bottom:2px solid #000!important}.yellowStar{background-repeat:no-repeat;background-image:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/PjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDUxMS45OTkgNTExLjk5OSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTExLjk5OSA1MTEuOTk5OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBhdGggc3R5bGU9ImZpbGw6I0ZGREM2NDsiIGQ9Ik00NTIuNzEsMTU3LjkzN2wtMTMzLjc0MS0xMi40MDRMMjY1Ljg0MywyMi4xN2MtMy43Mi04LjYzOC0xNS45NjctOC42MzgtMTkuNjg2LDBsLTUzLjEyNiwxMjMuMzYyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJMMjU2LDMzOS4zMzFsMTE1LjQ5LDY4LjU3NmM4LjA4Nyw0LjgwMiwxNy45OTQtMi4zOTcsMTUuOTI3LTExLjU3MmwtMjkuNTMyLTEzMS4wMjlsMTAwLjkwOS04OC42NDZDNDY1Ljg1OSwxNzAuNDUzLDQ2Mi4wNzQsMTU4LjgwNSw0NTIuNzEsMTU3LjkzN3oiLz48Zz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExOS4yNzgsMTcuOTIzYzYuODE4LDkuNDcsMjYuMDYyLDUwLjE0LDM3LjA2NCw3My44NDJjMS43MywzLjcyNi0yLjk0NSw3LjA5Mi01LjkzLDQuMjY5QzEzMS40MjUsNzguMDgyLDk4Ljk2LDQ2LjkzLDkyLjE0MiwzNy40NTljLTUuMzk1LTcuNDkzLTMuNjk0LTE3Ljk0MSwzLjgtMjMuMzM2QzEwMy40MzUsOC43MjgsMTEzLjg4MywxMC40MywxMTkuMjc4LDE3LjkyM3oiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTM5Mi43MjIsMTcuOTIzYy02LjgxOCw5LjQ3LTI2LjA2Miw1MC4xNC0zNy4wNjQsNzMuODQyYy0xLjczLDMuNzI2LDIuOTQ1LDcuMDkyLDUuOTMsNC4yNjljMTguOTg3LTE3Ljk1Miw1MS40NTEtNDkuMTA1LDU4LjI3LTU4LjU3NWM1LjM5NS03LjQ5MywzLjY5NC0xNy45NDEtMy44LTIzLjMzNkM0MDguNTY1LDguNzI4LDM5OC4xMTcsMTAuNDMsMzkyLjcyMiwxNy45MjN6Ii8+PHBhdGggc3R5bGU9ImZpbGw6I0ZGRjA4MjsiIGQ9Ik01MDAuNDYxLDI5NS42MjljLTExLjA5NC0zLjYxOC01NS42ODktOS41OTUtODEuNjEyLTEyLjg3NWMtNC4wNzUtMC41MTYtNS44NjEsNC45NjEtMi4yNjYsNi45NDdjMjIuODczLDEyLjYzNSw2Mi40MTYsMzQuMDk5LDczLjUxLDM3LjcxN2M4Ljc3OCwyLjg2MywxOC4yMTUtMS45MzIsMjEuMDc4LTEwLjcxMUM1MTQuMDM0LDMwNy45MjgsNTA5LjIzOSwyOTguNDkyLDUwMC40NjEsMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExLjUzOSwyOTUuNjI5YzExLjA5NC0zLjYxOCw1NS42ODktOS41OTUsODEuNjEyLTEyLjg3NWM0LjA3NS0wLjUxNiw1Ljg2MSw0Ljk2MSwyLjI2Niw2Ljk0N2MtMjIuODczLDEyLjYzNS02Mi40MTYsMzQuMDk5LTczLjUxLDM3LjcxN2MtOC43NzgsMi44NjMtMTguMjE1LTEuOTMyLTIxLjA3OC0xMC43MTFTMi43NjEsMjk4LjQ5MiwxMS41MzksMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTIzOS43OTQsNDg0LjMxYzAtMTEuNjY5LDguMTQ1LTU1LjkxOSwxMy4wNjUtODEuNTgyYzAuNzczLTQuMDM0LDYuNTM0LTQuMDM0LDcuMzA3LDBjNC45MiwyNS42NjMsMTMuMDY1LDY5LjkxMywxMy4wNjUsODEuNTgyYzAsOS4yMzMtNy40ODUsMTYuNzE4LTE2LjcxOCwxNi43MThDMjQ3LjI3OSw1MDEuMDI5LDIzOS43OTQsNDkzLjU0MywyMzkuNzk0LDQ4NC4zMXoiLz48L2c+PHBhdGggc3R5bGU9ImZpbGw6I0ZGQzg1MDsiIGQ9Ik0yODUuMTYxLDY3LjAzbC0xOS4zMTktNDQuODZjLTMuNzItOC42MzgtMTUuOTY3LTguNjM4LTE5LjY4NiwwTDE5My4wMywxNDUuNTMyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJsMTUuMzcxLTkuMTI3QzE4MS4wOCwyMzUuNjYsMjUxLjkyMiwxMTUuOTE4LDI4NS4xNjEsNjcuMDN6Ii8+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PC9zdmc+);)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#FFF;opacity:0.6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#444;display:inline-block;background:#fff}.headerAdmin{margin:0 0 3px;font-size:16px;color:#fff}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#FFF;opacity:0.6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#000}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right:5px;width:18%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #000;border-radius:5px;color:#fff;height:65px;background:#444}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#FFF;opacity:0.6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #cacaca}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#444;border-bottom:3px solid #000;border-top-right-radius:15px;color:#fff}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:700}.tableQuickBrief{padding:10px;font-size:16px;color:#000}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#000}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';			    
+				    	break;
+			    	}
+			    	default:{ //Red
+				    	cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background: linear-gradient(to right, #c63931, #9c2e2a);width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.highlightedQuickBrief{background:#f3eced;font-size:120%!important;font-weight:700!important;color:#a0201b!important;border-bottom:2px solid #b03c3e!important}.yellowStar{background-repeat:no-repeat;background-image:url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/PjxzdmcgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDUxMS45OTkgNTExLjk5OSIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTExLjk5OSA1MTEuOTk5OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+PHBhdGggc3R5bGU9ImZpbGw6I0ZGREM2NDsiIGQ9Ik00NTIuNzEsMTU3LjkzN2wtMTMzLjc0MS0xMi40MDRMMjY1Ljg0MywyMi4xN2MtMy43Mi04LjYzOC0xNS45NjctOC42MzgtMTkuNjg2LDBsLTUzLjEyNiwxMjMuMzYyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJMMjU2LDMzOS4zMzFsMTE1LjQ5LDY4LjU3NmM4LjA4Nyw0LjgwMiwxNy45OTQtMi4zOTcsMTUuOTI3LTExLjU3MmwtMjkuNTMyLTEzMS4wMjlsMTAwLjkwOS04OC42NDZDNDY1Ljg1OSwxNzAuNDUzLDQ2Mi4wNzQsMTU4LjgwNSw0NTIuNzEsMTU3LjkzN3oiLz48Zz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExOS4yNzgsMTcuOTIzYzYuODE4LDkuNDcsMjYuMDYyLDUwLjE0LDM3LjA2NCw3My44NDJjMS43MywzLjcyNi0yLjk0NSw3LjA5Mi01LjkzLDQuMjY5QzEzMS40MjUsNzguMDgyLDk4Ljk2LDQ2LjkzLDkyLjE0MiwzNy40NTljLTUuMzk1LTcuNDkzLTMuNjk0LTE3Ljk0MSwzLjgtMjMuMzM2QzEwMy40MzUsOC43MjgsMTEzLjg4MywxMC40MywxMTkuMjc4LDE3LjkyM3oiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTM5Mi43MjIsMTcuOTIzYy02LjgxOCw5LjQ3LTI2LjA2Miw1MC4xNC0zNy4wNjQsNzMuODQyYy0xLjczLDMuNzI2LDIuOTQ1LDcuMDkyLDUuOTMsNC4yNjljMTguOTg3LTE3Ljk1Miw1MS40NTEtNDkuMTA1LDU4LjI3LTU4LjU3NWM1LjM5NS03LjQ5MywzLjY5NC0xNy45NDEtMy44LTIzLjMzNkM0MDguNTY1LDguNzI4LDM5OC4xMTcsMTAuNDMsMzkyLjcyMiwxNy45MjN6Ii8+PHBhdGggc3R5bGU9ImZpbGw6I0ZGRjA4MjsiIGQ9Ik01MDAuNDYxLDI5NS42MjljLTExLjA5NC0zLjYxOC01NS42ODktOS41OTUtODEuNjEyLTEyLjg3NWMtNC4wNzUtMC41MTYtNS44NjEsNC45NjEtMi4yNjYsNi45NDdjMjIuODczLDEyLjYzNSw2Mi40MTYsMzQuMDk5LDczLjUxLDM3LjcxN2M4Ljc3OCwyLjg2MywxOC4yMTUtMS45MzIsMjEuMDc4LTEwLjcxMUM1MTQuMDM0LDMwNy45MjgsNTA5LjIzOSwyOTguNDkyLDUwMC40NjEsMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTExLjUzOSwyOTUuNjI5YzExLjA5NC0zLjYxOCw1NS42ODktOS41OTUsODEuNjEyLTEyLjg3NWM0LjA3NS0wLjUxNiw1Ljg2MSw0Ljk2MSwyLjI2Niw2Ljk0N2MtMjIuODczLDEyLjYzNS02Mi40MTYsMzQuMDk5LTczLjUxLDM3LjcxN2MtOC43NzgsMi44NjMtMTguMjE1LTEuOTMyLTIxLjA3OC0xMC43MTFTMi43NjEsMjk4LjQ5MiwxMS41MzksMjk1LjYyOXoiLz48cGF0aCBzdHlsZT0iZmlsbDojRkZGMDgyOyIgZD0iTTIzOS43OTQsNDg0LjMxYzAtMTEuNjY5LDguMTQ1LTU1LjkxOSwxMy4wNjUtODEuNTgyYzAuNzczLTQuMDM0LDYuNTM0LTQuMDM0LDcuMzA3LDBjNC45MiwyNS42NjMsMTMuMDY1LDY5LjkxMywxMy4wNjUsODEuNTgyYzAsOS4yMzMtNy40ODUsMTYuNzE4LTE2LjcxOCwxNi43MThDMjQ3LjI3OSw1MDEuMDI5LDIzOS43OTQsNDkzLjU0MywyMzkuNzk0LDQ4NC4zMXoiLz48L2c+PHBhdGggc3R5bGU9ImZpbGw6I0ZGQzg1MDsiIGQ9Ik0yODUuMTYxLDY3LjAzbC0xOS4zMTktNDQuODZjLTMuNzItOC42MzgtMTUuOTY3LTguNjM4LTE5LjY4NiwwTDE5My4wMywxNDUuNTMyTDU5LjI5LDE1Ny45MzdjLTkuMzY1LDAuODY4LTEzLjE0OSwxMi41MTYtNi4wODQsMTguNzIzbDEwMC45MDgsODguNjQ2bC0yOS41MzEsMTMxLjAyOWMtMi4wNjgsOS4xNzUsNy44NDEsMTYuMzczLDE1LjkyNywxMS41NzJsMTUuMzcxLTkuMTI3QzE4MS4wOCwyMzUuNjYsMjUxLjkyMiwxMTUuOTE4LDI4NS4xNjEsNjcuMDN6Ii8+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PGc+PC9nPjxnPjwvZz48Zz48L2c+PC9zdmc+);)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+					   	break;
+			    	}
+			    }
+
+			    var finalReport_downloadContent = cssData+
+				    '<body>'+
+				      '<div class="mainHeader">'+
+				         '<div class="headerLeftBox">'+
+				            '<div id="logo">'+
+				               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
+				            '</div>'+
+				            '<p class="headerAddress">'+reportInfo_address+'</p>'+
+				         '</div>'+
+				         '<div class="headerRightBox">'+
+				            '<h1 class="headerBranch">'+reportInfo_branch+'</h1>'+
+				            '<p class="headerAdmin">'+reportInfo_admin+'</p>'+
+				            '<p class="headerTimestamp">'+reportInfo_time+'</p>'+
+				         '</div>'+
+				      '</div>'+
+				      '<div class="introFacts">'+
+				         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
+				         '<div class="factsArea">'+
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Amount</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
+				         '</div>'+
+				      '</div>'+
+				      '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           '<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">Quick Summary</h1>'+
+				           '</div>'+
+				           '<div class="tableQuick">'+
+				              '<table style="width: 100%">'+
+				                 '<col style="width: 70%">'+
+				                 '<col style="width: 30%">'+
+				                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Gross Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
+				                 quickSummaryRendererContent+
+				                 '<tr><td class="tableQuickBrief highlightedQuickBrief">Net Amount</td><td class="tableQuickAmount highlightedQuickBrief"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
+				              '</table>'+
+				           '</div>'+
+				        '</div>'+
+				      '</div>'+
+				      (weeklyTrendRenderContent != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ weeklyTrendRenderContent : '')+
+				      (salesByBillingModeRenderContentFinal != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ salesByBillingModeRenderContentFinal : '')+
+					  (reducedBillingModesContentFinal != '' ? reducedBillingModesContentFinal : '')+
+				      (salesByPaymentTypeRenderContentFinal != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ salesByPaymentTypeRenderContentFinal : '')+
+				      (discountSummaryTemplate != '' || sessionSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ discountSummaryTemplate + sessionSummaryTemplate : '')+
+				      (hourlySalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ hourlySalesSummaryTemplate : '')+
+				      (dayByDaySalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ dayByDaySalesSummaryTemplate : '')+
+				      (monthByMonthSalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ monthByMonthSalesSummaryTemplate : '')+
+				      (topSellingTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ topSellingTemplate : '')+
+				   	  (categoryWiseSalesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ categoryWiseSalesSummaryTemplate : '')+
+				      (invoiceCancellationsSummary != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ invoiceCancellationsSummary : '')+
+				   	  (overallCancellationsReportTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ overallCancellationsReportTemplate : '')+			    
+				      (refundedInvoicesSummaryTemplate != '' ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+ refundedInvoicesSummaryTemplate : '')+
+				    '</body>';
+
+					var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
+					$('#reportActionButtonDownload').attr('data-hold', finalContent_EncodedDownload);
+
+					var finalContent_EncodedText = encodeURI(fancy_report_title_name);
+					$('#reportActionButtonDownload').attr('text-hold', finalContent_EncodedText);
+
+					generateReportContentEmail();
+			}
+		}
+
+		function generateReportContentEmail(){
+
+			runReportAnimation(98);
+
+			var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
+			
+			var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
+
+			var reportInfo_title = 'Sales Report of <b>'+fancy_from_date+'</b>';
+			var temp_report_title = 'Sales Report of '+fancy_from_date;
+			
+			if(fromDate != toDate){
+				fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
+				var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
+
+				reportInfo_title = 'Sales Report from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
+				temp_report_title = 'Sales Report from '+fancy_from_date+' to '+fancy_to_date;
+			}
+
+			var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
+
+
+			//Render Templates
+			var quickSummaryRendererContent = ''; //Quick Summary
+			var weeklyTrendRenderContent = ''; //Weekly Trend
+			var hourlySalesSummaryTemplate = ''; //Hourly Trend
+			var dayByDaySalesSummaryTemplate = ''; //Day by Day Summary
+			var monthByMonthSalesSummaryTemplate = ''; //Month by Month Summary
+			var sessionSummaryTemplate = ''; //Session Summary
+			var invoiceCancellationsSummary = ''; //Bill Cancellations
+			var reducedBillingModesContentFinal = ''; //Reduced Billing Modes (DINE, DELIVERY etc.)
+			var salesByBillingModeRenderContentFinal = ''; //By Billing Modes
+			var salesByPaymentTypeRenderContentFinal = ''; //By Payment Modes
+			var topSellingTemplate = ''; //Top Selling
+			var categoryWiseSalesSummaryTemplate = ''; //Category wise report
+			var discountSummaryTemplate = ''; //Discounts
+			var cancelledInvoicesSummaryTemplate = '';
+			var overallCancellationsReportTemplate = ''; //Cancelled Items/Orders/Invoices
+			var refundedInvoicesSummaryTemplate = ''; //Refunds
+
+
+			renderWeeklyTrend();
+
+			/* WEEKLY SALES COMPARISON */
+			function renderWeeklyTrend(){
+
+				if(fromDate != toDate){
+					renderHourlyTrend();
+					return ''; //Skip this
+				}
+
+				var hasWeeklyGraphAttached = false; //To display weekly graph or not
+				if(window.localStorage.graphImageDataWeekly && window.localStorage.graphImageDataWeekly != ''){
+					hasWeeklyGraphAttached = true;
+				}
+
+				var weeklyTrendSummaryTableContent = '';
+				for(var i = 0; i < overalSalesTrend.length; i++){
+					weeklyTrendSummaryTableContent += '<tr><td class="tableQuickBrief">'+overalSalesTrend[i].tag+'<span style="color: #5a5757; display: block; font-size:12px">'+overalSalesTrend[i].range+'</span></td><td class="tableQuickAmount"><span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-size: 12px; font-style: italic; margin-right: 15px">'+(overalSalesTrend[i].count > 0 ? 'from '+overalSalesTrend[i].count+' orders' : 'No orders')+'</span><span class="price">Rs.</span>'+overalSalesTrend[i].amount+'</td></tr>';
+				}
+
+				var weeklyTrendSummaryTableTemplate = '';
+
+				if(weeklyTrendSummaryTableContent != ''){
+					weeklyTrendSummaryTableTemplate = ''+
+					           '<div class="tableQuick" style="margin-top: 20px;">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					             	 weeklyTrendSummaryTableContent+
+					              '</table>'+
+					           '</div>';
+				}
+
+
+
+				var oneLineSummary = '';
+
+				if(overalSalesTrend[2].amount >= overalSalesTrend[3].amount && overalSalesTrend[3].amount > 0){
+					//percentage increase
+					var percentage_increase = parseFloat(((overalSalesTrend[2].amount - overalSalesTrend[3].amount) * 100)/overalSalesTrend[3].amount).toFixed(1);
+					if(percentage_increase < 5 && percentage_increase > 1){
+						//Slight increase in sales
+						oneLineSummary = 	'<table style="width: 100%; margin: 20px 0 0 0;"><tr><td style="background: #1eb194;"><img src="https://accelerateengine.app/clients/common/progress_up.png" style="width: 40px; display: inherit; margin-right: 5px; float: right;"></td><td style="background: #1eb194; color: #fff; font-weight: bold; font-size: 18px; padding: 5px;">Slight Increase in Sales by <span style="font-size: 26px">'+percentage_increase+'</span>% from previous Week</td></tr></table>';
+					}
+					else if(percentage_increase >= 5 && percentage_increase < 10){
+						//Noticeable increase
+						oneLineSummary = 	'<table style="width: 100%; margin: 20px 0 0 0;"><tr><td style="background: #1eb194;"><img src="https://accelerateengine.app/clients/common/progress_up.png" style="width: 40px; display: inherit; margin-right: 5px; float: right;"></td><td style="background: #1eb194; color: #fff; font-weight: bold; font-size: 18px; padding: 5px;">Noticeable Increase in Sales by <span style="font-size: 26px">'+percentage_increase+'</span>% from previous Week</td></tr></table>';
+					}
+					else if(percentage_increase >= 10 && percentage_increase < 20){
+						//Good Increase
+						oneLineSummary = 	'<table style="width: 100%; margin: 20px 0 0 0;"><tr><td style="background: #1eb194;"><img src="https://accelerateengine.app/clients/common/progress_up.png" style="width: 40px; display: inherit; margin-right: 5px; float: right;"></td><td style="background: #1eb194; color: #fff; font-weight: bold; font-size: 18px; padding: 5px;">Good Increase in Sales by <span style="font-size: 26px">'+percentage_increase+'</span>% from previous Week</td></tr></table>';
+					}
+					else if(percentage_increase >= 20){
+						//Fantastic increase
+						oneLineSummary = 	'<table style="width: 100%; margin: 20px 0 0 0;"><tr><td style="background: #1eb194;"><img src="https://accelerateengine.app/clients/common/progress_up.png" style="width: 40px; display: inherit; margin-right: 5px; float: right;"></td><td style="background: #1eb194; color: #fff; font-weight: bold; font-size: 18px; padding: 5px;">Fantastic Increase in Sales by <span style="font-size: 26px">'+percentage_increase+'</span>% from previous Week</td></tr></table>';
+					}
+				}
+				else if(overalSalesTrend[3].amount >= overalSalesTrend[2].amount && overalSalesTrend[2].amount > 0){
+					//percentage decrease
+					var percentage_decrease = parseFloat(((overalSalesTrend[3].amount - overalSalesTrend[2].amount) * 100)/overalSalesTrend[2].amount).toFixed(1);
+					if(percentage_decrease < 5 && percentage_decrease > 1){
+						//Slight decrease in sales
+						oneLineSummary = 	'<table style="width: 100%; margin: 20px 0 0 0;"><tr><td style="background: #d24a39;"><img src="https://accelerateengine.app/clients/common/progress_down.png" style="width: 40px; display: inherit; margin-right: 5px; float: right;"></td><td style="background: #d24a39; color: #fff; font-weight: bold; font-size: 18px; padding: 5px;">Slight Decrease in Sales by <span style="font-size: 26px">-'+percentage_decrease+'</span>% from previous Week</td></tr></table>';
+					}
+					else if(percentage_decrease >= 5 && percentage_decrease < 10){
+						//Noticeable decrease
+						oneLineSummary = 	'<table style="width: 100%; margin: 20px 0 0 0;"><tr><td style="background: #d24a39;"><img src="https://accelerateengine.app/clients/common/progress_down.png" style="width: 40px; display: inherit; margin-right: 5px; float: right;"></td><td style="background: #d24a39; color: #fff; font-weight: bold; font-size: 18px; padding: 5px;">Noticeable Decrease in Sales by <span style="font-size: 26px">-'+percentage_decrease+'</span>% from previous Week</td></tr></table>';
+					}
+					else if(percentage_decrease >= 10 && percentage_decrease < 20){
+						//Good decrease
+						oneLineSummary = 	'<table style="width: 100%; margin: 20px 0 0 0;"><tr><td style="background: #d24a39;"><img src="https://accelerateengine.app/clients/common/progress_down.png" style="width: 40px; display: inherit; margin-right: 5px; float: right;"></td><td style="background: #d24a39; color: #fff; font-weight: bold; font-size: 18px; padding: 5px;">Huge Decrease in Sales by <span style="font-size: 26px">-'+percentage_decrease+'</span>% from previous Week</td></tr></table>';
+					}
+					else if(percentage_decrease >= 20){
+						//Tremendous decrease
+						oneLineSummary = 	'<table style="width: 100%; margin: 20px 0 0 0;"><tr><td style="background: #d24a39;"><img src="https://accelerateengine.app/clients/common/progress_down.png" style="width: 40px; display: inherit; margin-right: 5px; float: right;"></td><td style="background: #d24a39; color: #fff; font-weight: bold; font-size: 18px; padding: 5px;">Extremly Huge Decrease in Sales by <span style="font-size: 26px">-'+percentage_decrease+'</span>% from previous Week</td></tr></table>';
+					}
+				}
+
+				if(oneLineSummary != ''){
+					weeklyTrendSummaryTableTemplate += oneLineSummary;
+				}
+
+
+			    var temp_image_name = reportInfo_branch+'_'+fromDate;
+			    temp_image_name = temp_image_name.replace(/\s/g,'');
+
+				weeklyTrendRenderContent = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				          '<div class="summaryTableSection">'+
+				             '<div class="tableQuickHeader">'+
+				                '<h1 class="tableQuickHeaderText">SALES TREND</h1>'+
+				             '</div>'+
+				             (hasWeeklyGraphAttached ? '<div class="weeklyGraph"><img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/report_trend_images_repo/'+temp_image_name+'.png" style="max-width: 90%"></div>' : '')+
+				             weeklyTrendSummaryTableTemplate+
+				          '</div>'+
+				        '</div>';
+
+				renderHourlyTrend();
+			}
+
+
+
+			/* HOURLY SALES TREND */
+			function renderHourlyTrend(){
+
+				var hasHourlyGraphAttached = false;
+
+				var hourlySalesSummaryContent = '';
+				var hourlySalesSummaryContent_firstHalf = '';
+				var hourlySalesSummaryContent_secondHalf = '';
+
+				for(var g = 0; g < hourlySalesData.length; g++){
+
+					var slot_name = hourlySalesData[g].hour_slot;
+					
+					if(slot_name == 0){
+						slot_name = 'Midnight to 1 am';
+					}
+					else if(slot_name == 11){
+						slot_name = '11 am to 12 Noon';
+					}
+					else if(slot_name < 12){
+						slot_name = slot_name + ' am to '+(slot_name+1)+' am';
+					}
+					else if(slot_name == 12){
+						slot_name = '12 Noon to 1 pm';
+					}
+					else if(slot_name == 23){
+						slot_name = '11 pm to Midnight';
+					}
+					else{
+						slot_name = (slot_name-12) + ' pm to ' +(slot_name-12+1)+' pm';
+					}
+
+
+					if(g < Math.ceil(hourlySalesData.length/2)){
+						hourlySalesSummaryContent_firstHalf +='<tr><td class="tableQuickBrief" style="font-size: 13px">'+slot_name+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+(hourlySalesData[g].number_of_guests > 0 ? hourlySalesData[g].number_of_guests : '-')+'</td><td class="tableQuickBrief" style="text-align: center; font-size:12px">'+hourlySalesData[g].count+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+hourlySalesData[g].amount+'</td></tr>';
+					}
+					else{
+						hourlySalesSummaryContent_secondHalf += '<tr><td class="tableQuickBrief" style="font-size: 13px">'+slot_name+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+(hourlySalesData[g].number_of_guests > 0 ? hourlySalesData[g].number_of_guests : '-')+'</td><td class="tableQuickBrief" style="text-align: center; font-size:12px">'+hourlySalesData[g].count+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+hourlySalesData[g].amount+'</td></tr>';
+					}
+				}
+
+				if(hourlySalesData.length > 0){
+					hourlySalesSummaryContent = ''+
+							'<div style="margin-top: 20px">'+
+								'<table style="width: 100%">'+
+									'<col width="50%">'+
+									'<col width="50%">'+
+									'<tr>'+
+										'<td style="vertical-align: top; border: none">'+
+										'<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 '<col style="width: 70%">'+
+							                 '<col style="width: 30%">'+
+							                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Time Slot</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Guests</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales</td>'+
+							                 hourlySalesSummaryContent_firstHalf+
+							              '</table>'+
+							           '</div>'+
+							           '</td>'+
+							           '<td style="vertical-align: top; border: none">'+
+							           '<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 '<col style="width: 70%">'+
+							                 '<col style="width: 30%">'+
+							                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Time Slot</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Guests</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales</td>'+
+							                 hourlySalesSummaryContent_secondHalf+
+							              '</table>'+
+							           '</div>'+
+							           '</td>'+
+						           '</tr>'+
+						        '</table>'+
+						    '</div>';
+
+					hourlySalesSummaryTemplate = ''+	
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">HOURLY SALES TREND</h1>'+
+						           '</div>'+
+						           hourlySalesSummaryContent+
+						        '</div>'+
+						    '</div>';	
+				}
+
+
+				renderSessionSummary();
+			}
+
+
+			/* SESSION SUMMARY */
+			function renderSessionSummary(){
+
+				var sessionSummaryContent = '';
+				for(var i = 0; i < sessionWiseSalesData.length; i++){
+					sessionSummaryContent += '<tr><td class="tableQuickBrief"><b>'+sessionWiseSalesData[i].session+'</b> Session'+(sessionWiseSalesData[i].range ? '<span style="color: #5a5757; display: block; font-size:12px">'+sessionWiseSalesData[i].range+'</span>' : '')+'</td> <td class="tableQuickBrief" style="color: #5a5757; font-style: italic">'+(sessionWiseSalesData[i].number_of_guests > 0 ? sessionWiseSalesData[i].number_of_guests + ' guests': '')+'</td> <td class="tableQuickBrief" style="color: #5a5757; font-style: italic">'+(sessionWiseSalesData[i].count > 0 ? sessionWiseSalesData[i].count + ' bills' : 'No bills')+'</td> <td class="tableQuickAmount"><span class="price">Rs.</span>'+sessionWiseSalesData[i].amount+'</td></tr>';
+				}
+
+				if(sessionSummaryContent != ''){
+					sessionSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">SESSION WISE SALES</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 sessionSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+				renderDiscounts();
+			}
+
+
+			/* DISCOUNTS */
+			function renderDiscounts(){
+
+				var discountSummaryContent = '';
+				var effective_sum = 0;
+				for(var i = 0; i < detailedDiscountsData.length; i++){
+					discountSummaryContent += '<tr><td class="tableQuickBrief">'+detailedDiscountsData[i].name+'<span style="color: #5a5757; font-size:12px; font-style: italic; margin-left: 10px">on '+detailedDiscountsData[i].count+' orders</span></td> <td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedDiscountsData[i].amount).toFixed(2)+'</td></tr>';
+					effective_sum += detailedDiscountsData[i].amount;
+				}
+
+				if(discountSummaryContent != ''){
+					discountSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">DISCOUNTS SUMMARY</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 discountSummaryContent+
+					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(effective_sum).toFixed(2)+'</b></td></tr>'+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+				renderTopSelling();				
+			}
+
+
+			/* TOP SELLING ITEMS */
+			function renderTopSelling(){
+
+				var topSellingContent = '';
+				for(var i = 0; i < detailedTopItemsData.length; i++){
+					topSellingContent +='<tr>'+
+											'<td style="width: 25px"><img src="https://accelerateengine.app/clients/common/golden_star.png" width="20px"></td>'+
+											'<td class="tableQuickBrief">'+detailedTopItemsData[i].name+(detailedTopItemsData[i].category != "MANUAL_UNKNOWN" && detailedTopItemsData[i].category != "UNKNOWN" ? '<span style="margin-left: 10px; color: #5a5757; font-size:12px; font-style: italic">'+detailedTopItemsData[i].category+'</span>' : '')+'</td> <td class="tableQuickAmount"><b>'+detailedTopItemsData[i].count+'</b></td>'+
+										'</tr>';
+				}
+
+				if(topSellingContent != ''){
+					topSellingTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">TOP SELLING ITEMS</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 topSellingContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+				renderCategoryWiseSales();
+
+			}
+
+
+
+			/* CATEGORY WISE ITEM SALES */
+			function renderCategoryWiseSales(){
+
+				detailedItemCategoryWiseData.sort(function(category1, category2) { //sort by sales
+					if (category1.totalSales > category2.totalSales)
+    					return -1;
+					if (category1.totalSales < category2.totalSales)
+    					return 1;
+  
+  					return 0;
+			    });
+
+				var categoryWiseSalesSummaryContent = '';
+
+				var halfCount = 0;
+				var leftHalfContent = '';
+				var rightHalfContent = '';
+
+				var maxRows = Math.ceil(detailedItemCategoryWiseData.length/2); 
+				if(maxRows > 25){ //Max is 25
+					maxRows = 25;
+				}
+
+
+				var isFirstIteration = true;
+				var categoryIndividualSharePercentage = 0;
+
+				for(var g = 0; g < detailedItemCategoryWiseData.length; g++){
+
+					halfCount++;
+
+					categoryIndividualSharePercentage = parseFloat((100*detailedItemCategoryWiseData[g].totalSales)/netCartSum).toFixed(0); 
+
+					if(halfCount <= maxRows){
+						leftHalfContent +='<tr><td class="tableQuickBrief" style="font-size: 13px">'+detailedItemCategoryWiseData[g].category+(categoryIndividualSharePercentage > 0 ? '<span style="color: #5a5757; font-size: 80%"> ('+categoryIndividualSharePercentage+'%)</span>' : '')+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+detailedItemCategoryWiseData[g].totalCount+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+detailedItemCategoryWiseData[g].totalSales+'</td></tr>';
+					}
+					else if(halfCount >= maxRows+1 && halfCount <= 2*maxRows){
+						rightHalfContent +='<tr><td class="tableQuickBrief" style="font-size: 13px">'+detailedItemCategoryWiseData[g].category+(categoryIndividualSharePercentage > 0 ? '<span style="color: #5a5757; font-size: 80%"> ('+categoryIndividualSharePercentage+'%)</span>' : '')+'</td><td class="tableQuickBrief" style="color: #5a5757; text-align: center; font-size:12px">'+detailedItemCategoryWiseData[g].totalCount+'</td><td class="tableQuickAmount" style="font-size: 13px"><span class="price">Rs.</span>'+detailedItemCategoryWiseData[g].totalSales+'</td></tr>';
+					}
+					else{
+						//Time to render and reset the counter
+						halfCount = 0; 
+						g--;
+
+						categoryWiseSalesSummaryContent += ''+
+							'<div style="margin-top: 20px">'+
+								'<table style="width: 100%">'+
+									'<col width="50%">'+
+									'<col width="50%">'+
+									'<tr>'+
+										'<td style="vertical-align: top; border: none">'+
+										'<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 '<col style="width: 70%">'+
+							                 '<col style="width: 30%">'+
+							                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 	 leftHalfContent+
+							              '</table>'+
+							           '</div>'+
+							           '</td>'+
+							           '<td style="vertical-align: top; border: none">'+
+							           '<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 '<col style="width: 70%">'+
+							                 '<col style="width: 30%">'+
+							                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 	 rightHalfContent+
+							              '</table>'+
+							           '</div>'+
+							           '</td>'+
+						           '</tr>'+
+						        '</table>'+
+						    '</div>';
+
+
+						//reset template
+	    				leftHalfContent = '';
+						rightHalfContent = '';
+
+						isFirstIteration = false;
+					}
+				}
+
+				//Render the remaining content
+				if(rightHalfContent != ''){
+						categoryWiseSalesSummaryContent += ''+
+							'<div style="margin-top: 10px;">'+
+								'<table style="width: 100%">'+
+									'<col width="50%">'+
+									'<col width="50%">'+
+									'<tr>'+
+										'<td style="vertical-align: top; border: none">'+
+										'<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 '<col style="width: 70%">'+
+							                 '<col style="width: 30%">'+
+							                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 	 leftHalfContent+
+							              '</table>'+
+							           '</div>'+
+							           '</td>'+
+							           '<td style="vertical-align: top; border: none">'+
+							           '<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 '<col style="width: 70%">'+
+							                 '<col style="width: 30%">'+
+							                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 	 rightHalfContent+
+							              '</table>'+
+							           '</div>'+
+							           '</td>'+
+						           '</tr>'+
+						        '</table>'+
+						    '</div>';
+				}
+				else if(leftHalfContent != '' && rightHalfContent == ''){
+						categoryWiseSalesSummaryContent += ''+
+							'<div style="margin-top: 10px">'+
+								'<table style="width: 100%">'+
+									'<col width="50%">'+
+									'<col width="50%">'+
+									'<tr>'+
+										'<td style="vertical-align: top; border: none">'+
+										'<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 '<col style="width: 70%">'+
+							                 '<col style="width: 30%">'+
+							                 '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Category</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Units Sold</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Sales Volume</td>'+
+						                 	 leftHalfContent+
+							              '</table>'+
+							           '</div>'+
+							           '</td>'+
+							           '<td style="vertical-align: top; border: none">'+
+							           '</td>'+
+						           '</tr>'+
+						        '</table>'+
+						    '</div>';
+				}
+
+
+				if(detailedItemCategoryWiseData.length > 0){
+					categoryWiseSalesSummaryTemplate = ''+	
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">CATEGORY WISE SALES</h1>'+
+						           '</div>'+
+						           categoryWiseSalesSummaryContent+
+						        '</div>'+
+						    '</div>';	
+				}
+
+				renderCrispSummary(detailedItemCategoryWiseData);
+
+				function renderCrispSummary(myData){
+					
+					var data = myData;
+
+					var reduced_data = data.reduce(function (accumulator, item) {
+						if(accumulator[item.topCategory]){
+							accumulator[item.topCategory].totalSales += item.totalSales;
+							accumulator[item.topCategory].totalCount += item.totalCount;
+						}
+						else{
+							accumulator[item.topCategory] = item;
+						}
+
+					  	return accumulator;
+					}, {});
+
+
+
+					var shortListedData = [];
+					var total_sales_sum = 0;
+					for(var key in reduced_data){
+						shortListedData.push({
+							"topCategory": reduced_data[key].topCategory,
+							"totalSales": reduced_data[key].totalSales,
+							"totalCount": reduced_data[key].totalCount
+						});
+
+						total_sales_sum += reduced_data[key].totalSales;
+					}
+
+					shortListedData.sort(function(category1, category2) { //sort by sales
+						if (category1.totalSales > category2.totalSales)
+	    					return -1;
+						if (category1.totalSales < category2.totalSales)
+	    					return 1;
+	  
+	  					return 0;
+				    });
+
+				    var crispSummaryContent = '';
+				    var categorySharePercentage = 0;
+					for(var i = 0; i < shortListedData.length; i++){
+						categorySharePercentage = parseFloat((100*shortListedData[i].totalSales)/total_sales_sum).toFixed(0);
+						crispSummaryContent += '<tr><td class="tableQuickBrief"><b>'+(shortListedData[i].topCategory).toUpperCase()+'</b> Category'+(categorySharePercentage > 0 ? '<span style="color: #5a5757"> ('+categorySharePercentage+'%)</span>' : '')+'</td> <td class="tableQuickBrief" style="color: #5a5757; font-style: italic">'+shortListedData[i].totalCount + ' units sold</td> <td class="tableQuickAmount"><span class="price">Rs.</span>'+shortListedData[i].totalSales+'</td></tr>'; 
+					}
+
+					if(crispSummaryContent != ''){
+							categoryWiseSalesSummaryTemplate = '' +
+								'<div class="summaryTableSectionHolder">'+
+							        '<div class="summaryTableSection">'+
+							           '<div class="tableQuickHeader">'+
+							              '<h1 class="tableQuickHeaderText">MENU SUMMARY</h1>'+
+							           '</div>'+
+							           '<div class="tableQuick">'+
+							              '<table style="width: 100%">'+
+							                 crispSummaryContent+
+							              '</table>'+
+							           '</div>'+
+							        '</div>'+
+						        '</div>'+
+						        (maxRows <= 12 ? '' : '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>')+ //break the page
+						        categoryWiseSalesSummaryTemplate;
+					}
+
+				}
+
+				renderCancellationSummary();
+			}
+
+
+
+
+
+			/* CANCELLATION SUMMARY */
+			function renderCancellationSummary(){
+
+				//Cancelled Items
+				var cancelledItemsSummaryContent = '';
+
+				for(var n = 0; n < cancellationsData_items.length; n++){
+
+							var cancelledData = cancellationsData_items[n].value;
+
+							for(var i = 0; i < cancelledData.itemsRemoved.length; i++){
+								
+								cancelledItemsSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="font-size: 12px">'+moment(cancelledData.time, 'hhmm').format('hh:mm A')+'</span>'+
+												'<span style="color: #5a5757; font-size: 10px; display: block">'+cancelledData.date+'</span>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; color: #6f6f6f; text-align: right">'+cancelledData.itemsRemoved[i].qty+' <span style="font-weight: 300;">x</span></td>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="font-weight: 600; color: #6f6f6f; font-size: 14px">'+cancelledData.itemsRemoved[i].name+(cancelledData.itemsRemoved[i].isCustom ? ' <span style="font-weight: 300; font-size: 80%">('+cancelledData.itemsRemoved[i].variant+')</span>' : '')+'</span>'+
+												'<span style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.itemsRemoved[i].comments+'</span>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">'+(cancelledData.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.mode)+'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="font-size: 14px">by '+cancelledData.adminName+'</span>'+
+												'<span style="display: block; font-size: 11px; color: #5a5757;">'+(cancelledData.stewardName != '' ? cancelledData.stewardName : 'Unknown')+' requested</span>'+
+											'</td>'+
+										'</tr>';
+							}
+
+				}
+
+				if(cancelledItemsSummaryContent != ''){
+						overallCancellationsReportTemplate = ''+
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">ITEM CANCELLATIONS</h1>'+
+						           '</div>'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 cancelledItemsSummaryContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+					        '</div>';
+				}	
+
+
+				//Cancelled Orders
+				var cancelledOrdersSummaryContent = '';
+
+				for(var i = 0; i < cancellationsData_orders.length; i++){
+
+					var cancelledData = cancellationsData_orders[i].value;
+					
+					var number_of_items = 0;
+					var order_value = 0;
+					for(var a = 0; a < cancelledData.cart.length; a++){
+						number_of_items += cancelledData.cart[a].qty;
+						order_value += cancelledData.cart[a].qty * cancelledData.cart[a].price;
+					}
+
+					cancelledOrdersSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="font-size: 12px">'+moment(cancelledData.cancelDetails.timeCancel, 'hhmm').format('hh:mm A')+'</span>'+
+												'<span style="color: #5a5757; font-size: 10px; display: block">'+cancelledData.date+'</span>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; font-size: 12px"><span class="price" style="font-weight: 300; font-size: 80%">Rs.</span>'+order_value+'<span style="font-weight: 300; color: #5a5757; display: block; font-size: 11px">'+(number_of_items > 1 ? number_of_items +' Items' : number_of_items+' Item')+'</span></td>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="color: #5a5757; font-size: 13px">'+cancelledData.cancelDetails.reason+'</span>'+
+												'<span style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.cancelDetails.comments+'</span>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">'+(cancelledData.orderDetails.modeType == 'DINE' ? 'Table #'+cancelledData.table : cancelledData.orderDetails.mode)+'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="font-size: 14px">by '+cancelledData.cancelDetails.cancelledBy+'</span>'+
+												'<span style="display: block; font-size: 11px; color: #5a5757;">'+(cancelledData.stewardName != '' ? cancelledData.stewardName : 'Unknown')+' requested</span>'+
+											'</td>'+
+										'</tr>';
+				}
+
+				if(cancelledOrdersSummaryContent != ''){
+						overallCancellationsReportTemplate += ''+
+							'<div class="summaryTableSectionHolder">'+
+						        '<div class="summaryTableSection">'+
+						           '<div class="tableQuickHeader">'+
+						              '<h1 class="tableQuickHeaderText">ORDER CANCELLATIONS</h1>'+
+						           '</div>'+
+						           '<div class="tableQuick">'+
+						              '<table style="width: 100%">'+
+						                 cancelledOrdersSummaryContent+
+						              '</table>'+
+						           '</div>'+
+						        '</div>'+
+					        '</div>';	
+				}	
+
+
+				//Cancelled Invoices
+				var cancelledInvoicesSummaryContent = '';
+				for(var i = 0; i < cancellationsData_invoices.length; i++){
+
+					var cancelledData = cancellationsData_invoices[i].value;
+					
+					var number_of_items = 0;
+					for(var a = 0; a < cancelledData.cart.length; a++){
+						number_of_items += cancelledData.cart[a].qty;
+					}
+
+					cancelledInvoicesSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="font-size: 12px">'+moment(cancelledData.cancelDetails.timeCancel, 'hhmm').format('hh:mm A')+'</span>'+
+												'<span style="color: #5a5757; font-size: 10px; display: block">'+cancelledData.date+'</span>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">Bill #'+cancelledData.billNumber+'<span style="display: block; font-size: 11px; color: #5a5757;">'+cancelledData.orderDetails.mode+'</span></td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; font-size: 12px"><span class="price" style="font-weight: 300; font-size: 80%">Rs. </span>'+cancelledData.payableAmount+'<span style="font-weight: 300; display: block; font-size: 11px; color: #5a5757">'+(number_of_items > 1 ? number_of_items +' Items' : number_of_items+' Item')+'</span></td>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="color: #5a5757; font-size: 13px">'+cancelledData.cancelDetails.reason+'</span>'+
+												'<span style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+cancelledData.cancelDetails.comments+'</span>'+
+											'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="font-size: 14px">by '+cancelledData.cancelDetails.cancelledBy+'</span>'+
+											'</td>'+
+										'</tr>';
+				}
+
+
+				if(cancelledInvoicesSummaryContent != ''){
+					cancelledInvoicesSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">INVOICE CANCELLATIONS REPORT</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 cancelledInvoicesSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+				}
+
+
+				//Quick Brief Summary
+				var cancellationBriefContent = '';
+				for(var i = 0; i < invoiceCancellationsData.length; i++){
+					if(invoiceCancellationsData[i].amount > 0){
+						cancellationBriefContent += '<tr><td class="tableQuickBrief">'+invoiceCancellationsData[i].mode+'</td><td class="tableQuickAmount"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">from '+invoiceCancellationsData[i].count+' Bills</span><span class="price">Rs.</span>'+invoiceCancellationsData[i].amount+'</td></tr>';
+					}
+				}
+
+
+				if(netCancelledBills > 0){
+			    	invoiceCancellationsSummary = ''+
+				        '<div class="summaryTableSectionHolder">'+
+				        '<div class="summaryTableSection">'+
+				           '<div class="tableQuickHeader">'+
+				              '<h1 class="tableQuickHeaderText">INVOICE CANCELLATIONS</h1>'+
+				           '</div>'+
+				           '<div class="tableQuick">'+
+				              '<table style="width: 100%">'+
+				                 '<col style="width: 70%">'+
+				                 '<col style="width: 30%">'+
+				                 cancellationBriefContent+
+				                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid">Cancelled before Settlement</td><td class="tableQuickAmount" style="border-top: 2px solid"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">'+(invoiceCancellationsMetaData.total_unpaid_count > 0 ? 'from '+invoiceCancellationsMetaData.total_unpaid_count+' Bills' : 'No Bills')+'</span><span class="price">Rs.</span>'+parseFloat(invoiceCancellationsMetaData.total_unpaid_sum).toFixed(0)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief">Cancelled after Settlement</td><td class="tableQuickAmount"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">'+(invoiceCancellationsMetaData.total_paid_count > 0 ? 'from '+invoiceCancellationsMetaData.total_paid_count+' Bills' : 'No Bills')+'</span><span class="price">Rs.</span>'+parseFloat(invoiceCancellationsMetaData.total_paid_sum).toFixed(0)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief highlightedQuickBrief">Overall Cancellations</td><td class="tableQuickAmount highlightedQuickBrief"><span style="font-size: 11px; padding-right: 5px; color: #5a5757">'+(invoiceCancellationsMetaData.grand_count > 0 ? 'from '+invoiceCancellationsMetaData.grand_count+' Bills' : 'No Bills')+'</span><span class="price">Rs.</span>'+parseFloat(invoiceCancellationsMetaData.grand_sum).toFixed(0)+'</td></tr>'+
+				              '</table>'+
+				           '</div>'+
+				        '</div>'+
+				        '</div>';		    	
+				}
+
+				if(cancelledInvoicesSummaryTemplate != ''){
+					invoiceCancellationsSummary += cancelledInvoicesSummaryTemplate;
+				}
+
+
+
+				renderRefundSummary();
+			}
+
+			/* REFUNDS SUMMARY */
+			function renderRefundSummary(){
+
+				var refundSummaryContent = '';
+				for(var i = 0; i < invoiceRefundsData.length; i++){
+
+					var refundData = invoiceRefundsData[i].value;
+					
+					refundSummaryContent += ''+
+										'<tr>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="font-size: 12px">'+moment(refundData.refundDetails.timeRefund, 'hhmm').format('hh:mm A')+'</span>'+
+												'<span style="color: #5a5757; font-size: 10px; display: block">'+refundData.date+'</span>'+
+											'</td>'+
+											'<td class="tableQuickBrief" style="font-size: 14px">Bill #'+refundData.billNumber+'<span style="display: block; font-size: 11px; color: #5a5757;">'+refundData.orderDetails.mode+'</span></td>'+
+											'<td class="tableQuickBrief" style="font-weight: bold; font-size: 12px"><span class="price" style="font-weight: 300; font-size: 80%">Rs. </span>'+refundData.refundDetails.amount+'<span style="font-weight: 300; font-size: 11px; color: #5a5757"> refunded</span> <span style="font-weight: 300; display: block; font-size: 11px; color: #5a5757">from <span class="price" style="font-weight: 300; font-size: 80%">Rs. </span><b>'+refundData.totalAmountPaid+'</b></span></td>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="color: #5a5757; font-size: 13px">'+refundData.refundDetails.reason+'</span>'+
+												'<span style="display: block; font-style: italic; color: #f39c12; font-size: 11px;">'+refundData.refundDetails.comments+'</span>'+
+											'</td>'+
+											'<td class="tableQuickBrief">'+
+												'<span style="font-size: 14px">by '+refundData.refundDetails.refundedBy+'</span>'+
+												'<span style="display: block; font-size: 11px; color: #5a5757;">'+(refundData.stewardName != '' ? refundData.stewardName : 'Unknown')+' taken order</span>'+
+											'</td>'+
+										'</tr>';
+				}
+
+
+				if(refundSummaryContent != ''){
+					refundedInvoicesSummaryTemplate = ''+
+						'<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">REFUND SUMMARY</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 refundSummaryContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';					
+				}
+
+				renderDaywiseSummary();
+			}
+
+
+
+			/* DAY BY DAY SALES SUMMARY */
+			function renderDaywiseSummary(){
+				
+				if(dayByDaySalesData.length < 1){
+					renderMonthToMonthSummary();
+					return '';
+				}
+
+				var dayByDaySalesSummaryContent = '';
+				var dayByDaySalesSummaryHeader = '';
+				var dayByDaySalesSummaryOverflowContent = '';
+
+			    var individualColumnSum_Net = 0;
+			    var individualColumnSum_Gross = 0;
+			    var individualColumnSum_Count = 0;
+			    var individualColumnSum_Discounts = 0;
+			    var individualColumnSum_Extras = [];
+
+			    //initialise with 0's
+			    for(var e = 0; e < dayByDaySalesData[0].extras.length; e++){
+			    	individualColumnSum_Extras.push(0);
+			    }
+
+
+			    var number_of_days = 0;
+
+			    for(var i = 0; i < dayByDaySalesData.length; i++){ //while(detailedListByPaymentMode[t]){
+
+			    	var detailedExtrasContent = '';
+
+			    	for(var e = 0; e < dayByDaySalesData[i].extras.length; e++){
+			    	
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(dayByDaySalesData[i].extras[e].value).toFixed(2)+'</td>';
+			    
+			    		individualColumnSum_Extras[e] += dayByDaySalesData[i].extras[e].value; //hold sum of all CGST for Cash, Card, PayTM etc.
+
+				    	if(i == 0){
+				    		dayByDaySalesSummaryHeader += '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">'+dayByDaySalesData[i].extras[e].name+'</td>';
+				    	}
+			    	}
+
+			    	individualColumnSum_Net += dayByDaySalesData[i].netAmount - dayByDaySalesData[i].netRefund; //last column (gross)
+			    	individualColumnSum_Gross += dayByDaySalesData[i].grossSales; //first column (net)
+			    	individualColumnSum_Discounts += dayByDaySalesData[i].grossRefund + dayByDaySalesData[i].discount; //Discounts and refunds
+			    	individualColumnSum_Count += dayByDaySalesData[i].count; //first column (net)
+
+			    	if(i < 15){
+				    	dayByDaySalesSummaryContent	+= 	'<tr>'+
+											    			'<td class="tableQuickBrief" style="font-size: 13px">'+dayByDaySalesData[i].date+'<span style="color: #5a5757; display: block; font-size:12px">'+dayByDaySalesData[i].day+'</span></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+dayByDaySalesData[i].count+'</b></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossSales).toFixed(0)+'</td>'+
+											    			detailedExtrasContent +
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossRefund + dayByDaySalesData[i].discount).toFixed(0)+'</td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].netAmount - dayByDaySalesData[i].netRefund).toFixed(0)+'</td>'+
+											    		'</tr>';
+					}
+					else{
+						dayByDaySalesSummaryOverflowContent += 	'<tr>'+
+													    			'<td class="tableQuickBrief" style="font-size: 13px">'+dayByDaySalesData[i].date+'<span style="color: #5a5757; display: block; font-size:12px">'+dayByDaySalesData[i].day+'</span></td>'+
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+dayByDaySalesData[i].count+'</b></td>'+
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossSales).toFixed(0)+'</td>'+
+													    			detailedExtrasContent +
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].grossRefund + dayByDaySalesData[i].discount).toFixed(0)+'</td>'+
+													    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(dayByDaySalesData[i].netAmount - dayByDaySalesData[i].netRefund).toFixed(0)+'</td>'+
+													    		'</tr>';
+					}
+
+
+					number_of_days++;
+			    }
+
+			    //form the footer
+				var detailedExtrasContentFooter = '';
+				
+				if(dayByDaySalesData.length != 0){
+
+			    	var detailed_footer_content = '';
+			    	
+			    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
+			    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
+			    	}
+
+				    detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid;">Total<span style="font-size: 11px; display: block; font-weight: 400">'+number_of_days+' Days</span></td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: center; font-size: 14px;">'+individualColumnSum_Count+'</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-top: 2px solid; text-align: right">'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td>'+ detailed_footer_content +'<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Discounts).toFixed(0)+'</td><td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td> </tr>';
+			    }
+
+
+
+			    //Time to render
+			    if(dayByDaySalesSummaryContent != ''){
+			    	dayByDaySalesSummaryHeader = '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Date</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Gross</td>' + dayByDaySalesSummaryHeader + '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Discounts/ Refunds</td><td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Net</td> </tr>';
+			    
+					dayByDaySalesSummaryTemplate = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">Day to Day Sales</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 dayByDaySalesSummaryHeader+
+					                 dayByDaySalesSummaryContent+
+					                 dayByDaySalesSummaryOverflowContent+
+					                 detailedExtrasContentFooter+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+			    }
+
+
+			    renderMonthToMonthSummary();
+			}
+
+
+
+
+		    
+
+			/* MONTH BY MONTH SALES SUMMARY */
+			function renderMonthToMonthSummary(){
+
+				if(monthByMonthSalesData.length < 1){
+					renderQuickSummary();
+					return '';
+				}
+
+
+				var monthByMonthSalesSummaryContent = '';
+				var monthByMonthSummaryHeader = '';
+
+			    var individualColumnSum_Net = 0;
+			    var individualColumnSum_Gross = 0;
+			    var individualColumnSum_Count = 0;
+			    var individualColumnSum_Guests = 0;
+			    var individualColumnSum_Discounts = 0;
+			    var individualColumnSum_Extras = [];
+
+			    //initialise with 0's
+			    for(var e = 0; e < monthByMonthSalesData[0].extras.length; e++){
+			    	individualColumnSum_Extras.push(0);
+			    }
+
+
+			    var number_of_months = 0;
+
+			    for(var i = 0; i < monthByMonthSalesData.length; i++){ //while(detailedListByPaymentMode[t]){
+
+			    	var detailedExtrasContent = '';
+
+			    	for(var e = 0; e < monthByMonthSalesData[i].extras.length; e++){
+			    	
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(monthByMonthSalesData[i].extras[e].value).toFixed(2)+'</td>';
+			    
+			    		individualColumnSum_Extras[e] += monthByMonthSalesData[i].extras[e].value; //hold sum of all CGST for Cash, Card, PayTM etc.
+
+				    	if(i == 0){
+				    		monthByMonthSummaryHeader += '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">'+monthByMonthSalesData[i].extras[e].name+'</td>';
+				    	}
+			    	}
+
+			    	individualColumnSum_Net += monthByMonthSalesData[i].netAmount - monthByMonthSalesData[i].netRefund; //last column (gross)
+			    	individualColumnSum_Gross += monthByMonthSalesData[i].grossSales; //first column (net)
+			    	individualColumnSum_Discounts += monthByMonthSalesData[i].grossRefund + monthByMonthSalesData[i].discount; //Discounts and refunds
+			    	individualColumnSum_Count += monthByMonthSalesData[i].count; //first column (net)
+				    individualColumnSum_Guests += monthByMonthSalesData[i].guestCount; //number of guests
+
+				    monthByMonthSalesSummaryContent	+= 	'<tr>'+
+											    			'<td class="tableQuickBrief" style="font-size: 13px">'+monthByMonthSalesData[i].tag+'<span style="color: #5a5757; display: block; font-size:12px">'+monthByMonthSalesData[i].range+'</span></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+monthByMonthSalesData[i].count+'</b></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: center; color: #5a5757;"><b>'+monthByMonthSalesData[i].guestCount+'</b></td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(monthByMonthSalesData[i].grossSales).toFixed(0)+'</td>'+
+											    			detailedExtrasContent +
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(monthByMonthSalesData[i].grossRefund + monthByMonthSalesData[i].discount).toFixed(0)+'</td>'+
+											    			'<td class="tableQuickAmount" style="font-size: 14px; text-align: right">'+parseFloat(monthByMonthSalesData[i].netAmount - monthByMonthSalesData[i].netRefund).toFixed(0)+'</td>'+
+											    		'</tr>';
+
+					number_of_months++;
+			    }
+
+			    //form the footer
+				var detailedExtrasContentFooter = '';
+				
+				if(dayByDaySalesData.length != 0){
+
+			    	var detailed_footer_content = '';
+			    	
+			    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
+			    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
+			    	}
+
+				    detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid;">Total<span style="font-size: 11px; display: block; font-weight: 400">'+number_of_months+' Months</span></td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: center; font-size: 14px;">'+individualColumnSum_Count+'</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: center; font-size: 14px;">'+individualColumnSum_Guests+'</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-top: 2px solid; text-align: right">'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td>'+ detailed_footer_content +'<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Discounts).toFixed(0)+'</td><td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td> </tr>';
+			    }
+
+
+
+			    //Time to render
+			    if(monthByMonthSalesSummaryContent != ''){
+			    	monthByMonthSummaryHeader = '<tr> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid;">Date</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Bills</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: center">Guests</td> <td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Gross</td>' + monthByMonthSummaryHeader + '<td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Discounts/ Refunds</td><td class="tableQuickBrief" style="font-size: 14px; font-weight: bold; border-bottom: 2px solid; text-align: right">Net</td> </tr>';
+			    
+					monthByMonthSalesSummaryTemplate = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">Month to Month Sales</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 monthByMonthSummaryHeader+
+					                 monthByMonthSalesSummaryContent+
+					                 detailedExtrasContentFooter+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+
+
+			    }
+
+			    renderQuickSummary();
+			}
+
+		    
+
+
+			/* QUICK SUMMARY */
+			function renderQuickSummary(){
+			    var effective_gross = netCartSum - completeReportInfo[1].value - completeReportInfo[5].value;
+				quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[1].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[1].type == 'NEGATIVE' && completeReportInfo[1].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[1].value).toFixed(2)+'</td></tr>';
+				quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[5].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[5].type == 'NEGATIVE' && completeReportInfo[5].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[5].value).toFixed(2)+'</td></tr>';
+				quickSummaryRendererContent += '<tr><td class="tableQuickBrief"><b>Effective Gross</b></td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(effective_gross).toFixed(2)+'</td></tr>';
+
+			    var a = 0;
+			    while(reportInfoExtras[a]){
+			      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+reportInfoExtras[a].name+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(reportInfoExtras[a].value).toFixed(2)+'</td></tr>';
+			      a++;
+			    }
+
+			    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[2].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[2].type == 'NEGATIVE' && completeReportInfo[2].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[2].value).toFixed(2)+'</td></tr>';
+			    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[3].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[3].type == 'NEGATIVE' && completeReportInfo[3].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[3].value).toFixed(2)+'</td></tr>';
+			    quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[4].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[4].type == 'NEGATIVE' && completeReportInfo[4].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[4].value).toFixed(2)+'</td></tr>';
+			
+			    renderBillingModes();
+			}
+
+
+
+
+			/* BY BILLING MODES */
+			function renderBillingModes(){
+
+				var salesByBillingModeRenderContent = '';
+
+			    var c = 0;
+			    var billSharePercentage = 0;
+			    var individualNetBillingMode = 0;
+			    while(detailedListByBillingMode[c]){
+			      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
+			      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #5a5757">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
+			      individualNetBillingMode += detailedListByBillingMode[c].value;
+			      c++;
+			    }
+
+
+				//To display bills graph or not
+				var hasBillsGraphAttached = false;
+
+			    if(salesByBillingModeRenderContent != ''){
+					salesByBillingModeRenderContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 salesByBillingModeRenderContent+
+					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetBillingMode).toFixed(0)+'</b></td></tr>'+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+					    '</div>';	
+			    }
+
+			    //&&&&
+			    renderPaymentModes();
+			}
+
+
+
+
+		    /* SUMMARY BY BILLING MODES */
+		    function renderReducedBillingModes(){
+
+				var originalBillingModesList = detailedListByBillingMode;
+				var extrasKeysMasterHashMap = [];
+				var extrasKeysMasterList = [];
+				var reducedBillingModesGrandTotal = 0;
+
+				var reducedBillingModesList = originalBillingModesList.reduce(function (accumulator, item) {
+						if(accumulator[item.type]){
+							accumulator[item.type].detailedExtras = accumulator[item.type].detailedExtras.concat(item.detailedExtras);
+							accumulator[item.type].value += item.value;
+							accumulator[item.type].count += item.count;
+						}
+						else{
+							accumulator[item.type] = item;
+						}
+
+					  	return accumulator;
+				}, {});
+
+				for(var key in reducedBillingModesList){
+					var originalExtras = reducedBillingModesList[key].detailedExtras;
+					var reducedExtras = originalExtras.reduce(function (accumulator, item) {
+						if(accumulator[item.name]){
+							accumulator[item.name].amount += item.amount;
+						}
+						else{
+							accumulator[item.name] = item;
+
+							if(!extrasKeysMasterHashMap[item.name]){
+								extrasKeysMasterHashMap[item.name] = item.name;
+							}
+						}
+
+					  	return accumulator;
+					}, {});
+
+
+					reducedBillingModesGrandTotal += reducedBillingModesList[key].value;
+					reducedBillingModesList[key].detailedExtras = reducedExtras;
+				}
+
+				for(var key in extrasKeysMasterHashMap){
+					extrasKeysMasterList.push(extrasKeysMasterHashMap[key]);
+				}
+
+
+				//Time to render
+				var reducedBillingModesContentHeader = '';
+				var reducedBillingModesContent = '';
+
+				var isFirstIteration = true;
+				var reducedBillSharePercentage = 0;
+			    for(var key in reducedBillingModesList){
+
+			    	var detailedExtrasContent = '';
+
+			    	for(var e = 0; e < extrasKeysMasterList.length; e++){
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(reducedBillingModesList[key].detailedExtras[extrasKeysMasterList[e]].amount).toFixed(2)+'</td>';
+				    	
+				    	if(isFirstIteration){
+				    		reducedBillingModesContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: right; font-size: 14px;">'+extrasKeysMasterList[e]+'</td>';
+				    	}
+			    	}
+
+			    	isFirstIteration = false;
+
+			    	reducedBillSharePercentage = parseFloat((100*reducedBillingModesList[key].value)/reducedBillingModesGrandTotal).toFixed(0);
+			    	reducedBillingModesContent += '' +
+										    	'<tr>'+
+										   			'<td class="tableQuickBrief">'+getFancyNameForBillingType(reducedBillingModesList[key].type) + (reducedBillSharePercentage > 0 ? ' <span style="color: #5a5757">('+reducedBillSharePercentage+'%)</span>' : '')+'</td>'+
+										   			'<td class="tableQuickAmount" style="text-align: left; font-size: 14px; color: #5a5757">'+reducedBillingModesList[key].count+'</td>'+
+										   			detailedExtrasContent +
+										   			'<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(reducedBillingModesList[key].value).toFixed(0)+'</td>'+
+										   			'<td class="tableQuickAmount" style="text-align: center; font-size: 14px; color: #5a5757">'+(reducedBillingModesList[key].count > 0 ? parseFloat(reducedBillingModesList[key].value/reducedBillingModesList[key].count).toFixed(0) : '-' )+'</td>'+
+										   		'</tr>';
+
+			    }
+
+			    function getFancyNameForBillingType(type){
+			    	if(type == 'DELIVERY'){
+			    		return 'Home Delivery';
+			    	}
+			    	else if(type == 'PARCEL'){
+			    		return 'Takeaway';
+			    	}
+			    	else if(type == 'TOKEN'){
+			    		return 'Token Based';
+			    	}
+			    	else if(type == 'DINE'){
+			    		return 'Dine In';
+			    	}
+			    }
+
+				reducedBillingModesContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: left; font-size: 14px;">Main Type</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: left; font-size: 14px;">Bills</td>' + reducedBillingModesContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: right; font-size: 14px;">Net</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: center; font-size: 14px;">Avg.</td> </tr>';
+				reducedBillingModesContent = reducedBillingModesContentHeader + reducedBillingModesContent;
+			    
+			    if(reducedBillingModesContent != ''){
+
+			    	reducedBillingModesContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 reducedBillingModesContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';	
+			    }
+
+			    renderPaymentModes();
+
+			}
+
+
+		    /* BY PAYMENT MODES */
+		    function renderPaymentModes(){
+
+		    	var salesByPaymentTypeRenderContent = '';
+
+			    var d = 0;
+			    var paymentSharePercentage = 0;
+			    var individualNetPaymentMode = 0;
+			    while(detailedListByPaymentMode[d]){
+			      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
+			      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #5a5757">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount" style="color: #5a5757; font-weight: 300; font-style: italic">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
+			      individualNetPaymentMode += detailedListByPaymentMode[d].value;
+			      d++;
+			    }
 
 			    //Detailed Payment (Extras and Custom Extras for each payment mode)
 			    var detailedByExtrasForPaymentRenderContent = '';
 			    var detailedExtrasContentHeader = '';
-			    
 
 			    var individualColumnSum_Extras = [];
 			    //initialise with 0's
@@ -8654,7 +13712,6 @@ function fetchSingleClickReportAfterApproval(){
 			    var individualColumnSum_Net = 0;
 			    var individualColumnSum_Gross = 0;
 
-
 			    var t = 0;
 			    while(detailedListByPaymentMode[t]){
 
@@ -8663,14 +13720,14 @@ function fetchSingleClickReportAfterApproval(){
 
 			    	for(var e = 0; e < detailedListByPaymentMode[t].detailedExtras.length; e++){
 			    	
-			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: center;">'+detailedListByPaymentMode[t].detailedExtras[e].amount+'</td>';
+			    		detailedExtrasContent += '<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(detailedListByPaymentMode[t].detailedExtras[e].amount).toFixed(2)+'</td>';
 			    	
 			    		netAmount -= detailedListByPaymentMode[t].detailedExtras[e].amount;
 
 			    		individualColumnSum_Extras[e] += detailedListByPaymentMode[t].detailedExtras[e].amount; //hold sum of all CGST for Cash, Card, PayTM etc.
 
 				    	if(t == 0){
-				    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
+				    		detailedExtrasContentHeader += '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: right; font-size: 14px;">'+detailedListByPaymentMode[t].detailedExtras[e].name+'</td>';
 				    	}
 			    	}
 
@@ -8680,27 +13737,52 @@ function fetchSingleClickReportAfterApproval(){
 			    	detailedByExtrasForPaymentRenderContent += '' +
 										    		'<tr>'+
 										    			'<td class="tableQuickBrief">'+detailedListByPaymentMode[t].name+'</td>'+
-										    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(netAmount).toFixed(0)+'</td>'+
+										    			'<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(netAmount).toFixed(0)+'</td>'+
 										    			detailedExtrasContent +
-										    			'<td class="tableQuickAmount" style="text-align: center"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
+										    			'<td class="tableQuickAmount" style="text-align: right; font-size: 14px;">'+parseFloat(detailedListByPaymentMode[t].value).toFixed(0)+'</td>'+
 										    		'</tr>';
 
 
 			    	t++;
 			    }
 
-
 			    if(detailedListByPaymentMode.length != 0){
 
 			    	var detailed_footer_content = '';
 			    	for(var i = 0; i < individualColumnSum_Extras.length; i++){
-			    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
+			    		detailed_footer_content += '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Extras[i]).toFixed(2)+'</td>';
 			    	}
 
-				    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14;">Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Net</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid #a71a14; text-align: center">Gross</td> </tr>';
-				    var detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14;">Total</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td>' + detailed_footer_content + '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid #a71a14; text-align: center"><span class="price">Rs.</span>'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td> </tr>';
+				    detailedExtrasContentHeader = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: left; font-size: 14px;">Payment Mode</td> <td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: center; text-align: right; font-size: 14px;">Gross</td>' + detailedExtrasContentHeader + '<td class="tableQuickBrief" style="font-weight: bold; border-bottom: 2px solid; text-align: right; font-size: 14px;">Net</td> </tr>';
+				    var detailedExtrasContentFooter = '<tr> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid;">Total</td> <td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Net).toFixed(0)+'</td>' + detailed_footer_content + '<td class="tableQuickBrief" style="font-weight: bold; border-top: 2px solid; text-align: right; font-size: 14px;">'+parseFloat(individualColumnSum_Gross).toFixed(0)+'</td> </tr>';
 				    
 				    detailedByExtrasForPaymentRenderContent = detailedExtrasContentHeader + detailedByExtrasForPaymentRenderContent + detailedExtrasContentFooter;
+			    }
+
+
+
+				//To display payment graph or not
+				var hasPaymentsGraphAttached = false;
+			    
+			    if(salesByPaymentTypeRenderContent != ''){
+
+				    salesByPaymentTypeRenderContentFinal = ''+
+				        '<div class="summaryTableSectionHolder">'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 salesByPaymentTypeRenderContent+
+					                 '<tr><td class="tableQuickBrief" style="border-top: 2px solid;"><b>Total</b></td><td class="tableQuickAmount" style="border-top: 2px solid;"><span class="price">Rs.</span><b>'+parseFloat(individualNetPaymentMode).toFixed(0)+'</b></td></tr>'+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
+				        '</div>';
+				    
 			    }
 
 
@@ -8709,49 +13791,62 @@ function fetchSingleClickReportAfterApproval(){
 
 			    	detailedByExtrasForPaymentRenderContentFinal = ''+
 				        '<div class="summaryTableSectionHolder">'+
-				        '<div class="summaryTableSection">'+
-				           '<div class="tableQuickHeader">'+
-				              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
-				           '</div>'+
-				           '<div class="tableQuick">'+
-				              '<table style="width: 100%">'+
-				                 '<col style="width: 70%">'+
-				                 '<col style="width: 30%">'+
-				                 detailedByExtrasForPaymentRenderContent+
-				              '</table>'+
-				           '</div>'+
-				        '</div>'+
+					        '<div class="summaryTableSection">'+
+					           '<div class="tableQuickHeader">'+
+					              '<h1 class="tableQuickHeaderText">DETAILED CHARGES</h1>'+
+					           '</div>'+
+					           '<div class="tableQuick">'+
+					              '<table style="width: 100%">'+
+					                 '<col style="width: 70%">'+
+					                 '<col style="width: 30%">'+
+					                 detailedByExtrasForPaymentRenderContent+
+					              '</table>'+
+					           '</div>'+
+					        '</div>'+
 				        '</div>';	
+
+				    salesByPaymentTypeRenderContentFinal += detailedByExtrasForPaymentRenderContentFinal;
 			    }
 
 
-
-			    //Bill Cancellations
-			    var emailSummaryCancellations = '';
-			    if(netCancelledBills > 0){
-			    	emailSummaryCancellations = ''+
-				        '<div class="summaryTableSectionHolder">'+
-				        '<div class="summaryTableSection">'+
-				           '<div class="tableQuickHeader">'+
-				              '<h1 class="tableQuickHeaderText">BILL CANCELLATIONS</h1>'+
-				           '</div>'+
-				           '<div class="tableQuick">'+
-				              '<table style="width: 100%">'+
-				                 '<col style="width: 70%">'+
-				                 '<col style="width: 30%">'+
-				                 '<tr><td class="tableQuickBrief">Number of Bills</td><td class="tableQuickAmount">'+netCancelledBills+'</td></tr>'+
-				                 '<tr><td class="tableQuickBrief">Cancelled Amount</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(netCancelledBillsSum).toFixed(0)+'</td></tr>'+
-				              '</table>'+
-				           '</div>'+
-				        '</div>'+
-				        '</div>';		    	
-			    }
+			    finalRender();
+			}
 
 
+		    
+			
+
+			function finalRender(){
 
 			    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
-			    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
 			    
+			    var cssData = '';
+
+			    var defaultReportTheme = window.localStorage.report_default_theme && window.localStorage.report_default_theme != '' ? window.localStorage.report_default_theme : 'RED';
+
+			    switch(defaultReportTheme){
+			    	case "RED":{
+				    	cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background: linear-gradient(to right, #c63931, #9c2e2a);width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.highlightedQuickBrief{background:#f3eced;font-size:120%!important;font-weight:700!important;color:#a0201b!important;border-bottom:2px solid #b03c3e!important}.yellowStar{background-repeat:no-repeat;background-image:url(https://accelerateengine.app/clients/common/golden_star.png)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+					   	break;
+			    	}
+			    	case "GREEN":{
+				    	cssData = '<head> <style type="text/css">body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background: linear-gradient(to right, #50b7a7, #11998e);width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #009688}.highlightedQuickBrief{background:#d9eceb;font-size:120%!important;font-weight:700!important;color:#066f65!important;border-bottom:2px solid #009688!important}.yellowStar{background-repeat:no-repeat;background-image:url(https://accelerateengine.app/clients/common/golden_star.png)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#bbe4e1}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#0eb7a7;display:inline-block;background:#fff}.headerAdmin{margin:0 0 3px;font-size:16px;color:#fff}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#bbe4e1}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right:5px;width:18%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #009688;border-radius:5px;color:#fff;height:65px;background:#0eb7a7}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#bbe4e1;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #dcf3f1}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#0eb7a7;border-bottom:3px solid #009688;border-top-right-radius:15px;color:#fff}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:700}.tableQuickBrief{padding:10px;font-size:16px;color:#01796e}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#01796e}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+				    	break;
+			    	}
+			    	case "BLUE":{
+				    	cssData = '<head> <style type="text/css">body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background: linear-gradient(to right, #4593d2, #266598);width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #2d6fa5}.highlightedQuickBrief{background:#f4faff;font-size:120%!important;font-weight:700!important;color:#1f558c!important;border-bottom:2px solid #2d6fa5!important}.yellowStar{background-repeat:no-repeat;background-image:url(https://accelerateengine.app/clients/common/golden_star.png)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#b8e4f5}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#4593d2;display:inline-block;background:#fff}.headerAdmin{margin:0 0 3px;font-size:16px;color:#fff}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#b8e4f5}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#e91e63}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right:5px;width:18%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #2d6fa5;border-radius:5px;color:#fff;height:65px;background:#4593d2}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#b8e4f5;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #dceef7}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#4593d2;border-bottom:3px solid #2d6fa5;border-top-right-radius:15px;color:#fff}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:700}.tableQuickBrief{padding:10px;font-size:16px;color:#2e618a}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#2e618a}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+				    	break;
+			    	}
+			    	case "DARK":{
+				    	cssData = '<head> <style type="text/css">body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:#444;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #000}.highlightedQuickBrief{background:#dadada;font-size:120%!important;font-weight:700!important;color:#000!important;border-bottom:2px solid #000!important}.yellowStar{background-repeat:no-repeat;background-image:url(https://accelerateengine.app/clients/common/golden_star.png)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#FFF;opacity:0.6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#444;display:inline-block;background:#fff}.headerAdmin{margin:0 0 3px;font-size:16px;color:#fff}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#FFF;opacity:0.6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#000}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right:5px;width:18%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #000;border-radius:5px;color:#fff;height:65px;background:#444}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#FFF;opacity:0.6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #cacaca}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#444;border-bottom:3px solid #000;border-top-right-radius:15px;color:#fff}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:700}.tableQuickBrief{padding:10px;font-size:16px;color:#000}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#000}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';			    
+				    	break;
+			    	}
+			    	default:{ //Red
+				    	cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background: linear-gradient(to right, #c63931, #9c2e2a);width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.highlightedQuickBrief{background:#f3eced;font-size:120%!important;font-weight:700!important;color:#a0201b!important;border-bottom:2px solid #b03c3e!important}.yellowStar{background-repeat:no-repeat;background-image:url(https://accelerateengine.app/clients/common/golden_star.png)}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px;text-align:center}.factsBox{margin-right: 5px; width:18%; display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#FFF;opacity:0.6;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:35%;display:block;text-align:center;float:right;position:absolute;top:20px;left:62%}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:55%;display:block;min-height:250px;}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
+					   	break;
+			    	}
+			    }
+
 			    var finalReport_emailContent = '<html>'+cssData+
 				    '<body>'+
 				      '<div class="mainHeader">'+
@@ -8770,13 +13865,12 @@ function fetchSingleClickReportAfterApproval(){
 				      '<div class="introFacts">'+
 				         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
 				         '<div class="factsArea">'+
-				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Amount</p></div>'+ 
-				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Amount</p></div>'+ 
+				            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Sales</p></div>'+ 
 				            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
 				            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
 				         '</div>'+
-				      '</div>'+graphRenderSectionContent+
-				      (hasWeeklyGraphAttached ? '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>' : '')+
+				      '</div>'+
 				      '<div class="summaryTableSectionHolder">'+
 				        '<div class="summaryTableSection">'+
 				           '<div class="tableQuickHeader">'+
@@ -8786,19 +13880,27 @@ function fetchSingleClickReportAfterApproval(){
 				              '<table style="width: 100%">'+
 				                 '<col style="width: 70%">'+
 				                 '<col style="width: 30%">'+
-				                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Gross Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
 				                 quickSummaryRendererContent+
-				                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Amount</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
+				                 '<tr><td class="tableQuickBrief highlightedQuickBrief">Net Amount</td><td class="tableQuickAmount highlightedQuickBrief"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
 				              '</table>'+
 				           '</div>'+
 				        '</div>'+
 				      '</div>'+
-				      '<div style="page-break-before: always; margin-top: 20px"></div><div style="height: 30px; width: 100%; display: block"></div>'+
+				      weeklyTrendRenderContent+
 				      salesByBillingModeRenderContentFinal+
+				      reducedBillingModesContentFinal+
 				      salesByPaymentTypeRenderContentFinal+
-				      detailedByExtrasForPaymentRenderContentFinal+
-				      emailSummaryCancellations+
-				      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
+				      discountSummaryTemplate+
+				      hourlySalesSummaryTemplate+
+				      dayByDaySalesSummaryTemplate+
+				      monthByMonthSalesSummaryTemplate+
+				      topSellingTemplate+
+				      categoryWiseSalesSummaryTemplate+
+				      invoiceCancellationsSummary+
+				      overallCancellationsReportTemplate+
+				      refundedInvoicesSummaryTemplate+
+				      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2; margin-top: 40px">'+
 				         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
 				      '</div>'+
 				    '</body>'+
@@ -8815,8 +13917,12 @@ function fetchSingleClickReportAfterApproval(){
 				var finalContent_EncodedText = encodeURI(JSON.stringify(myFinalCollectionText));
 				$('#reportActionButtonEmail').attr('text-hold', finalContent_EncodedText);	
 
-				generateReportContentPrint();		
+				generateReportContentPrint();	
+			}
 		}
+
+
+
 
 		function generateReportContentPrint(){
 
@@ -8839,17 +13945,31 @@ function fetchSingleClickReportAfterApproval(){
 		    //Quick Summary Content
 		    var quickSummaryRendererContent = '';
 
+		    /*
+				0 - Net Amount (Total Paid Amount)
+				1 - Discounts
+				2 - Calculated Round Off
+				3 - Waive Off
+				4 - Tips
+				5 - Refund Issued/Item Cancellations
+		    */
+
+		    var effective_gross = netCartSum - completeReportInfo[1].value - completeReportInfo[5].value;
+			quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+completeReportInfo[1].name+'</td><td style="font-size: 11px; text-align: right">'+(completeReportInfo[1].type == 'NEGATIVE' && completeReportInfo[1].value != 0 ? '- ' : '')+'<span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[1].value).toFixed(2)+'</td></tr>';
+			quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+completeReportInfo[5].name+'</td><td style="font-size: 11px; text-align: right">'+(completeReportInfo[5].type == 'NEGATIVE' && completeReportInfo[5].value != 0 ? '- ' : '')+'<span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[5].value).toFixed(2)+'</td></tr>';
+			quickSummaryRendererContent += '<tr><td style="font-size: 11px; border-bottom: 1px solid;"><b>Effective Gross</b></td><td style="font-size: 11px; border-bottom: 1px solid; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(effective_gross).toFixed(2)+'</td></tr>';
+
 		    var a = 0;
 		    while(reportInfoExtras[a]){
 		      quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+reportInfoExtras[a].name+'</td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(reportInfoExtras[a].value).toFixed(2)+'</td></tr>';
 		      a++;
 		    }
 
-		    var b = 1; //first one contains total paid
-		    while(completeReportInfo[b]){
-		      quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+completeReportInfo[b].name+'</td><td style="font-size: 11px; text-align: right">'+(completeReportInfo[b].type == 'NEGATIVE' && completeReportInfo[b].value != 0 ? '- ' : '')+'<span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[b].value).toFixed(2)+'</td></tr>';
-		      b++;
-		    }
+		    quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+completeReportInfo[2].name+'</td><td style="font-size: 11px; text-align: right">'+(completeReportInfo[2].type == 'NEGATIVE' && completeReportInfo[2].value != 0 ? '- ' : '')+'<span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[2].value).toFixed(2)+'</td></tr>';
+		    quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+completeReportInfo[3].name+'</td><td style="font-size: 11px; text-align: right">'+(completeReportInfo[3].type == 'NEGATIVE' && completeReportInfo[3].value != 0 ? '- ' : '')+'<span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[3].value).toFixed(2)+'</td></tr>';
+		    quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+completeReportInfo[4].name+'</td><td style="font-size: 11px; text-align: right">'+(completeReportInfo[4].type == 'NEGATIVE' && completeReportInfo[4].value != 0 ? '- ' : '')+'<span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[4].value).toFixed(2)+'</td></tr>';
+
+
 
 		    var printSummaryAll = ''+
 		    	'<div class="KOTContent">'+
@@ -8857,9 +13977,9 @@ function fetchSingleClickReportAfterApproval(){
 			         '<table style="width: 100%">'+
 			            '<col style="width: 85%">'+
 			            '<col style="width: 15%">'+ 
-			            '<tr><td style="font-size: 11px"><b>Net Sales</b></td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
+			            '<tr><td style="font-size: 11px"><b>Gross Sales</b></td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
 			            quickSummaryRendererContent+
-			            '<tr><td style="font-size: 13px"><b>Gross Amount</b></td><td style="font-size: 13px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
+			            '<tr><td style="font-size: 13px"><b>Net Amount</b></td><td style="font-size: 13px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
 			         '</table>'+
 			    '</div>';
 
@@ -9014,212 +14134,7 @@ function fetchSingleClickReportAfterApproval(){
 				runReportAnimation(100); //Done!
 		}
 	}	
-
-
-
-
-	//Step 12: Final Render Stage - EMAIL
-	function singleClickWeeklyFinalReportRender(graphImage){
-		runReportAnimation(100); //of Step 11 which completed the data processing
-
-		//Get staff info.
-		var loggedInStaffInfo = window.localStorage.loggedInStaffData ?  JSON.parse(window.localStorage.loggedInStaffData) : {};
-		
-		if(jQuery.isEmptyObject(loggedInStaffInfo)){
-			loggedInStaffInfo.name = 'Staff';
-			loggedInStaffInfo.code = '0000000000';
-		}	
-
-
-		var reportInfo_branch = window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '';
-		var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
-
-		if(reportInfo_branch == ''){
-			showToast('System Error: Branch name not found.', '#e74c3c');
-			return '';
-		}
-
-		var temp_address_modified = (window.localStorage.accelerate_licence_branch_name ? window.localStorage.accelerate_licence_branch_name : '') + ' - ' + (window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name : '');
-		var data_custom_footer_address = window.localStorage.bill_custom_footer_address ? window.localStorage.bill_custom_footer_address : '';
-
-		var reportInfo_admin = loggedInStaffInfo.name;
-		var reportInfo_time = moment().format('h:mm a, DD-MM-YYYY');
-		var reportInfo_address = data_custom_footer_address != '' ? data_custom_footer_address : temp_address_modified;
-
-
-		if(graphImage && graphImage != ''){
-			window.localStorage.graphImageDataWeekly = graphImage;
-		}
-		else{
-			window.localStorage.graphImageDataWeekly = '';
-		}
-
-
-		var graphRenderSectionContent = '';
-		var fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY - dddd');
-
-		var reportInfo_title = 'Sales Report of <b>'+fancy_from_date+'</b>';
-		var temp_report_title = 'Sales Report of '+fancy_from_date;
-		if(fromDate != toDate){
-			fancy_from_date = moment(fromDate, 'YYYYMMDD').format('Do MMMM YYYY');
-			var fancy_to_date = moment(toDate, 'YYYYMMDD').format('Do MMMM YYYY');
-
-			reportInfo_title = 'Sales Report from <b>'+fancy_from_date+'</b> to <b>'+fancy_to_date+'</b>';
-			temp_report_title = 'Sales Report from '+fancy_from_date+' to '+fancy_to_date;
-		}
-	    else{ //Render graph only if report is for a day
-
-	      if(graphImage){
-
-	      	var temp_image_name = reportInfo_branch+'_'+fromDate;
-	      	temp_image_name = temp_image_name.replace(/\s/g,'');
-
-	        graphRenderSectionContent = ''+
-	          '<div class="summaryTableSectionHolder">'+
-	          '<div class="summaryTableSection">'+
-	             '<div class="tableQuickHeader">'+
-	                '<h1 class="tableQuickHeaderText">WEEKLY SALES TREND</h1>'+
-	             '</div>'+
-	             '<div class="weeklyGraph">'+
-	                '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/report_trend_images_repo/'+temp_image_name+'.png" style="max-width: 90%">'+
-	             '</div>'+
-	          '</div>'+
-	          '</div>';
-	      }
-	    }
-
-	    var fancy_report_title_name = reportInfo_branch+' - '+temp_report_title;
-
-
-	    //Quick Summary Content
-	    var quickSummaryRendererContent = '';
-
-	    var a = 0;
-	    while(reportInfoExtras[a]){
-	      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+reportInfoExtras[a].name+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(reportInfoExtras[a].value).toFixed(2)+'</td></tr>';
-	      a++;
-	    }
-
-	    var b = 1; //first one contains total paid
-	    while(completeReportInfo[b]){
-	      quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+completeReportInfo[b].name+'</td><td class="tableQuickAmount">'+(completeReportInfo[b].type == 'NEGATIVE' && completeReportInfo[b].value != 0 ? '- ' : '')+'<span class="price">Rs.</span>'+parseFloat(completeReportInfo[b].value).toFixed(2)+'</td></tr>';
-	      b++;
-	    }
-
-
-	    //Sales by Billing Modes Content
-	    var salesByBillingModeRenderContent = '';
-	    var c = 0;
-	    var billSharePercentage = 0;
-	    while(detailedListByBillingMode[c]){
-	      billSharePercentage = parseFloat((100*detailedListByBillingMode[c].value)/completeReportInfo[0].value).toFixed(0);
-	      salesByBillingModeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #000">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span class="smallOrderCount">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
-	      c++;
-	    }
-
-	    var salesByBillingModeRenderContentFinal = '';
-	    if(salesByBillingModeRenderContent != ''){
-	      salesByBillingModeRenderContentFinal = ''+
-	        '<div class="summaryTableSectionHolder">'+
-	        '<div class="summaryTableSection">'+
-	           '<div class="tableQuickHeader">'+
-	              '<h1 class="tableQuickHeaderText">SUMMARY BY BILLS</h1>'+
-	           '</div>'+
-	           '<div class="tableQuick">'+
-	              '<table style="width: 100%">'+
-	                 '<col style="width: 70%">'+
-	                 '<col style="width: 30%">'+
-	                 salesByBillingModeRenderContent+
-	              '</table>'+
-	           '</div>'+
-	        '</div>'+
-	        '</div>';
-	    }
-
-	    //Sales by Payment Types Content
-	    var salesByPaymentTypeRenderContent = '';
-	    var d = 0;
-	    var paymentSharePercentage = 0;
-	    while(detailedListByPaymentMode[d]){
-	      paymentSharePercentage = parseFloat((100*detailedListByPaymentMode[d].value)/completeReportInfo[0].value).toFixed(0);
-	      salesByPaymentTypeRenderContent += '<tr><td class="tableQuickBrief">'+detailedListByPaymentMode[d].name+' '+(paymentSharePercentage > 0 ? '<span style="color: #000">('+paymentSharePercentage+'%)</span>' : '')+(detailedListByPaymentMode[d].count > 0 ? '<span class="smallOrderCount">'+detailedListByPaymentMode[d].count+' orders</span>' : '')+'</td><td class="tableQuickAmount"><span class="price">Rs.</span>'+parseFloat(detailedListByPaymentMode[d].value).toFixed(0)+'</td></tr>';
-	      d++;
-	    }
-
-	    var salesByPaymentTypeRenderContentFinal = '';
-	    if(salesByPaymentTypeRenderContent != ''){
-	      salesByPaymentTypeRenderContentFinal = ''+
-	        '<div class="summaryTableSectionHolder">'+
-	        '<div class="summaryTableSection">'+
-	           '<div class="tableQuickHeader">'+
-	              '<h1 class="tableQuickHeaderText">SUMMARY BY PAYMENT</h1>'+
-	           '</div>'+
-	           '<div class="tableQuick">'+
-	              '<table style="width: 100%">'+
-	                 '<col style="width: 70%">'+
-	                 '<col style="width: 30%">'+
-	                 salesByPaymentTypeRenderContent+
-	              '</table>'+
-	           '</div>'+
-	        '</div>'+
-	        '</div>';
-	    }
-
-
-
-
-	    var temp_licenced_client = window.localStorage.accelerate_licence_client_name ? window.localStorage.accelerate_licence_client_name.toLowerCase() : 'common';
-	    var cssData = '<head> <style type="text/css"> body{font-family:sans-serif;margin:0}#logo{min-height:60px;width:100%}.mainHeader{background:url(https://accelerateengine.app/clients/'+temp_licenced_client+'/pattern.jpg) #c63931;width:100%;min-height:95px;padding:10px 0;border-bottom:2px solid #a8302b}.headerLeftBox{width:55%;display:inline-block;padding-left:25px}.headerRightBox{width:35%;float:right;display:inline-block;text-align:right;padding-right:25px}.headerAddress{margin:0 0 5px;font-size:14px;color:#e4a1a6}.headerBranch{margin:10px 0;font-weight:700;text-transform:uppercase;font-size:21px;padding:3px 8px;color:#c63931;display:inline-block;background:#FFF}.headerAdmin{margin:0 0 3px;font-size:16px;color:#FFF}.headerTimestamp{margin:0 0 5px;font-size:12px;color:#e4a1a6}.reportTitle{margin:15px 0;font-size:26px;font-weight:400;text-align:center;color:#3498db}.introFacts{background:0 0;width:100%;min-height:95px;padding:10px 0}.factsArea{display:block;padding:10px 25px;text-align:center}.factsBox{margin-right: 5px; width:20%;display:inline-block;text-align:left;padding:20px 15px;border:2px solid #a8302b;border-radius:5px;color:#FFF;height:65px;background:#c63931}.factsBoxFigure{margin:0 0 8px;font-weight:700;font-size:32px}.factsBoxFigure .factsPrice{font-weight:400;font-size:40%;color:#e4a1a6;margin-left:2px}.factsBoxBrief{margin:0;font-size:16px;color:#F1C40F;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.summaryTableSectionHolder{width:100%}.summaryTableSection{padding:0 25px;margin-top:30px}.summaryTableSection table{border-collapse:collapse}.summaryTableSection td{border-bottom:1px solid #fdebed}.tableQuick{padding:10px}.tableQuickHeader{min-height:40px;background:#c63931;border-bottom:3px solid #a8302b;border-top-right-radius:15px;color:#FFF}.tableQuickHeaderText{margin:0 0 0 25px;font-size:18px;letter-spacing:2px;text-transform:uppercase;padding-top:10px;font-weight:700}.smallOrderCount{font-size:80%;margin-left:15px;color:#000;font-weight:bold;}.tableQuickBrief{padding:10px;font-size:16px;color:#a71a14}.tableQuickAmount{padding:10px;font-size:18px;text-align:right;color:#a71a14}.tableQuickAmount .price{font-size:70%;margin-right:2px}.tableGraphRow{position:relative}.tableGraph_Graph{width:30%;display:inline-block;text-align:center;float:right;margin-top:30px}.footerNote,.weeklyGraph{text-align:center;margin:0}.tableGraph_Table{padding:10px;width:65%;display:inline-block}.weeklyGraph{padding:25px;border:1px solid #f2f2f2;border-top:none}.footerNote{font-size:12px;color:#595959}@media screen and (max-width:1000px){.headerLeftBox{display:none!important}.headerRightBox{padding-right:5px!important;width:90%!important}.reportTitle{font-size:18px!important}.tableQuick{padding:0 0 5px!important}.factsArea{padding:5px!important}.factsBox{width:90%!important;margin:0 0 5px!important}.smallOrderCount{margin:0!important;display:block!important}.summaryTableSection{padding:0 5px!important}}</style> </head>';
-	    
-
-	    var finalReport_emailContent = '<html>'+cssData+
-		    '<body>'+
-		      '<div class="mainHeader">'+
-		         '<div class="headerLeftBox">'+
-		            '<div id="logo">'+
-		               '<img src="https://accelerateengine.app/clients/'+temp_licenced_client+'/email_logo.png">'+
-		            '</div>'+
-		            '<p class="headerAddress">'+reportInfo_address+'</p>'+
-		         '</div>'+
-		         '<div class="headerRightBox">'+
-		            '<h1 class="headerBranch">'+reportInfo_branch+'</h1>'+
-		            '<p class="headerAdmin">'+reportInfo_admin+'</p>'+
-		            '<p class="headerTimestamp">'+reportInfo_time+'</p>'+
-		         '</div>'+
-		      '</div>'+
-		      '<div class="introFacts">'+
-		         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
-		         '<div class="factsArea">'+
-		            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(0)+' <span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Gross Amount</p></div>'+ 
-		            '<div class="factsBox"><h1 class="factsBoxFigure">'+parseFloat(netCartSum).toFixed(0)+'<span class="factsPrice">INR</span></h1><p class="factsBoxBrief">Net Sales</p></div>'+ 
-		            '<div class="factsBox"><h1 class="factsBoxFigure">'+netGuestsCount+'</h1><p class="factsBoxBrief">Guests</p></div>'+ 
-		            '<div class="factsBox"><h1 class="factsBoxFigure">'+completeReportInfo[0].count+'</h1><p class="factsBoxBrief">Bills</p></div>'+
-		         '</div>'+
-		      '</div>'+graphRenderSectionContent+
-		      '<div class="summaryTableSectionHolder">'+
-		        '<div class="summaryTableSection">'+
-		           '<div class="tableQuickHeader">'+
-		              '<h1 class="tableQuickHeaderText">Quick Summary</h1>'+
-		           '</div>'+
-		           '<div class="tableQuick">'+
-		              '<table style="width: 100%">'+
-		                 '<col style="width: 70%">'+
-		                 '<col style="width: 30%">'+
-		                 '<tr><td class="tableQuickBrief" style="font-weight: bold;">Net Sales</td><td class="tableQuickAmount" style="font-weight: bold;"><span class="price">Rs.</span>'+parseFloat(netCartSum).toFixed(2)+'</td></tr>'+
-		                 quickSummaryRendererContent+
-		                 '<tr><td class="tableQuickBrief" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e">Gross Amount</td><td class="tableQuickAmount" style="background: #f3eced; font-size: 120%; font-weight: bold; color: #292727; border-bottom: 2px solid #b03c3e"><span class="price">Rs.</span>'+parseFloat(completeReportInfo[0].value - grossRefundsProcessed).toFixed(2)+'</td></tr>'+
-		              '</table>'+
-		           '</div>'+
-		        '</div>'+
-		      '</div>'+
-		      salesByBillingModeRenderContentFinal+
-		      salesByPaymentTypeRenderContentFinal+
-		      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
-		         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
-		      '</div>'+
-		    '</body>'+
-		    '<html>';
-	}	
+	
 
 	function singleClickLoadErrors(){
 		//Display if any errors
@@ -9369,6 +14284,41 @@ function fetchSingleClickReportAfterApproval(){
 }
 
 
+/*
+	Step by Step Cost of Operations
+	********************************
+
+	Step 1: singleClickTotalPaid 1
+	Step 2: singleClickNetAmount 1
+	Step 3: singleClickTotalGuests 1
+	Step 4: singleClickLastInvoiceNumbers 1
+	Step 5: singleClickExtraCharges 2 x n(Extras) 
+	Step 6: singleClickDiscountsOffered 1
+	Step 7: singleClickCalculatedRoundOffs 1
+	Step 8: singleClickWaiveOffsMade 1
+	Step 9: singleClickTipsReceived 1
+	Step 10: singleClickRefundsIssued 2
+	Step 11: singleClickCancelledInvoices 1
+	Step 12: singleClickDetailedSalesTrend 2 x (8 sets)
+	Step 13: singleClickSessionWise 1 [with small reduce]
+	Step 14: singleClickHourlyTrend 1 [with huge reduce]
+	Step 15: singleClickDayByDaySales 5 fixed + 2 x n(Extras) ... for 27 days etc
+	Step 16: singleClickMonthByMonthSales 5 fixed + 2 x n(Extras) ... for 4 months etc
+	Step 17: singleClickDiscountDetails 1 + n(DiscountTypes)
+	Step 18: singleClickTopSellingItems 1 [with huge reduce]
+	Step 19: singleClickCancellationDetails 3 + 2 + n(BillModes)
+	Step 20: singleClickDetailedByModes 2 x n(BillModes)
+	Step 21: singleClickRenderBillsGraph 0
+	Step 22: singleClickBillingModesSplitByExtras 2 x n(Extras)
+	Step 23: singleClickDetailedByPayment 3 x n(PaymentModes)
+	Step 24: singleClickRenderPaymentsGraph 0
+	Step 25: singleClickPaymentModesSplitByExtras 4 x n(Extras)
+	Step 26: singleClickWeeklyProgress 14
+	Step 27: singleClickWeeklyWeeklyGraphRenderer 0
+	Step 28: singleClickGenerateAllReports 0 [with huge data processing]
+*/
+
+
 
 //REPORT ACTIONS:
 
@@ -9464,4 +14414,15 @@ function reportActionPrint(){
 
 	showToast('Printing the Report...', '#27ae60');
 	printPDFReport(htmlContent);
+}
+
+
+function setReportTheme(color){
+	window.localStorage.report_default_theme = color;
+	document.getElementById("reportThemeSelectionModal").style.display = 'none';
+	fetchSingleClickReport();
+}
+
+function openSetThemeModal(){
+	document.getElementById("reportThemeSelectionModal").style.display = 'block';
 }

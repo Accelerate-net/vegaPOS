@@ -6761,11 +6761,6 @@ input:checked + .slider:before {
     color: #55716c;
 }
 
-.excelDownloadTag:hover, .excelDownloadTag:active, .excelDownloadTag:focus{
-  background: #59a27c;
-  color: #FFF;
-}
-
 .excelDownloadIcon{
   margin-top: 10px;
   opacity: 0.4;
@@ -6792,7 +6787,37 @@ input:checked + .slider:before {
     position: relative;
     border-radius: 6px;
     margin-top: 20px;
+    cursor: pointer;
 }
+
+.excelDownloadBlock:hover .excelDownloadIcon,
+.excelDownloadBlock:focus .excelDownloadIcon,
+.excelDownloadBlock:active .excelDownloadIcon{
+  opacity: 0.8;
+}
+
+.excelDownloadBlock:hover .excelDownloadTag,
+.excelDownloadBlock:focus .excelDownloadTag,
+.excelDownloadBlock:active .excelDownloadTag{
+  background: #39ab70;
+  color: #FFF;
+}
+
+.excelDownloadBlock:hover .fa-play,
+.excelDownloadBlock:focus .fa-play,
+.excelDownloadBlock:active .fa-play{
+  transition: 0.50s;
+  -webkit-transition: 0.50s;
+  -moz-transition: 0.50s;
+  -ms-transition: 0.50s;
+  -o-transition: 0.50s;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
 
 .modalPrintButton{
     color: #d2d6de;
@@ -7046,3 +7071,93 @@ input:checked + .slider:before {
     right: 24px;
     top: 29px;
 }
+
+
+
+.quickSummaryBox{
+    color: #FFF;
+    border-radius: 5px;
+    padding: 10px;
+    width: 100%;
+}
+
+.skin-purple-light .quickSummaryBox,
+.skin-purple .quickSummaryBox{
+    background: #605ca8;
+    border: 2px solid #555299;
+}
+
+.skin-yellow-light .quickSummaryBox,
+.skin-yellow .quickSummaryBox{
+    background: #f39c12;
+    border: 2px solid #e08e0b;
+}
+
+.skin-red-light .quickSummaryBox,
+.skin-red .quickSummaryBox{
+    background: #dd4b39;
+    border: 2px solid #d73925;
+}
+
+.skin-blue-light .quickSummaryBox,
+.skin-blue .quickSummaryBox{
+    background: #3c8dbc;
+    border: 2px solid #367fa9;
+}
+
+.skin-green-light .quickSummaryBox,
+.skin-green .quickSummaryBox{
+    background: #1abc9c;
+    border: 2px solid #16a085;
+}
+
+.quickSummaryMainHead{
+    padding: 5px 0 15px 15px;
+    font-size: 28px !important;
+    font-family: 'Oswald'; 
+    text-align: center !important;
+    width: 100%; 
+}
+
+.skin-purple-light .quickSummaryMainHead,
+.skin-purple .quickSummaryMainHead{
+    color: #555299;
+}
+
+.skin-yellow-light .quickSummaryMainHead,
+.skin-yellow .quickSummaryMainHead{
+    color: #e08e0b;
+}
+
+.skin-red-light .quickSummaryMainHead,
+.skin-red .quickSummaryMainHead{
+    color: #d73925;
+}
+
+.skin-blue-light .quickSummaryMainHead,
+.skin-blue .quickSummaryMainHead{
+    color: #367fa9;
+}
+
+.skin-green-light .quickSummaryMainHead,
+.skin-green .quickSummaryMainHead{
+    color: #16a085;
+}
+
+
+
+.quickSummaryFigure{
+    font-size: 36px;
+    font-family: 'Source Sans Pro','Helvetica Neue',Helvetica,Arial,sans-serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.quickSummaryTag{
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0.7;
+}  
+
