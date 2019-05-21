@@ -580,7 +580,7 @@ function downloadExcelReport(type){
 				********************************************/
 
 				var excelReportData_BillingModes = [];
-
+				var originalBillingModesList = [];
 
 				function excelReportSummaryByBillingModes() {
 
@@ -623,9 +623,11 @@ function downloadExcelReport(type){
 								    success: function(data) {
 								    	
 								    	var temp_sum = 0;
+								    	var temp_count = 0;
 
 										if(data.rows.length > 0){
 											temp_sum = data.rows[0].value.sum;
+											temp_count = data.rows[0].value.count;
 										}
 
 
@@ -646,7 +648,16 @@ function downloadExcelReport(type){
 
 												excelReportData_BillingModes.push({
 											   		"name": modes[0].name,
-											   		"value": temp_sum - refunded_sum
+											   		"type": modes[0].type,
+											   		"value": temp_sum - refunded_sum,
+											   		"count": temp_count
+												})
+
+												originalBillingModesList.push({
+											   		"name": modes[0].name,
+											   		"type": modes[0].type,
+											   		"value": temp_sum - refunded_sum,
+											   		"count": temp_count
 												})
 
 
@@ -669,7 +680,7 @@ function downloadExcelReport(type){
 
 
 										    		//Go to next LEVEL THREE
-										    		excelReportSummaryByPaymentModes();
+										    		excelReportSummaryByBillingTypes();
 										    	}
 
 
@@ -709,9 +720,11 @@ function downloadExcelReport(type){
 								    success: function(data) {
 								    	
 								    	var temp_sum = 0;
+								    	var temp_count = 0;
 
 										if(data.rows.length > 0){
 											temp_sum = data.rows[0].value.sum;
+											temp_count = data.rows[0].value.count;
 										}
 
 
@@ -731,7 +744,16 @@ function downloadExcelReport(type){
 
 												excelReportData_BillingModes.push({
 											   		"name": modes[index].name,
-											   		"value": temp_sum - refunded_sum
+											   		"type": modes[index].type,
+											   		"value": temp_sum - refunded_sum,
+											   		"count": temp_count
+												})
+
+												originalBillingModesList.push({
+											   		"name": modes[index].name,
+											   		"type": modes[index].type,
+											   		"value": temp_sum - refunded_sum,
+											   		"count": temp_count
 												})
 
 
@@ -743,8 +765,10 @@ function downloadExcelReport(type){
 
 													//Process Figures
 										    		var billingModesGrandTotal = 0;
+										    		var billingModesGrandCount = 0;
 													for(var i = 0; i < excelReportData_BillingModes.length; i++){
 													    billingModesGrandTotal += excelReportData_BillingModes[i].value;
+													    billingModesGrandCount += excelReportData_BillingModes[i].count;
 													}
 
 													excelReportData_BillingModes.push({
@@ -755,7 +779,7 @@ function downloadExcelReport(type){
 
 
 										    		//Go to next LEVEL THREE
-										    		excelReportSummaryByPaymentModes();
+										    		excelReportSummaryByBillingTypes();
 										    	}
 
 
@@ -777,9 +801,58 @@ function downloadExcelReport(type){
 
 
 
+				/**********************************************
+					LEVEL - THREE (Summary by Billing Type)
+				***********************************************/
+
+				var excelReportData_BillingTypes = [];
+
+			    function excelReportSummaryByBillingTypes(){
+
+					var reducedBillingModesGrandTotal = 0;
+
+					var reducedBillingModesList = originalBillingModesList.reduce(function (accumulator, item) {
+							if(accumulator[item.type]){
+								accumulator[item.type].value += item.value;
+								accumulator[item.type].count += item.count;
+							}
+							else{
+								accumulator[item.type] = item;
+							}
+
+						  	return accumulator;
+					}, {});
+
+					for(var key in reducedBillingModesList){
+						reducedBillingModesList[key].type = getFancyNameForBillingType(reducedBillingModesList[key].type);
+						excelReportData_BillingTypes.push(reducedBillingModesList[key]);
+					}
+
+				    function getFancyNameForBillingType(type){
+				    	if(type == 'DELIVERY'){
+				    		return 'Home Delivery';
+				    	}
+				    	else if(type == 'PARCEL'){
+				    		return 'Takeaway';
+				    	}
+				    	else if(type == 'TOKEN'){
+				    		return 'Token Based';
+				    	}
+				    	else if(type == 'DINE'){
+				    		return 'Dine In';
+				    	}
+				    }
+
+				    excelReportSummaryByPaymentModes();
+
+				}
+
+
+
+
 
 				/**********************************************
-					LEVEL - THREE (Summary by Payment Modes)
+					LEVEL - FOUR (Summary by Payment Modes)
 				***********************************************/
 
 				var excelReportData_PaymentModes = [];
@@ -787,7 +860,7 @@ function downloadExcelReport(type){
 				function excelReportSummaryByPaymentModes() {
 
 					/*
-							Summary - PAYMENT MODE wise
+						Summary - PAYMENT MODE wise
 					*/
 
 				    var requestData = {
@@ -1034,7 +1107,7 @@ function downloadExcelReport(type){
 
 
 				/**********************************************
-					LEVEL - FOUR (Final Call)
+					LEVEL - FIVE (Final Call)
 				***********************************************/
 				function levelFour(){
 
@@ -1047,6 +1120,30 @@ function downloadExcelReport(type){
 					if(master_serial_number == 1){ //only on the first iteration
 						masterRowsHeadings = ["Sl No.", "Date", "Day"];
 					}
+
+					var summary_row_data_types = [];
+					for(var i = 0; i < excelReportData_BillingTypes.length; i++){
+						summary_row_data_types.push(excelReportData_BillingTypes[i].value);
+
+						if(master_serial_number == 1){ //only on the first iteration
+							masterRowsHeadings.push(excelReportData_BillingTypes[i].type);
+						}
+					}
+
+					var total_invoice_count = 0;
+					for(var i = 0; i < excelReportData_BillingTypes.length; i++){
+						total_invoice_count += excelReportData_BillingTypes[i].count;
+					}
+
+					var summary_row_data_highlights = [];
+					summary_row_data_highlights.push(excelReportData_Overall[excelReportData_Overall.length - 1].value); //Total sales
+					summary_row_data_highlights.push(total_invoice_count); //Total invoices
+					summary_row_data_highlights.push(parseInt(summary_row_data_highlights[0]/total_invoice_count)); //Average
+
+					if(master_serial_number == 1){ //only on the first iteration
+						masterRowsHeadings = masterRowsHeadings.concat(["Net Sales", "Total Bills", "Average"]);
+					}
+
 
 					var summary_row_data_sales = [];
 					for(var i = 0; i < excelReportData_Overall.length; i++){
@@ -1075,7 +1172,9 @@ function downloadExcelReport(type){
 						}
 					}
 
-					var summary_row_data_final = summary_row_data_basic.concat(summary_row_data_sales);
+					var summary_row_data_final = summary_row_data_basic.concat(summary_row_data_types);
+					summary_row_data_final = summary_row_data_final.concat(summary_row_data_highlights);
+					summary_row_data_final = summary_row_data_final.concat(summary_row_data_sales);
 					summary_row_data_final = summary_row_data_final.concat(summary_row_data_billing);
 					summary_row_data_final = summary_row_data_final.concat(summary_row_data_payment);
 
@@ -1133,6 +1232,21 @@ function downloadExcelReport(type){
 
 							//Sub Headings
 							var sub_heading = ["Date", "", ""];
+							
+							for(var a = 0; a < excelReportData_BillingTypes.length; a++){
+								if(a == 0)
+									sub_heading.push("Order Summary");
+								else
+									sub_heading.push("");
+							}
+
+							for(var a = 0; a < 3; a++){
+								if(a == 0)
+									sub_heading.push("Figures");
+								else
+									sub_heading.push("");
+							}
+
 							for(var a = 0; a < excelReportData_Overall.length; a++){
 								if(a == 0)
 									sub_heading.push("Overall Summary");
@@ -1154,11 +1268,8 @@ function downloadExcelReport(type){
 									sub_heading.push("");
 							}
 
-
-
 							header.push(sub_heading);
 							header.push(masterRowsHeadings);
-
 
 							var data = header.concat(masterRowsData); //all other data
 
@@ -1176,15 +1287,21 @@ function downloadExcelReport(type){
 							var subHeadingMergeRange = ["A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2", "I2", "J2", "K2", "L2", "M2", "N2", "O2", "P2", "Q2", "R2", "S2", "T2", "U2", "V2", "W2", "X2", "Y2", "Z2", "AA2", "AB2", "AC2", "AD2", "AE2", "AF2", "AG2", "AH2", "AI2", "AJ2"];
 							
 							mergeList[1] = XLSX.utils.decode_range("A2:C2");
-							
-							var overall_end_index = 3 + (excelReportData_Overall.length - 1);
-							mergeList[2] = XLSX.utils.decode_range("D2:" + subHeadingMergeRange[overall_end_index]);
 
-							var billing_end_index = 3 + (excelReportData_Overall.length) + (excelReportData_BillingModes.length - 1);
-							mergeList[3] = XLSX.utils.decode_range(subHeadingMergeRange[overall_end_index + 1] +':'+ subHeadingMergeRange[billing_end_index]);
+							var types_end_index = 3 + (excelReportData_BillingTypes.length - 1);
+							mergeList[2] = XLSX.utils.decode_range("D2:" + subHeadingMergeRange[types_end_index]);
+
+							var figures_end_index = types_end_index + 3;
+							mergeList[3] = XLSX.utils.decode_range(subHeadingMergeRange[types_end_index + 1] +':'+ subHeadingMergeRange[figures_end_index]);
+
+							var overall_end_index = figures_end_index + excelReportData_Overall.length;
+							mergeList[4] = XLSX.utils.decode_range(subHeadingMergeRange[figures_end_index + 1] +':'+ subHeadingMergeRange[overall_end_index]);
+
+							var billing_end_index = overall_end_index + excelReportData_BillingModes.length;
+							mergeList[5] = XLSX.utils.decode_range(subHeadingMergeRange[overall_end_index + 1] +':'+ subHeadingMergeRange[billing_end_index]);
 						
-							var payments_end_index = 3 + (excelReportData_Overall.length) + (excelReportData_BillingModes.length) + (excelReportData_PaymentModes.length - 1);
-							mergeList[4] = XLSX.utils.decode_range(subHeadingMergeRange[billing_end_index + 1] +':'+ subHeadingMergeRange[payments_end_index]);
+							var payments_end_index = billing_end_index + excelReportData_PaymentModes.length;
+							mergeList[6] = XLSX.utils.decode_range(subHeadingMergeRange[billing_end_index + 1] +':'+ subHeadingMergeRange[payments_end_index]);
 							
 
 							/* generate worksheet */

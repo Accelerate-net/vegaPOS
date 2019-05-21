@@ -6761,11 +6761,6 @@ input:checked + .slider:before {
     color: #55716c;
 }
 
-.excelDownloadTag:hover, .excelDownloadTag:active, .excelDownloadTag:focus{
-  background: #59a27c;
-  color: #FFF;
-}
-
 .excelDownloadIcon{
   margin-top: 10px;
   opacity: 0.4;
@@ -6792,7 +6787,37 @@ input:checked + .slider:before {
     position: relative;
     border-radius: 6px;
     margin-top: 20px;
+    cursor: pointer;
 }
+
+.excelDownloadBlock:hover .excelDownloadIcon,
+.excelDownloadBlock:focus .excelDownloadIcon,
+.excelDownloadBlock:active .excelDownloadIcon{
+  opacity: 0.8;
+}
+
+.excelDownloadBlock:hover .excelDownloadTag,
+.excelDownloadBlock:focus .excelDownloadTag,
+.excelDownloadBlock:active .excelDownloadTag{
+  background: #39ab70;
+  color: #FFF;
+}
+
+.excelDownloadBlock:hover .fa-play,
+.excelDownloadBlock:focus .fa-play,
+.excelDownloadBlock:active .fa-play{
+  transition: 0.50s;
+  -webkit-transition: 0.50s;
+  -moz-transition: 0.50s;
+  -ms-transition: 0.50s;
+  -o-transition: 0.50s;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  transform: rotate(90deg);
+}
+
 
 .modalPrintButton{
     color: #d2d6de;
