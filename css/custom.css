@@ -1571,8 +1571,17 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 .billSettleDate{
-  font-size: 10px; position: absolute; 
+  font-size: 10px; margin-bottom: 2px;
   display: block; top: 5px; color: #bdbdbd; left: 10px; }
+}
+
+.ratingView{
+
+}
+
+.ratingView:hover, .ratingView:active, .ratingView:focus{
+  cursor: pointer;
+  color: #333;
 }
 
 .rewardsRs{
