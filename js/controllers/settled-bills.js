@@ -164,7 +164,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -244,7 +244,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -324,7 +324,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -404,7 +404,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -484,7 +484,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -565,7 +565,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -646,7 +646,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -725,7 +725,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -784,7 +784,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 
 								      var resultRender = '';
 									  resultRender 				+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-																	'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+																	'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 																	'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 										                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 										                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -875,7 +875,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -957,7 +957,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -1038,7 +1038,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 				      while(resultsList[n]){
 				      	var bill = resultsList[n].value;
 						resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -1104,7 +1104,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 		      	var bill = resultsList[n].doc;
 
 				resultRender 			+=  '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'PENDING\')">'+
-													'        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+													'        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 													'        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 						                            '        <td>'+( bill.orderDetails.modeType == 'DINE' ? 'Table <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token <tag style="font-size: 120%; color: #ED4C67">#'+bill.table+'</tag>' : '' + bill.orderDetails.modeType == 'PARCEL' ? 'Parcel' : '' + bill.orderDetails.modeType == 'DELIVERY' ? 'Delivery' : '')+'<br><tag style="font-size: 85%">'+bill.orderDetails.mode+'</tag></td>'+
 						                            '        <td>'+bill.customerName+'<br>'+bill.customerMobile+'</td>'+
@@ -1127,6 +1127,45 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 		    }
 
 		  });  		
+	}
+
+
+
+	//Get Star Rating
+	function getStarRating(bill){
+
+						    var starRating = '';
+						    var commentsAdded = '';
+					      	
+					      	if(bill.customerReview && bill.customerReview != ''){
+					      		commentsAdded = '<i class="fa fa-comments" style="color:#87ceeb; margin-left: 4px;"></i>';
+					      	}
+
+					      	if(bill.customerRating){
+					      		for(var i = 1; i <= 5; i++){
+					      			if(i <= bill.customerRating){ //Filled 
+					      				starRating += '<i class="fa fa-star"></i>';
+					      			}
+					      			else{ //Empty
+					      				starRating += '<i class="fa fa-star-o"></i>';
+					      			}
+					      		}
+
+					      		if(bill.customerRating == 1){
+					      			starRating = '<tag style="color: #ff3117; display: block; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      		else if(bill.customerRating == 2 || bill.customerRating == 3){
+					      			starRating = '<tag style="color: #ffc000; display: block; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      		else if(bill.customerRating == 4){
+					      			starRating = '<tag style="color: #a2da4f; display: block; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      		else if(bill.customerRating == 5){
+					      			starRating = '<tag style="color: #31d040; display: block; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      	}
+
+					      	return starRating;
 	}
 
 
@@ -1416,7 +1455,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -1497,7 +1536,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -1577,7 +1616,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -1658,7 +1697,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -1739,7 +1778,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -1821,7 +1860,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -1903,7 +1942,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -1983,7 +2022,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -2042,7 +2081,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 
 								      	var resultRender = '';
 								      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-							                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+							                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 							                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 							                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 							                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -2135,7 +2174,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -2218,7 +2257,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -2301,7 +2340,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 					      	var bill = resultsList[n].doc;
 
 					      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-				                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+				                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 				                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 				                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 				                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -2368,7 +2407,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 		      	var bill = resultsList[n].doc;
 
 		      	resultRender += '   <tr role="row" class="billsListSingle" onclick="openSelectedBill(\''+encodeURI(JSON.stringify(bill))+'\', \'SETTLED\')">'+
-	                            '        <td><b style="color: #ED4C67">#'+bill.billNumber+'</b></td>'+
+	                            '        <td><b style="color: #555">#'+bill.billNumber+'</b>'+getStarRating(bill)+'</td>'+
 	                            '        <td>'+getFancyTime(bill.timeBill)+'<br><tag style="font-size: 85%">'+bill.date+'</tag></td>'+
 	                            '        <td>'+bill.orderDetails.mode+'<br>'+( bill.orderDetails.modeType == 'DINE' ? 'Table #'+bill.table : '' + bill.orderDetails.modeType == 'TOKEN' ? 'Token #'+bill.table : '')+'</td>'+
 	                            '        <td>'+(bill.customerName != '' ? bill.customerName+'<br>' : '')+bill.customerMobile+'</td>'+
@@ -2394,6 +2433,45 @@ function loadAllSettledBills(optionalAnimationFlag){
 
 		  });  		
 	}
+
+
+	//Get Star Rating
+	function getStarRating(bill){
+
+						    var starRating = '';
+						    var commentsAdded = '';
+					      	
+					      	if(bill.customerReview && bill.customerReview != ''){
+					      		commentsAdded = '<i class="fa fa-comments" style="color:#87ceeb; margin-left: 4px;"></i>';
+					      	}
+
+					      	if(bill.customerRating){
+					      		for(var i = 1; i <= 5; i++){
+					      			if(i <= bill.customerRating){ //Filled 
+					      				starRating += '<i class="fa fa-star"></i>';
+					      			}
+					      			else{ //Empty
+					      				starRating += '<i class="fa fa-star-o"></i>';
+					      			}
+					      		}
+
+					      		if(bill.customerRating == 1){
+					      			starRating = '<tag style="color: #ff3117; display: block; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      		else if(bill.customerRating == 2 || bill.customerRating == 3){
+					      			starRating = '<tag style="color: #ffc000; display: block; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      		else if(bill.customerRating == 4){
+					      			starRating = '<tag style="color: #a2da4f; display: block; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      		else if(bill.customerRating == 5){
+					      			starRating = '<tag style="color: #31d040; display: block; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      	}
+
+					      	return starRating;
+	}
+
 
 }
 
@@ -2570,7 +2648,7 @@ function openSelectedBill(encodedBill, type){
         var subOptions = '';
 
         if(isUserAnAdmin){
-        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+        	subOptions = '<div class="floaty" style="right: -10px; top: 5px">'+
                                   '<div class="floaty-btn small" id="triggerClick_settleBillButton" style="box-shadow: none;" onclick="settleBillAndPush(\''+encodedBill+'\', \'GENERATED_BILLS\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
@@ -2610,7 +2688,7 @@ function openSelectedBill(encodedBill, type){
                                 '</div>';
         }
         else{
-            subOptions = '<div class="floaty" style="right: -10px; top: 0">' +
+            subOptions = '<div class="floaty" style="right: -10px; top: 5px">' +
         					'<div class="floaty-btn small" style="box-shadow: none; background: #7571ce" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
@@ -2633,7 +2711,7 @@ function openSelectedBill(encodedBill, type){
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag>'+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3>'+subOptions+
 												      '</div>'+
-												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at <b style="color: #f39c12">'+getFancyTime(bill.timeBill)+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> KOT Number <tag style="color: #50aade; font-weight: bold;">'+bill.KOTNumber+'</tag></time>'+
+												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at <b style="color: #f39c12">'+getFancyTime(bill.timeBill)+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> KOT Number <tag style="color: #50aade; font-weight: bold;">'+bill.KOTNumber+'</tag>'+(bill.customerRating && bill.customerRating != "" ? ' <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> <tag class="ratingView" onclick="readCustomerComments('+bill.customerRating+', '+( bill.customerReview && bill.customerReview != '' ? '\''+bill.customerReview+'\'' : '\'\'' )+')">Rated '+getStarRating(bill)+'</tag>' : '')+'</time>'+
 												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
 												         '<table class="table">'+
 												         	'<col width="5%">'+
@@ -2833,7 +2911,7 @@ function openSelectedBill(encodedBill, type){
 			                                    '</li>';
 				}		
 				else{
-					deliveryAgentDetailsContent = '<div class="deliveryAddress" style="position: relative"> <p class="deliveryTitle">Delivery Details<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')" style="float: right; position: absolute; top: 4px; right: 4px;"><i class="fa fa-home"></i></tag></p>'+( bill.deliveryDetails.name != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.deliveryDetails.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.deliveryDetails.mobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.deliveryDetails.mobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div>';
+					deliveryAgentDetailsContent = '<div class="deliveryAddress" style="position: relative"> <p class="deliveryTitle">Delivery Details<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')" style="float: right; position: absolute; top: 4px; right: 4px; padding: 1px 3px; text-align: center; border-radius: 4px;"><i class="fa fa-home"></i></tag></p>'+( bill.deliveryDetails.name != '' ? '<p class="deliveryText"><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.deliveryDetails.name+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></p>' : '')+( bill.deliveryDetails.mobile != '' ? '<p class="deliveryText">Mob. <b><tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.deliveryDetails.mobile+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></b></p>' : '')+' </div>';
 				}				
 			}
         }
@@ -2866,7 +2944,7 @@ function openSelectedBill(encodedBill, type){
 
 
         if(isUserAnAdmin){
-        	subOptions = '<div class="floaty" style="right: -10px; top: 0">'+
+        	subOptions = '<div class="floaty" style="right: -10px; top: 5px">'+
                                   '<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
@@ -2895,7 +2973,7 @@ function openSelectedBill(encodedBill, type){
                                 '</div>';
         }
         else{
-        	subOptions = '<div class="floaty" style="right: -10px; top: 0">' +
+        	subOptions = '<div class="floaty" style="right: -10px; top: 5px">' +
         					'<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
@@ -2916,7 +2994,7 @@ function openSelectedBill(encodedBill, type){
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+paymentOptionUsedButton+'</h3>'+subOptions+
 												      '</div>'+
-												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at <b style="color: #5dd2a1">'+getFancyTime(bill.timeBill)+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> KOT Number <tag style="color: #50aade; font-weight: bold;">'+bill.KOTNumber+'</tag></time>'+
+												      '<time class="billSettleDate">'+(getSuperFancyDate(bill.date))+' at <b style="color: #5dd2a1">'+getFancyTime(bill.timeBill)+'</b> <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> KOT Number <tag style="color: #50aade; font-weight: bold;">'+bill.KOTNumber+'</tag>'+(bill.customerRating && bill.customerRating != "" ? ' <i class="fa fa-circle" style="font-size: 50%; position: relative; top: -2px; padding: 0 4px;"></i> <tag class="ratingView" onclick="readCustomerComments('+bill.customerRating+', '+( bill.customerReview && bill.customerReview != '' ? '\''+bill.customerReview+'\'' : '\'\'' )+')">Rated '+getStarRating(bill)+'</tag>' : '')+'</time>'+
 												      '<div class="table-responsive" style="overflow-x: hidden !important">'+
 												         '<table class="table">'+
 												         	'<col width="5%">'+
@@ -2960,6 +3038,90 @@ function openSelectedBill(encodedBill, type){
 		showToast('System Error: Failed to Render. Please contact Accelerate Support if problem persists.', '#e74c3c');
 		return '';
 	}	
+
+
+	//Get Star Rating
+	function getStarRating(bill){
+
+						    var starRating = '';
+						    var commentsAdded = '';
+					      	
+					      	if(bill.customerReview && bill.customerReview != ''){
+					      		commentsAdded = '<i class="fa fa-comments" style="color:#87ceeb; margin-left: 4px;"></i>';
+					      	}
+
+					      	if(bill.customerRating){
+					      		for(var i = 1; i <= 5; i++){
+					      			if(i <= bill.customerRating){ //Filled 
+					      				starRating += '<i class="fa fa-star"></i>';
+					      			}
+					      			else{ //Empty
+					      				starRating += '<i class="fa fa-star-o"></i>';
+					      			}
+					      		}
+
+					      		if(bill.customerRating == 1){
+					      			starRating = '<tag style="color: #ff3117; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      		else if(bill.customerRating == 2 || bill.customerRating == 3){
+					      			starRating = '<tag style="color: #ffc000; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      		else if(bill.customerRating == 4){
+					      			starRating = '<tag style="color: #a2da4f; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      		else if(bill.customerRating == 5){
+					      			starRating = '<tag style="color: #31d040; font-size: 10px;">' + starRating + commentsAdded + '</tag>';
+					      		}
+					      	}
+
+					      	return starRating;
+	}
+
+}
+
+
+function readCustomerComments(rating, comments){
+
+	if(!comments || comments == undefined || comments == ''){
+
+		return '';
+	}
+
+
+								var starRating = '';
+
+						      	for(var i = 1; i <= 5; i++){
+					      			if(i <= rating){ //Filled 
+					      				starRating += '<i class="fa fa-star"></i>';
+					      			}
+					      			else{ //Empty
+					      				starRating += '<i class="fa fa-star-o"></i>';
+					      			}
+					      		}
+
+					      		if(rating == 1){
+					      			starRating = '<tag style="color: #ff3117; font-size: 24px; position: relative; top: 2px; margin-left: 4px; letter-spacing: 1px;">' + starRating + '</tag>';
+					      		}
+					      		else if(rating == 2 || rating == 3){
+					      			starRating = '<tag style="color: #ffc000; font-size: 24px; position: relative; top: 2px; margin-left: 4px; letter-spacing: 1px;">' + starRating + '</tag>';
+					      		}
+					      		else if(rating == 4){
+					      			starRating = '<tag style="color: #a2da4f; font-size: 24px; position: relative; top: 2px; margin-left: 4px; letter-spacing: 1px;">' + starRating + '</tag>';
+					      		}
+					      		else if(rating == 5){
+					      			starRating = '<tag style="color: #31d040; font-size: 24px; position: relative; top: 2px; margin-left: 4px; letter-spacing: 1px;">' + starRating + '</tag>';
+					      		}
+
+
+	if(comments != ''){
+		document.getElementById("customerReviewViewModal").style.display = 'block';
+		document.getElementById("customerReviewViewModalContent").innerHTML = '<p style="font-size: 21px; font-weight: 300; color: #616161;">Customer rated this order '+starRating+'</p><p style="font-family: \'Oswald\'; font-size: 21px; font-style: italic; color: #4aa9d0;"><b style="color: #616161; font-weight: 300;">Says</b> "'+comments+'"</p>';
+	}
+}
+
+function customerReviewViewModalHide(){
+	document.getElementById("customerReviewViewModalContent").innerHTML = '';
+	document.getElementById("customerReviewViewModal").style.display = 'none';	
 }
 
 

@@ -13,7 +13,9 @@ function updateClock() {
             $('#minute').css("transform", "rotate(" + minute + "deg)");
             $('#second').css("transform", "rotate(" + second + "deg)");
 
-            document.getElementById('globalTimeDisplay').innerHTML = moment().format('h:mm:ss a')
+            document.getElementById('globalTimeDisplay').innerHTML = moment().format('h:mm:ss a');
+
+            document.getElementById('globalDateDisplay').innerHTML = moment().format('dddd, ') + '<b style="font-size: 120%;">'+moment().format('D')+'</b>' + moment().format(' MMM, YYYY');
 }
 
 function timedUpdate () {
@@ -582,7 +584,7 @@ function goProceedToActivation(){
 
       $.ajax({
         type: 'POST',
-        url: 'https://www.accelerateengine.app/apis/posactivateapplication.php',
+        url: 'https://accelerateengine.app/apis/posactivateapplication.php',
         data: JSON.stringify(admin_data),
         contentType: "application/json",
         dataType: 'json',

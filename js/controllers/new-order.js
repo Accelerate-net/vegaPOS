@@ -5512,7 +5512,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 		
 		var table_req = customerInfo.mappedAddress;
 
-		
 		if(table_req != "" && table_req != "None"){
 
 		    $.ajax({
