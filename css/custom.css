@@ -6845,6 +6845,10 @@ input:checked + .slider:before {
   cursor: pointer;
 }
 
+.quickButtonsTop .fa{
+  font-size: 21px !important;
+}
+
 .quickButtonsTop:hover .fa,
 .quickButtonsTop:active .fa,
 .quickButtonsTop:focus .fa{
