@@ -5718,7 +5718,7 @@ function showBundledRecentBills(type, handle){
                     '</div>'+
                     '<div class="cartSumRow" style="font-weight: 400 !important; font-size: 18px; position: absolute; bottom: 0; margin-left: -5px; width: 100%; padding: 8px;">Grand Total <tag style="font-weight: bold; font-size: 120%; float: right;"><i class="fa fa-inr"></i>'+billData.payableAmount+'</tag></div>'+
                   '</div>'+
-                  '<p style="margin: 5px 0 0 0; text-align: center; font-size: 11px; color: #b1b1b1;">By '+(billData.stewardName != "" ? billData.stewardName : "Unknown")+' at '+getFancyTime(billData.timeBill)+' on '+billData.date+'</p>'+ bill_actions +
+                  '<p style="margin: 5px 0 0 0; text-align: center; font-size: 11px; color: #b1b1b1;">by '+(billData.stewardName != "" ? billData.stewardName : "Unknown")+' at '+getFancyTime(billData.timeBill)+' on '+billData.date+'</p>'+ bill_actions +
                 '</div>';      
 
             n++;

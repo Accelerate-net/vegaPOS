@@ -6828,8 +6828,57 @@ input:checked + .slider:before {
 }
 
 
+.quickButtonsTop{
+    width: 42px !important;
+    height: 42px !important;
+    background: rgba(0, 0, 0, .1) !important;
+    font-size: 24px !important;
+    border-radius: 50% !important;
+    text-align: center !important;
+    line-height: 40px !important;  
+    display: inline-block !important;
+}
+
+.quickButtonsTop:hover,
+.quickButtonsTop:active,
+.quickButtonsTop:focus{
+  cursor: pointer;
+}
+
+.quickButtonsTop:hover .fa,
+.quickButtonsTop:active .fa,
+.quickButtonsTop:focus .fa{
+  opacity: 0.3 !important;
+}
+
+
+
+.quickIconHighlighter{
+    display: block;
+    position: absolute;
+    top: 11px;
+    left: 0;
+    width: 50px;
+    text-align: center;
+    line-height: 14px;
+    font-size: 12px;
+    color: #FFF;
+    opacity: 0;
+    font-weight: bold;
+}
+
+
+.quickButtonsTop:hover .quickIconHighlighter,
+.quickButtonsTop:active .quickIconHighlighter,
+.quickButtonsTop:focus .quickIconHighlighter{
+  opacity: 1;
+}
+
+
+
+
 .modalPrintButton{
-    color: #d2d6de;
+    color: #989a9e;
     position: absolute;
     right: 15px;
     top: 64px;

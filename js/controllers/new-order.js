@@ -3033,6 +3033,8 @@ function getFormattedAddress(addressObject){
 
 	if(address){
 		var addressString = (address.flatNo && address.flatNo != '' ? address.flatNo + ', ' : '')+(address.flatName && address.flatName != '' ? address.flatName + ', ' : '')+address.landmark+' '+address.area+' ';
+		addressString = addressString.replace(/,\s*$/, "");
+
 		return addressString;
 	}
 	else{
