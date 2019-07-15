@@ -2792,6 +2792,30 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                             //DINE case Already handled inside billTableMapping() call
                           }
 
+
+
+
+                          /*
+                              Sending SMS updates to the customer (for Delivery/Takeaway)
+                          */
+
+                          if(kotfile.orderDetails.modeType == 'DELIVERY'){
+                                if(!kotfile.orderDetails.isOnline){ //SMS Options for NON-ONLINE orders only.
+
+                                  var isAutoSMSFeatureEnabled = true;
+
+                                  if(isAutoSMSFeatureEnabled){
+                                    var address = JSON.parse(kotfile.table);
+                                    if((address.contact).match(/^\d{10}$/)){
+                                      sendOrderConfirmationSMS(address.contact, address.name, kotfile.payableAmount);
+                                    }
+                                  }
+
+                                }
+                          }
+
+
+
                           //Update bill number on server
                           var updateData = {
                             "_rev": revID,
@@ -2842,6 +2866,44 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
 
     });    
 }
+
+
+function sendOrderConfirmationSMS(mobileNumber, customerName, billAmount){
+
+          var admin_data = {
+            "token": window.localStorage.loggedInAdmin,
+            "customerName": customerName,
+            "customerMobile": mobileNumber,
+            "totalBillAmount": billAmount,
+            "accelerateLicence": window.localStorage.accelerate_licence_number,
+            "accelerateClient": window.localStorage.accelerate_licence_client_name
+          }
+
+          showLoading(10000, 'Sending SMS to Customer');
+
+          $.ajax({
+            type: 'POST',
+            url: 'https://www.accelerateengine.app/apis/posdeliveryconfirmationsms.php',
+            data: JSON.stringify(admin_data),
+            contentType: "application/json",
+            dataType: 'json',
+            timeout: 10000,
+            success: function(data) {
+              hideLoading();
+              if(data.status){
+
+              }
+              else{
+                showToast('Failed to send SMS: '+data.error, '#e74c3c');
+              }
+            },
+            error: function(data){
+              hideLoading();
+              showToast('Failed to send SMS: Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+            }
+          });  
+}
+
 
 
 function resetTableToFree(tableNumber){
@@ -5718,7 +5780,7 @@ function showBundledRecentBills(type, handle){
                     '</div>'+
                     '<div class="cartSumRow" style="font-weight: 400 !important; font-size: 18px; position: absolute; bottom: 0; margin-left: -5px; width: 100%; padding: 8px;">Grand Total <tag style="font-weight: bold; font-size: 120%; float: right;"><i class="fa fa-inr"></i>'+billData.payableAmount+'</tag></div>'+
                   '</div>'+
-                  '<p style="margin: 5px 0 0 0; text-align: center; font-size: 11px; color: #b1b1b1;">By '+(billData.stewardName != "" ? billData.stewardName : "Unknown")+' at '+getFancyTime(billData.timeBill)+' on '+billData.date+'</p>'+ bill_actions +
+                  '<p style="margin: 5px 0 0 0; text-align: center; font-size: 11px; color: #b1b1b1;">by '+(billData.stewardName != "" ? billData.stewardName : "Unknown")+' at '+getFancyTime(billData.timeBill)+' on '+billData.date+'</p>'+ bill_actions +
                 '</div>';      
 
             n++;

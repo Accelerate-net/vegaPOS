@@ -267,14 +267,42 @@
                 <div class="navbar-custom-menu">
                     <ul class="nav navbar-nav">
 
+
+                        <li class="noHover" tabindex="-1">
+                            <a tabindex="-1" class="noHover" href="#" onclick="showSpotlight()" style="padding: 6px 4px;">
+                              <tag class="quickButtonsTop">
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                                <tag class="quickIconHighlighter">Spotlight Search</tag>
+                              </tag>
+                            </a>
+                        </li>
+
+                        <li class="noHover" tabindex="-1">
+                            <a tabindex="-1" class="noHover" href="#" onclick="openTalkToKitchen()" style="padding: 6px 4px;">
+                              <tag class="quickButtonsTop">
+                                <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                                <tag class="quickIconHighlighter">Text to Kitchen</tag>
+                              </tag>
+                            </a>
+                        </li>
+
+                        <li class="noHover" tabindex="-1">
+                            <a tabindex="-1" class="noHover" href="#" onclick="showRecentBillsPreview()" style="padding: 6px 4px;">
+                              <tag class="quickButtonsTop">
+                                <i class="fa fa-file-text-o" aria-hidden="true"></i>
+                                <tag class="quickIconHighlighter">Recent Invoices</tag>
+                              </tag>
+                            </a>
+                        </li>
+
+                        <li style="text-align: center" onclick="checkLogin()" tabindex="-1" id="globalServerConnectionStatusHolder"><a tabindex="-1" href="#" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;"><tag id="globalServerConnectionStatus"></tag></a></li>
+
                         <li class="dropdown user user-menu" tabindex="-1">
                             <a tabindex="-1" href="#" onclick="selectSessionWindow()" style="font-size: 18px; font-weight: 300;">
                               <span id="currentSessionDisplay" style="display: block; position: relative; top: -6px;">Unknown Session</span>
                               <time style="display: block; position: absolute; font-size: 12px; font-weight: initial; bottom: 4px; text-transform: uppercase;" id="currentSessionDisplayTime"></time>
                             </a>
                         </li>
-
-                        <li style="width: 165px !important; text-align: center" onclick="checkLogin()" tabindex="-1" id="globalServerConnectionStatusHolder"><a tabindex="-1" href="#" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;"><tag id="globalServerConnectionStatus"></tag></a></li>
 
                         <li class="noHover" style="width: 165px !important" tabindex="-1"><a tabindex="-1" href="#" class="noHover" style="padding: 0">
 
@@ -287,7 +315,7 @@
                                 </div>
                               </div>
                           </div>
-                          <tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 300; position: relative; top: -14px; left: 8px;"></tag>
+                          <tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 400; position: relative; top: -14px; left: 8px;"></tag>
                           <tag id="globalDateDisplay" style="font-size: 11px; top: 26px; left: 52px; position: absolute; font-weight: 300; font-family: 'Roboto'; white-space: nowrap;"></tag>
 
                         </a></li>

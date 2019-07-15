@@ -2045,7 +2045,7 @@ function applySystemOptionSettings(){
 
 function applySystemName(){
   if(window.localStorage.appCustomSettings_SystemName && window.localStorage.appCustomSettings_SystemName != ''){
-    document.getElementById("thisSystemName").innerHTML = window.localStorage.appCustomSettings_SystemName;
+    document.getElementById("thisSystemName").innerHTML = '<tag class="noSystemNameSet" onclick="renderPage(\'system-settings\', \'System Settings\'); openSystemSettings(\'configureSystem\');">'+window.localStorage.appCustomSettings_SystemName+'</tag>';
   }
   else{
     window.localStorage.appCustomSettings_SystemName = 'Nameless Machine';
@@ -3318,7 +3318,7 @@ function renderCurrentUserDisplay(){
   }
 
   if(loggedInStaffInfo.name != '' && loggedInStaffInfo.code != ''){
-    document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: 400">'+loggedInStaffInfo.name+'</span>';
+    document.getElementById("currentUserProfileDisplay").innerHTML = '<tag class="currentUserImage"/>'+getImageCode(loggedInStaffInfo.name)+'</tag><span style="font-weight: 400; padding-right: 38px;">'+loggedInStaffInfo.name+'</span>';
   }
   else{
     document.getElementById("currentUserProfileDisplay").innerHTML = '<img src="images/common/default_user.png" class="user-image" alt="Avatar" /> <span style="font-style: italic; font-weight: 300">Profile Not Selected</span>';

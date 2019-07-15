@@ -392,9 +392,10 @@ function liveOrderOptionsNonDineClose(){
 
 function liveOrderOptions(kotID){
 
+  //anyone can shift tables?
+  var isShiftingRightGranted = true; 
 
   // LOGGED IN USER INFO
-
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
         
   if(jQuery.isEmptyObject(loggedInStaffInfo)){
@@ -441,6 +442,7 @@ function liveOrderOptions(kotID){
           else{
             document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
+                        (isShiftingRightGranted ? '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>' : '')+
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
                         '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
                         '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
@@ -1086,6 +1088,37 @@ function overWriteCurrentOrder(kot){
 function pickTableForTransferOrder(currentTableID, kotID){
 
     liveOrderOptionsClose();
+
+    /*
+      Admin Check
+    */
+
+    //anyone can shift items?
+    var isShiftingRightGranted = true; 
+
+    // LOGGED IN USER INFO
+    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+          
+    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+      loggedInStaffInfo.name = "";
+      loggedInStaffInfo.code = "";
+      loggedInStaffInfo.role = "";
+    }
+
+    var isUserAnAdmin = false
+    if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+      isUserAnAdmin = true;
+    }
+    else{
+      if(!isShiftingRightGranted){
+          showToast('No Permission: Only an Admin can <b>tables</b>.', '#e67e22');
+          shiftItemWizardModalHide();
+          return '';
+      }
+    }
+
+
+
    
     //To display Large (default) or Small Tables
     var smallTableFlag = '';
