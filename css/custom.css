@@ -7233,3 +7233,111 @@ input:checked + .slider:before {
 .blurBG{
   filter: blur(2px);
 }
+
+
+.forcedUserHolder{
+    width: 140px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    display: inline-block;
+    height: 150px;
+    text-align: center;
+    padding: 10px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.2);  
+    cursor: pointer;
+    margin: 0 8px 10px 0;
+}
+
+.forcedUserModal{
+    padding: 20px 25px 20px 25px !important;
+    max-height: 30em !important;
+    max-width: unset !important;
+    overflow-y: scroll !important;
+    background: #1abc9c;  
+}
+
+.skin-green-light .forcedUserModal, .skin-green .forcedUserModal{
+  background: #1abc9c !important;
+}
+
+.skin-yellow-light .forcedUserModal, .skin-yellow .forcedUserModal{
+  background: #f39c12 !important;
+}
+
+.skin-blue-light .forcedUserModal, .skin-blue .forcedUserModal{
+  background: #3c8dbc !important;
+}
+
+.skin-red-light .forcedUserModal, .skin-red .forcedUserModal{
+  background: #dd4b39 !important;
+}
+
+.skin-purple-light .forcedUserModal, .skin-purple .forcedUserModal{
+  background: #605ca8 !important;
+}
+
+
+
+.forcedUserHolder.selected{
+    border: 1px solid #FFF !important;
+}
+
+.forcedUserHolder.selected .forcedUserText{
+    color: #FFF !important;
+}
+
+.skin-green-light .forcedUserHolder.selected, .skin-green .forcedUserHolder.selected{
+  background: #ffc800 !important;
+}
+
+.skin-yellow-light .forcedUserHolder.selected, .skin-yellow .forcedUserHolder.selected{
+  background: #4887bd !important;
+}
+
+.skin-blue-light .forcedUserHolder.selected, .skin-blue .forcedUserHolder.selected{
+  background: #ffbc00 !important;
+}
+
+.skin-red-light .forcedUserHolder.selected, .skin-red .forcedUserHolder.selected{
+  background: #ffbc00 !important;
+}
+
+.skin-purple-light .forcedUserHolder.selected, .skin-purple .forcedUserHolder.selected{
+  background: #ffbc00 !important;
+}
+
+
+.forcedUserImage{
+    width: 85px;
+    height: 85px;
+    border-radius: 50%;
+    text-align: center !important;
+    line-height: 86px;
+    font-size: 42px;
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+    font-family: 'Roboto';
+    background: rgba(45, 51, 53, 0.28);
+    display: inline-block;  
+}
+
+.forcedUserText{
+    font-size: 21px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-family: 'Oswald';
+    margin: 12px 0;
+    text-transform: capitalize;
+    color: #cecece;
+}
+
+.forcedUserHead{
+    text-align: center;
+    font-weight: 300;
+    letter-spacing: -1px;
+    margin: 0;
+    padding-bottom: 15px;
+    color: #FFF;
+    font-size: 32px;  
+}

@@ -2833,13 +2833,22 @@ function initAdminIdle(){
   admin_idleSecondsCounter = 0;
   clearInterval(admin_refreshInterval);
 
+  var isAdmleIdleLogoutEnabled = false;
+  var isForcedUserSelectionOnIdleEnabled = false;
 
-      if(window.localStorage.appOtherPreferences_AdminIdleLogout && window.localStorage.appOtherPreferences_AdminIdleLogout == 1){
+  if(window.localStorage.appOtherPreferences_AdminIdleLogout && window.localStorage.appOtherPreferences_AdminIdleLogout == 1){
+    isAdmleIdleLogoutEnabled = true;
+  }
+
+  isForcedUserSelectionOnIdleEnabled = true; //hard coded
+
+
+      if(isForcedUserSelectionOnIdleEnabled || isAdmleIdleLogoutEnabled){
           admin_refreshInterval = window.setInterval(function() { AdminCheckIdleTime(); }, 1000);
       
 
           //Start Tracking Events
-          document.addEventListener('onclick', function() {
+          document.addEventListener('click', function() {
               admin_idleSecondsCounter = 0;
           }); 
 
@@ -2847,7 +2856,7 @@ function initAdminIdle(){
               admin_idleSecondsCounter = 0;
           }); 
 
-          document.addEventListener('onkeypress', function() {
+          document.addEventListener('keydown', function() {
               admin_idleSecondsCounter = 0;
           }); 
       }
@@ -2860,12 +2869,25 @@ function AdminCheckIdleTime(){
       
       admin_idleSecondsCounter++;
 
-      if(!window.localStorage.appOtherPreferences_AdminIdleLogout || window.localStorage.appOtherPreferences_AdminIdleLogout != 1){
+      var isAdmleIdleLogoutEnabled = false;
+      var isForcedUserSelectionOnIdleEnabled = false;
+
+      if(window.localStorage.appOtherPreferences_AdminIdleLogout && window.localStorage.appOtherPreferences_AdminIdleLogout == 1){
+        isAdmleIdleLogoutEnabled = true;
+      }
+
+      isForcedUserSelectionOnIdleEnabled = true; //hard coded
+
+
+      if(!isForcedUserSelectionOnIdleEnabled && !isAdmleIdleLogoutEnabled){
         admin_idleSecondsCounter = 0;
         clearInterval(admin_refreshInterval);
         return "";
       }
 
+
+
+      if(isAdmleIdleLogoutEnabled){
           if (admin_idleSecondsCounter == 114) { // 2 mins less 6 seconds
 
               // LOGGED IN USER INFO
@@ -2878,7 +2900,7 @@ function AdminCheckIdleTime(){
               }
 
               if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){
-                showLoading(6000, 'Admin logging out...');
+                showLoading(1000, 'Admin logging out...');
               }
           }
           else if (admin_idleSecondsCounter == 120) { // 2 mins
@@ -2896,6 +2918,13 @@ function AdminCheckIdleTime(){
                 removeAdminPrevilages();
               }
           }
+      }
+
+      if(isForcedUserSelectionOnIdleEnabled){
+          if (admin_idleSecondsCounter == 130) { // 1 mins
+              openForcedUserSelectionWindow();
+          }
+      }
 }
 
 
@@ -3056,6 +3085,8 @@ function switchProfile(encodedProfile){
 
 /*Steward Selection*/
 function selectStewardWindow(){
+
+
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
   
   if(jQuery.isEmptyObject(loggedInStaffInfo)){
@@ -5660,6 +5691,229 @@ function hideSettingsAccesscodeWindow(){
   document.getElementById("settingsPasscodeModalHome").style.display = 'none';
   $('#appRenderArea').removeClass('blurBG');
 }
+
+
+/*
+  FORCED USER SELECTION on IDLE
+*/
+
+function openForcedUserSelectionWindow(){
+  
+  //If admin login is visible, quit
+  if($('#adminUserModalHome').is(':visible') || $('#forcedUserSelectionModalHome').is(':visible')) { 
+    closeForcedUserSelectionWindow();
+    return ''
+  }
+
+  
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+  
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+  }
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
+
+              var users = data.docs[0].value;
+              users.sort(); //alphabetical sorting 
+
+              if(users.length == 0){
+                return '';
+              }
+
+              var n = 0;
+              var renderContent = '';
+              var isRendered = false;
+              var currentUserFound = false;
+              var renderCount = 0;
+
+              users = users.concat(users);
+
+              while(users[n]){
+                if(users[n].role == 'STEWARD' || users[n].role == 'ADMIN'){ //Show only Stewards and Admins
+                  renderContent += '<div class="forcedUserHolder easySelectTool_ForcedProfile" id="user_forced_selection_'+users[n].code+'" onclick="closeForcedUserSelectionWindow(); switchProfile(\''+encodeURI(JSON.stringify(users[n]))+'\')"> <div class="forcedUserImage">'+getImageCode(users[n].name)+'</div> <h1 class="forcedUserText">'+users[n].name+'</h1> </div>';
+                }
+
+                //Find Current User
+                if(loggedInStaffInfo.code == users[n].code){
+                  currentUserFound = true;
+                }
+
+                n++;
+              }
+
+              if(renderContent == ''){
+                closeForcedUserSelectionWindow(); //Since there are no users found
+              }
+              else{
+                renderContent = '<section id="main" class="forcedUserModal">'+
+                      '<p class="forcedUserHead">Select a user to continue</p>' + renderContent + '</section>';
+              }
+
+              document.getElementById("forcedUserSelectionModalContent").innerHTML = renderContent;
+              document.getElementById("forcedUserSelectionModalHome").style.display = 'block';
+
+              if(currentUserFound){
+                document.getElementById("user_forced_selection_"+loggedInStaffInfo.code).classList.add('selected');
+              }
+
+
+              /*
+                EasySelect Tool (TWO COLUMN - MULTI ROW GRID)
+              */
+              var tiles = $('#forcedUserSelectionModalHome .easySelectTool_ForcedProfile');
+              var tileSelected = undefined; //Check for active selection
+              var i = 0;
+              var currentIndex = 0;
+              var lastIndex = 0;
+
+              $.each(tiles, function() {
+                if($(tiles[i]).hasClass("selected")){
+                  tileSelected = tiles.eq(i);
+                  currentIndex = i;
+                }
+
+                lastIndex = i;
+                i++;
+              });  
+
+              var easySelectTool = $(document).on('keydown',  function (e) {
+                
+                if($('#forcedUserSelectionModalHome').is(':visible')) {
+
+                     e.preventDefault();
+
+                     switch(e.which){
+                      case 37:{ //  < Left Arrow
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selected');
+
+                              currentIndex--;
+                              if(currentIndex < 0){
+                                currentIndex = lastIndex;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selected');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selected');
+                          }      
+
+                        break;
+                      }
+                      case 38:{ //  Up Arrow
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selected');
+
+                              currentIndex--;
+                              if(currentIndex < 0){
+                                currentIndex = lastIndex;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selected');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selected');
+                          }      
+
+                        break;
+                      }
+                      case 39:{ // Right Arrow >
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selected');
+
+                              currentIndex++;
+                              if(currentIndex > lastIndex){
+                                currentIndex = 0;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selected');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selected');
+                          }      
+
+                        break;
+                      }
+                      case 40:{ // Down Arrow >
+
+                          if(tileSelected){
+                              tileSelected.removeClass('selected');
+
+                              currentIndex++;
+                              if(currentIndex > lastIndex){
+                                currentIndex = 0;
+                              }
+
+                              if(tiles.eq(currentIndex)){
+                                  tileSelected = tiles.eq(currentIndex);
+                                  tileSelected = tileSelected.addClass('selected');
+                              }
+                          }else{
+                              tileSelected = tiles.eq(0).addClass('selected');
+                          }      
+
+                        break;
+                      }
+                      case 13:{ // Enter (Confirm)
+
+                        $("#forcedUserSelectionModalHome .easySelectTool_ForcedProfile").each(function(){
+                          if($(this).hasClass("selected")){
+                            $(this).click();
+                            e.preventDefault(); 
+                            easySelectTool.unbind();   
+                          }
+                        });    
+
+                        break;
+                      }
+                     }
+                }
+              });
+
+
+          }
+
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
+      }
+
+    });  
+}
+
+
+function closeForcedUserSelectionWindow(){
+  document.getElementById("forcedUserSelectionModalHome").style.display = 'none';
+}
+
 
 
 
