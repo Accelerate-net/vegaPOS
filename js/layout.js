@@ -2094,7 +2094,7 @@ $(function () {
     "use strict";
     jqKeyboard.init();
 });
-*/
+*/ 
 
 /* Server Connectivity */
 function pingServer(){
@@ -5482,5 +5482,171 @@ function pauseJammedKOTWarning(){
     showToast('Warning Ignored: '+warn_text+'. Please contact Accelerate Support if problem persists.', '#e67e22');
     document.getElementById("KOTJammingWarning").style.display = 'none';
 }
+
+
+
+/* Settings Passcode Check */
+
+function askForSettingsPasscode(){
+    document.getElementById("settingsPasscodeModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
+                                    '<header>'+
+                                      '<span class="avatarTransparent"><img src="images/common/settings_locked.png" style="width: 80px; border-radius: 0;" id="adminUserLockIcon"></span>'+
+                                      '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Restricted Access</b></h1>'+
+                                      '<hr style="margin-bottom: 15px; margin-top: 5px;">'+
+                                      '<p style="font-size: 12px; letter-spacing: 4px; color: #959595;">ENTER ACCESS CODE</p>'+
+                                    '</header>'+
+                                    '<div class="row" style="margin: 15px 0">'+
+                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextAccesscode(event, this, \'2\')" maxlength="1" type="password" id="settingsProtectionAccesscode_1" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
+                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextAccesscode(event, this, \'3\')" maxlength="1" type="password" id="settingsProtectionAccesscode_2" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
+                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="jumpToNextAccesscode(event, this, \'4\')" maxlength="1" type="password" id="settingsProtectionAccesscode_3" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+    
+                                        '<div class="col-sm-3"> <div class="form-group"> <input placeholder="-" onfocus="this.select()" onkeyup="processAccesscodeAndLogin(event, this)" maxlength="1" type="password" id="settingsProtectionAccesscode_4" value="" class="form-control adminUserPasscodeInput"> </div> </div>'+                     
+                                    '</div>'+
+                                '</section>';
+
+    document.getElementById("settingsPasscodeModalHome").style.display = 'block';
+    $('#appRenderArea').addClass('blurBG');
+
+    $("#settingsProtectionAccesscode_1").focus();
+    $("#settingsProtectionAccesscode_1").select(); 
+}
+
+function jumpToNextAccesscode(event, element, next_id){
+
+  if($('#settingsProtectionAccesscode_1').hasClass('redInputError')){
+    clearErrorOnInput();
+  }
+  
+  if(event.which == 8){ //Backspace
+
+    if($(element).val() == ''){
+
+      var prev_id = next_id - 2;
+      if(prev_id < 1){
+        prev_id = 1;
+      }
+
+      $('#settingsProtectionAccesscode_'+prev_id).focus();
+      $('#settingsProtectionAccesscode_'+prev_id).select();
+    }
+
+    return '';
+
+  }
+  
+  if($(element).val() != ''){
+    $('#settingsProtectionAccesscode_'+next_id).focus();
+    $('#settingsProtectionAccesscode_'+next_id).select();
+  }  
+}
+
+function processAccesscodeAndLogin(event, element){
+
+  if($('#settingsProtectionAccesscode_1').hasClass('redInputError')){
+    clearErrorOnInput();
+  }
+
+  if(event.which == 8){ //Backspace
+
+    if($(element).val() == ''){
+      $('#settingsProtectionAccesscode_3').focus();
+      $('#settingsProtectionAccesscode_3').select();
+    }
+
+    return '';
+  }
+
+  validateAndAllowSettings();
+
+}
+
+
+function validateAndAllowSettings(){
+  
+  //Validate
+  var n = 1;
+  var enteredPasscode = '';
+  while(n <= 4){
+    if($('#settingsProtectionAccesscode_'+n).val() == ''){
+      $('#settingsProtectionAccesscode_'+n).focus();
+      $('#settingsProtectionAccesscode_'+n).select(); 
+      return '';  
+    }
+    else{
+      enteredPasscode = enteredPasscode + $('#settingsProtectionAccesscode_'+n).val();
+    }
+    n++;
+  }
+
+    enteredPasscode = parseInt(enteredPasscode);
+
+    var requestData = {"selector": { "identifierTag": "ACCELERATE_SYSTEM_OPTIONS" }}
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_SYSTEM_OPTIONS'){
+
+            if(enteredPasscode == '1111'){ //Default - hard coded
+              window.localStorage.isAccessGrantedToSettings = moment().format();
+              $('#appRenderArea').removeClass('blurBG');
+              document.getElementById("settingsPasscodeModalHome").style.display = 'none';
+            }
+            else{
+                    //Failed Case
+                    $('#adminUserLockIcon').addClass('bounceIn');
+                    $('#settingsProtectionAccesscode_1').addClass('redInputError');
+                    $('#settingsProtectionAccesscode_2').addClass('redInputError');
+                    $('#settingsProtectionAccesscode_3').addClass('redInputError');
+                    $('#settingsProtectionAccesscode_4').addClass('redInputError');
+                    setTimeout(function(){
+                      $('#adminUserLockIcon').removeClass('bounceIn');
+                    }, 1000);  
+
+                    playNotificationSound('DISABLE');
+            }
+                
+          }
+          else{
+            showToast('System Error: Unable to load data to validate.', '#e74c3c');
+            return '';
+          }
+        }
+        else{
+          showToast('System Error: Unable to load data to validate.', '#e74c3c');   
+          return '';
+        }
+      },
+      error: function(data) {
+        showToast('System Error: Unable to load data to validate.', '#e74c3c');
+        return '';
+      }
+    });  
+}
+
+
+function clearErrorOnInput(){
+  $('#settingsProtectionAccesscode_1').removeClass('redInputError');
+  $('#settingsProtectionAccesscode_2').removeClass('redInputError');
+  $('#settingsProtectionAccesscode_3').removeClass('redInputError');
+  $('#settingsProtectionAccesscode_4').removeClass('redInputError');
+}
+
+function hideSettingsAccesscodeWindow(){
+  renderPage('new-order', 'Punch Order');
+  window.localStorage.isAccessGrantedToSettings = '';
+  document.getElementById("settingsPasscodeModalHome").style.display = 'none';
+  $('#appRenderArea').removeClass('blurBG');
+}
+
+
+
+
+
 
   

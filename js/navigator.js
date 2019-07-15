@@ -53,10 +53,12 @@ function fetchInitFunctions(pageReference){
 			break;
 		}	
 		case 'expenses-and-payments':{
+			checkIfAccessGranted();
 			loadAllAddedExpenses('EXTERNAL', 'LOADING_ANIMATION');
 			break;
 		}	
 		case 'cancelled-bills':{
+			checkIfAccessGranted();
 			loadAllCancelledUnbilled('EXTERNAL');
 			break;
 		}			
@@ -69,39 +71,46 @@ function fetchInitFunctions(pageReference){
 			break;
 		}				
 		case 'sales-summary':{
+			checkIfAccessGranted();
 			setSummaryDateRange();
 			break;
 		}
 		case 'manage-menu':{
+			checkIfAccessGranted();
 			fetchAllCategories();
 			break;
 		}	
 		case 'photos-manager':{
+			checkIfAccessGranted();
 			fetchAllCategoriesPhotos();
 			break;
 		}			
 		case 'table-layout':{
+			checkIfAccessGranted();
 			fetchAllTables()
 			fetchAllTableSections()
 			break;
 		}
 		case 'bill-settings':{
+			checkIfAccessGranted();
 			break;
 		}				
 		case 'user-settings':{
+			checkIfAccessGranted();
 			fetchAllUsersInfo();
 			break;
 		}	
 		case 'printer-settings':{
+			checkIfAccessGranted();
 			fetchAllPrintersInfo();
 			break;
 		}	
 		case 'app-data':{
-
+			checkIfAccessGranted();
 			break;
 		}
 		case 'system-settings':{
-
+			checkIfAccessGranted();
 			break;
 		}
 	}
@@ -133,6 +142,30 @@ function fetchInitFunctions(pageReference){
 	}
   } //End - else
 }
+
+
+//To check if access is granted
+function checkIfAccessGranted(){
+
+	if(!window.localStorage.isAccessGrantedToSettings || window.localStorage.isAccessGrantedToSettings == ''){
+		askForSettingsPasscode();
+	}
+	else{
+		var recorded_time = moment(window.localStorage.isAccessGrantedToSettings);
+		var difference = moment.duration(moment().diff(recorded_time));
+		difference = difference.asSeconds();
+
+		if(difference >= 180){ //already lapsed 3 minutes allowed
+			window.localStorage.isAccessGrantedToSettings = '';
+			askForSettingsPasscode();
+		}
+		else{
+			//Update granted time durations
+			window.localStorage.isAccessGrantedToSettings = moment().format();
+		}
+	}
+}
+
 
 
 function renderPage(pageReference, title){

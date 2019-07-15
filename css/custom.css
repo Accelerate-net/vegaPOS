@@ -7230,3 +7230,6 @@ input:checked + .slider:before {
   background: #1abc9c !important;
 }
 
+.blurBG{
+  filter: blur(2px);
+}
