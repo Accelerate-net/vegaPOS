@@ -53,10 +53,12 @@ function fetchInitFunctions(pageReference){
 			break;
 		}	
 		case 'expenses-and-payments':{
+			checkIfAccessGranted('Expenses & Payments');
 			loadAllAddedExpenses('EXTERNAL', 'LOADING_ANIMATION');
 			break;
 		}	
 		case 'cancelled-bills':{
+			checkIfAccessGranted('Cancellations');
 			loadAllCancelledUnbilled('EXTERNAL');
 			break;
 		}			
@@ -69,39 +71,46 @@ function fetchInitFunctions(pageReference){
 			break;
 		}				
 		case 'sales-summary':{
+			checkIfAccessGranted('Reports & Summary');
 			setSummaryDateRange();
 			break;
 		}
 		case 'manage-menu':{
+			checkIfAccessGranted('Manage Menu');
 			fetchAllCategories();
 			break;
 		}	
 		case 'photos-manager':{
+			checkIfAccessGranted('Photos Manager');
 			fetchAllCategoriesPhotos();
 			break;
 		}			
 		case 'table-layout':{
+			checkIfAccessGranted('Table Layout');
 			fetchAllTables()
 			fetchAllTableSections()
 			break;
 		}
 		case 'bill-settings':{
+			checkIfAccessGranted('Billing Settings');
 			break;
 		}				
 		case 'user-settings':{
+			checkIfAccessGranted('User Settings');
 			fetchAllUsersInfo();
 			break;
 		}	
 		case 'printer-settings':{
+			checkIfAccessGranted('Configure Printers');
 			fetchAllPrintersInfo();
 			break;
 		}	
 		case 'app-data':{
-
+			checkIfAccessGranted('App Data');
 			break;
 		}
 		case 'system-settings':{
-
+			checkIfAccessGranted('System Settings');
 			break;
 		}
 	}
@@ -133,6 +142,36 @@ function fetchInitFunctions(pageReference){
 	}
   } //End - else
 }
+
+
+//To check if access is granted
+function checkIfAccessGranted(optionalPage){
+
+	var isSettingsPagesRestricted = true;
+
+	if(!isSettingsPagesRestricted){
+		return '';
+	}
+
+	if(!window.localStorage.isAccessGrantedToSettings || window.localStorage.isAccessGrantedToSettings == ''){
+		askForSettingsPasscode(optionalPage);
+	}
+	else{
+		var recorded_time = moment(window.localStorage.isAccessGrantedToSettings);
+		var difference = moment.duration(moment().diff(recorded_time));
+		difference = difference.asSeconds();
+
+		if(difference >= 180){ //already lapsed 3 minutes allowed
+			window.localStorage.isAccessGrantedToSettings = '';
+			askForSettingsPasscode(optionalPage);
+		}
+		else{
+			//Update granted time durations
+			window.localStorage.isAccessGrantedToSettings = moment().format();
+		}
+	}
+}
+
 
 
 function renderPage(pageReference, title){
