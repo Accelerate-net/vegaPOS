@@ -3929,6 +3929,13 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
                   success: function(data) {
                       showToast('Delivery agent <b>'+name+'</b> assigned', '#27ae60');
                       openSelectedBill(encodedBill, requestURLSource);
+
+                      var isAutoSMSFeatureEnabled = true;
+
+                      if(isAutoSMSFeatureEnabled && !bill.orderDetails.isOnline){
+                      	sendOrderDispatchSMS(bill);
+                      }
+
                   },
                   error: function(data) {
                       showToast('System Error: Unable to update the Invoice.', '#e74c3c');
@@ -3947,6 +3954,55 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
 
     });  
 }
+
+
+function sendOrderDispatchSMS(bill){
+
+	var address = JSON.parse(bill.table);
+
+	if(!(address.contact).match(/^\d{10}$/)){
+		return '';
+	}
+	
+
+          var admin_data = {
+            "token": window.localStorage.loggedInAdmin,
+            "customerName": address.name,
+            "customerMobile": address.contact,
+            "totalBillAmount": bill.payableAmount,
+            "accelerateLicence": window.localStorage.accelerate_licence_number,
+            "accelerateClient": window.localStorage.accelerate_licence_client_name,
+            "agentName": bill.deliveryDetails.name,
+            "agentMobile": bill.deliveryDetails.mobile
+          }
+
+
+          showLoading(10000, 'Sending SMS to Customer');
+
+          $.ajax({
+            type: 'POST',
+            url: 'https://www.accelerateengine.app/apis/posdeliverydispatchsms.php',
+            data: JSON.stringify(admin_data),
+            contentType: "application/json",
+            dataType: 'json',
+            timeout: 10000,
+            success: function(data) {
+              hideLoading();
+              if(data.status){
+
+              }
+              else{
+              	showToast('Failed to send SMS: '+data.error, '#e74c3c');
+              }
+
+            },
+            error: function(data){
+              hideLoading();
+              showToast('Failed to send SMS: Unable to reach the Cloud Server. Check your connection.', '#e74c3c');
+            }
+          });  
+}
+
 
 
 //Print Duplicate Bill

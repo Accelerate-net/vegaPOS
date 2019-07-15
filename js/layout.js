@@ -2045,7 +2045,7 @@ function applySystemOptionSettings(){
 
 function applySystemName(){
   if(window.localStorage.appCustomSettings_SystemName && window.localStorage.appCustomSettings_SystemName != ''){
-    document.getElementById("thisSystemName").innerHTML = window.localStorage.appCustomSettings_SystemName;
+    document.getElementById("thisSystemName").innerHTML = '<tag class="noSystemNameSet" onclick="renderPage(\'system-settings\', \'System Settings\'); openSystemSettings(\'configureSystem\');">'+window.localStorage.appCustomSettings_SystemName+'</tag>';
   }
   else{
     window.localStorage.appCustomSettings_SystemName = 'Nameless Machine';

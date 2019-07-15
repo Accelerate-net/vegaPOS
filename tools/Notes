@@ -3,8 +3,16 @@
 6. SUMMARY: Average Rating of the Day
 7. Add isSignificant flag to menu items (neglect those items when rating individual items by customers, from top selling list, suggestions extra.) Eg. Popular item mineral water doesnt make sense
 
+8. Multiple Menu (separate menu for Swiggy etc.)
+9. Download tools for Customer Data, Reviews, Menu
+
 > Add star rating to Bill (in POS)
 > Reservation mapping easy option to remove from table mapping (without going to seating status)
+
+To Add flags under SETTINGS:
+> isShiftingAllowed for stewards 
+> auto SMS for takeaway/delivery orders
+
 
 
 Moved to Version 2:

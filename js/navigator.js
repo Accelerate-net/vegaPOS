@@ -234,4 +234,4 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('new-order', 'Punch Order');
+renderPage('sales-summary', 'Punch Order');

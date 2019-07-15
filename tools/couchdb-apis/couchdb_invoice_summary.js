@@ -130,6 +130,10 @@
     },
     "timeslotwise_sumoverall": {
       "map": "function(doc) {\n  \n  var time_in = (doc.timePunch).toString();\n  var time_in_hour = parseInt(time_in.substr(0, 2));\n  \n  \n  emit([\"ANY_MODE\", doc.dateStamp, time_in_hour], doc.totalAmountPaid);\n}"
+    },
+    "star_rating": {
+      "reduce": "_stats",
+      "map": "function (doc) {\n  if(doc.dateStamp && doc.customerRating){\n     emit([doc.dateStamp], doc.customerRating);\n  }\n}\n"
     }
   },
   "language": "javascript"
