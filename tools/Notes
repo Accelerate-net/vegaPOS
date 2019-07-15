@@ -1,6 +1,6 @@
-3. Send SMS to home delivery
-5. Add "Running order" in KOT
-6. SUMMARY: Average Rating of the Day
+3. Send SMS to home delivery - done
+5. Add "Running order" in KOT 
+
 7. Add isSignificant flag to menu items (neglect those items when rating individual items by customers, from top selling list, suggestions extra.) Eg. Popular item mineral water doesnt make sense
 
 8. Multiple Menu (separate menu for Swiggy etc.)
@@ -10,16 +10,15 @@
 > Reservation mapping easy option to remove from table mapping (without going to seating status)
 
 To Add flags under SETTINGS:
-> isShiftingAllowed for stewards 
+> isShiftingAllowed for stewards (in live-orders.js, new-order.js)
 > auto SMS for takeaway/delivery orders
-> Settings ACCESS CODE, and isSettingsPagesRestricted (in Navigator.js)
+> Settings ACCESS CODE, and isSettingsPagesRestricted (in navigator.js)
+> [flag] showUserSelectionWindow on idle. (isForcedUserSelectionOnIdleEnabled in layout.js)
 
 
 
 Moved to Version 2:
-1. PHONE DELIVERY (Send SMS Updates to customers)
-2. Take measures to avoid duplicating of online orders (Disconnected ==> Dont accept/punch order)
-3. Spotlight (Customers pending)
+1. Spotlight (Customers pending)
 4. Payment modes visible even after mode gets deleted (read from bills)
 5. Add Order Source to Bill (add to Filter Invoices and Cancelled Invoices also)
 6. User Selection pop up on default screen (idle screen)
