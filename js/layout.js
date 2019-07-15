@@ -4804,6 +4804,7 @@ function proceedToSetAdminUser(userProfile){
     loggedInStaffInfo.role = userProfile.role;
 
     window.localStorage.loggedInStaffData = JSON.stringify(loggedInStaffInfo);
+    window.localStorage.isAccessGrantedToSettings = ''; //clear time allotted to the last admins
     
     // What to do after setting Profile?
     renderCurrentUserDisplay();
@@ -5487,11 +5488,27 @@ function pauseJammedKOTWarning(){
 
 /* Settings Passcode Check */
 
-function askForSettingsPasscode(){
+function askForSettingsPasscode(optionalPage){
+
+    //Skip if Jafry is logged in
+    // LOGGED IN USER INFO
+    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+          
+    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+      loggedInStaffInfo.name = "";
+      loggedInStaffInfo.code = "";
+      loggedInStaffInfo.role = "";
+    } 
+
+    if(loggedInStaffInfo.role == 'ADMIN' && loggedInStaffInfo.code == '9884179675'){
+      window.localStorage.isAccessGrantedToSettings = moment().format();
+      return '';
+    }
+
     document.getElementById("settingsPasscodeModalHomeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                     '<header>'+
                                       '<span class="avatarTransparent"><img src="images/common/settings_locked.png" style="width: 80px; border-radius: 0;" id="adminUserLockIcon"></span>'+
-                                      '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Restricted Access</b></h1>'+
+                                      '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Access Restricted'+(optionalPage && optionalPage != '' ? '<tag style="display: block; margin-top: 5px">for <b>'+optionalPage+'</b></tag>' : '')+'</h1>'+
                                       '<hr style="margin-bottom: 15px; margin-top: 5px;">'+
                                       '<p style="font-size: 12px; letter-spacing: 4px; color: #959595;">ENTER ACCESS CODE</p>'+
                                     '</header>'+

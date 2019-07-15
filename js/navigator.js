@@ -53,12 +53,12 @@ function fetchInitFunctions(pageReference){
 			break;
 		}	
 		case 'expenses-and-payments':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('Expenses & Payments');
 			loadAllAddedExpenses('EXTERNAL', 'LOADING_ANIMATION');
 			break;
 		}	
 		case 'cancelled-bills':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('Cancellations');
 			loadAllCancelledUnbilled('EXTERNAL');
 			break;
 		}			
@@ -71,46 +71,46 @@ function fetchInitFunctions(pageReference){
 			break;
 		}				
 		case 'sales-summary':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('Reports & Summary');
 			setSummaryDateRange();
 			break;
 		}
 		case 'manage-menu':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('Manage Menu');
 			fetchAllCategories();
 			break;
 		}	
 		case 'photos-manager':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('Photos Manager');
 			fetchAllCategoriesPhotos();
 			break;
 		}			
 		case 'table-layout':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('Table Layout');
 			fetchAllTables()
 			fetchAllTableSections()
 			break;
 		}
 		case 'bill-settings':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('Billing Settings');
 			break;
 		}				
 		case 'user-settings':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('User Settings');
 			fetchAllUsersInfo();
 			break;
 		}	
 		case 'printer-settings':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('Configure Printers');
 			fetchAllPrintersInfo();
 			break;
 		}	
 		case 'app-data':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('App Data');
 			break;
 		}
 		case 'system-settings':{
-			checkIfAccessGranted();
+			checkIfAccessGranted('System Settings');
 			break;
 		}
 	}
@@ -145,10 +145,16 @@ function fetchInitFunctions(pageReference){
 
 
 //To check if access is granted
-function checkIfAccessGranted(){
+function checkIfAccessGranted(optionalPage){
+
+	var isSettingsPagesRestricted = true;
+
+	if(!isSettingsPagesRestricted){
+		return '';
+	}
 
 	if(!window.localStorage.isAccessGrantedToSettings || window.localStorage.isAccessGrantedToSettings == ''){
-		askForSettingsPasscode();
+		askForSettingsPasscode(optionalPage);
 	}
 	else{
 		var recorded_time = moment(window.localStorage.isAccessGrantedToSettings);
@@ -157,7 +163,7 @@ function checkIfAccessGranted(){
 
 		if(difference >= 180){ //already lapsed 3 minutes allowed
 			window.localStorage.isAccessGrantedToSettings = '';
-			askForSettingsPasscode();
+			askForSettingsPasscode(optionalPage);
 		}
 		else{
 			//Update granted time durations
