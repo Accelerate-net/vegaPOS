@@ -14,7 +14,7 @@ To Add flags under SETTINGS:
 > auto SMS for takeaway/delivery orders
 > Settings ACCESS CODE, and isSettingsPagesRestricted (in navigator.js)
 > [flag] showUserSelectionWindow on idle. (isForcedUserSelectionOnIdleEnabled in layout.js)
-
+> isHideAmountInItemSummary (to show or hide Rates from itemwise report)
 
 
 Moved to Version 2:

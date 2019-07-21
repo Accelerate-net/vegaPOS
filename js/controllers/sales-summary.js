@@ -5832,11 +5832,15 @@ function generateOverallItemReport(){
 								}
 
 								var categoryWiseSum = 0;
+								var categoryWiseCount = 0;
+
+								var isHideAmountInItemSummary = false; //to show or hide Sales Amount from itemwise report
 
 								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
 									
 									quickSummaryRendererContent += '<tr><td class="tableQuickBrief">'+categorisedItemsList[n].items[i].name+'</td><td class="tableQuickAmount">'+categorisedItemsList[n].items[i].count+'</td></tr>';
 									categoryWiseSum += categorisedItemsList[n].items[i].saleAmount;
+									categoryWiseCount += categorisedItemsList[n].items[i].count;
 
 									if(i == categorisedItemsList[n].items.length - 1){ //last iteration
 										
@@ -5844,7 +5848,7 @@ function generateOverallItemReport(){
 																  '<div class="summaryTableSectionHolder">'+
 															        '<div class="summaryTableSection">'+
 															           '<div class="tableQuickHeader">'+
-															              '<h1 class="tableQuickHeaderText">'+category_name+'<tag style="float: right; margin-right: 20px; letter-spacing: unset !important"><tag style="font-size: 60%">Rs.</tag>'+categoryWiseSum+'</tag></h1>'+
+															              '<h1 class="tableQuickHeaderText">'+category_name+'<tag style="float: right; margin-right: 20px; letter-spacing: unset !important">'+(isHideAmountInItemSummary ? '<tag style="font-size: 60%">x </tag>'+categoryWiseCount+'</tag>' : '<tag style="font-size: 60%">Rs.</tag>'+categoryWiseSum+'</tag>')+'</h1>'+
 															           '</div>'+
 															           '<div class="tableQuick">'+
 															              '<table style="width: 100%">'+
@@ -5887,9 +5891,6 @@ function generateOverallItemReport(){
 							         '<h1 class="reportTitle">'+reportInfo_title+'</h1>'+
 							      '</div>'+
 							      categorySplitRenderContent+
-							      '<div style="border-top: 2px solid #989898; padding: 12px; background: #f2f2f2;">'+
-							         '<p class="footerNote">www.accelerate.net.in | support@accelerate.net.in</p>'+
-							      '</div>'+
 							    '</body>';
 
 								var finalContent_EncodedDownload = encodeURI(finalReport_downloadContent);
@@ -5962,19 +5963,23 @@ function generateOverallItemReport(){
 								}
 
 								var categoryItemsAmount = 0;
+								var categoryItemsCount = 0;
+
+								var isHideAmountInItemSummary = false; //to show or hide Sales Amount from itemwise report
 
 								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
 									
 									quickSummaryRendererContent += '<tr><td style="font-size: 11px">'+categorisedItemsList[n].items[i].name+'</td><td style="font-size: 11px; text-align: right">'+categorisedItemsList[n].items[i].count+'</td></tr>';
 									
 									categoryItemsAmount += categorisedItemsList[n].items[i].saleAmount;
+									categoryItemsCount += categorisedItemsList[n].items[i].count;
 
 
 									if(i == categorisedItemsList[n].items.length - 1){ //last iteration
 										
 										categorySplitRenderContent += ''+
 										'<div class="KOTContent">'+
-								    		 '<h2 style="text-align: left; margin: 5px 0 3px 0; font-weight: bold; border-bottom: 1px solid #444;">'+category_name+' <tag style="float: right">Rs. '+categoryItemsAmount+'</tag></h2>'+
+								    		 '<h2 style="text-align: left; margin: 5px 0 3px 0; font-size: 15px; font-weight: bold; border-bottom: 1px solid #444;">'+category_name+(isHideAmountInItemSummary ? ' <tag style="float: right">x '+categoryItemsCount+'</tag>' : ' <tag style="float: right">Rs. '+categoryItemsAmount+'</tag>')+'</h2>'+
 									         '<table style="width: 100%">'+
 									            '<col style="width: 85%">'+
 									            '<col style="width: 15%">'+ 
