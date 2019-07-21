@@ -4256,6 +4256,23 @@ position: absolute;
     right: 6px;
 }
 
+.currentUserImageForChat{
+    float:left;
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    margin-right:10px;
+    margin-top:-2px;
+    text-align: center;
+    line-height: 25px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+    font-family: 'Roboto';
+    background: rgba(45, 51, 53, 0.28);
+    text-align: center;
+}
+
 .noHover{
   cursor: default;
 }

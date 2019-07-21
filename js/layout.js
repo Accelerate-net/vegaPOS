@@ -5239,7 +5239,7 @@ function renderTextToKitchenWindow(printer_list, chat_log){
     }
 
     chatRender = '<div class="textToKitchenChatBox">'+
-                    '<span class="currentUserImage textToKitchenIcon">'+getImageCode(chat_log[m].user)+'</span>'+
+                    '<span class="currentUserImageForChat textToKitchenIcon">'+getImageCode(chat_log[m].user)+'</span>'+
                     '<span class="textToKitchenChat"> <span class="textToKitchenChatContent">'+chat_log[m].message+'</span>'+
                     '<span class="textToKitchenChatData">Sent to <b>'+printers_done+'</b> by '+chat_log[m].user+' on '+chat_log[m].date+'</span> </span>'+
                     '<span class="textToKitchenTime">'+getFancyTime(chat_log[m].time)+'</span>'+

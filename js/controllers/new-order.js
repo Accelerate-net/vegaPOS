@@ -3138,6 +3138,11 @@ function suggestCustomerInfoFromMobile(mode, inputElement, optionalRequest){
 	      	$("#add_item_by_search").focus();
 			renderCustomerInfo();
 
+			//If multiple addresses found, pop up address selection window
+			if(data.savedAddresses.length > 1 && customerInfo.modeType == 'DELIVERY'){
+				chooseAddressFromSavedList();
+			}
+
 	      }
 	      else{ //USER NOT FOUND
 
@@ -7206,6 +7211,20 @@ function chooseAddressFromSavedList(){
 	}
 
 	document.getElementById("areaForSavedAddressRender").innerHTML = savedAddressesList;
+
+
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+             
+            if($('#chooseAddressForNewOrderModal').is(':visible')) {
+                 if(e.which == 27){ // Escape (Close)
+                    document.getElementById("chooseAddressForNewOrderModal").style.display ='none';
+                    easySelectTool.unbind();
+                 }
+            }
+
+          });
+
 }
 
 function useThisSavedAddress(encodedCurrentAddress){
@@ -7216,6 +7235,8 @@ function useThisSavedAddress(encodedCurrentAddress){
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 	chooseAddressFromSavedListHide();
 	renderCustomerInfo();
+
+	$("#add_item_by_search").focus();
 }
 
 
