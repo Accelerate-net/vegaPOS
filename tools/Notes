@@ -21,13 +21,9 @@ Moved to Version 2:
 1. Spotlight (Customers pending)
 4. Payment modes visible even after mode gets deleted (read from bills)
 5. Add Order Source to Bill (add to Filter Invoices and Cancelled Invoices also)
-6. User Selection pop up on default screen (idle screen)
 8. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
 9. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings.
-10. Black and White A4 Print - Reports 
-12. Update Online Menu etc. (Option in Preferences)
 12A. If an item is blocked on POS, do not accept the ONLINE ORDER. (Do a Precheck)
 13. EASY CHANGE : D for Dine Mode, T for Takeaway --> change between the billing modes
 16. Admin Passcode (Recovery options)
-17. Takeaway -> Delivery (change mode option)
 18. Dine In, Parcel (ASSEMBLY DESK) --> new feature

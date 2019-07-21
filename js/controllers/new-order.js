@@ -3494,19 +3494,22 @@ function renderTables(){
 }
 
 
-/* AUTO REFRESH TABLES STATUS */
+/* AUTO REFRESH TABLES STATUS AND MENU AVAILABILITY */
 
 /*Track Inactivity*/
 var TABLE_RENDER_IDLE = 15; //default time delay = 20 secs
+var MENU_RENDER_PERIOD = 30; //In howmany seconds menu has to be refreshed
+
 var idleTableSecondsCounter = 0;
+var menuReloadTimer = 0;
 var refreshTableInterval;
 
-function AutoRenderTable(){
+function AutoRenderTableAndMenu(){
 
   idleTableSecondsCounter = 0;
   clearInterval(refreshTableInterval);
 
-  refreshTableInterval = window.setInterval(function() { CheckTablesIdleTime(); }, 1000);  
+  refreshTableInterval = window.setInterval(function() { CheckTablesAndMenuIdleTime(); }, 1000);  
 
   //Start Tracking Events
   document.onclick = function() {
@@ -3522,17 +3525,29 @@ function AutoRenderTable(){
   };
 }
 
-AutoRenderTable();
+AutoRenderTableAndMenu();
 
 
-function CheckTablesIdleTime() {
+function CheckTablesAndMenuIdleTime() {
       
     idleTableSecondsCounter++;
+    menuReloadTimer++;
 
     if(idleTableSecondsCounter >= TABLE_RENDER_IDLE && currentRunningPage == 'new-order'){
     	//re-render tables
     	idleTableSecondsCounter = 0;
     	renderTables();
+    }
+
+    if(menuReloadTimer%MENU_RENDER_PERIOD == 0 && currentRunningPage == 'new-order'){
+    	//re-render menu
+    	if($('#add_item_by_search').val().length == 0){ //Do not re-render if already been punching
+    		initMenuSuggestion();
+    		menuReloadTimer = 0;
+    	}
+    	else{
+    		menuReloadTimer = menuReloadTimer - 5; //
+    	}
     }
 }
 
