@@ -2983,27 +2983,37 @@ function setMenuCatalogAssigner(category_name, current_value) {
 
                 var catalogData = data.docs[0].value;
 
-                var n = 0;
-                while(catalogData[n]){
-                  if(catalogData[n].name == category_name){ 
-                    catalogData[n].mainType = updated_name;
-                    break;
-                  }
+                if(catalogData.length == 0){
+                      var newEntry = {
+                        "name": category_name,
+                        "mainType": updated_name
+                      }
 
-
-                  //if not found in catalog, add as a new entry
-                  if(n == catalogData.length - 1){ //last iteration
-                    var newEntry =     {
-                      "name": category_name,
-                      "mainType": updated_name
+                      catalogData.push(newEntry);
+                }
+                else{
+                  var n = 0;
+                  while(catalogData[n]){
+                    if(catalogData[n].name == category_name){ 
+                      catalogData[n].mainType = updated_name;
+                      break;
                     }
 
-                    catalogData.push(newEntry);
 
-                    break;
+                    //if not found in catalog, add as a new entry
+                    if(n == catalogData.length - 1){ //last iteration
+                      var newEntry =     {
+                        "name": category_name,
+                        "mainType": updated_name
+                      }
+
+                      catalogData.push(newEntry);
+
+                      break;
+                    }
+
+                    n++;
                   }
-
-                  n++;
                 }
 
                 //Update 
