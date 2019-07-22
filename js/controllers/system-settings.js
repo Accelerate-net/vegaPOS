@@ -682,7 +682,7 @@ function createFirstTimeActivationStubsFromSettings(licenceObject, machinesList,
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "theme", "value": "skin-yellow" }, { "name": "menuImages", "value": "NO" }, { "name": "punchingRightScreen", "value": "MENU" }, { "name": "virtualKeyboard", "value": 0 }, { "name": "screenLockOptions", "value": "" }, { "name": "screenLockDuration", "value": "30" }, { "name": "securityPasscodeProtection", "value": "NO" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "theme", "value": "skin-green" }, { "name": "menuImages", "value": "NO" }, { "name": "punchingRightScreen", "value": "TABLE" }, { "name": "virtualKeyboard", "value": 0 }, { "name": "screenLockOptions", "value": "SCREENSAVER" }, { "name": "screenLockDuration", "value": "2700" }, { "name": "securityPasscodeProtection", "value": "NO" }, { "name": "pagesPasscodeProtection", "value": "NO" } ] }
                 settingsList.push(new_stub);
               
                 //Update
@@ -769,7 +769,7 @@ function createFirstTimeActivationStubsFromSettings(licenceObject, machinesList,
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "ServerBasedKOTPrinting", "value": "NO" }, { "name": "KOTJammingWarning", "value": "YES" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "NO" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "" }, { "name": "defaultTakeawayMode", "value": "" }, { "name": "defaultDineMode", "value": "" }, { "name": "KOTRelayEnabled", "value": "NO" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://www.accelerate.net.in" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "ServerBasedKOTPrinting", "value": "YES" }, { "name": "KOTJammingWarning", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "itemShiftingAllowed", "value": "YES" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "deliverySMS", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "idleUserPopup", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "hideAmountFromItemReport", "value": "NO" }, { "name": "reportEmailList", "value": "abhijithcs1993@gmail.com" }, { "name": "defaultDeliveryMode", "value": "" }, { "name": "defaultTakeawayMode", "value": "" }, { "name": "defaultDineMode", "value": "" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "Main Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://www.accelerate.net.in" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -1324,6 +1324,15 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }
                           break;
                         }
+                        case "itemShiftingAllowed": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionShiftingAllowed").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionShiftingAllowed").value = 'NO';
+                          }
+                          break;
+                        }
                         case "ServerBasedKOTPrinting": {
                           if(params[i].value == 'YES'){
                             document.getElementById("systemOptionServerBasedKOTPrinting").value = params[i].value;
@@ -1358,6 +1367,22 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }  
                           break;
                         }
+                        case "deliverySMS": {
+                          if(isOnlineOrdersEnabled){
+                            document.getElementById("systemOptionOnlineOrders_deliverySMSTag").style.display = 'table-row';
+                         
+                            if(params[i].value == 'YES'){
+                              document.getElementById("systemOptionDeliverySMS").value = params[i].value;
+                            }
+                            else{
+                              document.getElementById("systemOptionDeliverySMS").value = 'NO';
+                            }
+                          }  
+                          else{
+                            document.getElementById("systemOptionOnlineOrders_deliverySMSTag").style.display = 'none';
+                          }  
+                          break;
+                        }
                         case "billSettleLater": {
                           if(params[i].value == 'YES'){
                             document.getElementById("systemOptionSettleLater").value = params[i].value;
@@ -1373,6 +1398,15 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }
                           else{
                             document.getElementById("systemOptionAdminIdleLogout").value = 'NO';
+                          }
+                          break;
+                        }
+                        case "idleUserPopup": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionIdleUserSelection").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionIdleUserSelection").value = 'NO';
                           }
                           break;
                         }
@@ -1413,6 +1447,15 @@ function renderSystemOptionsAfterProcess(settingsList, billingModes, optionalHig
                           }
                           break;
                         }
+                        case "hideAmountFromItemReport": {
+                          if(params[i].value == 'YES'){
+                            document.getElementById("systemOptionHideAmount").value = params[i].value;
+                          }
+                          else{
+                            document.getElementById("systemOptionHideAmount").value = 'NO';
+                          }
+                          break;
+                        } 
                         case "reportEmailList": {
                           document.getElementById("systemOptionReport_email_list").value = params[i].value;
                           
@@ -1752,6 +1795,7 @@ function renderSecurityOptions(){
 
                     //Render
                     for (var i=0; i<params.length; i++){         
+                      
                       if(params[i].name == "securityPasscodeProtection"){
                         document.getElementById("securityPasscodeProtection").value = params[i].value;
                         if(document.getElementById("securityPasscodeProtection").value == 'YES'){
@@ -1760,7 +1804,18 @@ function renderSecurityOptions(){
                         else{
                           document.getElementById("passcodeActionsArea").style.display = 'none';
                         }
-                      }                      
+                      }   
+
+                      if(params[i].name == "pagesPasscodeProtection"){
+                        document.getElementById("pagesPasscodeProtection").value = params[i].value;
+                        if(document.getElementById("pagesPasscodeProtection").value == 'YES'){
+                          document.getElementById("passcodeActionsAreaPages").style.display = 'table-row';
+                        }
+                        else{
+                          document.getElementById("passcodeActionsAreaPages").style.display = 'none';
+                        }
+                      }   
+
                     } //end FOR (Render)
 
                   break;
@@ -2211,7 +2266,24 @@ function changeSecurityPasscodeProtection(){
   }
 }
 
-//To ENABLE
+
+function changePagesProtection(){
+  var optName = document.getElementById("pagesPasscodeProtection").value == 'YES'? true: false;
+
+  //Disable --> Enable (Ask to set a code)
+  if(optName){
+    document.getElementById("setPasscodeForPagesModal").style.display = 'block';
+    $("#pagelock_passcode_new").focus();
+  }
+  else{ //Enable --> Disable (Ask to confirm the code)
+    document.getElementById("confirmPasscodeForPagesModal").style.display = 'block'; 
+    $("#pagelock_passcode_old_confirm").focus();
+  }
+}
+
+
+
+//FOR APPLICATION
 function securityPasscodeProtectionSetCode(){
 
   var newCode = document.getElementById("screenlock_passcode_new").value;
@@ -2251,7 +2323,50 @@ function securityPasscodeProtectionSetCodeHIDE(){
   renderSecurityOptions();
 }
 
-//To DISABLE
+
+//for pages
+function pagesPasscodeProtectionSetCode(){
+
+  var newCode = document.getElementById("pagelock_passcode_new").value;
+  var confirmCode = document.getElementById("pagelock_passcode_confirm").value;
+
+  if(newCode == '' || confirmCode == '')
+  {
+    showToast('Warning! Confirm the passcodes', '#e67e22');
+    return '';
+  }
+
+  if(newCode.length != 4 || confirmCode.length != 4)
+  {
+    showToast('Warning! Passcode must be 4 characters long.', '#e67e22');
+    return '';
+  }
+
+  if(newCode == confirmCode){
+    showToast('Page Protection has been enabled', '#27ae60');
+    
+    //Update
+    window.localStorage.appCustomSettings_PagesProtectionToken = btoa(newCode);
+    window.localStorage.appCustomSettings_PagesProtection = true;
+    changePersonalisationFile("pagesPasscodeProtection", 'YES');  
+
+    pagesPasscodeProtectionSetCodeHIDE();
+  }
+  else{
+    showToast('Failed! Codes doesn\'t match.', '#e74c3c');
+  }
+
+
+}
+
+function pagesPasscodeProtectionSetCodeHIDE(){
+  document.getElementById("setPasscodeForPagesModal").style.display = 'none';
+  renderSecurityOptions();
+}
+
+
+
+//FOR APPLICATION
 function securityPasscodeProtectionConfirmCode(){
   var currentPassword = '';
   if(window.localStorage.appCustomSettings_InactivityToken && window.localStorage.appCustomSettings_InactivityToken != ''){
@@ -2291,7 +2406,41 @@ function securityPasscodeProtectionConfirmCodeHIDE(){
 }
 
 
+//for pages
+function pagesPasscodeProtectionConfirmCode(){
+  var currentPassword = '';
+  if(window.localStorage.appCustomSettings_PagesProtectionToken && window.localStorage.appCustomSettings_PagesProtectionToken != ''){
+    currentPassword = atob(window.localStorage.appCustomSettings_PagesProtectionToken)
+  }else{
+    showToast('Something went wrong. Try Passcode Reset Tool.', '#e74c3c');
+  }
 
+  var enteredPassword = document.getElementById("pagelock_passcode_old_confirm").value;
+
+  if(enteredPassword == currentPassword){
+    showToast('Page Protection has been disabled', '#27ae60');
+
+    //Update
+    window.localStorage.appCustomSettings_PagesProtectionToken = '';
+    window.localStorage.appCustomSettings_PagesProtection = false;
+    changePersonalisationFile("pagesPasscodeProtection", 'NO');
+
+    pagesPasscodeProtectionConfirmCodeHIDE();
+  }
+  else{
+    showToast('Failed! Incorrect code.', '#e74c3c');
+  } 
+
+
+}
+
+function pagesPasscodeProtectionConfirmCodeHIDE(){
+  document.getElementById("confirmPasscodeForPagesModal").style.display = 'none';
+  renderSecurityOptions();
+}
+
+
+//FOR APPLICATION
 /*Change Passcode to New*/
 function changePasscodeToNew(){
   document.getElementById("setChangePassCodeModal").style.display = 'block';
@@ -2343,7 +2492,61 @@ function changePasscodeToNewHIDE(){
 }
 
 
+//for pages
+/*Change Passcode to New*/
+function changePagePasscodeToNew(){
+  document.getElementById("setChangePassCodeForPagesModal").style.display = 'block';
+  $("#page_passcode_original").focus();
+}
 
+function setChangedPasscodeToNewForPages(){
+  var code_original = document.getElementById("page_passcode_original").value;
+  var code_one = document.getElementById("page_passcode_new_1").value;
+  var code_two = document.getElementById("page_passcode_new_2").value;
+
+  if(code_one.length != 4 || code_two.length != 4)
+  {
+    showToast('Warning! Passcode must be 4 characters long.', '#e67e22');
+    return '';
+  }
+
+
+  var currentPassword = '';
+  if(window.localStorage.appCustomSettings_PagesProtectionToken && window.localStorage.appCustomSettings_PagesProtectionToken != ''){
+    currentPassword = atob(window.localStorage.appCustomSettings_PagesProtectionToken)
+  }else{
+    showToast('Something went wrong. Try Passcode Reset Tool.', '#e74c3c');
+  }  
+
+  if(code_one != code_two){
+    showToast('Failed! Codes doesn\'t match.', '#e74c3c');
+    
+
+  }
+  else if(code_original != currentPassword){
+    showToast('Failed! Current Passcode doesn\'t match.', '#e74c3c');
+  }
+  else{
+    showToast('New Passcode has been enabled', '#27ae60');
+
+    //Update
+    window.localStorage.appCustomSettings_PagesProtectionToken = btoa(code_one);
+    window.localStorage.appCustomSettings_PagesProtection = true;
+    changePersonalisationFile("pagesPasscodeProtection", 'YES');  
+
+    changePasscodeToNewForPagesHIDE();    
+  }
+}
+
+function changePasscodeToNewForPagesHIDE(){
+  document.getElementById("setChangePassCodeForPagesModal").style.display = 'none';
+  renderSecurityOptions();
+}
+
+
+
+
+//FOR APPLICATION
 /*Recovery*/
 function recoveryPasscodeLogin(){
 
@@ -2427,6 +2630,29 @@ function performRecoveryResetLogin(){
 
 
 
+//for pages
+/*Recovery*/
+function recoveryPagePasscode(){
+
+    // LOGGED IN USER INFO
+    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+          
+    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+      loggedInStaffInfo.name = "";
+      loggedInStaffInfo.code = "";
+      loggedInStaffInfo.role = "";
+    } 
+
+    if(loggedInStaffInfo.role == 'ADMIN' && loggedInStaffInfo.code == '9884179675'){
+        window.localStorage.appCustomSettings_PagesProtectionToken = btoa('0000');
+        showToast('Reset Successfully! Passcode reset to <b>0 0 0 0</b', '#27ae60'); 
+    }
+    else{
+        showToast('Restricted: Only the <b>Super Admin</b> can reset the passcode.', '#8e44ad')
+    }
+}
+
+
 /* System Options */
 
 function changeSystemOptionOnlineOrders(){
@@ -2443,6 +2669,14 @@ function changeSystemOptionOnlineOrdersNotification(){
   //Update
   window.localStorage.systemOptionsSettings_OnlineOrdersNotification = optName;
   changeSystemOptionsFile("onlineOrdersNotification", document.getElementById("systemOptionOnlineOrdersNotification").value);
+}
+
+function changeSystemOptionDeliverySMS(){
+  var optName = document.getElementById("systemOptionDeliverySMS").value == 'YES'? true: false;
+
+  //Update
+  window.localStorage.systemOptionsSettings_DeliverySMSNotification = optName;
+  changeSystemOptionsFile("deliverySMS", document.getElementById("systemOptionDeliverySMS").value);
 }
 
 function changeSystemOptionNotification(){
@@ -2508,7 +2742,13 @@ function changeSystemOptionEditingKOTAllowed(){
   changeSystemOptionsFile("orderEditingAllowed", optName);
 }
 
+function changeSystemOptionItemShiftingAllowed(){
+  var optName = document.getElementById("systemOptionShiftingAllowed").value;
 
+  //Update
+  window.localStorage.appOtherPreferences_itemShiftingAllowed = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("itemShiftingAllowed", optName);
+}
 
 
 function changeSystemOptionKOTRelaying(){
@@ -2547,6 +2787,14 @@ function changeSystemOptionAdminIdleLogout(){
   changeSystemOptionsFile("adminIdleLogout", optName);
 }
 
+function changeSystemOptionIdleUserSelection(){
+  var optName = document.getElementById("systemOptionIdleUserSelection").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_UserIdlePopup = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("idleUserPopup", optName);
+}
+
 
 
 function changeSystemOptionResetCounter(){
@@ -2555,6 +2803,14 @@ function changeSystemOptionResetCounter(){
   //Update
   window.localStorage.appOtherPreferences_resetCountersAfterReport = (optName == 'YES' ? 1 : 0);
   changeSystemOptionsFile("resetCountersAfterReport", optName);  
+}
+
+function changeSystemOptionHideAmount(){
+  var optName = document.getElementById("systemOptionHideAmount").value;
+
+  //Update
+  window.localStorage.appOtherPreferences_hideAmountFromItemSales = (optName == 'YES' ? 1 : 0);
+  changeSystemOptionsFile("hideAmountFromItemReport", optName);  
 }
 
 

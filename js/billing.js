@@ -2802,7 +2802,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                           if(kotfile.orderDetails.modeType == 'DELIVERY'){
                                 if(!kotfile.orderDetails.isOnline){ //SMS Options for NON-ONLINE orders only.
 
-                                  var isAutoSMSFeatureEnabled = true;
+                                  var isAutoSMSFeatureEnabled = window.localStorage.systemOptionsSettings_DeliverySMSNotification && window.localStorage.systemOptionsSettings_DeliverySMSNotification == 'true' ? true : false;
 
                                   if(isAutoSMSFeatureEnabled){
                                     var address = JSON.parse(kotfile.table);

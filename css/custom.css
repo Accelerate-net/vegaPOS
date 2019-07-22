@@ -3772,7 +3772,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*inactivity lock*/
 #inactivityLock{
    position: fixed; left: 0; top: 0; 
-  z-index: 2000; width: 100%; height: 100%; 
+  z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
     background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
@@ -3873,7 +3873,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*kot jamming warning*/
 #KOTJammingWarning{
     position: fixed; left: 0; top: 0; 
-    z-index: 2000; width: 100%; height: 100%; 
+    z-index: 6000; width: 100%; height: 100%; 
     overflow: visible; 
 
     -webkit-animation: lightFlashing 1s infinite; /* Safari 4+ */
@@ -3899,7 +3899,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*welcome screen lock*/
 #welcomeScreenLock{
     position: fixed; left: 0; top: 0; 
-    z-index: 2000; width: 100%; height: 100%; 
+    z-index: 5000; width: 100%; height: 100%; 
     overflow: visible; 
     background: #d5001d;
 }
@@ -3914,7 +3914,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*server error lock*/
 #serverConnectionFailureLock{
    position: fixed; left: 0; top: 0; 
-  z-index: 2000; width: 100%; height: 100%; 
+  z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
     background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
@@ -3924,7 +3924,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*activation lock*/
 #applicationActivationLock{
    position: fixed; left: 0; top: 0; 
-  z-index: 2000; width: 100%; height: 100%; 
+  z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
     background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
@@ -3932,7 +3932,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 
 #applicationExpireLock{
    position: fixed; left: 0; top: 0; 
-  z-index: 2000; width: 100%; height: 100%; 
+  z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
     background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;

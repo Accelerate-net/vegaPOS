@@ -214,7 +214,7 @@
                           <col width="60%">
 
                           <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
-                            <td colspan="2" style="padding: 10px 0 5px 0;">Personal Options</td>
+                            <td colspan="2" style="padding: 10px 0 5px 0;">Personalisations</td>
                           </tr> 
 
                           <tr>
@@ -243,6 +243,18 @@
                             </td>
                           </tr>
 
+                          <tr style="border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Idle User Selection Popup<tag style="display: block; font-size: 80%; color: #949393;">Ask to choose user again if the system was idle for quite long</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionIdleUserSelection()" id="systemOptionIdleUserSelection" class="form-control" style="width:100%;">
+                                      <option value="YES">Enabled</option>
+                                      <option value="NO">Disabled</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
                           <tr style="font-weight: bold; border-bottom: 1px solid #d2d6de; color: #337ab7; font-size: 110%;">
                             <td colspan="2" style="padding: 10px 0 5px 0;">Menu and Order Settings</td>
                           </tr> 
@@ -257,7 +269,7 @@
                                 </div>
                             </td>
                           </tr>
-                          <tr>
+                          <tr style="border-top: 1px dashed #f5f5f5;">
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Minimum Cooking Time Warnings</td>
                             <td style="padding-top:10px">
                                 <div class="form-group">
@@ -304,6 +316,19 @@
                             <td style="padding-top:10px">
                                 <div class="form-group">
                                    <select onchange="changeSystemOptionOnlineOrdersNotification()" id="systemOptionOnlineOrdersNotification" class="form-control" style="width:100%;">
+                                      <option value="NO">No</option>
+                                      <option value="YES">Yes</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr id="systemOptionOnlineOrders_deliverySMSTag" style="display: none; border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Send SMS Notifications
+                            <tag style="display: block; font-size: 80%; color: #949393;">To send SMS notifications for the home delivery orders</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionDeliverySMS()" id="systemOptionDeliverySMS" class="form-control" style="width:100%;">
                                       <option value="NO">No</option>
                                       <option value="YES">Yes</option>
                                    </select>
@@ -358,7 +383,7 @@
                                 </div>
                             </td>
                           </tr>
-                          <tr>
+                          <tr style="border-top: 1px dashed #f5f5f5;">
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">KOT Jamming Flash Alert<tag style="display: block; font-size: 80%; color: #949393;">Alert message will be displayed if KOTs are jammed and not getting printed due to various reasons</tag></td>
                             <td style="padding-top:10px">
                                 <div class="form-group">
@@ -369,13 +394,25 @@
                                 </div>
                             </td>
                           </tr>
-                          <tr>
+                          <tr style="border-top: 1px dashed #f5f5f5;">
                             <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Editing Order once KOT is printed<tag style="display: block; font-size: 80%; color: #949393;">Dine Orders can be always edited. This option is applicable for other billing modes only.</tag></td>
                             <td style="padding-top:10px">
                                 <div class="form-group">
                                    <select onchange="changeSystemOptionEditingKOTAllowed()" id="systemOptionEditingAllowed" class="form-control" style="width:100%;">
                                       <option value="NO">Not Allowed</option>
                                       <option value="YES">Allowed</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Item/Table Shifting Access<tag style="display: block; font-size: 80%; color: #949393;">Who can shift items in an order to a different order</tag></td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionItemShiftingAllowed()" id="systemOptionShiftingAllowed" class="form-control" style="width:100%;">
+                                      <option value="NO">Only Admins</option>
+                                      <option value="YES">Everyone</option>
                                    </select>
                                 </div>
                             </td>
@@ -451,6 +488,18 @@
                                    <select onchange="changeSystemOptionResetCounter()" id="systemOptionResetCounter" class="form-control" style="width:100%;">
                                       <option value="NO">Do NOT Reset</option>
                                       <option value="YES">Automatically Reset</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="border-top: 1px dashed #f5f5f5;">
+                            <td style="vertical-align: middle; padding-right: 30px; color: #28364a;">Hide Amount from Itemwise Sales Report</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changeSystemOptionHideAmount()" id="systemOptionHideAmount" class="form-control" style="width:100%;">
+                                      <option value="NO">Show Amount</option>
+                                      <option value="YES">Hide Amount</option>
                                    </select>
                                 </div>
                             </td>
@@ -770,11 +819,13 @@
 
 
                 <!-- Security Options -->
-                <div class="box box-primary" style="display: none" id="systemSecurity">
+                <div style="display: none" id="systemSecurity">
+                <div class="box box-primary">
                     <div class="box-body">
                         
                         <div class="box-header" style="padding: 10px 0px">
-                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Security Options</h3>
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Application Security</h3>
+                           <p style="color: #bbb">Protect the application with a 4 digit passcode. System will prompt for the passcode when the application starts up.</p>
                         </div>
                         <table style="width: 100%">
                           <col width="40%">
@@ -805,7 +856,47 @@
                         <div class="clearfix"></div>
                     </div>
                 </div>
+
+                <div class="box box-primary">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Protect Pages</h3>
+                           <p style="color: #bbb">Extra authentication will be required to access pages like Tools, System Settings, Expense Records, Reports etc.</p>
+                        </div>
+                        <table style="width: 100%">
+                          <col width="40%">
+                          <col width="60%">
+                          <tr>
+                            <td style="vertical-align: middle; font-weight: bold;">Passcode Protection</td>
+                            <td style="padding-top:10px">
+                                <div class="form-group">
+                                   <select onchange="changePagesProtection()" id="pagesPasscodeProtection" class="form-control" style="width:100%;">
+                                      <option value="YES">Enabled</option>
+                                      <option value="NO">Disabled</option>
+                                   </select>
+                                </div>
+                            </td>
+                          </tr>
+
+                          <tr style="display: none" id="passcodeActionsAreaPages">
+                            <td style="vertical-align: middle; font-weight: bold;">Passcode</td>
+                            <td style="padding-top:10px;">
+                                <div class="form-group">
+                                  <button class="btn btn-sm btn-success" onclick="changePagePasscodeToNew()">Change</button>
+                                  <button class="btn btn-sm btn-danger" onclick="recoveryPagePasscode()">Reset</button>
+                                </div>
+                            </td>
+                          </tr>  
+
+                        </table>  
+                        <div class="clearfix"></div>
+                    </div>
+
+                </div>
           
+
+            </div>
 
             </div>
 
@@ -820,7 +911,7 @@
      </div>
 
 
-
+<!-- APPLICATION PASSCODE -->
 
 <!-- Modal -->
 <div id="setNewPassCodeModal" class="modal" style="display: none;">
@@ -896,6 +987,91 @@
       </div>
    </div>
 </div>
+
+
+
+<!-- PAGES PASSCODE -->
+
+<!-- Modal -->
+<div id="setPasscodeForPagesModal" class="modal" style="display: none;">
+   <div class="modal-dialog" style="top: 20%; width: 27em !important;">
+      <!-- Modal content-->
+      <div class="modal-content" style="border-radius: 4px;">
+         <section id="main" style="padding: 35px 44px 20px 44px">
+            <h1 style="font-size: 21px; font-family: 'Roboto'; color: #3e5b6b;">Set Passcode</h1>
+            <div style="margin: 0">
+               <div class="row" style="margin: 15px 0">
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="New Passcode" type="password" id="pagelock_passcode_new" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="Confirm Passcode" type="password" id="pagelock_passcode_confirm" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+               </div>
+               <button  onclick="pagesPasscodeProtectionSetCode()" class="btn btn-success loginWindowButton">Set Passcode</button>
+               <button  onclick="pagesPasscodeProtectionSetCodeHIDE()" class="btn btn-default loginWindowButton">Cancel</button>
+            </div>
+         </section>
+      </div>
+   </div>
+</div>
+
+
+
+<!-- Modal -->
+<div id="confirmPasscodeForPagesModal" class="modal" style="display: none;">
+   <div class="modal-dialog" style="top: 20%; width: 27em !important;">
+      <!-- Modal content-->
+      <div class="modal-content" style="border-radius: 4px;">
+         <section id="main" style="padding: 35px 44px 20px 44px">
+            <h1 style="font-size: 21px; font-family: 'Roboto'; color: #3e5b6b;">Confirm Passcode</h1>
+            <div style="margin: 0">
+               <div class="row" style="margin: 15px 0">
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="Current Passcode" type="password" id="pagelock_passcode_old_confirm" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+               </div>
+               <button  onclick="pagesPasscodeProtectionConfirmCode()" class="btn btn-success loginWindowButton">Proceed</button>
+               <button  onclick="pagesPasscodeProtectionConfirmCodeHIDE()" class="btn btn-default loginWindowButton">Cancel</button>
+            </div>
+         </section>
+      </div>
+   </div>
+</div>
+
+
+<!-- Modal -->
+<div id="setChangePassCodeForPagesModal" class="modal" style="display: none;">
+   <div class="modal-dialog" style="top: 20%; width: 27em !important;">
+      <!-- Modal content-->
+      <div class="modal-content" style="border-radius: 4px;">
+         <section id="main" style="padding: 35px 44px 20px 44px">
+            <h1 style="font-size: 21px; font-family: 'Roboto'; color: #3e5b6b;">Change Passcode</h1>
+            <div style="margin: 0">
+               <div class="row" style="margin: 15px 0">
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="Current Passcode" type="password" id="page_passcode_original" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="New Passcode" type="password" id="page_passcode_new_1" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+                  <div class="col-lg-12">
+                     <div class="form-group"> <input placeholder="Confirm Passcode" type="password" id="page_passcode_new_2" value="" maxlength="4" class="form-control loginWindowInput"> </div>
+                  </div>
+               </div>
+               <button  onclick="setChangedPasscodeToNewForPages()" class="btn btn-success loginWindowButton">Change Passcode</button>
+               <button  onclick="changePasscodeToNewForPagesHIDE()" class="btn btn-default loginWindowButton">Cancel</button>
+            </div>
+         </section>
+      </div>
+   </div>
+</div>
+
+
+
+
+
+
 
 
         <!-- LOGIN MODAL -->

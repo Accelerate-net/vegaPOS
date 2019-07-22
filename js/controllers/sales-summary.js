@@ -5834,7 +5834,8 @@ function generateOverallItemReport(){
 								var categoryWiseSum = 0;
 								var categoryWiseCount = 0;
 
-								var isHideAmountInItemSummary = false; //to show or hide Sales Amount from itemwise report
+								//to show or hide Sales Amount from itemwise report
+								var isHideAmountInItemSummary = window.localStorage.appOtherPreferences_hideAmountFromItemSales && window.localStorage.appOtherPreferences_hideAmountFromItemSales == 1 ? true : false; 
 
 								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
 									
@@ -5965,7 +5966,8 @@ function generateOverallItemReport(){
 								var categoryItemsAmount = 0;
 								var categoryItemsCount = 0;
 
-								var isHideAmountInItemSummary = false; //to show or hide Sales Amount from itemwise report
+								//to show or hide Sales Amount from itemwise report
+								var isHideAmountInItemSummary = window.localStorage.appOtherPreferences_hideAmountFromItemSales && window.localStorage.appOtherPreferences_hideAmountFromItemSales == 1 ? true : false; 
 
 								for(var i = 0; i < categorisedItemsList[n].items.length; i++){
 									

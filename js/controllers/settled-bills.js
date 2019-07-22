@@ -4041,7 +4041,7 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
                       showToast('Delivery agent <b>'+name+'</b> assigned', '#27ae60');
                       openSelectedBill(encodedBill, requestURLSource);
 
-                      var isAutoSMSFeatureEnabled = true;
+                      var isAutoSMSFeatureEnabled = window.localStorage.systemOptionsSettings_DeliverySMSNotification && window.localStorage.systemOptionsSettings_DeliverySMSNotification == 'true' ? true : false;
 
                       if(isAutoSMSFeatureEnabled && !bill.orderDetails.isOnline){
                       	sendOrderDispatchSMS(bill);

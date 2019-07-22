@@ -706,7 +706,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "theme", "value": "skin-yellow" }, { "name": "menuImages", "value": "NO" }, { "name": "punchingRightScreen", "value": "MENU" }, { "name": "virtualKeyboard", "value": 0 }, { "name": "screenLockOptions", "value": "" }, { "name": "screenLockDuration", "value": "30" }, { "name": "securityPasscodeProtection", "value": "NO" } ] }
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "theme", "value": "skin-green" }, { "name": "menuImages", "value": "NO" }, { "name": "punchingRightScreen", "value": "TABLE" }, { "name": "virtualKeyboard", "value": 0 }, { "name": "screenLockOptions", "value": "SCREENSAVER" }, { "name": "screenLockDuration", "value": "2700" }, { "name": "securityPasscodeProtection", "value": "NO" }, { "name": "pagesPasscodeProtection", "value": "NO" } ] }
                 settingsList.push(new_stub);
               
                 //Update
@@ -793,7 +793,7 @@ function createFirstTimeActivationStubs(licenceObject, machinesList, remember_re
 
               if(!isAlreadyFound){
                 //Add stub and update
-                var new_stub = { "systemName": licenceObject.machineUID, "data": [ { "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "ServerBasedKOTPrinting", "value": "NO" }, { "name": "KOTJammingWarning", "value": "YES" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "onlineOrders", "value": "NO" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "reportEmailList", "value": "" }, { "name": "defaultDeliveryMode", "value": "" }, { "name": "defaultTakeawayMode", "value": "" }, { "name": "defaultDineMode", "value": "" }, { "name": "KOTRelayEnabled", "value": "NO" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://www.accelerate.net.in" }, { "name": "sendMetadataToQR", "value": "NO" } ] } 
+                var new_stub = { "systemName": licenceObject.machineUID, "data": [{ "name": "notifications", "value": "ALL" }, { "name": "syncOnlineMenu", "value": "NO" }, { "name": "minimumCookingTime", "value": "NO" }, { "name": "expectedReadyTime", "value": "NO" }, { "name": "ServerBasedKOTPrinting", "value": "YES" }, { "name": "KOTJammingWarning", "value": "NO" }, { "name": "orderEditingAllowed", "value": "YES" }, { "name": "itemShiftingAllowed", "value": "YES" }, { "name": "onlineOrders", "value": "YES" }, { "name": "defaultPrepaidName", "value": "Razorpay" }, { "name": "onlineOrdersNotification", "value": "YES" }, { "name": "deliverySMS", "value": "YES" }, { "name": "billSettleLater", "value": "NO" }, { "name": "adminIdleLogout", "value": "NO" }, { "name": "idleUserPopup", "value": "NO" }, { "name": "resetCountersAfterReport", "value": "NO" }, { "name": "hideAmountFromItemReport", "value": "NO" }, { "name": "reportEmailList", "value": "abhijithcs1993@gmail.com" }, { "name": "defaultDeliveryMode", "value": "" }, { "name": "defaultTakeawayMode", "value": "" }, { "name": "defaultDineMode", "value": "" }, { "name": "KOTRelayEnabled", "value": "YES" }, { "name": "KOTRelayEnabledDefaultKOT", "value": "NO" }, { "name": "defaultKOTPrinter", "value": "Main Kitchen" }, { "name": "scanPayEnabled", "value": "NO" }, { "name": "scanPayAPI", "value": "" }, { "name": "showDefaultQRCode", "value": "NO" }, { "name": "showDefaultQRTarget", "value": "https://www.accelerate.net.in" }, { "name": "sendMetadataToQR", "value": "NO" }] } 
                 settingsList.push(new_stub);
               
                 //Update
@@ -1251,6 +1251,13 @@ function applyPersonalisations(){
 
                         /*update localstorage*/             
                         window.localStorage.appCustomSettings_PasscodeProtection = tempVal;
+                      }   
+                      else if(params[i].name == "pagesPasscodeProtection"){
+
+                        var tempVal = params[i].value == 'YES'? true: false;
+                        
+                        /*update localstorage*/             
+                        window.localStorage.appCustomSettings_PagesProtection = tempVal;
                       }                      
                     } //end FOR (Render)
 
@@ -1881,12 +1888,26 @@ function applySystemOptionSettings(){
                         /*update localstorage*/             
                         window.localStorage.appOtherPreferences_resetCountersAfterReport = tempVal;
                       }
+                      else if(params[i].name == "hideAmountFromItemReport"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_hideAmountFromItemSales = tempVal;
+                      }
                       else if(params[i].name == "orderEditingAllowed"){
 
                         var tempVal = (params[i].value == 'YES'? 1: 0);
 
                         /*update localstorage*/             
                         window.localStorage.appOtherPreferences_orderEditingAllowed = tempVal;
+                      }
+                      else if(params[i].name == "itemShiftingAllowed"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_itemShiftingAllowed = tempVal;
                       }
                       else if(params[i].name == "syncOnlineMenu"){
 
@@ -1916,6 +1937,13 @@ function applySystemOptionSettings(){
                         /*update localstorage*/             
                         window.localStorage.systemOptionsSettings_OnlineOrdersNotification = tempVal;
                       }
+                      else if(params[i].name == "deliverySMS"){
+
+                        var tempVal = (params[i].value == 'YES'? true: false);
+
+                        /*update localstorage*/             
+                        window.localStorage.systemOptionsSettings_DeliverySMSNotification = tempVal;
+                      }
                       else if(params[i].name == "billSettleLater"){
 
                         var tempVal = (params[i].value == 'YES'? 1: 0);
@@ -1929,6 +1957,13 @@ function applySystemOptionSettings(){
 
                         /*update localstorage*/             
                         window.localStorage.appOtherPreferences_AdminIdleLogout = tempVal;
+                      }
+                      else if(params[i].name == "idleUserPopup"){
+
+                        var tempVal = (params[i].value == 'YES'? 1: 0);
+
+                        /*update localstorage*/             
+                        window.localStorage.appOtherPreferences_UserIdlePopup = tempVal;
                       }
                       else if(params[i].name == "KOTRelayEnabled"){
 
@@ -2840,8 +2875,9 @@ function initAdminIdle(){
     isAdmleIdleLogoutEnabled = true;
   }
 
-  isForcedUserSelectionOnIdleEnabled = true; //hard coded
-
+  if(window.localStorage.appOtherPreferences_UserIdlePopup && window.localStorage.appOtherPreferences_UserIdlePopup == 1){
+    isForcedUserSelectionOnIdleEnabled = true;
+  }
 
       if(isForcedUserSelectionOnIdleEnabled || isAdmleIdleLogoutEnabled){
           admin_refreshInterval = window.setInterval(function() { AdminCheckIdleTime(); }, 1000);
@@ -2876,8 +2912,9 @@ function AdminCheckIdleTime(){
         isAdmleIdleLogoutEnabled = true;
       }
 
-      isForcedUserSelectionOnIdleEnabled = true; //hard coded
-
+      if(window.localStorage.appOtherPreferences_UserIdlePopup && window.localStorage.appOtherPreferences_UserIdlePopup == 1){
+        isForcedUserSelectionOnIdleEnabled = true;
+      }
 
       if(!isForcedUserSelectionOnIdleEnabled && !isAdmleIdleLogoutEnabled){
         admin_idleSecondsCounter = 0;
@@ -5640,7 +5677,15 @@ function validateAndAllowSettings(){
         if(data.docs.length > 0){
           if(data.docs[0].identifierTag == 'ACCELERATE_SYSTEM_OPTIONS'){
 
-            if(enteredPasscode == '1111'){ //Default - hard coded
+            var currentPassword = '';
+            if(window.localStorage.appCustomSettings_PagesProtectionToken && window.localStorage.appCustomSettings_PagesProtectionToken != ''){
+              currentPassword = atob(window.localStorage.appCustomSettings_PagesProtectionToken)
+            }else{
+              showToast('Something went wrong. Reset the Passcode from Security Page.', '#e74c3c');
+              return '';
+            }              
+
+            if(enteredPasscode == currentPassword){ //Default - hard coded
               window.localStorage.isAccessGrantedToSettings = moment().format();
               $('#appRenderArea').removeClass('blurBG');
               document.getElementById("settingsPasscodeModalHome").style.display = 'none';
@@ -5744,8 +5789,6 @@ function openForcedUserSelectionWindow(){
               var currentUserFound = false;
               var renderCount = 0;
 
-              users = users.concat(users);
-
               while(users[n]){
                 if(users[n].role == 'STEWARD' || users[n].role == 'ADMIN'){ //Show only Stewards and Admins
                   renderContent += '<div class="forcedUserHolder easySelectTool_ForcedProfile" id="user_forced_selection_'+users[n].code+'" onclick="closeForcedUserSelectionWindow(); switchProfile(\''+encodeURI(JSON.stringify(users[n]))+'\')"> <div class="forcedUserImage">'+getImageCode(users[n].name)+'</div> <h1 class="forcedUserText">'+users[n].name+'</h1> </div>';
@@ -5763,8 +5806,8 @@ function openForcedUserSelectionWindow(){
                 closeForcedUserSelectionWindow(); //Since there are no users found
               }
               else{
-                renderContent = '<section id="main" class="forcedUserModal">'+
-                      '<p class="forcedUserHead">Select a user to continue</p>' + renderContent + '</section>';
+                renderContent = '<div class="forcedUserModal">'+
+                      '<p class="forcedUserHead">Select a user to continue</p>' + renderContent + '</div>';
               }
 
               document.getElementById("forcedUserSelectionModalContent").innerHTML = renderContent;
@@ -5798,7 +5841,7 @@ function openForcedUserSelectionWindow(){
                 
                 if($('#forcedUserSelectionModalHome').is(':visible')) {
 
-                     e.preventDefault();
+                     //e.preventDefault();
 
                      switch(e.which){
                       case 37:{ //  < Left Arrow

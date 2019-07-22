@@ -834,7 +834,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				var allergyIngredientDetected = false;
 
 				//Check if item shift enabled for all
-				var isShiftingRightGranted = true;
+				var isShiftingRightGranted = window.localStorage.appOtherPreferences_itemShiftingAllowed && window.localStorage.appOtherPreferences_itemShiftingAllowed == 1 ? true : false;
 
 
 				//Allergy Check
@@ -8487,7 +8487,7 @@ function shiftItemWizardModalHide(){
 function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item){
 
   //anyone can shift items?
-  var isShiftingRightGranted = true; 
+  var isShiftingRightGranted = window.localStorage.appOtherPreferences_itemShiftingAllowed && window.localStorage.appOtherPreferences_itemShiftingAllowed == 1 ? true : false;
 
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
