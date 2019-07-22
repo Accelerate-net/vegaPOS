@@ -147,7 +147,7 @@ function fetchInitFunctions(pageReference){
 //To check if access is granted
 function checkIfAccessGranted(optionalPage){
 
-	var isSettingsPagesRestricted = true;
+	var isSettingsPagesRestricted = window.localStorage.appCustomSettings_PagesProtection && window.localStorage.appCustomSettings_PagesProtection == 'true' ? true : false;
 
 	if(!isSettingsPagesRestricted){
 		return '';

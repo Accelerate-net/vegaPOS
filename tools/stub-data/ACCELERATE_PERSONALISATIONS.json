@@ -7,7 +7,7 @@
       "data": [
         {
           "name": "theme",
-          "value": "skin-yellow"
+          "value": "skin-green"
         },
         {
           "name": "menuImages",
@@ -15,7 +15,7 @@
         },
         {
           "name": "punchingRightScreen",
-          "value": "MENU"
+          "value": "TABLE"
         },
         {
           "name": "virtualKeyboard",
@@ -23,14 +23,18 @@
         },
         {
           "name": "screenLockOptions",
-          "value": ""
+          "value": "SCREENSAVER"
         },
         {
           "name": "screenLockDuration",
-          "value": "30"
+          "value": "2700"
         },
         {
           "name": "securityPasscodeProtection",
+          "value": "NO"
+        },
+        {
+          "name": "pagesPasscodeProtection",
           "value": "NO"
         }
       ]

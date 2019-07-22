@@ -834,7 +834,7 @@ function renderCartAfterProcess(cart_products, selectedBillingModeInfo, selected
 				var allergyIngredientDetected = false;
 
 				//Check if item shift enabled for all
-				var isShiftingRightGranted = true;
+				var isShiftingRightGranted = window.localStorage.appOtherPreferences_itemShiftingAllowed && window.localStorage.appOtherPreferences_itemShiftingAllowed == 1 ? true : false;
 
 
 				//Allergy Check
@@ -3138,6 +3138,11 @@ function suggestCustomerInfoFromMobile(mode, inputElement, optionalRequest){
 	      	$("#add_item_by_search").focus();
 			renderCustomerInfo();
 
+			//If multiple addresses found, pop up address selection window
+			if(data.savedAddresses.length > 1 && customerInfo.modeType == 'DELIVERY'){
+				chooseAddressFromSavedList();
+			}
+
 	      }
 	      else{ //USER NOT FOUND
 
@@ -3494,19 +3499,22 @@ function renderTables(){
 }
 
 
-/* AUTO REFRESH TABLES STATUS */
+/* AUTO REFRESH TABLES STATUS AND MENU AVAILABILITY */
 
 /*Track Inactivity*/
 var TABLE_RENDER_IDLE = 15; //default time delay = 20 secs
+var MENU_RENDER_PERIOD = 30; //In howmany seconds menu has to be refreshed
+
 var idleTableSecondsCounter = 0;
+var menuReloadTimer = 0;
 var refreshTableInterval;
 
-function AutoRenderTable(){
+function AutoRenderTableAndMenu(){
 
   idleTableSecondsCounter = 0;
   clearInterval(refreshTableInterval);
 
-  refreshTableInterval = window.setInterval(function() { CheckTablesIdleTime(); }, 1000);  
+  refreshTableInterval = window.setInterval(function() { CheckTablesAndMenuIdleTime(); }, 1000);  
 
   //Start Tracking Events
   document.onclick = function() {
@@ -3522,17 +3530,29 @@ function AutoRenderTable(){
   };
 }
 
-AutoRenderTable();
+AutoRenderTableAndMenu();
 
 
-function CheckTablesIdleTime() {
+function CheckTablesAndMenuIdleTime() {
       
     idleTableSecondsCounter++;
+    menuReloadTimer++;
 
     if(idleTableSecondsCounter >= TABLE_RENDER_IDLE && currentRunningPage == 'new-order'){
     	//re-render tables
     	idleTableSecondsCounter = 0;
     	renderTables();
+    }
+
+    if(menuReloadTimer%MENU_RENDER_PERIOD == 0 && currentRunningPage == 'new-order'){
+    	//re-render menu
+    	if($('#add_item_by_search').val().length == 0){ //Do not re-render if already been punching
+    		initMenuSuggestion();
+    		menuReloadTimer = 0;
+    	}
+    	else{
+    		menuReloadTimer = menuReloadTimer - 5; //
+    	}
     }
 }
 
@@ -7191,6 +7211,20 @@ function chooseAddressFromSavedList(){
 	}
 
 	document.getElementById("areaForSavedAddressRender").innerHTML = savedAddressesList;
+
+
+
+          var easySelectTool = $(document).on('keydown',  function (e) {
+             
+            if($('#chooseAddressForNewOrderModal').is(':visible')) {
+                 if(e.which == 27){ // Escape (Close)
+                    document.getElementById("chooseAddressForNewOrderModal").style.display ='none';
+                    easySelectTool.unbind();
+                 }
+            }
+
+          });
+
 }
 
 function useThisSavedAddress(encodedCurrentAddress){
@@ -7201,6 +7235,8 @@ function useThisSavedAddress(encodedCurrentAddress){
 	window.localStorage.customerData = JSON.stringify(customerInfo);
 	chooseAddressFromSavedListHide();
 	renderCustomerInfo();
+
+	$("#add_item_by_search").focus();
 }
 
 
@@ -8451,7 +8487,7 @@ function shiftItemWizardModalHide(){
 function proceedShiftItem(source_table, current_kot, billing_mode, encoded_item){
 
   //anyone can shift items?
-  var isShiftingRightGranted = true; 
+  var isShiftingRightGranted = window.localStorage.appOtherPreferences_itemShiftingAllowed && window.localStorage.appOtherPreferences_itemShiftingAllowed == 1 ? true : false;
 
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};

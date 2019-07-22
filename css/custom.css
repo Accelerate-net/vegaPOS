@@ -94,8 +94,24 @@
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-
-
+/* latin-ext */
+@font-face {
+  font-family: 'Fjalla One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Fjalla One'), local('FjallaOne-Regular'), url(https://fonts.gstatic.com/s/fjallaone/v7/Yq6R-LCAWCX3-6Ky7FAFrO96kjouQb5-6g.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Fjalla One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: local('Fjalla One'), local('FjallaOne-Regular'), url(https://fonts.gstatic.com/s/fjallaone/v7/Yq6R-LCAWCX3-6Ky7FAFrOF6kjouQb4.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 
 /**/
@@ -3756,7 +3772,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*inactivity lock*/
 #inactivityLock{
    position: fixed; left: 0; top: 0; 
-  z-index: 2000; width: 100%; height: 100%; 
+  z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
     background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
@@ -3857,7 +3873,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*kot jamming warning*/
 #KOTJammingWarning{
     position: fixed; left: 0; top: 0; 
-    z-index: 2000; width: 100%; height: 100%; 
+    z-index: 6000; width: 100%; height: 100%; 
     overflow: visible; 
 
     -webkit-animation: lightFlashing 1s infinite; /* Safari 4+ */
@@ -3883,7 +3899,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*welcome screen lock*/
 #welcomeScreenLock{
     position: fixed; left: 0; top: 0; 
-    z-index: 2000; width: 100%; height: 100%; 
+    z-index: 5000; width: 100%; height: 100%; 
     overflow: visible; 
     background: #d5001d;
 }
@@ -3898,7 +3914,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*server error lock*/
 #serverConnectionFailureLock{
    position: fixed; left: 0; top: 0; 
-  z-index: 2000; width: 100%; height: 100%; 
+  z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
     background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
@@ -3908,7 +3924,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 /*activation lock*/
 #applicationActivationLock{
    position: fixed; left: 0; top: 0; 
-  z-index: 2000; width: 100%; height: 100%; 
+  z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
     background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
@@ -3916,7 +3932,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
 
 #applicationExpireLock{
    position: fixed; left: 0; top: 0; 
-  z-index: 2000; width: 100%; height: 100%; 
+  z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
     background-image: url("../brand/pattern.jpg");
     background-repeat: repeat;
@@ -4238,6 +4254,23 @@ position: absolute;
     position: absolute;
     top: 6px;
     right: 6px;
+}
+
+.currentUserImageForChat{
+    float:left;
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    margin-right:10px;
+    margin-top:-2px;
+    text-align: center;
+    line-height: 25px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.3);
+    font-weight: bold;
+    font-family: 'Roboto';
+    background: rgba(45, 51, 53, 0.28);
+    text-align: center;
 }
 
 .noHover{
@@ -7340,4 +7373,27 @@ input:checked + .slider:before {
     padding-bottom: 15px;
     color: #FFF;
     font-size: 32px;  
+}
+
+
+.duplicatePrintOptionButton{
+    background: #4b6371;
+    width: 100%;
+    display: block;
+    font-size: 24px;
+    font-family: 'Fjalla One';
+    height: 120px;
+    padding: 27px 10px;
+    color: #FFF;
+    text-transform: uppercase;
+    word-spacing: 50px;
+    border-left: 8px #445a67 solid;
+    cursor: pointer;
+}
+
+.duplicatePrintOptionButton:hover,
+.duplicatePrintOptionButton:active,
+.duplicatePrintOptionButton:focus{
+    border-color: #ffbb23;
+    color: #ffbb23;
 }

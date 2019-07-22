@@ -2660,7 +2660,7 @@ function openSelectedBill(encodedBill, type){
                                     '<span class="floaty-btn-label" style="left: unset; right: 55px !important; top: 8px;">Settle Bill</span>'+
                                   '</div>'+
                                   '<ul class="floaty-list" style="margin-top: 60px !important; padding-left: 3px;">'+
-                                    '<li class="floaty-list-item floaty-list-item--violet" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
+                                    '<li class="floaty-list-item floaty-list-item--violet" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBillDisplayOptions(\''+encodedBill+'\')">'+
                                       '<tag style="color: #FFF; text-align: center; padding-top: 7px; font-size: 18px;" class="absolute-center">'+
                                         '<i class="fa fa-print whiteWash"></i>'+
                                       '</tag>'+
@@ -2945,7 +2945,7 @@ function openSelectedBill(encodedBill, type){
 
         if(isUserAnAdmin){
         	subOptions = '<div class="floaty" style="right: -10px; top: 5px">'+
-                                  '<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBill(\''+encodedBill+'\')">'+
+                                  '<div class="floaty-btn small" style="box-shadow: none;" id="triggerClick_PrintDuplicateBillButton" onclick="printDuplicateBillDisplayOptions(\''+encodedBill+'\')">'+
                                     '<svg width="24" height="24" viewBox="0 0 24 24" class="floaty-btn-icon floaty-btn-icon-plus absolute-center">'+
 										'<path d="M7.41 7.84L12 12.42l4.59-4.58L18 9.25l-6 6-6-6z" fill="#fff"/>'+
     									'<path d="M0-.75h24v24H0z" fill="none"/>'+
@@ -3078,6 +3078,117 @@ function openSelectedBill(encodedBill, type){
 	}
 
 }
+
+
+function printDuplicateBillDisplayOptions(encodedBill){
+
+	var bill = JSON.parse(decodeURI(encodedBill));
+
+	if(bill.orderDetails.modeType == 'DINE' || bill.orderDetails.modeType == 'PARCEL' || bill.orderDetails.modeType == 'TOKEN'){
+		document.getElementById("duplicateBillOptionsRender").innerHTML = ''+
+			'<div class="col-sm-4"> <tag onclick="printDuplicateBill(\''+encodedBill+'\', \'ORIGINAL\'); printDuplicateBillDisplayOptionsHide();" class="duplicatePrintOptionButton">Print Original</tag> </div>'+
+			'<div class="col-sm-4"> <tag onclick="printDuplicateBillAskForAddress(\''+encodedBill+'\')" class="duplicatePrintOptionButton">With Address</tag> </div>'+ 
+			'<div class="col-sm-4"> <tag onclick="printDuplicateBill(\''+encodedBill+'\'); printDuplicateBillDisplayOptionsHide();" class="duplicatePrintOptionButton">Print Duplicate</tag> </div>';
+	}
+	else if(bill.orderDetails.modeType == 'DELIVERY'){
+		document.getElementById("duplicateBillOptionsRender").innerHTML = ''+
+			'<div class="col-sm-4"> <tag onclick="printDuplicateBill(\''+encodedBill+'\', \'ORIGINAL\'); printDuplicateBillDisplayOptionsHide();" class="duplicatePrintOptionButton">Print Original</tag> </div>'+
+			'<div class="col-sm-4"> <tag onclick="printDuplicateBill(\''+encodedBill+'\'); printDuplicateBillDisplayOptionsHide();" class="duplicatePrintOptionButton">Print Duplicate</tag> </div>';
+	}
+
+
+	document.getElementById("duplicateBillOptionsModal").style.display = 'block';
+
+}
+
+function printDuplicateBillDisplayOptionsHide(){
+	document.getElementById("duplicateBillOptionsRender").innerHTML = '';
+	document.getElementById("duplicateBillOptionsModal").style.display = 'none';
+}
+
+function resetDuplicateInvoiceAddress(){
+	document.getElementById("duplicateInvoice_Address_name").value = '';
+	document.getElementById("duplicateInvoice_Address_contact").value = '';
+	document.getElementById("duplicateInvoice_Address_flatName").value = '';
+	document.getElementById("duplicateInvoice_Address_flatNo").value = '';
+	document.getElementById("duplicateInvoice_Address_area").value = '';
+	document.getElementById("duplicateInvoice_Address_landmark").value = '';
+	document.getElementById("duplicateInvoice_Address_remarks").value = '';
+}
+
+
+function printDuplicateBillAskForAddress(encodedBill){
+	var bill = JSON.parse(decodeURI(encodedBill));
+
+	document.getElementById("duplicateBillOptionsRender").innerHTML = ''+
+					'<div class="row" id="addNewSavedWindow" style="padding: 0 30px 0 15px; display: block; display: block;">'+
+                        '<h1 style="font-size: 18px; color: #1abc9c; text-align: left; padding-left: 15px; margin-top: 0;">Billing Address for Invoice #<b>'+bill.billNumber+'</b></h1>'+
+                        '<div class="col-sm-12">'+
+                           '<div class="form-group">'+
+                              '<input type="text" value="'+bill.customerName+'" placeholder="Guest Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="duplicateInvoice_Address_name" required="required">'+
+                           '</div>'+
+                        '</div>'+
+                        '<div class="col-sm-12">'+
+                           '<div class="form-group">'+
+                              '<input type="number" value="'+bill.customerMobile+'" placeholder="Mobile Number" style="border: none; border-bottom: 1px solid" class="form-control tip" id="duplicateInvoice_Address_contact" required="required">'+
+                           '</div>'+
+                        '</div>'+
+                        '<div class="col-sm-6">'+
+                           '<div class="form-group">'+
+                              '<input type="text" value="" placeholder="Office/House No" style="border: none; border-bottom: 1px solid" class="form-control tip" id="duplicateInvoice_Address_flatNo" required="required">'+
+                           '</div>'+
+                        '</div>'+
+                        '<div class="col-sm-6">'+
+                           '<div class="form-group">'+
+                              '<input type="text" value="" placeholder="Office/House Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="duplicateInvoice_Address_flatName" required="required">'+
+                           '</div>'+
+                        '</div>'+
+                        '<div class="col-sm-6">'+
+                           '<div class="form-group">'+
+                              '<input type="text" value="" placeholder="Landmark" style="border: none; border-bottom: 1px solid" class="form-control tip" id="duplicateInvoice_Address_landmark" required="required">'+
+                           '</div>'+
+                        '</div>'+
+                        '<div class="col-sm-6">'+
+                           '<div class="form-group">'+
+                              '<input type="text" value="" placeholder="Area" style="border: none; border-bottom: 1px solid" class="form-control tip" id="duplicateInvoice_Address_area" required="required">'+
+                           '</div>'+
+                        '</div>'+
+                        '<div class="col-sm-12">'+
+                           '<div class="form-group">'+
+                              '<input type="text" value="" placeholder="Custom Remarks" style="border: none; border-bottom: 1px solid" class="form-control tip" id="duplicateInvoice_Address_remarks" required="required">'+
+                           '</div>'+
+                        '</div>'+
+                        '<button class="btn btn-default" onclick="resetDuplicateInvoiceAddress()" style="float: left; margin-left: 15px">Reset</button>'+
+                        '<button class="btn btn-success" onclick="proceedDuplicateInvoiceWithAddress(\''+encodedBill+'\')" style="float: right; margin-right: 15px">Print with Address</button>'+
+                     '</div>';
+}
+
+
+function proceedDuplicateInvoiceWithAddress(encodedBill){
+	
+	var bill = JSON.parse(decodeURI(encodedBill));
+
+	var addressObject = {};
+
+	addressObject.name = document.getElementById("duplicateInvoice_Address_name").value;
+	addressObject.contact = document.getElementById("duplicateInvoice_Address_contact").value;
+	addressObject.flatNo = document.getElementById("duplicateInvoice_Address_flatNo").value;
+	addressObject.flatName = document.getElementById("duplicateInvoice_Address_flatName").value;
+	addressObject.landmark = document.getElementById("duplicateInvoice_Address_landmark").value;
+	addressObject.area = document.getElementById("duplicateInvoice_Address_area").value;
+	addressObject.remarks = document.getElementById("duplicateInvoice_Address_remarks").value;
+
+	//quick validation
+	if(addressObject.name == '' && addressObject.contact == '' && addressObject.flatNo == '' && addressObject.flatName == '' && addressObject.landmark == '' && addressObject.area == '' && addressObject.remarks == ''){
+		showToast('Warning: All fields in Billing Address is empty', '#e67e22');
+		return '';
+	}
+
+   	sendToPrinter(bill, 'DUPLICATE_ORIGINAL_BILL', '', addressObject);
+    showToast('Duplicate Bill #'+bill.billNumber+' generated Successfully', '#27ae60');
+	printDuplicateBillDisplayOptionsHide();
+}
+
 
 
 function readCustomerComments(rating, comments){
@@ -3930,7 +4041,7 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
                       showToast('Delivery agent <b>'+name+'</b> assigned', '#27ae60');
                       openSelectedBill(encodedBill, requestURLSource);
 
-                      var isAutoSMSFeatureEnabled = true;
+                      var isAutoSMSFeatureEnabled = window.localStorage.systemOptionsSettings_DeliverySMSNotification && window.localStorage.systemOptionsSettings_DeliverySMSNotification == 'true' ? true : false;
 
                       if(isAutoSMSFeatureEnabled && !bill.orderDetails.isOnline){
                       	sendOrderDispatchSMS(bill);
@@ -4006,10 +4117,17 @@ function sendOrderDispatchSMS(bill){
 
 
 //Print Duplicate Bill
-function printDuplicateBill(encodedBill){
+function printDuplicateBill(encodedBill, optionalFlag){
 	
 	var bill = JSON.parse(decodeURI(encodedBill));
-    sendToPrinter(bill, 'DUPLICATE_BILL');
+
+	if(optionalFlag == 'ORIGINAL'){
+		sendToPrinter(bill, 'DUPLICATE_ORIGINAL_BILL');
+	}
+	else{
+   		sendToPrinter(bill, 'DUPLICATE_BILL');
+   	}
+
     showToast('Duplicate Bill #'+bill.billNumber+' generated Successfully', '#27ae60');
 }
 

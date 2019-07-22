@@ -393,7 +393,7 @@ function liveOrderOptionsNonDineClose(){
 function liveOrderOptions(kotID){
 
   //anyone can shift tables?
-  var isShiftingRightGranted = true; 
+  var isShiftingRightGranted = window.localStorage.appOtherPreferences_itemShiftingAllowed && window.localStorage.appOtherPreferences_itemShiftingAllowed == 1 ? true : false;
 
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -1094,7 +1094,7 @@ function pickTableForTransferOrder(currentTableID, kotID){
     */
 
     //anyone can shift items?
-    var isShiftingRightGranted = true; 
+    var isShiftingRightGranted = window.localStorage.appOtherPreferences_itemShiftingAllowed && window.localStorage.appOtherPreferences_itemShiftingAllowed == 1 ? true : false;
 
     // LOGGED IN USER INFO
     var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
