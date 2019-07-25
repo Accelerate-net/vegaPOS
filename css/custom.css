@@ -7433,3 +7433,124 @@ input:checked + .slider:before {
     border-color: #ffbb23;
     color: #ffbb23;
 }
+
+#globalTimeDisplay{
+  font-size: 23px; font-weight: 400; 
+  position: absolute; top: 15px; left: 52px;
+  opacity: 1;
+}
+
+#globalDateDisplay{
+  font-family: 'Roboto';
+  opacity: 0;
+}
+
+.myTimeDisplayer:hover #globalDateDisplay{
+  opacity: 1 !important;
+}
+
+.myTimeDisplayer:hover #globalTimeDisplay{
+  opacity: 0 !important;
+}
+
+@keyframes blink_seconds {  
+  50% { opacity: 0; }
+}
+
+.secondPulse{
+  animation: blink_seconds 1s linear infinite;
+}
+
+
+
+@-webkit-keyframes fadeInMe {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInMe {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeOutMe {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOutMe {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+
+.showDateForced #globalDateDisplay{
+  -webkit-animation-name: fadeInMe;
+  animation-name: fadeInMe;
+  animation-duration: 1s;
+}
+
+.showDateForced #globalTimeDisplay{
+  -webkit-animation-name: fadeOutMe;
+  animation-name: fadeOutMe;
+  animation-duration: 1s;
+}
+
+.showTimeForced #globalTimeDisplay{
+  -webkit-animation-name: fadeInMe;
+  animation-name: fadeInMe;
+  animation-duration: 1s;
+}
+
+.showTimeForced #globalDateDisplay{
+  -webkit-animation-name: fadeOutMe;
+  animation-name: fadeOutMe;
+  animation-duration: 1s;
+}
+
+
+.myTimeDisplayer.showDateForced #globalDateDisplay{
+  opacity: 1;
+}
+.myTimeDisplayer.showDateForced #globalTimeDisplay{
+  opacity: 0;
+}
+
+
+.globalDateDay{
+    font-size: 16px;
+    font-weight: 400;
+    position: relative;
+    top: -16px;
+    left: 10px;
+    opacity: 1;
+}
+
+.globalDateFigures{
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    top: 25px;
+    left: 52px;
+    opacity: 1;
+}

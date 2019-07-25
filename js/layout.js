@@ -3,8 +3,14 @@ let fs = require('fs');
 
 /* GLOBAL TIME DISPLAY */
 
+var CLOCK_TICKER_COUNTER = 0;
+
 /* Analogue Clock */
 function updateClock() {
+
+  CLOCK_TICKER_COUNTER++;
+
+
             var now = moment(),
                 second = now.seconds() * 6,
                 minute = now.minutes() * 6 + second / 60,
@@ -15,7 +21,23 @@ function updateClock() {
 
             document.getElementById('globalTimeDisplay').innerHTML = moment().format('h:mm:ss a');
 
-            document.getElementById('globalDateDisplay').innerHTML = moment().format('dddd, ') + '<b style="font-size: 120%;">'+moment().format('D')+'</b>' + moment().format(' MMM, YYYY');
+            document.getElementById('globalDateDisplay').innerHTML = '<tag class="globalDateDay">'+moment().format('dddd')+'</tag>'+
+                                                                     '<tag class="globalDateFigures"><b>'+moment().format('D')+'</b>' + moment().format(' MMMM, YYYY') + '</tag>';
+
+
+
+
+   //Show Date and Time every 12 seconds alternatively
+   if(CLOCK_TICKER_COUNTER == 12){
+    $('#dateTimeDisplayUnit').addClass('showDateForced');
+    $('#dateTimeDisplayUnit').removeClass('showTimeForced'); //Just for animation
+   }
+   else if(CLOCK_TICKER_COUNTER == 16){
+    $('#dateTimeDisplayUnit').removeClass('showDateForced');
+    $('#dateTimeDisplayUnit').addClass('showTimeForced'); //Just for animation
+    CLOCK_TICKER_COUNTER = 0;
+   }
+
 }
 
 function timedUpdate () {
