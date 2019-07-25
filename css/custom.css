@@ -1475,12 +1475,48 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Edit Menu */
 .subMenuList{
-  background-color: #f9f9f9;
+    background-color: #f9f9f9;
+    font-size: 16px;
+    font-family: 'Oswald';
+}
+
+.subMenuList .fa{
+  opacity: 0.1;
+  margin-right: 8px
 }
 
 .subMenuList:hover, .subMenuList:active, .subMenuList:focus{
   background-color: #d8d8d8;
 }
+
+.subMenuList:hover .fa, .subMenuList:active .fa, .subMenuList:focus .fa{
+  opacity: 0.8;
+}
+
+.moveItemToCategoryButton{
+    margin: 0 5px 5px 0;
+    color: #FFF;
+    background: #3c8dbc;
+    width: 48%;
+    font-size: 18px;
+    font-family: 'Oswald';
+    text-align: left;
+}
+
+.moveItemToCategoryButton:hover .fa, .moveItemToCategoryButton:active .fa, .moveItemToCategoryButton:focus .fa{
+  opacity: 1;
+}
+
+.moveItemToCategoryButton:hover, .moveItemToCategoryButton:active, .moveItemToCategoryButton:focus{
+  color: #ffda43;
+}
+
+.moveItemToCategoryButton .fa{
+  margin-right: 6px;
+  opacity: 0;
+}
+
+
 
 .notavailTag{
   background: #e74c3c;

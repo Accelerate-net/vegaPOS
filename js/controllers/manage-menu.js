@@ -26,7 +26,7 @@ function fetchAllCategories(){
 	          	var categoryTag = '';
 
 				for (var i=0; i<categories.length; i++){
-					categoryTag = categoryTag + '<tr class="subMenuList" onclick="openSubMenu(\''+categories[i]+'\')"><td>'+categories[i]+'</td></tr>';
+					categoryTag = categoryTag + '<tr class="subMenuList" onclick="openSubMenu(\''+categories[i]+'\')"><td class="menuTableListRow"><i class="fa fa-caret-right"></i>'+categories[i]+'</td></tr>';
 				}
 
 				if(!categoryTag)
@@ -413,10 +413,10 @@ function getVegIcon(flag){
 	}
 
 	if(flag == 1){ //Veg
-		return '<img style="width: 12px; position: relative; top: -2px; left: -5px;" src="images/common/food_veg.png">';
+		return '<img style="width: 12px; position: relative; top: 2px; left: -5px;" src="images/common/food_veg.png">';
 	}
 	else if(flag == 2){ //Non Veg
-		return '<img style="width: 12px; position: relative; top: -2px; left: -5px;" src="images/common/food_nonveg.png">';
+		return '<img style="width: 12px; position: relative; top: 2px; left: -5px;" src="images/common/food_nonveg.png">';
 	}
 	else{
 		return '<tag style="display: inline-block; width: 12px"></tag>';
@@ -453,11 +453,14 @@ function openSubMenu(menuCategory, optionalHighlighItem){
 
 					if(menuCategory == mastermenu[i].category){
 
-						//alphabetical sorting
-						mastermenu[i].items.sort(function(obj1, obj2) {
-			                // Ascending: first age less than the previous
-			                return obj1.code - obj2.code;
-			            });
+			          //alphabetical sorting
+					  mastermenu[i].items.sort(function(a, b) {
+					  	if(a.name < b.name) { return -1; }
+					    if(a.name > b.name) { return 1; }
+					    return 0;
+					  });
+
+
 
 						for(var j=0; j<mastermenu[i].items.length; j++){
 
@@ -482,7 +485,7 @@ function openSubMenu(menuCategory, optionalHighlighItem){
 
 				
 				document.getElementById("menuRenderTitle").innerHTML = '<div class="box-header" id="menuRenderTitle" style="padding: 10px 0px">'+
-                              '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">'+menuCategory+'</h3>'+
+                              '<h3 class="box-title" style="padding: 0 5px 0px 15px; font-size: 26px; font-family: \'Oswald\';" id="current_opened_category">'+menuCategory+'</h3>'+
                            '</div>';
 
                	//Submenu options
@@ -543,7 +546,7 @@ function openSubMenu(menuCategory, optionalHighlighItem){
 
 
                 if(!itemsInCategory)
-                	itemsInCategory = '<p style="color: #bdc3c7">No items found in '+menuCategory+'</p>';
+                	itemsInCategory = '<p style="color: #bdc3c7; margin: 0 15px 5px 15px">No items found in '+menuCategory+'</p>';
 				
 				document.getElementById("menuRenderContent").innerHTML = itemsInCategory;
 
@@ -1305,7 +1308,7 @@ function changeCategoryOfItem (item_code, item_name) {
                var n = 0;
                while(categoryList[n]){
 
-               		renderContent += '<button class="btn btn-primary" style="margin: 0 5px 5px 0; font-size: 16px;" onclick="moveItemToCategory(\''+item_code+'\', \''+item_name+'\', \''+categoryList[n]+'\')">'+categoryList[n]+'</button>';
+               		renderContent += '<button class="btn btn-primary moveItemToCategoryButton" onclick="moveItemToCategory(\''+item_code+'\', \''+item_name+'\', \''+categoryList[n]+'\')"><i class="fa fa-level-down"></i>'+categoryList[n]+'</button>';
 
                		n++;
                }
@@ -1343,6 +1346,9 @@ function moveItemToCategory(item_code, item_name, item_category){
 		showToast('Warning! Invalid Parameters.', '#e67e22');
 		return '';
 	}
+
+	var current_opened_category = $('#current_opened_category').html();
+	console.log(current_opened_category)
 
 	selectNewCategoryForItemWindowHide();
 
@@ -1429,7 +1435,7 @@ function moveItemToCategory(item_code, item_name, item_category){
 			                  timeout: 10000,
 			                  success: function(data) {
 			                  	showToast('Success! <b>' + item_name + '</b> has been move to '+item_category, '#27ae60');
-			                  	openSubMenu(item_category);
+			                  	openSubMenu(current_opened_category != '' ? current_opened_category : item_category);
 			                  },
 			                  error: function(data) {
 			                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
