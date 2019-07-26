@@ -2095,8 +2095,11 @@ function openSelectedCancelledBill(encodedBill, type){
 		var otherCharges = '<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Number of Items</td> <td style="text-align: right">'+n+'</td> </tr>'+
 				'<tr style="background: #fcfcfc"> <td></td> <td></td> <td colspan="2">Total Quantity</td> <td style="text-align: right">'+totalQuantity+'</td> </tr>';
 
+
+		var isAlreadyRenderingFlag = document.getElementById("billDetailedDisplayRender").innerHTML != '' ? true : false;
+
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
-												'<div class="box box-primary">'+
+												'<div class="box box-primary '+(!isAlreadyRenderingFlag ? 'billDetailedDisplayHolder' : '')+'">'+
 												'   <div class="box-body">'+ 
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.KOTNumber+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="checkDeliveryAddr(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3><button class="btn btn-danger" onclick="cancelDetailsDisplay(\''+(encodeURI(JSON.stringify(bill.cancelDetails)))+'\')" style="float: right">Cancellation Details</button>'+
@@ -2188,8 +2191,10 @@ function openSelectedCancelledBill(encodedBill, type){
 		otherCharges += '<tr style="background: #f4f4f4"> <td></td> <td></td> <td colspan="2"><b>Total Paid Amount</b></td> <td style="font-size: 150%; font-weight: bold; text-align: right"><i class="fa fa-inr"></i>'+(bill.totalAmountPaid && bill.totalAmountPaid != '' ? parseFloat(bill.totalAmountPaid).toFixed(2) : '0')+'</td> </tr>';
 		
 
+		var isAlreadyRenderingFlag = document.getElementById("billDetailedDisplayRender").innerHTML != '' ? true : false;
+
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
-												'<div class="box box-primary">'+
+												'<div class="box box-primary '+(!isAlreadyRenderingFlag ? 'billDetailedDisplayHolder' : '')+'">'+
 												'   <div class="box-body">'+
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag></h3><button class="btn btn-danger" onclick="cancelDetailsDisplay(\''+(encodeURI(JSON.stringify(bill.cancelDetails)))+'\')" style="float: right">Cancellation Details</button>'+

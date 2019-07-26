@@ -1,0 +1,389 @@
+<template class="task-template">
+
+               <div class="row">
+                  <div class="col-xs-4">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title markItemsBatchWrap" style="padding: 5px 0px; font-size: 21px;">Categories
+                              </h3>
+                              <tag style="position: relative; float: right; top: 5px; line-height: 18px;">
+                                    <span class="markItemsBatchIcon" onclick="openBatchProcessMenuAllAvailableWindow()" title="Mark All Items Available" style="background: #fdb84a"><i class="fa fa-check"></i></span>
+                                    <span class="markItemsBatchIcon" onclick="quickViewUnavailableItems()" title="View Unavailable Items" style="background: #e74c3c"><i class="fa fa-list"></i></span>
+                                    <span class="markItemsBatchIcon" onclick="openNewMenuCategory()" title="Add New Category"><i class="fa fa-plus"></i></span>
+                              </tag>
+                           </div>
+                           <div class="table-responsive" id="uiBeauty_menuCategory" style="max-height: 75vh">
+                              <table class="table" style="margin: 0">
+                                 <tbody id="categoryArea">                                                                  
+                                 </tbody>
+                              </table>
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  
+
+                  <div class="col-xs-6" style="display: none" id="menuDetailsArea">
+                     
+                     <div class="box box-primary" style="float: left">
+                        <div class="box-body">                     
+                          <div class="box-header" id="menuRenderTitle" style="padding: 10px 0px">
+                          </div>
+                           <div class="col-lg-12" style="padding: 0">
+                              <table class="table" style="margin: 0;">
+                                 <col width="60%">
+                                 <col width="15%">
+                                 <col width="25%">
+                                 <tbody id="menuRenderContent">                                                                                                  
+                                 </tbody>
+                              </table>
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                        <div id="submenuOptions"></div>
+                     </div>
+
+                  </div>
+               </div>
+
+
+      <!-- Modal -->
+      <div id="newMenuCategoryModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <button  onclick="hideNewMenuCategory()" style="float: right;" class="btn clearButton"><i class="fa fa-times"></i></button>
+                  <h4 class="modal-title">New Category</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+
+                     <div class="row">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <input type="text" name="category_name" value="" placeholder="Enter Category Name" style="border: none; border-bottom: 1px solid" class="form-control tip" id="add_new_category_name" required="required" />
+                           </div>
+                        </div>
+                     </div>
+
+               </div>
+               <div class="modal-footer">
+                  <button  class="btn btn-default" onclick="hideNewMenuCategory()" style="float: left">Cancel</button>
+                  <button  class="btn btn-success" onclick="addCategory()">Add</button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+      <!-- Modal -->
+      <div id="selectNewCategoryForItemWindow" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <button  onclick="selectNewCategoryForItemWindowHide()" style="float: right;" class="btn clearButton"><i class="fa fa-times"></i></button>
+                  <h4 class="modal-title" id="selectNewCategoryForItemWindowTitle">Change Item Category</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+
+                     <div class="row" style="padding: 5px 20px;" id="selectNewCategoryForItemWindowRenderContent">
+                        
+                     </div>
+
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+
+
+      <!-- Modal -->
+      <div id="unavailQuickViewModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader" style="padding: 15px 10px; background: #e74c3c;">
+                  <button  onclick="quickViewUnavailableItemsHide()" style="float: right; font-weight: bold; position: relative; top: -3px;" class="btn clearButton"><i class="fa fa-times"></i></button>
+                  <h4 class="modal-title">Items currently <b>Out of Stock</b></h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+
+                     <div class="row" style="padding: 0; margin: 0">
+                           <div class="col-lg-12" style="padding: 0">
+                              <table class="table" style="margin: 0;">
+                                 <col width="60%">
+                                 <col width="15%">
+                                 <col width="25%">
+                                 <tbody id="outOfStockRenderContent">                                                                                                  
+                                 </tbody>
+                              </table>
+                           </div>
+                           <div class="clearfix"></div>
+                     </div>
+
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+
+
+      <!-- Modal -->
+      <div id="newMenuItemModal" class="modal">
+         <div class="modal-dialog" style="top: 15%">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+
+                  <tag id="moreOptionsButtonWrap">
+                     <button  style="float: right;" class="btn btn-sm btn-default" onclick="addMoreOptions()">More Options</button>
+                  </tag> 
+
+                  <h4 class="modal-title" id="newItemModalTitle">New Item</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                  <div id="newItemArea">
+                     <div class="row">
+                        <div class="col-lg-4">
+                           <div class="form-group">
+                              <label for="new_item_name">Item Code</label> <input type="number" class="form-control tip" id="new_item_manual_code" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-8">
+                           <div class="form-group">
+                              <label for="new_item_price">Type</label>
+                              <div style="display: block" id="newItemTypeOptions"> 
+                                 <button onclick="triggerItemType(this)" veg-flag="0" class="btn btn-default foodTypeButton active">Not Set</button>
+                                 <button onclick="triggerItemType(this)" veg-flag="1" class="btn btn-default foodTypeButton"><img src="images/common/food_veg.png">Vegetarian</button>
+                                 <button onclick="triggerItemType(this)" veg-flag="2" class="btn btn-default foodTypeButton"><img src="images/common/food_nonveg.png">Non-Vegetarian</button>
+                              </div>
+                           </div>
+                        </div>                        
+                     </div>
+                     <div class="row">
+                        <div class="col-lg-8">
+                           <div class="form-group">
+                              <label for="new_item_name">Item Name</label> <input type="text" name="new_item_name" value="" class="form-control tip" id="new_item_name" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-4">
+                           <div class="form-group">
+                              <label for="new_item_price">Price</label> <input type="text" name="new_item_price" value="" class="form-control tip" id="new_item_price" required="required" />
+                           </div>
+                        </div>                        
+                     </div>
+                     <input type="hidden" id="new_item_choice_count" value="0"/>
+                     <div id="newItemChoicesArea"></div>
+                     
+                  </div>  
+                  <button  style="float: left; background: none; display: none" class="btn btn-sm  btn-default" id="removeChoiceButton" onclick="removeChoice()">Clear Choices</button>           
+                  <button  style="float: right" class="btn btn-sm btn-default" id="addChoiceButton" onclick="addChoice()">Add Choice</button>
+
+
+
+               </div>
+               <div class="modal-footer" id="newItemModalActions">
+                 
+               </div>
+            </div>
+
+            <!-- More Options -->
+            <div class="modal-content" id="moreOptionsArea" style="width: 300px; position: absolute; right: -310px; top: 0px; display: none; max-height: 460px; padding: 0; overflow-y: auto !important; overflow-x: none !important;">
+                     <div class="modal-header defaultModalColoredHeader">
+                        <h2 class="posCartSubHead" style="margin-top: 5px; color: #FFF;">More Options</h2>
+                     </div>  
+               
+                     <div class="row" style="margin: 0; padding: 10px">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Packaged Item</label>
+                              <p style="font-size: 11px; color: #a29a9a; margin-top: -5px;">Packaged Items are the items sold at MRP rate inclusive of taxes and container charges</p>
+                              <!-- Rounded switch -->
+                              <label class="switch" style="position: absolute; top: 0; right: 15px;">
+                                <input type="checkbox" id="packagedItemFlag">
+                                <span class="slider round"></span>
+                              </label>
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Custom Short Code <tag style="font-weight: 400; color: #f39c12">(Letters)</tag></label> <input type="text" value="" class="form-control tip" style="font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #f39c12; font-family: 'Roboto';" id="more_options_customCode"/>
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Custom Short Number <tag style="font-weight: 400; color: #f39c12">(Digits)</tag></label> <input type="number" value="" class="form-control tip" style="font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #f39c12; font-family: 'Roboto';" id="more_options_customNumber"/>
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Minimum Cooking Time (in Mins)</label> <input type="number" value="" class="form-control tip" id="more_options_cookingTime" placeholder="Time in Minutes" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Main Ingredients<tag class="smallResetButton" id="ingredientsResetButton" style="display: none; margin-left: 5px" onclick="addMoreOptions('RESET')">Reset</tag></label> <input type="text" value="" class="form-control tip" id="more_options_ingredients" required="required" disabled/>
+                              <p style="font-size: 14px; padding: 0; color: #168c9a; margin: 5px 0" id="ingredientsList"></p>
+                           </div>
+                        </div>
+                     </div>
+            </div>
+
+         </div>
+      </div>
+
+
+
+
+      <!-- Modal for Edit --> 
+      <div id="editMenuItemPriceModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <tag id="edit_moreOptionsButtonWrap">
+                     <button  style="float: right;" class="btn btn-sm btn-default" onclick="edit_addMoreOptions()">More Options</button>
+                  </tag> 
+
+                  <h4 class="modal-title" id="editItemPriceModalTitle">Edit Item</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+
+                  <tag id="editItemCodeSecret"></tag> 
+                  <tag id="topEditItemArea"></tag>
+                  <tag id="editItemArea"></tag>  
+                  <div id="extraChoicesArea"></div>
+
+                  <button  style="float: left; background: none; display: none" class="btn btn-sm  btn-default" id="removeExtraChoiceButton" onclick="removeExtraChoice()">Clear Choices</button>           
+                  <button  style="float: right;" class="btn btn-sm btn-default" id="addExtraChoiceButton" onclick="editAddMoreChoice()">Add Choice</button>                  
+               </div>
+               <div class="modal-footer" id="editPriceModalActions">
+
+               </div>
+            </div>
+
+            <!-- More Options for Edit -->
+            <div class="modal-content" id="edit_moreOptionsArea" style="width: 300px; position: absolute; right: -310px; top: 0px; display: none; max-height: 460px; padding: 0; overflow-y: auto !important; overflow-x: none !important;">
+                  <div class="modal-header defaultModalColoredHeader">
+                     <h2 class="posCartSubHead" style="margin-top: 5px; color: #FFF">More Options</h2>
+                  </div>               
+               
+                     <div class="row" style="margin: 0; padding: 10px">
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Packaged Item</label>
+                              <p style="font-size: 11px; color: #a29a9a; margin-top: -5px;">Packaged Items are the items sold at MRP rate inclusive of taxes and container charges</p>
+                              <!-- Rounded switch -->
+                              <label class="switch" style="position: absolute; top: 0; right: 15px;">
+                                <input type="checkbox" id="packagedItemFlagEdit">
+                                <span class="slider round"></span>
+                              </label>
+                           </div>
+                        </div>                        
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Custom Short Code <tag style="font-weight: 400; color: #f39c12">(Letters)</tag></label> <input type="text" value="" style="font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #f39c12; font-family: 'Roboto';" class="form-control tip" id="edit_more_options_customCode" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Custom Short Number <tag style="font-weight: 400; color: #f39c12">(Digits)</tag></label> <input type="text" value="" style="font-size: 18px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #f39c12; font-family: 'Roboto';" class="form-control tip" id="edit_more_options_customNumber" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Minimum Cooking Time (in Mins)</label> <input type="number" value="" class="form-control tip" id="edit_more_options_cookingTime" placeholder="Time in Minutes" required="required" />
+                           </div>
+                        </div>
+                        <div class="col-lg-12">
+                           <div class="form-group">
+                              <label>Main Ingredients<tag class="smallResetButton" id="edit_ingredientsResetButton" style="display: none; margin-left: 5px" onclick="edit_addMoreOptions('RESET')">Reset</tag></label> <input type="text" value="" class="form-control tip" id="edit_more_options_ingredients" required="required" disabled/>
+                              <p style="font-size: 14px; padding: 0; color: #168c9a; margin: 5px 0" id="edit_ingredientsList"></p>
+                           </div>
+                        </div>
+                     </div>
+            </div>
+
+
+         </div>
+      </div>
+
+
+      <!-- Modal -->
+      <div id="categoryEditNameConfirmation" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader">
+                  <button  onclick="hideEditCategoryName()" style="float: right;" class="btn clearButton"><i class="fa fa-times"></i></button>
+                  <h4 class="modal-title">Edit Category Name</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                  <div id="editCategoryNameArea"></div>               
+               </div>
+               <div class="modal-footer" id="editCategoryNameConsent">
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+      <!-- Modal -->
+      <div id="markAllItemsAvailabilityModal" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header defaultModalColoredHeader" style="background: #f6f6f6 !important; color: #8a8282">
+                  <button  onclick="markAllItemsAvailabilityHide()" style="float: right;" class="btn clearButton"><i class="fa fa-times"></i></button>
+                  <h4 class="modal-title">Block or Unblock Items</h4>
+               </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                  <div id="markAllItemsAvailabilityContent" style="font-size: 16px; padding: 15px;"></div>               
+               </div>
+               <div class="modal-footer" style="padding: 1%; border: none" id="markAllItemsAvailabilityConsent">
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+      <!-- Modal -->
+      <div id="categoryDeleteConfirmation" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Confirm Delete</h1> </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                <p style="font-size: 16px; margin: 0; color: #e74c3c;" id="deleteConfirmationText"></p>
+               </div>
+               <div class="modal-footer" style="border: none; padding-top: 0" id="deleteConfirmationConsent">
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+      <!-- Modal -->
+      <div id="batchAvailabilityConfirmWindow" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+               <div class="modal-header deleteConfirmationHeader" style="background: #1abc9c !important"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Mark <b>All Items</b> Available</h1> </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
+                <p style="font-size: 16px; margin: 10px 0; color: #444;">Do you really want to mark all the items in the menu as <b>Available</b>?</p>
+               </div>
+               <div class="modal-footer" style="border: none; padding-top: 0">
+                  <button class="btn btn-default" onclick="hideBatchProcessMenuAllAvailableWindow()" style="float: left">Close</button>
+                  <button class="btn btn-success" onclick="batchProcessMenuAllAvailable()">Proceed</button>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      
+
+</template>

@@ -77,11 +77,19 @@ function fetchInitFunctions(pageReference){
 		}
 		case 'manage-menu':{
 			checkIfAccessGranted('Manage Menu');
+			break;
+		}	
+		case 'master-menu':{
+			checkIfAccessGranted('Master Menu');
 			fetchAllCategories();
 			break;
 		}	
-		case 'photos-manager':{
-			checkIfAccessGranted('Photos Manager');
+		case 'mapped-menus':{
+			checkIfAccessGranted('Mapped Menus');
+			break;
+		}	
+		case 'menu-photos':{
+			checkIfAccessGranted('Menu Photos');
 			fetchAllCategoriesPhotos();
 			break;
 		}			
@@ -219,8 +227,16 @@ function renderPage(pageReference, title){
 				title = 'Manage Menu';
 				break;
 			}	
-			case 'photos-manager':{
-				title = 'Photos Manager';
+			case 'master-menu':{
+				title = 'Master Menu';
+				break;
+			}	
+			case 'menu-photos':{
+				title = 'Menu Photos';
+				break;
+			}
+			case 'mapped-menus':{
+				title = 'Mapped Menus';
 				break;
 			}			
 			case 'table-layout':{

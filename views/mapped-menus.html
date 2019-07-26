@@ -1,0 +1,261 @@
+<template class="task-template">
+
+        <div class="row">
+
+            <div class="col-xs-2">
+                <div class="box box-primary">
+                    <div class="box-body" style="padding: 4px 4px 0px 4px">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px 5px 5px; font-size: 21px;"><i class="fa fa-cog"></i> Settings</h3>
+                        
+                        </div>
+                        <div class="billSettingsOption" onclick="openOtherSettings('ingredientsList')"> Cooking Ingredients <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="clearfix"></div>                        
+                        <div class="billSettingsOption" onclick="openOtherSettings('dineSessions')"> Dine Sessions <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openOtherSettings('cancellationReasons')"> Reasons for Cancellation <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="clearfix"></div>                        
+                        <div class="billSettingsOption" onclick="openOtherSettings('savedComments')"> Saved Comments <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6" id="detailsDisplayOtherSettings">
+
+                <!-- Saved Comments -->
+                <div class="box box-primary" style="display: none" id="savedComments">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Saved Comments</h3>
+                           <button class="btn btn-success btn-sm" id="openNewSavedCommentButton" onclick="openNewSavedComment()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div style="padding-top: 15px" id="savedCommentsInfo">
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+
+
+                <!-- Ingredients -->
+                <div class="box box-primary" style="display: none" id="ingredientsList">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Cooking Ingredients</h3>
+                           <button class="btn btn-success btn-sm" id="openNewCookingIngredientButton" onclick="openNewCookingIngredient()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div style="padding-top: 15px" id="cookingIngredientsInfo">
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+                <!-- Cancellation Reasons -->
+                <div class="box box-primary" style="display: none" id="cancellationReasons">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Reasons for Cancellation</h3>
+                           <button class="btn btn-success btn-sm" id="openNewCancellationReasonButton" onclick="openNewCancellationReason()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div style="padding-top: 15px" id="cancellationReasonInfo">
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+                <!-- Dine Sessions -->
+                <div class="box box-primary" style="display: none" id="dineSessions">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Dine Sessions</h3>
+                           <button class="btn btn-success btn-sm" id="openNewSessionButton" onclick="openNewDineSession()"  style="float: right">Add New</button>
+                        </div>
+
+                        <div class="table-responsive" style="max-height: 75vh">
+                            <table id="dineSessionsTable" class="table">
+
+                            </table>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+
+
+
+            <div class="col-xs-4" id="detailsNewOtherSettings">
+                
+              
+                <!-- Saved Comments : Actions -->
+                <div style="display: none" id="newSavedCommentArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add New Comment</h3>
+                           </div>
+                           <div class="col-lg-12">
+                    
+                                 <div class="form-group">
+
+                                    <input type="text" value="" class="form-control tip" id="add_new_savedComment" style="border: none; border-bottom: 1px solid" placeholder="Enter a Comment" required="required" />
+                                 </div>                                 
+
+                          
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addNewComment()" class="btn btn-primary" />Save Comment</button>
+
+                                    <button  class="btn btn-default" onclick="hideNewSavedComment()" >Cancel</button>
+
+
+                                 </div>
+
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Cancellation Reasons : Actions -->
+                <div style="display: none" id="newCancellationReasonArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add Cancellation Reason</h3>
+                           </div>
+                           <div class="col-lg-12">
+                                 <div class="form-group">
+
+                                    <input type="text" value="" class="form-control tip" id="add_new_CancellationReason_name" style="border: none; border-bottom: 1px solid" placeholder="Reason" />
+                                 </div>                                 
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addNewCancellationReason()" class="btn btn-primary" />Save</button>
+
+                                    <button  class="btn btn-default" onclick="hideNewCancellationReason()" >Cancel</button>
+
+                                 </div>
+
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Cooking Ingredients : Actions -->
+                <div style="display: none" id="newCookingIngredientArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add Cooking Ingredient</h3>
+                           </div>
+                           <div class="col-lg-12">
+                           
+                                 <div class="form-group">
+
+                                    <input type="text" value="" class="form-control tip" id="add_new_CookingIngredient_name" style="border: none; border-bottom: 1px solid" placeholder="Ingredient Name" required="required" />
+                                 </div>                                 
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addNewCookingIngredient()" class="btn btn-primary" />Save Ingredient</button>
+
+                                    <button  class="btn btn-default" onclick="hideNewCookingIngredient()" >Cancel</button>
+
+
+                                 </div>
+                      
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Dine Sessions : Actions -->
+                <div style="display: none" id="newDineSessionArea">
+                     <div class="box box-primary">
+                        <div class="box-body">
+                           <div class="box-header" style="padding: 10px 0px">
+                              <h3 class="box-title" style="padding: 5px 10px; font-size: 21px;">Add Dine Session</h3>
+                           </div>
+                           <div class="col-lg-12">
+
+                                 <div class="form-group">
+                                    <label for="first_name">Session Name</label> <input type="text" value="" class="form-control tip" id="add_new_dineSession_name" required="required" />
+                                 </div>   
+
+                          </div>
+                           <div class="col-lg-6">
+                                 <div class="form-group">
+                                    <label for="first_name">Time From</label> <input type="time" value="" class="form-control tip" id="add_new_dineSession_from" required="required" />
+                                 </div>
+                          </div>
+                          <div class="col-lg-6">
+                                 <div class="form-group">
+                                    <label for="first_name">Time To</label> <input type="time" value="" class="form-control tip" id="add_new_dineSession_to" required="required" />
+                                 </div>  
+                          </div>
+                          <div class="col-lg-12">
+                                 
+
+                                 <div class="form-group">
+                                    <button style="float: right" onclick="addDineSession()" class="btn btn-primary" />Add Session</button>
+
+                                    <button  class="btn btn-default" onclick="hideNewDineSession()" >Cancel</button>
+
+
+                                 </div>
+                            
+                           </div>
+                           <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+
+                  </div>
+               </div>
+
+
+        
+        </div>
+
+
+
+
+
+      <!-- Modal -->
+      <div id="settingsDeleteConfirmation" class="modal">
+         <div class="modal-dialog" style="top: 15px">
+            <!-- Modal content-->
+            <div class="modal-content">
+              <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">Confirm Delete</h1> </div>
+               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px">
+                <p style="font-size: 16px; margin: 0; color: #e74c3c;" id="settingsDeleteConfirmationText"></P>
+               </div>
+               <div class="modal-footer" style="border: none; padding-top: 0" id="settingsDeleteConfirmationConsent">
+               </div>
+            </div>
+         </div>
+      </div>
+
+
+
+</template>
