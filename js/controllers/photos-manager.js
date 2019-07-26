@@ -25,7 +25,7 @@ function fetchAllCategoriesPhotos(){
 	          	var categoryTag = '';
 
 				for (var i=0; i<categories.length; i++){
-					categoryTag = categoryTag + '<tr class="subMenuList" onclick="openSubMenuPhotos(\''+categories[i]+'\')"><td>'+categories[i]+'</td></tr>';
+					categoryTag = categoryTag + '<tr class="subMenuList" onclick="openSubMenuPhotos(\''+categories[i]+'\')"><td><i class="fa fa-caret-right"></i>'+categories[i]+'</td></tr>';
 				}
 
 				if(!categoryTag)
@@ -87,11 +87,11 @@ function openSubMenuPhotos(subtype){
 						for(var j=0; j<mastermenu[i].items.length; j++){
 							var temp = encodeURI(JSON.stringify(mastermenu[i].items[j]));
 							if(mastermenu[i].items[j].isPhoto){
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="openPhotoOptions(\''+mastermenu[i].items[j].name+'\', \''+mastermenu[i].items[j].code+'\', \'PHOTO_AVAILABLE\', \''+subtype+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img" style="background: none !important;"><img id="menu_item_'+mastermenu[i].items[j].code+'" src="images/common/download_in_progress.jpg" alt="'+mastermenu[i].items[j].name+'" style="width: 110px; height: 110px;"></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<tag onclick="openPhotoOptions(\''+mastermenu[i].items[j].name+'\', \''+mastermenu[i].items[j].code+'\', \'PHOTO_AVAILABLE\', \''+subtype+'\')" class="btn btn-both btn-flat product listedMenuImage"><span class="bg-img" style="background: none !important;"><img id="menu_item_'+mastermenu[i].items[j].code+'" src="images/common/download_in_progress.jpg" alt="'+mastermenu[i].items[j].name+'" style="width: 110px; height: 110px;"></span><span><span>'+mastermenu[i].items[j].name+'</span></span></tag>';
 								loadImageFromServer(mastermenu[i].items[j].code);
 							}
 							else{
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="openPhotoOptions(\''+mastermenu[i].items[j].name+'\', \''+mastermenu[i].items[j].code+'\', \'PHOTO_NOT_AVAILABLE\', \''+subtype+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img"><div id="itemImage">'+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<tag onclick="openPhotoOptions(\''+mastermenu[i].items[j].name+'\', \''+mastermenu[i].items[j].code+'\', \'PHOTO_NOT_AVAILABLE\', \''+subtype+'\')" class="btn btn-both btn-flat product listedMenuImage"><span class="bg-img"><div class="itemImage">'+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></tag>';
 							}
 						}
 						break;
@@ -160,14 +160,22 @@ function openPhotoOptions(name, item, type, category){
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="loadPhotoCropper(\''+item+'\', \''+name+'\', \''+category+'\', 1)"><i class="fa fa-image" style=""></i><tag style="padding-left: 15px">Change Photo</tag></button> '+
                   '<button class="btn btn-danger tableOptionsButtonBig" onclick="removeItemPhoto(\''+item+'\', \''+name+'\', \''+category+'\')"><i class="fa fa-ban" style="color: #FFF"></i><tag style="padding-left: 15px">Remove Photo</tag></button> '+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hidePhotoOptions()">Close</button> ';
+	
+
+        document.getElementById("photoOptionsModal").style.display ='block';
 	}
 	else if(type == 'PHOTO_NOT_AVAILABLE'){ /* No photo */
+
+		/*
 		document.getElementById("photoOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+name+'</b></h1>'+
                   '<button class="btn btn-success tableOptionsButtonBig" onclick="loadPhotoCropper(\''+item+'\', \''+name+'\', \''+category+'\', 0)"><i class="fa fa-image" style=""></i><tag style="padding-left: 15px">Upload Photo</tag></button> '+ 
                   '<button class="btn btn-default tableOptionsButton" onclick="hidePhotoOptions()">Close</button> ';
-	}
 
-	document.getElementById("photoOptionsModal").style.display ='block';
+        */
+
+        //Directly load the cropper
+        loadPhotoCropper(item, name, category, 0);
+	}
 }
 
 function hidePhotoOptions(){
@@ -177,19 +185,43 @@ function hidePhotoOptions(){
 
 
 //Photo Cropper
+
 function loadPhotoCropper(code, name, category, changeFlag){
 
 	hidePhotoOptions();
-	document.getElementById("photoEditModalTitle").innerHTML = 'Choose Photo for <b>'+name+'</b>';
-	document.getElementById("photoCropperModal").style.display = 'block';
 
-      var image;
+	
+
+	document.getElementById("renderPhotoSelectionWizard").innerHTML = ''+
+		'<div class="modal-header"> <h5 class="modal-title" style="font-size: 18px; text-align: center">Choose Photo for <b>'+name+'</b></h5> </div>'+
+		'<div class="modal-body"  style="max-height: 60vh; overflow: auto !important;">'+
+			'<tag id="selectionActionsWindow" style="display: block; text-align: center;">'+
+	            '<div style="border: 1px dashed #d2d6de; color: #999; text-align: center; cursor: pointer; width: 120px; display: inline-block; height: 120px; border-radius: 50%; font-family: \'Roboto\'; line-height: 20px; font-size: 16px; padding-top: 42px; text-transform: uppercase;">Select an Image<input type="file" id="itemPhotoFileInput" style="position: absolute; z-index: 1000; opacity: 0; cursor: pointer; right: 0; top: 0; height: 100%; font-size: 24px; width: 100%;"/>'+
+	            '</div>'+
+	            '<p style="margin: 15px 0 0 0; padding: 0 80px; color: #848484;">Upload High Quality image only. Use minimum 180px x 180px resolution. Only JPG, PNG files supported.</p>'+
+            '</tag>'+
+            '<div class="img-container" id="uploadedItemImageContainer" style="display: none; height: 400px !important">'+
+              '<img id="uploadedItemImage" src="" alt="Picture">'+
+            '</div>'+
+        '</div>'+
+        '<div class="modal-footer">'+
+            '<button  class="btn btn-default" onclick="hidePhotoCropper()" style="float: left">Cancel</button>'+
+            '<button  id="cropUploadedImageButton" class="btn btn-success">Save</button>'+
+        '</div>';
+
+    document.getElementById("photoCropperModal").style.display = 'block';
+
+    
+
+
+      var image = "";
       
-      var cropBoxData;
-      var canvasData;
-      var cropper;
+      var cropBoxData = "";
+      var canvasData = "";
+      var cropper = "";
+      
 
-      var resultImage;
+      var resultImage = "";
 
 	    var handleFileSelect = function(input) {
 
@@ -220,6 +252,7 @@ function loadPhotoCropper(code, name, category, changeFlag){
 
 	    //File Upload
 	    $("#itemPhotoFileInput").change(function(){
+	    	document.getElementById("selectionActionsWindow").style.display = 'none';
 	        handleFileSelect(this);
 	    });
 
@@ -338,8 +371,14 @@ function replaceImageOnServer(itemCode, itemName, category, encodedData){
 
 
 function hidePhotoCropper(){
+
+	//Clear Caches
+	$('#uploadedItemImage').attr('src', "");
+
+
 	document.getElementById("uploadedItemImageContainer").style.display = 'none';
 	document.getElementById("photoCropperModal").style.display = 'none';
+
 }
 
 

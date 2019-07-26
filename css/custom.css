@@ -155,7 +155,7 @@ input[type=number]::-webkit-outer-spin-button {
 /*Default Theme*/
 
 /*profile image*/
-#itemImage {
+.itemImage {
     width: 110px;
     height: 110px;
     background: #1abc9c;
@@ -165,6 +165,31 @@ input[type=number]::-webkit-outer-spin-button {
     text-align: center;
     line-height: 110px;
     font-family: 'Roboto';
+}
+
+.hiddenPriceListing{
+    opacity: 0;
+
+    width: 110px;
+    height: 110px;
+    background: rgba(0, 0, 0, 0.4);
+    font-size: 30px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+    text-align: center;
+    line-height: 110px;
+    font-family: 'Roboto';
+    position: absolute;
+    left: 4px;
+    z-index: 2;
+}
+
+.menuItemListingWithImage{
+  position: relative;
+}
+
+.menuItemListingWithImage:hover .hiddenPriceListing{
+  opacity: 1;
 }
 
 
@@ -197,6 +222,7 @@ input[type=number]::-webkit-outer-spin-button {
   min-height: 80px;
   padding: 8px;
   border-top: 1px solid #c3c3c3;
+  z-index: 10;
 
   overflow-y:auto !important;
   overflow-x: none !important;
@@ -727,10 +753,12 @@ input[type=number]::-webkit-outer-spin-button {
     background: #16a085 !important;
     color: #FFF;
     font-family: 'Roboto';
-
 }
 
 
+.listedMenuImage{
+  position: relative !important;
+}
 
 
 /*end of theme EOT*/
@@ -771,7 +799,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 
 /*Purple Theme*/
-.skin-purple-light #itemImage, .skin-purple #itemImage {
+.skin-purple-light .itemImage, .skin-purple .itemImage {
     background: #605ca8;
     color: rgba(255, 255, 255, 0.3);
 }
@@ -811,7 +839,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 
 /*Yellow Theme*/
-.skin-yellow-light #itemImage, .skin-yellow #itemImage {
+.skin-yellow-light .itemImage, .skin-yellow .itemImage {
     background: #f39c12;
     color: rgba(255, 255, 255, 0.3);
 }
@@ -850,7 +878,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 
 /*red Theme*/
-.skin-red-light #itemImage, .skin-red #itemImage {
+.skin-red-light .itemImage, .skin-red .itemImage {
     background: #e25240;
     color: rgba(255, 255, 255, 0.3);
 }
@@ -887,7 +915,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 /*blue Theme*/
-.skin-blue-light #itemImage, .skin-blue #itemImage {
+.skin-blue-light .itemImage, .skin-blue .itemImage {
     background: #3c8dbc;
     color: rgba(255, 255, 255, 0.3);
 }

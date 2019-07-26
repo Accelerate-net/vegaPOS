@@ -44,24 +44,8 @@
     <!-- Modal -->
     <div class="modal" id="photoCropperModal" style="display: none">
       <div class="modal-dialog" style="top: 10%">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" style="font-size: 18px" id="photoEditModalTitle">Choose Photo</h5>
-          </div>
-          <div class="modal-body"  style="height: 60vh; overflow: auto !important;">
+        <div class="modal-content" id="renderPhotoSelectionWizard">
 
-            <div style="padding:5px 10px; background:#00ad2d; border:1px solid #00ad2d; position:relative; color:#fff; border-radius:2px; text-align:center; float:left; cursor:pointer">Select an Image<input type="file" id="itemPhotoFileInput" style="position: absolute; z-index: 1000; opacity: 0; cursor: pointer; right: 0; top: 0; height: 100%; font-size: 24px; width: 100%;"/></div>
-
-            <p style="margin-top: 50px">Upload High Quality image only. Use minimum 180px x 180px resolution. Only JPG, PNG files supported.</p>
-
-            <div class="img-container" id="uploadedItemImageContainer" style="display: none; height: 400px !important">
-              <img id="uploadedItemImage" src="" alt="Picture">
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button  class="btn btn-default" onclick="hidePhotoCropper()" style="float: left">Cancel</button>
-            <button  id="cropUploadedImageButton" class="btn btn-success">Save</button>
-          </div>
         </div>
       </div>
     </div>
