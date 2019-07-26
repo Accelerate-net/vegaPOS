@@ -7611,6 +7611,33 @@ input:checked + .slider:before {
   opacity: 0;
 }
 
+.selectMappedRow:hover td{
+    background: #a8a9ab !important;
+    color: #FFF !important;
+}
+
+.selectMappedRow:hover .mappedVariantTag{
+    color: #FFF !important;
+}
+
+.selectMappedRow:hover .mappedInvalidVariant{
+    color: #a8a9ab !important;
+    background: #FFF !important;
+}
+
+.mappedVariantTag{
+  color: #00c0ef
+}
+
+.mappedInvalidVariant{
+    color: #FFF;
+    background: red;
+    font-weight: bold;
+    padding: 0 4px;
+    border-radius: 4px;
+    font-size: 11px;
+    display: inline-block;  
+}
 
 .globalDateDay{
     font-size: 16px;
@@ -7658,7 +7685,7 @@ input:checked + .slider:before {
 }
 
 .manageMenuListedOptionHolder img{
-  /*opacity: 0.6;*/
+  opacity: 0.65;
 }
 
 .manageMenuListedOptionHolder:hover{
