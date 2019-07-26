@@ -188,6 +188,9 @@ function checkIfAccessGranted(optionalPage){
 
 function renderPage(pageReference, title){
 
+	window.localStorage.last_visited_page_remember = pageReference;
+
+
 	if(!title || title == ''){
 
 		switch (pageReference){
@@ -297,4 +300,9 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('new-order', 'Punch Order');
+if(window.localStorage.last_visited_page_remember && window.localStorage.last_visited_page_remember != ''){
+	renderPage(window.localStorage.last_visited_page_remember);
+}
+else{
+	renderPage('new-order', 'Punch Order');
+}

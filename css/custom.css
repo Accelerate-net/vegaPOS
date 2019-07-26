@@ -2303,17 +2303,21 @@ ol ol {
 
 
 /*bill settings*/
+
 .billSettingsOption{
-  width: 100%;
-  padding: 15px 10px;
-  background: #f9f9f9;
-  font-size: 16px;
-  margin-bottom: 4px;
-  cursor: pointer;
+    width: 100%;
+    padding: 15px 10px;
+    background: #f9f9f9;
+    font-size: 18px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    font-family: 'Oswald';
+    color: #526079;
 }
 
 .billSettingsOption:hover{
-  background: #ccc9c9;
+  background: #526079;
+  color: #FFF;
 }
 
 .billSettingsOptionIcon{
@@ -7648,9 +7652,13 @@ input:checked + .slider:before {
     position: absolute;
     width: 100%;
     height: 50px;
-    color: #b3b2b2;
+    color: #464D50;
     font-size: 21px;
     font-family: 'Oswald';
+}
+
+.manageMenuListedOptionHolder img{
+  /*opacity: 0.6;*/
 }
 
 .manageMenuListedOptionHolder:hover{
@@ -7658,5 +7666,39 @@ input:checked + .slider:before {
 }
 
 .manageMenuListedOptionHolder:hover .manageMenuListedOptionText{
-  color: #FFB74D;
+  color: #ffa619;
+}
+
+
+.summaryTimeHolder{
+    background: #FFF;
+    display: block;
+    border-radius: 6px;
+    height: 44px;
+    box-shadow: 2px 2px 1px #eee;
+    cursor: pointer;
+    position: relative;
+    transition: all .2s ease-in-out;
+    margin-top: 10px;
+}
+
+.summaryTimeHolder:hover{
+  transform: scale(1.1);
+}
+
+.summaryTimeHolder img{
+    width: 28px;
+    height: 28px;
+    left: 8px;
+    position: absolute;
+    top: 8px;
+}
+
+.summaryTileText{
+    font-size: 17px;
+    font-family: 'Oswald';
+    position: relative;
+    left: 48px;
+    top: 10px;
+    color: #909090;  
 }
