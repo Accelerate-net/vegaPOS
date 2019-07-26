@@ -13,8 +13,7 @@
 
 
                         <div class="billSettingsOption" onclick="openSystemSettings('keyboardShortcuts')"> Custom Shortcuts <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
-                        <div class="billSettingsOption" onclick="openSystemSettings('kitchenSections')"> KOT Relaying <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
-                        <div class="billSettingsOption" onclick="openSystemSettings('menuCatalog')"> Menu Catalog <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="renderPage('menu-settings', 'Menu Settings')"> Menu Settings <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('personalOptions')"> Personalisations<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('quickFixes')"> Quick Fixes<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
                         <div class="billSettingsOption" onclick="openSystemSettings('systemSecurity')"> Security<tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
@@ -1197,55 +1196,6 @@
               </div>
            </div>
         </div>
-
-
-
-        <!-- Modal -->
-        <div id="addCatalogNameModal" class="modal">
-           <div class="modal-dialog" style="top: 15px">
-              <!-- Modal content-->
-              <div class="modal-content">
-                 <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 20px;">
-                    
-                    <p id="addCatalogNameModalBrief" style="font-size: 18px; text-align: center"></p>
-
-                    <input type="text" value="" placeholder="Enter Top Level Category" style="border: none; font-size: 21px; border-bottom: 1px solid #c9c9c9; padding: 10px 0; height: 45px; margin-top: 15px; text-align: center; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; color: #dd397d;" class="form-control tip" id="addCatalogNameModalInput"/>
-                    
-                 </div>
-                 <div class="modal-footer" style="padding: 0; border: none" id="addCatalogNameModalConsent">
-                    
-                 </div>
-
-              </div>
-           </div>
-        </div>
-
-
-
-
-
-
-
-        <!-- Modal -->
-        <div id="selectKOTRelayPrinterModal" class="modal">
-           <div class="modal-dialog" style="top: 15px">
-              <!-- Modal content-->
-              <div class="modal-content">
-                 <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 20px;">
-                    
-                    <p id="selectKOTRelayPrinterBrief" style="font-size: 18px; text-align: center"></p>
-
-                    <div id="selectKOTRelayPrinterList"></div>
-                    
-                 </div>
-                 <div class="modal-footer" style="padding: 0; border: none" id="selectKOTRelayPrinterActions"></div>
-
-              </div>
-           </div>
-        </div>
-
-
-
 
 
 

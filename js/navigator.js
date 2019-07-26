@@ -92,7 +92,11 @@ function fetchInitFunctions(pageReference){
 			checkIfAccessGranted('Menu Photos');
 			fetchAllCategoriesPhotos();
 			break;
-		}			
+		}
+		case 'menu-settings':{
+			checkIfAccessGranted('Menu Settings');
+			break;
+		}				
 		case 'table-layout':{
 			checkIfAccessGranted('Table Layout');
 			fetchAllTables()
@@ -237,6 +241,10 @@ function renderPage(pageReference, title){
 			}
 			case 'mapped-menus':{
 				title = 'Mapped Menus';
+				break;
+			}
+			case 'menu-settings':{
+				title = 'Menu Settings';
 				break;
 			}			
 			case 'table-layout':{
