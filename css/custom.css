@@ -7634,7 +7634,7 @@ input:checked + .slider:before {
     background: red;
     font-weight: bold;
     padding: 0 4px;
-    border-radius: 4px;
+    border-radius: 2px;
     font-size: 11px;
     display: inline-block;  
 }
@@ -7685,7 +7685,7 @@ input:checked + .slider:before {
 }
 
 .manageMenuListedOptionHolder img{
-  opacity: 0.65;
+  opacity: 0.9;
 }
 
 .manageMenuListedOptionHolder:hover{
@@ -7728,4 +7728,85 @@ input:checked + .slider:before {
     left: 48px;
     top: 10px;
     color: #909090;  
+}
+
+.mapItemMainHolder{
+    background: #1abc80;
+    min-height: 80px;
+    border-radius: 6px; 
+    position: relative; 
+    padding: 15px 20px;
+}
+
+.mapItemWindowVariant{
+    font-weight: 300;
+    font-size: 14px;
+    margin-left: 6px;  
+}
+
+.mapItemWindowItemName{
+    margin: 0;
+    font-size: 24px;
+    font-family: 'Roboto';
+    font-weight: bold;
+    color: #FFF;
+    width: 70%;  
+}
+
+
+.mapItemWindowCategory{
+    margin: 0;
+    color: #FFF;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+    width: 70%;  
+}
+
+.mapItemPriceContainer{
+    display: inline-block;
+    width: 20%;
+    position: absolute;
+    right: 35px;
+    bottom: 25px;
+}
+
+.inrMappedItem{
+    position: absolute;
+    bottom: -5px;
+    font-size: 28px;
+    color: #FFF;
+    left: -14px;
+}
+
+.mapItemPriceContainer input{
+    border: none;
+    border-bottom: 1px solid transparent;
+    background: none;
+    font-size: 30px;
+    text-align: left;
+    font-weight: bold;
+    font-family: 'Oswald';
+    color: #FFF;
+    outline: none !important;
+    width: 100%;
+    height: 36px;
+}
+
+.mapItemPriceContainer input:focus{
+    border-bottom: 1px dashed #FFF;
+}
+
+.mappedOriginalItemPriceWarn{
+    position: absolute;
+    width: 100%;
+    right: 0px;
+    text-align: left;
+    font-size: 11px;
+    color: #FFF;
+    opacity: 0.8;
+    bottom: -16px;
+    font-weight: bold;
+    font-family: 'Roboto';
 }

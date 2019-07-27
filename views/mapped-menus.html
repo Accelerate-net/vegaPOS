@@ -60,4 +60,78 @@
 
 
 
+
+
+
+   <!-- MAP ITEM -->
+   <div id="mapItemFromSystemMenuModal" class="modal">
+      <div class="modal-dialog" style="top: 25px">
+         <!-- Modal content-->
+         <div class="modal-content">
+
+            <div class="modal-body" style="overflow-y: none !important; overflow-x: none !important;">
+                  
+                  <button style="background: none; border: none; width: 50px; height: 40px; position: absolute; right: 5px; top: 7px; outline: none; color: #d0d0d0;" onclick="mapItemFromSystemMenuHide()"><i class="fa fa-times"></i></button>     
+
+                  <div class="row" style="padding: 5px 25px;">
+
+                          <h1 style="margin: 20px 0 20px 5px; font-size: 24px; font-weight: 400; color: #526079; text-align: left;" id="mapItemFromSystemMenuTitle">Map Item</h1> 
+
+                          <div class="row">
+                            <div class="col-sm-12">
+                              <div class="form-group" style="margin-bottom:5px; margin-right: 6px; margin-left: 6px">
+                           
+                                <input type="text" name="code" id="mapping_add_item_by_search" class="form-control ui-autocomplete-input mousetrap" style="border-left: none; border-right: none; border-top: none; padding: 0;" placeholder="Start typing the item name or code"/>
+
+                                <input type="hidden" id="mapping_add_item_hidden_index">
+                                <input type="hidden" id="mapping_price_mapped_hidden_flag">
+
+                                <div id="mappingSearchResultsRenderArea" class="searchResultsHolder" style="height: 300px">
+
+                                </div>
+
+                                <div style="margin-top: 10px; min-height: 120px; overflow-y: auto !important; overflow-x: none !important;" id="temporaryMappedItemRenderArea">
+                                  <p style="margin: 40px 0 0 0; font-size: 28px; font-weight: 300; color: #d2d6de; text-align: center;">Map any item from the menu</p>
+                                </div>
+
+                              </div>
+                            </div>
+                          </div>
+
+                  </div>
+            </div>
+            <div class="modal-footer" style="padding: 0; border-top: none;">  
+              <button id="mappingItemAddContinueButton" style="background: #dbffe4; border: none; height: 40px; width: 100%; font-weight: bold; text-transform: uppercase; outline: none; color: #1abc62; font-size: 16px; letter-spacing: 1px; display: none" onclick="saveCurrentMappingData()">Save Mapping</button>              
+            </div>
+         </div>
+      </div>
+   </div>
+
+
+
+
+
+
+   <!-- Modal -->
+   <div id="mapCustomisationsForItemModal" class="modal">
+      <div class="modal-dialog" style="top: 15px">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-header">
+               <button  onclick="mapCustomisationsForItemModalHIDE()" style="float: right;" class="btn clearButton"><i class="fa fa-times"></i></button>
+               <h4 class="modal-title" id="mapCustomisationsForItemTitle">Choose an Option</h4>
+            </div>
+            <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important">
+               <div class="row">
+                  <div class="col-lg-12" id="customOptionsForMappingItemRender">
+                  </div>
+               </div>
+            </div>
+            <div class="modal-footer">
+               <button  class="btn btn-default" onclick="mapCustomisationsForItemModalHIDE()" style="float: left">Cancel</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
 </template>

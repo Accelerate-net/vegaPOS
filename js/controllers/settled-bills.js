@@ -4701,25 +4701,7 @@ function initLateMenuSuggestion(){
 					    	$('#lateSearchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 320px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+itemsList+itemsAppendList+'</ul>');
 					    }
 					    else{
-
-						  // LOGGED IN USER INFO
-						  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
-						        
-						  if(jQuery.isEmptyObject(loggedInStaffInfo)){
-						    loggedInStaffInfo.name = "";
-						    loggedInStaffInfo.code = "";
-						    loggedInStaffInfo.role = "";
-						  }
-
-						  //either profile not chosen, or not an admin
-						  var isUserAnAdmin = false
-						  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
-						    isUserAnAdmin = true;
-						  }
-
-
-					    	var temp_item = $('#add_item_by_search').val();
-
+					    	
 					    	var custom_template = 	'<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+
 					    								'<span style="display: inline-block; padding: 8px 0 4px 8px; font-size: 12px; text-align: center; color: #c6c6c6; font-style: italic">No matching items found in the Menu.</span>'+ 
 										    	   	'</ul>';
