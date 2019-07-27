@@ -7,6 +7,8 @@ let ALREADY_DOWNLOADED_MASTER_MENU_ITEMS;
 
 function openOtherMappedMenu(menuTypeCode){
 
+  window.localStorage.current_opened_menu_mapping = menuTypeCode;
+
   ALREADY_DOWNLOADED_MAPPED_MENU = [];
   ALREADY_DOWNLOADED_MASTER_MENU = [];
   ALREADY_DOWNLOADED_MASTER_MENU_ITEMS = [];
@@ -229,6 +231,7 @@ function getAlreadyMappedProduct(itemCode, variantSelected){
 				if(ALREADY_DOWNLOADED_MASTER_MENU_ITEMS[itemCode].customOptions[n].customName == variantSelected){
 				
 					return {
+						"code" : itemCode,
 						"name" : ALREADY_DOWNLOADED_MASTER_MENU_ITEMS[itemCode].name,
 						"price" : ALREADY_DOWNLOADED_MASTER_MENU_ITEMS[itemCode].customOptions[n].customPrice,
 						"isCustom" : ALREADY_DOWNLOADED_MASTER_MENU_ITEMS[itemCode].isCustom,
@@ -245,6 +248,7 @@ function getAlreadyMappedProduct(itemCode, variantSelected){
 		}
 		else{
 			return {
+				"code" : itemCode,
 				"name" : ALREADY_DOWNLOADED_MASTER_MENU_ITEMS[itemCode].name,
 				"price" : ALREADY_DOWNLOADED_MASTER_MENU_ITEMS[itemCode].price,
 				"isCustom" : ALREADY_DOWNLOADED_MASTER_MENU_ITEMS[itemCode].isCustom,
@@ -309,6 +313,8 @@ function openItemForEditing(listIndex){
 				'<div class="row">'+
 					'<div class="col-sm-12">'+
 					   '<h1 style="text-align: left; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: bold; font-family: \'Roboto\'; color: red">Error in Mapping <i class="fa fa-warning"></i></h1>'+
+					   '<input type="hidden" id="mapping_added_item_code_hidden" value="0">'+
+					   '<input type="hidden" id="mapping_added_item_variant_hidden" value="">'+
 					   '<div class="mapItemMainHolder" style="background: red">'+
 					   		'<p class="mapItemWindowItemName">Incorrect Mapping</p>'+
 					   		'<p class="mapItemWindowCategory"><b>'+ALREADY_DOWNLOADED_MAPPED_MENU[listIndex].systemCode+'</b> not found</p>'+
@@ -321,6 +327,8 @@ function openItemForEditing(listIndex){
 				'<div class="row">'+
 					'<div class="col-sm-12">'+
 					   '<h1 style="text-align: left; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: bold; font-family: \'Roboto\'; color: red">Error in Mapping <i class="fa fa-warning"></i></h1>'+
+					   '<input type="hidden" id="mapping_added_item_code_hidden" value="0">'+
+					   '<input type="hidden" id="mapping_added_item_variant_hidden" value="">'+
 					   '<div class="mapItemMainHolder" style="background: red">'+
 					   		'<p class="mapItemWindowItemName">Incorrect Variant</p>'+
 					   		'<p class="mapItemWindowCategory"><b>'+(ALREADY_DOWNLOADED_MAPPED_MENU[listIndex].systemVariant != "" ? ALREADY_DOWNLOADED_MAPPED_MENU[listIndex].systemVariant+' is Incorrect' : 'Variant Not Found')+'</b></p>'+
@@ -336,6 +344,8 @@ function openItemForEditing(listIndex){
 				'<div class="row">'+
 					'<div class="col-sm-12">'+
 					   '<h1 style="text-align: left; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: bold; font-family: \'Roboto\'; color: #1abc80">Already Mapped <i class="fa fa-check-circle"></i></h1>'+
+					   '<input type="hidden" id="mapping_added_item_code_hidden" value="'+already_mapped_product.code+'">'+
+					   '<input type="hidden" id="mapping_added_item_variant_hidden" value="'+(already_mapped_product.isCustom ? already_mapped_product.variant : '')+'">'+
 					   '<div class="mapItemMainHolder">'+
 					   		'<p class="mapItemWindowItemName">'+already_mapped_product.name+( already_mapped_product.isCustom ? '<tag class="mapItemWindowVariant">('+already_mapped_product.variant+')</tag>' : '' )+'</p>'+
 					   		'<p class="mapItemWindowCategory">'+already_mapped_product.category+'</p>'+
@@ -365,7 +375,7 @@ function openItemForEditing(listIndex){
 	$('#mapping_price_mapped_hidden_flag').val(mappedItem.mappedPrice != "" ? mappedItem.mappedPrice : 0);
 
 
-	document.getElementById("mapItemFromSystemMenuTitle").innerHTML = '<tag style="font-weight: 300">Mapping</tag> <tag style="font-weight: 400">'+mappedItem.mappedName+(mappedItem.mappedVariant != "" ? ' ('+mappedItem.mappedVariant+')' : '')+'</tag>';
+	document.getElementById("mapItemFromSystemMenuTitle").innerHTML = '<tag style="background: #526079; padding: 5px 10px; color: #FFF; font-weight: bold; font-family: \'Roboto\'; border-radius: 3px;">'+mappedItem.mappedName+(mappedItem.mappedVariant != "" ? ' ('+mappedItem.mappedVariant+')' : '')+'</tag><tag style="font-weight: 300"> to map</tag>';
 	document.getElementById("mapItemFromSystemMenuModal").style.display = 'block';
 
 
@@ -780,6 +790,8 @@ function renderTemporaryMappedItemPreview(){
 		'<div class="row">'+
 			'<div class="col-sm-12">'+
 			   '<h1 style="text-align: left; margin-top: 10px; font-size: 14px; text-transform: uppercase; font-weight: bold; font-family: \'Roboto\'; color: #f3ae12">Mapping To</h1>'+
+			   '<input type="hidden" id="mapping_added_item_code_hidden" value="'+mapped_product.code+'">'+
+			   '<input type="hidden" id="mapping_added_item_variant_hidden" value="'+(mapped_product.isCustom ? mapped_product.variant : '')+'">'+
 			   '<div class="mapItemMainHolder" style="background: #f3ae12">'+
 			   		'<p class="mapItemWindowItemName">'+mapped_product.name+( mapped_product.isCustom ? '<tag class="mapItemWindowVariant">('+mapped_product.variant+')</tag>' : '' )+'</p>'+
 			   		'<p class="mapItemWindowCategory">'+mapped_product.category+'</p>'+
@@ -807,6 +819,95 @@ function saveCurrentMappingData(optionalFlag){
 	var currentListedIndex = $('#mapping_add_item_hidden_index').val();
 	currentListedIndex = parseInt(currentListedIndex);
 
+	var mapped_code = $('#mapping_added_item_code_hidden').val();
+	if(mapped_code == 0){
+		showToast('Incorrect Mapping: Please map a valid item from the menu', '#e67e22');
+		return '';
+	}
+
+	var mapped_variant = $('#mapping_added_item_variant_hidden').val();
+	var mapped_price = 0;
+
+	if($('#changePriceOfAlreadyMappedItem').length == 0) {
+  		mapped_price = $('#editPriceOfProcessingMappedItem').val(); 
+	}
+	else{
+		mapped_price = $('#changePriceOfAlreadyMappedItem').val(); 
+	}
+
+	mapped_price = parseInt(mapped_price);
+
+	if(isNaN(mapped_price) || mapped_price < 1){
+		showToast('Invalid Price: Please add the correct price', '#e67e22');
+		return '';	
+	}
+
+
+	//Check if there are actually any changes?
+	var arleady_mapped_code = ALREADY_DOWNLOADED_MAPPED_MENU[currentListedIndex].systemCode;
+	var arleady_mapped_variant = ALREADY_DOWNLOADED_MAPPED_MENU[currentListedIndex].systemVariant;
+	var arleady_mapped_price = ALREADY_DOWNLOADED_MAPPED_MENU[currentListedIndex].mappedPrice;
+
+	if(arleady_mapped_code == mapped_code && arleady_mapped_variant == mapped_variant && arleady_mapped_price == mapped_price){
+		
+	}
+	else{
+
+		//Submit Changes
+		var menuTypeCode = window.localStorage.current_opened_menu_mapping ? window.localStorage.current_opened_menu_mapping : "";
+
+	    $.ajax({
+	      type: 'GET',
+	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_other_menu_mappings/MENU_'+menuTypeCode+'/',
+	      timeout: 10000,
+	      success: function(data) {
+	        if(data._id != ""){
+
+	        	var otherMenuUpdateData = data
+
+	            var otherMenu = data.value;
+	            otherMenu[currentListedIndex].systemCode = mapped_code;
+	            otherMenu[currentListedIndex].systemVariant = mapped_variant;
+	            otherMenu[currentListedIndex].mappedPrice = mapped_price;
+
+	            ALREADY_DOWNLOADED_MAPPED_MENU = otherMenu;
+
+	            otherMenuUpdateData.value = otherMenu;
+
+
+		          	  	//Update on Server
+		                $.ajax({
+		                  type: 'PUT',
+		                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_other_menu_mappings/MENU_'+menuTypeCode+'/',
+		                  data: JSON.stringify(otherMenuUpdateData),
+		                  contentType: "application/json",
+		                  dataType: 'json',
+		                  timeout: 10000,
+		                  success: function(data) {
+		                  	  reRenderOtherMappedMenu();
+		                  },
+		                  error: function(data) {
+		                  	console.log(data)
+		                    showToast('System Error: <b>'+menuTypeCode+'</b> mapping data was not updated', '#e74c3c');
+	        				return '';
+		                  }
+		                });   
+
+	        }
+	        else{
+	        	showToast('System Error: <b>'+menuTypeCode+'</b> Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+	        	return '';
+	        }
+	      },
+	      error: function(data) {
+	        showToast('System Error: <b>'+menuTypeCode+'</b> Menu data not found. Please contact Accelerate Support.', '#e74c3c');
+	        return '';
+	      }
+
+	    });
+	}   
+
+
 	document.getElementById("mapItemFromSystemMenuModal").style.display = 'none';
 
 	if(optionalFlag == 'OPEN_NEXT_INDEX'){
@@ -814,3 +915,116 @@ function saveCurrentMappingData(optionalFlag){
 	}
 }
 
+
+function reRenderOtherMappedMenu(){
+
+	if(window.localStorage.current_opened_menu_mapping == "" || !window.localStorage.current_opened_menu_mapping){
+		return '';
+	}
+
+
+    var otherMenuData = ALREADY_DOWNLOADED_MAPPED_MENU;
+    var renderContent = '';
+
+    var formatted_name_menu = (window.localStorage.current_opened_menu_mapping).toLowerCase();
+
+
+    for(var n = 0; n < otherMenuData.length; n++){
+
+      var systemItem = getSystemEquivalentItem(otherMenuData[n].systemCode, otherMenuData[n].systemVariant);
+        
+      if(systemItem == "NOT_FOUND"){
+
+        if(otherMenuData[n].systemCode == ""){
+        
+          renderContent += '<tr role="row" class="selectMappedRow" style="cursor: pointer" onclick="openItemForEditing('+n+')">'+
+                            '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(n+1)+'</td>'+
+                            '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+otherMenuData[n].mappedName+'</td>'+
+                            '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(otherMenuData[n].mappedPrice != "" ? '<i class="fa fa-inr"></i>'+otherMenuData[n].mappedPrice : '-')+'</td>'+ 
+                            '<td style="color: red;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'"><i class="fa fa-warning"></i></td>'+
+                            '<td style="background: red; color: #FFF; text-align: right;"></td>'+
+                            '<td style="background: red; color: #FFF"><b>Not Mapped</b></td>'+
+                            '<td style="background: red;"></td>'+
+                          '</tr>';
+        }
+        else{
+          renderContent += '<tr role="row" class="selectMappedRow" style="cursor: pointer" onclick="openItemForEditing('+n+')">'+
+                          '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(n+1)+'</td>'+
+                          '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+otherMenuData[n].mappedName+'</td>'+
+                          '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(otherMenuData[n].mappedPrice != "" ? '<i class="fa fa-inr"></i>'+otherMenuData[n].mappedPrice : '-')+'</td>'+
+                          '<td style="color: red;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'"><i class="fa fa-warning"></i></td>'+
+                          '<td style="background: red; color: #FFF; text-align: right;"><b>'+otherMenuData[n].systemCode+'</b></td>'+
+                          '<td style="background: red; color: #FFF"><b>Incorrect Mapping</b></td>'+
+                          '<td style="background: red;"></td>'+
+                        '</tr>';
+        }
+      }
+      else{
+
+        var equivalent_variant = "";
+        var equivalent_price = "";
+
+        if(systemItem.isCustom && otherMenuData[n].systemVariant != ""){
+          for(var i = 0; i < systemItem.customOptions.length; i++){
+            if(systemItem.customOptions[i].customName == otherMenuData[n].systemVariant){
+              equivalent_variant = systemItem.customOptions[i].customName;
+              equivalent_price = systemItem.customOptions[i].customPrice;
+              break;
+            }
+          }
+
+          if(equivalent_variant == ""){
+            equivalent_variant = "VARIANT_MISMATCH";
+          }
+        }
+        else if(systemItem.isCustom && otherMenuData[n].systemVariant == ""){
+          equivalent_variant = "VARIANT_MISMATCH";
+        }
+
+        renderContent += '<tr role="row" class="selectMappedRow" style="cursor: pointer" onclick="openItemForEditing('+n+')">'+
+                          '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(n+1)+'</td>'+
+                          '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+otherMenuData[n].mappedName+'</td>'+
+                          '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(otherMenuData[n].mappedPrice != "" ? '<i class="fa fa-inr"></i>'+otherMenuData[n].mappedPrice : '-')+'</td>'+
+                          '<td style="color: #1abc62;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'"><i class="fa fa-long-arrow-right"></i></td>'+
+                          '<td style="text-align: right; font-weight: bold; color: #1abc62;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+systemItem.code+'</td>'+
+                          '<td style="font-weight: 400; color: #1abc62;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+systemItem.name + (equivalent_variant != "" ? (equivalent_variant == "VARIANT_MISMATCH" ? ' <tag class="mappedInvalidVariant">INVALID VARIANT</tag>' : ' <tag class="mappedVariantTag">('+equivalent_variant+')</tag>') : '')+'</td>'+
+                          '<td style="text-align: right; color: #1abc62;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(systemItem.isCustom ? (equivalent_price != "" ? '<i class="fa fa-inr"></i>'+equivalent_price : "") : '<i class="fa fa-inr"></i>'+systemItem.price)+'</td>'+
+                        '</tr>';
+
+      }
+    } 
+
+    if(renderContent == ""){
+      renderContent = '<p style="margin: 30px 0 0 0; text-align: center; color: #ccc;">Oops! Validator did not return any results.</p>';
+    }
+    else{
+      renderContent = '<tr>'+ 
+                        '<td style="color: #FFF; background: #526079; font-weight: bold">#</td>'+
+                        '<td style="color: #FFF; background: #526079; font-weight: bold; text-transform: capitalize">'+formatted_name_menu+' Name</td>'+
+                        '<td style="color: #FFF; background: #526079; font-weight: bold; text-transform: capitalize">'+formatted_name_menu+' Price</td>'+
+                        '<td style="color: #FFF; background: #526079; font-weight: bold"></td>'+
+                        '<td colspan="3" style="color: #FFF; background: #1abc62; font-weight: bold; text-align: center;">System Mapping</td>'+
+                      '</tr>'+ renderContent;
+    }
+
+
+    document.getElementById("mappedMenuValidationResultsWindow").style.display = 'block';
+    document.getElementById("mappedMenuValidationResultsContent").innerHTML = renderContent;
+
+  function getSystemEquivalentItem(code, variant){
+
+  	var systemMenu = ALREADY_DOWNLOADED_MASTER_MENU_ITEMS;
+
+    var systemDefaultItem = '';
+
+    if(systemMenu[code]){
+      systemDefaultItem = systemMenu[code];
+    }
+    else{
+      systemDefaultItem = "NOT_FOUND";
+    }
+
+    return systemDefaultItem;
+  }
+
+}

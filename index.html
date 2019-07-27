@@ -524,7 +524,7 @@
             3. Menu Item (to easily find the price and change any details)
     -->
 
-        <div class="ng-spotlight ng-spotlight-overlay" style="display: none;" id="spotlightSearchTool">
+        <div class="superDraggableWindow ng-spotlight ng-spotlight-overlay" style="display: none;" id="spotlightSearchTool">
 
            <div class="ng-spotlight-searchbar">
               <div class="ng-spotlight-icon" style="font-size: 17px; color: grey">
@@ -552,8 +552,9 @@
 
 
 
+
         <!-- TEXT TO KITCHEN -->
-        <div class="ng-spotlight ng-spotlight-overlay" style="display: none;" id="textToKitchenWizard">
+        <div class="superDraggableWindow ng-spotlight ng-spotlight-overlay" style="display: none;" id="textToKitchenWizard">
 
            <div class="ng-spotlight-searchbar" style="border-bottom: 3px solid;">
               <div class="ng-spotlight-icon textSendIcon" style="font-size: 17px; color: grey; float: right;" onclick="sendMessageToKitchen()" id="sendMessageToKitchenButton">
@@ -589,7 +590,7 @@
 
     <!-- Modal -->
       <div id="billPreviewModal" class="modal">
-         <div class="modal-dialog" style="top: 25px">
+         <div class="modal-dialog animatedWindowBoom" style="top: 25px" id="billPreviewModalAnimation">
             <div class="modal-header cartTitleRow">
               <h1 style="font-size: 24px; margin: 0; text-align: left;" id="billPreviewContentTitle">Bill Preview</h1>
             </div>
@@ -810,7 +811,7 @@
 
     <!-- Modal -->
       <div id="billSettlementDetailsModal" class="modal" style="display: none">
-         <div class="modal-dialog" style="top: 25px">
+         <div class="modal-dialog animatedWindowBoom" style="top: 25px" id="billSettlementDetailsModalAnimation">
             <div class="modal-header cartTitleRow">
               <h1 style="font-size: 24px; margin: 0; text-align: left;" id="billSettlementPreviewContentTitle">Settle Bill</h1>
               <tag id="innerModalButtonContent"></tag>

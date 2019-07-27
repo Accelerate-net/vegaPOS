@@ -3841,7 +3841,54 @@ function renderItemImageFromServer(itemCode){
         });    
 }
 
+
+
+//Drag Spotlight Search and Text To Kitchen
+function activateDraggrableWindows(){
+  $(document).ready(function() {
+      var $dragging = null;
+
+      $(document.body).on("mousemove", function(e) {
+          if ($dragging) {
+
+              e.preventDefault();
+
+              $dragging.offset({
+                  top: e.pageY,
+                  left: e.pageX
+              });
+          }
+      });
+      
+      $(document.body).on("mousedown", ".superDraggableWindow", function (e) {
+          if($('#spotlightSearchTool').is(':visible')) {
+            $dragging = $('#spotlightSearchTool');
+          }
+          else if($('#textToKitchenWizard').is(':visible')) {
+            $dragging = $('#textToKitchenWizard');
+          }
+      });
+      
+      $(document.body).on("mouseup", function (e) {
+          $dragging = null;
+      });
+  });  
+}
+
+
+activateDraggrableWindows();
+
+
+
 function showSpotlight(){
+
+        //Close TextToKitchen and BillsPreview if open
+        if($('#textToKitchenWizard').is(':visible')) {
+          document.getElementById("textToKitchenWizard").style.display = "none";
+        }
+        if($('#lastThreeBillsPreviewModal').is(':visible')) {
+          document.getElementById("lastThreeBillsPreviewModal").style.display = "none";
+        } 
 
         var cancelSpotlightTool = $(document).on('keydown',  function (e) {
           if($('#spotlightSearchTool').is(':visible')) {
@@ -3851,6 +3898,12 @@ function showSpotlight(){
               }      
           }
         });
+
+
+        //Animate
+        $('#spotlightSearchTool').removeClass('boomSpotlight');
+        $('#spotlightSearchTool').addClass('boomSpotlight');
+
 
         document.getElementById("spotlightSearchTool").style.display = "block";
         document.getElementById("spotlightRenderPanel").style.display = "none";
@@ -5160,6 +5213,13 @@ function applyKOTRelays(){
 /* TEXT TO KITCHEN */
 function openTalkToKitchen(){
 
+        //Close SpotlightTool and BillsPreview if open
+        if($('#spotlightSearchTool').is(':visible')) {
+          document.getElementById("spotlightSearchTool").style.display = "none";
+        }
+        if($('#lastThreeBillsPreviewModal').is(':visible')) {
+          document.getElementById("lastThreeBillsPreviewModal").style.display = "none";
+        }         
 
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -5181,6 +5241,9 @@ function openTalkToKitchen(){
   }
 
 
+  //Animate
+  $('#textToKitchenWizard').removeClass('animatedWindowBoom');
+  $('#textToKitchenWizard').addClass('animatedWindowBoom');
 
   document.getElementById("textToKitchenWizard").style.display = "block";
   
@@ -5418,7 +5481,16 @@ function sendMessageToKitchen(){
 }
 
 function hideTalkToKitchen(){
-  document.getElementById("textToKitchenWizard").style.display = "none";
+  
+  //Animate (3 seconds)
+  $('#textToKitchenWizard').removeClass('animatedWindowPhew');
+  $('#textToKitchenWizard').addClass('animatedWindowPhew');
+  
+  setTimeout(function(){
+    $('#textToKitchenWizard').removeClass('animatedWindowPhew');
+    document.getElementById("textToKitchenWizard").style.display = "none";
+  }, 280);
+  
 }
 
 function saveToChatLog(messageObj){
@@ -5976,8 +6048,6 @@ function openForcedUserSelectionWindow(){
 function closeForcedUserSelectionWindow(){
   document.getElementById("forcedUserSelectionModalHome").style.display = 'none';
 }
-
-
 
 
 
