@@ -5041,11 +5041,11 @@ position: absolute;
 
 
 .onlineOrderCountLabel{
-    position: absolute;
-    top: 6px;
-    left: 21px;
     display: inline-block;
-    background: #1abc9c;
+    position: absolute;
+    top: 13px;
+    left: 6px;
+    background: #ff016b;
     color: #FFF;
     font-weight: bold;
     padding: 0 5px;
@@ -5053,7 +5053,7 @@ position: absolute;
     height: 17px !important;
     border-radius: 4px;
     text-align: center;
-    min-width: 18px;  
+    min-width: 18px; 
 }
 
 /* MOMENTJS Hero Clock */

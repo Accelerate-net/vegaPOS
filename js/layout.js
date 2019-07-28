@@ -135,10 +135,10 @@ function renderSideNavigation(){
                         '</a>'+
                     '</li>'+
                     onlineOrdersIcon +                 
-                    '<li onclick="renderPage(\'reward-points\', \'Reward Points\')">'+
+                    '<li onclick="renderPage(\'customer-loyalty\', \'Loyalty\')">'+
                         '<a href="#">'+
-                          '<img src="images/navigation/navigate_rewards.png" width="32px">'+
-                          '<span class="navSideName">Reward Points</span>'+
+                          '<img src="brand/navigate_loyalty_branded.png" width="32px">'+
+                          '<span class="navSideName">Loyalty</span>'+
                         '</a>'+
                     '</li>'+
                     '<li onclick="renderPage(\'settled-bills\', \'Generated Bills\')">'+
