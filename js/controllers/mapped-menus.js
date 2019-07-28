@@ -889,7 +889,6 @@ function saveCurrentMappingData(optionalFlag){
 		                  	  reRenderOtherMappedMenu();
 		                  },
 		                  error: function(data) {
-		                  	console.log(data)
 		                    showToast('System Error: <b>'+menuTypeCode+'</b> mapping data was not updated', '#e74c3c');
 	        				return '';
 		                  }

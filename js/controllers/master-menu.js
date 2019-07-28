@@ -1348,7 +1348,6 @@ function moveItemToCategory(item_code, item_name, item_category){
 	}
 
 	var current_opened_category = $('#current_opened_category').html();
-	console.log(current_opened_category)
 
 	selectNewCategoryForItemWindowHide();
 
