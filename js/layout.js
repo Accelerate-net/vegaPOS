@@ -1801,7 +1801,9 @@ function initialiseKeyboardShortcuts(){
               requestUserToWait();
             }
             else{ 
-              $("#currentUserProfileDisplay").click();
+              //$("#currentUserProfileDisplay").click();
+            
+              openForcedUserSelectionWindow();
             }
             
             return false;
@@ -2833,21 +2835,23 @@ function initScreenSaver(){
         }
 
       
-
-        //Start Tracking Events
-        document.onclick = function() {
+          //Start Tracking Events
+          document.addEventListener('click', function() {
             idleSecondsCounter = 0;
-        };
+          }); 
 
-        document.onmousemove = function() {
+          document.addEventListener('mousemove', function() {
             idleSecondsCounter = 0;
-        };
+          }); 
 
-        document.onkeypress = function() {
+          document.addEventListener('keydown', function() {
             idleSecondsCounter = 0;
-        };
+          }); 
+
 
       }
+
+
 
 }
 
@@ -3063,7 +3067,9 @@ $("#lockScreePasscode").keyup(function(){
 function validateScreenLockCode(code){
   var value = '';
   if(window.localStorage.appCustomSettings_InactivityToken && window.localStorage.appCustomSettings_InactivityToken != ''){
+            
             value = atob(window.localStorage.appCustomSettings_InactivityToken);
+
             if(value == code){ //Code matches
               return true;
             }
@@ -3072,7 +3078,7 @@ function validateScreenLockCode(code){
             }
   }
   else{
-    return false;
+    return true;
   }  
   
 }
@@ -3394,7 +3400,15 @@ function selectStewardWindow(){
 }
 
 function selectStewardWindowClose(){
-  document.getElementById("stewardModalHome").style.display = 'none';
+
+  //Animate (3 seconds)
+  $('#stewardModalHomeContent').removeClass('slideInLeft');
+  $('#stewardModalHomeContent').addClass('slideInLeft');
+  
+  setTimeout(function(){
+    $('#stewardModalHomeContent').removeClass('slideInLeft');
+    document.getElementById("stewardModalHome").style.display = "none";
+  }, 280);
 }
 
 function renderCurrentUserDisplay(){
@@ -3684,7 +3698,16 @@ function selectSessionWindow(){
 }
 
 function selectSessionWindowClose(){
-  document.getElementById("sessionModalHome").style.display = 'none';
+
+  //Animate (3 seconds)
+  $('#sessionModalHomeContent').removeClass('slideInLeft');
+  $('#sessionModalHomeContent').addClass('slideInLeft');
+  
+  setTimeout(function(){
+    $('#sessionModalHomeContent').removeClass('slideInLeft');
+    document.getElementById("sessionModalHome").style.display = "none";
+  }, 280);
+
 }
 
 function renderCurrentSessionDisplay(){
@@ -4973,10 +4996,8 @@ function clearErrorOnInput(){
 }
 
 function enableAdminUserHideWindow(){
-  document.getElementById("adminUserModalHome").style.display = 'none';
+  document.getElementById("adminUserModalHome").style.display = "none";
 }
-
-
 
 
 /*
@@ -6028,7 +6049,13 @@ function openForcedUserSelectionWindow(){
 
                         break;
                       }
+                      case 27:{ // Enscape (to Hide)
+                        closeForcedUserSelectionWindow();
+                        easySelectTool.unbind();
+                        break; 
+                      }
                      }
+
                 }
               });
 
@@ -6046,7 +6073,16 @@ function openForcedUserSelectionWindow(){
 
 
 function closeForcedUserSelectionWindow(){
-  document.getElementById("forcedUserSelectionModalHome").style.display = 'none';
+
+  //Animate (3 seconds)
+  $('#forcedUserSelectionModalAnimation').removeClass('animatedWindowPhew');
+  $('#forcedUserSelectionModalAnimation').addClass('animatedWindowPhew');
+  
+  setTimeout(function(){
+    $('#forcedUserSelectionModalAnimation').removeClass('animatedWindowPhew');
+    document.getElementById("forcedUserSelectionModalHome").style.display = "none";
+  }, 280);
+
 }
 
 

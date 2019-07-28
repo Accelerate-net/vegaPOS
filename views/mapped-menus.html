@@ -26,10 +26,16 @@
                         
                         <div class="box-header" style="padding: 10px 0px">
                            <h3 class="box-title" style="padding: 5px 0px; font-size: 24px; font-family: 'Oswald" id="mappedMenuHeadTitle">Mapped Menu</h3>
-                           <button class="btn btn-default btn-sm" id="openNewSavedCommentButton" onclick="openNewSavedComment()"  style="float: right"><i class="fa fa-download"></i> Download Excel</button>
+                           <button class="btn btn-default btn-sm" id="openNewSavedCommentButton" onclick="downloadMappedMenuAsExcel()"  style="float: right"><i class="fa fa-download"></i> Download Excel</button>
                         </div>
 
                         <div style="padding-top: 5px">
+
+                          <div style="position: relative;">
+                            <input type="text" name="" onkeyup="searchMappedMenuByName(this)" placeholder="Search by item name" style="padding: 5px 5px 5px 30px; outline: none; width: 40%; border: 1px solid #c7c7c7; border-radius: 3px; font-size: 16px; font-weight: 300;">
+                            <i class="fa fa-search" style="position: absolute; top: 10px; left: 11px; color: #8e8a8a;"></i>
+                            <p style="margin: 5px 0; color: #fd9c9c;" id="mappedResultsSearchWarningText"></p>
+                          </div>
 
                           <div class="table-responsive">
                                 <table class="table">
@@ -40,6 +46,10 @@
                                    <col width="10%"></col>
                                    <col width="35%"></col>
                                    <col width="5%"></col>
+                                   <tbody id="mappedMenuValidationResultsContentHeader">
+
+                                   </tbody>
+
                                    <tbody id="mappedMenuValidationResultsContent">
 
                                    </tbody>

@@ -2310,6 +2310,7 @@ function securityPasscodeProtectionSetCode(){
     changePersonalisationFile("securityPasscodeProtection", 'YES');  
 
     securityPasscodeProtectionSetCodeHIDE();
+
   }
   else{
     showToast('Failed! Codes doesn\'t match.', '#e74c3c');
@@ -2387,9 +2388,20 @@ function securityPasscodeProtectionConfirmCode(){
 
     securityPasscodeProtectionConfirmCodeHIDE();
 
-    //Disable Lockscreen (Screensaver);
-    if(window.localStorage.appCustomSettings_InactivityEnabled == 'LOCKSCREEN'){
-      window.localStorage.appCustomSettings_InactivityEnabled = '';
+    //Fix
+    if(window.localStorage.appCustomSettings_InactivityEnabled == "LOCKSCREEN"){
+        window.localStorage.appCustomSettings_InactivityEnabled = "";
+        
+        setTimeout(function(){
+          changePersonalisationFile("screenLockOptions", "");
+        }, 3000);
+
+        initScreenSaver();
+
+        /* FIXES:
+          If Passcode Security disabled while the Lock Screen enabled
+          causing issues.
+        */
     }
 
   }

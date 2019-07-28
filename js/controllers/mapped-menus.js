@@ -185,13 +185,14 @@ function openOtherMappedMenu(menuTypeCode){
       renderContent = '<p style="margin: 30px 0 0 0; text-align: center; color: #ccc;">Oops! Validator did not return any results.</p>';
     }
     else{
-      renderContent = '<tr>'+ 
+      document.getElementById("mappedMenuValidationResultsContentHeader").innerHTML = ''+
+                      '<tr>'+ 
                         '<td style="color: #FFF; background: #526079; font-weight: bold">#</td>'+
                         '<td style="color: #FFF; background: #526079; font-weight: bold; text-transform: capitalize">'+formatted_name_menu+' Name</td>'+
                         '<td style="color: #FFF; background: #526079; font-weight: bold; text-transform: capitalize">'+formatted_name_menu+' Price</td>'+
                         '<td style="color: #FFF; background: #526079; font-weight: bold"></td>'+
                         '<td colspan="3" style="color: #FFF; background: #1abc62; font-weight: bold; text-align: center;">System Mapping</td>'+
-                      '</tr>'+ renderContent;
+                      '</tr>';
     }
 
 
@@ -214,6 +215,7 @@ function openOtherMappedMenu(menuTypeCode){
 
     return systemDefaultItem;
   }
+
 
 }
 
@@ -351,7 +353,7 @@ function openItemForEditing(listIndex){
 					   		'<p class="mapItemWindowCategory">'+already_mapped_product.category+'</p>'+
 					   		'<div class="mapItemPriceContainer">'+
 					   			'<tag class="inrMappedItem"><i class="fa fa-inr"></i></tag>'+
-					   			'<input id="changePriceOfAlreadyMappedItem" onchange="triggerMappedPriceChanges(this)" value="'+(itemHasPriceMapped ? ALREADY_DOWNLOADED_MAPPED_MENU[listIndex].mappedPrice : already_mapped_product.price)+'" type="number">'+
+					   			'<input id="changePriceOfAlreadyMappedItem" onkeyup="triggerMappedPriceChanges(this)" value="'+(itemHasPriceMapped ? ALREADY_DOWNLOADED_MAPPED_MENU[listIndex].mappedPrice : already_mapped_product.price)+'" type="number">'+
 					   			'<tag class="mappedOriginalItemPriceWarn" id="alreadyMappedProductPriceWarningText" style="'+(itemHasPriceMapped ? '' : 'display: none')+'">Original price is <i class="fa fa-inr"></i><b id="mappedOriginalItemPriceValue">'+already_mapped_product.price+'</b></tag>'+
 					   		'</div>'+
 					   '</div>'+
@@ -797,7 +799,7 @@ function renderTemporaryMappedItemPreview(){
 			   		'<p class="mapItemWindowCategory">'+mapped_product.category+'</p>'+
 			   		'<div class="mapItemPriceContainer">'+
 			   			'<tag class="inrMappedItem"><i class="fa fa-inr"></i></tag>'+
-			   			'<input id="editPriceOfProcessingMappedItem" onchange="triggerProcessingMappedPriceChanges(this)" value="'+(mappedPriceAddedValue == 0 ? mapped_product.price : mappedPriceAddedValue)+'" type="number">'+
+			   			'<input id="editPriceOfProcessingMappedItem" onkeyup="triggerProcessingMappedPriceChanges(this)" value="'+(mappedPriceAddedValue == 0 ? mapped_product.price : mappedPriceAddedValue)+'" type="number">'+
 			   			'<tag class="mappedOriginalItemPriceWarn" id="processingMappedProductPriceWarningText" style="'+(mappedPriceAddedValue == 0 ? 'display: none' : '')+'">Original price is <i class="fa fa-inr"></i><b id="mappedProcessingOriginalItemPriceValue">'+mapped_product.price+'</b></tag>'+
 			   		'</div>'+
 			   '</div>'+
@@ -937,9 +939,9 @@ function reRenderOtherMappedMenu(){
 
         if(otherMenuData[n].systemCode == ""){
         
-          renderContent += '<tr role="row" class="selectMappedRow" style="cursor: pointer" onclick="openItemForEditing('+n+')">'+
+          renderContent += '<tr role="row" class="selectMappedRow mappedItemsTableRow" style="cursor: pointer" onclick="openItemForEditing('+n+')">'+
                             '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(n+1)+'</td>'+
-                            '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+otherMenuData[n].mappedName+'</td>'+
+                            '<td class="mappedItemsTableCol" style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+otherMenuData[n].mappedName+'</td>'+
                             '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(otherMenuData[n].mappedPrice != "" ? '<i class="fa fa-inr"></i>'+otherMenuData[n].mappedPrice : '-')+'</td>'+ 
                             '<td style="color: red;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'"><i class="fa fa-warning"></i></td>'+
                             '<td style="background: red; color: #FFF; text-align: right;"></td>'+
@@ -948,9 +950,9 @@ function reRenderOtherMappedMenu(){
                           '</tr>';
         }
         else{
-          renderContent += '<tr role="row" class="selectMappedRow" style="cursor: pointer" onclick="openItemForEditing('+n+')">'+
+          renderContent += '<tr role="row" class="selectMappedRow mappedItemsTableRow" style="cursor: pointer" onclick="openItemForEditing('+n+')">'+
                           '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(n+1)+'</td>'+
-                          '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+otherMenuData[n].mappedName+'</td>'+
+                          '<td class="mappedItemsTableCol" style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+otherMenuData[n].mappedName+'</td>'+
                           '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(otherMenuData[n].mappedPrice != "" ? '<i class="fa fa-inr"></i>'+otherMenuData[n].mappedPrice : '-')+'</td>'+
                           '<td style="color: red;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'"><i class="fa fa-warning"></i></td>'+
                           '<td style="background: red; color: #FFF; text-align: right;"><b>'+otherMenuData[n].systemCode+'</b></td>'+
@@ -981,10 +983,10 @@ function reRenderOtherMappedMenu(){
           equivalent_variant = "VARIANT_MISMATCH";
         }
 
-        renderContent += '<tr role="row" class="selectMappedRow" style="cursor: pointer" onclick="openItemForEditing('+n+')">'+
+        renderContent += '<tr role="row" class="selectMappedRow mappedItemsTableRow" style="cursor: pointer" onclick="openItemForEditing('+n+')">'+
                           '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(n+1)+'</td>'+
                           '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+otherMenuData[n].mappedName+'</td>'+
-                          '<td style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(otherMenuData[n].mappedPrice != "" ? '<i class="fa fa-inr"></i>'+otherMenuData[n].mappedPrice : '-')+'</td>'+
+                          '<td class="mappedItemsTableCol" style="color: #526079;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+(otherMenuData[n].mappedPrice != "" ? '<i class="fa fa-inr"></i>'+otherMenuData[n].mappedPrice : '-')+'</td>'+
                           '<td style="color: #1abc62;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'"><i class="fa fa-long-arrow-right"></i></td>'+
                           '<td style="text-align: right; font-weight: bold; color: #1abc62;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+systemItem.code+'</td>'+
                           '<td style="font-weight: 400; color: #1abc62;'+(n%2 == 0 ? 'background: #fbfbfb;' : '')+'">'+systemItem.name + (equivalent_variant != "" ? (equivalent_variant == "VARIANT_MISMATCH" ? ' <tag class="mappedInvalidVariant">INVALID VARIANT</tag>' : ' <tag class="mappedVariantTag">('+equivalent_variant+')</tag>') : '')+'</td>'+
@@ -998,18 +1000,20 @@ function reRenderOtherMappedMenu(){
       renderContent = '<p style="margin: 30px 0 0 0; text-align: center; color: #ccc;">Oops! Validator did not return any results.</p>';
     }
     else{
-      renderContent = '<tr>'+ 
+      document.getElementById("mappedMenuValidationResultsContentHeader").innerHTML = ''+
+                      '<tr>'+ 
                         '<td style="color: #FFF; background: #526079; font-weight: bold">#</td>'+
                         '<td style="color: #FFF; background: #526079; font-weight: bold; text-transform: capitalize">'+formatted_name_menu+' Name</td>'+
                         '<td style="color: #FFF; background: #526079; font-weight: bold; text-transform: capitalize">'+formatted_name_menu+' Price</td>'+
                         '<td style="color: #FFF; background: #526079; font-weight: bold"></td>'+
                         '<td colspan="3" style="color: #FFF; background: #1abc62; font-weight: bold; text-align: center;">System Mapping</td>'+
-                      '</tr>'+ renderContent;
+                      '</tr>';
     }
 
 
     document.getElementById("mappedMenuValidationResultsWindow").style.display = 'block';
     document.getElementById("mappedMenuValidationResultsContent").innerHTML = renderContent;
+
 
   function getSystemEquivalentItem(code, variant){
 
@@ -1026,5 +1030,89 @@ function reRenderOtherMappedMenu(){
 
     return systemDefaultItem;
   }
+
+}
+
+
+//Search Mapped Menu
+function searchMappedMenuByName(element){
+
+  var input, list, tr, td, i, txtValue;
+  input = $(element).val();
+
+  list = document.getElementById("mappedMenuValidationResultsContent");
+  tr = list.getElementsByTagName("tr");
+
+  var name_regex = new RegExp("^"+ input, "i");
+
+  var atleastOneResultFlag = false;
+
+
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[1];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+
+      var suggestion_splits = txtValue.split(" ");
+      var total_words = suggestion_splits.length;
+
+      if(total_words == 1){
+          if(txtValue.search(name_regex) != -1){
+
+            $(tr[i]).removeClass('mappedResultsTableSearchHide');
+            $(tr[i]).addClass('mappedResultsTableSearchShow');
+            
+            atleastOneResultFlag = true;
+          } else {
+
+            $(tr[i]).addClass('mappedResultsTableSearchHide');
+            $(tr[i]).removeClass('mappedResultsTableSearchShow');
+
+          }
+      }
+      else{
+          if(txtValue.search(name_regex) != -1){
+            
+            $(tr[i]).removeClass('mappedResultsTableSearchHide');
+            $(tr[i]).addClass('mappedResultsTableSearchShow');
+            
+            atleastOneResultFlag = true;
+          
+          } else {
+              for(var n = 1; n < total_words; n++){
+                  if(suggestion_splits[n].search(name_regex) != -1){
+                      $(tr[i]).removeClass('mappedResultsTableSearchHide');
+                      $(tr[i]).addClass('mappedResultsTableSearchShow');
+
+                      atleastOneResultFlag = true;
+                      break;
+                  }
+
+                  if(n == total_words - 1){
+                    $(tr[i]).addClass('mappedResultsTableSearchHide');
+                    $(tr[i]).removeClass('mappedResultsTableSearchShow');
+                  }
+              }  
+                       
+          }
+      }
+
+    }       
+  }
+
+
+  if(!atleastOneResultFlag){
+    document.getElementById("mappedResultsSearchWarningText").innerText = 'No matching results found';
+    document.getElementById("mappedMenuValidationResultsContentHeader").style.display = 'none';
+  }
+  else{
+    document.getElementById("mappedResultsSearchWarningText").innerText = '';
+    document.getElementById("mappedMenuValidationResultsContentHeader").style.display = '';
+  }
+
+}
+
+
+function downloadMappedMenuAsExcel(){
 
 }
