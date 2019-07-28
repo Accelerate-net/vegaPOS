@@ -3,8 +3,14 @@ let fs = require('fs');
 
 /* GLOBAL TIME DISPLAY */
 
+var CLOCK_TICKER_COUNTER = 0;
+
 /* Analogue Clock */
 function updateClock() {
+
+  CLOCK_TICKER_COUNTER++;
+
+
             var now = moment(),
                 second = now.seconds() * 6,
                 minute = now.minutes() * 6 + second / 60,
@@ -15,7 +21,23 @@ function updateClock() {
 
             document.getElementById('globalTimeDisplay').innerHTML = moment().format('h:mm:ss a');
 
-            document.getElementById('globalDateDisplay').innerHTML = moment().format('dddd, ') + '<b style="font-size: 120%;">'+moment().format('D')+'</b>' + moment().format(' MMM, YYYY');
+            document.getElementById('globalDateDisplay').innerHTML = '<tag class="globalDateDay">'+moment().format('dddd')+'</tag>'+
+                                                                     '<tag class="globalDateFigures"><b>'+moment().format('D')+'</b>' + moment().format(' MMMM, YYYY') + '</tag>';
+
+
+
+
+   //Show Date and Time every 12 seconds alternatively
+   if(CLOCK_TICKER_COUNTER == 12){
+    $('#dateTimeDisplayUnit').addClass('showDateForced');
+    $('#dateTimeDisplayUnit').removeClass('showTimeForced'); //Just for animation
+   }
+   else if(CLOCK_TICKER_COUNTER == 16){
+    $('#dateTimeDisplayUnit').removeClass('showDateForced');
+    $('#dateTimeDisplayUnit').addClass('showTimeForced'); //Just for animation
+    CLOCK_TICKER_COUNTER = 0;
+   }
+
 }
 
 function timedUpdate () {
@@ -141,8 +163,6 @@ function renderSideNavigation(){
                                 '<a href="#"><i class="fa fa-circle-o"></i>Cancellations</a></li>'+
                             '<li onclick="renderPage(\'manage-menu\', \'Manage Menu\')">'+
                                 '<a href="#"><i class="fa fa-circle-o"></i>Manage Menu</a></li>'+
-                            '<li onclick="renderPage(\'photos-manager\', \'Photos Manager\')">'+
-                                '<a href="#"><i class="fa fa-circle-o"></i>Photos Manager</a></li>'+
                             '<li onclick="renderPage(\'sales-summary\', \'Reports & Summary\')">'+
                                 '<a href="#"><i class="fa fa-circle-o"></i>Reports & Summary</a></li>'+
                             '<li onclick="renderPage(\'table-layout\', \'Table Layout\')">'+
@@ -1781,7 +1801,9 @@ function initialiseKeyboardShortcuts(){
               requestUserToWait();
             }
             else{ 
-              $("#currentUserProfileDisplay").click();
+              //$("#currentUserProfileDisplay").click();
+            
+              openForcedUserSelectionWindow();
             }
             
             return false;
@@ -2813,21 +2835,23 @@ function initScreenSaver(){
         }
 
       
-
-        //Start Tracking Events
-        document.onclick = function() {
+          //Start Tracking Events
+          document.addEventListener('click', function() {
             idleSecondsCounter = 0;
-        };
+          }); 
 
-        document.onmousemove = function() {
+          document.addEventListener('mousemove', function() {
             idleSecondsCounter = 0;
-        };
+          }); 
 
-        document.onkeypress = function() {
+          document.addEventListener('keydown', function() {
             idleSecondsCounter = 0;
-        };
+          }); 
+
 
       }
+
+
 
 }
 
@@ -3043,7 +3067,9 @@ $("#lockScreePasscode").keyup(function(){
 function validateScreenLockCode(code){
   var value = '';
   if(window.localStorage.appCustomSettings_InactivityToken && window.localStorage.appCustomSettings_InactivityToken != ''){
+            
             value = atob(window.localStorage.appCustomSettings_InactivityToken);
+
             if(value == code){ //Code matches
               return true;
             }
@@ -3052,7 +3078,7 @@ function validateScreenLockCode(code){
             }
   }
   else{
-    return false;
+    return true;
   }  
   
 }
@@ -3374,7 +3400,15 @@ function selectStewardWindow(){
 }
 
 function selectStewardWindowClose(){
-  document.getElementById("stewardModalHome").style.display = 'none';
+
+  //Animate (3 seconds)
+  $('#stewardModalHomeContent').removeClass('slideInLeft');
+  $('#stewardModalHomeContent').addClass('slideInLeft');
+  
+  setTimeout(function(){
+    $('#stewardModalHomeContent').removeClass('slideInLeft');
+    document.getElementById("stewardModalHome").style.display = "none";
+  }, 280);
 }
 
 function renderCurrentUserDisplay(){
@@ -3664,7 +3698,16 @@ function selectSessionWindow(){
 }
 
 function selectSessionWindowClose(){
-  document.getElementById("sessionModalHome").style.display = 'none';
+
+  //Animate (3 seconds)
+  $('#sessionModalHomeContent').removeClass('slideInLeft');
+  $('#sessionModalHomeContent').addClass('slideInLeft');
+  
+  setTimeout(function(){
+    $('#sessionModalHomeContent').removeClass('slideInLeft');
+    document.getElementById("sessionModalHome").style.display = "none";
+  }, 280);
+
 }
 
 function renderCurrentSessionDisplay(){
@@ -3821,7 +3864,54 @@ function renderItemImageFromServer(itemCode){
         });    
 }
 
+
+
+//Drag Spotlight Search and Text To Kitchen
+function activateDraggrableWindows(){
+  $(document).ready(function() {
+      var $dragging = null;
+
+      $(document.body).on("mousemove", function(e) {
+          if ($dragging) {
+
+              e.preventDefault();
+
+              $dragging.offset({
+                  top: e.pageY,
+                  left: e.pageX
+              });
+          }
+      });
+      
+      $(document.body).on("mousedown", ".superDraggableWindow", function (e) {
+          if($('#spotlightSearchTool').is(':visible')) {
+            $dragging = $('#spotlightSearchTool');
+          }
+          else if($('#textToKitchenWizard').is(':visible')) {
+            $dragging = $('#textToKitchenWizard');
+          }
+      });
+      
+      $(document.body).on("mouseup", function (e) {
+          $dragging = null;
+      });
+  });  
+}
+
+
+activateDraggrableWindows();
+
+
+
 function showSpotlight(){
+
+        //Close TextToKitchen and BillsPreview if open
+        if($('#textToKitchenWizard').is(':visible')) {
+          document.getElementById("textToKitchenWizard").style.display = "none";
+        }
+        if($('#lastThreeBillsPreviewModal').is(':visible')) {
+          document.getElementById("lastThreeBillsPreviewModal").style.display = "none";
+        } 
 
         var cancelSpotlightTool = $(document).on('keydown',  function (e) {
           if($('#spotlightSearchTool').is(':visible')) {
@@ -3831,6 +3921,12 @@ function showSpotlight(){
               }      
           }
         });
+
+
+        //Animate
+        $('#spotlightSearchTool').removeClass('boomSpotlight');
+        $('#spotlightSearchTool').addClass('boomSpotlight');
+
 
         document.getElementById("spotlightSearchTool").style.display = "block";
         document.getElementById("spotlightRenderPanel").style.display = "none";
@@ -4900,10 +4996,8 @@ function clearErrorOnInput(){
 }
 
 function enableAdminUserHideWindow(){
-  document.getElementById("adminUserModalHome").style.display = 'none';
+  document.getElementById("adminUserModalHome").style.display = "none";
 }
-
-
 
 
 /*
@@ -5140,6 +5234,13 @@ function applyKOTRelays(){
 /* TEXT TO KITCHEN */
 function openTalkToKitchen(){
 
+        //Close SpotlightTool and BillsPreview if open
+        if($('#spotlightSearchTool').is(':visible')) {
+          document.getElementById("spotlightSearchTool").style.display = "none";
+        }
+        if($('#lastThreeBillsPreviewModal').is(':visible')) {
+          document.getElementById("lastThreeBillsPreviewModal").style.display = "none";
+        }         
 
   // LOGGED IN USER INFO
   var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -5161,6 +5262,9 @@ function openTalkToKitchen(){
   }
 
 
+  //Animate
+  $('#textToKitchenWizard').removeClass('animatedWindowBoom');
+  $('#textToKitchenWizard').addClass('animatedWindowBoom');
 
   document.getElementById("textToKitchenWizard").style.display = "block";
   
@@ -5398,7 +5502,16 @@ function sendMessageToKitchen(){
 }
 
 function hideTalkToKitchen(){
-  document.getElementById("textToKitchenWizard").style.display = "none";
+  
+  //Animate (3 seconds)
+  $('#textToKitchenWizard').removeClass('animatedWindowPhew');
+  $('#textToKitchenWizard').addClass('animatedWindowPhew');
+  
+  setTimeout(function(){
+    $('#textToKitchenWizard').removeClass('animatedWindowPhew');
+    document.getElementById("textToKitchenWizard").style.display = "none";
+  }, 280);
+  
 }
 
 function saveToChatLog(messageObj){
@@ -5936,7 +6049,13 @@ function openForcedUserSelectionWindow(){
 
                         break;
                       }
+                      case 27:{ // Enscape (to Hide)
+                        closeForcedUserSelectionWindow();
+                        easySelectTool.unbind();
+                        break; 
+                      }
                      }
+
                 }
               });
 
@@ -5954,10 +6073,17 @@ function openForcedUserSelectionWindow(){
 
 
 function closeForcedUserSelectionWindow(){
-  document.getElementById("forcedUserSelectionModalHome").style.display = 'none';
+
+  //Animate (3 seconds)
+  $('#forcedUserSelectionModalAnimation').removeClass('animatedWindowPhew');
+  $('#forcedUserSelectionModalAnimation').addClass('animatedWindowPhew');
+  
+  setTimeout(function(){
+    $('#forcedUserSelectionModalAnimation').removeClass('animatedWindowPhew');
+    document.getElementById("forcedUserSelectionModalHome").style.display = "none";
+  }, 280);
+
 }
-
-
 
 
 

@@ -810,7 +810,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 
 							      },
 							      error: function(data) {
-							        showToast('Error: Bill #'+filter_key+' not found.', '#e74c3c');
+							        showToast('Error: Bill #'+filter_key+' not found.', '#e67e22');
 								  	totalPages = 0;
 								  	filterResultsCount = 0;
 									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Unsettled Bills. Modify the filter and try again.</p>';
@@ -2108,7 +2108,7 @@ function loadAllSettledBills(optionalAnimationFlag){
 
 							      },
 							      error: function(data) {
-							        showToast('Error: Invoice #'+filter_key+' not found.', '#e74c3c');
+							        showToast('Error: Invoice #'+filter_key+' not found.', '#e67e22');
 								  	totalPages = 0;
 								  	filterResultsCount = 0;
 									document.getElementById("billBriefDisplayRender").innerHTML = '<p style="color: #a9a9a9; margin: 12px 0; border-bottom: 1px solid #f9f9f9; border-top: 1px solid #f9f9f9; padding: 10px 8px;">No matching results found in Settled Bills. Modify the filter and try again.</p>';
@@ -2704,9 +2704,10 @@ function openSelectedBill(encodedBill, type){
 
 
 
+        var isAlreadyRenderingFlag = document.getElementById("billDetailedDisplayRender").innerHTML != '' ? true : false;
 
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
-												'<div class="box box-primary">'+
+												'<div class="box box-primary '+(!isAlreadyRenderingFlag ? 'billDetailedDisplayHolder' : '')+'">'+
 												'   <div class="box-body">'+ 
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag><tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag></tag>'+(bill.orderDetails.modeType == 'DINE' ? '<tag class="billTypeSmallBox">Table <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'TOKEN' ? '<tag class="billTypeSmallBox">Token <b>#'+bill.table+'</b></tag>' : '' + bill.orderDetails.modeType == 'DELIVERY' ? '<tag class="billTypeSmallBox viewAddressBox" onclick="viewDeliveryAddressFromBill(\''+encodeURI(bill.table)+'\')">View Address</b></tag>' : '')+'</h3>'+subOptions+
@@ -2988,8 +2989,10 @@ function openSelectedBill(encodedBill, type){
         }
 
 
+        var isAlreadyRenderingFlag = document.getElementById("billDetailedDisplayRender").innerHTML != '' ? true : false;
+
 		document.getElementById("billDetailedDisplayRender").innerHTML = ''+
-												'<div class="box box-primary">'+
+												'<div class="box box-primary '+(!isAlreadyRenderingFlag ? 'billDetailedDisplayHolder' : '')+'">'+
 												'   <div class="box-body">'+
 												      '<div class="box-header" style="padding: 10px 0px">'+
 												         '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">#<tag class="easyCopyToolParent"><tag class="easyCopyToolText">'+bill.billNumber+'</tag> <tag class="easyCopyToolButton" onclick="easyCopyToClipboard(this)"><i class="fa fa-files-o"></i></tag> </tag>'+paymentOptionUsedButton+'</h3>'+subOptions+
@@ -4698,25 +4701,7 @@ function initLateMenuSuggestion(){
 					    	$('#lateSearchResultsRenderArea').html('<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 320px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+itemsList+itemsAppendList+'</ul>');
 					    }
 					    else{
-
-						  // LOGGED IN USER INFO
-						  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
-						        
-						  if(jQuery.isEmptyObject(loggedInStaffInfo)){
-						    loggedInStaffInfo.name = "";
-						    loggedInStaffInfo.code = "";
-						    loggedInStaffInfo.role = "";
-						  }
-
-						  //either profile not chosen, or not an admin
-						  var isUserAnAdmin = false
-						  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
-						    isUserAnAdmin = true;
-						  }
-
-
-					    	var temp_item = $('#add_item_by_search').val();
-
+					    	
 					    	var custom_template = 	'<ul class="ui-autocomplete ui-front ui-menu ui-widget ui-widget-content" style="display: block; top: 0; left: 0; min-width: 320px; position: relative; max-height: 420px !important; overflow-y: auto; overflow-x: hidden" id="uiBeauty_itemSuggestions">'+
 					    								'<span style="display: inline-block; padding: 8px 0 4px 8px; font-size: 12px; text-align: center; color: #c6c6c6; font-style: italic">No matching items found in the Menu.</span>'+ 
 										    	   	'</ul>';

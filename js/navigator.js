@@ -77,14 +77,26 @@ function fetchInitFunctions(pageReference){
 		}
 		case 'manage-menu':{
 			checkIfAccessGranted('Manage Menu');
+			break;
+		}	
+		case 'master-menu':{
+			checkIfAccessGranted('Master Menu');
 			fetchAllCategories();
 			break;
 		}	
-		case 'photos-manager':{
-			checkIfAccessGranted('Photos Manager');
+		case 'mapped-menus':{
+			checkIfAccessGranted('Mapped Menus');
+			break;
+		}	
+		case 'menu-photos':{
+			checkIfAccessGranted('Menu Photos');
 			fetchAllCategoriesPhotos();
 			break;
-		}			
+		}
+		case 'menu-settings':{
+			checkIfAccessGranted('Menu Settings');
+			break;
+		}				
 		case 'table-layout':{
 			checkIfAccessGranted('Table Layout');
 			fetchAllTables()
@@ -176,6 +188,9 @@ function checkIfAccessGranted(optionalPage){
 
 function renderPage(pageReference, title){
 
+	window.localStorage.last_visited_page_remember = pageReference;
+
+
 	if(!title || title == ''){
 
 		switch (pageReference){
@@ -219,8 +234,20 @@ function renderPage(pageReference, title){
 				title = 'Manage Menu';
 				break;
 			}	
-			case 'photos-manager':{
-				title = 'Photos Manager';
+			case 'master-menu':{
+				title = 'Master Menu';
+				break;
+			}	
+			case 'menu-photos':{
+				title = 'Menu Photos';
+				break;
+			}
+			case 'mapped-menus':{
+				title = 'Mapped Menus';
+				break;
+			}
+			case 'menu-settings':{
+				title = 'Menu Settings';
 				break;
 			}			
 			case 'table-layout':{
@@ -273,4 +300,9 @@ function renderPage(pageReference, title){
 }
 
 //Default View
-renderPage('new-order', 'Punch Order');
+if(window.localStorage.last_visited_page_remember && window.localStorage.last_visited_page_remember != ''){
+	renderPage(window.localStorage.last_visited_page_remember);
+}
+else{
+	renderPage('new-order', 'Punch Order');
+}

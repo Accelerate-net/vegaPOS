@@ -31,8 +31,11 @@
     <link rel="import" for="seating-status" href="views/seating-status.html">
     <link rel="import" for="reward-points" href="views/reward-points.html">
     <link rel="import" for="sales-summary" href="views/sales-summary.html">
-    <link rel="import" for="manage-menu" href="views/manage-menu.html"> 
-    <link rel="import" for="photos-manager" href="views/photos-manager.html">    
+    <link rel="import" for="manage-menu" href="views/manage-menu.html">
+    <link rel="import" for="master-menu" href="views/master-menu.html">
+    <link rel="import" for="mapped-menus" href="views/mapped-menus.html"> 
+    <link rel="import" for="menu-settings" href="views/menu-settings.html"> 
+    <link rel="import" for="menu-photos" href="views/menu-photos.html">    
     <link rel="import" for="table-layout" href="views/table-layout.html">
     <link rel="import" for="bill-settings" href="views/bill-settings.html">
     <link rel="import" for="user-settings" href="views/user-settings.html">
@@ -304,7 +307,7 @@
                             </a>
                         </li>
 
-                        <li class="noHover" style="width: 165px !important" tabindex="-1"><a tabindex="-1" href="#" class="noHover" style="padding: 0">
+                        <li class="noHover myTimeDisplayer" style="width: 165px !important" tabindex="-1" id="dateTimeDisplayUnit"><a tabindex="-1" href="#" class="noHover" style="padding: 0">
 
                           <div style="display: inline-block; position: relative; top: 5px; left: 5px">
                               <div class="hero-circle">
@@ -315,8 +318,8 @@
                                 </div>
                               </div>
                           </div>
-                          <tag id="globalTimeDisplay" style="font-size: 23px; font-weight: 400; position: relative; top: -14px; left: 8px;"></tag>
-                          <tag id="globalDateDisplay" style="font-size: 11px; top: 26px; left: 52px; position: absolute; font-weight: 300; font-family: 'Roboto'; white-space: nowrap;"></tag>
+                          <tag id="globalTimeDisplay"></tag>
+                          <tag id="globalDateDisplay"></tag>
 
                         </a></li>
                         
@@ -366,7 +369,7 @@
         <div id="forcedUserSelectionModalHome" class="modal">
              <div class="modal-dialog" style="top: 20%; width: 100%; max-width: 60em !important;">
                 <!-- Modal content-->
-                <div class="modal-content" style="border-radius: 4px;">
+                <div class="modal-content animatedWindowBoom" id="forcedUserSelectionModalAnimation" style="border-radius: 4px;">
 
                     <div class="" id="forcedUserSelectionModalContent">
 
@@ -406,7 +409,7 @@
         <div id="adminUserModalHome" class="modal" style="z-index: 2500 !important">
              <div class="modal-dialog" style="top: 20%; width: 27em !important;">
                 <!-- Modal content-->
-                <div class="modal-content" style="border-radius: 4px;">
+                <div class="modal-content animatedWindowBoomSmall" id="adminUserModalHomeAnimation" style="border-radius: 4px;">
 
                     <div class="" id="adminUserModalHomeContent"></div>
 
@@ -424,7 +427,7 @@
         <div id="settingsPasscodeModalHome" class="modal" style="z-index: 2500 !important">
              <div class="modal-dialog" style="top: 20%; width: 27em !important;">
                 <!-- Modal content-->
-                <div class="modal-content" style="border-radius: 4px;">
+                <div class="modal-content animatedWindowBoomSmall" style="border-radius: 4px;">
 
                     <div class="" id="settingsPasscodeModalHomeContent"></div>
 
@@ -436,10 +439,10 @@
              </div>
         </div>
 
-
+ 
 
         <!-- LOGIN MODAL -->
-        <div id="loginModalHome" class="modal" style="z-index: 2500 !important">
+        <div id="loginModalHome" class="modal" style="z-index: 7500 !important">
              <div class="modal-dialog" style="top: 20%; width: 27em !important;">
                 <!-- Modal content-->
                 <div class="modal-content" style="border-radius: 4px;" id="loginModalHomeContent">
@@ -453,7 +456,7 @@
         <div id="stewardModalHome" class="modal">
              <div class="modal-dialog" style="width: 27em !important;">
                 <!-- Modal content-->
-                <div class="modal-content" style="border-radius: 4px; right: 10px !important; top: 60px !important; position: fixed; width: 420px; max-height: 480px; overflow-y: auto !important; overflow-x: none !important; padding: 8px" id="stewardModalHomeContent">
+                <div class="modal-content slideInRight" style="border-radius: 4px; right: 10px !important; top: 60px !important; position: fixed; width: 420px; max-height: 480px; overflow-y: auto !important; overflow-x: none !important; padding: 8px" id="stewardModalHomeContent">
                     
                 </div>
                 
@@ -464,7 +467,7 @@
         <div id="sessionModalHome" class="modal">
              <div class="modal-dialog" style="width: 27em !important;">
                 <!-- Modal content-->
-                <div class="modal-content" style="border-radius: 4px; right: 10px !important; top: 60px !important; position: fixed; width: 420px; max-height: 480px; overflow-y: auto !important; overflow-x: none !important; padding: 8px" id="sessionModalHomeContent">
+                <div class="modal-content slideInRight" style="border-radius: 4px; right: 10px !important; top: 60px !important; position: fixed; width: 420px; max-height: 480px; overflow-y: auto !important; overflow-x: none !important; padding: 8px" id="sessionModalHomeContent">
                     
                 </div>
              </div>
@@ -521,7 +524,7 @@
             3. Menu Item (to easily find the price and change any details)
     -->
 
-        <div class="ng-spotlight ng-spotlight-overlay" style="display: none;" id="spotlightSearchTool">
+        <div class="superDraggableWindow ng-spotlight ng-spotlight-overlay" style="display: none;" id="spotlightSearchTool">
 
            <div class="ng-spotlight-searchbar">
               <div class="ng-spotlight-icon" style="font-size: 17px; color: grey">
@@ -549,8 +552,9 @@
 
 
 
+
         <!-- TEXT TO KITCHEN -->
-        <div class="ng-spotlight ng-spotlight-overlay" style="display: none;" id="textToKitchenWizard">
+        <div class="superDraggableWindow ng-spotlight ng-spotlight-overlay" style="display: none;" id="textToKitchenWizard">
 
            <div class="ng-spotlight-searchbar" style="border-bottom: 3px solid;">
               <div class="ng-spotlight-icon textSendIcon" style="font-size: 17px; color: grey; float: right;" onclick="sendMessageToKitchen()" id="sendMessageToKitchenButton">
@@ -586,7 +590,7 @@
 
     <!-- Modal -->
       <div id="billPreviewModal" class="modal">
-         <div class="modal-dialog" style="top: 25px">
+         <div class="modal-dialog animatedWindowBoom" style="top: 25px" id="billPreviewModalAnimation">
             <div class="modal-header cartTitleRow">
               <h1 style="font-size: 24px; margin: 0; text-align: left;" id="billPreviewContentTitle">Bill Preview</h1>
             </div>
@@ -807,7 +811,7 @@
 
     <!-- Modal -->
       <div id="billSettlementDetailsModal" class="modal" style="display: none">
-         <div class="modal-dialog" style="top: 25px">
+         <div class="modal-dialog animatedWindowBoom" style="top: 25px" id="billSettlementDetailsModalAnimation">
             <div class="modal-header cartTitleRow">
               <h1 style="font-size: 24px; margin: 0; text-align: left;" id="billSettlementPreviewContentTitle">Settle Bill</h1>
               <tag id="innerModalButtonContent"></tag>
@@ -881,7 +885,10 @@
     <script type="text/javascript" src="js/controllers/reward-points.js"></script>
     <script type="text/javascript" src="js/controllers/sales-summary.js"></script>
     <script type="text/javascript" src="js/controllers/manage-menu.js"></script>
-    <script type="text/javascript" src="js/controllers/photos-manager.js"></script>
+    <script type="text/javascript" src="js/controllers/master-menu.js"></script>
+    <script type="text/javascript" src="js/controllers/mapped-menus.js"></script>
+    <script type="text/javascript" src="js/controllers/menu-settings.js"></script>
+    <script type="text/javascript" src="js/controllers/menu-photos.js"></script>
     <script type="text/javascript" src="js/controllers/table-layout.js"></script>
     <script type="text/javascript" src="js/controllers/bill-settings.js"></script>
     <script type="text/javascript" src="js/controllers/user-settings.js"></script>

@@ -1,0 +1,122 @@
+<template class="task-template">
+
+        <div class="row">
+
+            <div class="col-xs-3">
+                <div class="box box-primary">
+                    <div class="box-body" style="padding: 4px 4px 0px 4px">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px 5px 5px; font-size: 24px; font-family: 'Oswald';"><i class="fa fa-cog"></i> Menu Settings</h3>
+                        
+                        </div>
+
+                        <div class="billSettingsOption" onclick="openMenuSettings('kitchenSections')"> KOT Relaying <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>
+                        <div class="billSettingsOption" onclick="openMenuSettings('menuCatalog')"> Menu Catalog <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div>                       
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xs-6" id="detailsDisplayMenuSettings">
+
+                <!-- Menu Catalog -->
+                <div class="box box-primary" style="display: none" id="menuCatalog">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 24px; font-family: 'Oswald';">Menu Catalog </h3>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                               <div class="well well-sm" style="margin: 0">
+                                  <p>Arrange the Menu Categories into different <b style="color: #dd397d">Top Level Categories</b> so that the navigation in the <b>Taps Devices</b> will be much easier.</p>
+                                  <div id="menuCatalogRenderPlane"></div>
+                                  <div class="clearfix"></div>
+                               </div>
+                            </div>
+                         </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+                <!-- Kitchen Sections -->
+                <div class="box box-primary" style="display: none" id="kitchenSections">
+                    <div class="box-body">
+                        
+                        <div class="box-header" style="padding: 10px 0px">
+                           <h3 class="box-title" style="padding: 5px 0px; font-size: 24px; font-family: 'Oswald';">KOT Relaying <tag id="kot_relay_not_enabled_label" style="display: none; color: #ff9797; font-size: 14px; text-transform: uppercase; font-weight: 600; position: absolute; right: 10px; top: 18px; border: 1px solid; padding: 2px 8px; border-radius: 5px; background: #fff0f0;">Not Enabled</tag></h3>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                               <div class="well well-sm" style="margin: 0">
+                                  <p>Map the Printers with Kitchen Sections, if you want the orders to be printed on the respective kitchen sections. By default, all the KOTs will be printed on the <tag onclick="renderPage('system-settings', 'System Settings'); openSystemSettings('systemOptions', 'HIGHLIGHT_DEFAULT_KOT_PRINTER')" class="systemShortcutIcon">Default KOT Printer</tag> which is set by you.</p>
+                                  <div id="kitchenSectionsRenderPlane"></div>
+                                  <div class="clearfix"></div>
+                               </div>
+                            </div>
+                         </div>
+
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+
+
+          
+
+            </div>
+
+            </div>
+
+       
+       </div>        
+     </div>
+
+
+
+
+        <!-- Modal -->
+        <div id="addCatalogNameModal" class="modal">
+           <div class="modal-dialog" style="top: 15px">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 20px;">
+                    
+                    <p id="addCatalogNameModalBrief" style="font-size: 18px; text-align: center"></p>
+
+                    <input type="text" value="" placeholder="Enter Top Level Category" style="border: none; font-size: 21px; border-bottom: 1px solid #c9c9c9; padding: 10px 0; height: 45px; margin-top: 15px; text-align: center; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; color: #dd397d;" class="form-control tip" id="addCatalogNameModalInput"/>
+                    
+                 </div>
+                 <div class="modal-footer" style="padding: 0; border: none" id="addCatalogNameModalConsent">
+                    
+                 </div>
+
+              </div>
+           </div>
+        </div>
+
+
+        <!-- Modal -->
+        <div id="selectKOTRelayPrinterModal" class="modal">
+           <div class="modal-dialog" style="top: 15px">
+              <!-- Modal content-->
+              <div class="modal-content">
+                 <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 20px;">
+                    
+                    <p id="selectKOTRelayPrinterBrief" style="font-size: 18px; text-align: center"></p>
+
+                    <div id="selectKOTRelayPrinterList"></div>
+                    
+                 </div>
+                 <div class="modal-footer" style="padding: 0; border: none" id="selectKOTRelayPrinterActions"></div>
+
+              </div>
+           </div>
+        </div>
+        
+
+</template>

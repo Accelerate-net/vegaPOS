@@ -155,7 +155,7 @@ input[type=number]::-webkit-outer-spin-button {
 /*Default Theme*/
 
 /*profile image*/
-#itemImage {
+.itemImage {
     width: 110px;
     height: 110px;
     background: #1abc9c;
@@ -165,6 +165,31 @@ input[type=number]::-webkit-outer-spin-button {
     text-align: center;
     line-height: 110px;
     font-family: 'Roboto';
+}
+
+.hiddenPriceListing{
+    opacity: 0;
+
+    width: 110px;
+    height: 110px;
+    background: rgba(0, 0, 0, 0.4);
+    font-size: 30px;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: bold;
+    text-align: center;
+    line-height: 110px;
+    font-family: 'Roboto';
+    position: absolute;
+    left: 4px;
+    z-index: 2;
+}
+
+.menuItemListingWithImage{
+  position: relative;
+}
+
+.menuItemListingWithImage:hover .hiddenPriceListing{
+  opacity: 1;
 }
 
 
@@ -197,6 +222,7 @@ input[type=number]::-webkit-outer-spin-button {
   min-height: 80px;
   padding: 8px;
   border-top: 1px solid #c3c3c3;
+  z-index: 10;
 
   overflow-y:auto !important;
   overflow-x: none !important;
@@ -727,10 +753,12 @@ input[type=number]::-webkit-outer-spin-button {
     background: #16a085 !important;
     color: #FFF;
     font-family: 'Roboto';
-
 }
 
 
+.listedMenuImage{
+  position: relative !important;
+}
 
 
 /*end of theme EOT*/
@@ -771,7 +799,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 
 /*Purple Theme*/
-.skin-purple-light #itemImage, .skin-purple #itemImage {
+.skin-purple-light .itemImage, .skin-purple .itemImage {
     background: #605ca8;
     color: rgba(255, 255, 255, 0.3);
 }
@@ -811,7 +839,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 
 /*Yellow Theme*/
-.skin-yellow-light #itemImage, .skin-yellow #itemImage {
+.skin-yellow-light .itemImage, .skin-yellow .itemImage {
     background: #f39c12;
     color: rgba(255, 255, 255, 0.3);
 }
@@ -850,7 +878,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 
 /*red Theme*/
-.skin-red-light #itemImage, .skin-red #itemImage {
+.skin-red-light .itemImage, .skin-red .itemImage {
     background: #e25240;
     color: rgba(255, 255, 255, 0.3);
 }
@@ -887,7 +915,7 @@ input[type=number]::-webkit-outer-spin-button {
 }
 
 /*blue Theme*/
-.skin-blue-light #itemImage, .skin-blue #itemImage {
+.skin-blue-light .itemImage, .skin-blue .itemImage {
     background: #3c8dbc;
     color: rgba(255, 255, 255, 0.3);
 }
@@ -1475,12 +1503,48 @@ input[type=number]::-webkit-outer-spin-button {
 
 /* Edit Menu */
 .subMenuList{
-  background-color: #f9f9f9;
+    background-color: #f9f9f9;
+    font-size: 16px;
+    font-family: 'Oswald';
+}
+
+.subMenuList .fa{
+  opacity: 0.1;
+  margin-right: 8px
 }
 
 .subMenuList:hover, .subMenuList:active, .subMenuList:focus{
   background-color: #d8d8d8;
 }
+
+.subMenuList:hover .fa, .subMenuList:active .fa, .subMenuList:focus .fa{
+  opacity: 0.8;
+}
+
+.moveItemToCategoryButton{
+    margin: 0 5px 5px 0;
+    color: #FFF;
+    background: #3c8dbc;
+    width: 48%;
+    font-size: 18px;
+    font-family: 'Oswald';
+    text-align: left;
+}
+
+.moveItemToCategoryButton:hover .fa, .moveItemToCategoryButton:active .fa, .moveItemToCategoryButton:focus .fa{
+  opacity: 1;
+}
+
+.moveItemToCategoryButton:hover, .moveItemToCategoryButton:active, .moveItemToCategoryButton:focus{
+  color: #ffda43;
+}
+
+.moveItemToCategoryButton .fa{
+  margin-right: 6px;
+  opacity: 0;
+}
+
+
 
 .notavailTag{
   background: #e74c3c;
@@ -2239,17 +2303,21 @@ ol ol {
 
 
 /*bill settings*/
+
 .billSettingsOption{
-  width: 100%;
-  padding: 15px 10px;
-  background: #f9f9f9;
-  font-size: 16px;
-  margin-bottom: 4px;
-  cursor: pointer;
+    width: 100%;
+    padding: 15px 10px;
+    background: #f9f9f9;
+    font-size: 18px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    font-family: 'Oswald';
+    color: #526079;
 }
 
 .billSettingsOption:hover{
-  background: #ccc9c9;
+  background: #526079;
+  color: #FFF;
 }
 
 .billSettingsOptionIcon{
@@ -7340,6 +7408,49 @@ input:checked + .slider:before {
 }
 
 
+.billTypeSelectionHolder{
+  transition: all .2s ease-in-out;
+}
+
+.billTypeSelectionHolder:hover{
+  transform: scale(1.1);
+}
+
+@-webkit-keyframes fadeInBill {
+  from {
+    opacity: 0.3;
+    -webkit-transform: scale3d(0.9, 0.9, 0.9);
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInBill {
+  from {
+    opacity: 0.3;
+    -webkit-transform: scale3d(0.9, 0.9, 0.9);
+    transform: scale3d(0.9, 0.9, 0.9);
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+
+.billDetailedDisplayHolder{
+  -webkit-animation-name: fadeInBill;
+  animation-name: fadeInBill;
+  -webkit-animation-duration: .2s;
+  animation-duration: .2s;
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;  
+}
+
+
 .forcedUserImage{
     width: 85px;
     height: 85px;
@@ -7396,4 +7507,599 @@ input:checked + .slider:before {
 .duplicatePrintOptionButton:focus{
     border-color: #ffbb23;
     color: #ffbb23;
+}
+
+#globalTimeDisplay{
+  font-size: 23px; font-weight: 400; 
+  position: absolute; top: 15px; left: 52px;
+  opacity: 1;
+}
+
+#globalDateDisplay{
+  font-family: 'Roboto';
+  opacity: 0;
+}
+
+.myTimeDisplayer:hover #globalDateDisplay{
+  opacity: 1 !important;
+}
+
+.myTimeDisplayer:hover #globalTimeDisplay{
+  opacity: 0 !important;
+}
+
+@keyframes blink_seconds {  
+  50% { opacity: 0; }
+}
+
+.secondPulse{
+  animation: blink_seconds 1s linear infinite;
+}
+
+
+
+@-webkit-keyframes fadeInMe {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInMe {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeOutMe {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeOutMe {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+
+.showDateForced #globalDateDisplay{
+  -webkit-animation-name: fadeInMe;
+  animation-name: fadeInMe;
+  animation-duration: 1s;
+}
+
+.showDateForced #globalTimeDisplay{
+  -webkit-animation-name: fadeOutMe;
+  animation-name: fadeOutMe;
+  animation-duration: 1s;
+}
+
+.showTimeForced #globalTimeDisplay{
+  -webkit-animation-name: fadeInMe;
+  animation-name: fadeInMe;
+  animation-duration: 1s;
+}
+
+.showTimeForced #globalDateDisplay{
+  -webkit-animation-name: fadeOutMe;
+  animation-name: fadeOutMe;
+  animation-duration: 1s;
+}
+
+
+.myTimeDisplayer.showDateForced #globalDateDisplay{
+  opacity: 1;
+}
+.myTimeDisplayer.showDateForced #globalTimeDisplay{
+  opacity: 0;
+}
+
+.selectMappedRow:hover td{
+    background: #a8a9ab !important;
+    color: #FFF !important;
+}
+
+.selectMappedRow:hover .mappedVariantTag{
+    color: #FFF !important;
+}
+
+.selectMappedRow:hover .mappedInvalidVariant{
+    color: #a8a9ab !important;
+    background: #FFF !important;
+}
+
+.mappedVariantTag{
+  color: #00c0ef
+}
+
+.mappedInvalidVariant{
+    color: #FFF;
+    background: red;
+    font-weight: bold;
+    padding: 0 4px;
+    border-radius: 2px;
+    font-size: 11px;
+    display: inline-block;  
+}
+
+.globalDateDay{
+    font-size: 16px;
+    font-weight: 400;
+    position: relative;
+    top: -16px;
+    left: 10px;
+    opacity: 1;
+}
+
+.globalDateFigures{
+    font-size: 12px;
+    font-weight: bold;
+    position: absolute;
+    top: 25px;
+    left: 52px;
+    opacity: 1;
+}
+
+
+.manageMenuListedOptionHolder{
+    width: 200px;
+    background: #ffffff;
+    display: inline-block;
+    height: 180px;
+    text-align: center;
+    border-radius: 6px;
+    box-shadow: 2px 2px 4px #ccc;
+    position: relative;
+    cursor: pointer;
+    margin: 0 15px 0 0; 
+
+    transition: all .2s ease-in-out;
+}
+
+.manageMenuListedOptionText{
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    width: 100%;
+    height: 50px;
+    color: #464D50;
+    font-size: 21px;
+    font-family: 'Oswald';
+}
+
+.manageMenuListedOptionHolder img{
+  opacity: 0.9;
+}
+
+.manageMenuListedOptionHolder:hover{
+  transform: scale(1.1);
+}
+
+.manageMenuListedOptionHolder:hover .manageMenuListedOptionText{
+  color: #ffa619;
+}
+
+
+.summaryTimeHolder{
+    background: #FFF;
+    display: block;
+    border-radius: 6px;
+    height: 44px;
+    box-shadow: 2px 2px 1px #eee;
+    cursor: pointer;
+    position: relative;
+    transition: all .2s ease-in-out;
+    margin-top: 10px;
+}
+
+.summaryTimeHolder:hover{
+  transform: scale(1.1);
+}
+
+.summaryTimeHolder img{
+    width: 28px;
+    height: 28px;
+    left: 8px;
+    position: absolute;
+    top: 8px;
+}
+
+.summaryTileText{
+    font-size: 17px;
+    font-family: 'Oswald';
+    position: relative;
+    left: 48px;
+    top: 10px;
+    color: #909090;  
+}
+
+.mapItemMainHolder{
+    background: #1abc80;
+    min-height: 80px;
+    border-radius: 6px; 
+    position: relative; 
+    padding: 15px 20px;
+}
+
+.mapItemWindowVariant{
+    font-weight: 300;
+    font-size: 14px;
+    margin-left: 6px;  
+}
+
+.mapItemWindowItemName{
+    margin: 0;
+    font-size: 24px;
+    font-family: 'Roboto';
+    font-weight: bold;
+    color: #FFF;
+    width: 70%;  
+}
+
+
+.mapItemWindowCategory{
+    margin: 0;
+    color: #FFF;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 12px;
+    width: 70%;  
+}
+
+.mapItemPriceContainer{
+    display: inline-block;
+    width: 20%;
+    position: absolute;
+    right: 35px;
+    bottom: 25px;
+}
+
+.inrMappedItem{
+    position: absolute;
+    bottom: -5px;
+    font-size: 28px;
+    color: #FFF;
+    left: -14px;
+}
+
+.mapItemPriceContainer input{
+    border: none;
+    border-bottom: 1px solid transparent;
+    background: none;
+    font-size: 30px;
+    text-align: left;
+    font-weight: bold;
+    font-family: 'Oswald';
+    color: #FFF;
+    outline: none !important;
+    width: 100%;
+    height: 36px;
+}
+
+.mapItemPriceContainer input:focus{
+    border-bottom: 1px dashed #FFF;
+}
+
+.mappedOriginalItemPriceWarn{
+    position: absolute;
+    width: 100%;
+    right: 0px;
+    text-align: left;
+    font-size: 11px;
+    color: #FFF;
+    opacity: 0.8;
+    bottom: -16px;
+    font-weight: bold;
+    font-family: 'Roboto';
+}
+
+/* Spotlight Animations */
+.superDraggableWindow{
+  position: fixed !important;
+}
+
+@-webkit-keyframes heartBeatBoom {
+  0% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  50% {
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+  }
+
+  100% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+@keyframes heartBeatBoom {
+  0% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+
+  50% {
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+  }
+
+  100% {
+    -webkit-transform: scale(1);
+    transform: scale(1);
+  }
+}
+
+
+.boomSpotlight{
+  -webkit-animation-name: heartBeatBoom;
+  animation-name: heartBeatBoom;
+  -webkit-animation-duration: .4s;
+  animation-duration: .4s;
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;
+}
+
+@-webkit-keyframes zoomInBoom {
+  from {
+    opacity: 0;
+    -webkit-transform: scale3d(0.3, 0.3, 0.3);
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomInBoom {
+  from {
+    opacity: 0;
+    -webkit-transform: scale3d(0.3, 0.3, 0.3);
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.animatedWindowBoom{
+  -webkit-animation-name: zoomInBoom;
+  animation-name: zoomInBoom;  
+  -webkit-animation-duration: .3s;
+  animation-duration: .3s;
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;
+}
+
+
+
+@-webkit-keyframes zoomOutPhew {
+  from {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+    -webkit-transform: scale3d(0.3, 0.3, 0.3);
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomOutPhew {
+  from {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+    -webkit-transform: scale3d(0.3, 0.3, 0.3);
+    transform: scale3d(0.3, 0.3, 0.3);
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+
+.animatedWindowPhew{
+  -webkit-animation-name: zoomOutPhew;
+  animation-name: zoomOutPhew;  
+  -webkit-animation-duration: .3s;
+  animation-duration: .3s;
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;
+}
+
+
+@-webkit-keyframes zoomInBoomSmall {
+  from {
+    opacity: 0;
+    -webkit-transform: scale3d(0.8, 0.8, 0.8);
+    transform: scale3d(0.8, 0.8, 0.8);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes zoomInBoomSmall {
+  from {
+    opacity: 0;
+    -webkit-transform: scale3d(0.8, 0.8, 0.8);
+    transform: scale3d(0.8, 0.8, 0.8);
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+.animatedWindowBoomSmall{
+  -webkit-animation-name: zoomInBoomSmall;
+  animation-name: zoomInBoomSmall;  
+  -webkit-animation-duration: .15s;
+  animation-duration: .15s;
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;
+}
+
+
+
+@-webkit-keyframes zoomOutPhewSmall {
+  from {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+    -webkit-transform: scale3d(0.8, 0.8, 0.8);
+    transform: scale3d(0.8, 0.8, 0.8);
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes zoomOutPhewSmall {
+  from {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+    -webkit-transform: scale3d(0.8, 0.8, 0.8);
+    transform: scale3d(0.8, 0.8, 0.8);
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+
+.animatedWindowPhewSmall{
+  -webkit-animation-name: zoomOutPhewSmall;
+  animation-name: zoomOutPhewSmall;  
+  -webkit-animation-duration: .15s;
+  animation-duration: .15s;
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;
+}
+
+
+
+@-webkit-keyframes slideInRight {
+  from {
+    -webkit-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0);
+    visibility: visible;
+  }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    -webkit-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0);
+    visibility: visible;
+  }
+
+  to {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.slideInRight {
+  -webkit-animation-name: slideInRight;
+  animation-name: slideInRight;
+
+  -webkit-animation-duration: 0.3s;
+  animation-duration: 0.3s;
+}
+
+
+@-webkit-keyframes slideInLeft {
+  from {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+  to {
+    -webkit-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0);
+
+    opacity: 0.3;
+    
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+  }
+  to {
+    -webkit-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0);
+
+    opacity: 0.3;
+  }  
+}
+
+.slideInLeft {
+  -webkit-animation-name: slideInLeft;
+  animation-name: slideInLeft;
+
+  -webkit-animation-duration: 0.3s;
+  animation-duration: 0.3s;
+
+  -webkit-animation-timing-function: ease-in-out;
+  animation-timing-function: ease-in-out;
+}
+
+.mappedResultsTableSearchHide{
+  display: none !important;
+}
+
+.mappedResultsTableSearchShow td{
+  background: #FFF !important;
+}
+
+.highlightYellowText{
+  background-color: yellow;
 }

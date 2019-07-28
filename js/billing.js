@@ -2240,9 +2240,17 @@ function removeRewardsOnKOT(kotID, optionalPageRef){
 
 
 function hideBillPreviewModal(){
-  document.getElementById("billPreviewModal").style.display = 'none';
+  
+  //Animate (3 seconds)
+  $('#billPreviewModalAnimation').removeClass('animatedWindowPhew');
+  $('#billPreviewModalAnimation').addClass('animatedWindowPhew');
+  
+  setTimeout(function(){
+    $('#billPreviewModalAnimation').removeClass('animatedWindowPhew');
+    document.getElementById("billPreviewModal").style.display = 'none';
+  }, 280);
+  
 }
-
 
 
 
@@ -3681,8 +3689,17 @@ function adjustBillSplit(code){
 
 
 function hideSettleBillAndPush(){
+  
   window.localStorage.billSettleSplitPlayHoldList = '';
-  document.getElementById("billSettlementDetailsModal").style.display = 'none';
+  
+  //Animate (3 seconds)
+  $('#billSettlementDetailsModalAnimation').removeClass('animatedWindowPhew');
+  $('#billSettlementDetailsModalAnimation').addClass('animatedWindowPhew');
+  
+  setTimeout(function(){
+    $('#billSettlementDetailsModalAnimation').removeClass('animatedWindowPhew');
+    document.getElementById("billSettlementDetailsModal").style.display = "none";
+  }, 280);
 
 }
 
@@ -6015,6 +6032,15 @@ function showBundledRecentBills(type, handle){
 
 
 function showRecentBillsPreview(){
+
+        //Close TextToKitchen and SpotlightTool if open
+        if($('#spotlightSearchTool').is(':visible')) {
+          document.getElementById("spotlightSearchTool").style.display = "none";
+        }
+        if($('#textToKitchenWizard').is(':visible')) {
+          document.getElementById("textToKitchenWizard").style.display = "none";
+        }
+
 
   RECENT_BILLS_PREVIEW_INDEX = 0;
 

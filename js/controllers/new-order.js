@@ -3936,12 +3936,17 @@ function renderMenu(subtype){
 						itemsInSubMenu = '';
 						for(var j=0; j<mastermenu[i].items.length; j++){
 							var temp = encodeURI(JSON.stringify(mastermenu[i].items[j]));
+							var priceTagList = (mastermenu[i].items[j].price).split("-");
+
+							var priceTag = priceTagList.length == 1 ? priceTagList[0] : priceTagList[0] + '+';
+
+
 							if(mastermenu[i].items[j].isPhoto && showPhotosFlag){
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\', \''+subtype+'\')" type="button" type="button" class="btn btn-both btn-flat product"><tag id="menu_image_holder_'+mastermenu[i].items[j].code+'"><div id="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></tag><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<tag onclick="additemtocart(\''+temp+'\', \''+subtype+'\')" class="btn btn-both btn-flat product menuItemListingWithImage"><tag class="hiddenPriceListing"><i class="fa fa-inr"></i>'+priceTag+'</tag> <tag id="menu_image_holder_'+mastermenu[i].items[j].code+'"><div class="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></tag><span><span>'+mastermenu[i].items[j].name+'</span></span></tag>';
 								fetchImageFromServer(mastermenu[i].items[j].code, mastermenu[i].items[j].vegFlag);
 							}
 							else{
-								itemsInSubMenu = itemsInSubMenu + '<button onclick="additemtocart(\''+temp+'\', \''+subtype+'\')" type="button" type="button" class="btn btn-both btn-flat product"><span class="bg-img"><div id="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></button>';
+								itemsInSubMenu = itemsInSubMenu + '<tag onclick="additemtocart(\''+temp+'\', \''+subtype+'\')" class="btn btn-both btn-flat product menuItemListingWithImage"><tag class="hiddenPriceListing"><i class="fa fa-inr"></i>'+priceTag+'</tag> <span class="bg-img"><div class="itemImage" style="position: relative">'+(mastermenu[i].items[j].vegFlag == 2 ? '<img src="images/common/food_nonveg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+(mastermenu[i].items[j].vegFlag == 1 ? '<img src="images/common/food_veg.png" style="width: 15px; position: absolute; top: 3px; right: 3px;">' : '')+getImageCode(mastermenu[i].items[j].name)+'</div></span><span><span>'+mastermenu[i].items[j].name+'</span></span></tag>';
 							}
 						}
 						break;
