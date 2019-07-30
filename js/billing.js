@@ -3743,17 +3743,40 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
               }
               else{
-                showToast('Warning: Bill #'+tableID+' was not Settled. Try again.', '#e67e22');
+                showToast('Warning: Bill #'+bill.billNumber+' was not Settled. Try again.', '#e67e22');
               }
             },
-            error: function(data){           
-              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+            error: function(data){  
+              if(data.statusText == "Conflict"){
+                showToast('Warning: Bill #'+bill.billNumber+' was already Settled earlier', '#e67e22');
+                showEmergencyDeleteBill(bill.billNumber);
+                hideSettleBillAndPush();
+              } 
+              else{
+                showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              }    
+              
             }
           });    
 }
 
 
 
+function showEmergencyDeleteBill(billNumber){
+
+  document.getElementById("emergencyBillRemovalWindowContent").innerHTML = ''+
+            '<div class="modal-content">'+
+                '<div class="modal-body" style="font-size: 16px; color: #585858; max-height: 420px; overflow-y: auto !important; overflow-x: none !important;"><h1 style="font-size: 21px; margin: 10px 0 15px 0; color: #f39c12; font-family:\'Oswald\'">Warning</h1>The bill #<b>'+billNumber+'</b> was already settled. This would be possibly a duplicate. Do you want to remove this duplicate?</div>'+
+                '<div class="modal-footer" style="padding: 0"><button class="btn btn-warning" onclick="deleteBillFromServer('+billNumber+', \'GENERATED_BILLS\'); showEmergencyDeleteBillHide();" style="width: 100%; border: none; border-radius: 0; height: 50px; text-transform: uppercase; letter-spacing: 1px;">Remove Duplicate</button></div>'+
+             '</div>';
+
+  document.getElementById("emergencyBillRemovalWindowConfirm").style.display = 'block';
+  
+}
+
+function showEmergencyDeleteBillHide(){
+  document.getElementById("emergencyBillRemovalWindowConfirm").style.display = 'none';
+}
 
 
 //Settle bill later --> FREE THE TABLE for time sake.
