@@ -110,13 +110,8 @@ var showScanPay = false;
 
 //Scan and Pay
 if(data_custom_scanpay_enabled){
-   if(orderObject.orderDetails.isOnline){ //DISABLE FOR PREPAID ORDERS
-      if(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID'){
-         showScanPay = false;
-      }
-      else{
-         showScanPay = true;
-      }
+   if(orderObject.orderDetails.isOnline){ //DISABLE FOR ONLINE ORDERS
+      showScanPay = false;
    }
    else{
       showScanPay = true;
@@ -347,20 +342,7 @@ if(type == 'BILL'){
                         '</p>'+
                      '</td>';
 
-         if(orderObject.orderDetails.isOnline){
-            billHeaderRender = userInfo +                
-                        '<td style="vertical-align: top">'+
-                           '<p style=" text-align: right; float: right">'+
-                              '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
-                              '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
-                              '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '')+'</tag>'+
-                              '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
-                              '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
-                           '</p>'+
-                           '<tag>'+'</tag>'+
-                        '</td>';
-         }
-         else{
+
              billHeaderRender = userInfo +                
                         '<td style="vertical-align: top">'+
                            '<p style=" text-align: right; float: right">'+
@@ -372,7 +354,7 @@ if(type == 'BILL'){
                            '</p>'+
                            '<tag>'+'</tag>'+
                         '</td>';     
-         }
+         
 
          //Bottom of the Bill (for Delivery and Parcel only)
          billBottomRender =   '<div class="billBottomContainer">'+
@@ -390,20 +372,6 @@ if(type == 'BILL'){
                         '</p>'+
                      '</td>';  
 
-         if(orderObject.orderDetails.isOnline){
-            billHeaderRender = userInfo +                
-                        '<td style="vertical-align: top">'+
-                           '<p style=" text-align: right; float: right">'+
-                              '<tag class="serviceType">'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? 'PREPAID' : 'CASH')+'</tag>'+
-                              '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
-                              '<tag class="tokenNumber" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">'+orderObject.orderDetails.reference+'</tag>'+
-                              '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
-                              '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
-                           '</p>'+
-                           '<tag>'+'</tag>'+
-                        '</td>';  
-         }   
-         else{
             billHeaderRender = userInfo +                
                         '<td style="vertical-align: top">'+
                            '<p style=" text-align: right; float: right">'+
@@ -415,7 +383,7 @@ if(type == 'BILL'){
                            '</p>'+
                            '<tag>'+'</tag>'+
                         '</td>';  
-         }   
+        
 
         
          //Bottom of the Bill (for Delivery and Parcel only)
@@ -706,20 +674,7 @@ if(orderObject.orderDetails.modeType == 'DELIVERY'){
                   '</p>'+
                '</td>';
 
-   if(orderObject.orderDetails.isOnline){
-      billHeaderRender = userInfo +                
-                  '<td style="vertical-align: top">'+
-                     '<p style=" text-align: right; float: right">'+
-                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY '+orderObject.KOTNumber+'</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
-                        '<tag class="subLabel">Order No</tag>'+
-                        '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
-                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
-                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
-                     '</p>'+
-                     '<tag>'+'</tag>'+
-                  '</td>';
-   }
-   else{
+
        billHeaderRender = userInfo +                
                   '<td style="vertical-align: top">'+
                      '<p style=" text-align: right; float: right">'+
@@ -731,7 +686,7 @@ if(orderObject.orderDetails.modeType == 'DELIVERY'){
                      '</p>'+
                      '<tag>'+'</tag>'+
                   '</td>';     
-   }
+
 
          //Bottom of the Bill (for Delivery and Parcel only)
          billBottomRender =   '<div class="billBottomContainer">'+
@@ -749,20 +704,6 @@ else if(orderObject.orderDetails.modeType == 'PARCEL'){
                   '</p>'+
                '</td>';  
 
-   if(orderObject.orderDetails.isOnline){
-      billHeaderRender = userInfo +                
-                  '<td style="vertical-align: top">'+
-                     '<p style=" text-align: right; float: right">'+
-                        '<tag class="serviceType">'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? 'PREPAID' : 'CASH')+'</tag>'+
-                        '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
-                        '<tag class="tokenNumber" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">'+orderObject.orderDetails.reference+'</tag>'+
-                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
-                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
-                     '</p>'+
-                     '<tag>'+'</tag>'+
-                  '</td>';  
-   }   
-   else{
       billHeaderRender = userInfo +                
                   '<td style="vertical-align: top">'+
                      '<p style=" text-align: right; float: right">'+
@@ -774,7 +715,7 @@ else if(orderObject.orderDetails.modeType == 'PARCEL'){
                      '</p>'+
                      '<tag>'+'</tag>'+
                   '</td>';  
-   }   
+     
 
          //Bottom of the Bill (for Delivery and Parcel only)
          billBottomRender =   '<div class="billBottomContainer">'+
@@ -1016,20 +957,7 @@ if(orderObject.orderDetails.modeType == 'DELIVERY'){
                   '</p>'+
                '</td>';
 
-   if(orderObject.orderDetails.isOnline){
-      billHeaderRender = userInfo +                
-                  '<td style="vertical-align: top">'+
-                     '<p style=" text-align: right; float: right">'+
-                        '<tag class="serviceType" style="padding: 0; font-size: 10px;"><tag style="color: #FFF; font-weight: bold; display: block; background: black; padding: 2px;">DELIVERY '+orderObject.KOTNumber+'</tag>'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? '<tag style="display: block; padding: 2px;">PREPAID</tag>' : '<tag style="display: block; padding: 2px;">CASH</tag>')+'</tag>'+
-                        '<tag class="subLabel">Order No</tag>'+
-                        '<tag class="tokenNumber">'+(orderObject.orderDetails.reference != '' ? orderObject.orderDetails.reference : '- - - -')+'</tag>'+
-                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
-                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
-                     '</p>'+
-                     '<tag>'+'</tag>'+
-                  '</td>';
-   }
-   else{
+
        billHeaderRender = userInfo +                
                   '<td style="vertical-align: top">'+
                      '<p style=" text-align: right; float: right">'+
@@ -1041,7 +969,7 @@ if(orderObject.orderDetails.modeType == 'DELIVERY'){
                      '</p>'+
                      '<tag>'+'</tag>'+
                   '</td>';     
-   }
+   
 
          //Bottom of the Bill (for Delivery and Parcel only)
          billBottomRender =   '<div class="billBottomContainer">'+
@@ -1059,20 +987,6 @@ else if(orderObject.orderDetails.modeType == 'PARCEL'){
                   '</p>'+
                '</td>';  
 
-   if(orderObject.orderDetails.isOnline){
-      billHeaderRender = userInfo +                
-                  '<td style="vertical-align: top">'+
-                     '<p style=" text-align: right; float: right">'+
-                        '<tag class="serviceType">'+(orderObject.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID' ? 'PREPAID' : 'CASH')+'</tag>'+
-                        '<tag class="subLabel" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">Order No</tag>'+
-                        '<tag class="tokenNumber" style="'+(orderObject.orderDetails.reference != '' ? '' : 'display: none')+'">'+orderObject.orderDetails.reference+'</tag>'+
-                        '<tag class="subLabel" style="margin: 5px 0 0 0">'+data_custom_top_right_name+'</tag>'+
-                        '<tag class="gstNumber">'+data_custom_top_right_value+'</tag>'+
-                     '</p>'+
-                     '<tag>'+'</tag>'+
-                  '</td>';  
-   }   
-   else{
       billHeaderRender = userInfo +                
                   '<td style="vertical-align: top">'+
                      '<p style=" text-align: right; float: right">'+
@@ -1084,7 +998,7 @@ else if(orderObject.orderDetails.modeType == 'PARCEL'){
                      '</p>'+
                      '<tag>'+'</tag>'+
                   '</td>';  
-   }   
+   
 
          //Bottom of the Bill (for Delivery and Parcel only)
          billBottomRender =   '<div class="billBottomContainer">'+

@@ -66,7 +66,7 @@ function fetchInitFunctions(pageReference){
 			preloadTableStatus();
 			break;
 		}
-		case 'reward-points':{
+		case 'customer-loyalty':{
 			renderDefaults();
 			break;
 		}				
@@ -222,8 +222,8 @@ function renderPage(pageReference, title){
 				title = 'Seating Status';
 				break;
 			}
-			case 'reward-points':{
-				title = 'Reward Points';
+			case 'customer-loyalty':{
+				title = 'Loyalty';
 				break;
 			}				
 			case 'sales-summary':{

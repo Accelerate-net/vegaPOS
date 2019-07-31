@@ -5500,10 +5500,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 	orderMetaInfo.reference = customerInfo.reference;
 	orderMetaInfo.isOnline = customerInfo.isOnline;
 
-	if(customerInfo.isOnline){
-		orderMetaInfo.onlineOrderDetails = customerInfo.onlineOrderDetails;
-	}
-
 
 	//User not found in DB ==> Add USER to DB
 	if(!window.localStorage.userAutoFound || window.localStorage.userAutoFound == ''){
@@ -5753,14 +5749,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 							window.localStorage.claimedTokenNumber = '';
 							window.localStorage.claimedTokenNumberTimestamp = '';	 
 	              		}
-	              		
-	              		//If an online order ==> Save Mapping
-	              		if(obj.orderDetails.isOnline){
-	              			saveOnlineOrderMapping(obj);
-	              			getOnlineOrdersCount();
-	              		}
-	              		
-	              		
 
 	              		pushCurrentOrderAsEditKOT(obj);
 	              		generateBillFromKOT(kot, 'ORDER_PUNCHING');
@@ -6199,59 +6187,6 @@ function generateKOTAfterProcess(cart_products, selectedBillingModeInfo, selecte
 }
 
 
-function saveOnlineOrderMapping(orderObject){
-
-	var systemDate = getCurrentTime('DATE_DD-MM-YY');
-
-	//Pass the info to the Server Mapping
-    var objectData = {
-    	  "_id" : orderObject.orderDetails.onlineOrderDetails.orderSource+'_'+orderObject.orderDetails.reference,
-		  "onlineOrder": orderObject.orderDetails.reference,
-		  "source": orderObject.orderDetails.onlineOrderDetails.orderSource,
-		  "type": orderObject.orderDetails.modeType,
-		  "name": orderObject.customerName,
-		  "mobile": orderObject.customerMobile,
-		  "timeReceive": orderObject.orderDetails.onlineOrderDetails.onlineTime,
-		  "timePunch": orderObject.timePunch,
-		  "timeDispatch": "",
-		  "agentName": "",
-		  "agentNumber": "",
-		  "modeOfPayment": orderObject.orderDetails.onlineOrderDetails.paymentMode,
-		  "amount": orderObject.orderDetails.onlineOrderDetails.onlineAmount,
-		  "date": orderObject.orderDetails.onlineOrderDetails.onlineDate,
-		  "systemBill": orderObject.KOTNumber,
-		  "onlineStatus": 1,
-		  "systemStatus": 1,
-		  "systemDate": systemDate  
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/',
-      data: JSON.stringify(objectData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-      	if(data.ok){
-
-      	}
-      	else{
-      		showToast('System Error: Unable to modify Online Orders Mapping data.', '#e74c3c');
-      	}
-        
-      },
-      error: function(data) {
-      	if(data.statusText == "Conflict"){
-      		showToast('Warning! This order (#'+orderObject.orderDetails.reference+') was already punched.', '#e67e22');
-      	}
-        else{
-        	showToast('System Error: Unable to update Online Orders Mapping data.', '#e74c3c');
-      	}
-      }
-
-    }); 	
-}
 
 
 let flashMinimumCookingTimeInterval;

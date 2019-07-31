@@ -1,37 +1,19 @@
 <template class="task-template">
 
-                <div class="row">
-                    <div class="col-xs-4" onclick="renderOnlineOrders()" style="cursor: pointer">
-                        <div class="box box-primary">
-                            <div class="box-body" id="onlineOrders_incoming">
-                                <div id="incomingOrdersCount" class="rewardsCount">..</div>
-                                <div class="rewardsName">PENDING ORDERS</div>
-                            </div>
-                        </div>
-                    </div>
+        <tag id="onlineOrderNoneWarning" style="display: none; font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25vh; position: absolute; width: 100%;">No pending Online Orders</tag>
 
-                    <div class="col-xs-4" onclick="renderLiveOnlineOrders()" style="cursor: pointer">
-                        <div class="box box-primary">
-                            <div class="box-body" id="onlineOrders_live">
-                                <div id="liveOrdersCount" class="rewardsCount">..</div>
-                                <div class="rewardsName">CONFIRMED ORDERS</div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="row" style="display: none" id="onlineOrderDetailsRender">
 
-                    <div class="col-xs-4" onclick="renderCompletedOnlineOrders()" style="cursor: pointer">
-                        <div class="box box-primary">
-                            <div class="box-body" id="onlineOrders_completed">
-                                <div id="completedOrdersCount" class="rewardsCount">..</div>
-                                <div class="rewardsName">COMPLETED ORDERS</div>
-                            </div>
-                        </div>
+            <div class="col-xs-4">
+
+                <div class="box box-primary" onclick="renderOnlineOrders()" style="cursor: pointer">
+                    <div class="box-body billTypeSelectionBox" id="onlineOrders_incoming">
+                        <div id="incomingOrdersCount" class="rewardsCount">..</div>
+                        <div class="rewardsName">PENDING ORDERS</div>
                     </div>
                 </div>
 
 
-        <div class="row">
-            <div class="col-xs-4">
                 <div class="box box-primary">
 
                     <div class="box-body">
@@ -113,38 +95,5 @@
         </div>
 
 
-
-
-
-
-        <!-- DELIVERY AGENT MODAL -->
-        <div id="deliveryBoysModal" class="modal">
-             <div class="modal-dialog" style="width: 27em !important;">
-                <!-- Modal content-->
-                <div class="modal-content" style="border-radius: 4px; width: 420px; max-height: 480px; overflow-y: auto !important; overflow-x: hidden !important; padding: 0; margin-top: 10vh !important" id="deliveryBoysModalContent">
-                    
-                </div>
-             </div>
-        </div>
-
-
-
-      <!-- Modal -->
-      <div id="removeOnlineOrderInvoiceModal" class="modal">
-         <div class="modal-dialog" style="top: 15px">
-            <!-- Modal content-->
-            <div class="modal-content">
-              <div class="modal-header deleteConfirmationHeader"> <h1 style="font-size: 18px; margin: 0; text-align: left;">System Warning</h1> </div>
-               <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important; padding: 30px 15px">
-                <p style="font-size: 16px; margin: 0; color: #e74c3c;" id="removeOnlineOrderInvoiceText"></P>
-               </div>
-               <div class="modal-footer" style="border: none; padding-top: 0" id="removeOnlineOrderInvoiceConsent">
-               </div>
-            </div>
-         </div>
-      </div>
-
-
-
-    </template>
+</template>
 

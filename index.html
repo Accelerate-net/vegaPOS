@@ -29,7 +29,7 @@
     <link rel="import" for="expenses-and-payments" href="views/expenses-and-payments.html">
     <link rel="import" for="cancelled-bills" href="views/cancelled-bills.html">
     <link rel="import" for="seating-status" href="views/seating-status.html">
-    <link rel="import" for="reward-points" href="views/reward-points.html">
+    <link rel="import" for="customer-loyalty" href="views/customer-loyalty.html">
     <link rel="import" for="sales-summary" href="views/sales-summary.html">
     <link rel="import" for="manage-menu" href="views/manage-menu.html">
     <link rel="import" for="master-menu" href="views/master-menu.html">
@@ -392,7 +392,7 @@
               <h1 style="font-size: 18px; font-weight: 600; margin: 0; text-align: left; color: #fff">Switch Session</h1>
             </div>
             <div class="modal-body" style="max-height: 420px; overflow-y: auto !important; overflow-x: none !important;">
-              <p id="sessionSwapWarningContent" style="margin: 10px 0; font-size: 16px; line-height: 1.5em; font-weight: 500; color: #16a085;">Test</p>
+              <p id="sessionSwapWarningContent" style="margin: 10px 0; font-size: 16px; line-height: 1.5em; font-weight: 500; color: #16a085;"></p>
             </div>
             <div class="modal-footer" id="sessionSwapWarningActions">                
             </div>
@@ -450,6 +450,15 @@
                 </div>
              </div>
         </div>
+
+
+       <!-- Modal -->
+       <div id="emergencyBillRemovalWindowConfirm" class="modal">
+          <div class="modal-dialog" style="top: 15px" id="emergencyBillRemovalWindowContent">
+
+          </div>
+       </div>
+
 
 
         <!-- STEWARDS MODAL -->
@@ -882,7 +891,7 @@
     <script type="text/javascript" src="js/controllers/expenses-and-payments.js"></script>
     <script type="text/javascript" src="js/controllers/cancelled-bills.js"></script>
     <script type="text/javascript" src="js/controllers/seating-status.js"></script>
-    <script type="text/javascript" src="js/controllers/reward-points.js"></script>
+    <script type="text/javascript" src="js/controllers/customer-loyalty.js"></script>
     <script type="text/javascript" src="js/controllers/sales-summary.js"></script>
     <script type="text/javascript" src="js/controllers/manage-menu.js"></script>
     <script type="text/javascript" src="js/controllers/master-menu.js"></script>

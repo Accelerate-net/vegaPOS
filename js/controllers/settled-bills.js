@@ -4046,7 +4046,7 @@ function assignDeliveryAgentAfterProcess(billNumber, code, name, optionalPageRef
 
                       var isAutoSMSFeatureEnabled = window.localStorage.systemOptionsSettings_DeliverySMSNotification && window.localStorage.systemOptionsSettings_DeliverySMSNotification == 'true' ? true : false;
 
-                      if(isAutoSMSFeatureEnabled && !bill.orderDetails.isOnline){
+                      if(isAutoSMSFeatureEnabled){
                       	sendOrderDispatchSMS(bill);
                       }
 

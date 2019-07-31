@@ -232,24 +232,6 @@ function generateBillFromKOTAfterProcess(kotfile, optionalPageRef){
           otherChargerRenderCount = otherChargerRenderCount + i;
 
 
-
-          //Auto Calculate Discount (for Prepaid Orders from App) 
-          /* 
-            Classify those as 'ONLINE' discounts which are pre-applied discounts 
-            Condition: No other discount applied.
-          */
-
-          if(!kotfile.discount.amount ||  kotfile.discount.amount == 0){
-            if(kotfile.orderDetails.isOnline){
-              if(kotfile.orderDetails.onlineOrderDetails.preDiscount && kotfile.orderDetails.onlineOrderDetails.preDiscount != 0){
-                savePrediscountToKOT(kotfile.KOTNumber, kotfile.orderDetails.onlineOrderDetails.preDiscount, optionalPageRef);
-                return '';
-              }
-            }
-          }
-
-
-
           //Discount
           var discountTag = '';
           if(kotfile.discount.amount && kotfile.discount.amount != 0){
@@ -1472,67 +1454,6 @@ function removeCustomExtraOnKOT(kotID, optionalPageRef){
 }
 
 
-function savePrediscountToKOT(kotID, amount, optionalPageRef){
-
-    //Set _id from Branch mentioned in Licence
-    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
-    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-      showToast('Invalid Licence Error: KOT can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
-      return '';
-    }
-
-    var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
-
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
-      timeout: 10000,
-      success: function(data) {
-        if(data._id == kot_request_data){
-
-              var kotfile = data;
-
-              kotfile.discount.amount = amount;
-              kotfile.discount.type = 'ONLINE';
-              kotfile.discount.unit = 'FIXED';
-              kotfile.discount.value = amount;
-              kotfile.discount.reference = 'Pre-applied Online Discount';
-                       
-                
-                //Update
-                var updateData = kotfile;
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                          showToast('Discount of <i class="fa fa-inr"></i>'+amount+' pre-applied.', '#27ae60');
-                          generateBillFromKOT(kotID, optionalPageRef);
-                          generateBillSuccessCallback('CHANGE_DISCOUNT', optionalPageRef, kotfile);
-                  },
-                  error: function(data) {
-                      showToast('System Error: Unable to update the Order.', '#e74c3c');
-                  }
-                }); 
-
-        }
-        else{
-          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
-      }
-
-    }); 
-}
-
-
 
 function applyCustomExtraOnKOT(kotID, optionalPageRef){
 
@@ -2340,9 +2261,6 @@ function generateBillSuccessCallback(action, optionalPageRef, modifiedKOTFile){
     case 'LIVE_ORDERS':{
       break;
     }
-    case 'ONLINE_ORDERS':{
-      break;
-    }
     case 'SEATING_STATUS':{
       break;
     }
@@ -2763,16 +2681,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                             }
                           }
 
-
-                          //If an online order ==> Update Mapping
-                          if(kotfile.orderDetails.isOnline){
-                            //Skip this step, if auto settle for PREPAID orders
-                            if(kotfile.orderDetails.onlineOrderDetails.paymentMode != 'PREPAID'){  
-                              updateOnlineOrderMapping(kotfile, 'GENERATE', optionalPageRef);
-                            }
-                          }
-
-
                           if(optionalPageRef == 'ORDER_PUNCHING'){
                             renderCustomerInfo();
                             if(kotfile.orderDetails.modeType != 'DINE'){
@@ -2780,18 +2688,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                               settleBillAndPush(encodeURI(JSON.stringify(kotfile)), 'ORDER_PUNCHING');
                             }
 
-                          }
-                          else if(optionalPageRef == 'ONLINE_ORDERS'){
-                            if(kotfile.orderDetails.isOnline){
-                              //Already updated in updateOnlineOrderMapping() call.
-                              if(kotfile.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID'){
-                                preSettleBill(newBillFile.billNumber, 'ONLINE_ORDERS');
-                              }
-
-                            }
-                            else{
-                              renderLiveOnlineOrders();
-                            }
                           }
                           else if(optionalPageRef == 'SEATING_STATUS'){
                             //Already handled inside billTableMapping() call
@@ -2808,8 +2704,7 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                           */
 
                           if(kotfile.orderDetails.modeType == 'DELIVERY'){
-                                if(!kotfile.orderDetails.isOnline){ //SMS Options for NON-ONLINE orders only.
-
+                                
                                   var isAutoSMSFeatureEnabled = window.localStorage.systemOptionsSettings_DeliverySMSNotification && window.localStorage.systemOptionsSettings_DeliverySMSNotification == 'true' ? true : false;
 
                                   if(isAutoSMSFeatureEnabled){
@@ -2818,8 +2713,6 @@ function confirmBillGenerationAfterProcess(billNumber, kotID, optionalPageRef, r
                                       sendOrderConfirmationSMS(address.contact, address.name, kotfile.payableAmount);
                                     }
                                   }
-
-                                }
                           }
 
 
@@ -3110,12 +3003,6 @@ function printSettledDuplicateBill(billNumber){
 function settleBillAndPush(encodedBill, optionalPageRef){
 
   var bill = JSON.parse(decodeURI(encodedBill));
-
-  //Check if Prepaid Order ==> If YES, auto-settle
-  if(bill.orderDetails.isOnline && bill.orderDetails.onlineOrderDetails.paymentMode == 'PREPAID'){
-    settleBillAndPushAuto(bill, optionalPageRef);
-    return '';
-  }
 
   //Calculate Sum to be paid
   var grandPayableBill = 0;
@@ -3472,46 +3359,6 @@ function preSettleBill(billNumber, optionalPageRef){
 }
 
 
-function onlineOrderEasySettleBill(billNumber){
-
-    billNumber = parseInt(billNumber);
-
-    //Set _id from Branch mentioned in Licence
-    var accelerate_licencee_branch = window.localStorage.accelerate_licence_branch ? window.localStorage.accelerate_licence_branch : ''; 
-    if(!accelerate_licencee_branch || accelerate_licencee_branch == ''){
-      showToast('Invalid Licence Error: Bill can not be fetched. Please contact Accelerate Support if problem persists.', '#e74c3c');
-      return '';
-    }
-
-    var bill_request_data = accelerate_licencee_branch +"_BILL_"+ billNumber;
-
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+bill_request_data,
-      timeout: 10000,
-      success: function(data) {
-
-        if(data._id == bill_request_data){
-
-          var billfile = data;
-          settleBillAndPush(encodeURI(JSON.stringify(billfile)), 'ONLINE_ORDERS');
-
-        }
-        else{
-          showToast('Not Found Error: Bill #'+billNumber+' not found on Server.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Bills data.', '#e74c3c');
-      }
-
-    });   
-}
-
-
-
-
 function addToSplitPay(element, mode, modeName){
   
   if($(element).hasClass('active')){
@@ -3862,11 +3709,6 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
                 //Successfully pushed
                 hideSettleBillAndPush();
 
-                //If an online order ==> Update Mapping
-                if(bill.orderDetails.isOnline){
-
-                  updateOnlineOrderMapping(bill, 'SETTLE', optionalPageRef);
-                }                
 
                 deleteBillFromServer(bill.billNumber, optionalPageRef);
 
@@ -3901,72 +3743,40 @@ function settleBillAndPushAfterProcess(encodedBill, optionalPageRef){
 
               }
               else{
-                showToast('Warning: Bill #'+tableID+' was not Settled. Try again.', '#e67e22');
+                showToast('Warning: Bill #'+bill.billNumber+' was not Settled. Try again.', '#e67e22');
               }
             },
-            error: function(data){           
-              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
-            }
-          });    
-}
-
-
-function settleBillAndPushAuto(bill, optionalPageRef){
-
-    bill.paymentReference = "Prepaid Order";
-    bill.timeSettle = getCurrentTime('TIME');
-    bill.totalAmountPaid = Math.round(bill.payableAmount * 100) / 100;
-    bill.paymentMode = "PREPAID";
-    bill.dateStamp = moment(bill.date, 'DD-MM-YYYY').format('YYYYMMDD');
-
-    //Clean _rev and _id (bill Scraps)
-    var finalInvoice = bill;
-    delete finalInvoice._id;
-    delete finalInvoice._rev
-
-          //Post to local Server
-          $.ajax({
-            type: 'POST',
-            url: COMMON_LOCAL_SERVER_IP+'/accelerate_invoices/',
-            data: JSON.stringify(finalInvoice),
-            contentType: "application/json",
-            dataType: 'json',
-            timeout: 10000,
-            success: function(data) {
-              if(data.ok){
-                showToast("Prepaid Order #"+bill.orderDetails.reference+" - bill settled automatically", '#27ae60');
-                //Successfully pushed
+            error: function(data){  
+              if(data.statusText == "Conflict"){
+                showToast('Warning: Bill #'+bill.billNumber+' was already Settled earlier', '#e67e22');
+                showEmergencyDeleteBill(bill.billNumber);
                 hideSettleBillAndPush();
-
-                //If an online order ==> Update Mapping
-                if(bill.orderDetails.isOnline){
-                  updateOnlineOrderMapping(bill, 'SETTLE', optionalPageRef);
-                }           
-
-                deleteBillFromServer(bill.billNumber, optionalPageRef);
-
-                //Free the mapped Table
-                if(bill.orderDetails.modeType == 'DINE'){
-                  releaseTableAfterBillSettle(bill.table, bill.billNumber, optionalPageRef);
-                }
-
-                //re-render page
-                if(optionalPageRef == 'GENERATED_BILLS'){
-                  //Handled in deleteBillFromServer() already with >> loadAllPendingSettlementBills('EXTERNAL'); 
-                }
-
-              }
+              } 
               else{
-                showToast('Warning: Bill #'+tableID+' was not Settled. Try again.', '#e67e22');
-              }
-            },
-            error: function(data){           
-              showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+                showToast('System Error: Unable to save data to the local server. Please contact Accelerate Support if problem persists.', '#e74c3c');
+              }    
+              
             }
           });    
 }
 
 
+
+function showEmergencyDeleteBill(billNumber){
+
+  document.getElementById("emergencyBillRemovalWindowContent").innerHTML = ''+
+            '<div class="modal-content">'+
+                '<div class="modal-body" style="font-size: 16px; color: #585858; max-height: 420px; overflow-y: auto !important; overflow-x: none !important;"><h1 style="font-size: 21px; margin: 10px 0 15px 0; color: #f39c12; font-family:\'Oswald\'">Warning</h1>The bill #<b>'+billNumber+'</b> was already settled. This would be possibly a duplicate. Do you want to remove this duplicate?</div>'+
+                '<div class="modal-footer" style="padding: 0"><button class="btn btn-warning" onclick="deleteBillFromServer('+billNumber+', \'GENERATED_BILLS\'); showEmergencyDeleteBillHide();" style="width: 100%; border: none; border-radius: 0; height: 50px; text-transform: uppercase; letter-spacing: 1px;">Remove Duplicate</button></div>'+
+             '</div>';
+
+  document.getElementById("emergencyBillRemovalWindowConfirm").style.display = 'block';
+  
+}
+
+function showEmergencyDeleteBillHide(){
+  document.getElementById("emergencyBillRemovalWindowConfirm").style.display = 'none';
+}
 
 
 //Settle bill later --> FREE THE TABLE for time sake.
@@ -4039,63 +3849,8 @@ function keepInPendingBills(tableNumber, billingModeType, optionalPageRef){
 }
 
 
-function updateOnlineOrderMapping(orderObject, action, optionalPageRef){
-
-
-    var online_id_request_data = orderObject.orderDetails.onlineOrderDetails.orderSource+'_'+orderObject.orderDetails.reference;
-
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_online_orders/'+online_id_request_data,
-      timeout: 10000,
-      success: function(data) {
-        if(data._id != ""){
-
-              var onlineOrdersMapping = data;
-
-              onlineOrdersMapping.systemBill = orderObject.billNumber;
-
-              if(action == 'GENERATE'){
-                onlineOrdersMapping.systemStatus = 2;
-              }
-              else if(action == 'SETTLE'){
-                onlineOrdersMapping.systemStatus = 3;
-              }
-
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_online_orders/'+online_id_request_data+'/',
-                  data: JSON.stringify(onlineOrdersMapping),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                      if(optionalPageRef && optionalPageRef == 'ONLINE_ORDERS'){
-                        renderLiveOnlineOrders();
-                      }
-                  },
-                  error: function(data) {
-                      showToast('System Error: Unable to update Online Orders Mapping.', '#e74c3c');
-                  }
-                });  
-        }
-        else{
-          showToast('Not Found Error: Online Orders Mapping data not found.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Online Orders Mapping data.', '#e74c3c');
-      }
-
-    });   
-}
-
-
 
 // BILL REFUND
-
 function initiateRefundSettledBill(currentStatus, billNumber, totalPaid, modeOfPayment, applicableExtrasPercentage, paymentStatus, optionalPageRef){
 
     if(currentStatus == 3){
