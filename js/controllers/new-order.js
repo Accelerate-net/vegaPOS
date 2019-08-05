@@ -3544,6 +3544,9 @@ function CheckTablesAndMenuIdleTime() {
     	renderTables();
     }
 
+
+    //Temporarily Disabled
+    /*
     if(menuReloadTimer%MENU_RENDER_PERIOD == 0 && currentRunningPage == 'new-order'){
     	//re-render menu
     	if($('#add_item_by_search').val().length == 0){ //Do not re-render if already been punching
@@ -3554,6 +3557,7 @@ function CheckTablesAndMenuIdleTime() {
     		menuReloadTimer = menuReloadTimer - 5; //
     	}
     }
+    */
 }
 
 

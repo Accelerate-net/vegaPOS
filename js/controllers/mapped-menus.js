@@ -1112,6 +1112,69 @@ function searchMappedMenuByName(element){
 }
 
 
+
+function fetchMappedMenuList(){
+
+    var requestData = {
+      "selector"  :{ 
+                    "identifierTag": "ACCELERATE_ORDER_SOURCES" 
+                  },
+      "fields"    : ["identifierTag", "value"]
+    }
+
+    $.ajax({
+      type: 'POST',
+      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      data: JSON.stringify(requestData),
+      contentType: "application/json",
+      dataType: 'json',
+      timeout: 10000,
+      success: function(data) {
+
+        if(data.docs.length > 0){
+          if(data.docs[0].identifierTag == 'ACCELERATE_ORDER_SOURCES'){
+
+              var modes = data.docs[0].value;
+
+              var modesTag = '';
+              var isAtleastOneFound = false;
+              for (var i=0; i<modes.length; i++){
+
+                if(modes[i].code == 'ONLINE' || modes[i].code == 'SYSTEM'){
+
+                }
+                else{
+                  isAtleastOneFound = true;
+                  modesTag += '<div class="billSettingsOption" onclick="openOtherMappedMenu(\''+modes[i].code+'\')"> '+modes[i].name+' Menu <tag class="billSettingsOptionIcon"><i class="fa fa-angle-right"></i></tag></div> <div class="clearfix"></div>';
+                }
+
+              }
+
+              if(!isAtleastOneFound){
+                document.getElementById("mappedMenuTypeRenderArea").innerHTML = '<p style="color: #8a8a8a; padding: 10px;">There are no mapped menus added to the system. Contact Accelerate Support for any assistance.</p>';
+              }
+              else{
+                document.getElementById("mappedMenuTypeRenderArea").innerHTML = modesTag;
+              }
+
+          }
+          else{
+            showToast('Not Found Error: Sources data not found.', '#e74c3c');
+          }
+        }
+        else{
+          showToast('Not Found Error: Sources data not found.', '#e74c3c');
+        }
+        
+      },
+      error: function(data) {
+        showToast('System Error: Unable to read Sources data.', '#e74c3c');
+      }
+
+    });  
+}
+
+
 function downloadMappedMenuAsExcel(){
 
 }

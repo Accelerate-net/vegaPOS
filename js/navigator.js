@@ -86,6 +86,7 @@ function fetchInitFunctions(pageReference){
 		}	
 		case 'mapped-menus':{
 			checkIfAccessGranted('Mapped Menus');
+			fetchMappedMenuList();
 			break;
 		}	
 		case 'menu-photos':{
