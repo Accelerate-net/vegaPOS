@@ -1,6 +1,9 @@
 1. Add "Running order" in KOT 
 2. Add isSignificant flag to menu items (neglect those items when rating individual items by customers, from top selling list, suggestions extra.) Eg. Popular item mineral water doesnt make sense
-
+3. Auto refresh menu
+4. Popup Item Unavailability Warnings
+5. Download Mapped Menu as Excel
+6. Sync Menu Online (the MASTER COPY MENU from Internet - which has to be the standardised one)
 
 Moved to Version 2:
 *******************

@@ -4658,7 +4658,7 @@ function spotlightTriggerMenuItem(tempData){
       additemtocart(tempData, 'ATTACHED_WITHIN');
     }
   }
-  else if(currentRunningPage == 'manage-menu'){
+  else if(currentRunningPage == 'master-menu'){
     
     var spotlight_item = JSON.parse(decodeURI(tempData));
 

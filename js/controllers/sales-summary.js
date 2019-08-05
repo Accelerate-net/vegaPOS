@@ -6107,31 +6107,54 @@ function fetchSingleClickReport(){
 	toDate = toDate && toDate != '' ? toDate : getCurrentTime('DATE_STAMP');
 	
 
+	var isSuperAdminLoggedIn = false;
+
+    // LOGGED IN USER INFO
+    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+          
+    if(jQuery.isEmptyObject(loggedInStaffInfo)){
+      loggedInStaffInfo.name = "";
+      loggedInStaffInfo.code = "";
+      loggedInStaffInfo.role = "";
+    }	
+
+    if(loggedInStaffInfo.role == 'ADMIN' && loggedInStaffInfo.code == '9884179675'){
+    	isSuperAdminLoggedIn = true;
+    }
+
+
+
 	checkForRunningOrders();
 
 	function checkForRunningOrders(){
 
-	    $.ajax({
-	      type: 'GET',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchall',
-	      contentType: "application/json",
-	      dataType: 'json',
-	      timeout: 10000,
-	      success: function(data) {
-	        if(data.total_rows > 0){
-	            showToast('Warning: Please generate bills for all the <b>'+data.rows.length+' live orders</b> to continue.', '#e67e22');
-	            return '';
-	        }
-	        else{
-	        	checkForPendingBills();
-	        }
-	      },
-	      error: function(data) {
-	        showToast('Error: Unable to generate the report. Please try again.', '#e74c3c');
-	        return '';
-	      }
+		if(isSuperAdminLoggedIn){
+			checkForPendingBills();
+		}
+		else{
 
-	    }); 
+		    $.ajax({
+		      type: 'GET',
+		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchall',
+		      contentType: "application/json",
+		      dataType: 'json',
+		      timeout: 10000,
+		      success: function(data) {
+		        if(data.total_rows > 0){
+		            showToast('Warning: Please generate bills for all the <b>'+data.rows.length+' live orders</b> to continue.', '#e67e22');
+		            return '';
+		        }
+		        else{
+		        	checkForPendingBills();
+		        }
+		      },
+		      error: function(data) {
+		        showToast('Error: Unable to generate the report. Please try again.', '#e74c3c');
+		        return '';
+		      }
+
+		    }); 
+		}
 	}
 
 
@@ -6314,6 +6337,7 @@ function fetchSingleClickReportAfterApproval(){
 	var completeErrorList = []; //In case any API call causes Error
 
 	var detailedListByBillingMode = []; //Billing mode wise
+	var originalBillingModesList = [];
 	var detailedListByPaymentMode = []; //Payment mode wise
 
 	var weeklyProgressThisWeek = []; //This Week sales
@@ -9657,6 +9681,12 @@ function fetchSingleClickReportAfterApproval(){
 															"count": preserved_count
 														});
 
+														originalBillingModesList.push({
+															"name": modes[0].name,
+															"type": modes[0].type,
+															"value": preserved_sum - refunded_sum,
+															"count": preserved_count
+														});
 
 														billsGraphData.push({
 															"name": modes[0].name,
@@ -9737,6 +9767,13 @@ function fetchSingleClickReportAfterApproval(){
 												    	}
 
 														detailedListByBillingMode.push({
+															"name": modes[index].name,
+															"type": modes[index].type,
+															"value": preserved_sum - refunded_sum,
+															"count": preserved_count
+														});
+
+														originalBillingModesList.push({
 															"name": modes[index].name,
 															"type": modes[index].type,
 															"value": preserved_sum - refunded_sum,
@@ -9974,7 +10011,8 @@ function fetchSingleClickReportAfterApproval(){
 										    	else{
 													//Save changes
 										    		detailedListByBillingMode[greatIndex].detailedExtras = extrasTemplate;
-													
+										    		originalBillingModesList[greatIndex].detailedExtras = extrasTemplate;
+														
 													getDetailedByExtras(greatIndex + 1, modes);
 												}
 							
@@ -10056,6 +10094,7 @@ function fetchSingleClickReportAfterApproval(){
 									else{
 										//Save changes
 										detailedListByBillingMode[greatIndex].detailedExtras = extrasTemplate;
+										originalBillingModesList[greatIndex].detailedExtras = extrasTemplate;
 
 										getDetailedByExtras(greatIndex + 1, modes);
 									}													
@@ -12286,7 +12325,6 @@ function fetchSingleClickReportAfterApproval(){
 		    /* SUMMARY BY BILLING MODES */
 		    function renderReducedBillingModes(){
 
-				var originalBillingModesList = detailedListByBillingMode;
 				var extrasKeysMasterHashMap = [];
 				var extrasKeysMasterList = [];
 				var reducedBillingModesGrandTotal = 0;
@@ -12303,6 +12341,7 @@ function fetchSingleClickReportAfterApproval(){
 
 					  	return accumulator;
 				}, {});
+
 
 				for(var key in reducedBillingModesList){
 					var originalExtras = reducedBillingModesList[key].detailedExtras;
@@ -13789,7 +13828,6 @@ function fetchSingleClickReportAfterApproval(){
 		    /* SUMMARY BY BILLING MODES */
 		    function renderReducedBillingModes(){
 
-				var originalBillingModesList = detailedListByBillingMode;
 				var extrasKeysMasterHashMap = [];
 				var extrasKeysMasterList = [];
 				var reducedBillingModesGrandTotal = 0;
@@ -14220,8 +14258,6 @@ function fetchSingleClickReportAfterApproval(){
 		      printSummaryBillsContent += '<tr><td style="font-size: 11px">'+detailedListByBillingMode[c].name+' '+(billSharePercentage > 0 ? '<span style="color: #000">('+billSharePercentage+'%)</span>' : '')+(detailedListByBillingMode[c].count > 0 ? '<span style="font-weight:bold; font-size: 60%; display: block;">'+detailedListByBillingMode[c].count+' orders</span>' : '')+'</td><td style="font-size: 11px; text-align: right"><span style="font-size: 60%">Rs.</span>'+parseFloat(detailedListByBillingMode[c].value).toFixed(0)+'</td></tr>';
 		      c++;
 		    }
-
-		    
 
 
 		    var printSummaryBills = '';
