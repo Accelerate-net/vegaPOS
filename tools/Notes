@@ -4,6 +4,32 @@
 4. Popup Item Unavailability Warnings
 5. Download Mapped Menu as Excel
 6. Sync Menu Online (the MASTER COPY MENU from Internet - which has to be the standardised one)
+7. Sort items in the KOT (eg. Starters first)
+8. Summary - Delivery agent wise
+9. Bill templates - download new template 
+10. Fix the scroll and other UI bugs
+
+11. [CRITICAL] 'null' refund issue
+12. [CRITICAL] ‘ in comments issue (bill not opening)
+12*. [EXTREMELY CRITICAL] Cart empty issue from Tab, causes infinte waiting
+
+13. Customer profile page (with orders, loyalty etc.)
+14. Duplicate KOT on same table when punched from Tab (sometimes only)
+15. Increase Keyboard size in order taking Tab App
+16. KOT Capitalisation option
+17. Map table section against default Dine In modes (AC Hall --> AC DINE, Cafe --> ZCafe)
+18. Remove restriction to print reports on other days
+
+19. App expired - 7 days renewal extension period
+20. Recover licnece (if lost from localStorage)
+
+21. Ctrl + L to easily logout the Admin
+22. Switch off printer (for swiggy)
+23. Trim mobile number before saving to DB (Home Delivery orders)
+24. Order Pending warning (reduce frequency after first ignore.)
+25. Table-Order mapping missing for orders punched from Tabs - check before punching order if table is free or not
+
+26. Change date format (in filters to YYYYMMDD) - for both bills and cancelled invoices
 
 Moved to Version 2:
 *******************
@@ -16,3 +42,4 @@ Moved to Version 2:
 7. Admin Passcode (Recovery options)
 8. In summary, read MODES, PAYMENT TYPEs etc from DB Entries only (when deleted, summary should not be affected)
 9. WHILE AUTO SETTLE for prepaid orders, Different payment mode (PREPAID modes) for different order sources (Zaitoon --> Razorpay, Swiggy --> SWIGGY etc.) Set that in order source settings
+10. Inventory management (howmany stocks of BBQ left) : Warning only 3 more BBQs pop for captains reference. Auto block after that.

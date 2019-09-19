@@ -11,7 +11,7 @@
     },
     "allrefunds_netamount": {
       "reduce": "_stats",
-      "map": "function (doc) {\n  if(doc.refundDetails.amount && doc.dateStamp){\n    emit([doc.dateStamp], doc.refundDetails.netAmount);\n  }\n}"
+      "map": "function (doc) {\n  if(doc.refundDetails.netAmount && doc.dateStamp){\n    emit([doc.dateStamp], doc.refundDetails.netAmount);\n  }\n}"
     },
     "fetchall": {
       "map": "function (doc) {\n  if(doc.refundDetails.amount && doc.dateStamp){\n    emit([doc.dateStamp], doc);\n  }\n}"
