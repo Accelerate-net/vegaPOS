@@ -3,7 +3,7 @@
 #Couch APIs Source: https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis
 
 
-#Last updated 15 Apr, 2019 (Abhijith C S)
+#Last updated 19 Sept, 2019 (Abhijith C S)
 
 
 echo 
@@ -208,7 +208,7 @@ stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaP
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_bills/_design/bill-filters -d "$stub_data_received"
 echo
 echo [3/24]
-stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_bill_summary.js.js)
+stub_data_received=$(curl https://raw.githubusercontent.com/Accelerate-net/vegaPOS/master/tools/couchdb-apis/couchdb_bill_summary.js)
 curl -X PUT http://$database_user_name:$database_user_password@$database_ip:$database_port/accelerate_bills/_design/bill-summary -d "$stub_data_received"
 
 
