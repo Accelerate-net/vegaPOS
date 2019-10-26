@@ -30,6 +30,30 @@
 25. Table-Order mapping missing for orders punched from Tabs - check before punching order if table is free or not
 
 26. Change date format (in filters to YYYYMMDD) - for both bills and cancelled invoices
+27. Sales Report - while changing fromDate, auto adjust toDate to same date if toDate is lower w.r.t new fromDate
+28. Disable KOT printing option (for IIT coffee shop etc.)
+29. Add dummy printer (say if KOT not needed)
+30. Shift modes (from Dine punched order to Takeaway)
+31. Ask if KOT needs to be sent, while item added to bill after bill is taken
+
+32. On disabling online orders, auto disable SMS.
+32A. Similarly for Food Ready time warning / with KOT printing option
+
+33. Remove font from print duplicate bill
+34. Item comments. Add multiple comments on button click
+
+35. [CRITICAL] Remove Jafry bill viewing option from POS
+
+36. Brand Onboarding - logos
+37. License Management
+38. Quick Fix 4 - remove last cart [] order from taps orders
+
+39. [CRITICAL] What happens on already cut bills (refund/discount/unsettle)
+
+40. Switch btw similar modes (Switch ZCafe to Dine In)
+41. Dine In mode edit option (max discount etc.) without removing and adding again
+42. Intuitive UX at discount applying part (cut off percentage, max. etc) - to display while applying the disc.
+
 
 Moved to Version 2:
 *******************
