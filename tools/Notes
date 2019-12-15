@@ -51,8 +51,37 @@
 39. [CRITICAL] What happens on already cut bills (refund/discount/unsettle)
 
 40. Switch btw similar modes (Switch ZCafe to Dine In)
+40A. Change delivery to takeaway (switch btw modes)
 41. Dine In mode edit option (max discount etc.) without removing and adding again
 42. Intuitive UX at discount applying part (cut off percentage, max. etc) - to display while applying the disc.
+
+43. Quick view bill - from settle popup
+44. KOT time in quick view. (On Tab)
+45. Swiggy auto settle
+46. Disable bills for billing modes (eg. swiggy)
+47. convert delivery order guest to dine in.
+48. Captain vice report / performance report
+49. Add pax to quick summary 
+50. Configureable option to take item wise summary with a longer timeout
+
+51. On Tab table status : instead of "Running" -> "5 guests / 5 mins" | "Billed" -> "Rs. 3493"
+52. License management dashboard (last usage device wise) - call api on starting device
+53. Tab Punching, simultaneous KOT updates cause issue. Adding A to running KOT. and immediately B too. Only B gets into final KOT
+54. Restrict admins only to block / unblock items (option in system settings)
+55. For homedelivery SMS - if SMS is not enabled, don't show "SMS Not Enabled". Silent send SMS.
+
+56. call sheet for home delivery calls (with template sms)
+57. home delivery ( track order page with item list ) link to be sent as sms
+
+58. search by order reference in bills (swiggy id search in bills)
+59. Force captains to enter the guest count in the bill (option in system settings)
+
+60. Pattern / BG pan software (brand_config.json)
+
+61. Empty cart causing KOT jamming [] (for orders taken from tab)
+62. Auto updates
+
+63. System / Tab health checker dashboard (with license management)
 
 
 Moved to Version 2:
