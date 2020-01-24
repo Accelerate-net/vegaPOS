@@ -16,7 +16,7 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
 	}
 
 	//Adjust server source db
-	SELECTED_INVOICE_SOURCE_DB = 'accelerate_wounded';
+	SELECTED_INVOICE_SOURCE_DB = 'accelerate_invoices';
 
     // LOGGED IN USER INFO
     var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -26,12 +26,6 @@ function loadAllPendingSettlementBills(optionalSource, optionalAnimationFlag){
       loggedInStaffInfo.code = "";
       loggedInStaffInfo.role = "";
     }	
-
-    if(loggedInStaffInfo.role == 'ADMIN' && loggedInStaffInfo.code == '9884179675'){
-    	SELECTED_INVOICE_SOURCE_DB = 'accelerate_invoices';
-    }
-
-
 
 
 	/*
@@ -2569,9 +2563,9 @@ function openSelectedBill(encodedBill, type){
 		var grandSumCalculated = 0;
 		while(bill.cart[n]){
 			if(bill.cart[n].isCustom)
-				itemsList += '<tr> <td>'+(n+1)+'</td> <td>'+bill.cart[n].name+' ('+bill.cart[n].variant+')</td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
+				itemsList += '<tr> <td>'+(n+1)+'</td> <td class="deleteItemWrap" style="padding-left: 25px">'+bill.cart[n].name+' ('+bill.cart[n].variant+')<tag class="deleteItemIcon" onclick="deleteItemFromBill(\''+bill._id+'\', \''+bill.cart[n].code+'\', \''+bill.cart[n].variant+'\')"><i class="fa fa-minus-circle"></i></tag></td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
 			else
-				itemsList += '<tr> <td>'+(n+1)+'</td> <td>'+bill.cart[n].name+'</td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
+				itemsList += '<tr> <td>'+(n+1)+'</td> <td class="deleteItemWrap" style="padding-left: 25px">'+bill.cart[n].name+'<tag class="deleteItemIcon" onclick="deleteItemFromBill(\''+bill._id+'\', \''+bill.cart[n].code+'\', \'\')"><i class="fa fa-minus-circle"></i></tag></td> <td style="text-align: center">'+bill.cart[n].qty+'</td> <td style="text-align: center"><i class="fa fa-inr"></i>'+bill.cart[n].price+'</td> <td style="text-align: right"><i class="fa fa-inr"></i>'+(bill.cart[n].price * bill.cart[n].qty)+'</td> </tr>';
 			
 			subTotal += bill.cart[n].price * bill.cart[n].qty;
 
@@ -5197,6 +5191,197 @@ function processLateAddedItems(){
 }
 
 
+function deleteItemFromBill(billNumber, itemCode, itemVariant){
+
+	  // LOGGED IN USER INFO
+	  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+	        
+	  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+	    loggedInStaffInfo.name = "";
+	    loggedInStaffInfo.code = "";
+	    loggedInStaffInfo.role = "";
+	  }
+
+	  var isUserAnAdmin = false
+	  if(loggedInStaffInfo.code != '' && loggedInStaffInfo.role == 'ADMIN'){ 
+	    isUserAnAdmin = true;
+	  }
+	 else{
+	  	showToast('No Permission: Only an Admin can <b>edit the items</b>.', '#e67e22');
+	  	return '';
+	  }
+
+
+  	$.ajax({
+	    type: 'GET',
+		url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+billNumber,
+		timeout: 10000,
+		success: function(data) {
+
+			if(data.cart.length == 1){
+				showToast('Error: Only item in the bill. This item can not be cancelled.', '#e74c3c');
+				return '';
+			}
+
+			var m = 0;
+			while(data.cart[m]){
+				if(data.cart[m].code == itemCode){
+					data.cart.splice(m,1);
+					deleteItemFromBillAfterProcess(data, data._rev);
+					break;
+				}
+				m++;
+			}
+
+		},
+      	error: function(data) {
+        	showToast('Not Found Error: Invoice data not found.', '#e74c3c');
+      	}
+	});  
+
+}
+
+
+
+function deleteItemFromBillAfterProcess(billfile, revID){
+
+			/* RECALCULATE New Figures*/
+			var subTotal = 0;
+			var packagedSubTotal = 0;
+
+			var n = 0;
+			while(billfile.cart[n]){
+				subTotal = subTotal + billfile.cart[n].qty * billfile.cart[n].price;
+
+				if(billfile.cart[n].isPackaged){
+					packagedSubTotal += billfile.cart[n].qty * billfile.cart[n].price;
+				}
+
+				n++;
+			}
+
+			var grandPayableBill = subTotal;
+
+	        /*Calculate Discounts if Any*/ 
+	        var net_discount = 0;    
+	        if(billfile.discount){
+	          		var tempExtraTotal = 0;
+	          		if(billfile.discount.value != 0){
+	          			if(billfile.discount.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = billfile.discount.value * subTotal/100;
+	          			}
+	          			else if(billfile.discount.unit == 'FIXED'){
+	          				tempExtraTotal = billfile.discount.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		billfile.discount.amount = tempExtraTotal;
+	          		net_discount = tempExtraTotal;
+	          		grandPayableBill -= tempExtraTotal;
+	        }
+
+
+
+			/*Calculate Taxes and Other Charges*/
+	        var k = 0;
+	        var effective_discountable_sum = subTotal - net_discount;
+	        if(billfile.extras.length > 0){
+	          	for(k = 0; k < billfile.extras.length; k++){
+
+	          		var tempExtraTotal = 0;
+
+	          		if(billfile.extras[k].isPackagedExcluded){
+			          		if(billfile.extras[k].value != 0){
+			          			if(billfile.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = (billfile.extras[k].value * (effective_discountable_sum - packagedSubTotal))/100;
+			          			}
+			          			else if(billfile.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = billfile.extras[k].value;
+			          			}
+			          		}
+			        }
+			        else{
+			          		if(billfile.extras[k].value != 0){
+			          			if(billfile.extras[k].unit == 'PERCENTAGE'){
+			          				tempExtraTotal = billfile.extras[k].value * effective_discountable_sum/100;
+			          			}
+			          			else if(billfile.extras[k].unit == 'FIXED'){
+			          				tempExtraTotal = billfile.extras[k].value;
+			          			}
+			          		}			        	
+			        }
+
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		billfile.extras[k] = {
+				 		"name": billfile.extras[k].name,
+						"value": billfile.extras[k].value,
+						"unit": billfile.extras[k].unit,
+						"amount": tempExtraTotal,
+						"isPackagedExcluded": billfile.extras[k].isPackagedExcluded
+	          		};
+
+	          		grandPayableBill += tempExtraTotal;
+	          	}
+	        }
+
+
+	        /*Calculate Custom Extras if Any*/     
+	        if(billfile.customExtras){
+	          		var tempExtraTotal = 0;
+	          		if(billfile.customExtras.value != 0){
+	          			if(billfile.customExtras.unit == 'PERCENTAGE'){
+	          				tempExtraTotal = billfile.customExtras.value * effective_discountable_sum/100;
+	          			}
+	          			else if(billfile.customExtras.unit == 'FIXED'){
+	          				tempExtraTotal = billfile.customExtras.value;
+	          			}
+	          		}
+
+	          		tempExtraTotal = Math.round(tempExtraTotal * 100) / 100;
+
+	          		billfile.customExtras.amount = tempExtraTotal;
+
+	          		grandPayableBill += tempExtraTotal;
+	        }
+
+
+          grandPayableBill = parseFloat(grandPayableBill).toFixed(2);   
+          var grandPayableBillRounded = properRoundOff(grandPayableBill);   
+
+          billfile.payableAmount = grandPayableBillRounded;
+          billfile.grossCartAmount = subTotal;
+          billfile.grossPackagedAmount = packagedSubTotal;
+
+          billfile.calculatedRoundOff = Math.round((grandPayableBillRounded - grandPayableBill) * 100) / 100;
+
+
+      		var encodedBill = encodeURI(JSON.stringify(billfile));
+
+            //Update Bill on Server
+            $.ajax({
+              type: 'PUT',
+              url: COMMON_LOCAL_SERVER_IP+'/accelerate_bills/'+(billfile._id)+'/',
+              data: JSON.stringify(billfile),
+              contentType: "application/json",
+              dataType: 'json',
+              timeout: 10000,
+              success: function(data) {
+                  showToast('Saved Changes', '#27ae60');
+                  addItemToGeneratedBillHide();
+                  
+                  loadAllPendingSettlementBills();
+			      openSelectedBill(encodedBill, 'PENDING');
+              },
+              error: function(data) {
+                  showToast('System Error: Unable to update the Bill', '#e74c3c');
+              }
+            }); 
+	
+}
 
 
 function lateApplyDiscountValueFocus(){
