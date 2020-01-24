@@ -1,8 +1,0 @@
-{
-	"clientCode": "ZAITOON",
-	"clientName": "Zaitoon",
-	"buildVersion": "2.3.1",
-	"restrictedFeatures": ["payments", "reservations"],
-	"defaultColorScheme": "blue",
-	"defaultPattern": ""
-}

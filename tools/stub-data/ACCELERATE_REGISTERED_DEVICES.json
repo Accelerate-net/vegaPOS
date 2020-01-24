@@ -1,0 +1,22 @@
+{
+  "_id": "ACCELERATE_REGISTERED_DEVICES",
+  "identifierTag": "ACCELERATE_REGISTERED_DEVICES",
+  "value": [
+    {
+      "deviceUID": "T101",
+      "device_name": "",
+      "device_license_code": "ACCELERATE_TAPS_201",
+      "branch_code": "JPNAGAR",
+      "branch_name": "JP Nagar",
+      "activation_date": "27-02-2019",
+      "expiry_date": "26-02-2020",
+      "client": "ZAITOON",
+      "isActive": true,
+      "isTrial": false,
+      "defaultPrinters": {
+        "VIEW": "Bill",
+        "BILL": "Bill"
+      }
+    }
+  ]
+}
