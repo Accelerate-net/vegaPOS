@@ -1,0 +1,16 @@
+{
+  "_id": "ACCELERATE_DINE_SESSIONS",
+  "identifierTag": "ACCELERATE_DINE_SESSIONS",
+  "value": [
+    {
+      "name": "Lunch",
+      "startTime": 1145,
+      "endTime": 1500
+    },
+    {
+      "name": "Dinner",
+      "startTime": 1845,
+      "endTime": 2330
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "_id": "ACCELERATE_STAFF_PROFILES",
+  "identifierTag": "ACCELERATE_STAFF_PROFILES",
+  "value": [
+    {
+      "name": "Jafry",
+      "code": "9884179675",
+      "role": "ADMIN",
+      "password": "1995"
+    }
+  ]
+}
