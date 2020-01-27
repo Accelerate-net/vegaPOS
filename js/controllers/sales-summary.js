@@ -14,7 +14,7 @@ function setSummaryDateRange(){
 	document.getElementById("reportToDate").value = today;
 
 	//Adjust server source db
-	SELECTED_INVOICE_SOURCE_DB = 'accelerate_wounded';
+	SELECTED_INVOICE_SOURCE_DB = 'accelerate_invoices';
 
     // LOGGED IN USER INFO
     var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
@@ -24,10 +24,6 @@ function setSummaryDateRange(){
       loggedInStaffInfo.code = "";
       loggedInStaffInfo.role = "";
     }	
-
-    if(loggedInStaffInfo.role == 'ADMIN' && loggedInStaffInfo.code == '9884179675'){
-    	SELECTED_INVOICE_SOURCE_DB = 'accelerate_invoices';
-    }
 }
 
 
