@@ -1,0 +1,26 @@
+{
+  "_id": "ACCELERATE_PAYMENT_MODES",
+  "identifierTag": "ACCELERATE_PAYMENT_MODES",
+  "value": [
+    {
+      "name": "Cash",
+      "code": "CASH"
+    },
+    {
+      "name": "Razorpay",
+      "code": "PREPAID"
+    },
+    {
+      "name": "Cards",
+      "code": "CARDS"
+    },
+    {
+      "name": "American Express",
+      "code": "AMEX"
+    },
+    {
+      "name": "PayTM",
+      "code": "PAYTM"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "_id": "ACCELERATE_ORDER_SOURCES",
+  "identifierTag": "ACCELERATE_ORDER_SOURCES",
+  "value": [
+    {
+      "name": "System",
+      "code": "SYSTEM",
+      "defaultTakeaway": "",
+      "defaultDelivery": ""
+    },
+    {
+      "name": "Online",
+      "code": "ONLINE",
+      "defaultTakeaway": "",
+      "defaultDelivery": ""
+    }
+  ]
+}
