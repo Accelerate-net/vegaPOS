@@ -29,8 +29,18 @@
 
                                   <div class="summaryTimeHolder" onclick="fetchOverAllTurnOver()">
                                     <img src="images/common/summary-icons/quick-summary.png">
-                                    <tag style="color:#ffaa23;" class="summaryTileText">Summary</tag>
+                                    <tag style="color:#ffaa23;" class="summaryTileText">Quick Summary</tag>
                                   </div>
+                                  <div class="summaryTimeHolder" onclick="fetchSingleClickReport()">
+                                    <img src="images/common/summary-icons/daily-report.png">
+                                    <tag style="color: #ffaa23" class="summaryTileText">Daily Sales Report</tag>
+                                  </div>
+                                  <div class="summaryTimeHolder" onclick="generateExcelReports()">
+                                    <img src="images/common/summary-icons/accounting.png">
+                                    <tag style="color: #389469" class="summaryTileText">Accountancy Reports</tag>
+                                  </div>
+
+
                                   <div class="summaryTimeHolder" onclick="fetchSalesSummary()">
                                     <img src="images/common/summary-icons/billing-modes.png">
                                     <tag style="color: #475b63" class="summaryTileText">Summary by Billing Modes</tag>
@@ -38,6 +48,35 @@
                                   <div class="summaryTimeHolder" onclick="fetchPaymentModeWiseSummary()">
                                     <img src="images/common/summary-icons/payments.png">
                                     <tag style="color: #475b63" class="summaryTileText">Summary by Payment Modes</tag>
+                                  </div>                             
+                                  <div class="summaryTimeHolder" onclick="fetchSessionWiseSummary()">
+                                    <img src="images/common/summary-icons/sessions.png">
+                                    <tag style="color: #475b63" class="summaryTileText">Summary by Sessions</tag>
+                                  </div>
+
+                                  <div class="summaryTimeHolder" onclick="fetchTimeSlotWiseSummary()">
+                                    <img src="images/common/summary-icons/hourly-trend.png">
+                                    <tag style="color: #475b63" class="summaryTileText">Hourly Sales Trend</tag>
+                                  </div>
+                                  <div class="summaryTimeHolder" onclick="fetchDiscountSaleSummary()">
+                                    <img src="images/common/summary-icons/discounts.png">
+                                    <tag style="color: #475b63" class="summaryTileText">Discounts Offered</tag>
+                                  </div>
+                                  <div class="summaryTimeHolder" onclick="fetchRefundSummary()">
+                                    <img src="images/common/summary-icons/refunds.png">
+                                    <tag style="color: #475b63" class="summaryTileText">Refunds Issued</tag>
+                                  </div>
+                                  <div class="summaryTimeHolder" onclick="fetchItemSummary()">
+                                    <img src="images/common/summary-icons/item-sales.png">
+                                    <tag style="color: #475b63" class="summaryTileText">Item Wise Sales</tag>
+                                  </div>
+                                  <div class="summaryTimeHolder" onclick="fetchCancellationSummary()">
+                                    <img src="images/common/summary-icons/bill-cancellations.png">
+                                    <tag style="color: #f33535" class="summaryTileText">Bill Cancellations</tag>
+                                  </div>                                
+                                  <div class="summaryTimeHolder" onclick="fetchItemCancellations()">
+                                    <img src="images/common/summary-icons/item-cancellations.png">
+                                    <tag style="color: #f33535" class="summaryTileText">Item Cancellations</tag>
                                   </div>
                                </div>
 
