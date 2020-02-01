@@ -51,75 +51,8 @@
 39. [CRITICAL] What happens on already cut bills (refund/discount/unsettle)
 
 40. Switch btw similar modes (Switch ZCafe to Dine In)
-40A. Change delivery to takeaway (switch btw modes)
 41. Dine In mode edit option (max discount etc.) without removing and adding again
 42. Intuitive UX at discount applying part (cut off percentage, max. etc) - to display while applying the disc.
-
-43. Quick view bill - from settle popup
-44. KOT time in quick view. (On Tab)
-45. Swiggy auto settle
-46. Disable bills for billing modes (eg. swiggy)
-47. convert delivery order guest to dine in.
-48. Captain vice report / performance report
-49. Add pax to quick summary 
-50. Configureable option to take item wise summary with a longer timeout
-
-51. On Tab table status : instead of "Running" -> "5 guests / 5 mins" | "Billed" -> "Rs. 3493"
-52. License management dashboard (last usage device wise) - call api on starting device
-53. Tab Punching, simultaneous KOT updates cause issue. Adding A to running KOT. and immediately B too. Only B gets into final KOT
-54. Restrict admins only to block / unblock items (option in system settings)
-55. For homedelivery SMS - if SMS is not enabled, don't show "SMS Not Enabled". Silent send SMS.
-
-56. call sheet for home delivery calls (with template sms)
-57. home delivery ( track order page with item list ) link to be sent as sms
-
-58. search by order reference in bills (swiggy id search in bills)
-59. Force captains to enter the guest count in the bill (option in system settings)
-
-60. Pattern / BG pan software (brand_config.json)
-
-61. Empty cart causing KOT jamming [] (for orders taken from tab)
-62. Auto updates
-
-63. System / Tab health checker dashboard (with license management)
-64. Option to remove custom added charges (eg. remove Service Charge from bill even after printing)
-65. Apply Bill Settings for all systems (pop up asking if all systems to be updated)
-66. Server based closing system (date change issue - take server change only)
-67. Option to see the list of connected devices on the server (PCs / Tabs etc.)
-
-68. isFeatured flag item in cart - Feedback (Which item did you like the most?)
-69. Provision to download PDF/Excel everywhere (itemwise sales etc.)
-70. Item wise sales (monthly summary)
-71. isMaster in the Menu (for the items synced from Online Menu)
-
-72. Sales Reports - for all invocies range btw invoice numbers
-
-73. Credit Invoices (Pay later option)
-
-74. Send SMS - for bill/item/discounts cancellation (Configurable for Admin)
-75. Dashboard to know the active status of licenses (ping/pong to server)
-76. App order through internet / for approved devices (Preorder / or for admins to order from anywhere)
-77. Introduce kitchen Sections (assign printrs accrdingly) - Printer Matrix
-
-78. Remove System Name cache (new licence coming Nameless System)
-79. Rename "Remove Mapping" to 'Free Table' (under tables)
-80. Option to rename table sections
-81. Connected registered devices, remove stubs
-82. Device managemnt - block connected mobile devices..
-83. Round off configuration (up or down) and currency configuration
-
-84. Easy view blocked items. Frequent reminders display (option to on/off)
-85. End to end encryption of sensitive data - invoice / customer data
-86. Device licence (encrypt)
-
-87. While taking home delivery order (or any order with mobile number) popup customer quick data... last order/feedback etc.
-88. Remove default “Cash” tag from delivery bills
-89. Complete user action logging
-90. Order aggregator - full log (now its just last 3 orders)
-
-91. Propose fixed UI for modals (pass data and render accordingly)
-92. Mute (sound off)  notifications
-
 
 
 Moved to Version 2:
