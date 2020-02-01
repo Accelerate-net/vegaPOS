@@ -264,7 +264,7 @@ input[type=number]::-webkit-outer-spin-button {
 
 
 .mySpotlightLogo{
-  background: url("../brand/logo_small_bright.png") no-repeat center center; 
+  background: url("../brand/brand_logo_100x100_white.png") no-repeat center center; 
 }
 
 
@@ -273,7 +273,7 @@ input[type=number]::-webkit-outer-spin-button {
 .skin-red-light .mySpotlightLogo,
 .skin-blue-light .mySpotlightLogo,
 .skin-green-light .mySpotlightLogo{
-  background: url("../brand/logo_small.png") no-repeat center center; 
+  background: url("../brand/brand_logo_100x100_color.png") no-repeat center center; 
 }
 
 
@@ -3762,7 +3762,7 @@ ol ol {
    position: fixed; left: 0; top: 0; 
   z-index: 100001; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../brand/pattern.jpg");
+    background-image: url("../brand/brand_pattern_1000x1000.jpg");
     background-repeat: repeat;
 }
 
@@ -3842,7 +3842,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
    position: fixed; left: 0; top: 0; 
   z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../brand/pattern.jpg");
+    background-image: url("../brand/brand_pattern_1000x1000.jpg");
     background-repeat: repeat;
 }
 
@@ -3984,7 +3984,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
    position: fixed; left: 0; top: 0; 
   z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../brand/pattern.jpg");
+    background-image: url("../brand/brand_pattern_1000x1000.jpg");
     background-repeat: repeat;
 }
 
@@ -3994,7 +3994,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
    position: fixed; left: 0; top: 0; 
   z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../brand/pattern.jpg");
+    background-image: url("../brand/brand_pattern_1000x1000.jpg");
     background-repeat: repeat;
 }
 
@@ -4002,7 +4002,7 @@ margin: 0; margin-left: 10px; font-size: 15px; color: #e4e4e4;
    position: fixed; left: 0; top: 0; 
   z-index: 5000; width: 100%; height: 100%; 
   overflow: visible; 
-    background-image: url("../brand/pattern.jpg");
+    background-image: url("../brand/brand_pattern_1000x1000.jpg");
     background-repeat: repeat;
 }
 
