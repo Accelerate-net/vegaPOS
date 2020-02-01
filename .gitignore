@@ -2,5 +2,5 @@ node_modules
 .DS_Store
 dist
 release
-./log_script.txt
-./package-lock.json
+log_script.txt
+package-lock.json
