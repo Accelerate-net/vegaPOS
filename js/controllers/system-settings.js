@@ -2566,7 +2566,7 @@ function recoveryPasscodeLogin(){
 
     document.getElementById("loginModalResetCodeContent").innerHTML = '<section id="main" style="padding: 35px 44px 20px 44px">'+
                                    '<header>'+
-                                      '<span class="avatar"><img src="brand/brand-square.jpg" alt=""></span>'+
+                                      '<span class="avatar"><img src="brand/brand_logo_122x122_color.jpg" alt=""></span>'+
                                       '<h1 style="font-size: 21px; font-family: \'Roboto\'; color: #3e5b6b;">Login to the Server</h1>'+
                                    '</header>'+
                                    '<form style="margin: 0">'+

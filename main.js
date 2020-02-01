@@ -20,12 +20,11 @@ let workerWindow //Printer Preview Window
 
 function createWindow () {
 
-  //To get the Computer's resolution
+      //To get the Computer's resolution
     const screen = require('electron').screen;
     const display = screen.getPrimaryDisplay();
     const area = display.workArea;
 
-    // Create the browser window.
     mainWindow = new BrowserWindow(
       {
         width: area.width ? area.width : 1280,
@@ -34,7 +33,6 @@ function createWindow () {
         title: app.getName()
       })
 
-    // and load the index.html of the app.
     mainWindow.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
       protocol: 'file:',
@@ -42,11 +40,8 @@ function createWindow () {
     }))
 
 
-
     workerWindow = new BrowserWindow({show : false, icon: path.join(__dirname, '/assets/icons/png/64x64.png')});
     workerWindow.loadURL("file://" + __dirname + "/templates/print-template.html");
-    //workerWindow.hide();
-    //workerWindow.webContents.openDevTools();
     
     workerWindow.on("closed", () => {
         workerWindow = null;
@@ -54,14 +49,10 @@ function createWindow () {
 
     workerWindow.hide();
 
-
   //Full Screen
-  mainWindow.setFullScreen(true)
-
-  //Open the DevTools.
+  //mainWindow.setFullScreen(true)
   //mainWindow.webContents.openDevTools()
 
-  // Emitted when the window is closed.
   mainWindow.on('closed', function () {
     mainWindow = null;
 
@@ -70,9 +61,6 @@ function createWindow () {
 
   })
 
-
-
-  //Do not close warning for PRINTER Window
   workerWindow.on('close', (e) => {
     if (app.showExitPrompt && mainWindow != null) {
         e.preventDefault() // Prevents the window from closing 
@@ -96,12 +84,9 @@ function createWindow () {
 //To retrieve printers list
 let printerWindowContent = null;
 
-
-
-
 app.on('ready', function(){
 
-    createWindow();
+  createWindow();
 
   // Create the Application's main menu
   const template = [
@@ -157,16 +142,12 @@ app.on('ready', function(){
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
 app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
     createWindow()
   }
@@ -177,7 +158,6 @@ app.on('activate', function () {
 
 // retransmit it to workerWindow
 ipc.on("printBillDocument", (event, content, selected_printer) => {
-
     if(!workerWindow){
       alert('Error CLOSED.')
       return '';
@@ -187,43 +167,11 @@ ipc.on("printBillDocument", (event, content, selected_printer) => {
 
 // when worker window is ready
 ipc.on("readyToPrintBillDocument", (event, selected_printer) => {
-
-    // const pdfPath = path.join(os.tmpdir(), 'print.pdf');
-
-    // var pageSettingsSilent = {
-    //   'marginsType': 1, //No Margin
-    //   'printBackground': true, 
-    //   'pageSize': {
-    //     "height": 297000,
-    //     "width": 72000
-    //   },
-    //   'silent': true
-    // }
-
-
-    // workerWindow.webContents.printToPDF(pageSettingsSilent, function (error, data) {
-    //     if (error) throw error
-    //     fs.writeFile(pdfPath, data, function (error) {
-    //         if (error) {
-    //             throw error
-    //         }
-    //         shell.openItem(pdfPath)
-    //         event.sender.send('wrote-pdf', pdfPath)
-    //     })
-    // })
-
-
     var pageSettingsSilent = selected_printer.settings;
     pageSettingsSilent.deviceName = selected_printer.target;
-   
-    // // workerWindow.webContents.print(pageSettingsSilent,  function (error, data) {
-    // //     if (error) throw error
-    // // })
 
     workerWindow.webContents.print(pageSettingsSilent);
 });
-
-
 
 
 /* Get Printers List */
@@ -246,7 +194,6 @@ ipc.on('generatePDFReportA4', function(event, html_content, report_title){
     'marginsType': 1, //No Margin
     'printBackground': true
   }
-
 
   const pdfPath = path.join(os.tmpdir(), report_title+'.pdf')
   const win = new BrowserWindow({show : false, width: 800, height: 600});
@@ -278,10 +225,6 @@ ipc.on('generatePDFReportA4', function(event, html_content, report_title){
 
 });
 
-
-
-
-
 /* PDF Report Printer */
 ipc.on('printSmallReport', function(event, html_content, selected_printer){
 
@@ -289,16 +232,6 @@ ipc.on('printSmallReport', function(event, html_content, selected_printer){
     console.log('Error: No Content to Print');
     return '';
   }
-
-    // var pageSettingsSilent = {
-    //   'marginsType': 1, //No Margin
-    //   'printBackground': true, 
-    //   'pageSize': {
-    //     "height": 297000,
-    //     "width": 72000
-    //   },
-    //   'silent': true
-    // }
 
   var pageSettingsSilent = selected_printer.settings;
   pageSettingsSilent.deviceName = selected_printer.target;
@@ -308,39 +241,12 @@ ipc.on('printSmallReport', function(event, html_content, selected_printer){
     return '';
   }
 
-  //const pdfPath = path.join(os.tmpdir(), 'print.pdf')
   const win = new BrowserWindow({show : false, width: 800, height: 600});
   win.hide();
   win.loadURL("data:text/html;charset=utf-8," + encodeURI(html_content));
 
   win.webContents.on('did-finish-load', () => {
-
-    // win.webContents.print(pageSettingsSilent,  function (error, data) {
-    //     if (error) throw error
-    // })
-
-    win.webContents.print(pageSettingsSilent)
-
-      // win.webContents.printToPDF(pageSettingsSilent, (error, data) => {
-      
-      //   if(error){
-      //     return ''
-      //   }
-      //   else{
-      //     fs.writeFile(pdfPath, data, function(error){
-      //       if(error){
-      //         return '';
-      //       }
-      //       else{
-      //           shell.openExternal('file://'+pdfPath);
-      //           win.close();
-      //           win == null;
-      //       }
-      //     })
-      //   }
-      // })
-
-      
+    win.webContents.print(pageSettingsSilent)      
   })
 
 });
