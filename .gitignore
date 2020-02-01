@@ -1,7 +1,6 @@
 node_modules
 .DS_Store
 dist
-data/KOT
-data/bills
 release
-./log_script.txt
+log_script.txt
+package-lock.json
