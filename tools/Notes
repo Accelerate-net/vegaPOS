@@ -96,6 +96,30 @@
 
 73. Credit Invoices (Pay later option)
 
+74. Send SMS - for bill/item/discounts cancellation (Configurable for Admin)
+75. Dashboard to know the active status of licenses (ping/pong to server)
+76. App order through internet / for approved devices (Preorder / or for admins to order from anywhere)
+77. Introduce kitchen Sections (assign printrs accrdingly) - Printer Matrix
+
+78. Remove System Name cache (new licence coming Nameless System)
+79. Rename "Remove Mapping" to 'Free Table' (under tables)
+80. Option to rename table sections
+81. Connected registered devices, remove stubs
+82. Device managemnt - block connected mobile devices..
+83. Round off configuration (up or down) and currency configuration
+
+84. Easy view blocked items. Frequent reminders display (option to on/off)
+85. End to end encryption of sensitive data - invoice / customer data
+86. Device licence (encrypt)
+
+87. While taking home delivery order (or any order with mobile number) popup customer quick data... last order/feedback etc.
+88. Remove default “Cash” tag from delivery bills
+89. Complete user action logging
+90. Order aggregator - full log (now its just last 3 orders)
+
+91. Propose fixed UI for modals (pass data and render accordingly)
+92. Mute (sound off)  notifications
+
 
 
 Moved to Version 2:
