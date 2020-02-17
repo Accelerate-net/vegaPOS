@@ -119,8 +119,16 @@
 
 91. Propose fixed UI for modals (pass data and render accordingly)
 92. Mute (sound off)  notifications
-93. 
+93. Change formats of KOT (Delivery / Takeaway distinguishable)
 
+94. Sort live orders by table / time
+95. remove seating status
+96. captain wise summary and rating
+97. item wise punch user details, time etc. in live KOT
+98. kot blind copy option (automatic view at the time of order)
+99. force add blocked item (on shitf enter) - optional configuration
+100. gross sales (in sales by billing modes - Sum of all live/pending/settled)
+101. new workflow for swiggy / zomato orders (automatic accept - with some notification system on software)
 
 
 Moved to Version 2:
