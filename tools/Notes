@@ -130,6 +130,11 @@
 100. gross sales (in sales by billing modes - Sum of all live/pending/settled)
 101. new workflow for swiggy / zomato orders (automatic accept - with some notification system on software)
 
+102. Seasonal pricing of items (keep a flag in the menu for easy changing the prices)
+103. Order hasing to prevent the same order getting punched on the same table
+104. [Non-dine order preventing duplicates] Check if the same order is in live orders
+105. Item wise discount option
+
 
 Moved to Version 2:
 *******************
