@@ -135,6 +135,9 @@
 104. [Non-dine order preventing duplicates] Check if the same order is in live orders
 105. Item wise discount option
 
+106. Move all server specific configuration - changing on one system should reflect everywhere.
+107. Table layout auto adjuster. Customisable table tile size.
+
 
 Moved to Version 2:
 *******************
