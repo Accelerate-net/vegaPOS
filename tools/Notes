@@ -138,6 +138,8 @@
 106. Move all server specific configuration - changing on one system should reflect everywhere.
 107. Table layout auto adjuster. Customisable table tile size.
 
+108. Check if all the items in an order is avaiable at the time of placing the order
+
 
 Moved to Version 2:
 *******************
