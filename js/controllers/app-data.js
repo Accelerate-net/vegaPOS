@@ -104,7 +104,7 @@ function cancelOtherDeleteConfirmation(){
 function fetchAllDineSessions(optionalHighlighter){
     $.ajax({
       type: 'GET',
-      url: ACCELERON_SERVER_ENDPOINT+'/settings/fetch/ACCELERATE_DINE_SESSIONS',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_DINE_SESSIONS',
       timeout: 10000,
       beforeSend: function(xhr){
         xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
@@ -371,7 +371,7 @@ function deleteDineSession(sessionName) {
 function fetchAllCookingIngredients(optionalHighlighter){
     $.ajax({
       type: 'GET',
-      url: ACCELERON_SERVER_ENDPOINT+'/settings/fetch/ACCELERATE_COOKING_INGREDIENTS',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_COOKING_INGREDIENTS',
       timeout: 10000,
       beforeSend: function(xhr){
         xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
@@ -435,7 +435,7 @@ function addNewCookingIngredient(optionalParameter) {
 
   $.ajax({
     type: 'POST',
-    url: ACCELERON_SERVER_ENDPOINT+'/settings/new/ACCELERATE_COOKING_INGREDIENTS',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_COOKING_INGREDIENTS/newentry',
     data: JSON.stringify(requestData),
     contentType: "application/json",
     dataType: 'json',
@@ -470,79 +470,41 @@ function addNewCookingIngredient(optionalParameter) {
 /* delete ingredient */
 function deleteCookingIngredient(commentName) {  
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+  var requestData = {
+    'ingredient_name' : commentName,
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_COOKING_INGREDIENTS/removeentry',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        /* on successful delete */
+        fetchAllCookingIngredients();
 
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
-
-               var commentsList = data.docs[0].value;
-
-               for (var i=0; i<commentsList.length; i++) {  
-                 if (commentsList[i] == commentName){
-                    commentsList.splice(i,1);
-                    break;
-                 }
-               }
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_COOKING_INGREDIENTS",
-                  "value": commentsList
-                }
-
-
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_COOKING_INGREDIENTS/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                    /* on successful delete */
-                    fetchAllCookingIngredients();
-
-                    showUndo('Deleted', 'addNewCookingIngredient(\''+commentName+'\')');
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to make changes in Cooking Ingredients data.', '#e74c3c');
-                  }
-
-                });  
-                
-          }
-          else{
-            showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Cooking Ingredients data.', '#e74c3c');
+        showUndo('Deleted', 'addNewCookingIngredient(\''+commentName+'\')');
       }
+      else{
+        showNotification('DELETE_ERROR', 'Unable to delete Cooking Ingredients data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to make changes in Cooking Ingredients data', error);
+      }
+    }
+  });  
 
-    });  
-
-    cancelOtherDeleteConfirmation()
+  cancelOtherDeleteConfirmation();    
 }
 
 
@@ -550,7 +512,7 @@ function deleteCookingIngredient(commentName) {
 function fetchAllCancellationReasons(optionalHighlighter){
     $.ajax({
       type: 'GET',
-      url: ACCELERON_SERVER_ENDPOINT+'/settings/fetch/ACCELERATE_CANCELLATION_REASONS',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_CANCELLATION_REASONS',
       timeout: 10000,
       beforeSend: function(xhr){
         xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
@@ -783,7 +745,7 @@ function deleteCancellationReason(commentName) {
 function fetchAllSavedComments(optionalHighlighter){
     $.ajax({
       type: 'GET',
-      url: ACCELERON_SERVER_ENDPOINT+'/settings/fetch/ACCELERATE_SAVED_COMMENTS',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_SAVED_COMMENTS',
       timeout: 10000,
       beforeSend: function(xhr){
         xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
