@@ -8103,3 +8103,16 @@ input:checked + .slider:before {
 .highlightYellowText{
   background-color: yellow;
 }
+
+@keyframes yellowfade {
+  from {
+    background: yellow;
+  }
+  to {
+    background: transparent;
+  }
+}
+
+.itemAddHighlighter{
+  animation: yellowfade 1s;
+}

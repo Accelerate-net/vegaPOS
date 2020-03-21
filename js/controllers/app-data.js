@@ -22,7 +22,6 @@ function openNewCookingIngredient(){
 }
 
 function hideNewCookingIngredient(){
-  
   document.getElementById("newCookingIngredientArea").style.display = "none";
   document.getElementById("openNewCookingIngredientButton").style.display = "block";
 }
@@ -102,32 +101,27 @@ function cancelOtherDeleteConfirmation(){
 }
 
 /* read dine sessions */
-function fetchAllDineSessions(){
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
+function fetchAllDineSessions(optionalHighlighter){
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/fetch/ACCELERATE_DINE_SESSIONS',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
+      beforeSend: function(xhr){
+        xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+      },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+              var params = result.data;
+              params.sort(function(a, b) {
+                if(a.startTime < b.startTime) { return -1; }
+                if(a.startTime > b.startTime) { return 1; }
+                return 0;
+              });
 
-              var params = data.docs[0].value;
-              params.sort(); //alphabetical sorting 
               var paramsTag = '';
 
               for (var i=0; i<params.length; i++){
-                paramsTag = paramsTag + '<tr role="row"> <td>#'+(i+1)+'</td> <td>'+params[i].name+'</td> <td>'+moment(params[i].startTime,"HHmm").format("hh:mm a")+'</td> <td>'+moment(params[i].endTime,"HHmm").format("hh:mm a")+'</td> <td onclick="deleteDineSessionConfirm(\''+params[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+                paramsTag = paramsTag + '<tr role="row" class="lastAddedItemAnimator" last-added-highlighter-key="'+params[i].name+'"> <td>#'+(i+1)+'</td> <td>'+params[i].name+'</td> <td>'+moment(params[i].startTime,"HHmm").format("hh:mm a")+'</td> <td>'+moment(params[i].endTime,"HHmm").format("hh:mm a")+'</td> <td onclick="deleteDineSessionConfirm(\''+params[i].name+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
               }
 
               if(!paramsTag)
@@ -136,22 +130,21 @@ function fetchAllDineSessions(){
                 document.getElementById("dineSessionsTable").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Session</th> <th style="text-align: left">Start Time</th> <th style="text-align: left">End Time</th> <th style="text-align: left"></th> </tr> </thead>'+
                                         '<tbody>'+paramsTag+'</tbody>';
 
-          }
-          else{
-            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
-          }
+               //If adding new item, animate last added item
+              if(optionalHighlighter && optionalHighlighter != ""){
+                animateLastAddedItem('dineSessionsTable', optionalHighlighter);
+              }
         }
         else{
-          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
+          document.getElementById("dineSessionsTable").innerHTML = '<p style="color: #bdc3c7">Unable to load the content. Please try again.</p>';
+          showNotification('NOT_FOUND_ERROR', 'Dine Sessions data not found');
         }
-        
       },
-      error: function(data) {
-        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
+      error: function(error) {
+        document.getElementById("dineSessionsTable").innerHTML = '<p style="color: #bdc3c7">Unable to load the content. Please try again.</p>';
+        showNotification('SERVER_ERROR', 'Unable to read Dine Sessions data', error);
       }
-
     });
-
 }
 
 
@@ -254,7 +247,7 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
                   dataType: 'json',
                   timeout: 10000,
                   success: function(data) {
-                      fetchAllDineSessions(); //refresh the list
+                      fetchAllDineSessions(paramObj.name); //refresh the list
                       hideNewDineSession();
                   },
                   error: function(data) {
@@ -375,54 +368,47 @@ function deleteDineSession(sessionName) {
 
 
 /*read cooking ingredients*/
-function fetchAllCookingIngredients(){
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
+function fetchAllCookingIngredients(optionalHighlighter){
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/fetch/ACCELERATE_COOKING_INGREDIENTS',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
-
-              var modes = data.docs[0].value;
-              modes.sort(); //alphabetical sorting 
+      beforeSend: function(xhr){
+        xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+      },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+              var modes = result.data;
+              //alphabetical sorting 
+              modes.sort(function (a, b) {
+                  return a.toLowerCase().localeCompare(b.toLowerCase());
+              });
               var modesTag = '';
 
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton" onclick="deleteCookingIngredient(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
+                modesTag = modesTag + '<button style="margin-right: 5px; width: 45%; text-align: left; padding: 5px;" class="btn btn-outline savedCommentButton lastAddedItemAnimator" last-added-highlighter-key="'+modes[i]+'" onclick="deleteCookingIngredient(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
               }
 
               if(!modesTag)
                 document.getElementById("cookingIngredientsInfo").innerHTML = '<p style="color: #bdc3c7">No ingredient added yet.</p>';
               else
-                document.getElementById("cookingIngredientsInfo").innerHTML = modesTag;            
-          }
-          else{
-            showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
-          }
+                document.getElementById("cookingIngredientsInfo").innerHTML = modesTag;
+
+              //If adding new item, animate last added item
+              if(optionalHighlighter && optionalHighlighter != ""){
+                animateLastAddedItem('cookingIngredientsInfo', optionalHighlighter);
+              }
         }
         else{
-          showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
+          document.getElementById("cookingIngredientsInfo").innerHTML = '<p style="color: #bdc3c7">Unable to load the content. Please try again.</p>';
+          showNotification('NOT_FOUND_ERROR', 'Cooking Ingredients data not found');
         }
-
       },
-      error: function(data) {
-        showToast('System Error: Unable to read Cooking Ingredients data.', '#e74c3c');
+      error: function(error) {
+        document.getElementById("cookingIngredientsInfo").innerHTML = '<p style="color: #bdc3c7">Unable to load the content. Please try again.</p>';
+        showNotification('SERVER_ERROR', 'Unable to read Cooking Ingredients data', error);
       }
-
-    });  
-
+    });
 }
 
 
@@ -443,92 +429,42 @@ function addNewCookingIngredient(optionalParameter) {
   }
 
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+  var requestData = {
+    'new_ingredient_name' : commentName,
+  }
 
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
-
-             var commentsList = data.docs[0].value;
-             var flag = 0;
-
-             for (var i=0; i<commentsList.length; i++) {
-               if (commentsList[i] == commentName){
-                  flag = 1;
-                  break;
-               }
-             }
-
-
-             if(flag == 1){
-               showToast('Warning: Ingredient already exists. Please add a different name.', '#e67e22');
-             }
-             else{
-                commentsList.push(commentName);
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_COOKING_INGREDIENTS",
-                  "value": commentsList
-                }
-
-
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_COOKING_INGREDIENTS/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-
-                      fetchAllCookingIngredients(); //refresh the list
-                    
-                      //not adding via  Undo function
-                      if(!optionalParameter || optionalParameter == ''){
-                        openNewCookingIngredient();
-                      }
-                  },
-                  error: function(data) {
-                     
-                    showToast('System Error: Unable to update Cooking Ingredients data.', '#e74c3c');
-                  }
-
-                });  
-
-             }
-                
-          }
-          else{
-            showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
-          }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/new/ACCELERATE_COOKING_INGREDIENTS',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        fetchAllCookingIngredients(commentName); //refresh the list
+      
+        //not adding via  Undo function
+        if(!optionalParameter || optionalParameter == ''){
+          openNewCookingIngredient();
         }
-        else{
-          showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Cooking Ingredients data.', '#e74c3c');
       }
-
-    });  
-  
+      else{
+        showNotification('SAVE_ERROR', 'Unable to save Cooking Ingredients data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to save Cooking Ingredients data', error);
+      }
+    }
+  });    
 }
 
 /* delete ingredient */
@@ -611,54 +547,47 @@ function deleteCookingIngredient(commentName) {
 
 
 /* Fetch all cancellation reasons */
-function fetchAllCancellationReasons(){
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_CANCELLATION_REASONS" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
+function fetchAllCancellationReasons(optionalHighlighter){
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/fetch/ACCELERATE_CANCELLATION_REASONS',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
-
-              var modes = data.docs[0].value;
-              modes.sort(); //alphabetical sorting 
+      beforeSend: function(xhr){
+        xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+      },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+              var modes = result.data;
+              //alphabetical sorting 
+              modes.sort(function (a, b) {
+                  return a.toLowerCase().localeCompare(b.toLowerCase());
+              });
               var modesTag = '';
 
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton" onclick="deleteCancellationReason(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
+                modesTag = modesTag + '<button style="width: 90%; text-align: left;" class="btn btn-outline savedCommentButton lastAddedItemAnimator" last-added-highlighter-key="'+modes[i]+'" onclick="deleteCancellationReason(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
               }
 
               if(!modesTag)
                 document.getElementById("cancellationReasonInfo").innerHTML = '<p style="color: #bdc3c7">No reasons added yet.</p>';
               else
-                document.getElementById("cancellationReasonInfo").innerHTML = modesTag;            
-          }
-          else{
-            showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
-          }
+                document.getElementById("cancellationReasonInfo").innerHTML = modesTag;    
+        
+              //If adding new item, animate last added item
+              if(optionalHighlighter && optionalHighlighter != ""){
+                animateLastAddedItem('cancellationReasonInfo', optionalHighlighter);
+              }
         }
         else{
-          showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
+          document.getElementById("cancellationReasonInfo").innerHTML = '<p style="color: #bdc3c7">Unable to load the content. Please try again.</p>';
+          showNotification('NOT_FOUND_ERROR', 'Cancellation Reasons data not found');
         }
-
       },
-      error: function(data) {
-        showToast('System Error: Unable to read Cancellation Reasons data.', '#e74c3c');
+      error: function(error) {
+        document.getElementById("cancellationReasonInfo").innerHTML = '<p style="color: #bdc3c7">Unable to load the content. Please try again.</p>';
+        showNotification('SERVER_ERROR', 'Unable to read Cancellation Reasons data', error);
       }
-
-    });  
-
+    });
 }
 
 
@@ -733,7 +662,7 @@ function addNewCancellationReason(optionalParameter) {
                   timeout: 10000,
                   success: function(data) {
 
-                      fetchAllCancellationReasons(); //refresh the list
+                      fetchAllCancellationReasons(commentName); //refresh the list
                     
                       //not adding via  Undo function
                       if(!optionalParameter || optionalParameter == ''){
@@ -851,56 +780,48 @@ function deleteCancellationReason(commentName) {
 
 
 /* read saved comments */
-function fetchAllSavedComments(){
-
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_SAVED_COMMENTS" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
+function fetchAllSavedComments(optionalHighlighter){
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/fetch/ACCELERATE_SAVED_COMMENTS',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_COMMENTS'){
+      beforeSend: function(xhr){
+        xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+      },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
 
-              var modes = data.docs[0].value;
-              modes.sort(); //alphabetical sorting 
+              var modes = result.data;
+              //alphabetical sorting 
+              modes.sort(function (a, b) {
+                  return a.toLowerCase().localeCompare(b.toLowerCase());
+              });
               var modesTag = '';
 
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton" onclick="deleteSavedComment(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
+                modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton lastAddedItemAnimator" last-added-highlighter-key="'+modes[i]+'" onclick="deleteSavedComment(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
               }
 
               if(!modesTag)
                 document.getElementById("savedCommentsInfo").innerHTML = '<p style="color: #bdc3c7">No comments added yet.</p>';
               else
                 document.getElementById("savedCommentsInfo").innerHTML = modesTag; 
-
-          }
-          else{
-            showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
-          }
+        
+              //If adding new item, animate last added item
+              if(optionalHighlighter && optionalHighlighter != ""){
+                animateLastAddedItem('savedCommentsInfo', optionalHighlighter);
+              }
         }
         else{
-          showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
+          document.getElementById("savedCommentsInfo").innerHTML = '<p style="color: #bdc3c7">Unable to load the content. Please try again.</p>';
+          showNotification('NOT_FOUND_ERROR', 'Saved Comments data not found');
         }
-        
       },
-      error: function(data) {
-        showToast('System Error: Unable to read Saved Comments data.', '#e74c3c');
+      error: function(error) {
+        document.getElementById("savedCommentsInfo").innerHTML = '<p style="color: #bdc3c7">Unable to load the content. Please try again.</p>';
+        showNotification('SERVER_ERROR', 'Unable to read Saved Comments data', error);
       }
-
-    });  
-
+    });
 }
 
 
@@ -975,7 +896,7 @@ function addNewComment(optionalParameter) {
                   timeout: 10000,
                   success: function(data) {
 
-                    fetchAllSavedComments(); //refresh the list
+                    fetchAllSavedComments(commentName); //refresh the list
                     
                     //not adding via  Undo function
                     if(!optionalParameter || optionalParameter == ''){
