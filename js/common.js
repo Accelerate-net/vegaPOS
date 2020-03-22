@@ -5,6 +5,7 @@
 const ACCELERON_SERVER_ENDPOINT = 'http://localhost:3000';
 const ACCELERON_SERVER_ACCESS_TOKEN = 123;
 
+const async = require('async');
 
 /*
   SERVER DETAILS
