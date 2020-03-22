@@ -1859,92 +1859,43 @@ function changeSystemOptionsFile(type, changedValue){
 
 
 function changePersonalisationFile(type, changedValue){
+  var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+  if(!machineName || machineName == ''){
+    machineName = 'Any';
+  }
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_PERSONALISATIONS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_PERSONALISATIONS'){
-
-              var settingsList = data.docs[0].value;
-
-              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
-              if(!machineName || machineName == ''){
-                machineName = 'Any';
-              }
-
-              for(var n=0; n<settingsList.length; n++){
-
-                if(settingsList[n].systemName == machineName){
-
-                    for (var i=0; i<settingsList[n].data.length; i++){
-                      if(settingsList[n].data[i].name == type){
-                        
-                        settingsList[n].data[i].value = changedValue;
-
-
-                        //Update
-                        var updateData = {
-                          "_rev": data.docs[0]._rev,
-                          "identifierTag": "ACCELERATE_PERSONALISATIONS",
-                          "value": settingsList
-                        }
-
-                        $.ajax({
-                          type: 'PUT',
-                          url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_PERSONALISATIONS/',
-                          data: JSON.stringify(updateData),
-                          contentType: "application/json",
-                          dataType: 'json',
-                          timeout: 10000,
-                          success: function(data) {
-
-                              renderPersonalisations();
-                              renderSecurityOptions();
-
-                          },
-                          error: function(data) {
-                            showToast('System Error: Unable to update Personalisations data.', '#e74c3c');
-                          }
-
-                        });  
-
-                        break;
-                      }
-                    }
-
-                  break;
-                }
-              }
-
-          }
-          else{
-            showToast('Not Found Error: Personalisations data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Personalisations data not found.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Personalisations data.', '#e74c3c');
+  var requestData = {
+    'updateField' : type,
+    'newValue' : changedValue,
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_PERSONALISATIONS/updateentry?uniqueKey='+machineName,
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        renderPersonalisations();
+        renderSecurityOptions();
       }
-
-    });  
-
+      else{
+        showNotification('UPDATE_ERROR', 'Unable to modify Personalisations data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to make changes in Personalisations data', error);
+      }
+    }
+  });
 }
 
 /*actions*/
@@ -3059,174 +3010,58 @@ function saveShortKeySelection(brief){
       }
   }
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_SHORTCUT_KEYS" 
-                  }
-    }
+  //Update shortcuts
+  changeShortcutKeysFile(brief, selectedNormalKey, selectedTriggerKey);
+}
 
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_SHORTCUT_KEYS'){
 
-              var settingsList = data.docs[0].value;
+function changeShortcutKeysFile(action, selectedNormalKey, selectedTriggerKey){
+  var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+  if(!machineName || machineName == ''){
+    machineName = 'Any';
+  }
 
-              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
-              if(!machineName || machineName == ''){
-                machineName = 'Any';
-              }
-
-              var replaceIndex = -1;
-
-              for(var n=0; n<settingsList.length; n++){
-
-                if(settingsList[n].systemName == machineName){
-
-                    //inner FOR
-                    for (var i=0; i<settingsList[n].data.length; i++){
-
-                      var key_selected = (settingsList[n].data[i].value).split('+'); 
-
-                      if(selectedTriggerKey != ''){
-                        if((key_selected[0] == selectedTriggerKey && key_selected[1] == selectedNormalKey) || (key_selected[1] == selectedTriggerKey && key_selected[0] == selectedNormalKey)){
-                          showToast('Error: Shortcut Key already exists. Choose a different Key.', '#e74c3c');
-                          return '';
-                        }
-                      }
-                      else{
-                        if((key_selected[0] == selectedNormalKey) && key_selected.length == 1){
-                          showToast('Error: Shortcut Key already exists. Choose a different Key.', '#e74c3c');
-                          return '';
-                        }
-                      }
-
-                      //Find the index at which the key has to be set
-                      if(settingsList[n].data[i].name == brief){
-                        replaceIndex = i;
-                      }
-
-                      if((i == settingsList[n].data.length - 1) && replaceIndex > -1){ //last iteration and replace index is found
-                        settingsList[n].data[replaceIndex].value = selectedTriggerKey != '' ? selectedTriggerKey+'+'+selectedNormalKey : selectedNormalKey;
-                        selectShortKeysModalHide();
-                        saveToShortcutData(settingsList, data.docs[0]._rev);
-                      }
-                    } //end inner FOR
-
-                  break;
-                }
-              }
-
-          }
-          else{
-            showToast('Not Found Error: Shortcut Keys data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Shortcut Keys data not found.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Shortcut Keys data.', '#e74c3c');
+  var requestData = {
+    'updateField' : action,
+    'selectedNormalKey' : selectedNormalKey,
+    'selectedTriggerKey' : selectedTriggerKey
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_SHORTCUT_KEYS/updateentry?uniqueKey='+machineName,
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        renderCurrentKeys();
+        applyShortcuts();
       }
+      else{
+        showNotification('UPDATE_ERROR', 'Unable to modify Shortcut Keys data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to make changes in Shortcut Keys data', error);
+      }
+    }
+  }); 
 
-    });  
-
+  selectShortKeysModalHide();
 }
-
-function saveToShortcutData(settingsList, rev){
-
-                    //Update
-                    var updateData = {
-                      "_rev": rev,
-                      "identifierTag": "ACCELERATE_SHORTCUT_KEYS",
-                      "value": settingsList
-                    }
-
-                    $.ajax({
-                      type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SHORTCUT_KEYS/',
-                      data: JSON.stringify(updateData),
-                      contentType: "application/json",
-                      dataType: 'json',
-                      timeout: 10000,
-                      success: function(data) {
-                        renderCurrentKeys();
-                        applyShortcuts();
-                      },
-                      error: function(data) {
-                        showToast('System Error: Unable to update Shortcut Keys data.', '#e74c3c');
-                      }
-                    });     
-}
-
 
 function unsetShortcutKey(brief){
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_SHORTCUT_KEYS" 
-                  }
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_SHORTCUT_KEYS'){
-
-              var settingsList = data.docs[0].value;
-
-              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
-              if(!machineName || machineName == ''){
-                machineName = 'Any';
-              }
-
-              for(var n=0; n<settingsList.length; n++){
-                if(settingsList[n].systemName == machineName){
-
-                    for (var i=0; i<settingsList[n].data.length; i++){
-                      if(settingsList[n].data[i].name == brief){
-                        settingsList[n].data[i].value = '';
-                        break;
-                      }
-                    }
-
-                    saveToShortcutData(settingsList, data.docs[0]._rev);
-
-                  break;
-                }
-              }
-
-          }
-          else{
-            showToast('Not Found Error: Shortcut Keys data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Shortcut Keys data not found.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Shortcut Keys data.', '#e74c3c');
-      }
-
-    });  
-
+  changeShortcutKeysFile(brief, '', '');
 }
+
 
 function recordShortKey(element){
 
