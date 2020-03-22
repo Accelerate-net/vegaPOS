@@ -47,6 +47,9 @@ function hideNewCancellationReason(){
 function openNewDineSession(){
 	document.getElementById("newDineSessionArea").style.display = "block";
   $("#add_new_dineSession_name").focus();
+  $("#add_new_dineSession_name").val('');
+  $("#add_new_dineSession_from").val('');
+  $("#add_new_dineSession_to").val('');
 	document.getElementById("openNewSessionButton").style.display = "none";
 }
 
@@ -195,84 +198,34 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
     return '';
   }
 
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-         
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
-
-             var sessionsList = data.docs[0].value;
-             var flag = 0;
-
-             for (var i=0; i<sessionsList.length; i++) {
-               if (sessionsList[i].name == paramObj.name){
-                  flag = 1;
-                  break;
-               }
-             }
-
-             if(flag == 1){
-               showToast('Warning: Session Name already exists. Please set a different name.', '#e67e22');
-             }
-             else{
-
-                sessionsList.push(paramObj);
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_DINE_SESSIONS",
-                  "value": sessionsList
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_DINE_SESSIONS/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                      fetchAllDineSessions(paramObj.name); //refresh the list
-                      hideNewDineSession();
-                  },
-                  error: function(data) {
-                      showToast('System Error: Unable to update Dine Sessions data.', '#e74c3c');
-                  }
-                });  
-
-             }
-                
-          }
-          else{
-            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_DINE_SESSIONS/newentry',
+    data: JSON.stringify(paramObj),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        fetchAllDineSessions(paramObj.name); //refresh the list
+        hideNewDineSession();
       }
-
-    });
-  
+      else{
+        showNotification('SAVE_ERROR', 'Unable to save Dine Sessions data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to save Dine Sessions data', error);
+      }
+    }
+  });  
 }
 
 
@@ -282,88 +235,41 @@ function deleteDineSessionConfirm(name){
 
 
 /* delete a dine session */
-function deleteDineSession(sessionName) {  
-
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_DINE_SESSIONS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_DINE_SESSIONS'){
-
-               var dineSessionsList = data.docs[0].value;
-
-               var memory_start = '';
-               var memory_end = '';
-
-               for (var i=0; i<dineSessionsList.length; i++) {  
-                 if (dineSessionsList[i].name == sessionName){
-                    memory_start = dineSessionsList[i].startTime;
-                    memory_end = dineSessionsList[i].endTime;
-                    dineSessionsList.splice(i,1);
-                    break;
-                 }
-               }
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_DINE_SESSIONS",
-                  "value": dineSessionsList
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_DINE_SESSIONS/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                    /* on successful delete */
-                    fetchAllDineSessions();
-
-                    showUndo('Deleted', 'addDineSession(\''+sessionName+'\', \''+memory_start+'\', \''+memory_end+'\')');
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to make changes in Dine Sessions data.', '#e74c3c');
-                  }
-
-                });  
-                
-          }
-          else{
-            showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Dine Sessions data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Dine Sessions data.', '#e74c3c');
+function deleteDineSession(sessionName) {
+  var requestData = {
+    'session_name' : sessionName,
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_DINE_SESSIONS/removeentry',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        /* on successful delete */
+        fetchAllDineSessions();
       }
+      else{
+        showNotification('DELETE_ERROR', 'Unable to delete Dine Sessions data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to make changes in Dine Sessions data', error);
+      }
+    }
+  });  
 
-    }); 
-
-    cancelOtherDeleteConfirmation()
-
+  cancelOtherDeleteConfirmation();
 }
-
-
 
 
 
@@ -422,12 +328,12 @@ function addNewCookingIngredient(optionalParameter) {
   else{
     commentName = optionalParameter;
   }
-  
+
+  commentName = commentName.trim();
   if(commentName == ''){
     showToast('Warning: Please set a name', '#e67e22');
     return '';
   }
-
 
   var requestData = {
     'new_ingredient_name' : commentName,
@@ -564,180 +470,89 @@ function addNewCancellationReason(optionalParameter) {
     commentName = optionalParameter;
   }
   
+  commentName = commentName.trim();
   if(commentName == ''){
     showToast('Warning: Please set a name', '#e67e22');
     return '';
   }
 
+  var requestData = {
+    'new_reason_name' : commentName,
+  }
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_CANCELLATION_REASONS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
-
-             var commentsList = data.docs[0].value;
-             var flag = 0;
-
-             for (var i=0; i<commentsList.length; i++) {
-               if (commentsList[i] == commentName){
-                  flag = 1;
-                  break;
-               }
-             }
-
-
-             if(flag == 1){
-               showToast('Warning: Reason already exists. Please add a different name.', '#e67e22');
-             }
-             else{
-                commentsList.push(commentName);
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_CANCELLATION_REASONS",
-                  "value": commentsList
-                }
-
-
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_CANCELLATION_REASONS/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-
-                      fetchAllCancellationReasons(commentName); //refresh the list
-                    
-                      //not adding via  Undo function
-                      if(!optionalParameter || optionalParameter == ''){
-                        openNewCancellationReason();
-                      }
-                  },
-                  error: function(data) {
-                     
-                    showToast('System Error: Unable to update Cancellation Reasons data.', '#e74c3c');
-                  }
-
-                });  
-
-             }
-                
-          }
-          else{
-            showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
-          }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_CANCELLATION_REASONS/newentry',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        fetchAllCancellationReasons(commentName); //refresh the list
+      
+        //not adding via  Undo function
+        if(!optionalParameter || optionalParameter == ''){
+          openNewCancellationReason();
         }
-        else{
-          showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Cancellation Reasons data.', '#e74c3c');
       }
-
-    });  
-  
+      else{
+        showNotification('SAVE_ERROR', 'Unable to save Cancellation Reasons data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to save Cancellation Reasons data', error);
+      }
+    }
+  });  
 }
 
 /* delete reason */
 function deleteCancellationReason(commentName) {  
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_CANCELLATION_REASONS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+  var requestData = {
+    'reason_name' : commentName,
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_CANCELLATION_REASONS/removeentry',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        /* on successful delete */
+        fetchAllCancellationReasons();
 
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_CANCELLATION_REASONS'){
-
-               var commentsList = data.docs[0].value;
-
-               for (var i=0; i<commentsList.length; i++) {  
-                 if (commentsList[i] == commentName){
-                    commentsList.splice(i,1);
-                    break;
-                 }
-               }
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_CANCELLATION_REASONS",
-                  "value": commentsList
-                }
-
-
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_CANCELLATION_REASONS/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                    /* on successful delete */
-                    fetchAllCancellationReasons();
-
-                    showUndo('Deleted', 'addNewCancellationReason(\''+commentName+'\')');
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to make changes in Cancellation Reasons data.', '#e74c3c');
-                  }
-
-                });  
-                
-          }
-          else{
-            showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Cancellation Reasons data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Cancellation Reasons data.', '#e74c3c');
+        showUndo('Deleted', 'addNewCancellationReason(\''+commentName+'\')');
       }
+      else{
+        showNotification('DELETE_ERROR', 'Unable to delete Cancellation Reasons data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to make changes in Cancellation Reasons data', error);
+      }
+    }
+  });  
 
-    });  
-
-    cancelOtherDeleteConfirmation()
+  cancelOtherDeleteConfirmation();
 }
-
-
-
 
 
 
@@ -761,7 +576,7 @@ function fetchAllSavedComments(optionalHighlighter){
               var modesTag = '';
 
               for (var i=0; i<modes.length; i++){
-                modesTag = modesTag + '<button style="margin-right: 5px" class="btn btn-outline savedCommentButton lastAddedItemAnimator" last-added-highlighter-key="'+modes[i]+'" onclick="deleteSavedComment(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
+                modesTag = modesTag + '<button style="margin-right: 5px; min-width: 30%; text-align: left;" class="btn btn-outline savedCommentButton lastAddedItemAnimator" last-added-highlighter-key="'+modes[i]+'" onclick="deleteSavedComment(\''+modes[i]+'\')"><tag class="savedCommentButtonIcon"><i class="fa fa-minus-circle"></i></tag>'+modes[i]+'</button>';
               }
 
               if(!modesTag)
@@ -800,174 +615,87 @@ function addNewComment(optionalParameter) {
     commentName = optionalParameter;
   }
 
+  commentName = commentName.trim();
 	if(commentName == ''){
 		showToast('Warning: Please set a name', '#e67e22');
 		return '';
 	}
 
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_SAVED_COMMENTS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+  var requestData = {
+    'new_comment' : commentName,
+  }
 
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_COMMENTS'){
-
-             var commentsList = data.docs[0].value;
-             var flag = 0;
-
-             for (var i=0; i<commentsList.length; i++) {
-               if (commentsList[i] == commentName){
-                  flag = 1;
-                  break;
-               }
-             }
-
-
-             if(flag == 1){
-               showToast('Warning: Comment already exists. Please add a different comment.', '#e67e22');
-             }
-             else{
-
-                commentsList.push(commentName);
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_SAVED_COMMENTS",
-                  "value": commentsList
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SAVED_COMMENTS/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-
-                    fetchAllSavedComments(commentName); //refresh the list
-                    
-                    //not adding via  Undo function
-                    if(!optionalParameter || optionalParameter == ''){
-                      openNewSavedComment();
-                    }
-
-                  },
-                  error: function(data) {
-                     
-                    showToast('System Error: Unable to update Saved Comments data.', '#e74c3c');
-                  }
-
-                });  
-
-             }
-                
-          }
-          else{
-            showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
-          }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_SAVED_COMMENTS/newentry',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        fetchAllSavedComments(commentName); //refresh the list
+        
+        //not adding via  Undo function
+        if(!optionalParameter || optionalParameter == ''){
+          openNewSavedComment();
         }
-        else{
-          showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Saved Comments data.', '#e74c3c');
       }
-
-    });  
-  
+      else{
+        showNotification('SAVE_ERROR', 'Unable to save Saved Comments data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to save Saved Comments data', error);
+      }
+    }
+  });   
 }
 
 /* delete a comment */
 function deleteSavedComment(commentName) {  
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_SAVED_COMMENTS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+  var requestData = {
+    'saved_comment' : commentName,
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_SAVED_COMMENTS/removeentry',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        /* on successful delete */
+        fetchAllSavedComments();
 
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_SAVED_COMMENTS'){
-
-               var commentsList = data.docs[0].value;
-
-               for (var i=0; i<commentsList.length; i++) {  
-                 if (commentsList[i] == commentName){
-                    commentsList.splice(i,1);
-                    break;
-                 }
-               }
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_SAVED_COMMENTS",
-                  "value": commentsList
-                }
-
-
-                //curl -X PUT http://admin:admin@127.0.0.1:5984/accelerate_settings/ACCELERATE_COOKING_INGREDIENTS -d "{ \"identifierTag\":\"ACCELERATE_COOKING_INGREDIENTS\", \"value\": [\"single\", \"double\"], \"_rev\": \"5-c473c61cde88000585e8576c5c8e8f13\" }"
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_SAVED_COMMENTS/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                    /* on successful delete */
-                    fetchAllSavedComments();
-
-                    showUndo('Deleted', 'addNewComment(\''+commentName+'\')');
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to make changes in Saved Comments data.', '#e74c3c');
-                  }
-
-                });  
-                
-          }
-          else{
-            showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Saved Comments data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Saved Comments data.', '#e74c3c');
+        showUndo('Deleted', 'addNewComment(\''+commentName+'\')');
       }
-
-    });  
-
-  cancelOtherDeleteConfirmation()
+      else{
+        showNotification('DELETE_ERROR', 'Unable to delete Saved Comments data');
+      }
+    },
+    error: function(error) {
+      if(error.responseJSON.data){
+        showNotification('SERVER_ERROR', error.responseJSON.data, error);
+      }
+      else{
+        showNotification('SERVER_ERROR', 'Unable to make changes in Saved Comments data', error);
+      }
+    }
+  });
+  cancelOtherDeleteConfirmation();
 }
 
