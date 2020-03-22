@@ -1182,13 +1182,7 @@ function renderSystemOptions(optionalHighlight){
                 }
               },
               error: function(error) {
-                if(error.responseJSON.data){
-                  showNotification('SERVER_ERROR', error.responseJSON.data, error);
-                }
-                else{
-                  showNotification('SERVER_ERROR', 'Unable to read Billing Modes data', error);
-                }
-
+                showNotification('SERVER_ERROR', 'Unable to read Billing Modes data', error);
                 renderSystemOptionsAfterProcess(settingsList, [], optionalHighlight);
               }
             });
@@ -1199,12 +1193,7 @@ function renderSystemOptions(optionalHighlight){
         }
       },
       error: function(error) {
-        if(error.responseJSON.data){
-          showNotification('SERVER_ERROR', error.responseJSON.data, error);
-        }
-        else{
-          showNotification('SERVER_ERROR', 'Unable to read System Options data', error);
-        }
+        showNotification('SERVER_ERROR', 'Unable to read System Options data', error);
       }
     });
 }
@@ -1847,12 +1836,7 @@ function changeSystemOptionsFile(type, changedValue){
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to make changes in System Options data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to make changes in System Options data', error);
     }
   }); 
 }
@@ -1888,12 +1872,7 @@ function changePersonalisationFile(type, changedValue){
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to make changes in Personalisations data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to make changes in Personalisations data', error);
     }
   });
 }
@@ -3046,12 +3025,7 @@ function changeShortcutKeysFile(action, selectedNormalKey, selectedTriggerKey){
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to make changes in Shortcut Keys data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to make changes in Shortcut Keys data', error);
     }
   }); 
 

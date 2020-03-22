@@ -208,12 +208,7 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to save Dine Sessions data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to save Dine Sessions data', error);
     }
   });  
 }
@@ -247,12 +242,7 @@ function deleteDineSession(sessionName) {
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to make changes in Dine Sessions data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to make changes in Dine Sessions data', error);
     }
   });  
 
@@ -348,12 +338,7 @@ function addNewCookingIngredient(optionalParameter) {
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to save Cooking Ingredients data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to save Cooking Ingredients data', error);
     }
   });    
 }
@@ -386,12 +371,7 @@ function deleteCookingIngredient(commentName) {
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to make changes in Cooking Ingredients data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to make changes in Cooking Ingredients data', error);
     }
   });  
 
@@ -487,12 +467,7 @@ function addNewCancellationReason(optionalParameter) {
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to save Cancellation Reasons data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to save Cancellation Reasons data', error);
     }
   });  
 }
@@ -525,12 +500,7 @@ function deleteCancellationReason(commentName) {
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to make changes in Cancellation Reasons data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to make changes in Cancellation Reasons data', error);
     }
   });  
 
@@ -626,12 +596,7 @@ function addNewComment(optionalParameter) {
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to save Saved Comments data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to save Saved Comments data', error);
     }
   });   
 }
@@ -664,12 +629,7 @@ function deleteSavedComment(commentName) {
       }
     },
     error: function(error) {
-      if(error.responseJSON.data){
-        showNotification('SERVER_ERROR', error.responseJSON.data, error);
-      }
-      else{
-        showNotification('SERVER_ERROR', 'Unable to make changes in Saved Comments data', error);
-      }
+      showNotification('SERVER_ERROR', 'Unable to make changes in Saved Comments data', error);
     }
   });
   cancelOtherDeleteConfirmation();
