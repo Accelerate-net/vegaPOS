@@ -7,12 +7,9 @@ function openNewSavedComment(){
 }
 
 function hideNewSavedComment(){
-	
 	document.getElementById("newSavedCommentArea").style.display = "none";
 	document.getElementById("openNewSavedCommentButton").style.display = "block";
 }
-
-
 
 function openNewCookingIngredient(){
   document.getElementById("add_new_CookingIngredient_name").value = '';
@@ -26,8 +23,6 @@ function hideNewCookingIngredient(){
   document.getElementById("openNewCookingIngredientButton").style.display = "block";
 }
 
-
-
 function openNewCancellationReason(){
   document.getElementById("add_new_CancellationReason_name").value = '';
   document.getElementById("newCancellationReasonArea").style.display = "block";
@@ -36,13 +31,9 @@ function openNewCancellationReason(){
 }
 
 function hideNewCancellationReason(){
-  
   document.getElementById("newCancellationReasonArea").style.display = "none";
   document.getElementById("openNewCancellationReasonButton").style.display = "block";
 }
-
-
-
 
 function openNewDineSession(){
 	document.getElementById("newDineSessionArea").style.display = "block";
@@ -54,7 +45,6 @@ function openNewDineSession(){
 }
 
 function hideNewDineSession(){
-	
 	document.getElementById("newDineSessionArea").style.display = "none";
 	document.getElementById("openNewSessionButton").style.display = "block";
 }
@@ -181,20 +171,20 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
   paramObj.endTime = ((paramObj.endTime).toString()).replace (/:/g, "");
 	
 	if(paramObj.name == ''){
-		showToast('Warning: Please set a name.', '#e67e22');
+		showNotification('DATA_WARNING', 'Please set a name');
 		return '';
 	}
 	else if(paramObj.startTime == '' || paramObj.endTime == ''){
-		showToast('Warning: Please set Start Time and End Time', '#e67e22');
+		showNotification('DATA_WARNING', 'Please set Start Time and End Time');
 		return '';
 	}
 	else if(Number.isNaN(paramObj.startTime) || Number.isNaN(paramObj.endTime)){
-		showToast('Warning: Invalid time value.', '#e67e22');
+		showNotification('DATA_WARNING', 'Invalid time value');
 		return '';
 	}	
 
   if(paramObj.endTime <= paramObj.startTime){
-    showToast('Warning: End Time must be greater than Start Time', '#e67e22');
+    showNotification('DATA_WARNING', 'End Time must be greater than Start Time');
     return '';
   }
 
@@ -228,11 +218,9 @@ function addDineSession(optionalName, optionalStart, optionalEnd) {
   });  
 }
 
-
 function deleteDineSessionConfirm(name){
 	openOtherDeleteConfirmation(name, 'deleteDineSession');
 }
-
 
 /* delete a dine session */
 function deleteDineSession(sessionName) {
@@ -270,8 +258,6 @@ function deleteDineSession(sessionName) {
 
   cancelOtherDeleteConfirmation();
 }
-
-
 
 /*read cooking ingredients*/
 function fetchAllCookingIngredients(optionalHighlighter){
@@ -317,7 +303,6 @@ function fetchAllCookingIngredients(optionalHighlighter){
     });
 }
 
-
 /* add new ingredient */
 function addNewCookingIngredient(optionalParameter) {  
 
@@ -331,7 +316,7 @@ function addNewCookingIngredient(optionalParameter) {
 
   commentName = commentName.trim();
   if(commentName == ''){
-    showToast('Warning: Please set a name', '#e67e22');
+    showNotification('DATA_WARNING', 'Please set a name');
     return '';
   }
 
@@ -413,7 +398,6 @@ function deleteCookingIngredient(commentName) {
   cancelOtherDeleteConfirmation();    
 }
 
-
 /* Fetch all cancellation reasons */
 function fetchAllCancellationReasons(optionalHighlighter){
     $.ajax({
@@ -458,7 +442,6 @@ function fetchAllCancellationReasons(optionalHighlighter){
     });
 }
 
-
 /* add new reason */
 function addNewCancellationReason(optionalParameter) {  
 
@@ -472,7 +455,7 @@ function addNewCancellationReason(optionalParameter) {
   
   commentName = commentName.trim();
   if(commentName == ''){
-    showToast('Warning: Please set a name', '#e67e22');
+    showNotification('DATA_WARNING', 'Please set a name');
     return '';
   }
 
@@ -554,8 +537,6 @@ function deleteCancellationReason(commentName) {
   cancelOtherDeleteConfirmation();
 }
 
-
-
 /* read saved comments */
 function fetchAllSavedComments(optionalHighlighter){
     $.ajax({
@@ -601,9 +582,6 @@ function fetchAllSavedComments(optionalHighlighter){
     });
 }
 
-
-
-
 /* add new comment */
 function addNewComment(optionalParameter) {  
 
@@ -617,15 +595,13 @@ function addNewComment(optionalParameter) {
 
   commentName = commentName.trim();
 	if(commentName == ''){
-		showToast('Warning: Please set a name', '#e67e22');
+		showNotification('DATA_WARNING', 'Please set a name');
 		return '';
 	}
-
 
   var requestData = {
     'new_comment' : commentName,
   }
-
   $.ajax({
     type: 'POST',
     url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_SAVED_COMMENTS/newentry',
