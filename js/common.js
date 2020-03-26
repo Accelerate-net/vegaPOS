@@ -167,6 +167,9 @@ function getImageCode(text){
 
 
 function showNotification(errorType, errorMessage, errorObject){
+  if(errorObject){
+    console.log(errorObject)
+  }
 
   //TODO: Deal with error object
   showToast(errorMessage, '#e74c3c')
