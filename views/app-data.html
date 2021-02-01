@@ -32,7 +32,7 @@
                            <button class="btn btn-success btn-sm" id="openNewSavedCommentButton" onclick="openNewSavedComment()"  style="float: right">Add New</button>
                         </div>
 
-                        <div style="padding-top: 15px" id="savedCommentsInfo">
+                        <div id="savedCommentsInfo">
                         </div>
                         <div class="clearfix"></div>
                     </div>
@@ -50,7 +50,7 @@
                            <button class="btn btn-success btn-sm" id="openNewCookingIngredientButton" onclick="openNewCookingIngredient()"  style="float: right">Add New</button>
                         </div>
 
-                        <div style="padding-top: 15px" id="cookingIngredientsInfo">
+                        <div id="cookingIngredientsInfo">
                         </div>
                         <div class="clearfix"></div>
                     </div>
@@ -66,7 +66,7 @@
                            <button class="btn btn-success btn-sm" id="openNewCancellationReasonButton" onclick="openNewCancellationReason()"  style="float: right">Add New</button>
                         </div>
 
-                        <div style="padding-top: 15px" id="cancellationReasonInfo">
+                        <div id="cancellationReasonInfo">
                         </div>
                         <div class="clearfix"></div>
                     </div>
@@ -169,14 +169,13 @@
                            <div class="col-lg-12">
                            
                                  <div class="form-group">
-
                                     <input type="text" value="" class="form-control tip" id="add_new_CookingIngredient_name" style="border: none; border-bottom: 1px solid" placeholder="Ingredient Name" required="required" />
                                  </div>                                 
 
                                  <div class="form-group">
-                                    <button style="float: right" onclick="addNewCookingIngredient()" class="btn btn-primary" />Save Ingredient</button>
+                                    <button style="float: right" onclick="addNewCookingIngredient()" class="btn btn-primary"/>Save Ingredient</button>
 
-                                    <button  class="btn btn-default" onclick="hideNewCookingIngredient()" >Cancel</button>
+                                    <button  class="btn btn-default" onclick="hideNewCookingIngredient()">Cancel</button>
 
 
                                  </div>

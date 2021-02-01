@@ -45,68 +45,63 @@ function hideNewTableSectionModal(){
 }
 
 function fetchAllTables(){
-
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
+      url: ACCELERON_SERVER_ENDPOINT+'/table/filter?key=all',
       timeout: 10000,
-      success: function(data) {
-        if(data.total_rows > 0){
+      beforeSend: function(xhr){
+        xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+      },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+          var tableData = result.data;
+          if(tableData.length == 0){
+            document.getElementById("allTablesList").innerHTML = '<p style="color: #bdc3c7">No Table added yet.</p>';
+            return '';
+          }
 
-              var tableData = data.rows;
-              tableData.sort(function(obj1, obj2) {
-                return obj1.key - obj2.key; //Key is equivalent to sortIndex
-              });
-               
+          tableData.sort(function(obj1, obj2) {
+            return obj1.key - obj2.key; //Key is equivalent to sortIndex
+          });
+           
+          var tablesList = '';
+          for (var i=0; i<tableData.length; i++){
+            tablesList = tablesList + '<tr role="row"> <td>'+tableData[i].sortIndex+'</td> <td>'+(tableData[i].status == 0 ? '<i class="fa fa-circle" style="color: #2ecc71; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : (tableData[i].status == 1 ? '<i class="fa fa-circle" style="color: #e74c3c; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : '<i class="fa fa-circle" style="color: #ecaa40; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>'))+'<b style="font-size: 120%">'+tableData[i].table+'</b></td> <td style="text-align: center">'+tableData[i].type+'</td> <td style="text-align: center">'+tableData[i].capacity+'</td> <td onclick="deleteSingleTableConsent(\''+tableData[i].table+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+          }
 
-              var tablesList = '';
-
-              for (var i=0; i<tableData.length; i++){
-                tablesList = tablesList + '<tr role="row"> <td>'+tableData[i].value.sortIndex+'</td> <td>'+(tableData[i].value.status == 0 ? '<i class="fa fa-circle" style="color: #2ecc71; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : (tableData[i].value.status == 1 ? '<i class="fa fa-circle" style="color: #e74c3c; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>' : '<i class="fa fa-circle" style="color: #ecaa40; padding-right: 7px; font-size: 75%; position: relative; top: -1px;"></i></i>'))+'<b style="font-size: 120%">'+tableData[i].value.table+'</b></td> <td style="text-align: center">'+tableData[i].value.type+'</td> <td style="text-align: center">'+tableData[i].value.capacity+'</td> <td onclick="deleteSingleTableConsent(\''+tableData[i].value.table+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
-              }
-
-              document.getElementById("allTablesList").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left">Index</th> <th style="text-align: left">Table</th> <th style="text-align: center">Section</th> <th style="text-align: center">Capacity</th> <th style="text-align: left"></th> </tr> </thead> <tbody>'+
-                                        '<tbody>'+tablesList+'</tbody>';         
+          document.getElementById("allTablesList").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left">Index</th> <th style="text-align: left">Table</th> <th style="text-align: center">Section</th> <th style="text-align: center">Capacity</th> <th style="text-align: left"></th> </tr> </thead> <tbody>'+
+                                    '<tbody>'+tablesList+'</tbody>';    
         }
         else{
-          document.getElementById("allTablesList").innerHTML = '<p style="color: #bdc3c7">No Table added yet.</p>';
+          showNotification('NOT_FOUND_ERROR', 'Tables data not found');
         }
       },
-      error: function(data) {
-        showToast('System Error: Unable to read Tables data.', '#e74c3c');
+      error: function(error) {
+        showNotification('SERVER_ERROR', 'Unable to read Tables data', error);
       }
-
     });
 }
 
 
 function fetchAllTableSections(){
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_TABLE_SECTIONS',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
-
-              var table = data.docs[0].value;
-              table.sort();
-
+      beforeSend: function(xhr){
+        xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+      },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+              var table = result.data;
+              //alphabetical sorting 
+              table.sort(function (a, b) {
+                  return a.toLowerCase().localeCompare(b.toLowerCase());
+              });
               var tablesList = '';
 
               for (var i=0; i<table.length; i++){
-                tablesList = tablesList + '<tr> <td style="text-align: left">#'+(i+1)+'</td><td style="text-align: left">'+table[i]+'</td> <td style="text-align: center; cursor: pointer" onclick="deleteSingleTableSectionConsent(\''+table[i]+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
+                tablesList = tablesList + '<tr> <td style="text-align: left;font-size: 16px;font-family: \'Oswald\';">'+table[i]+'</td> <td style="text-align: right; cursor: pointer" onclick="deleteSingleTableSectionConsent(\''+table[i]+'\')"> <i class="fa fa-trash-o"></i> </td> </tr>';
               }
 
               if(!tablesList){
@@ -117,24 +112,16 @@ function fetchAllTableSections(){
                 window.localStorage.tableSections = JSON.stringify(table);
                 document.getElementById("openNewTableButton").style.display = "block"; /* Tweak */
                 document.getElementById("allTableSectionList").innerHTML = '<thead style="background: #f4f4f4;">'+tablesList+'</thead>';
-              }      
-                
-          }
-          else{
-            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
-          }
+              }   
         }
         else{
-          showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
+          showNotification('NOT_FOUND_ERROR', 'Table Sections data not found');
         }
-
       },
-      error: function(data) {
-        showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
+      error: function(error) {
+        showNotification('SERVER_ERROR', 'Unable to read Table Sections data', error);
       }
-
     });
-
 }
 
 
@@ -160,62 +147,34 @@ function deleteSingleTableConsent(name){
 
 
 /* delete a table */
-function deleteSingleTable(name) {  
-
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+name+'"]&endkey=["'+name+'"]',
-      timeout: 10000,
-      success: function(data) {
-        if(data.rows.length == 1){
-
-              var tableData = data.rows[0].value;
-
-              var remember_id = null;
-              var remember_rev = null;
-
-              if(tableData.table == name){
-
-                if(tableData.status != 0){
-                  showToast('Warning: Table <b>'+name+'</b> is not free. Free the Table and try again.', '#e67e22');
-                  return '';
-                }
-
-                remember_id = tableData._id;
-                remember_rev = tableData._rev;
-
-                  //Delete
-                  $.ajax({
-                    type: 'DELETE',
-                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/'+remember_id+'?rev='+remember_rev,
-                    contentType: "application/json",
-                    dataType: 'json',
-                    timeout: 10000,
-                    success: function(data) {
-                      fetchAllTables();
-                    },
-                    error: function(data) {
-                      showToast('Server Warning: Unable to modify Tables data.', '#e67e22');
-                    }
-                  }); 
-
-              }
-              else{
-                showToast('Not Found Error: Tables data not found.', '#e74c3c');
-              }
-        }
-        else{
-          showToast('Not Found Error: Tables data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Tables data.', '#e74c3c');
+function deleteSingleTable(name) { 
+  var requestData = {
+    'delete_table_name' : name,
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/table/delete',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        fetchAllTables();
       }
+      else{
+        showNotification('DELETE_ERROR', 'Unable to delete table');
+      }
+    },
+    error: function(error) {
+      showNotification('SERVER_ERROR', 'Unable to make changes in Tables data', error);
+    }
+  });  
 
-    });
-
-    cancelTableDeleteConfirmation()
+  cancelTableDeleteConfirmation();
 }
 
 
@@ -226,473 +185,122 @@ function deleteSingleTableSectionConsent(name){
 
 /* delete a table section */
 function deleteSingleTableSection(sectionName) {  
-
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
-      timeout: 10000,
-      success: function(data) {
-        if(data.total_rows > 0){
-
-              var tableData = data.rows;
-
-              var allFreeTables = true;
-              
-              if(tableData.length == 0){ //There are no tables added under this
-                    
-                    //Now proceed to delete
-                    var requestData = {
-                      "selector"  :{ 
-                                    "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
-                                  },
-                      "fields"    : ["_rev", "identifierTag", "value"]
-                    }
-
-                    $.ajax({
-                      type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-                      data: JSON.stringify(requestData),
-                      contentType: "application/json",
-                      dataType: 'json',
-                      timeout: 10000,
-                      success: function(data) {
-                        if(data.docs.length > 0){
-                          if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
-
-                              var sections = data.docs[0].value;
-                              for (var i=0; i<sections.length; i++) {  
-                                if (sections[i] == sectionName){
-                                  sections.splice(i,1);
-                                  break;
-                                }
-                              }
-                                
-                              //Update
-                              var updateData = {
-                                "_rev": data.docs[0]._rev,
-                                "identifierTag": "ACCELERATE_TABLE_SECTIONS",
-                                "value": sections
-                              }
-
-                              $.ajax({
-                                type: 'PUT',
-                                url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLE_SECTIONS/',
-                                data: JSON.stringify(updateData),
-                                contentType: "application/json",
-                                dataType: 'json',
-                                timeout: 10000,
-                                success: function(data) {
-                                  fetchAllTableSections();
-                                  return '';
-                                },
-                                error: function(data) {
-                                  showToast('System Error: Unable to update Table Sections data.', '#e74c3c');
-                                }
-
-                              });  
-
-                          }
-                          else{
-                            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
-                          }
-                        }
-                        else{
-                          showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
-                        }
-
-                      },
-                      error: function(data) {
-                        showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
-                      }
-
-                    });     
-
-              }
-              else{ //tables added part
-
-                for (var i=0; i<tableData.length; i++) {
-
-                   if (tableData[i].value.type == sectionName){
-                      if(tableData[i].value.status != 0){
-                        allFreeTables = false;
-                        showToast('Warning: Some tables under this Section are not free. Free those Tables to continue.', '#e67e22');
-                        return '';
-                      }
-                   }
-
-                   if((i == tableData.length - 1) && allFreeTables){
-                      
-                      //Now proceed to delete
-                      var requestData = {
-                        "selector"  :{ 
-                                      "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
-                                    },
-                        "fields"    : ["_rev", "identifierTag", "value"]
-                      }
-
-                      $.ajax({
-                        type: 'POST',
-                        url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-                        data: JSON.stringify(requestData),
-                        contentType: "application/json",
-                        dataType: 'json',
-                        timeout: 10000,
-                        success: function(data) {
-                          if(data.docs.length > 0){
-                            if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
-
-                                var sections = data.docs[0].value;
-                                for (var i=0; i<sections.length; i++) {  
-                                  if (sections[i] == sectionName){
-                                    sections.splice(i,1);
-                                    break;
-                                  }
-                                }
-                                  
-                                //Update
-                                var updateData = {
-                                  "_rev": data.docs[0]._rev,
-                                  "identifierTag": "ACCELERATE_TABLE_SECTIONS",
-                                  "value": sections
-                                }
-
-                                $.ajax({
-                                  type: 'PUT',
-                                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLE_SECTIONS/',
-                                  data: JSON.stringify(updateData),
-                                  contentType: "application/json",
-                                  dataType: 'json',
-                                  timeout: 10000,
-                                  success: function(data) {
-                                    fetchAllTableSections();
-                                    deleteAllMappedTables(sectionName)
-                                  },
-                                  error: function(data) {
-                                    showToast('System Error: Unable to update Table Sections data.', '#e74c3c');
-                                  }
-
-                                });  
-
-                            }
-                            else{
-                              showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
-                            }
-                          }
-                          else{
-                            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
-                          }
-
-                        },
-                        error: function(data) {
-                          showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
-                        }
-
-                      });                 
-
-                   } //enf IF
-
-                 } //end FOR
-
-              } //end Else (tables added part)
-        }
-        else{
-          showToast('Not Found Error: Tables data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Tables data.', '#e74c3c');
+  var requestData = {
+    'delete_section_name' : sectionName,
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/table/section/delete',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        fetchAllTableSections();
+        fetchAllTables();
       }
-
-    });
-
-    cancelTableDeleteConfirmation()
-}
-
-
-
-
-
-
-function deleteAllMappedTables(sectionName){
-
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbysection?startkey=["'+sectionName+'"]&endkey=["'+sectionName+'"]',
-      timeout: 10000,
-      success: function(data) {
-
-        if(data.rows.length > 0){
-
-              var tableData = data.rows;
-
-              var index = 0;
-              processTable(0);
-
-              function processTable(index){
-
-                  if(index == tableData.length){ //last iteration
-                    fetchAllTables();
-                    return "";
-                  }
-
-                  var remember_id = tableData[index].value._id;
-                  var remember_rev = tableData[index].value._rev;
-
-                  //Delete
-                  $.ajax({
-                    type: 'DELETE',
-                    url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/'+remember_id+'?rev='+remember_rev,
-                    contentType: "application/json",
-                    dataType: 'json',
-                    timeout: 10000,
-                    success: function(data) {
-                      processTable(index + 1);
-                    },
-                    error: function(data) {
-                      processTable(index + 1);
-                      showToast('Server Warning: Unable to modify Tables data.', '#e67e22');
-                    }
-                  });
-              }
-        }
-        else{
-          showToast('Not Found Error: There are no Tables mapped to this Section.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Tables data.', '#e74c3c');
+      else{
+        showNotification('DELETE_ERROR', 'Unable to delete table section');
       }
+    },
+    error: function(error) {
+      showNotification('SERVER_ERROR', 'Unable to make changes in Tables data', error);
+    }
+  });  
 
-    });
-
+  cancelTableDeleteConfirmation();    
 }
 
 
 function addNewTableSection(){
    
-   var sectionName = document.getElementById("add_new_tableSection_name").value;
-  
-   if(sectionName == ''){ 
-      showToast('Warning: Please set a name', '#e67e22');
-      return '';
-   }
-   else{ 
-
-
-      var requestData = {
-        "selector"  :{ 
-                      "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
-                    },
-        "fields"    : ["_rev", "identifierTag", "value"]
-      }
-
-      $.ajax({
-        type: 'POST',
-        url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-        data: JSON.stringify(requestData),
-        contentType: "application/json",
-        dataType: 'json',
-        timeout: 10000,
-        success: function(data) {
-          if(data.docs.length > 0){
-            if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
-
-                var table = data.docs[0].value;
-
-                if(table == []){
-                  table.push(sectionName);
-                }
-                else{
-
-                 var isAlreadyThere = false;
-
-                 for (var i=0; i<table.length; i++) {
-                   if (table[i] == sectionName){
-                      isAlreadyThere = true;
-                      break;
-                   }
-                 }
-
-                 if(isAlreadyThere){
-                   showToast('Warning: Table Section already exists. Please choose a different name.', '#e67e22');
-                 }
-                 else{
-
-                    table.push(sectionName);
-
-                    //Update
-                    var updateData = {
-                      "_rev": data.docs[0]._rev,
-                      "identifierTag": "ACCELERATE_TABLE_SECTIONS",
-                      "value": table
-                    }
-
-                    $.ajax({
-                      type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_TABLE_SECTIONS/',
-                      data: JSON.stringify(updateData),
-                      contentType: "application/json",
-                      dataType: 'json',
-                      timeout: 10000,
-                      success: function(data) {
-                        hideNewTableSectionModal();
-                        fetchAllTableSections();
-                      },
-                      error: function(data) {
-                        showToast('System Error: Unable to update Table Sections data.', '#e74c3c');
-                      }
-
-                    });  
-
-                 }
-                     
-              }
-                  
-            }
-            else{
-              showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
-            }
-          }
-          else{
-            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
-          }
-
-        },
-        error: function(data) {
-          showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
-        }
-
-    });
+  var sectionName = document.getElementById("add_new_tableSection_name").value;
+  sectionName = sectionName.trim();
+  if(sectionName == ''){ 
+    showToast('Warning: Please set a name', '#e67e22');
+    return '';
   }
 
+  var requestData = {
+    'section_name' : sectionName,
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/table/section/new',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        hideNewTableSectionModal();
+        fetchAllTableSections();
+      }
+      else{
+        showNotification('CREATE_ERROR', 'Unable to add new Table Section');
+      }
+    },
+    error: function(error) {
+      showNotification('SERVER_ERROR', 'Unable to update Table Sections data', error);
+    }
+  });
 }
 
 
 function addNewTable() {  
-   
+  
   var paramObj = {};
   paramObj.table = document.getElementById("add_new_table_name").value;
   paramObj.capacity = document.getElementById("add_new_table_capacity").value;
   paramObj.type = document.getElementById("add_new_table_type").value;
-  
-  paramObj.sortIndex = parseInt(document.getElementById("add_new_table_sortIndex").value);
-  paramObj.KOT = "";
-  paramObj.status = 0;
-  paramObj.lastUpdate = "";
-  paramObj.assigned = "";
-  paramObj.remarks = "";
-
-  paramObj.guestName = ""; 
-  paramObj.guestContact = ""; 
-  paramObj.reservationMapping = ""; 
-  paramObj.guestCount = "";
-
-  paramObj.capacity = parseFloat(paramObj.capacity);
+  paramObj.sortIndex = document.getElementById("add_new_table_sortIndex").value;
+  paramObj.table = paramObj.table.trim();
 
   if(Number.isNaN(paramObj.capacity)){
     showToast('Warning: Invalid Capacity value. It has to be a Number.', '#e67e22');
     return '';
   } 
+  else if(paramObj.table == '') {
+    showToast('Warning: Please set a name', '#e67e22');
+    return '';
+  }
+  else if(paramObj.sortIndex == "" || paramObj.sortIndex == 0){
+    showToast('Warning: Please set sort index', '#e67e22');
+    return '';
+  }
+  else if(paramObj.type == ''){
+    showToast('Warning: Table Section is missing', '#e67e22');
+    return '';    
+  }
 
-   if(paramObj.table == '') {
-      showToast('Warning: Please set a name', '#e67e22');
-      return '';
-   }
-   else if(paramObj.sortIndex == "" || paramObj.sortIndex == 0){
-      showToast('Warning: Please set sort index', '#e67e22');
-      return '';
-   }
-   else if(paramObj.type == ''){
-      showToast('Warning: Table Section is missing', '#e67e22');
-      return '';    
-   }
-   else{ 
-
-
-        $.ajax({
-          type: 'GET',
-          url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
-          timeout: 10000,
-          success: function(data) {
-              if(data.total_rows > 0){
-
-                      var tableData = data.rows;
-                      var isAlreadyThere = false;
-
-
-                       for (var i=0; i<tableData.length; i++) {
-                         if (tableData[i].value.table == paramObj.table || tableData[i].value.sortIndex == paramObj.sortIndex){
-                            isAlreadyThere = true;
-                            break;
-                         }
-                       }
-
-                       if(isAlreadyThere){
-                         showToast('Warning: Table Name and Sort Index already added. Please choose a different name and sort index', '#e67e22');
-                       }
-                       else{
-
-                            paramObj._id = (paramObj.sortIndex).toString();
-
-                            //Post to local Server
-                            $.ajax({
-                              type: 'POST',
-                              url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/',
-                              data: JSON.stringify(paramObj),
-                              contentType: "application/json",
-                              dataType: 'json',
-                              timeout: 10000,
-                              success: function(data) {
-                                if(data.ok){
-                                  hideNewTableModal();
-                                  fetchAllTables();
-                                }
-                                else{
-                                  showToast('Warning: Table was not added. Try again.', '#e67e22');
-                                }
-                              },
-                              error: function(data){           
-                                showToast('System Error: Unable to update Tables data.', '#e74c3c');
-                              }
-                            });  
-                            //End - post KOT to Server
-                       }
-              }
-              else{
-                
-                            paramObj._id = (paramObj.sortIndex).toString();
-
-                            //Post to local Server
-                            $.ajax({
-                              type: 'POST',
-                              url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/',
-                              data: JSON.stringify(paramObj),
-                              contentType: "application/json",
-                              dataType: 'json',
-                              timeout: 10000,
-                              success: function(data) {
-                                if(data.ok){
-                                  hideNewTableModal();
-                                  fetchAllTables();
-                                }
-                                else{
-                                  showToast('Warning: Table was not added. Try again.', '#e67e22');
-                                }
-                              },
-                              error: function(data){           
-                                showToast('System Error: Unable to update Tables data.', '#e74c3c');
-                              }
-                            });  
-                            //End - post KOT to Server
-              }
-          },
-          error: function(data) {
-            showToast('System Error: Unable to read Tables data.', '#e74c3c');
-          }
-
-      });
-
-   }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/table/create',
+    data: JSON.stringify(paramObj),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        hideNewTableModal();
+        fetchAllTables();
+      }
+      else{
+        showNotification('CREATE_ERROR', 'Unable to create new table');
+      }
+    },
+    error: function(error) {
+      showNotification('SERVER_ERROR', 'Unable to create new table', error);
+    }
+  });
 }

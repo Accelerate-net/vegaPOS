@@ -4,3 +4,4 @@ dist
 release
 log_script.txt
 package-lock.json
+.idea

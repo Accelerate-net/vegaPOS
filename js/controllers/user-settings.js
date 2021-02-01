@@ -34,6 +34,8 @@ function hideDeleteUserConsent(){
 function openNewUser(){
 	document.getElementById("newUserArea").style.display = "block";
 	$("#user_profile_new_user_name").focus();
+  $("#user_profile_new_user_name").val('');
+  $("#user_profile_new_user_mobile").val('');
 	document.getElementById("openNewUserButton").style.display = "none";
 }
 
@@ -45,8 +47,6 @@ function hideNewUser(){
 
 
 function fetchAllUsersInfo(){
-
-
     // LOGGED IN USER INFO
     var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
           
@@ -62,59 +62,49 @@ function fetchAllUsersInfo(){
       isUserAnAdmin = true;
     }
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/user/fetch',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
+      beforeSend: function(xhr){
+        xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+      },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+            var users = result.data;
+            //alphabetical sorting 
+            users.sort(function (a, b) {
+                return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+            });
 
-		        var users = data.docs[0].value;
-		        users.sort(); //alphabetical sorting 
+            var n = 0;
+            var userRenderContent = '';
+            while(users[n]){
+              userRenderContent = userRenderContent + '<tr role="row" class="odd">'+
+                      '<td>#'+(n+1)+'</td> <td>'+users[n].name+'</td>'+
+                      '<td>'+getUserDesignation(users[n].role)+'</td>'+
+                      '<td>'+users[n].code+'</td>'+
+                      '<td>'+(users[n].role != 'ADMIN' || (loggedInStaffInfo.code == users[n].code || loggedInStaffInfo.code == '9884179675') ? '<tag style="cursor: pointer; width: 30px; display: inline-block; text-align: center;" onclick="openDeleteUserConsent(\''+users[n].code+'\', \''+users[n].name+'\')"><i class="fa fa-trash-o"></i></tag>' : '')+(loggedInStaffInfo.code == users[n].code ? '<tag style="width: 30px; color: #36d24a; display: inline-block; text-align: center; cursor: pointer" onclick="openChangePasscodeWindow(\''+users[n].code+'\', \''+users[n].name+'\')"><i class="fa fa-key"></i></tag>' : '')+'</td> </tr>';
+              n++;
+            }
+        
+            if(userRenderContent == ''){
+              document.getElementById("allUsersRenderArea").innerHTML = '<p style="margin: 10px 0 0 0; color: #bdc3c7">No Registered Users found</p>';
+            }
+            else{
+              document.getElementById("allUsersRenderArea").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Name</th> <th style="text-align: left">Role</th> <th style="text-align: left">Phone</th> <th style="text-align: left"></th> </tr> </thead> <tbody>'+userRenderContent+'</tbody>';
+            }
 
-		        var n = 0;
-		        var userRenderContent = '';
-		        while(users[n]){
-		        	userRenderContent = userRenderContent + '<tr role="row" class="odd">'+
-		        					'<td>#'+(n+1)+'</td> <td>'+users[n].name+'</td>'+
-		        					'<td>'+getUserDesignation(users[n].role)+'</td>'+
-		        					'<td>'+users[n].code+'</td>'+
-		        					'<td>'+(users[n].role != 'ADMIN' || (loggedInStaffInfo.code == users[n].code || loggedInStaffInfo.code == '9884179675') ? '<tag style="cursor: pointer; width: 30px; display: inline-block; text-align: center;" onclick="openDeleteUserConsent(\''+users[n].code+'\', \''+users[n].name+'\')"><i class="fa fa-trash-o"></i></tag>' : '')+(loggedInStaffInfo.code == users[n].code ? '<tag style="width: 30px; color: #36d24a; display: inline-block; text-align: center; cursor: pointer" onclick="openChangePasscodeWindow(\''+users[n].code+'\', \''+users[n].name+'\')"><i class="fa fa-key"></i></tag>' : '')+'</td> </tr>';
-		        	n++;
-		        }
-
-		        if(userRenderContent == ''){
-		        	document.getElementById("allUsersRenderArea").innerHTML = '<p style="margin: 10px 0 0 0; color: #bdc3c7">No Registered Users found</p>';
-		        }
-		        else{
-		        	document.getElementById("allUsersRenderArea").innerHTML = '<thead style="background: #f4f4f4;"> <tr> <th style="text-align: left"></th> <th style="text-align: left">Name</th> <th style="text-align: left">Role</th> <th style="text-align: left">Phone</th> <th style="text-align: left"></th> </tr> </thead> <tbody>'+userRenderContent+'</tbody>';
-          		}
-          }
-          else{
-            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
-          }
         }
         else{
-          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
+          showNotification('NOT_FOUND_ERROR', 'Registered Users data not found');
         }
-        
       },
-      error: function(data) {
-        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
+      error: function(error) {
+        showNotification('SERVER_ERROR', 'Unable to read Registered Users data', error);
       }
+    });
 
-    });  
 
     function getUserDesignation(type) {
       if(type == 'ADMIN'){
@@ -127,7 +117,6 @@ function fetchAllUsersInfo(){
         return 'Delivery';
       }
     }
-
 }
 
 
@@ -193,116 +182,58 @@ function changeAdminPassword(){
     return '';
   }
 
+  // LOGGED IN USER INFO
+  var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
+        
+  if(jQuery.isEmptyObject(loggedInStaffInfo)){
+    loggedInStaffInfo.name = "";
+    loggedInStaffInfo.code = "";
+    loggedInStaffInfo.role = "";
+  }
 
-    // LOGGED IN USER INFO
-    var loggedInStaffInfo = window.localStorage.loggedInStaffData ? JSON.parse(window.localStorage.loggedInStaffData): {};
-          
-    if(jQuery.isEmptyObject(loggedInStaffInfo)){
-      loggedInStaffInfo.name = "";
-      loggedInStaffInfo.code = "";
-      loggedInStaffInfo.role = "";
-    }
+  //either profile not chosen, or not an admin
+  if(loggedInStaffInfo.code == '' || loggedInStaffInfo.role != 'ADMIN'){ 
+    showToast('Warning: You are not an Admin.', '#e67e22');
+    return '';
+  }
 
-    //either profile not chosen, or not an admin
-    if(loggedInStaffInfo.code == '' || loggedInStaffInfo.role != 'ADMIN'){ 
-      showToast('Warning: You are not an Admin.', '#e67e22');
-      return '';
-    }
+  var request_object = {
+    'code': loggedInStaffInfo.code,
+    'current_passcode': code_current,
+    'updating_passcode': code_new_1
+  }
 
-    var request_profile = loggedInStaffInfo.code;
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-         
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
-
-             var staffList = data.docs[0].value;
-             var remember_name = '';
-
-             for (var i=0; i<staffList.length; i++) {
-               if (staffList[i].code == request_profile){
-                  if(staffList[i].password == code_current){
-                    staffList[i].password = code_new_1;
-                    remember_name = staffList[i].name;
-                    updatePasscodeOnServer();
-                  }
-                  else{
-                    showToast('Error: Incorrect Current Passcode', '#e74c3c');
-                    return '';
-                  }
-                  break;
-               }
-             }
-
-             function updatePasscodeOnServer(){
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_STAFF_PROFILES",
-                  "value": staffList
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_STAFF_PROFILES/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                    fetchAllUsersInfo(); //refresh the list
-                    adminPasswordChangeModalHide();
-                    showToast('New Passcode has been set for <b>'+remember_name+'</b>', '#27ae60');
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to update Users data.', '#e74c3c');
-                  }
-
-                });  
-
-             }
-                
-          }
-          else{
-            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/user/changepasscode',
+    data: JSON.stringify(request_object),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        fetchAllUsersInfo(); //refresh the list
+        adminPasswordChangeModalHide();
+        showToast('New Passcode has been set for <b>'+loggedInStaffInfo.name+'</b>', '#27ae60');
       }
-
-    });
-
+      else{
+        showNotification('UPDATE_ERROR', 'Unable to update the passcode');
+      }
+    },
+    error: function(error) {
+      showNotification('SERVER_ERROR', 'Unable to change the passcode', error);
+    }
+  });
 }
-
 
 function adminPasswordChangeModalHide(){
   document.getElementById("adminPasswordChangeModalHome").style.display = 'none';
 }
 
-
 function addNewUserProfile(){
-
 	var role = document.getElementById("user_profile_new_user_role").value;
 	var name = document.getElementById("user_profile_new_user_name").value;
 	var mobile = document.getElementById("user_profile_new_user_mobile").value;
@@ -313,12 +244,6 @@ function addNewUserProfile(){
 	newObj.role = role;
 	newObj.password = null;
 
-  if(name == 'Jafry' || mobile == '9884179675'){
-    showToast('Warning: This name or mobile number can not be used', '#e67e22');
-    return '';
-  }
-
-
 	if(role == '' || name == '' || mobile == ''){
 		showToast('Warning: Missing some values', '#e67e22');
 		return '';
@@ -328,172 +253,70 @@ function addNewUserProfile(){
 		showToast('Warning: Invalid mobile number', '#e67e22');
 		return '';
 	}
-
   if(newObj.role == "ADMIN"){
     newObj.password = 1234;
   }
 
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-      	 
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
-
-             var staffList = data.docs[0].value;
-             var flag = 0;
-
-             for (var i=0; i<staffList.length; i++) {
-               if (staffList[i].code == mobile){
-                  flag = 1;
-                  break;
-               }
-             }
-
-             if(flag == 1){
-               showToast('Warning: Mobile Number already registered. Please add a different mobile.', '#e67e22');
-             }
-             else{
-
-                staffList.push(newObj);
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_STAFF_PROFILES",
-                  "value": staffList
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_STAFF_PROFILES/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-
-                    if(role == 'ADMIN'){
-                      showToast('Success! You may change default password <b>1234</b>', '#27ae60');
-                    }
-
-			              fetchAllUsersInfo(); //refresh the list
-	                	hideNewUser();
-                  
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to update Users data.', '#e74c3c');
-                  }
-
-                });  
-
-             }
-                
-          }
-          else{
-            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/user/create',
+    data: JSON.stringify(newObj),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        if(role == 'ADMIN'){
+          showToast('Success! You may change default password <b>1234</b>', '#27ae60');
         }
 
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
+        fetchAllUsersInfo(); //refresh the list
+        hideNewUser();
       }
-
-    });
-
+      else{
+        showNotification('CREATE_ERROR', 'Unable to create user');
+      }
+    },
+    error: function(error) {
+      showNotification('SERVER_ERROR', 'Unable to create user', error);
+    }
+  });
 }
 
 
 function deleteUserFromUserProfile(code, name){
+  var requestData = {
+    'delete_user_code' : code
+  }
+  $.ajax({
+    type: 'POST',
+    url: ACCELERON_SERVER_ENDPOINT+'/user/delete',
+    data: JSON.stringify(requestData),
+    contentType: "application/json",
+    dataType: 'json',
+    timeout: 10000,
+    beforeSend: function(xhr){
+      xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+    },
+    success: function(result) {
+      if(result.code == 200 && result.msg == "success"){
+        showToast(name+' has been removed successfully', '#27ae60');
+        fetchAllUsersInfo();
+        hideDeleteUserConsent();
 
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_STAFF_PROFILES" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_STAFF_PROFILES'){
-
-               var staffList = data.docs[0].value;
-
-               for (var i=0; i<staffList.length; i++) {  
-                 if (staffList[i].code == code){
-                    staffList.splice(i,1);
-                    break;
-                 }
-               }
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_STAFF_PROFILES",
-                  "value": staffList
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_STAFF_PROFILES/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-          					showToast(name+' has been removed successfully', '#27ae60');
-          					fetchAllUsersInfo();
-          					hideDeleteUserConsent();
-
-          					removeFromCurrentUser(code);
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to make changes in Registered Users data.', '#e74c3c');
-                  }
-
-                });  
-                
-          }
-          else{
-            showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Registered Users data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Registered Users data.', '#e74c3c');
+        removeFromCurrentUser(code);
       }
-
-    });  
-
+      else{
+        showNotification('DELETE_ERROR', 'Unable to delete user');
+      }
+    },
+    error: function(error) {
+      showNotification('SERVER_ERROR', 'Unable to delete user', error);
+    }
+  });
 }
 
 

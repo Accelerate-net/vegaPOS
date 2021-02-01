@@ -1,4 +1,13 @@
 /*
+  ACCELERON SERVER CONFIGURATION
+*/
+
+const ACCELERON_SERVER_ENDPOINT = 'http://localhost:3000';
+const ACCELERON_SERVER_ACCESS_TOKEN = 123;
+
+const async = require('async');
+
+/*
   SERVER DETAILS
 */
 
@@ -154,6 +163,16 @@ function getImageCode(text){
 	else{
 		return (text.substring(0, 2)).toUpperCase();
 	}
+}
+
+
+function showNotification(errorType, errorMessage, errorObject){
+  if(errorObject){
+    console.log(errorObject)
+  }
+
+  //TODO: Deal with error object
+  showToast(errorMessage, '#e74c3c')
 }
 
 
@@ -358,6 +377,31 @@ function getTablesSorted(unsorted_list){
       .forEach(function(v, i) {
           
        });
+}
+
+/*
+  USER EXPERIENCE ENHANCEMENTS
+*/
+
+function animateLastAddedItem(divId, content){ //Highlight last added content
+  /*
+    To highlight the last added item:
+      > pass the parent divId
+      > children must be repeating with dummy class `lastAddedItemAnimator`
+      > children must contain `last-added-highlighter-key` value as identifier
+  */
+  var list = $('#'+divId+' .lastAddedItemAnimator');
+  for(var i = 0; i < list.length; i++){
+    if($(list[i]).attr('last-added-highlighter-key') == content){
+      $(list[i]).addClass('itemAddHighlighter');
+      break;
+    }
+  }
+}
+
+function enterEscapeDefaultActions(event, submitButton, cancelButton){
+  console.log(event)
+  console.log(submitButton, cancelButton)
 }
 
 
