@@ -46,11 +46,12 @@
   },
   "dependencies": {
     "async": "^3.2.0",
+    "axios": "^0.21.1",
     "electron": "^2.0.9",
     "electron-settings": "^3.1.4",
     "jquery": "^3.3.1",
-    "leveldown": "^3.0.2",
     "mkdirp": "^0.5.1",
-    "shelljs": "^0.8.1"
+    "shelljs": "^0.8.1",
+    "url": "^0.11.0"
   }
 }

@@ -1,27 +1,23 @@
+//import restClient from "../client/RestClient.js";
 
 /* read categories */
 function fetchAllCategories(){
+	// let options = {
+	// 	method:"GET",
+	// 	url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_MENU_CATEGORIES'
 
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
+	// }
+	// let result = await restClient.sendRequest(options)
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu/category',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
-
-	          	var categories = data.docs[0].value;
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+	          	var categories = result.data;
 	          	categories.sort(); //alphabetical sorting 
 	          	var categoryTag = '';
 
@@ -34,18 +30,13 @@ function fetchAllCategories(){
 			
 
 				document.getElementById("categoryArea").innerHTML = categoryTag;
-
-          }
-          else{
-            showToast('Not Found Error: Menu Category data not found.', '#e74c3c');
-          }
         }
         else{
           showToast('Not Found Error: Menu Category data not found.', '#e74c3c');
         }
         
       },
-      error: function(data) {
+      error: function(error) {
         showToast('System Error: Unable to read Menu Category data.', '#e74c3c');
       }
 
@@ -57,28 +48,18 @@ function fetchAllCategories(){
 /* mark an item unavailable */
 function markAvailability(code){
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_MASTER_MENU',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-	          	var mastermenu = data.docs[0].value;
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+    	if(result.code == 200 && result.msg == "success"){
+	          	var mastermenu = result.data;
 
 	          	var remember_avail = 0;
-
 				
 				for (var i=0; i<mastermenu.length; i++){
 					for(var j=0; j<mastermenu[i].items.length; j++){
@@ -138,17 +119,14 @@ function markAvailability(code){
 					}					
 				}
 
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
+
         }
         else{
           showToast('Not Found Error: Menu data not found.', '#e74c3c');
         }
         
       },
-      error: function(data) {
+      error: function(error) {
         showToast('System Error: Unable to read Menu data.', '#e74c3c');
       }
 
@@ -427,25 +405,17 @@ function getVegIcon(flag){
 function openSubMenu(menuCategory, optionalHighlighItem){	
 
 	//read menu
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
 
-	          var mastermenu = data.docs[0].value;
+	          var mastermenu = result.data;
 	          var itemsInCategory = "";
 	          var availabilityTag = "";
 
@@ -556,17 +526,14 @@ function openSubMenu(menuCategory, optionalHighlighItem){
 					$('#menu_item_row_'+optionalHighlighItem).addClass('borderedItemSelection');
 				}
 
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
+
         }
         else{
           showToast('Not Found Error: Menu data not found.', '#e74c3c');
         }
         
       },
-      error: function(data) {
+      error: function(error) {
         showToast('System Error: Unable to read Menu data.', '#e74c3c');
       }
 
@@ -602,25 +569,17 @@ function markAllItemsAvailabilityHide(){
 function markAvailabilityBatch(category, option){
 
     /*to find the latest item code*/
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+		type: 'GET',
+		url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_MASTER_MENU',
+		timeout: 10000,
+		beforeSend: function(xhr){
+		  xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+		},
+		success: function(result) {
+		  if(result.code == 200 && result.msg == "success"){
 
-	          	var mastermenu = data.docs[0].value;
+	          	var mastermenu = result.data;
 
                 var n = 0;
                 while(mastermenu[n]){
@@ -642,17 +601,14 @@ function markAvailabilityBatch(category, option){
                 	n++;
                 }
 
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
+
         }
         else{
           showToast('Not Found Error: Menu data not found.', '#e74c3c');
         }
         
       },
-      error: function(data) {
+      error: function(error) {
         showToast('System Error: Unable to read Menu data.', '#e74c3c');
       }
 
