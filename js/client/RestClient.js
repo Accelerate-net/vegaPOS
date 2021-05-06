@@ -33,4 +33,4 @@ RestClient.prototype.sendRequest = async function(options){
 
     }
 
-    module.exports = new RestClient();
+    module.exports = new RestClient();       
