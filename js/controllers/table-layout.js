@@ -93,7 +93,7 @@ function fetchAllTableSections(){
       },
       success: function(result) {
         if(result.code == 200 && result.msg == "success"){
-              var table = result.data;
+              var table = result.data.value;
               //alphabetical sorting 
               table.sort(function (a, b) {
                   return a.toLowerCase().localeCompare(b.toLowerCase());
