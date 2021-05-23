@@ -1,27 +1,16 @@
 
 /* read categories */
 function fetchAllCategories(){
-
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu/category',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
-
-	          	var categories = data.docs[0].value;
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+	          	var categories = result.data;
 	          	categories.sort(); //alphabetical sorting 
 	          	var categoryTag = '';
 
@@ -34,18 +23,13 @@ function fetchAllCategories(){
 			
 
 				document.getElementById("categoryArea").innerHTML = categoryTag;
-
-          }
-          else{
-            showToast('Not Found Error: Menu Category data not found.', '#e74c3c');
-          }
         }
         else{
           showToast('Not Found Error: Menu Category data not found.', '#e74c3c');
         }
         
       },
-      error: function(data) {
+      error: function(error) {
         showToast('System Error: Unable to read Menu Category data.', '#e74c3c');
       }
 
@@ -53,148 +37,40 @@ function fetchAllCategories(){
 
 }
 
-
 /* mark an item unavailable */
 function markAvailability(code){
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
+	var online_flag = 0;
+    online_flag = window.localStorage.appOtherPreferences_syncOnlineMenu ? window.localStorage.appOtherPreferences_syncOnlineMenu : 0;
+	var token = window.localStorage.loggedInAdmin;
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'PUT',
+      url: ACCELERON_SERVER_ENDPOINT+"/menu/item/"+code+"/toggleAvailability?onlineFlag="+online_flag+"&updateToken="+token,
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-	          	var mastermenu = data.docs[0].value;
-
-	          	var remember_avail = 0;
-
-				
-				for (var i=0; i<mastermenu.length; i++){
-					for(var j=0; j<mastermenu[i].items.length; j++){
-
-						if(mastermenu[i].items[j].code == code){
-
-							mastermenu[i].items[j].isAvailable = !mastermenu[i].items[j].isAvailable;
-
-							remember_avail = mastermenu[i].items[j].isAvailable ? 1 : 0;
-							
-							if(document.getElementById("item_avail_"+code).innerHTML != 'Available'){
-								document.getElementById("item_avail_"+code).innerHTML = 'Available';
-								document.getElementById("item_avail_"+code).style.background = "#27ae60";	
-							}
-							else{
-								document.getElementById("item_avail_"+code).innerHTML = 'Out of Stock';
-								document.getElementById("item_avail_"+code).style.background = "#e74c3c";		
-							}
-
-
-			                //Update
-			                var updateData = {
-			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ACCELERATE_MASTER_MENU",
-			                  "value": mastermenu
-			                }
-
-			                $.ajax({
-			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-			                  data: JSON.stringify(updateData),
-			                  contentType: "application/json",
-			                  dataType: 'json',
-			                  timeout: 10000,
-			                  success: function(data) {
-
-			                  	//Update online menu (if enabled)
-                                var online_flag = 0;
-                                online_flag = window.localStorage.appOtherPreferences_syncOnlineMenu ? window.localStorage.appOtherPreferences_syncOnlineMenu : 0;
-
-                                if(online_flag == 1){
-                                    sendConfirmationResponseToCloud(code, remember_avail);
-                                }
-
-			                  	return '';
-			                  },
-			                  error: function(data) {
-			                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-			                  }
-
-			                });  
-
-			                break;
-
-						}
-				
-					}					
-				}
-
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
-        }
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+    	if(result.code == 200 && result.msg == "success"){			
+			if(document.getElementById("item_avail_"+code).innerHTML != 'Available'){
+				document.getElementById("item_avail_"+code).innerHTML = 'Available';
+				document.getElementById("item_avail_"+code).style.background = "#27ae60";	
+			}
+			else{
+				document.getElementById("item_avail_"+code).innerHTML = 'Out of Stock';
+				document.getElementById("item_avail_"+code).style.background = "#e74c3c";		
+			}					
+		}
         else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
+			showToast('System Error: Unable to update availability of item.', '#e74c3c');
         }
         
       },
-      error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
+      error: function(error) {
+        showToast('System Error: Unable to update availability of item.', '#e74c3c');
       }
 
     }); 
-
-
-
-
-
-      //Send update to Cloud Server
-      function sendConfirmationResponseToCloud(id, status){
-
-          var data = {
-            "token": window.localStorage.loggedInAdmin,
-            "code": id,
-            "status": status
-          }
-
-          showLoading(10000, 'Updating Online Menu');
-
-          $.ajax({
-            type: 'POST',
-            url: 'https://www.accelerateengine.app/apis/itemstatus.php',
-            data: JSON.stringify(data),
-            contentType: "application/json",
-            dataType: 'json',
-            timeout: 10000,
-            success: function(data) {
-
-              hideLoading();
-
-              if(data.status){
-
-              }
-              else{
-                 
-                showToast('Cloud Server Warning: Online Menu not updated', '#e67e22');
-              }
-            },
-            error: function(data){
-              hideLoading();
-              showToast('Failed to reach Cloud Server. Please check your connection.', '#e74c3c');
-              return '';
-            }
-          });       
-      }
 
 }
 
@@ -427,25 +303,17 @@ function getVegIcon(flag){
 function openSubMenu(menuCategory, optionalHighlighItem){	
 
 	//read menu
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
 
-	          var mastermenu = data.docs[0].value;
+	          var mastermenu = result.data;
 	          var itemsInCategory = "";
 	          var availabilityTag = "";
 
@@ -556,17 +424,14 @@ function openSubMenu(menuCategory, optionalHighlighItem){
 					$('#menu_item_row_'+optionalHighlighItem).addClass('borderedItemSelection');
 				}
 
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
+
         }
         else{
           showToast('Not Found Error: Menu data not found.', '#e74c3c');
         }
         
       },
-      error: function(data) {
+      error: function(error) {
         showToast('System Error: Unable to read Menu data.', '#e74c3c');
       }
 
@@ -602,89 +467,30 @@ function markAllItemsAvailabilityHide(){
 function markAvailabilityBatch(category, option){
 
     /*to find the latest item code*/
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+		type: 'PUT',
+		url: ACCELERON_SERVER_ENDPOINT+'/menu/category/'+category+'/markAllAvailableByCategory?option='+option,
+		timeout: 10000,
+		beforeSend: function(xhr){
+		  xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+		},
+		success: function(result) {
+		  if(result.code == 200 && result.msg == "success"){
+			markAllItemsAvailabilityHide();
+			openSubMenu(category);
+		  	showToast('Success! All <b>'+ category +'</b> items are updated.', '#27ae60');
 
-	          	var mastermenu = data.docs[0].value;
-
-                var n = 0;
-                while(mastermenu[n]){
-                	if(mastermenu[n].category == category){
-						
-						var m = 0;
-						while(mastermenu[n].items[m]){
-
-							mastermenu[n].items[m].isAvailable = (option == 'ALL_AVAIL') ? true : false;
-
-							if(m == mastermenu[n].items.length - 1){
-								markAvailabilityBatchAfterProcess(mastermenu, category, data.docs[0]._rev);
-							}
-							m++;
-						}
-
-                		break;
-                	}
-                	n++;
-                }
-
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
         }
         else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
+			showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
         }
         
       },
-      error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
+      error: function(error) {
+        showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
       }
 
     });  
-}
-
-function markAvailabilityBatchAfterProcess(menu, category, revID){
-
-			                //Update
-			                var updateData = {
-			                  "_rev": revID,
-			                  "identifierTag": "ACCELERATE_MASTER_MENU",
-			                  "value": menu
-			                }
-
-			                $.ajax({
-			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-			                  data: JSON.stringify(updateData),
-			                  contentType: "application/json",
-			                  dataType: 'json',
-			                  timeout: 10000,
-			                  success: function(data) {
-			                  	markAllItemsAvailabilityHide();
-			                  	openSubMenu(category);
-						        showToast('Success! All <b>'+ category +'</b> items are updated.', '#27ae60');
-						      },
-			                  error: function(data) {
-			                    showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
-         					  }
-
-			                });  
 }
 
 
@@ -694,27 +500,19 @@ function quickViewUnavailableItems(){
 	var overallRenderContent = '';
 
 	//read menu
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
 
           	  clearMenuRenderArea();
 
-	          var mastermenu = data.docs[0].value;
+	          var mastermenu = result.data;
 	          var itemsInCategory = "";
 	          var availabilityTag = "";
 	          var menuCategory = '';
@@ -776,11 +574,6 @@ function quickViewUnavailableItems(){
 						}
 				}
 
-
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
         }
         else{
           showToast('Not Found Error: Menu data not found.', '#e74c3c');
@@ -818,186 +611,58 @@ function batchProcessMenuAllAvailable(){
 
 	hideBatchProcessMenuAllAvailableWindow();
 
-    /*to find the latest item code*/
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'PUT',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu/markAllMenuAvailable',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-	          	var mastermenu = data.docs[0].value;
-
-                var n = 0;
-                while(mastermenu[n]){
-
-						var m = 0;
-						while(mastermenu[n].items[m]){
-
-							mastermenu[n].items[m].isAvailable = true;
-
-							if(n == mastermenu.length - 1 && m == mastermenu[n].items.length - 1){
-								batchProcessMenuAllAvailableAfterProcess(mastermenu, data.docs[0]._rev);
-							}
-							m++;
-						}
-                	
-                	n++;
-                }
-
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
-        }
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+		if(result.code == 200 && result.msg == "success"){
+			renderPage('manage-menu', 'Manage Menu');
+			showToast('Success! All items are marked Available.', '#27ae60');	
+		}
+		else{
+		showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
+		}
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
+        showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
       }
 
     });  	
 }
 
-
-function batchProcessMenuAllAvailableAfterProcess(menu, revID){
-
-			                //Update
-			                var updateData = {
-			                  "_rev": revID,
-			                  "identifierTag": "ACCELERATE_MASTER_MENU",
-			                  "value": menu
-			                }
-
-			                $.ajax({
-			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-			                  data: JSON.stringify(updateData),
-			                  contentType: "application/json",
-			                  dataType: 'json',
-			                  timeout: 10000,
-			                  success: function(data) {
-			                  	renderPage('manage-menu', 'Manage Menu');
-						        showToast('Success! All items are marked Available.', '#27ae60');
-						      },
-			                  error: function(data) {
-			                    showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
-         					  }
-
-			                });  
-}
-
-
-
-
 function deleteItemFromMenu(encodedItem, categoryName){
 
 	var item = JSON.parse(decodeURI(encodedItem));
-
-    /*to find the latest item code*/
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'DELETE',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu/category/'+categoryName+'/item/'+item.code,
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+			openSubMenu(categoryName);
+			showUndo('<b>'+item.name+'</b> was deleted', 'saveEncodedItemToFile(\''+categoryName+'\', \''+encodedItem+'\')');
 
-	          	var mastermenu = data.docs[0].value;
-
-                var n = 0;
-                while(mastermenu[n]){
-                	if(mastermenu[n].category == categoryName){
-						
-						var m = 0;
-						while(mastermenu[n].items[m]){
-							if(mastermenu[n].items[m].code == item.code){
-								mastermenu[n].items.splice(m,1);
-								deleteItemFromMenuAfterProcess(encodedItem, categoryName, mastermenu, data.docs[0]._rev);
-								break;
-							}
-							m++;
-						}
-
-                		break;
-                	}
-                	n++;
-                }
-
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
         }
         else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
+			showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
+        showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
       }
 
     });  
 
 }
-
-
-
-function deleteItemFromMenuAfterProcess(encodedItem, categoryName, newMenuObj, revID){
-
-	   var item = JSON.parse(decodeURI(encodedItem));
- 
-			                //Update
-			                var updateData = {
-			                  "_rev": revID,
-			                  "identifierTag": "ACCELERATE_MASTER_MENU",
-			                  "value": newMenuObj
-			                }
-
-			                $.ajax({
-			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-			                  data: JSON.stringify(updateData),
-			                  contentType: "application/json",
-			                  dataType: 'json',
-			                  timeout: 10000,
-			                  success: function(data) {
-			                  	openSubMenu(categoryName);
-						        showUndo('<b>'+item.name+'</b> was deleted', 'saveEncodedItemToFile(\''+categoryName+'\', \''+encodedItem+'\')');
-						      },
-			                  error: function(data) {
-			                    showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
-         					  }
-
-			                });  
-	
-}
-
 
 function hideNewBill(){
 	document.getElementById("newBillArea").style.display = "none";
@@ -1038,55 +703,27 @@ function openNewMenuItem(category){
 	$("#new_item_manual_code").focus();
 
 
-	suggestItemCode();
-
-	function suggestItemCode(){
-
-	    var requestData = {
-	      "selector"  :{ 
-	                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-	                  },
-	      "fields"    : ["_rev", "identifierTag", "value"]
+	$.ajax({
+	    type: 'GET',
+	    url: ACCELERON_SERVER_ENDPOINT+'/menu/getLastItemCode',
+		timeout: 10000,
+		beforeSend: function(xhr){
+			xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+		},
+	    success: function(result) {
+			if(result.code == 200 && result.msg == "success"){
+				var highest_code = parseInt(result.data);
+				$("#new_item_manual_code").val(highest_code + 1);
+			}
+			else{
+				showToast('System Error: Unable to fetch Item Code.', '#e74c3c');
+			}
+	    },
+	    error: function(data) {
+	    showToast('System Error: Unable to fetch Item Code.', '#e74c3c');
 	    }
+	});  
 
-	    $.ajax({
-	      type: 'POST',
-	      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-	      data: JSON.stringify(requestData),
-	      contentType: "application/json",
-	      dataType: 'json',
-	      timeout: 10000,
-	      success: function(data) {
-	        if(data.docs.length > 0){
-	          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-	             	var mastermenu = data.docs[0].value;
-
-	             	var highest_code = 0;
-
-	             	var m = 0;
-	             	while(mastermenu[m]){
-	             		for(var c = 0; c < mastermenu[m].items.length; c++){
-	             			if(parseInt(mastermenu[m].items[c].code) > highest_code){
-	             				highest_code = parseInt(mastermenu[m].items[c].code);
-	             			}
-	             		}
-
-	             		if(m == mastermenu.length - 1){ //last iteration
-	             			$("#new_item_manual_code").val(highest_code + 1);
-	             		}
-
-	             		m++;
-	             	}
-
-	          }
-	        }
-	      },
-	      error: function(data) {
-	        
-	      }
-	    });  
-	}
 }
 
 function hideNewMenuItem(){	
@@ -1112,45 +749,31 @@ function addMoreOptions(optionalSource){
 		$("#more_options_customCode").focus();
 	}
 
-
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'GET',
+      url: ACCELERON_SERVER_ENDPOINT +'/settings/ACCELERATE_COOKING_INGREDIENTS',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
 
-              	var modes = data.docs[0].value;
-              	modes.sort(); //alphabetical sorting 
-              	var modesTag = '';
+            var modes = result.data;
+            modes.sort(); //alphabetical sorting 
+            var modesTag = '';
 
-		        for (var i=0; i<modes.length; i++){
-		          modesTag = modesTag + '<tag class="extrasSelButton" onclick="addIngredientToInput(\''+modes[i]+'\', \'ingredient_'+i+'\')" id="ingredient_'+i+'">'+modes[i]+'</tag>';
-		        }
+		    for (var i=0; i<modes.length; i++){
+		        modesTag = modesTag + '<tag class="extrasSelButton" onclick="addIngredientToInput(\''+modes[i]+'\', \'ingredient_'+i+'\')" id="ingredient_'+i+'">'+modes[i]+'</tag>';
+		    }
 
-		        if(!modesTag){
-		            document.getElementById("ingredientsList").innerHTML = '<i>*Please update <b style="cursor: pointer" onclick="openOtherSettings(\'ingredientsList\')">Cooking Ingredient List</b> first.</i>';
-		        }
-		        else{            
-		            document.getElementById("ingredientsList").innerHTML = 'Ingredients List: '+modesTag;
-		        }
+		    if(!modesTag){
+		        document.getElementById("ingredientsList").innerHTML = '<i>*Please update <b style="cursor: pointer" onclick="openOtherSettings(\'ingredientsList\')">Cooking Ingredient List</b> first.</i>';
+		    }
+		    else{            
+		        document.getElementById("ingredientsList").innerHTML = 'Ingredients List: '+modesTag;
+		    }
 
-          }
-          else{
-            showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
-          }
         }
         else{
           showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
@@ -1162,8 +785,6 @@ function addMoreOptions(optionalSource){
       }
 
     });  
-
-
 
 }
 
@@ -1209,56 +830,40 @@ function edit_addMoreOptions(optionalSource){
 		$("#edit_more_options_customCode").focus();
 	}
 
-
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_COOKING_INGREDIENTS" 
-                  },
-      "fields"    : ["identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_COOKING_INGREDIENTS'){
+		type: 'GET',
+		url: ACCELERON_SERVER_ENDPOINT +'/settings/ACCELERATE_COOKING_INGREDIENTS',
+		timeout: 10000,
+		beforeSend: function(xhr){
+		  xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+		},
+		success: function(result) {
+			if(result.code == 200 && result.msg == "success"){
+				var modes = result.data;
+				modes.sort(); //alphabetical sorting 
+				var modesTag = '';
 
-              	var modes = data.docs[0].value;
-              	modes.sort(); //alphabetical sorting 
-              	var modesTag = '';
+				for (var i=0; i<modes.length; i++){
+					modesTag = modesTag + '<tag class="extrasSelButton" onclick="edit_addIngredientToInput(\''+modes[i]+'\', \'edit_ingredient_'+i+'\')" id="edit_ingredient_'+i+'">'+modes[i]+'</tag>';
+				}
+				if(!modesTag){
+					document.getElementById("edit_ingredientsList").innerHTML = '<i>*Please update <b style="cursor: pointer" onclick="openOtherSettings(\'ingredientsList\')">Cooking Ingredient List</b> first.</i>';
+				}
+				else{            
+					document.getElementById("edit_ingredientsList").innerHTML = 'Ingredients List: '+modesTag;
+				}
 
-		        for (var i=0; i<modes.length; i++){
-		          modesTag = modesTag + '<tag class="extrasSelButton" onclick="edit_addIngredientToInput(\''+modes[i]+'\', \'edit_ingredient_'+i+'\')" id="edit_ingredient_'+i+'">'+modes[i]+'</tag>';
-		        }
-
-		        if(!modesTag){
-		            document.getElementById("edit_ingredientsList").innerHTML = '<i>*Please update <b style="cursor: pointer" onclick="openOtherSettings(\'ingredientsList\')">Cooking Ingredient List</b> first.</i>';
-		        }
-		        else{            
-		            document.getElementById("edit_ingredientsList").innerHTML = 'Ingredients List: '+modesTag;
-		        }
-
-          }
-          else{
-            showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Cooking Ingredients data.', '#e74c3c');
-      }
-
-    });  
+			}
+			else{
+				showToast('Not Found Error: Cooking Ingredients data not found.', '#e74c3c');
+			}
+			
+		},
+		error: function(data) {
+			showToast('System Error: Unable to read Cooking Ingredients data.', '#e74c3c');
+		}
+	
+	}); 
 }
 
 function edit_addIngredientToInput(name, id){
@@ -1277,31 +882,23 @@ function edit_addIngredientToInput(name, id){
 
 
 /* move item to different category */
-function changeCategoryOfItem (item_code, item_name) {
+function changeCategoryOfItem(item_code, item_name) {
 	
 	if($('#editMenuItemPriceModal').is(':visible')) {
 		document.getElementById("editMenuItemPriceModal").style.display = 'none';
 	}
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
+		type: 'GET',
+		url: ACCELERON_SERVER_ENDPOINT+'/menu/category/',
+		timeout: 10000,
+		beforeSend: function(xhr){
+		  xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+		},
+		success: function(result) {
+		  if(result.code == 200 && result.msg == "success"){
 
-               var categoryList = data.docs[0].value;
+               var categoryList = result.data;
                categoryList.sort();
 
                var renderContent = '';
@@ -1319,13 +916,8 @@ function changeCategoryOfItem (item_code, item_name) {
 
           }
           else{
-            showToast('Not Found Error: Categories data not found.', '#e74c3c');
+            showToast('System Error: Unable to read Categories data.', '#e74c3c');
           }
-        }
-        else{
-          showToast('Not Found Error: Categories data not found.', '#e74c3c');
-        }
-
       },
       error: function(data) {
         showToast('System Error: Unable to read Categories data.', '#e74c3c');
@@ -1351,109 +943,30 @@ function moveItemToCategory(item_code, item_name, item_category){
 
 	selectNewCategoryForItemWindowHide();
 
-
     var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+		categoryName: item_category
+	  }
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      type: 'PUT',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu/item/'+item_code+'/moveItemToCategory',
       data: JSON.stringify(requestData),
       contentType: "application/json",
-      dataType: 'json',
+      dataType: 'json',  
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
 
-             			var mastermenu = data.docs[0].value;
-             			var remember_item = '';
-
-             			var n = 0;
-             			var isItemFound = false;
-             			while(mastermenu[n] && !isItemFound){
-             				for(var i = 0; i < mastermenu[n].items.length; i++){
-             					if(mastermenu[n].items[i].code == item_code){
-             						remember_item = mastermenu[n].items[i];
-									mastermenu[n].items.splice(i, 1); //remove item from this category        						
-             						isItemFound = true;
-             						addItemToNewCategory();
-
-             						break;
-             					}
-             				}
-             				n++;
-             			}
-
-
-             			function addItemToNewCategory(){
-	             			var k = 0;
-	             			while(mastermenu[k]){
-	             				if(mastermenu[k].category == item_category){
-	             					mastermenu[k].items.push(remember_item);
-	             					saveUpdates();
-	             					break;
-	             				}
-
-	             				if(k == mastermenu.length - 1){ //last iteration and no category found ==> Create new cat
-	             					var newItemsList = [];
-				                	newItemsList.push(remember_item);
-
-				                	mastermenu.push({
-				                		"category": item_category,
-				                        "items": newItemsList
-				                    });
-
-				                    saveUpdates();
-				                    break;
-	             				}
-
-	             				k++;
-	             			}             				
-             			}
-                    	
-
-                    	function saveUpdates() {
-                     		//Update
-			                var updateData = {
-			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ACCELERATE_MASTER_MENU",
-			                  "value": mastermenu
-			                }
-
-			                $.ajax({
-			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-			                  data: JSON.stringify(updateData),
-			                  contentType: "application/json",
-			                  dataType: 'json',
-			                  timeout: 10000,
-			                  success: function(data) {
-			                  	showToast('Success! <b>' + item_name + '</b> has been move to '+item_category, '#27ae60');
-			                  	openSubMenu(current_opened_category != '' ? current_opened_category : item_category);
-			                  },
-			                  error: function(data) {
-			                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-			                  }
-
-			                });  
-                    	}
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
-        }
+			showToast('Success! <b>' + item_name + '</b> has been move to '+item_category, '#27ae60');
+			openSubMenu(current_opened_category != '' ? current_opened_category : item_category);
+		}
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
+        showToast('System Error: Unable to update Menu data.', '#e74c3c');
       }
 
     });  
@@ -1582,7 +1095,6 @@ function validateMenuItem(item){
 	}
 }
 
-
 function saveItemToFile(category, item) {
 
 	if(item == null){
@@ -1590,217 +1102,44 @@ function saveItemToFile(category, item) {
 		return "";
 	}
 
-	
-    /*to find the latest item code*/
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+	var requestData = item;
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu/category/'+category+'/item',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-             	var mastermenu = data.docs[0].value;
-
-                /*beautify item price if Custom item*/
-                if (item.isCustom) {
-                    var min = 0;  //Index of min and max values.
-                    var max = 0;
-                    var g = 0;
-                    while (item.customOptions[g]) {
-                        if (parseInt(item.customOptions[g].customPrice) > parseInt(item.customOptions[max].customPrice)) {
-                            max = g;
-                        }
-                        if (parseInt(item.customOptions[min].customPrice) > parseInt(item.customOptions[g].customPrice)) {
-                            min = g;
-                        }
-
-                        //Last iteration
-                        if(g == item.customOptions.length - 1){
-                        	if (item.customOptions[min].customPrice != item.customOptions[max].customPrice) {
-		                        item.price = item.customOptions[min].customPrice + '-' + item.customOptions[max].customPrice;
-		                    } else {
-		                        item.price = item.customOptions[max].customPrice;
-		                    }
-                        }
-
-                        g++;
-                    }
-                }
-
-
-                //PROCEED TO SAVE
-
-                /*begin save*/
-                if(mastermenu == []){
-                	//Menu is completely empty
-
-                	var newItemsList = [];
-                	newItemsList.push(item);
-
-                	mastermenu.push({
-                		"category": category,
-                        "items": newItemsList
-                    });
-
-	                //Update
-	                var updateData = {
-	                  "_rev": data.docs[0]._rev,
-	                  "identifierTag": "ACCELERATE_MASTER_MENU",
-	                  "value": mastermenu
-	                }
-
-	                $.ajax({
-	                  type: 'PUT',
-	                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-	                  data: JSON.stringify(updateData),
-	                  contentType: "application/json",
-	                  dataType: 'json',
-	                  timeout: 10000,
-	                  success: function(data) {
-	                  	showToast('Success! <b>'+ item.name +'</b> is added to the Menu.', '#27ae60');
-	                  	openSubMenu(category);
-	                  },
-	                  error: function(data) {
-	                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-	                  }
-
-	                });  
-
-                }
-                else{
-                	//Check if Category Exists or not
-                	var categoryExists = false;
-                    for (var i = 0; i < mastermenu.length; i++) {
-                        if (mastermenu[i].category == category) {
-                           	categoryExists = true;
-                            break;
-                        }
-                    }
-
-                    if(categoryExists){ //Add to EXISTING Category
-                    	var isItemDuplicate = false;
-
-                    	var f = 0;
-                    	while(mastermenu[f]){
-
-	                        for (var j = 0; j < mastermenu[f].items.length; j++) {
-	                            if (mastermenu[f].items[j].code == item.code) {
-	                                isItemDuplicate = true;
-	                                break;
-	                            }
-	                        }
-
-	                        f++;
-	                    }
-
-                        if(isItemDuplicate){ 
-	                        showToast('Warning: Item Code <b>#'+item.code+'</b> already exists. Please choose a different code.', '#e67e22');
-	                        return '';
-                        }
-                        
-
-
-                        //Completely a New Item 
-                        if(!isItemDuplicate){
-                            
-                            mastermenu[i].items.push(item);
-                     	
-                     		//Update
-			                var updateData = {
-			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ACCELERATE_MASTER_MENU",
-			                  "value": mastermenu
-			                }
-
-			                $.ajax({
-			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-			                  data: JSON.stringify(updateData),
-			                  contentType: "application/json",
-			                  dataType: 'json',
-			                  timeout: 10000,
-			                  success: function(data) {
-			                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
-			                  	openSubMenu(category);
-			                  },
-			                  error: function(data) {
-			                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-			                  }
-
-			                });  
-                        }
-                    }
-                    else{ //Add NEW Category
-
-	                	var newItemsList = [];
-	                	newItemsList.push(item);
-
-	                	mastermenu.push({
-	                		"category": category,
-	                        "items": newItemsList
-	                    });
-
-		                //Update
-		                var updateData = {
-		                  "_rev": data.docs[0]._rev,
-		                  "identifierTag": "ACCELERATE_MASTER_MENU",
-		                  "value": mastermenu
-		                }
-
-		                $.ajax({
-		                  type: 'PUT',
-		                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-		                  data: JSON.stringify(updateData),
-		                  contentType: "application/json",
-		                  dataType: 'json',
-		                  timeout: 10000,
-		                  success: function(data) {
-		                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
-		                  	openSubMenu(category);
-		                  },
-		                  error: function(data) {
-		                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-		                  }
-
-		                });  	                    
-                    }
-                }
-				/* end of save */ 
-
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
-        }
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+			showToast('Success! <b>'+ item.name +'</b> is added to the Menu.', '#27ae60');
+	        openSubMenu(category);
+		}
+		else{
+			showToast('System Error: Unable to update Menu data.', '#e74c3c');
+		}
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
+		var response = data.responseJSON;
+		if (response.code == 409 && response.msg == "conflict"){
+			showToast('Warning: Item Code <b>#'+item.code+'</b> already exists. Please choose a different code.', '#e67e22');
+		}
+		else if(response.code == 400 && response.msg == 'bad request'){
+			showToast('Warning: '+ response.data , '#e67e22')
+		}
+		else{
+			showToast('System Error: Unable to update Menu data.', '#e74c3c');
+		}       
       }
 
     });  
 
 }
-
-
-
-
-
 
 function saveEditedItemToFile(category, item) {
 
@@ -1809,450 +1148,52 @@ function saveEditedItemToFile(category, item) {
 		return "";
 	}
 
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
+	var requestData = item;
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      type: 'PUT',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu/category/'+category+'/item/'+item.code,
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-             	var mastermenu = data.docs[0].value;
-
-                /*beautify item price if Custom item*/
-                if (item.isCustom) {
-                    var min = 0;  //Index of min and max values.
-                    var max = 0;
-                    var g = 0;
-                    while (item.customOptions[g]) {
-                        if (parseInt(item.customOptions[g].customPrice) > parseInt(item.customOptions[max].customPrice)) {
-                            max = g;
-                        }
-                        if (parseInt(item.customOptions[min].customPrice) > parseInt(item.customOptions[g].customPrice)) {
-                            min = g;
-                        }
-
-                        //Last iteration
-                        if(g == item.customOptions.length - 1){
-                        	if (item.customOptions[min].customPrice != item.customOptions[max].customPrice) {
-		                        item.price = item.customOptions[min].customPrice + '-' + item.customOptions[max].customPrice;
-		                    } else {
-		                        item.price = item.customOptions[max].customPrice;
-		                    }
-                        }
-
-                        g++;
-                    }
-                }
-
-
-                //PROCEED TO SAVE
-
-                /*begin save*/
-                if(mastermenu == []){
-                	//Menu is completely empty
-
-                	var newItemsList = [];
-                	newItemsList.push(item);
-
-                	mastermenu.push({
-                		"category": category,
-                        "items": newItemsList
-                    });
-
-	                //Update
-	                var updateData = {
-	                  "_rev": data.docs[0]._rev,
-	                  "identifierTag": "ACCELERATE_MASTER_MENU",
-	                  "value": mastermenu
-	                }
-
-	                $.ajax({
-	                  type: 'PUT',
-	                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-	                  data: JSON.stringify(updateData),
-	                  contentType: "application/json",
-	                  dataType: 'json',
-	                  timeout: 10000,
-	                  success: function(data) {
-	                  	showToast('Success! <b>'+ item.name +'</b> is added to the Menu.', '#27ae60');
-	                  	openSubMenu(category);
-	                  },
-	                  error: function(data) {
-	                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-	                  }
-
-	                });  
-
-                }
-                else{
-
-                	//Check if Category Exists or not
-                	var categoryExists = false;
-                    for (var i = 0; i < mastermenu.length; i++) {
-                        if (mastermenu[i].category == category) {
-                           	categoryExists = true;
-                            break;
-                        }
-                    }
-
-                    if(categoryExists){ //Add to EXISTING Category
-                    	var isItemDuplicate = false;
-
-                    	var f = 0;
-                    	var track_index = null;
-                    	while(mastermenu[f]){
-
-	                        for (var j = 0; j < mastermenu[f].items.length; j++) {
-	                            if (parseInt(mastermenu[f].items[j].code) == parseInt(item.code)) {
-	                                isItemDuplicate = true;
-	                                track_index = j;
-	                                break;
-	                            }
-	                        }
-
-	                        f++;
-	                    }
-
-                        if(track_index == null){
-	                        showToast('Warning: Item Code <b>#'+item.code+'</b> was not found.', '#e67e22');
-	                        return '';
-                        }
-                        else{
-                        	
-                            mastermenu[i].items[track_index] = item;
-                     	
-                     		//Update
-			                var updateData = {
-			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ACCELERATE_MASTER_MENU",
-			                  "value": mastermenu
-			                }
-
-			                $.ajax({
-			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-			                  data: JSON.stringify(updateData),
-			                  contentType: "application/json",
-			                  dataType: 'json',
-			                  timeout: 10000,
-			                  success: function(data) {
-			                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
-			                  	openSubMenu(category);
-			                  },
-			                  error: function(data) {
-			                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-			                  }
-
-			                });  
-                        }
-                    }
-                    else{ //Add NEW Category
-
-	                	var newItemsList = [];
-	                	newItemsList.push(item);
-
-	                	mastermenu.push({
-	                		"category": category,
-	                        "items": newItemsList
-	                    });
-
-		                //Update
-		                var updateData = {
-		                  "_rev": data.docs[0]._rev,
-		                  "identifierTag": "ACCELERATE_MASTER_MENU",
-		                  "value": mastermenu
-		                }
-
-		                $.ajax({
-		                  type: 'PUT',
-		                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-		                  data: JSON.stringify(updateData),
-		                  contentType: "application/json",
-		                  dataType: 'json',
-		                  timeout: 10000,
-		                  success: function(data) {
-		                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
-		                  	openSubMenu(category);
-		                  },
-		                  error: function(data) {
-		                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-		                  }
-
-		                });  	                    
-                    }
-                }
-				/* end of save */ 
-
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
-        }
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+			showToast('Success! <b>'+ item.name +'</b> is added to the Menu.', '#27ae60');
+	        openSubMenu(category);
+		}
+		else{
+			showToast('System Error: Unable to update Menu data.', '#e74c3c');
+		}
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
+		var response = data.responseJSON;
+		if (response.code == 404 && response.msg == 'no record found'){
+			showToast('Warning: Item Code <b>#'+item.code+'</b> was not found.', '#e67e22');
+			return '';
+		}
+		else if(response.code == 400 && response.msg == 'bad request'){
+			showToast('Warning: '+ response.data , '#e67e22')
+		}
+		else{
+			showToast('System Error: Unable to update Menu data.', '#e74c3c');
+		}       
       }
 
     });  
 
 }
-
-
-
 
 function saveEncodedItemToFile(category, encodedItem) { //Custom function for Undo Delete
 
 	var item = JSON.parse(decodeURI(encodedItem));
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-             	var mastermenu = data.docs[0].value;
-
-                /*beautify item price if Custom item*/
-                if (item.isCustom) {
-                    var min = 0;
-                    var max = 0;
-                    var i = 0;
-                    while (item.customOptions[i]) {
-                        if (i == 0) {
-                            min = item.customOptions[i].customPrice;
-                        }
-
-                        if (max < item.customOptions[i].customPrice) {
-                            max = item.customOptions[i].customPrice;
-                        }
-
-                        if (min > item.customOptions[i].customPrice) {
-                            min = item.customOptions[i].customPrice;
-                        }
-
-                        i++;
-                    }
-
-                    if (min < max) {
-                        item.price = min + '-' + max;
-                    } else {
-                        item.price = max;
-                    }
-
-                }
-
-
-
-                //PROCEED TO SAVE
-
-                /*begin save*/
-                if(mastermenu == []){
-                	//Menu is completely empty
-
-                	var newItemsList = [];
-                	newItemsList.push(item);
-
-                	mastermenu.push({
-                		"category": category,
-                        "items": newItemsList
-                    });
-
-	                //Update
-	                var updateData = {
-	                  "_rev": data.docs[0]._rev,
-	                  "identifierTag": "ACCELERATE_MASTER_MENU",
-	                  "value": mastermenu
-	                }
-
-	                $.ajax({
-	                  type: 'PUT',
-	                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-	                  data: JSON.stringify(updateData),
-	                  contentType: "application/json",
-	                  dataType: 'json',
-	                  timeout: 10000,
-	                  success: function(data) {
-	                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
-	                  	openSubMenu(category);
-	                  },
-	                  error: function(data) {
-	                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-	                  }
-
-	                });  
-
-                }
-                else{
-                	//Check if Category Exists or not
-                	var categoryExists = false;
-                    for (var i = 0; i < mastermenu.length; i++) {
-                        if (mastermenu[i].category == category) {
-                           	categoryExists = true;
-                            break;
-                        }
-                    }
-
-                    if(categoryExists){ //Add to EXISTING Category
-                    	var isItemDuplicate = false;
-
-                        for (var j = 0; j < mastermenu[i].items.length; j++) {
-                            if (mastermenu[i].items[j].code == item.code) {
-                                isItemDuplicate = true;
-                                break;
-                            }
-                        }
-
-                        if(isItemDuplicate){ 
-                            
-                            if(editFlag){ //Editing, so no issue with duplicate code
-	                            mastermenu[i].items[j] = item;
-
-				                //Update
-				                var updateData = {
-				                  "_rev": data.docs[0]._rev,
-				                  "identifierTag": "ACCELERATE_MASTER_MENU",
-				                  "value": mastermenu
-				                }
-
-				                $.ajax({
-				                  type: 'PUT',
-				                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-				                  data: JSON.stringify(updateData),
-				                  contentType: "application/json",
-				                  dataType: 'json',
-				                  timeout: 10000,
-				                  success: function(data) {
-				                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
-				                  	openSubMenu(category);
-				                  },
-				                  error: function(data) {
-				                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-				                  }
-
-				                });
-				            }  
-				            else{
-	                        	showToast('Warning: Item Code <b>#'+item.code+'</b> already exists. Please choose a different code.', '#e67e22');
-	                            return '';
-	                        }
-                        }
-                        
-
-
-                        //Completely a New Item 
-                        if(!isItemDuplicate){
-                            
-                            mastermenu[i].items[j] = item;
-                     	
-                     		//Update
-			                var updateData = {
-			                  "_rev": data.docs[0]._rev,
-			                  "identifierTag": "ACCELERATE_MASTER_MENU",
-			                  "value": mastermenu
-			                }
-
-			                $.ajax({
-			                  type: 'PUT',
-			                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-			                  data: JSON.stringify(updateData),
-			                  contentType: "application/json",
-			                  dataType: 'json',
-			                  timeout: 10000,
-			                  success: function(data) {
-			                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
-			                  	openSubMenu(category);
-			                  },
-			                  error: function(data) {
-			                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-			                  }
-
-			                });  
-                        }
-                    }
-                    else{ //Add NEW Category
-
-	                	var newItemsList = [];
-	                	newItemsList.push(item);
-
-	                	mastermenu.push({
-	                		"category": category,
-	                        "items": newItemsList
-	                    });
-
-		                //Update
-		                var updateData = {
-		                  "_rev": data.docs[0]._rev,
-		                  "identifierTag": "ACCELERATE_MASTER_MENU",
-		                  "value": mastermenu
-		                }
-
-		                $.ajax({
-		                  type: 'PUT',
-		                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-		                  data: JSON.stringify(updateData),
-		                  contentType: "application/json",
-		                  dataType: 'json',
-		                  timeout: 10000,
-		                  success: function(data) {
-		                  	showToast('Success! <b>' + item.name + '</b> is added to the Menu.', '#27ae60');
-		                  	openSubMenu(category);
-		                  },
-		                  error: function(data) {
-		                    showToast('System Error: Unable to update Menu data.', '#e74c3c');
-		                  }
-
-		                });  	                    
-                    }
-                }
-				/* end of save */ 
-
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
-      }
-
-    });  
+	saveItemToFile(category, item)
 
 }
-
-
-
 
 
 function readNewItem(category){
@@ -2441,241 +1382,89 @@ function addCategory() {
 
 
     var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
+		categoryName : name
     }
 
     $.ajax({
       type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu/category',
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
-
-             var categoryList = data.docs[0].value;
-             var flag = 0;
-
-             for (var i=0; i<categoryList.length; i++) {
-               if (categoryList[i] == name){
-                  flag = 1;
-                  break;
-               }
-             }
-
-
-             if(flag == 1){
-               showToast('Warning: Category already exists. Please choose a different name.', '#e67e22');
-             }
-             else{
-
-                categoryList.push(name);
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_MENU_CATEGORIES",
-                  "value": categoryList
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MENU_CATEGORIES/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-
-	                fetchAllCategories(); //refresh the list
-	                hideNewMenuCategory();
-	                openSubMenu(name);
-
-                  },
-                  error: function(data) {
-                     
-                    showToast('System Error: Unable to update Categories data.', '#e74c3c');
-                  }
-
-                });  
-
-             }
-                
-          }
-          else{
-            showToast('Not Found Error: Categories data not found.', '#e74c3c');
-          }
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+			document.getElementById("add_new_category_name").value = ''
+	    	fetchAllCategories(); //refresh the list
+	        hideNewMenuCategory();
+	        openSubMenu(name);
         }
-        else{
-          showToast('Not Found Error: Categories data not found.', '#e74c3c');
-        }
+		else{
+			showToast('System Error: Unable to update Categories data.', '#e74c3c');
+		}
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Categories data.', '#e74c3c');
+		var response = data.responseJSON;
+		if (response.code == 409 && response.msg == "conflict"){
+			showToast('Warning: '+ response.data , '#e67e22');
+		}
+		else if(response.code == 400 && response.msg == 'bad request'){
+			showToast('Warning: '+ response.data , '#e67e22')
+		}
+		else{
+        showToast('System Error: Unable to update Categories data.', '#e74c3c');
+		}
       }
 
     });    
 }
 
-
-/* delete items in a given category */
-function deleteCategoryFromMaster(menuCategory){
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-	          	var mastermenu = data.docs[0].value; 
-				for (var i=0; i<mastermenu.length; i++){
-
-					if(menuCategory == mastermenu[i].category){
-						mastermenu.splice(i,1);
-						break;
-					}
-
-				}
-		       
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_MASTER_MENU",
-                  "value": mastermenu
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                    fetchAllCategories();
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
-                  }
-
-                });  
-                
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
-      }
-
-    });  
-}
-
-
 /* delete a category */
-function deleteCategory(name) {  
-
+function deleteCategory(menuCategory){ 
 	/* delete from cateogry list and delete all the entries from master menu as well */
 
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
+      type: 'DELETE',
+      url: ACCELERON_SERVER_ENDPOINT+'/menu/category/'+menuCategory,
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
-
-               var categoryList = data.docs[0].value;
-
-               for (var i=0; i<categoryList.length; i++) {  
-                 if (categoryList[i] == name){
-                    categoryList.splice(i,1);
-                    break;
-                 }
-               }
-
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_MENU_CATEGORIES",
-                  "value": categoryList
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MENU_CATEGORIES/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-	                   /* on successful delete */
-	                   deleteCategoryFromMaster(name);
-	                   deleteCategoryFromKOTRelays(name);
-
-					   /* on successful delete */
-					   document.getElementById("menuDetailsArea").style.display = "none";
-					   document.getElementById("categoryDeleteConfirmation").style.display = 'none';
-					   //location.reload();
-
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to make changes in Categories data.', '#e74c3c');
-                  }
-
-                });  
-                
-          }
-          else{
-            showToast('Not Found Error: Categories data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Categories data not found.', '#e74c3c');
-        }
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+        	/* on successful delete */
+			fetchAllCategories();
+			deleteCategoryFromKOTRelays(menuCategory);
+		
+			/* on successful delete */
+			document.getElementById("menuDetailsArea").style.display = "none";
+			document.getElementById("categoryDeleteConfirmation").style.display = 'none';
+			//location.reload();
+		}
+		else{
+			showToast('System Error: Unable to make changes in Categories data.', '#e74c3c');
+		}
 
       },
       error: function(data) {
-        showToast('System Error: Unable to read Categories data.', '#e74c3c');
+		var response = data.responseJSON;
+		if (response.code == 404 && response.msg == 'no record found'){
+			showToast('Not Found Error: Categories data not found..', '#e74c3c');
+		}
+		else if(response.code == 400 && response.msg == 'bad request'){
+			showToast('Warning: '+ response.data , '#e67e22')
+		}
+		else{
+			showToast('System Error: Unable to make changes in Categories data.', '#e74c3c');
+		}
+        
       }
 
     });  
-
 }
 
 
@@ -2693,82 +1482,6 @@ function cancelDeleteConfirmation(){
 	document.getElementById("categoryDeleteConfirmation").style.display = 'none';
 }
 
-/*edit category name alone */
-function renameCategoryFromMaster(current, newName){
-
-
-    var requestData = {
-      "selector"  :{ 
-                    "identifierTag": "ACCELERATE_MASTER_MENU" 
-                  },
-      "fields"    : ["_rev", "identifierTag", "value"]
-    }
-
-    $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-      data: JSON.stringify(requestData),
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_MASTER_MENU'){
-
-               var mastermenu = data.docs[0].value;
-
-				for (var i=0; i<mastermenu.length; i++){
-
-					if(current == mastermenu[i].category){
-						mastermenu[i].category = newName;
-						break;
-					}
-
-				}
-		       
-                //Update
-                var updateData = {
-                  "_rev": data.docs[0]._rev,
-                  "identifierTag": "ACCELERATE_MASTER_MENU",
-                  "value": mastermenu
-                }
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MASTER_MENU/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                    fetchAllCategories();
-                    renameKOTRelaysList(current, newName);
-		        	openSubMenu(newName);
-                  },
-                  error: function(data) {
-                    showToast('System Error: Unable to make changes in Menu data.', '#e74c3c');
-                  }
-
-                });  
-                
-          }
-          else{
-            showToast('Not Found Error: Menu data not found.', '#e74c3c');
-          }
-        }
-        else{
-          showToast('Not Found Error: Menu data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read Menu data.', '#e74c3c');
-      }
-
-    });  
-
-}
-
 
 
 function renameKOTRelaysList(current, newName){
@@ -2777,62 +1490,40 @@ function renameKOTRelaysList(current, newName){
 		Check if this category is listed under "KOT Relaying"
 		and if added, update its name
 	*/
+	var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+	if(!machineName || machineName == ''){
+	  machineName = 'Any';
+	}
 
-
-    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_KOT_RELAYING" } }
+    var requestData = { 
+		categoryName : current,
+		newCategoryName : newName
+	 }
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      type: 'PUT',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_KOT_RELAYING/renameCategory?machineName='+machineName,
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_RELAYING'){
-
-              var settingsList = data.docs[0].value;
-
-              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
-              if(!machineName || machineName == ''){
-                machineName = 'Any';
-              }
-
-              for(var n=0; n<settingsList.length; n++){
-                if(settingsList[n].systemName == machineName){
-
-                    for (var i=0; i<settingsList[n].data.length; i++){
-                      if(settingsList[n].data[i].name == current){
-                        settingsList[n].data[i].name = newName;
-                        break;
-                      }
-                    }
-
-                    updateRelayData(settingsList, data.docs[0]._rev);
-
-                  break;
-                }
-              }
-
-
-          }
-          else{
-            showToast('Not Found Error: KOT Relaying data not found.', '#e74c3c');
-          }
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
         }
         else{
-          showToast('Not Found Error: KOT Relaying data not found.', '#e74c3c');
+			showToast('System Error: Unable to update KOT Relaying data.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOT Relaying data.', '#e74c3c');
+        showToast('System Error: Unable to read update Relaying data.', '#e74c3c');
       }
 
     });  
 }
-
 
 function deleteCategoryFromKOTRelays(name){
 
@@ -2841,87 +1532,39 @@ function deleteCategoryFromKOTRelays(name){
 		and if added, remove the name
 	*/
 
+	var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
+	if(!machineName || machineName == ''){
+	  machineName = 'Any';
+	}
 
-    var requestData = { "selector" :{ "identifierTag": "ACCELERATE_KOT_RELAYING" } }
+    var requestData = { 
+		categoryName : name,
+	 }
 
     $.ajax({
-      type: 'POST',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
+      type: 'PUT',
+      url: ACCELERON_SERVER_ENDPOINT+'/settings//ACCELERATE_KOT_RELAYING/deleteCategory?machineName='+machineName,
       data: JSON.stringify(requestData),
       contentType: "application/json",
       dataType: 'json',
       timeout: 10000,
-      success: function(data) {
-        if(data.docs.length > 0){
-          if(data.docs[0].identifierTag == 'ACCELERATE_KOT_RELAYING'){
-
-              var settingsList = data.docs[0].value;
-
-              var machineName = window.localStorage.accelerate_licence_machineUID ? window.localStorage.accelerate_licence_machineUID : '';
-              if(!machineName || machineName == ''){
-                machineName = 'Any';
-              }
-
-              for(var n=0; n<settingsList.length; n++){
-                if(settingsList[n].systemName == machineName){
-
-                    for (var i=0; i<settingsList[n].data.length; i++){
-                      if(settingsList[n].data[i].name == name){
-                        settingsList[n].data.splice(i,1);
-                        break;
-                      }
-                    }
-
-                    updateRelayData(settingsList, data.docs[0]._rev);
-
-                  break;
-                }
-              }
-
-
-          }
-          else{
-            showToast('Not Found Error: KOT Relaying data not found.', '#e74c3c');
-          }
+	  beforeSend: function(xhr){
+		xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
         }
         else{
-          showToast('Not Found Error: KOT Relaying data not found.', '#e74c3c');
+			showToast('System Error: Unable to update KOT Relaying data.', '#e74c3c');
         }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOT Relaying data.', '#e74c3c');
+        showToast('System Error: Unable to update KOT Relaying data.', '#e74c3c');
       }
 
-    });  	
+    });  
 }
-
-
-function updateRelayData(customList, rev){
-
-                    //Update
-                    var updateData = {
-                      "_rev": rev,
-                      "identifierTag": "ACCELERATE_KOT_RELAYING",
-                      "value": customList
-                    }
-
-                    $.ajax({
-                      type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_KOT_RELAYING/',
-                      data: JSON.stringify(updateData),
-                      contentType: "application/json",
-                      dataType: 'json',
-                      timeout: 10000,
-                      success: function(data) {
-                      },
-                      error: function(data) {
-                        showToast('System Error: Unable to update KOT Relaying data.', '#e74c3c');
-                      }
-                    });     
-}
-
-
 
 function saveNewCategoryName(currentName){
 
@@ -2932,78 +1575,39 @@ function saveNewCategoryName(currentName){
 		return ''
 	}
 
-	if(currentName != newName){ /* replace category name*/
+	if(currentName != newName){  /* replace category name*/
 
-		    var requestData = {
-		      "selector"  :{ 
-		                    "identifierTag": "ACCELERATE_MENU_CATEGORIES" 
-		                  },
-		      "fields"    : ["_rev", "identifierTag", "value"]
-		    }
+	    var requestData = {
+			categoryName : newName
+		  }
 
 		    $.ajax({
-		      type: 'POST',
-		      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-		      data: JSON.stringify(requestData),
-		      contentType: "application/json",
-		      dataType: 'json',
-		      timeout: 10000,
-		      success: function(data) {
-		        if(data.docs.length > 0){
-		          if(data.docs[0].identifierTag == 'ACCELERATE_MENU_CATEGORIES'){
+				type: 'PUT',
+				url: ACCELERON_SERVER_ENDPOINT+'/menu/category/'+currentName,
+				data: JSON.stringify(requestData),
+				contentType: "application/json",
+				dataType: 'json',
+				timeout: 10000,
+				beforeSend: function(xhr){
+				  xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+				},
+				success: function(result) {
+				  if(result.code == 200 && result.msg == "success"){
+					fetchAllCategories();
+                    renameKOTRelaysList(currentName, newName);
+		        	openSubMenu(newName);
 
-		             var categoryList = data.docs[0].value;
-		             var locatedPointer = '';
-
-		       		 for (var i=0; i<categoryList.length; i++) { 
-				       	 /*check if new name exists*/
-				       	 if(categoryList[i] == newName){
-				       	 	showToast('Warning: Name already exists. Please choose a different name.', '#e67e22');
-				       	 	return '';
-				       	 }
-
-				       	 /*find the match for name change*/ 
-				         if (categoryList[i] == currentName && locatedPointer == ''){
-				         	locatedPointer = i;
-				         }
-		       		 }
-
-				       	//Change name to new name
-				       	categoryList[locatedPointer] = newName;
-
-		                //Update
-		                var updateData = {
-		                  "_rev": data.docs[0]._rev,
-		                  "identifierTag": "ACCELERATE_MENU_CATEGORIES",
-		                  "value": categoryList
-		                }
-
-		                $.ajax({
-		                  type: 'PUT',
-		                  url: COMMON_LOCAL_SERVER_IP+'accelerate_settings/ACCELERATE_MENU_CATEGORIES/',
-		                  data: JSON.stringify(updateData),
-		                  contentType: "application/json",
-		                  dataType: 'json',
-		                  timeout: 10000,
-		                  success: function(data) {
-			                renameCategoryFromMaster(currentName, newName);
-		                  },
-		                  error: function(data) {
-		                    showToast('System Error: Unable to update Categories data.', '#e74c3c');
-		                  }
-
-		                });  
-  
-		          }
-		          else{
-		            showToast('Not Found Error: Categories data not found.', '#e74c3c');
-		          }
-		        }
-		        else{
-		          showToast('Not Found Error: Categories data not found.', '#e74c3c');
-		        }
-
-		      },
+				  }
+				  else if(result.code == 404 && result.msg == 'no record found'){
+					showToast('Not Found Error: Categories data not found.', '#e74c3c');
+				  }
+				  else if(result.code == 409 && result.msg == "conflict"){
+					showToast('Warning: Name already exists. Please choose a different name.', '#e67e22');
+				  }
+				  else{
+					showToast('System Error: Unable to update Categories data.', '#e74c3c');
+				  }
+				},
 		      error: function(data) {
 		        showToast('System Error: Unable to read Categories data.', '#e74c3c');
 		      }
@@ -3014,7 +1618,6 @@ function saveNewCategoryName(currentName){
 
 	document.getElementById("categoryEditNameConfirmation").style.display = 'none';
 }
-
 
 function openEditCategoryName(current){
 	document.getElementById("editCategoryNameConsent").innerHTML = '<button class="btn btn-default" onclick="hideEditCategoryName()" style="float: left">Cancel</button>'+

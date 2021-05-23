@@ -104,7 +104,7 @@ function fetchAllDineSessions(optionalHighlighter){
       },
       success: function(result) {
         if(result.code == 200 && result.msg == "success"){
-              var params = result.data;
+              var params = result.data.value;
               params.sort(function(a, b) {
                 if(a.startTime < b.startTime) { return -1; }
                 if(a.startTime > b.startTime) { return 1; }
@@ -260,7 +260,7 @@ function fetchAllCookingIngredients(optionalHighlighter){
       },
       success: function(result) {
         if(result.code == 200 && result.msg == "success"){
-              var modes = result.data;
+              var modes = result.data.value;
               //alphabetical sorting 
               modes.sort(function (a, b) {
                   return a.toLowerCase().localeCompare(b.toLowerCase());
@@ -389,7 +389,7 @@ function fetchAllCancellationReasons(optionalHighlighter){
       },
       success: function(result) {
         if(result.code == 200 && result.msg == "success"){
-              var modes = result.data;
+              var modes = result.data.value;
               //alphabetical sorting 
               modes.sort(function (a, b) {
                   return a.toLowerCase().localeCompare(b.toLowerCase());
@@ -519,7 +519,7 @@ function fetchAllSavedComments(optionalHighlighter){
       success: function(result) {
         if(result.code == 200 && result.msg == "success"){
 
-              var modes = result.data;
+              var modes = result.data.value;
               //alphabetical sorting 
               modes.sort(function (a, b) {
                   return a.toLowerCase().localeCompare(b.toLowerCase());

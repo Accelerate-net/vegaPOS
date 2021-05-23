@@ -37,187 +37,168 @@ function getAddressFormattedLive(kot){
 
 function renderAllKOTs() {
 
-    var filterLiveOrdersFlag = window.localStorage.filterLiveOrdersKOTFlag ? window.localStorage.filterLiveOrdersKOTFlag : 'DINE';
-    if(filterLiveOrdersFlag == 'DINE'){
-      $('#switchLiveOrderRenderTypeButton').html('Showing Dine Orders');
-    }
-    else{
-      $('#switchLiveOrderRenderTypeButton').html('Showing Non-Dine Orders');
-    }
+  var filterLiveOrdersFlag = window.localStorage.filterLiveOrdersKOTFlag ? window.localStorage.filterLiveOrdersKOTFlag : 'DINE';
+  if(filterLiveOrdersFlag == 'DINE'){
+    $('#switchLiveOrderRenderTypeButton').html('Showing Dine Orders');
+  }
+  else{
+    $('#switchLiveOrderRenderTypeButton').html('Showing Non-Dine Orders');
+  }
 
-    $('#switchLiveOrderRenderTypeButton').removeClass('hiddenLiveButton');
-    document.getElementById("switchLiveOrderRenderTypeButton").style.display = 'block';
+  $('#switchLiveOrderRenderTypeButton').removeClass('hiddenLiveButton');
+  document.getElementById("switchLiveOrderRenderTypeButton").style.display = 'block';
 
 
-    //document.getElementById("fullKOT").innerHTML = '';
+  //document.getElementById("fullKOT").innerHTML = '';
 
-    var runningKOTList = [];
-
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/_design/kot-fetch/_view/fetchall',
-      contentType: "application/json",
-      dataType: 'json',
-      timeout: 10000,
-      success: function(data) {
-        if(data.total_rows > 0){
-            
-            runningKOTList = data.rows;
+  var runningKOTList = [];
+  $.ajax({
+    type: 'GET',
+    url: ACCELERON_SERVER_ENDPOINT+'/kot/filter?key=all',
+    timeout: 10000,
+	  beforeSend: function(xhr){
+		  xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	  },
+    success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+          runningKOTList = result.data;
+          if(runningKOTList.length != 0){
 
             var n = 0;
             var running_count_dine = 0;
             var running_count_other = 0;
 
-
             while(runningKOTList[n]){
 
-                var tempStore = n;
+              var tempStore = n;
+              var kot = runningKOTList[n]
+              if(kot._id != ''){
+                if(filterLiveOrdersFlag == 'DINE'){
+                  if(running_count_dine == 0){
+                    document.getElementById("liveKOTMain").innerHTML = '<div class="col-xs-12 kotListing"> <ul id="fullKOT"> </ul> </div>';
+                  }
+                  if(kot.orderDetails.modeType == 'DINE'){
 
-                $.ajax({
-                  type: 'GET',
-                  url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+runningKOTList[n].id,
-                  timeout: 10000,
-                  success: function(data) {
+                    running_count_dine++;
 
-                    if(data._id != ''){
-                            
-                            var kot = data;
+                    var i = 0;
+                    var fullKOT = "";
+                    var begKOT = "";
+                    var itemsInCart = "";
+                    var items = "";
 
-                            if(filterLiveOrdersFlag == 'DINE'){
-
-                              if(running_count_dine == 0){
-                                  document.getElementById("liveKOTMain").innerHTML = '<div class="col-xs-12 kotListing"> <ul id="fullKOT"> </ul> </div>';
-                              }
-
-                              if(kot.orderDetails.modeType == 'DINE'){
-
-                                  running_count_dine++;
-
-                                  var i = 0;
-                                  var fullKOT = "";
-                                  var begKOT = "";
-                                  var itemsInCart = "";
-                                  var items = "";
-
-                                  begKOT = '<li> <a href="#" '+getColorPaper(kot.timeKOT == '' ? kot.timePunch : kot.timeKOT)+' onclick="liveOrderOptions(\''+kot.KOTNumber+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
-                                  while (i < kot.cart.length) {
-                                      itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ (kot.cart[i].comments && kot.cart[i].comments != "" ? ' <i class="fa fa-comment" style="font-size: 80%"></i>' : '') +'</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
-                                      i++;
-                                  }
-
-                                  items = begKOT + itemsInCart + '</table> </div>'+(i > 6?'<more class="more">More Items</more>':'')+
-                                                          '<tag class="bottomTag">'+
-                                                          '<p class="tagSteward">' +(kot.stewardName != ''? kot.stewardName   : 'Unknown Staff')+ '</p>'+
-                                                          '<p class="tagUpdate">'+(kot.timeKOT == ''? 'Order punched '+getFormattedTime(kot.timePunch)+' ago': 'Order modified '+getFormattedTime(kot.timeKOT)+' ago' )+'</p>'+
-                                                          '</tag> </a>';
-
-                                  fullKOT = fullKOT + items + '</li>';
-                                  finalRender(fullKOT);
-                              }
-                            }
-                            else{
-
-                              if(running_count_other == 0){
-                                  document.getElementById("liveKOTMain").innerHTML =  '<div class="col-xs-12 kotListing"><div class="col-xs-12 kotListing" style="padding: 45px 40px">'+
-                                                                                      '<div class="box box-primary">'+
-                                                                                        '<div class="box-body">'+
-                                                                                            '<div class="box-header" style="padding: 10px 0px">'+
-                                                                                               '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Active Non-Dine Orders</h3>'+
-                                                                                            '</div>'+
-                                                                                            '<div class="table-responsive">'+
-                                                                                                '<table class="table" style="margin: 0">'+
-                                                                                                    '<col width="20%"><col width="40%"><col width="20%"><col width="20%">'+
-                                                                                                    '<thead style="background: #f4f4f4;">'+
-                                                                                                        '<tr>'+
-                                                                                                            '<th style="text-align: left">KOT No.</th>'+
-                                                                                                            '<th style="text-align: left">Order Summary</th>'+
-                                                                                                            '<th style="text-align: center">Punched</th>'+
-                                                                                                            '<th style="text-align: left">Reference</th>'+
-                                                                                                        '</tr>'+
-                                                                                                    '</thead>'+
-                                                                                                '</table>'+
-                                                                                                '<table class="table" style="margin: 0">'+
-                                                                                                    '<col width="20%"><col width="40%"><col width="20%"><col width="20%">'+
-                                                                                                    '<tbody id="fullKOT"></tbody>'+
-                                                                                                '</table>'+
-                                                                                            '</div>'+
-                                                                                            '<div class="clearfix"></div>'+
-                                                                                        '</div>'+
-                                                                                    '</div>'+
-                                                                                    '</div></div>';
-                              }
-
-                              if(kot.orderDetails.modeType != 'DINE'){
-                                  
-                                    running_count_other++;
-
-                                    var n = 0;
-                                    var itemsList = '';
-                                    while(kot.cart[n]){
-                                      itemsList = itemsList + kot.cart[n].name + (kot.cart[n].isCustom ? '- '+kot.cart[n].variant : '') + ' ('+kot.cart[n].qty+'). ';
-                                      n++;
-                                    }
-
-                                    var tableList =               '<tr style="font-size: 16px;" class="liveOrderNonDine" onclick="liveOrderOptionsNonDine(\''+kot.KOTNumber+'\')">'+
-                                                                      '<td><b>#'+kot.KOTNumber+'</b><tag style="display: block; color: #dc2e6f; font-size: 12px;">'+kot.orderDetails.modeType+'</tag>'+(kot.orderDetails.reference != '' ? '<tag style="display: block; color: gray">Ref. <b>'+kot.orderDetails.reference+'</b></tag>' : '')+'</td>'+
-                                                                      '<td style="font-size: 95%">'+itemsList+'</td>'+
-                                                                      '<td style="text-align: center">'+getFormattedTimeWithDate(kot.timePunch, kot.date)+' ago</td>'+
-                                                                      '<td style="text-align: left; font-size: 14px;">'+getAddressFormattedLive(kot)+'</td>'+
-                                                                  '</tr>';
- 
-                                  finalRender(tableList); 
-                                                           
-                              }
-                          } //Else
-                    } //data.docs
-                    
-                   
-                    if(tempStore == runningKOTList.length - 1){ //last iteration
-                      if(filterLiveOrdersFlag == 'DINE'){
-                        if(running_count_dine == 0){
-                          document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Dine Orders</tag>';
-                        }
-                      }
-                      else{
-                        if(running_count_other == 0){
-                          document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Non-Dine Orders</tag>';
-                        }
-                      }
+                    begKOT = '<li> <a href="#" '+getColorPaper(kot.timeKOT == '' ? kot.timePunch : kot.timeKOT)+' onclick="liveOrderOptions(\''+kot.KOTNumber+'\')"> <h2>' + kot.KOTNumber + ' <tag class="tableName">'+kot.table+'</tag></h2><div class="itemList"> <table>';
+                    while (i < kot.cart.length) {
+                        itemsInCart = itemsInCart + '<tr> <td class="name">' +(kot.cart[i].isCustom ? kot.cart[i].name+' ('+kot.cart[i].variant+')' : kot.cart[i].name )+ (kot.cart[i].comments && kot.cart[i].comments != "" ? ' <i class="fa fa-comment" style="font-size: 80%"></i>' : '') +'</td> <td class="price">x ' + kot.cart[i].qty + '</td> </tr>';
+                        i++;
                     }
 
+                    items = begKOT + itemsInCart + '</table> </div>'+(i > 6?'<more class="more">More Items</more>':'')+
+                                            '<tag class="bottomTag">'+
+                                            '<p class="tagSteward">' +(kot.stewardName != ''? kot.stewardName   : 'Unknown Staff')+ '</p>'+
+                                            '<p class="tagUpdate">'+(kot.timeKOT == ''? 'Order punched '+getFormattedTime(kot.timePunch)+' ago': 'Order modified '+getFormattedTime(kot.timeKOT)+' ago' )+'</p>'+
+                                            '</tag> </a>';
 
-                  }//Success
+                    fullKOT = fullKOT + items + '</li>';
+                    finalRender(fullKOT);
+                  }      
+                }
+                else{
+                  if(running_count_other == 0){
+                          document.getElementById("liveKOTMain").innerHTML =  '<div class="col-xs-12 kotListing"><div class="col-xs-12 kotListing" style="padding: 45px 40px">'+
+                                                                              '<div class="box box-primary">'+
+                                                                                '<div class="box-body">'+
+                                                                                    '<div class="box-header" style="padding: 10px 0px">'+
+                                                                                       '<h3 class="box-title" style="padding: 5px 0px; font-size: 21px;">Active Non-Dine Orders</h3>'+
+                                                                                    '</div>'+
+                                                                                    '<div class="table-responsive">'+
+                                                                                        '<table class="table" style="margin: 0">'+
+                                                                                            '<col width="20%"><col width="40%"><col width="20%"><col width="20%">'+
+                                                                                            '<thead style="background: #f4f4f4;">'+
+                                                                                                '<tr>'+
+                                                                                                    '<th style="text-align: left">KOT No.</th>'+
+                                                                                                    '<th style="text-align: left">Order Summary</th>'+
+                                                                                                    '<th style="text-align: center">Punched</th>'+
+                                                                                                    '<th style="text-align: left">Reference</th>'+
+                                                                                                '</tr>'+
+                                                                                            '</thead>'+
+                                                                                        '</table>'+
+                                                                                        '<table class="table" style="margin: 0">'+
+                                                                                            '<col width="20%"><col width="40%"><col width="20%"><col width="20%">'+
+                                                                                            '<tbody id="fullKOT"></tbody>'+
+                                                                                        '</table>'+
+                                                                                    '</div>'+
+                                                                                    '<div class="clearfix"></div>'+
+                                                                                '</div>'+
+                                                                            '</div>'+
+                                                                            '</div></div>';
+                  }
 
-                });  
+                  if(kot.orderDetails.modeType != 'DINE'){                
+                    running_count_other++;
+                    var n = 0;
+                    var itemsList = '';
+                    while(kot.cart[n]){
+                      itemsList = itemsList + kot.cart[n].name + (kot.cart[n].isCustom ? '- '+kot.cart[n].variant : '') + ' ('+kot.cart[n].qty+'). ';
+                      n++;
+                    }
 
-                n++;   
+                    var tableList = '<tr style="font-size: 16px;" class="liveOrderNonDine" onclick="liveOrderOptionsNonDine(\''+kot.KOTNumber+'\')">'+
+                                    '<td><b>#'+kot.KOTNumber+'</b><tag style="display: block; color: #dc2e6f; font-size: 12px;">'+kot.orderDetails.modeType+'</tag>'+(kot.orderDetails.reference != '' ? '<tag style="display: block; color: gray">Ref. <b>'+kot.orderDetails.reference+'</b></tag>' : '')+'</td>'+
+                                    '<td style="font-size: 95%">'+itemsList+'</td>'+
+                                    '<td style="text-align: center">'+getFormattedTimeWithDate(kot.timePunch, kot.date)+' ago</td>'+
+                                    '<td style="text-align: left; font-size: 14px;">'+getAddressFormattedLive(kot)+'</td>'+
+                                    '</tr>';
+
+                    finalRender(tableList); 
+                                                   
+                  }
+                } 
+              }
+              if(tempStore == runningKOTList.length - 1){ //last iteration
+                if(filterLiveOrdersFlag == 'DINE'){
+                  if(running_count_dine == 0){
+                  document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Dine Orders</tag>';
+                  }
+                }
+                else{
+                  if(running_count_other == 0){
+                  document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Non-Dine Orders</tag>';
+                  }
+                }
+              }      
+              n++;   
             }
 
+          }
+          else{
+            document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Orders</tag>';
+            
+            setTimeout(function(){
+              if(currentRunningPage == 'live-orders')
+                $('#switchLiveOrderRenderTypeButton').addClass('hiddenLiveButton'); 
+            }, 500);
 
+            setTimeout(function(){
+              if(currentRunningPage == 'live-orders')
+                document.getElementById("switchLiveOrderRenderTypeButton").style.display = 'none'; 
+            }, 2499);
+
+            return '';
+          }
         }
         else{
-          document.getElementById("liveKOTMain").innerHTML = '<tag style="font-size: 32px; font-weight: 200; color: #cecfd0; text-align: center; padding-top: 25%; display: block">No active Orders</tag>';
-          
-          setTimeout(function(){
-            if(currentRunningPage == 'live-orders')
-              $('#switchLiveOrderRenderTypeButton').addClass('hiddenLiveButton'); 
-          }, 500);
-
-          setTimeout(function(){
-            if(currentRunningPage == 'live-orders')
-              document.getElementById("switchLiveOrderRenderTypeButton").style.display = 'none'; 
-          }, 2499);
-
+          showToast('System Error: Unable to fetch KOTs data.', '#e74c3c');
           return '';
-        }
-        
-      },
-      error: function(data) {
-        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
-        return '';
-      }
 
-    }); 
+        }  
+    },
+    error: function(data) {
+      showToast('System Error: Unable to fetch KOTs data.', '#e74c3c');
+      return '';
+    }
+
+  }); 
 }
 
 function getColorPaper(lastUpdate){
@@ -278,107 +259,111 @@ function liveOrderOptionsNonDine(kotID){
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
+      url: ACCELERON_SERVER_ENDPOINT+'/kot/'+kot_request_data,
       timeout: 10000,
-      success: function(data) {
-        if(data._id == kot_request_data){
-          var kot = data;
+	    beforeSend: function(xhr){
+		    xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	    },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+          var kot = result.data;
+          if(kot._id == kot_request_data){
+            
 
-          if(isUserAnAdmin){
-            document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kot.KOTNumber+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
-                        '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsNonDineClose()">Close</button>';
-          }
-          else{
-            document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kot.KOTNumber+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsNonDineClose()">Close</button>';
-          }
+            if(isUserAnAdmin){
+              document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kot.KOTNumber+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
+                          '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsNonDineClose()">Close</button>';
+            }
+            else{
+              document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader"><b>'+kot.KOTNumber+'</b> - '+kot.orderDetails.modeType+'</h1>'+
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kot.KOTNumber+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsNonDineClose()">Close</button>';
+            }
 
 
-          document.getElementById("liveOrderOptionsModal").style.display = 'block';
+            document.getElementById("liveOrderOptionsModal").style.display = 'block';
 
 
-          /*
-            EasySelect Tool (LISTS)
-          */
-          var li = $('#liveOrderOptionsModalContent .easySelectTool_liveOrderOption');
-          var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+            /*
+              EasySelect Tool (LISTS)
+            */
+            var li = $('#liveOrderOptionsModalContent .easySelectTool_liveOrderOption');
+            var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
 
-          var easySelectTool = $(document).on('keydown',  function (e) {
-             
-            if($('#liveOrderOptionsModal').is(':visible')) {
+            var easySelectTool = $(document).on('keydown',  function (e) {
+              
+              if($('#liveOrderOptionsModal').is(':visible')) {
 
-                 switch(e.which){
-                  case 38:{ //  ^ Up Arrow 
+                  switch(e.which){
+                    case 38:{ //  ^ Up Arrow 
 
-                    if(liSelected){
-                        liSelected.removeClass('selectOptionLiveOrder');
-                        next = liSelected.prev();
-                      if(next.length > 0){
-                        liSelected = next.addClass('selectOptionLiveOrder');
+                      if(liSelected){
+                          liSelected.removeClass('selectOptionLiveOrder');
+                          next = liSelected.prev();
+                        if(next.length > 0){
+                          liSelected = next.addClass('selectOptionLiveOrder');
+                        }else{
+                          liSelected = li.last().addClass('selectOptionLiveOrder');
+                        }
                       }else{
                         liSelected = li.last().addClass('selectOptionLiveOrder');
-                      }
-                    }else{
-                      liSelected = li.last().addClass('selectOptionLiveOrder');
-                    }                      
+                      }                      
 
-                    break;
-                  }
-                  case 40:{ // Down Arrow \/ 
+                      break;
+                    }
+                    case 40:{ // Down Arrow \/ 
 
-                    if(liSelected){
-                      liSelected.removeClass('selectOptionLiveOrder');
-                      next = liSelected.next();
-                      if(next.length > 0){
-                        liSelected = next.addClass('selectOptionLiveOrder');
+                      if(liSelected){
+                        liSelected.removeClass('selectOptionLiveOrder');
+                        next = liSelected.next();
+                        if(next.length > 0){
+                          liSelected = next.addClass('selectOptionLiveOrder');
+                        }else{
+                          liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                        }
                       }else{
                         liSelected = li.eq(0).addClass('selectOptionLiveOrder');
                       }
-                    }else{
-                      liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+
+                      break;
                     }
+                    case 27:{ // Escape (Close)
+                      document.getElementById("liveOrderOptionsModal").style.display ='none';
+                      easySelectTool.unbind();
+                      break;  
+                    }
+                    case 13:{ // Enter (Confirm)
 
-                    break;
+                      $("#liveOrderOptionsModal .easySelectTool_liveOrderOption").each(function(){
+                        if($(this).hasClass("selectOptionLiveOrder")){
+                          $(this).click();
+                          e.preventDefault(); 
+                          easySelectTool.unbind();   
+                        }
+                      });    
+
+                      break;
+                    }
                   }
-                  case 27:{ // Escape (Close)
-                    document.getElementById("liveOrderOptionsModal").style.display ='none';
-                    easySelectTool.unbind();
-                    break;  
-                  }
-                  case 13:{ // Enter (Confirm)
-
-                    $("#liveOrderOptionsModal .easySelectTool_liveOrderOption").each(function(){
-                      if($(this).hasClass("selectOptionLiveOrder")){
-                        $(this).click();
-                        e.preventDefault(); 
-                        easySelectTool.unbind();   
-                      }
-                    });    
-
-                    break;
-                  }
-                 }
-            }
-          });
-
-
-
-
+              }
+            });
+          }
+          else{
+            showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
+          }
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
-        }
-        
+          showToast('System Error: Unable to fetch KOTs data.', '#e74c3c');
+        }  
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
+        showToast('System Error: Unable to fetch KOTs data.', '#e74c3c');
       }
 
     }); 
@@ -387,8 +372,6 @@ function liveOrderOptionsNonDine(kotID){
 function liveOrderOptionsNonDineClose(){
     document.getElementById("liveOrderOptionsModal").style.display = 'none';
 }
-
-
 
 function liveOrderOptions(kotID){
 
@@ -420,106 +403,111 @@ function liveOrderOptions(kotID){
 
     var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
-
-
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
+      url: ACCELERON_SERVER_ENDPOINT+'/kot/'+kot_request_data,
       timeout: 10000,
-      success: function(data) {
-        if(data._id == kot_request_data){
-          var kot = data;
+	    beforeSend: function(xhr){
+		    xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	    },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+          var kot = result.data;
+          if(kot._id == kot_request_data){
 
-          if(isUserAnAdmin){
-            document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
-                        '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
-          }
-          else{
-            document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
-                        (isShiftingRightGranted ? '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>' : '')+
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
-                        '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
-                        '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
-          }
+            if(isUserAnAdmin){
+              document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-danger tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="cancelRunningKOTOrder(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-ban" style=""></i><tag style="padding-left: 15px">Cancel Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+  
+                          '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
+            }
+            else{
+              document.getElementById("liveOrderOptionsModalContent").innerHTML = '<h1 class="tableOptionsHeader">Table <b>'+kot.table+'</b></h1>'+
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pushToEditKOT(\''+kotID+'\')"><i class="fa fa-pencil-square-o" style=""></i><tag style="padding-left: 15px">Edit Order</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
+                          (isShiftingRightGranted ? '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="pickTableForTransferOrder(\''+kot.table+'\', \''+kot.KOTNumber+'\')"><i class="fa fa-exchange" style=""></i><tag style="padding-left: 15px">Change Table</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>' : '')+
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsNonDineClose(); printDuplicateKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-print" style=""></i><tag style="padding-left: 15px">Duplicate KOT</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+ 
+                          '<button class="btn btn-success tableOptionsButtonBig easySelectTool_liveOrderOption" onclick="liveOrderOptionsClose(); generateBillFromKOT(\''+kot.KOTNumber+'\', \'LIVE_ORDERS\')"><i class="fa fa-file-text-o" style=""></i><tag style="padding-left: 15px">Generate Bill</tag><tag class="listSelectionIcon"><i class="fa fa-caret-right"></i></tag></button>'+
+                          '<button class="btn btn-default tableOptionsButton" onclick="liveOrderOptionsClose()">Close</button>';
+            }
 
-          document.getElementById("liveOrderOptionsModal").style.display = 'block';
+            document.getElementById("liveOrderOptionsModal").style.display = 'block';
 
 
-          /*
-            EasySelect Tool (LISTS)
-          */
-          var li = $('#liveOrderOptionsModalContent .easySelectTool_liveOrderOption');
-          var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+            /*
+              EasySelect Tool (LISTS)
+            */
+            var li = $('#liveOrderOptionsModalContent .easySelectTool_liveOrderOption');
+            var liSelected = li.eq(0).addClass('selectOptionLiveOrder');
 
-          var easySelectTool = $(document).on('keydown',  function (e) {
-             
-            if($('#liveOrderOptionsModal').is(':visible')) {
+            var easySelectTool = $(document).on('keydown',  function (e) {
+              
+              if($('#liveOrderOptionsModal').is(':visible')) {
 
-                 switch(e.which){
-                  case 38:{ //  ^ Up Arrow 
+                  switch(e.which){
+                    case 38:{ //  ^ Up Arrow 
 
-                    if(liSelected){
-                        liSelected.removeClass('selectOptionLiveOrder');
-                        next = liSelected.prev();
-                      if(next.length > 0){
-                        liSelected = next.addClass('selectOptionLiveOrder');
+                      if(liSelected){
+                          liSelected.removeClass('selectOptionLiveOrder');
+                          next = liSelected.prev();
+                        if(next.length > 0){
+                          liSelected = next.addClass('selectOptionLiveOrder');
+                        }else{
+                          liSelected = li.last().addClass('selectOptionLiveOrder');
+                        }
                       }else{
                         liSelected = li.last().addClass('selectOptionLiveOrder');
-                      }
-                    }else{
-                      liSelected = li.last().addClass('selectOptionLiveOrder');
-                    }                      
+                      }                      
 
-                    break;
-                  }
-                  case 40:{ // Down Arrow \/ 
+                      break;
+                    }
+                    case 40:{ // Down Arrow \/ 
 
-                    if(liSelected){
-                      liSelected.removeClass('selectOptionLiveOrder');
-                      next = liSelected.next();
-                      if(next.length > 0){
-                        liSelected = next.addClass('selectOptionLiveOrder');
+                      if(liSelected){
+                        liSelected.removeClass('selectOptionLiveOrder');
+                        next = liSelected.next();
+                        if(next.length > 0){
+                          liSelected = next.addClass('selectOptionLiveOrder');
+                        }else{
+                          liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+                        }
                       }else{
                         liSelected = li.eq(0).addClass('selectOptionLiveOrder');
                       }
-                    }else{
-                      liSelected = li.eq(0).addClass('selectOptionLiveOrder');
+
+                      break;
                     }
+                    case 27:{ // Escape (Close)
+                      document.getElementById("liveOrderOptionsModal").style.display ='none';
+                      easySelectTool.unbind();
+                      break;  
+                    }
+                    case 13:{ // Enter (Confirm)
 
-                    break;
+                      $("#liveOrderOptionsModal .easySelectTool_liveOrderOption").each(function(){
+                        if($(this).hasClass("selectOptionLiveOrder")){
+                          $(this).click();
+                          e.preventDefault(); 
+                          easySelectTool.unbind();   
+                        }
+                      });    
+
+                      break;
+                    }
                   }
-                  case 27:{ // Escape (Close)
-                    document.getElementById("liveOrderOptionsModal").style.display ='none';
-                    easySelectTool.unbind();
-                    break;  
-                  }
-                  case 13:{ // Enter (Confirm)
+              }
+            });
 
-                    $("#liveOrderOptionsModal .easySelectTool_liveOrderOption").each(function(){
-                      if($(this).hasClass("selectOptionLiveOrder")){
-                        $(this).click();
-                        e.preventDefault(); 
-                        easySelectTool.unbind();   
-                      }
-                    });    
-
-                    break;
-                  }
-                 }
-            }
-          });
-
+          }
+          else{
+            showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
+          }
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
-        }
-        
+          showToast('System Error: Unable to fetch KOTs data.', '#e74c3c');
+        }  
       },
       error: function(data) {
         showToast('System Error: Unable to read KOTs data.', '#e74c3c');
@@ -555,15 +543,17 @@ function printDuplicateKOT(kotID, optionalSource){
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
+      url: ACCELERON_SERVER_ENDPOINT+'/kot/'+kot_request_data,
       timeout: 10000,
-      success: function(data) {
-
-        hideLoading();
-        showToast('Duplicate KOT printed Successfully', '#27ae60');
-
-        if(data._id == kot_request_data){
-          
+	    beforeSend: function(xhr){
+		    xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	    },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+          var kot = result.data;
+          hideLoading();
+          showToast('Duplicate KOT printed Successfully', '#27ae60');
+          if(kot._id == kot_request_data){        
                 
             var server_based_printing = window.localStorage.systemOptionsSettings_serverBasedKOTPrinting ? window.localStorage.systemOptionsSettings_serverBasedKOTPrinting : 0;
             
@@ -574,7 +564,7 @@ function printDuplicateKOT(kotID, optionalSource){
                     OLD - Direct Printing from Client (deprecated)
                     **********************************************
                   */
-                      var obj = data;
+                      var obj = kot;
                       var original_order_object_cart = obj.cart;
                       
                       var isKOTRelayingEnabled = window.localStorage.appOtherPreferences_KOTRelayEnabled ? (window.localStorage.appOtherPreferences_KOTRelayEnabled == 1 ? true : false) : false;
@@ -912,12 +902,12 @@ function printDuplicateKOT(kotID, optionalSource){
                       loggedInStaffInfo.code = '0000000000';
                     } 
 
-                    var printRequestObject = data;
+                    var printRequestObject = kot;
 
                     printRequestObject.printRequest = {
                       "KOT": printRequestObject._id,
                       "action": "KOT_DUPLICATE",
-                      "table": data.table,
+                      "table": kot.table,
                       "staffName": loggedInStaffInfo.name,
                       "staffCode": loggedInStaffInfo.code,
                       "machine": window.localStorage.appCustomSettings_SystemName && window.localStorage.appCustomSettings_SystemName != "" ? window.localStorage.appCustomSettings_SystemName : window.localStorage.accelerate_licence_machineUID,
@@ -956,12 +946,15 @@ function printDuplicateKOT(kotID, optionalSource){
                   }); 
 
             }  
-
-
+          }
+          else{
+            showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
+          }
         }
         else{
-          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
-        }
+          showToast('System Error: Unable to fetch KOTs data.', '#e74c3c');
+        } 
+        
       },
       error: function(data) {
         hideLoading();
@@ -988,12 +981,15 @@ function pushToEditKOT(kotID){
 
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
+      url: ACCELERON_SERVER_ENDPOINT+'/kot/'+kot_request_data,
       timeout: 10000,
-      success: function(data) {
-        if(data._id == kot_request_data){
-          var kot = data;
-
+	    beforeSend: function(xhr){
+		    xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	    },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+          var kot = result.data;
+        if(kot._id == kot_request_data){
           if(window.localStorage.edit_KOT_originalCopy && window.localStorage.edit_KOT_originalCopy != ''){
 
               var alreadyEditingKOT = JSON.parse(window.localStorage.edit_KOT_originalCopy);
@@ -1024,16 +1020,18 @@ function pushToEditKOT(kotID){
         else{
           showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
         }
+      }
+      else{
+        showToast('System Error: Unable to fetch KOTs data.', '#e74c3c');
+      }
         
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
+        showToast('System Error: Unable to fetch KOTs data.', '#e74c3c');
       }
 
     }); 
 }
-
-
 
 function overWriteCurrentOrderModalClose(){
     document.getElementById("overWriteCurrentOrderModal").style.display = 'none';  
@@ -1117,172 +1115,151 @@ function pickTableForTransferOrder(currentTableID, kotID){
       }
     }
 
-
-
-   
+  
     //To display Large (default) or Small Tables
     var smallTableFlag = '';
 
     //PRELOAD TABLE MAPPING
     $.ajax({
       type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/all/',
+      url: ACCELERON_SERVER_ENDPOINT+'/table/filter?key=all',
       timeout: 10000,
-      success: function(data) {
-        if(data.total_rows > 0){
+	    beforeSend: function(xhr){
+		    xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	    },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+          var tableData = result.data;
+          if(tableData.length > 0){
+            tableData.sort(function(obj1, obj2) {
+              return obj1.key - obj2.key; //Key is equivalent to sortIndex
+            });
 
-              var tableData = data.rows;
-              tableData.sort(function(obj1, obj2) {
-                return obj1.key - obj2.key; //Key is equivalent to sortIndex
-              });
- 
-              if(tableData.length < 50 && tableData.length > 30){ //As per UI, it can include 30 large tables 
-                smallTableFlag = ' mediumTile';
-              }
-              else if(tableData.length > 50){
-                smallTableFlag = ' smallTile';
-              }
- 
-                    var requestData = {
-                      "selector"  :{ 
-                                    "identifierTag": "ACCELERATE_TABLE_SECTIONS" 
-                                  },
-                      "fields"    : ["_rev", "identifierTag", "value"]
+            if(tableData.length < 50 && tableData.length > 30){ //As per UI, it can include 30 large tables 
+              smallTableFlag = ' mediumTile';
+            }
+            else if(tableData.length > 50){
+              smallTableFlag = ' smallTile';
+            }
+
+            $.ajax({
+              type: 'GET',
+              url: ACCELERON_SERVER_ENDPOINT+'/settings/ACCELERATE_TABLE_SECTIONS',
+              timeout: 10000,
+              beforeSend: function(xhr){
+              xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+              },
+              success: function(result) {
+                if(result.code == 200 && result.msg == "success"){
+                  var tableSections = result.data.value;
+                  tableSections.sort(); //alphabetical sorting 
+                  var renderSectionArea = '';
+                  var n = 0;
+                  while(tableSections[n]){                                
+                    var renderTableArea = ''
+                    for(var i = 0; i<tableData.length; i++){
+                        if(tableData[i].type == tableSections[n]){
+                            if(tableData[i].status != 0){ /*Occuppied*/
+                                if(tableData[i].status == 1){
+                                    if(currentTableID != '' && currentTableID == tableData[i].table){
+                                        renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tableData[i].table+'\', \''+kotID+'\')">'+
+                                                                        '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].table+'</tag>'+
+                                                                        '<tag class="tableCapacity'+smallTableFlag+'">Current Table</tag>'+
+                                                                        '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+                                                                        '</tag>';   
+                                    }   
+                                    else{
+                                        renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+                                                                    '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].table+'</tag>'+
+                                                                    '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].capacity+' Seater</tag>'+
+                                                                    '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+                                                                    '</tag>';                                                       
+                                    }
+                                }                                   
+                                else if(tableData[i].status == 5){
+                                    if(currentTableID != '' && currentTableID == tableData[i].table){
+                                        renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tableData[i].table+'\', \''+kotID+'\')">'+
+                                                                        '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].table+'</tag>'+
+                                                                        '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].assigned != ""? "For "+tableData[i].assigned : "-")+'</tag>'+
+                                                                        '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+                                                                        '</tag>';   
+                                    }   
+                                    else{
+                                        renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tableData[i].table+'\', \''+kotID+'\')">'+
+                                                                        '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].table+'</tag>'+
+                                                                        '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].assigned != ""? "For "+tableData[i].assigned : "-")+'</tag>'+
+                                                                        '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
+                                                                        '</tag>';   
+                                    }
+
+                                }                                   
+                                else{
+                                    renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
+                                                                    '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].table+'</tag>'+
+                                                                    '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].capacity+' Seater</tag>'+
+                                                                    '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
+                                                                    '</tag>';                                           
+                                }
+
+                            }
+                            else{
+
+                                if(currentTableID != '' && currentTableID == tableData[i].table){
+                                    renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tableData[i].table+'\', \''+kotID+'\')" class="tableTileBlue'+smallTableFlag+'">'+
+                                                                    '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].table+'</tag>'+
+                                                                    '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].capacity+' Seater</tag>'+
+                                                                    '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
+                                                                    '</tag>';
+                                }   
+                                else{
+                                    renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tableData[i].table+'\', \''+kotID+'\')" class="tableTileGreen'+smallTableFlag+'">'+
+                                                                    '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].table+'</tag>'+
+                                                                    '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].capacity+' Seater</tag>'+
+                                                                    '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
+                                                                    '</tag>';
+                                }                                                                   
+                            }
+
+                        }
                     }
 
-                    $.ajax({
-                      type: 'POST',
-                      url: COMMON_LOCAL_SERVER_IP+'/accelerate_settings/_find',
-                      data: JSON.stringify(requestData),
-                      contentType: "application/json",
-                      dataType: 'json',
-                      timeout: 10000,
-                      success: function(data) {
-                        if(data.docs.length > 0){
-                          if(data.docs[0].identifierTag == 'ACCELERATE_TABLE_SECTIONS'){
+                    renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
+                                              '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
+                                              '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
+                                                '</div>'+
+                                            '</div>'
 
-                              var tableSections = data.docs[0].value;
-                              tableSections.sort(); //alphabetical sorting 
+                    n++;
+                  }             
+                  document.getElementById("pickTableForTransferOrderModalContent").innerHTML = renderSectionArea;                        
+                  document.getElementById("pickTableForTransferOrderModal").style.display = 'block';         
+                  var easyActionsTool = $(document).on('keydown',  function (e) {               
+                                    if($('#pickTableForTransferOrderModal').is(':visible')) {
+                                      if(e.which == 27){ // Escape (Close)
+                                        document.getElementById("pickTableForTransferOrderModal").style.display ='none';
+                                        easyActionsTool.unbind();
+                                      }
+                                    }
+                                  });
+                }
+                else{
+                  showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
+                }
 
-  
-                                          var renderSectionArea = '';
+              },
+              error: function(data) {
+                showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
+              }
 
-                                          var n = 0;
-                                          while(tableSections[n]){
-                                    
-                                            var renderTableArea = ''
-                                            for(var i = 0; i<tableData.length; i++){
-                                                if(tableData[i].value.type == tableSections[n]){
-
-                                                    if(tableData[i].value.status != 0){ /*Occuppied*/
-                                                        if(tableData[i].value.status == 1){
-                                                            if(currentTableID != '' && currentTableID == tableData[i].value.table){
-                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')">'+
-                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">Current Table</tag>'+
-                                                                                                '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
-                                                                                                '</tag>';   
-                                                            }   
-                                                            else{
-                                                                renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
-                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
-                                                                                            '</tag>';                                                       
-                                                            }
-                                                        }                                   
-                                                        else if(tableData[i].value.status == 5){
-                                                            if(currentTableID != '' && currentTableID == tableData[i].value.table){
-                                                                renderTableArea = renderTableArea + '<tag class="tableTileBlue'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')">'+
-                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? "For "+tableData[i].value.assigned : "-")+'</tag>'+
-                                                                                                '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
-                                                                                                '</tag>';   
-                                                            }   
-                                                            else{
-                                                                renderTableArea = renderTableArea + '<tag class="tableReserved'+smallTableFlag+'" onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')">'+
-                                                                                                '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-                                                                                                '<tag class="tableCapacity'+smallTableFlag+'">'+(tableData[i].value.assigned != ""? "For "+tableData[i].value.assigned : "-")+'</tag>'+
-                                                                                                '<tag class="tableInfo'+smallTableFlag+'">Reserved</tag>'+
-                                                                                                '</tag>';   
-                                                            }
-
-                                                        }                                   
-                                                        else{
-                                                            renderTableArea = renderTableArea + '<tag class="tableTileRedDisable'+smallTableFlag+'">'+
-                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo'+smallTableFlag+'">Running</tag>'+
-                                                                                            '</tag>';                                           
-                                                        }
-
-                                                    }
-                                                    else{
-
-                                                        if(currentTableID != '' && currentTableID == tableData[i].value.table){
-                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')" class="tableTileBlue'+smallTableFlag+'">'+
-                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo'+smallTableFlag+'" style="color: #FFF"><i class="fa fa-check"></i></tag>'+
-                                                                                            '</tag>';
-                                                        }   
-                                                        else{
-                                                            renderTableArea = renderTableArea + '<tag onclick="transferKOTAfterProcess(\''+tableData[i].value.table+'\', \''+kotID+'\')" class="tableTileGreen'+smallTableFlag+'">'+
-                                                                                            '<tag class="tableTitle'+smallTableFlag+'">'+tableData[i].value.table+'</tag>'+
-                                                                                            '<tag class="tableCapacity'+smallTableFlag+'">'+tableData[i].value.capacity+' Seater</tag>'+
-                                                                                            '<tag class="tableInfo'+smallTableFlag+'">Free</tag>'+
-                                                                                            '</tag>';
-                                                        }                                                                   
-                                                    }
-
-                                                }
-                                            }
-
-                                            renderSectionArea = renderSectionArea + '<div class="row" style="margin: 0">'+
-                                                                       '<h1 class="seatingPlanHead'+smallTableFlag+'">'+tableSections[n]+'</h1>'+
-                                                                       '<div class="col-lg-12" style="text-align: center;">'+renderTableArea+
-                                                                        '</div>'+
-                                                                    '</div>'
-
-                                            n++;
-                                          }
-                                          
-                                          document.getElementById("pickTableForTransferOrderModalContent").innerHTML = renderSectionArea;                        
-                                          document.getElementById("pickTableForTransferOrderModal").style.display = 'block'; 
-                  
-                                          var easyActionsTool = $(document).on('keydown',  function (e) {
-                                             
-                                            if($('#pickTableForTransferOrderModal').is(':visible')) {
-
-                                                  if(e.which == 27){ // Escape (Close)
-                                                    document.getElementById("pickTableForTransferOrderModal").style.display ='none';
-                                                    easyActionsTool.unbind();
-                                                  }
-
-                                            }
-                                          });
-
-                          }
-                          else{
-                            showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
-                          }
-                        }
-                        else{
-                          showToast('Not Found Error: Table Sections data not found.', '#e74c3c');
-                        }
-
-                      },
-                      error: function(data) {
-                        showToast('System Error: Unable to read Table Sections data.', '#e74c3c');
-                      }
-
-                    });
-
+            });
+          }  
+          else{
+            showToast('Not Found Error: Tables data not found.', '#e74c3c');
+          }
         }
         else{
-          showToast('Not Found Error: Tables data not found.', '#e74c3c');
+          showToast('System Error: Unable to read Tables data.', '#e74c3c');
         }
-
       },
       error: function(data) {
         showToast('System Error: Unable to read Tables data.', '#e74c3c');
@@ -1310,196 +1287,35 @@ function transferKOTAfterProcess(tableNumber, kotID){
     var kot_request_data = accelerate_licencee_branch +"_KOT_"+ kotID;
 
     $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_kot/'+kot_request_data,
+      type: 'PUT',
+      url: ACCELERON_SERVER_ENDPOINT+'/kot/tabletransfer?kotId='+kot_request_data+'&tableNumber='+tableNumber,
       timeout: 10000,
-      success: function(data) {
-        if(data._id != ""){
-
-          var kotfile = data;
-
-          if(kotfile.table == tableNumber){ //same table
-            return '';
-          }
-
-          if(kotfile.orderDetails.modeType != 'DINE'){
-            showToast('Error: Order is not a Dine-In order', '#e67e22');
-            return '';
-          }
-
-          var tableID_old = kotfile.table;
-          var tableID_new = tableNumber;
-
-          kotfile.table = tableNumber;
-
-                /*Save changes in KOT*/
-                  
-                //Update
-                var updateData = kotfile;
-
-                $.ajax({
-                  type: 'PUT',
-                  url: COMMON_LOCAL_SERVER_IP+'accelerate_kot/'+(kotfile._id)+'/',
-                  data: JSON.stringify(updateData),
-                  contentType: "application/json",
-                  dataType: 'json',
-                  timeout: 10000,
-                  success: function(data) {
-                    showToast('Order transfered to Table '+tableNumber+' Successfully', '#27ae60');
-                    pickTableForTransferOrderHide();  
-                    liveOrderOptionsClose();    
-                    renderAllKOTs();  
-
-                    swapTableMapping(tableID_old, tableID_new, kotfile);
-
-                  },
-                  error: function(data) {
-                      showToast('System Error: Unable to update the Order.', '#e74c3c');
-                  }
-                }); 
-          
+	    beforeSend: function(xhr){
+		    xhr.setRequestHeader('x-access-token', ACCELERON_SERVER_ACCESS_TOKEN);
+	    },
+      success: function(result) {
+        if(result.code == 200 && result.msg == "success"){
+          showToast('Order transfered to Table '+tableNumber+' Successfully', '#27ae60');
+          pickTableForTransferOrderHide();  
+          liveOrderOptionsClose();    
+          renderAllKOTs();  
         }
-        else{
-          showToast('Not Found Error: #'+kotID+' not found on Server.', '#e74c3c');
-        }
-        
       },
       error: function(data) {
-        showToast('System Error: Unable to read KOTs data.', '#e74c3c');
+        var response = data.responseJSON;
+		    if (response.code == 400 && response.msg == 'bad request'){
+          showToast('Error: Order is not a Dine-In order', '#e67e22');
+          return '';
+		    }
+        else if (response.code == 409 && response.msg == "conflict"){
+          return '';
+        }
+        else{
+          showToast('System Error: Unable to update the Order.', '#e74c3c');
+        }
       }
-
     }); 
 
 }
 
-
-function swapTableMapping(old, newTable, old_kot){
-
-    //Find the old table
-    $.ajax({
-      type: 'GET',
-      url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+old+'"]&endkey=["'+old+'"]',
-      timeout: 10000,
-      success: function(data) {
-        if(data.rows.length == 1){
-
-              var tableData = data.rows[0].value;
-
-              var remember_id = null;
-              var remember_rev = null;
-
-              if(tableData.table == old){
-
-                remember_id = tableData._id;
-                remember_rev = tableData._rev;
-
-                tableData.status = 0;
-                tableData.assigned = "";
-                tableData.remarks = "";
-                tableData.KOT = "";
-                tableData.lastUpdate = "";
-                tableData.guestName = ""; 
-                tableData.guestContact = ""; 
-                tableData.reservationMapping = "";
-                tableData.guestCount = "";
-
-                    //Update
-                    $.ajax({
-                      type: 'PUT',
-                      url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
-                      data: JSON.stringify(tableData),
-                      contentType: "application/json",
-                      dataType: 'json',
-                      timeout: 10000,
-                      success: function(data) {
-                        changeNewTable();
-                      },
-                      error: function(data) {
-                        changeNewTable();
-                        showToast('System Error: Unable to update Tables data.', '#e74c3c');
-                      }
-                    });   
-
-              }
-              else{
-                changeNewTable();
-                showToast('Not Found Error: Tables data not found.', '#e74c3c');
-              }
-        }
-        else{
-          changeNewTable();
-          showToast('Not Found Error: Tables data not found.', '#e74c3c');
-        }
-
-      },
-      error: function(data) {
-        changeNewTable();
-        showToast('System Error: Unable to read Tables data.', '#e74c3c');
-      }
-    });
-
-
-
-    //Find the new table
-    function changeNewTable(){
-      $.ajax({
-        type: 'GET',
-        url: COMMON_LOCAL_SERVER_IP+'/accelerate_tables/_design/filter-tables/_view/filterbyname?startkey=["'+newTable+'"]&endkey=["'+newTable+'"]',
-        timeout: 10000,
-        success: function(data) {
-          if(data.rows.length == 1){
-
-                var tableData = data.rows[0].value;
-
-                var remember_id = null;
-                var remember_rev = null;
-
-                if(tableData.table == newTable){
-
-                  remember_id = tableData._id;
-                  remember_rev = tableData._rev;
-
-                  tableData.status = 1;
-                  tableData.assigned = old_kot.stewardName;
-                  tableData.remarks = old_kot.remarks;
-                  tableData.KOT = old_kot.KOTNumber;
-                  tableData.lastUpdate = (old_kot.timeKOT != "" ? old_kot.timeKOT : old_kot.timePunch);;
-                  tableData.guestName = old_kot.guestName; 
-                  tableData.guestContact = old_kot.guestContact; 
-                  tableData.reservationMapping = old_kot.reservationMapping;
-                  tableData.guestCount = old_kot.guestCount;
-                  
-                      //Update
-                      $.ajax({
-                        type: 'PUT',
-                        url: COMMON_LOCAL_SERVER_IP+'accelerate_tables/'+remember_id+'/',
-                        data: JSON.stringify(tableData),
-                        contentType: "application/json",
-                        dataType: 'json',
-                        timeout: 10000,
-                        success: function(data) {
-                          
-                        },
-                        error: function(data) {
-                          showToast('System Error: Unable to update Tables data.', '#e74c3c');
-                        }
-                      });   
-
-                }
-                else{
-                  showToast('Not Found Error: Tables data not found.', '#e74c3c');
-                }
-          }
-          else{
-            showToast('Not Found Error: Tables data not found.', '#e74c3c');
-          }
-
-        },
-        error: function(data) {
-          showToast('System Error: Unable to read Tables data.', '#e74c3c');
-        }
-      });
-    }
-}
-
-
+               
