@@ -5,5 +5,10 @@
       "map": "function (doc) {\n  if(doc.orderDetails.modeType == 'DINE')\n    emit(doc.table, doc);\n}"
     }
   },
+  "views": {
+    "fetchnondineorders": {
+      "map": "function (doc) {\n  if(doc.orderDetails.modeType != 'DINE')\n    emit(doc.table, doc);\n}"
+    }
+  },
   "language": "javascript"
 }
